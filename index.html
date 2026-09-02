@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<!-- data-theme is hard-set to "light" here so the Brand Book light surface is
+     the very first thing painted; js/app.js re-asserts it from GlobalSettings
+     (whose default is also light) as soon as it boots. -->
+<html lang="it" data-theme="light" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<meta name="google" content="notranslate">
+<title>SKILL-VISION | Unified Dashboard</title>
+<link rel="icon" type="image/png" href="assets/skillvision-logo-black.png">
+<meta name="description" content="Skill Vision — unified Recruiting &amp; Competency Assessment dashboard.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gudea:wght@400;700&family=Noto+Serif+JP:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="sv-shell">
+
+<!-- ═══════════════════ 1. UNIFIED LOGIN ═══════════════════ -->
+<!-- Always paints in Brand Book light mode. No subtitle under the logo and
+     no demo-credential hint (the hint also leaked the seed logins). -->
+<section id="sv-login" class="sv-screen">
+  <div class="sv-login-card">
+    <span class="sv-logo-wrap">
+      <img class="sv-logo sv-login-logo" src="assets/skillvision-logo-black.png" alt="Skill Vision">
+    </span>
+    <div class="sv-lang-switch" role="group" aria-label="Lingua / Language">
+      <button type="button" class="sv-lang-btn" data-lang="it" aria-pressed="true">IT</button>
+      <button type="button" class="sv-lang-btn" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <form id="sv-login-form" autocomplete="on">
+      <input type="text" id="sv-user" name="username" placeholder="Username" autocomplete="username" required>
+
+      <!-- Password + "Mostra password" reveal. type="button" keeps it out of the
+           form's default submit action, so revealing never posts the form. -->
+      <div class="sv-pass-wrap">
+        <input type="password" id="sv-pass" name="password" placeholder="Password" autocomplete="current-password" required>
+        <button type="button" id="sv-toggle-pass" class="sv-pass-toggle"
+                aria-label="Mostra password" aria-pressed="false" title="Mostra password">
+          <svg id="sv-eye-show" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          <svg id="sv-eye-hide" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+            <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+          </svg>
+        </button>
+      </div>
+
+      <button type="submit" class="sv-btn sv-btn-primary">Accedi</button>
+    </form>
+    <div class="sv-login-err" id="sv-login-err"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ 2. WELCOME / PRESENTATION LANDING ═══════════════════
+     Per the client brief this page carries exactly four things: the official
+     logo, the IT/EN switch (IT is the default), one clean subtitle, and the
+     two module cards. No "Open Dashboard" button, no generic feature cards
+     (Modular by design / Live analytics / Role-aware / Proposal Configurator)
+     and no extra hero CTAs — the cards are the only call to action.
+     ════════════════════════════════════════════════════════════════════ -->
+<section id="sv-landing" class="sv-screen">
+
+  <nav class="sv-landing-nav">
+    <span class="sv-logo-wrap">
+      <img class="sv-logo sv-logo-light" src="assets/skillvision-logo-black.png" alt="Skill Vision">
+      <img class="sv-logo sv-logo-dark" src="assets/skillvision-logo-white.png" alt="Skill Vision">
+    </span>
+    <div class="sv-lang-switch" role="group" aria-label="Lingua / Language">
+      <button type="button" class="sv-lang-btn" data-lang="it" aria-pressed="true">IT</button>
+      <button type="button" class="sv-lang-btn" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </nav>
+
+  <div class="sv-landing-hero">
+    <h1 class="sv-sr-only">Skill Vision</h1>
+    <p class="lead">Seleziona il cruscotto di tuo interesse per proseguire</p>
+
+    <div class="sv-features">
+      <div class="sv-feature" data-enter-module="recruiting" role="button" tabindex="0">
+        <div class="ico" aria-hidden="true">👥</div>
+        <h3>Cruscotto Recruiting</h3>
+        <p>Gestione dei processi di selezione, candidati e valutazione delle competenze in ingresso.</p>
+        <span class="sv-btn sv-btn-primary">Accedi al cruscotto Recruiting →</span>
+      </div>
+      <div class="sv-feature" data-enter-module="assessment" role="button" tabindex="0">
+        <div class="ico" aria-hidden="true">📊</div>
+        <h3>Cruscotto Assessment</h3>
+        <p>Mappatura delle competenze interne, analisi delle prestazioni e sviluppo organizzativo.</p>
+        <span class="sv-btn sv-btn-primary">Accedi al cruscotto Assessment →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════ 3. DASHBOARD FRAME ═══════════════════ -->
+<section id="sv-dashboard" class="sv-screen">
+  <header class="sv-dash-header">
+    <a class="sv-logo-wrap sv-logo-home" id="sv-dash-logo" role="button" tabindex="0" title="Skill Vision — landing page">
+      <img class="sv-logo sv-logo-light" src="assets/skillvision-logo-black.png" alt="Skill Vision">
+      <img class="sv-logo sv-logo-dark" src="assets/skillvision-logo-white.png" alt="Skill Vision">
+    </a>
+
+    <!-- Top-level module switcher -->
+    <div class="sv-switcher" id="sv-switcher" role="tablist" aria-label="Active module">
+      <button data-module="recruiting" role="tab"><span class="sv-dot"></span> Recruiting</button>
+      <button data-module="assessment" role="tab"><span class="sv-dot"></span> Assessment</button>
+    </div>
+
+    <div class="sv-dash-spacer"></div>
+    <!-- Assessment-only master controls (hidden while Recruiting is active) -->
+    <button class="sv-icon-btn sv-mod-only" data-mod="assessment" id="sv-dash-lang" title="Italiano / English">🌐&nbsp;<span id="sv-dash-lang-code">IT</span></button>
+    <button class="sv-icon-btn" id="sv-dash-home" title="Back to landing page">🏠</button>
+    <button class="sv-icon-btn" id="sv-dash-settings" title="System settings">⚙️</button>
+    <button class="sv-icon-btn" id="sv-dash-theme" title="Toggle light / dark">🌙</button>
+    <button class="sv-icon-btn" id="sv-dash-logout" title="Sign out">⏻</button>
+  </header>
+
+  <div class="sv-frames" id="sv-frames">
+    <div class="sv-frame-loading" id="sv-frame-loading">
+      <div class="sv-spin"></div>
+      <div id="sv-frame-loading-text">Loading module…</div>
+    </div>
+    <iframe id="sv-frame-recruiting" title="Recruiting module" referrerpolicy="no-referrer"></iframe>
+    <iframe id="sv-frame-assessment" title="Assessment module" referrerpolicy="no-referrer"></iframe>
+  </div>
+</section>
+
+<!-- The "Request a Demo Call" modal was removed with the landing-page CTAs
+     (client brief: no extra call-to-action elements on the welcome page).
+     Its handlers in js/app.js were deleted at the same time. -->
+
+<!-- ═══════════════════ Global System Settings ═══════════════════ -->
+<div class="sv-modal-ov" id="sv-settings-modal">
+  <div class="sv-modal">
+    <h3>Global System Settings</h3>
+    <div class="sub">Applied live to the shell and to both the Recruiting and Assessment modules.</div>
+
+    <label for="sv-set-theme">Theme</label>
+    <select id="sv-set-theme">
+      <option value="light" selected>Light (default)</option>
+      <option value="dark">Dark</option>
+    </select>
+
+    <label for="sv-set-company">Company profile — display name</label>
+    <input type="text" id="sv-set-company" placeholder="Company name">
+
+    <div class="sv-set-row">
+      <div>
+        <label for="sv-set-accent">Brand / accent</label>
+        <input type="color" id="sv-set-accent" value="#B4C614">
+      </div>
+      <div>
+        <label for="sv-set-surface">Surface</label>
+        <input type="color" id="sv-set-surface" value="#FFFFFF">
+      </div>
+      <div>
+        <label for="sv-set-bg">Background</label>
+        <input type="color" id="sv-set-bg" value="#F8F9FA">
+      </div>
+    </div>
+
+    <label>Scoring scale (Assessment)</label>
+    <div class="sv-set-row">
+      <div><span class="sv-set-mini">Max</span><input type="number" id="sv-set-scale-max" min="5" max="100" value="10"></div>
+      <div><span class="sv-set-mini">Good ≥</span><input type="number" id="sv-set-scale-good" min="1" max="100" value="7"></div>
+      <div><span class="sv-set-mini">Mid ≥</span><input type="number" id="sv-set-scale-mid" min="1" max="100" value="5"></div>
+    </div>
+
+    <div class="sv-set-modrow sv-mod-only" data-mod="assessment">
+      <div>
+        <label style="margin:0">Assessment module settings</label>
+        <span class="sv-set-mini" style="margin:2px 0 0">Language · colours · fonts · users · survey · testing · soft-skill targets</span>
+      </div>
+      <button type="button" class="sv-btn sv-btn-ghost" id="sv-set-open-asm">Open →</button>
+    </div>
+
+    <div class="sv-modal-btns">
+      <button type="button" class="sv-btn sv-btn-ghost" id="sv-set-reset">Reset</button>
+      <button type="button" class="sv-btn sv-btn-primary" data-close-settings>Done</button>
+    </div>
+  </div>
+</div>
+
+<div id="sv-toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

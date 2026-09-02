@@ -1,0 +1,15 @@
+{
+  "name": "skillvision-cv-ingest",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CV PDF ingestion service for the SkillVision dashboard: dedicated email inbox, corporate webform and third-party ATS entry points, with per-company archive storage.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "dependencies": {},
+  "license": "UNLICENSED"
+}

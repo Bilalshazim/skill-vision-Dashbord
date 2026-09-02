@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKILL-VISION | Competency Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gudea:wght@400;700&family=Noto+Serif+JP:wght@500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/assessment.css">
+</head>
+<body>
+<div id="login-screen">
+  <form class="login-form" id="loginForm">
+    <div class="login-brand">
+      <img class="brand-logo theme-logo-light" src="../assets/skillvision-logo-black.png" alt="SkillVision">
+      <img class="brand-logo theme-logo-dark" src="../assets/skillvision-logo-white.png" alt="SkillVision">
+      <div class="t2">COMPETENCY ASSESSMENT</div>
+    </div>
+    <div class="login-flex-column"><label id="login-label-username">Username</label></div>
+    <div class="login-inputForm">
+      <svg class="login-field-icon" height="20" viewBox="0 0 32 32" width="20" xmlns="http://www.w3.org/2000/svg"><g id="Layer_3" data-name="Layer 3"><path d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z"></path></g></svg>
+      <input type="text" class="login-input" id="loginUsername" placeholder="Enter your Username" autocomplete="username">
+    </div>
+    <div class="login-flex-column"><label id="login-label-password">Password</label></div>
+    <div class="login-inputForm">
+      <svg class="login-field-icon" height="20" viewBox="-64 0 512 512" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"></path><path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"></path></svg>
+      <input type="password" class="login-input" id="loginPassword" placeholder="Enter your Password" autocomplete="current-password">
+      <svg class="login-eye-toggle" id="loginTogglePassword" viewBox="0 0 576 512" height="1em" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path></svg>
+    </div>
+    <p class="login-form-error" id="loginFormError"></p>
+    <div class="login-flex-row">
+      <div>
+        <input type="checkbox" id="loginRememberMe">
+        <label id="login-label-remember">Remember me</label>
+      </div>
+      <span class="login-span" id="loginForgotPassword">Forgot password?</span>
+    </div>
+    <button class="login-button-submit" type="submit" id="login-submit-btn">Sign In</button>
+  </form>
+</div>
+<!-- Restricted evaluator screen (Section 3): full takeover, shown instead of login/app when the URL
+     carries a valid ?evalToken= — a self-contained single-purpose evaluation form with no nav, no
+     visibility into other evaluators or employees. See enterRestrictedEvaluatorMode() in the script. -->
+<div id="eval-restricted-screen">
+  <div class="eval-restricted-inner" id="eval-restricted-inner"></div>
+</div>
+<div class="drawer-overlay" id="sidebar-overlay" onclick="toggleMobileSidebar(false)"></div>
+<div id="app">
+  <aside class="sidebar" id="app-sidebar" aria-label="Sidenav">
+    <div class="sidebar-brand">
+      <img class="brand-logo theme-logo-light" src="../assets/skillvision-logo-black.png" alt="SkillVision">
+      <img class="brand-logo theme-logo-dark" src="../assets/skillvision-logo-white.png" alt="SkillVision">
+      <div class="brand-text">
+        <div class="t2">COMPETENCY ASSESSMENT</div>
+      </div>
+    </div>
+
+    <div class="module-pill-row">
+      <span class="module-pill-label" id="module-pill-label-text">Active modules</span>
+      <div class="module-pills">
+        <div class="module-pill" id="pill-A"><span class="dot"></span> <span id="pill-A-label">Soft Skills</span></div>
+        <div class="module-pill" id="pill-B"><span class="dot"></span> <span id="pill-B-label">Hard Skills</span></div>
+      </div>
+    </div>
+
+    <nav class="mainnav" id="mainnav"></nav>
+
+    <div class="sidebar-footer">
+      <div><b id="sf-company">Demo Company</b></div>
+      <div id="sf-count">0 employees recorded</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="sidebar-toggle-btn" type="button" aria-controls="app-sidebar" aria-label="Open sidebar" onclick="toggleMobileSidebar()">
+        <svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path></svg>
+      </button>
+      <div>
+        <h1 id="page-title">Home</h1>
+        <div class="sub" id="page-sub">Overall organization status</div>
+      </div>
+      <div class="topbar-spacer"></div>
+      <!-- Local day/night toggle removed — the SPA shell's master theme switcher
+           (top navbar) is the single global theme controller. -->
+      <button type="button" class="icon-btn" id="lang-toggle-btn" onclick="toggleLanguageQuick()" aria-label="Change language" title="Italiano / English" style="margin-left:10px; width:auto; padding:0 10px;"></button>
+      <button type="button" class="btn btn-sm" id="import-data-btn" onclick="openImportModal()" style="margin-left:10px; flex-shrink:0;"></button>
+      <button type="button" class="icon-btn" id="settings-btn" onclick="openSettingsModal()" aria-label="Settings" title="Settings" style="margin-left:10px;"></button>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </div>
+    <div class="content" id="content">
+      <div class="page" id="page-home"></div>
+      <div class="page" id="page-company"></div>
+      <div class="page" id="page-anagrafica"></div>
+      <div class="page" id="page-analisi"></div>
+      <div class="page" id="page-soft"></div>
+      <div class="page" id="page-hard"></div>
+      <div class="page" id="page-valore"></div>
+      <div class="page" id="page-customercare"></div>
+      <div class="page" id="page-feedback"></div>
+      <div class="page" id="page-ai"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-box">
+    <div class="modal-head">
+      <div>
+        <h3 id="modal-title">Title</h3>
+        <div class="sub" id="modal-sub"></div>
+      </div>
+      <button class="modal-close" id="modal-close-btn">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div>
+</div>
+
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="avatar" id="drawer-avatar" style="width:42px;height:42px;font-size:14px;">--</div>
+    <div style="flex:1;">
+      <div style="font-weight:800; font-size:15px;" id="drawer-name">—</div>
+      <div style="font-size:12px; color:var(--text-3);" id="drawer-role">—</div>
+    </div>
+    <button class="modal-close" id="drawer-close-btn">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<!-- "Scarica report" (see downloadEmployeeReport): populated on demand, then handed to the browser's
+     own print dialog ("Save as PDF") — no PDF library, no backend. Hidden outside @media print via
+     the .report-print-only rule below. -->
+<div id="report-print-container" class="report-print-only"></div>
+
+<div id="toast"></div>
+<script src="../js/assessment.js"></script>
+</body>
+</html>

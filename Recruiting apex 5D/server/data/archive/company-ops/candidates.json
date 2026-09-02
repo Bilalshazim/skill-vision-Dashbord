@@ -1,0 +1,47 @@
+{
+  "companyId": "company-ops",
+  "companyName": "Northwind Ops",
+  "createdAt": "2026-09-01T10:11:35.004Z",
+  "updatedAt": "2026-09-01T10:11:35.006Z",
+  "count": 1,
+  "candidates": [
+    {
+      "id": "cv-mtiica1g-f267fd",
+      "companyId": "company-ops",
+      "companyName": "Northwind Ops",
+      "source": "ats",
+      "src": "ATS · Integrazione ATS",
+      "sourceTag": "ARCHIVE",
+      "campaignId": "",
+      "name": "cv",
+      "email": "",
+      "phone": "",
+      "role": "",
+      "job": "",
+      "consent": "unknown",
+      "profile": {
+        "education": null,
+        "experienceYears": null,
+        "nativeLanguages": []
+      },
+      "receivedAt": "2026-09-01T10:11:34.996Z",
+      "lastReceivedAt": "2026-09-01T10:11:34.996Z",
+      "receivedCount": 1,
+      "status": "new",
+      "icv": null,
+      "scores": {},
+      "bf": {},
+      "file": {
+        "originalName": "cv.pdf",
+        "size": 304,
+        "sha256": "706cb3df834a8b5d061c105ea770d71e64c9b481e321c854438947d1f4390d7e",
+        "storedPath": "files/cv-mtiica1g-f267fd.pdf"
+      },
+      "parsed": {
+        "textExtracted": false,
+        "pages": 1,
+        "characters": 0
+      }
+    }
+  ]
+}

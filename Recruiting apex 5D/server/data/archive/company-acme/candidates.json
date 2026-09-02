@@ -1,0 +1,47 @@
+{
+  "companyId": "company-acme",
+  "companyName": "Acme Corp",
+  "createdAt": "2026-09-01T10:12:25.842Z",
+  "updatedAt": "2026-09-01T10:13:55.683Z",
+  "count": 1,
+  "candidates": [
+    {
+      "id": "cv-mtiidd9t-cb62d2",
+      "companyId": "company-acme",
+      "companyName": "Acme Corp",
+      "source": "webform",
+      "src": "Webform · sito corporate",
+      "sourceTag": "ARCHIVE",
+      "campaignId": "",
+      "name": "Mario Rossi",
+      "email": "test@example.com",
+      "phone": "",
+      "role": "",
+      "job": "",
+      "consent": "unknown",
+      "profile": {
+        "education": null,
+        "experienceYears": null,
+        "nativeLanguages": []
+      },
+      "receivedAt": "2026-09-01T10:12:25.841Z",
+      "lastReceivedAt": "2026-09-01T10:12:25.841Z",
+      "receivedCount": 1,
+      "status": "new",
+      "icv": null,
+      "scores": {},
+      "bf": {},
+      "file": {
+        "originalName": "test-cv.pdf",
+        "size": 453,
+        "sha256": "0a33ef85806c9989ae751457e0e5a9639f343922c98b27a5aa3e2779d22ca142",
+        "storedPath": "files/cv-mtiidd9t-cb62d2.pdf"
+      },
+      "parsed": {
+        "textExtracted": true,
+        "pages": 1,
+        "characters": 7
+      }
+    }
+  ]
+}
