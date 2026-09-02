@@ -553,6 +553,8 @@ const UI_EN = {
   surveyEmailSubjectLabel: 'Questionnaire email — subject',
   surveyEmailBodyLabel: 'Questionnaire email — body',
   surveyEmailTemplateHint: 'Editable template used when sending the questionnaire link. {{NOME}} and {{LINK}} are replaced per employee. The client will supply the final wording — replace the placeholder text below once available.',
+  preTestLetterLabel: 'Mandatory cover letter ("Letter to Collaborators")',
+  preTestLetterHint: 'Sent to every collaborator ahead of the short note above, before the survey link. Use {{LINK}} where the questionnaire link should appear — if removed, the link is still appended automatically.',
   anagAllAreas: 'All areas',
   anagColEmployee: 'Employee',
   anagColEmail: 'Email',
@@ -1350,6 +1352,8 @@ const UI_IT = {
   surveyEmailSubjectLabel: 'Email questionario — oggetto',
   surveyEmailBodyLabel: 'Email questionario — testo',
   surveyEmailTemplateHint: 'Modello modificabile usato per l\'invio del link al questionario. {{NOME}} e {{LINK}} vengono sostituiti per ciascun dipendente. Il testo definitivo sarà fornito dal cliente — sostituisci il testo segnaposto qui sotto non appena disponibile.',
+  preTestLetterLabel: 'Lettera di accompagnamento obbligatoria ("Lettera ai Collaboratori")',
+  preTestLetterHint: 'Inviata a ogni collaboratore prima della breve nota qui sopra, insieme al link del questionario. Usa {{LINK}} nel punto in cui deve comparire il link — se lo rimuovi, viene comunque aggiunto in fondo automaticamente.',
   anagAllAreas: 'Tutte le aree',
   anagColEmployee: 'Dipendente',
   anagColEmail: 'Email',
@@ -2506,6 +2510,76 @@ function genEmployeeScores(rnd, archetype, roleFocus){
 
 const CCNL_LEVELS_DEMO = ['Impiegato 2° livello', 'Impiegato 3° livello', 'Impiegato 4° livello', 'Impiegato 5° livello', 'Quadro'];
 const BENEFIT_OPTIONS_DEMO = ['Buoni pasto', 'Auto aziendale', 'Assicurazione sanitaria', 'Smart working', 'Buoni pasto, Assicurazione sanitaria'];
+
+/* Mandatory pre-test cover letter — embedded into every survey-link email (see
+   fillSurveyEmailTemplate()) so a collaborator always receives it together with their soft-skill
+   questionnaire link. Assessment → "Lettera ai Collaboratori" (internal staff); the Recruiting
+   module has its own separate "Lettera ai Candidati" for external candidates (see
+   CANDIDATE_LETTER_TEMPLATE in recruiting.html). {{LINK}} is substituted with the real survey
+   link wherever it appears. */
+const COLLABORATOR_LETTER_TEMPLATE = `LETTERA AI COLLABORATORI
+
+Gentile Collaboratore,
+la Tua Azienda, in collaborazione con SKILL-VISION, società di consulenza aziendale con oltre vent'anni di esperienza, ha avviato un progetto dedicato alla conoscenza e alla valorizzazione delle competenze delle proprie persone.
+L'obiettivo è semplice e importante: conoscere meglio le caratteristiche, le attitudini e le competenze di ciascun collaboratore, per favorire una migliore valorizzazione delle persone all'interno dell'organizzazione.
+Conoscere le proprie competenze, infatti, può aiutare a individuare attività e responsabilità più in sintonia con le proprie caratteristiche, favorendo sia le esigenze dell'Azienda sia, soprattutto, la crescita professionale di ciascuno.
+
+Il questionario
+Ti verrà richiesto di compilare un questionario dedicato alle competenze trasversali (Soft Skills) e ad alcuni aspetti legati, tra gli altri, all'Intelligenza Emotiva.
+La compilazione richiede circa 10-12 minuti ma il tempo che ci impiegherai non sarà influente.
+Non è una prova da superare e non esistono risposte giuste o sbagliate.
+Ciò che conta maggiormente è rispondere in modo spontaneo, sincero e autentico, scegliendo le risposte che descrivono realmente il Tuo modo di essere e di comportarti.
+Il test è stato progettato per il mondo del lavoro e validato in ambito universitario.
+I risultati saranno elaborati attraverso un sistema esperto e successivamente rappresentati sulla piattaforma SKILL-VISION.
+Il sistema è inoltre in grado di rilevare eventuali incongruenze o contraddizioni nelle risposte: per questo motivo, cercare di fornire la risposta che si ritiene "più corretta" potrebbe rendere il risultato meno rappresentativo.
+Più sarai spontaneo e sincero, più il risultato potrà rappresentare fedelmente le Tue caratteristiche e diventare uno strumento utile per il Tuo percorso professionale.
+Il test presenta un'affidabilità dichiarata superiore al 92%.
+
+Perché le Soft Skills sono importanti?
+Le Soft Skills sono l'insieme delle nostre abilità personali e interpersonali: il modo in cui comunichiamo, collaboriamo, affrontiamo le difficoltà, gestiamo le situazioni, prendiamo decisioni e ci adattiamo ai cambiamenti.
+Non riguardano quindi soltanto ciò che sappiamo fare dal punto di vista tecnico, ma come utilizziamo le nostre capacità nel contesto professionale.
+Conoscere queste caratteristiche può rappresentare un valore sia per la persona sia per l'organizzazione.
+Per il collaboratore significa avere una maggiore consapevolezza dei propri punti di forza e delle aree sulle quali poter crescere.
+Per l'Azienda significa poter valorizzare meglio le persone, favorendo l'incontro tra competenze, attitudini, ruoli e responsabilità.
+In altre parole: la persona giusta nel ruolo giusto.
+
+Come compilare il test
+Troverai una serie di affermazioni e dovrai semplicemente scegliere quelle che senti più vicine al Tuo modo di essere, pertanto Ti consigliamo di:
+• rispondere con spontaneità;
+• essere sincero;
+• non cercare di immaginare quale possa essere la risposta "migliore";
+• non lasciarti condizionare da ciò che pensi possa essere più apprezzato.
+Non devi dimostrare nulla: devi semplicemente raccontare, attraverso le Tue risposte, chi sei professionalmente.
+La qualità del risultato dipende soprattutto dalla Tua autenticità.
+
+Prima di iniziare
+Accedi al questionario attraverso il link che Ti è stato fornito e, se possibile, compila in modo completo la prima pagina, inserendo anche una fotografia.
+A questo punto sei pronto per iniziare.
+
+🔗 Link al questionario: {{LINK}}
+
+Prenditi qualche minuto per Te: conoscere meglio le proprie competenze è il primo passo per poterle valorizzare.
+Grazie per la collaborazione e per il tempo che vorrai dedicare a questa iniziativa.
+Buona compilazione!
+
+Cosa sono le Soft Skills?
+Sono un insieme di abilità personali e interpersonali che influenzano il nostro modo di interagire con gli altri, affrontare le situazioni professionali e gestire la nostra vita lavorativa.
+Non sono quindi competenze tecniche specifiche del mestiere, ma caratteristiche e capacità personali che utilizziamo ogni giorno nel lavoro.
+Perché sono importanti?
+Le Soft Skills sono importanti tanto per il collaboratore quanto per l'Azienda.
+Sono infatti determinanti nella capacità di collaborare, comunicare, adattarsi ai cambiamenti, affrontare problemi e costruire relazioni professionali efficaci.
+Perché identificarle e valorizzarle?
+Conoscere le proprie competenze trasversali permette di acquisire una maggiore consapevolezza dei propri punti di forza e delle proprie aree di sviluppo.
+Per l'organizzazione significa poter valorizzare meglio le persone e favorire una maggiore coerenza tra competenze, attitudini, ruoli e responsabilità.
+L'obiettivo è creare una situazione nella quale ciascuno possa esprimere al meglio il proprio potenziale.
+
+Privacy
+I dati inseriti saranno trattati nel rispetto della normativa vigente in materia di protezione dei dati personali e del Regolamento Europeo GDPR (UE) 2016/679.
+I risultati saranno visionati esclusivamente da personale autorizzato e qualificato e utilizzati per le finalità previste dal progetto, nel rispetto della normativa sulla privacy.
+
+SKILL-VISION
+Human Capital Intelligence - Conoscere le persone. Comprendere il potenziale. Creare valore.
+info@skill-vision.it · www.skill-vision.it`;
 function generateDemoData(){
   const rnd = seedRandom(20260724);
   const evaluators = ['Giulia Bianchi', 'Marco Rossi', 'Elena Ferrari', 'Davide Conti'];
@@ -2563,6 +2637,7 @@ function generateDemoData(){
   return {
     settings: { modulo: 'AB', companyName: 'Demo Company S.r.l.', testsAcquired: 50, testsDispatched: 32, surveyLink: '', softSkillTargets: {},
       surveySenderMode: 'referente', adminSenderEmail: '',
+      preTestLetter: COLLABORATOR_LETTER_TEMPLATE,
       surveyEmailSubject: 'Questionario di valutazione delle competenze',
       surveyEmailBody: 'Ciao {{NOME}},\n\n[Testo standard da inserire — verrà fornito dal cliente]\n\nPer completare il questionario di valutazione delle Competenze Trasversali, utilizza il link seguente:\n\n{{LINK}}\n\nGrazie.',
       emailApiEndpoint: '', emailApiKey: '' },
@@ -2623,6 +2698,7 @@ async function loadState(){
         if(parsed.settings.surveyEmailBody===undefined) parsed.settings.surveyEmailBody = 'Ciao {{NOME}},\n\n[Testo standard da inserire — verrà fornito dal cliente]\n\nPer completare il questionario di valutazione delle Competenze Trasversali, utilizza il link seguente:\n\n{{LINK}}\n\nGrazie.';
         if(parsed.settings.emailApiEndpoint===undefined) parsed.settings.emailApiEndpoint = '';
         if(parsed.settings.emailApiKey===undefined) parsed.settings.emailApiKey = '';
+        if(parsed.settings.preTestLetter===undefined) parsed.settings.preTestLetter = COLLABORATOR_LETTER_TEMPLATE;
         if(!parsed.settings.softSkillTargets) parsed.settings.softSkillTargets = {};
         if(!parsed.company) parsed.company = { locations:[], contacts:[], referente:{name:'',email:'',phone:''}, ceo:{name:'',email:''}, cfo:{name:'',email:''} };
         if(!Array.isArray(parsed.company.locations)) parsed.company.locations = [];
@@ -3306,6 +3382,13 @@ function renderSurveySettings(){
     </div>
 
     <div class="divider"></div>
+    <div class="field">
+      <label>${UI.preTestLetterLabel}</label>
+      <textarea id="settings-pre-test-letter" rows="10" style="font-family:var(--font-mono); font-size:12px;">${esc(STATE.settings.preTestLetter||'')}</textarea>
+      <div class="hint">${UI.preTestLetterHint}</div>
+    </div>
+
+    <div class="divider"></div>
     <div class="card-title" style="margin-bottom:10px;">${UI.surveySenderMode}</div>
     <div class="field">
       <label class="checkbox-row" style="gap:8px; margin-bottom:6px;"><input type="radio" name="settings-sender-mode" value="referente" ${mode==='referente'?'checked':''}>${UI.surveySenderModeReferente}${referenteEmail?` — ${esc(referenteEmail)}`:` (${esc(UI.surveySenderMissingWarning)})`}</label>
@@ -3346,6 +3429,7 @@ function renderSurveySettings(){
 function saveSurveyLink(){
   if(!canEdit()){ toast(UI.viewerReadOnly, 'err'); return; }
   STATE.settings.surveyLink = document.getElementById('settings-survey-link').value.trim();
+  STATE.settings.preTestLetter = document.getElementById('settings-pre-test-letter').value;
   const modeInput = document.querySelector('input[name="settings-sender-mode"]:checked');
   STATE.settings.surveySenderMode = modeInput ? modeInput.value : 'referente';
   STATE.settings.adminSenderEmail = document.getElementById('settings-admin-sender-email').value.trim();
@@ -4852,11 +4936,17 @@ function setSurveySenderMode(mode){
   persist();
   refreshSurveyLinkModal();
 }
+/* The mandatory pre-test letter (Settings → Survey) is prepended to every survey email ahead of
+   the admin's own short note, so a collaborator can't receive the link without also receiving the
+   instructions — this is the single choke point both the real API send and the mailto fallback
+   go through (see prepareSurveySendRecipients()), so neither path can skip it. */
 function fillSurveyEmailTemplate(name, link){
   const subject = STATE.settings.surveyEmailSubject || UI.surveyEmailSubjectLabel;
   const bodyTpl = STATE.settings.surveyEmailBody || '{{LINK}}';
   const body = bodyTpl.replace(/\{\{NOME\}\}/g, name).replace(/\{\{LINK\}\}/g, link);
-  return { subject, body };
+  const letterTpl = STATE.settings.preTestLetter || COLLABORATOR_LETTER_TEMPLATE;
+  const letter = letterTpl.indexOf('{{LINK}}')!==-1 ? letterTpl.split('{{LINK}}').join(link) : letterTpl + '\n\n🔗 Link al questionario: ' + link;
+  return { subject, body: letter + '\n\n---\n\n' + body };
 }
 /* Shared validation + recipient-building for both the real API send and the manual mailto fallback below,
    so the two paths can never disagree about who gets emailed or with what content. Returns null (after
