@@ -676,19 +676,122 @@ const UI_EN = {
   companySaveBtn: 'Save company profile',
   toastCompanySaved: 'Company profile saved.',
 
-  /* ---- INITIAL ANALYSIS ---- */
-  analisiFieldProblematiche: 'Perceived issues',
-  analisiFieldCriticita: 'Identified critical issues',
-  analisiFieldObiettivi: 'Project objectives',
-  analisiFieldAspettative: 'Management expectations',
-  analisiNotDocumented: 'Not yet documented.',
+  /* ---- INITIAL ANALYSIS — Executive Human Capital Interview ---- */
   analisiPageTitle: 'Initial project analysis',
-  analisiPageSub: 'Snapshot of the starting situation gathered with management.',
-  analisiEditingNote: 'You are editing this section — remember to save your changes.',
-  analisiClickEditNote: 'Click "Edit" above to update it at any time.',
-  analisiEditBtn: 'Edit',
-  analisiSaveBtn: 'Save',
-  toastAnalisiSaved: 'Initial analysis saved',
+  analisiPageSub: 'Executive Human Capital Interview — the perception of the Leadership team, gathered before the objective competency measurement.',
+  exiBadge: 'Executive Human Capital Interview',
+  exiSteps: ['Setup','Value','Potential','Areas','Role Fit','Risks','Objectives','Decisions','Report'],
+  exiEstimatedTime: 'Estimated time: 12 minutes.',
+  exiSetupEyebrow: 'Before you begin',
+  exiSetupTitle: 'Interview details',
+  exiSetupSub: 'This information will appear in the final report delivered to the Leadership team.',
+  exiFieldCompany: 'Company name',
+  exiFieldCompanyPh: 'Company S.p.A.',
+  exiFieldSector: 'Sector',
+  exiFieldSectorPh: 'e.g. Manufacturing',
+  exiFieldInterviewee: 'Interviewee name',
+  exiFieldIntervieweePh: 'John Smith',
+  exiFieldRole: 'Role',
+  exiRoles: ['CEO / Managing Director','CFO / Finance Director','President / Owner','General Manager','HR Director','COO / Operations Director','Board Member'],
+  exiFieldEmployees: 'Number of employees (if known)',
+  exiFieldEmployeesPh: 'e.g. 150',
+  exiFieldDate: 'Interview date',
+  exiStartBtn: "Start the interview →",
+  exiBackBtn: '← Back',
+  exiNextBtn: 'Next →',
+  exiCommentLabel: "Leadership's comment",
+  exiQ1Eyebrow: 'Question 01 — Value',
+  exiQ1Title: 'How much do you feel the people in your company contribute today to value creation?',
+  exiQ1Sub: "Consider people's actual contribution to business results, not their potential.",
+  exiQ1Ticks: ['1 · Minimum','5 · Average','10 · Maximum'],
+  exiQ1Ph: "e.g. We have very capable people, but I believe part of their potential isn't being used.",
+  exiQ2Eyebrow: 'Question 02 — Potential',
+  exiQ2Title: "How fully do you feel the organization is using its people's skills and potential today?",
+  exiQ2Sub: 'The difference from the previous question generates the <strong>Perceived Potential Gap</strong>.',
+  exiQ2Ticks: ['1 · Not at all','5 · Partially','10 · Fully'],
+  exiQ2Ph: "What prevents full potential from being expressed today?",
+  exiQ3Eyebrow: 'Question 03 — Organization',
+  exiQ3Title: 'In which areas of the company do you think there may be the greatest inefficiencies, critical issues or value loss today?',
+  exiQ3Sub: 'Select the areas and rate each one\'s criticality from 1 to 10. The selected areas will be the focus of the Assessment.',
+  exiAreaCriticalityLabel: 'Criticality',
+  exiQ3NotesLabel: 'Additional notes',
+  exiQ3Ph: 'Other relevant elements about critical areas...',
+  exiAreas: ['Sales / Commercial','Operations / Production','Middle Management','Administration','Human Resources','IT / Technology','Marketing','Logistics','Research & Development','Customer Service','Procurement','Quality'],
+  exiQ4Eyebrow: 'Question 04 — Role Fit',
+  exiQ4Title: 'How well do you feel people are suited today to the roles and responsibilities assigned to them?',
+  exiQ4Sub: 'This value will be compared with the Role Fit measured by the Assessment.',
+  exiQ4Ticks: ['1 · Unsuited','5 · Partial','10 · Fully'],
+  exiQ4Ph: 'Are there roles where fit is particularly critical?',
+  exiQ5Eyebrow: 'Question 05 — Risks',
+  exiQ5Title: 'What are the main people-related issues that could limit the company\'s growth?',
+  exiQ5Sub: 'Indicate up to three priorities, in order of relevance. Generates the <strong>Human Capital Risk Map</strong>.',
+  exiRiskPh: ['First issue by relevance','Second issue','Third issue'],
+  exiRiskLevelLabel: 'Perceived organizational risk level',
+  exiQ5Ticks: ['1 · Negligible','5 · Medium','10 · Critical'],
+  exiQ6Eyebrow: 'Question 06 — Objectives',
+  exiQ6Title: 'What concrete results would you like to achieve from this analysis?',
+  exiQ6Sub: 'Up to three objectives, in order of priority. Determines the strategic weight of the interventions.',
+  exiObjPh: ['First objective by priority','Second objective','Third objective'],
+  exiUrgencyLabel: 'Strategic urgency of the intervention',
+  exiQ6Ticks: ['1 · Not urgent','5 · Medium','10 · Immediate'],
+  exiQ7Eyebrow: 'Question 07 — Decisions',
+  exiQ7Title: 'If you could know precisely the value, potential and risk level of every person, what decisions would you like to be able to make?',
+  exiQ7Sub: 'Multiple choice. Links the measurement to concrete management decisions.',
+  exiDecisions: [
+    {ic:'📈', nm:'Develop', ds:'Targeted growth plans'},
+    {ic:'⭐', nm:'Retain', ds:'Reward and keep top talent'},
+    {ic:'🔄', nm:'Reorganize', ds:'Reallocate people to roles'},
+    {ic:'⚡', nm:'Intervene', ds:'Act on critical situations'},
+    {ic:'🎯', nm:'Select', ds:'Hire with objective criteria'},
+    {ic:'👑', nm:'Succession', ds:'Plan key successions'},
+    {ic:'💰', nm:'Compensate', ds:'Merit-based pay policies'},
+    {ic:'🎓', nm:'Train', ds:'Invest where it truly matters'},
+  ],
+  exiQ7Ph: 'Other decisions or considerations...',
+  exiGenerateBtn: 'Generate Executive Profile →',
+  exiRepBadge: 'Executive Human Capital Profile',
+  exiHeroLabel: 'Perceived Human Capital Value',
+  exiHeroTextHigh: 'The Leadership perceives a solid human capital. The Assessment will verify whether this perception matches the value actually expressed.',
+  exiHeroTextMid: 'The Leadership perceives adequate human capital, but with significant room for improvement.',
+  exiHeroTextLow: 'The Leadership perceives significant weaknesses in human capital. The Assessment will identify where to intervene with priority.',
+  exiHeroTextCritical: 'The Leadership perceives a critical situation. The Assessment is a priority to quantify the actual exposure.',
+  exiK1Label: 'Human Capital<br>Perceived Value', exiK1Sub: 'Perceived contribution to value creation',
+  exiK2Label: 'Human Capital<br>Utilization', exiK2Sub: 'Potential actually used',
+  exiK4Label: 'Role Fit<br>Index', exiK4Sub: 'People-role suitability',
+  exiK5Label: 'Organizational<br>Risk Index', exiK5Sub: 'Perceived organizational risk',
+  exiK6Label: 'Strategic<br>Priority Index', exiK6Sub: 'Declared strategic urgency',
+  exiGapTitle: 'The central question — value expressed vs. value expressible',
+  exiGapLabel1: 'Perceived value',
+  exiGapLabel2: 'Potential used',
+  exiGapTextNegative: (absGap, absGapPc) => `The Leadership perceives that the organization is <strong>not fully using</strong> the value its people could express. Perceived gap: <strong>${absGap} points</strong>, equal to <strong>${absGapPc}%</strong> of the value currently recognized.`,
+  exiGapTextZero: 'The Leadership believes potential is being used in line with the value expressed.',
+  exiGapTextPositive: "The Leadership believes the organization is already fully extracting the available potential.",
+  exiAreasTitle: 'Areas flagged as critical',
+  exiAreasEmpty: 'No area flagged as critical.',
+  exiAns1Title: "People's contribution to value creation",
+  exiAns2Title: "Use of people's potential",
+  exiAns4Title: 'Suitability to assigned roles',
+  exiAns5Title: 'Human Capital Risk Map',
+  exiAns6Title: 'Strategic Priority Index',
+  exiAns7Title: 'Decision Readiness Index',
+  exiRiskInlineLabel: 'Organizational risk:',
+  exiUrgencyInlineLabel: 'Strategic urgency:',
+  exiNoDecisions: 'No decision selected',
+  exiCtaTitle: 'Next phase — Objective measurement',
+  exiCtaText: 'This is the perception of the Leadership. The SKILL-VISION Assessment now measures the real value, role by role, and returns the gap between what is perceived and what is expressed.',
+  exiCtaBtn: '→ Start SKILL-VISION Assessment',
+  exiCtaToast: 'Path: Perception → Measurement → Economic Value of Human Capital. Let\'s start from the employee registry.',
+  exiEditAnswersBtn: '← Edit answers',
+  exiPrintBtn: '🖨️ Print / PDF',
+  exiSaveBtn: '💾 Save',
+  exiNewInterviewBtn: '↺ New interview',
+  exiConfirmNew: 'This will discard the current interview answers and start a new one. Continue?',
+  exiFooterNote: 'SKILL-VISION · Executive Human Capital Interview<br>Methodological path: Perceived Value → Measured Value → Potential Value → Value Gap → Economic Value of Human Capital',
+  exiPointsOf10: '/10',
+  exiTierCritico: 'Critical', exiTierInsufficiente: 'Insufficient', exiTierDiscreto: 'Fair', exiTierBuono: 'Good', exiTierEccellente: 'Excellent',
+  exiCancelEditBtn: '✕ Cancel',
+  toastAnalisiSaved: 'Executive Profile generated',
+  toastExiSaved: 'Interview data exported',
 
   /* ---- SHARED (reused across Soft/Hard/Overall Value pages) ---- */
   newEvaluation: 'New Evaluation',
@@ -1475,19 +1578,122 @@ const UI_IT = {
   companySaveBtn: 'Salva profilo azienda',
   toastCompanySaved: 'Profilo azienda salvato.',
 
-  /* ---- ANALISI INIZIALE ---- */
-  analisiFieldProblematiche: 'Problematiche percepite',
-  analisiFieldCriticita: 'Criticità rilevate',
-  analisiFieldObiettivi: 'Obiettivi del progetto',
-  analisiFieldAspettative: 'Aspettative del management',
-  analisiNotDocumented: 'Non ancora documentato.',
+  /* ---- ANALISI INIZIALE — Executive Human Capital Interview ---- */
   analisiPageTitle: 'Analisi iniziale del progetto',
-  analisiPageSub: 'Fotografia della situazione di partenza raccolta insieme al management.',
-  analisiEditingNote: 'Stai modificando questa sezione — ricordati di salvare le modifiche.',
-  analisiClickEditNote: 'Clicca "Modifica" in alto per aggiornarla in qualsiasi momento.',
-  analisiEditBtn: 'Modifica',
-  analisiSaveBtn: 'Salva',
-  toastAnalisiSaved: 'Analisi iniziale salvata',
+  analisiPageSub: "Executive Human Capital Interview — la percezione della Direzione, raccolta prima della misurazione oggettiva delle competenze.",
+  exiBadge: 'Executive Human Capital Interview',
+  exiSteps: ['Setup','Valore','Potenziale','Aree','Role Fit','Rischi','Obiettivi','Decisioni','Report'],
+  exiEstimatedTime: 'Tempo stimato: 12 minuti.',
+  exiSetupEyebrow: 'Prima di iniziare',
+  exiSetupTitle: "Dati dell'intervista",
+  exiSetupSub: 'Queste informazioni compariranno nel report finale consegnato alla Direzione.',
+  exiFieldCompany: 'Ragione sociale',
+  exiFieldCompanyPh: 'Azienda S.p.A.',
+  exiFieldSector: 'Settore',
+  exiFieldSectorPh: 'Es. Manifatturiero',
+  exiFieldInterviewee: 'Nome e cognome intervistato',
+  exiFieldIntervieweePh: 'Mario Rossi',
+  exiFieldRole: 'Ruolo',
+  exiRoles: ['CEO / Amministratore Delegato','CFO / Direttore Finanziario','Presidente / Titolare','Direttore Generale','HR Director','COO / Direttore Operativo','Membro del Board'],
+  exiFieldEmployees: 'Numero dipendenti (se noto)',
+  exiFieldEmployeesPh: 'Es. 150',
+  exiFieldDate: 'Data intervista',
+  exiStartBtn: "Inizia l'intervista →",
+  exiBackBtn: '← Indietro',
+  exiNextBtn: 'Avanti →',
+  exiCommentLabel: 'Commento della Direzione',
+  exiQ1Eyebrow: 'Domanda 01 — Valore',
+  exiQ1Title: 'Quanto ritiene che le persone della Sua azienda contribuiscano oggi alla creazione di valore?',
+  exiQ1Sub: 'Consideri il contributo effettivo delle persone al risultato aziendale, non il loro potenziale.',
+  exiQ1Ticks: ['1 · Minimo','5 · Medio','10 · Massimo'],
+  exiQ1Ph: 'Es. Abbiamo persone molto valide, ma credo che una parte del potenziale non venga utilizzata.',
+  exiQ2Eyebrow: 'Domanda 02 — Potenziale',
+  exiQ2Title: "Quanto ritiene che l'organizzazione stia utilizzando pienamente le competenze e il potenziale delle proprie persone?",
+  exiQ2Sub: 'La differenza rispetto alla domanda precedente genera il <strong>Gap di Potenziale Percepito</strong>.',
+  exiQ2Ticks: ['1 · Per nulla','5 · In parte','10 · Pienamente'],
+  exiQ2Ph: 'Cosa impedisce oggi di esprimere il potenziale pieno?',
+  exiQ3Eyebrow: 'Domanda 03 — Organizzazione',
+  exiQ3Title: 'In quali aree dell\'azienda ritiene possano esistere oggi maggiori inefficienze, criticità o perdita di valore?',
+  exiQ3Sub: "Selezioni le aree e attribuisca a ciascuna un livello di criticità da 1 a 10. Le aree selezionate saranno il focus dell'Assessment.",
+  exiAreaCriticalityLabel: 'Criticità',
+  exiQ3NotesLabel: 'Note aggiuntive',
+  exiQ3Ph: 'Altri elementi rilevanti sulle aree critiche...',
+  exiAreas: ['Commerciale / Vendite','Operations / Produzione','Middle Management','Amministrazione','Risorse Umane','IT / Tecnologia','Marketing','Logistica','Ricerca & Sviluppo','Customer Service','Acquisti','Qualità'],
+  exiQ4Eyebrow: 'Domanda 04 — Role Fit',
+  exiQ4Title: 'Quanto ritiene che le persone siano oggi adeguate ai ruoli e alle responsabilità loro assegnati?',
+  exiQ4Sub: 'Questo valore verrà confrontato con il Role Fit misurato dall\'Assessment.',
+  exiQ4Ticks: ['1 · Inadeguate','5 · Parziale','10 · Pienamente'],
+  exiQ4Ph: "Ci sono ruoli in cui l'adeguatezza è particolarmente critica?",
+  exiQ5Eyebrow: 'Domanda 05 — Rischi',
+  exiQ5Title: "Quali sono le principali problematiche legate alle persone che potrebbero limitare la crescita dell'azienda?",
+  exiQ5Sub: "Indichi fino a tre priorità, in ordine di rilevanza. Genera l'<strong>Human Capital Risk Map</strong>.",
+  exiRiskPh: ['Prima problematica per rilevanza','Seconda problematica','Terza problematica'],
+  exiRiskLevelLabel: 'Livello di rischio organizzativo percepito',
+  exiQ5Ticks: ['1 · Trascurabile','5 · Medio','10 · Critico'],
+  exiQ6Eyebrow: 'Domanda 06 — Obiettivi',
+  exiQ6Title: 'Quali risultati concreti vorrebbe ottenere da questa analisi?',
+  exiQ6Sub: 'Massimo tre obiettivi, in ordine di priorità. Determina il peso strategico degli interventi.',
+  exiObjPh: ['Primo obiettivo per priorità','Secondo obiettivo','Terzo obiettivo'],
+  exiUrgencyLabel: "Urgenza strategica dell'intervento",
+  exiQ6Ticks: ['1 · Non urgente','5 · Media','10 · Immediata'],
+  exiQ7Eyebrow: 'Domanda 07 — Decisioni',
+  exiQ7Title: 'Se potesse conoscere con precisione il valore, il potenziale e il livello di rischio di ogni persona, quali decisioni vorrebbe poter prendere?',
+  exiQ7Sub: 'Selezione multipla. Collega la misurazione alle decisioni manageriali concrete.',
+  exiDecisions: [
+    {ic:'📈', nm:'Sviluppare', ds:'Piani di crescita mirati'},
+    {ic:'⭐', nm:'Valorizzare', ds:'Trattenere e premiare i talenti'},
+    {ic:'🔄', nm:'Riorganizzare', ds:'Riallocare le persone sui ruoli'},
+    {ic:'⚡', nm:'Intervenire', ds:'Agire su situazioni critiche'},
+    {ic:'🎯', nm:'Selezionare', ds:'Assumere con criteri oggettivi'},
+    {ic:'👑', nm:'Succession', ds:'Pianificare le successioni'},
+    {ic:'💰', nm:'Retribuire', ds:'Politiche retributive per merito'},
+    {ic:'🎓', nm:'Formare', ds:'Investire dove serve davvero'},
+  ],
+  exiQ7Ph: 'Altre decisioni o considerazioni...',
+  exiGenerateBtn: 'Genera Executive Profile →',
+  exiRepBadge: 'Executive Human Capital Profile',
+  exiHeroLabel: 'Perceived Human Capital Value',
+  exiHeroTextHigh: "La Direzione percepisce un capitale umano solido. L'Assessment verificherà se la percezione corrisponde al valore effettivamente espresso.",
+  exiHeroTextMid: 'La Direzione percepisce un capitale umano adeguato ma con margini di miglioramento significativi.',
+  exiHeroTextLow: "La Direzione percepisce criticità rilevanti nel capitale umano. L'Assessment identificherà dove intervenire con priorità.",
+  exiHeroTextCritical: "La Direzione percepisce una situazione critica. L'Assessment è prioritario per quantificare l'esposizione reale.",
+  exiK1Label: 'Human Capital<br>Perceived Value', exiK1Sub: 'Contributo percepito alla creazione di valore',
+  exiK2Label: 'Human Capital<br>Utilization', exiK2Sub: 'Potenziale effettivamente utilizzato',
+  exiK4Label: 'Role Fit<br>Index', exiK4Sub: 'Adeguatezza persone-ruoli',
+  exiK5Label: 'Organizational<br>Risk Index', exiK5Sub: 'Rischio organizzativo percepito',
+  exiK6Label: 'Strategic<br>Priority Index', exiK6Sub: 'Urgenza strategica dichiarata',
+  exiGapTitle: 'La domanda centrale — valore espresso vs valore esprimibile',
+  exiGapLabel1: 'Valore percepito',
+  exiGapLabel2: 'Potenziale utilizzato',
+  exiGapTextNegative: (absGap, absGapPc) => `La Direzione percepisce che l'organizzazione <strong>non utilizza pienamente</strong> il valore che le persone potrebbero esprimere. Gap percepito: <strong>${absGap} punti</strong>, pari al <strong>${absGapPc}%</strong> del valore attualmente riconosciuto.`,
+  exiGapTextZero: 'La Direzione ritiene che il potenziale sia utilizzato in linea con il valore espresso.',
+  exiGapTextPositive: "La Direzione ritiene che l'organizzazione stia già estraendo pienamente il potenziale disponibile.",
+  exiAreasTitle: 'Aree segnalate come critiche',
+  exiAreasEmpty: 'Nessuna area segnalata come critica.',
+  exiAns1Title: 'Contributo delle persone alla creazione di valore',
+  exiAns2Title: 'Utilizzo del potenziale delle persone',
+  exiAns4Title: 'Adeguatezza ai ruoli assegnati',
+  exiAns5Title: 'Human Capital Risk Map',
+  exiAns6Title: 'Strategic Priority Index',
+  exiAns7Title: 'Decision Readiness Index',
+  exiRiskInlineLabel: 'Rischio organizzativo:',
+  exiUrgencyInlineLabel: 'Urgenza strategica:',
+  exiNoDecisions: 'Nessuna decisione selezionata',
+  exiCtaTitle: 'Fase successiva — Misurazione oggettiva',
+  exiCtaText: "Questa è la percezione della Direzione. L'Assessment SKILL-VISION misura ora il valore reale, ruolo per ruolo, e restituisce lo scostamento tra ciò che si percepisce e ciò che si esprime.",
+  exiCtaBtn: '→ Avvia Assessment SKILL-VISION',
+  exiCtaToast: 'Percorso: Percezione → Misurazione → Valore Economico del Capitale Umano. Iniziamo dall\'anagrafica dipendenti.',
+  exiEditAnswersBtn: '← Modifica risposte',
+  exiPrintBtn: '🖨️ Stampa / PDF',
+  exiSaveBtn: '💾 Salva',
+  exiNewInterviewBtn: '↺ Nuova intervista',
+  exiConfirmNew: 'Le risposte dell\'intervista attuale verranno azzerate per iniziarne una nuova. Continuare?',
+  exiFooterNote: 'SKILL-VISION · Executive Human Capital Interview<br>Percorso metodologico: Valore Percepito → Valore Misurato → Valore Potenziale → Gap di Valore → Valore Economico del Capitale Umano',
+  exiPointsOf10: '/10',
+  exiTierCritico: 'Critico', exiTierInsufficiente: 'Insufficiente', exiTierDiscreto: 'Discreto', exiTierBuono: 'Buono', exiTierEccellente: 'Eccellente',
+  exiCancelEditBtn: '✕ Annulla',
+  toastAnalisiSaved: 'Executive Profile generato',
+  toastExiSaved: 'Dati intervista esportati',
 
   /* ---- CONDIVISE (usate in Competenze Trasversali/Professionali/Valore Complessivo) ---- */
   newEvaluation: 'Nuova Valutazione',
@@ -2650,12 +2856,7 @@ function generateDemoData(){
     roleProfiles,
     evalAssignments: [],
     evalPeriods: [{ id: uid('period'), label: UI.reDefaultPeriodLabel, date: new Date().toISOString().slice(0,10) }],
-    analisiIniziale: {
-      problematiche: 'Difficoltà a mappare in modo oggettivo le competenze effettive dei dipendenti rispetto al proprio ruolo. Divari percepiti tra autovalutazione e valutazione del responsabile in alcune aree.',
-      criticita: 'Elevato turnover nell\'area Customer Service. Difficoltà di comunicazione trasversale tra l\'Area Tecnica e l\'Area Commerciale.',
-      obiettiviProgetto: 'Ottenere un quadro oggettivo delle competenze trasversali e professionali sull\'intera popolazione aziendale, individuare i talenti da valorizzare e le aree con priorità di intervento formativo.',
-      aspettative: 'Il management si aspetta uno strumento che le Risorse Umane possano utilizzare in autonomia, con indicatori di facile lettura e suggerimenti operativi concreti su formazione, coaching e riorganizzazione.',
-    },
+    analisiIniziale: exiDefaultData(),
     company: {
       locations: [
         { name: 'Sede Centrale', address: 'Via Roma 12', city: 'Milano' },
@@ -2705,6 +2906,10 @@ async function loadState(){
         if(parsed.settings.preTestLetter===undefined) parsed.settings.preTestLetter = COLLABORATOR_LETTER_TEMPLATE;
         if(!parsed.settings.actionNotes) parsed.settings.actionNotes = {};
         if(!parsed.settings.softSkillTargets) parsed.settings.softSkillTargets = {};
+        // Pre-Executive-Interview saves had analisiIniziale = {problematiche, criticita, obiettiviProgetto, aspettative}
+        // (free text only, no q1/q2/... fields) — replace with a fresh interview rather than trying to map old prose
+        // onto slider values that never existed for it.
+        if(!parsed.analisiIniziale || parsed.analisiIniziale.q1===undefined) parsed.analisiIniziale = exiDefaultData();
         if(!parsed.company) parsed.company = { locations:[], contacts:[], referente:{name:'',email:'',phone:''}, ceo:{name:'',email:''}, cfo:{name:'',email:''} };
         if(!Array.isArray(parsed.company.locations)) parsed.company.locations = [];
         if(!Array.isArray(parsed.company.contacts)) parsed.company.contacts = [];
@@ -2952,7 +3157,7 @@ const PAGE_META_TEXT_EN = {
   home:       { title:'Home', sub:'Overall organization status' },
   company:    { title:'Company Profile', sub:'Locations, contacts, headcount by type, and key company roles' },
   anagrafica: { title:'Employee Directory', sub:'Employee list, roles, duties, and role requirements' },
-  analisi:    { title:'Initial Analysis', sub:'Starting situation of the assessment project' },
+  analisi:    { title:'Initial Analysis', sub:'Executive Human Capital Interview — Leadership perception before the objective Assessment' },
   soft:       { title:'Soft Skills', sub:'Soft Skills & Big Five' },
   hard:       { title:'Hard Skills', sub:'Multi-source APEX 5D Protocol' },
   valore:     { title:'Overall Individual Value', sub:'Integration of Soft Skills + Hard Skills' },
@@ -2964,7 +3169,7 @@ const PAGE_META_TEXT_IT = {
   home:       { title:'Home', sub:"Stato generale dell'organizzazione" },
   company:    { title:'Profilo Azienda', sub:'Sedi, contatti, organico per tipologia e ruoli chiave aziendali' },
   anagrafica: { title:'Anagrafica Risorse', sub:'Elenco dipendenti, ruoli, mansioni e requisiti di ruolo' },
-  analisi:    { title:'Analisi Iniziale', sub:'Situazione di partenza del progetto di assessment' },
+  analisi:    { title:'Analisi Iniziale', sub:'Executive Human Capital Interview — la percezione della Direzione prima della misurazione oggettiva' },
   soft:       { title:'Competenze Trasversali', sub:'Soft Skills & Big Five' },
   hard:       { title:'Competenze Professionali', sub:'Protocollo APEX 5D multi-source' },
   valore:     { title:'Valore Complessivo della Persona', sub:'Integrazione Competenze Trasversali + Competenze Professionali' },
@@ -5625,64 +5830,461 @@ function saveCompany(){
   toast(UI.toastCompanySaved, 'ok');
 }
 
-/* ============================= INITIAL ANALYSIS ============================= */
-let ANALISI_EDIT_MODE = false;
-function analisiFields(){
-  return [
-    { id:'ai-problematiche', key:'problematiche', title:UI.analisiFieldProblematiche },
-    { id:'ai-criticita', key:'criticita', title:UI.analisiFieldCriticita },
-    { id:'ai-obiettivi', key:'obiettiviProgetto', title:UI.analisiFieldObiettivi },
-    { id:'ai-aspettative', key:'aspettative', title:UI.analisiFieldAspettative },
-  ];
+/* ============================= INITIAL ANALYSIS — EXECUTIVE HUMAN CAPITAL INTERVIEW =============================
+   Replaces the old free-text notes page with an interactive 7-question interview (+ a setup step) that
+   produces a computed "Executive Profile": perceived value, perceived potential gap, role fit,
+   organizational risk and strategic priority, all self-reported by the Leadership before the objective
+   Assessment. Two render modes share this one page and one persisted object (STATE.analisiIniziale):
+     - 'wizard' — data entry. renderExiWizard() builds all 8 step panels into the DOM once per entry into
+       edit mode and toggles which one is visible (exiGoStep) rather than re-rendering per step, so input
+       values and the free-navigation stepper behave exactly like a real multi-step form.
+     - 'report' — read-only. Computed fresh from STATE.analisiIniziale on every render, never from stale DOM. */
+function exiDefaultData(){
+  return {
+    completed: true,
+    azienda: 'Demo Company S.r.l.', settore: 'Servizi professionali', intervistato: 'Marco Bianchi', ruolo: 0, dipendenti: '85',
+    data: new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'long', year:'numeric'}),
+    q1: 6.5, q1c: 'Abbiamo persone valide, ma non tutte esprimono il massimo del loro potenziale nel ruolo attuale.',
+    q2: 5.0, q2c: 'Manca un sistema strutturato per individuare in modo oggettivo chi ha margini di crescita inespressi.',
+    aree: { '9': 8, '2': 6, '5': 5 },
+    q3c: "Il turnover nell'area Customer Service resta la criticità più urgente.",
+    q4: 6.5, q4c: 'Alcuni ruoli chiave sono stati assegnati più per necessità organizzativa che per reale idoneità.',
+    q5: 6,
+    rischi: ['Turnover elevato in Customer Service', 'Gap di leadership nel middle management', 'Difficoltà a pianificare le successioni chiave'],
+    q6: 7.5,
+    obiettivi: ['Mappare oggettivamente le competenze', 'Individuare i talenti da valorizzare', 'Definire le priorità di formazione'],
+    decisioni: [0, 1, 3, 5],
+    q7c: 'Vorremmo uno strumento che il team HR possa usare in autonomia.',
+  };
 }
-function analisiFieldHtml(field, value){
-  if(ANALISI_EDIT_MODE){
-    return `<div class="card">
-      <div class="card-title" style="margin-bottom:10px;">${esc(field.title)}</div>
-      <textarea id="${field.id}" class="neu-input" style="width:100%; min-height:140px; line-height:1.55; resize:vertical;">${esc(value)}</textarea>
-    </div>`;
-  }
-  const hasValue = value && value.trim().length;
-  return `<div class="card">
-    <div class="card-title" style="margin-bottom:10px;">${esc(field.title)}</div>
-    <div style="font-size:12.8px; line-height:1.65; white-space:pre-wrap; color:${hasValue?'var(--text-1)':'var(--text-3)'}; ${hasValue?'':'font-style:italic;'}">${hasValue?esc(value):UI.analisiNotDocumented}</div>
+function exiBlankData(){
+  return {
+    completed: false,
+    azienda: (typeof STATE!=='undefined' && STATE && STATE.settings && STATE.settings.companyName) || '',
+    settore:'', intervistato:'', ruolo:0, dipendenti:'',
+    data: new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'long', year:'numeric'}),
+    q1:7, q1c:'', q2:6, q2c:'',
+    aree:{}, q3c:'',
+    q4:7, q4c:'', q5:5,
+    rischi:['','',''],
+    q6:7, obiettivi:['','',''],
+    decisioni:[], q7c:'',
+  };
+}
+let ANALISI_MODE = 'report'; // 'report' | 'wizard'
+let EXI_STEP = 0;
+let EXI_SEL_AREE = {};
+let EXI_SEL_DEC = [];
+
+function exiScoreTier(v){
+  if(v<3) return {label:UI.exiTierCritico, color:'var(--danger)'};
+  if(v<5) return {label:UI.exiTierInsufficiente, color:'var(--warning)'};
+  if(v<6.5) return {label:UI.exiTierDiscreto, color:'var(--text-2)'};
+  if(v<8) return {label:UI.exiTierBuono, color:'var(--accent-dark)'};
+  return {label:UI.exiTierEccellente, color:'var(--success)'};
+}
+// Q5 (organizational risk) runs on an inverted scale — a HIGH value is the bad outcome — so its color
+// must invert too, or a critical risk score would render in the same green as an excellent one.
+function exiRiskTier(v){ return exiScoreTier(10-v); }
+
+function renderAnalisi(){
+  if(!STATE.analisiIniziale || STATE.analisiIniziale.q1===undefined) STATE.analisiIniziale = exiDefaultData();
+  if(ANALISI_MODE === 'wizard') renderExiWizard(); else renderExiReport();
+}
+
+function exiEnterWizard(atStep){
+  if(!canEdit()){ toast(UI.viewerReadOnly, 'err'); return; }
+  const a = STATE.analisiIniziale;
+  EXI_SEL_AREE = { ...(a.aree||{}) };
+  EXI_SEL_DEC = [...(a.decisioni||[])];
+  EXI_STEP = atStep!=null ? atStep : 0;
+  ANALISI_MODE = 'wizard';
+  renderAnalisi();
+}
+function exiCancelEdit(){ ANALISI_MODE = 'report'; renderAnalisi(); }
+function exiNewInterview(){
+  if(!canEdit()){ toast(UI.viewerReadOnly, 'err'); return; }
+  if(STATE.analisiIniziale && STATE.analisiIniziale.completed && !confirm(UI.exiConfirmNew)) return;
+  STATE.analisiIniziale = exiBlankData();
+  persist();
+  exiEnterWizard(0);
+}
+
+function exiSliderBoxHtml(n, ticks, value, inverted){
+  const tier = inverted ? exiRiskTier(value) : exiScoreTier(value);
+  return `<div class="exi-slider-box">
+    <div class="exi-slider-value">
+      <div class="exi-slider-num" id="exi-q${n}n" style="color:${tier.color}">${fmt1(value)}</div>
+      <div class="exi-slider-scale">${esc(UI.exiPointsOf10)}</div>
+      <div class="exi-slider-label" id="exi-q${n}l" style="color:${tier.color}">${esc(tier.label)}</div>
+    </div>
+    <input type="range" id="exi-q${n}" min="1" max="10" step="0.5" value="${value}" oninput="exiUpdateSlider(${n})">
+    <div class="exi-slider-ticks">${ticks.map(t=>`<span>${esc(t)}</span>`).join('')}</div>
   </div>`;
 }
-function renderAnalisi(){
+function exiSliderStepHtml(n, eyebrow, title, sub, ticks, value, ph, comment){
+  return `<div class="exi-wizard-step" id="exi-step-${n}">
+    <div class="card">
+      <div class="exi-eyebrow">${eyebrow}</div>
+      <div class="exi-qtitle">${title}</div>
+      <div class="exi-qsub">${sub}</div>
+      ${exiSliderBoxHtml(n, ticks, value, false)}
+      <div class="field"><label>${esc(UI.exiCommentLabel)}</label><textarea id="exi-q${n}c" class="neu-input" placeholder="${esc(ph)}">${esc(comment)}</textarea></div>
+    </div>
+    <div class="exi-nav"><button class="btn btn-ghost" onclick="exiPrev()">${esc(UI.exiBackBtn)}</button><button class="btn btn-primary" onclick="exiNext()">${esc(UI.exiNextBtn)}</button></div>
+  </div>`;
+}
+function exiAreasGridHtml(areas){
+  return areas.map((name,i)=>{
+    const on = EXI_SEL_AREE[i]!==undefined;
+    const v = on ? EXI_SEL_AREE[i] : 5;
+    return `<div class="exi-area ${on?'on':''}" id="exi-area-${i}" onclick="exiToggleArea(${i})">
+      <div class="exi-area-top"><div class="exi-area-chk">✓</div><div class="exi-area-nm">${esc(name)}</div></div>
+      <div class="exi-area-slider" onclick="event.stopPropagation()">
+        <div class="exi-area-slider-row">
+          <span>${esc(UI.exiAreaCriticalityLabel)}</span>
+          <input type="range" min="1" max="10" step="1" value="${v}" oninput="exiSetAreaCrit(${i}, this.value)" style="flex:1">
+          <span class="exi-area-slider-v" id="exi-area-critv-${i}">${v}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function exiToggleArea(i){
+  const el = document.getElementById('exi-area-'+i);
+  if(EXI_SEL_AREE[i]!==undefined){ delete EXI_SEL_AREE[i]; el.classList.remove('on'); }
+  else{ EXI_SEL_AREE[i]=5; el.classList.add('on'); }
+}
+function exiSetAreaCrit(i, v){ EXI_SEL_AREE[i]=+v; document.getElementById('exi-area-critv-'+i).textContent=v; }
+function exiDecisionsGridHtml(decisions){
+  return decisions.map((d,i)=>{
+    const on = EXI_SEL_DEC.includes(i);
+    return `<div class="exi-dec ${on?'on':''}" id="exi-dec-${i}" onclick="exiToggleDecision(${i})">
+      <div class="exi-dec-ic">${d.ic}</div><div class="exi-dec-nm">${esc(d.nm)}</div><div class="exi-dec-ds">${esc(d.ds)}</div>
+    </div>`;
+  }).join('');
+}
+function exiToggleDecision(i){
+  const el = document.getElementById('exi-dec-'+i);
+  const p = EXI_SEL_DEC.indexOf(i);
+  if(p>-1){ EXI_SEL_DEC.splice(p,1); el.classList.remove('on'); }
+  else{ EXI_SEL_DEC.push(i); el.classList.add('on'); }
+}
+function exiUpdateSlider(n){
+  const v = parseFloat(document.getElementById('exi-q'+n).value);
+  const tier = n===5 ? exiRiskTier(v) : exiScoreTier(v);
+  document.getElementById('exi-q'+n+'n').textContent = fmt1(v);
+  document.getElementById('exi-q'+n+'n').style.color = tier.color;
+  document.getElementById('exi-q'+n+'l').textContent = tier.label;
+  document.getElementById('exi-q'+n+'l').style.color = tier.color;
+}
+function exiGoStep(i){
+  if(i<0||i>7) return;
+  document.querySelectorAll('.exi-wizard-step').forEach(s=>s.classList.remove('on'));
+  const stepEl = document.getElementById('exi-step-'+i);
+  if(stepEl) stepEl.classList.add('on');
+  EXI_STEP = i;
+  const total = UI.exiSteps.length - 1;
+  const fillEl = document.getElementById('exi-progress-fill');
+  if(fillEl) fillEl.style.width = ((i/total)*100)+'%';
+  UI.exiSteps.forEach((_,idx)=>{
+    const el = document.getElementById('exi-pst-'+idx);
+    if(!el) return;
+    el.className = 'exi-step-pill' + (idx===i?' on':(idx<i?' done':''));
+  });
+  const content = document.querySelector('.content');
+  if(content) content.scrollTo({top:0, behavior:'smooth'});
+}
+function exiNext(){ exiGoStep(EXI_STEP+1); }
+function exiPrev(){ exiGoStep(EXI_STEP-1); }
+
+function renderExiWizard(){
   const el = document.getElementById('page-analisi');
   const a = STATE.analisiIniziale;
-  const editing = ANALISI_EDIT_MODE;
+  const steps = UI.exiSteps, roles = UI.exiRoles, areas = UI.exiAreas, decisions = UI.exiDecisions;
 
-  setTopbarActions(editing || !canEdit() ? '' : `<button class="btn btn-primary" onclick="toggleAnalisiEdit(true)">${ICONS.edit}${UI.analisiEditBtn}</button>`);
+  const stepDotsHtml = steps.map((s,i)=>`<div class="exi-step-pill" id="exi-pst-${i}" onclick="${i===8?'exiGenerate()':`exiGoStep(${i})`}"><span class="exi-step-dot"></span>${esc(s)}</div>`).join('');
+  const cancelBtn = a.completed ? `<button class="btn btn-ghost btn-sm" onclick="exiCancelEdit()">${esc(UI.exiCancelEditBtn)}</button>` : '';
 
   el.innerHTML = `
-    <div class="section-head"><div><h2>${UI.analisiPageTitle}</h2><p>${UI.analisiPageSub} ${editing ? UI.analisiEditingNote : UI.analisiClickEditNote}</p></div></div>
-    <div class="grid grid-2">
-      ${analisiFields().map(f => analisiFieldHtml(f, a[f.key])).join('')}
+    <div class="section-head">
+      <div><h2>${esc(UI.analisiPageTitle)}</h2><p>${esc(UI.exiBadge)} · ${esc(UI.exiEstimatedTime)}</p></div>
+      ${cancelBtn}
     </div>
-    ${editing ? `<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;">
-      <button class="btn" onclick="toggleAnalisiEdit(false)">${UI.importCancel}</button>
-      <button class="btn btn-primary" onclick="saveAnalisi()">${UI.analisiSaveBtn}</button>
-    </div>` : ''}
+    <div class="card exi-progress">
+      <div class="exi-progress-track"><div class="exi-progress-fill" id="exi-progress-fill"></div></div>
+      <div class="exi-steps">${stepDotsHtml}</div>
+    </div>
+
+    <div class="exi-wizard-step" id="exi-step-0">
+      <div class="card">
+        <div class="exi-eyebrow">${esc(UI.exiSetupEyebrow)}</div>
+        <div class="exi-qtitle">${esc(UI.exiSetupTitle)}</div>
+        <div class="exi-qsub">${esc(UI.exiSetupSub)}</div>
+        <div class="grid grid-2">
+          <div class="field"><label>${esc(UI.exiFieldCompany)}</label><input type="text" id="exi-f-azienda" class="neu-input" placeholder="${esc(UI.exiFieldCompanyPh)}" value="${esc(a.azienda)}"></div>
+          <div class="field"><label>${esc(UI.exiFieldSector)}</label><input type="text" id="exi-f-settore" class="neu-input" placeholder="${esc(UI.exiFieldSectorPh)}" value="${esc(a.settore)}"></div>
+          <div class="field"><label>${esc(UI.exiFieldInterviewee)}</label><input type="text" id="exi-f-intervistato" class="neu-input" placeholder="${esc(UI.exiFieldIntervieweePh)}" value="${esc(a.intervistato)}"></div>
+          <div class="field"><label>${esc(UI.exiFieldRole)}</label>
+            <select id="exi-f-ruolo" class="neu-input">${roles.map((r,i)=>`<option value="${i}" ${i===a.ruolo?'selected':''}>${esc(r)}</option>`).join('')}</select>
+          </div>
+          <div class="field"><label>${esc(UI.exiFieldEmployees)}</label><input type="text" id="exi-f-dipendenti" class="neu-input" placeholder="${esc(UI.exiFieldEmployeesPh)}" value="${esc(a.dipendenti)}"></div>
+          <div class="field"><label>${esc(UI.exiFieldDate)}</label><input type="text" id="exi-f-data" class="neu-input" value="${esc(a.data)}"></div>
+        </div>
+      </div>
+      <div class="exi-nav"><span></span><button class="btn btn-primary" onclick="exiNext()">${esc(UI.exiStartBtn)}</button></div>
+    </div>
+
+    ${exiSliderStepHtml(1, esc(UI.exiQ1Eyebrow), esc(UI.exiQ1Title), esc(UI.exiQ1Sub), UI.exiQ1Ticks, a.q1, UI.exiQ1Ph, a.q1c)}
+    ${exiSliderStepHtml(2, esc(UI.exiQ2Eyebrow), esc(UI.exiQ2Title), UI.exiQ2Sub, UI.exiQ2Ticks, a.q2, UI.exiQ2Ph, a.q2c)}
+
+    <div class="exi-wizard-step" id="exi-step-3">
+      <div class="card">
+        <div class="exi-eyebrow">${esc(UI.exiQ3Eyebrow)}</div>
+        <div class="exi-qtitle">${esc(UI.exiQ3Title)}</div>
+        <div class="exi-qsub">${esc(UI.exiQ3Sub)}</div>
+        <div class="exi-areas-grid" id="exi-areas-grid">${exiAreasGridHtml(areas)}</div>
+        <div class="field"><label>${esc(UI.exiQ3NotesLabel)}</label><textarea id="exi-q3c" class="neu-input" placeholder="${esc(UI.exiQ3Ph)}">${esc(a.q3c)}</textarea></div>
+      </div>
+      <div class="exi-nav"><button class="btn btn-ghost" onclick="exiPrev()">${esc(UI.exiBackBtn)}</button><button class="btn btn-primary" onclick="exiNext()">${esc(UI.exiNextBtn)}</button></div>
+    </div>
+
+    ${exiSliderStepHtml(4, esc(UI.exiQ4Eyebrow), esc(UI.exiQ4Title), esc(UI.exiQ4Sub), UI.exiQ4Ticks, a.q4, UI.exiQ4Ph, a.q4c)}
+
+    <div class="exi-wizard-step" id="exi-step-5">
+      <div class="card">
+        <div class="exi-eyebrow">${esc(UI.exiQ5Eyebrow)}</div>
+        <div class="exi-qtitle">${esc(UI.exiQ5Title)}</div>
+        <div class="exi-qsub">${UI.exiQ5Sub}</div>
+        <div class="exi-pri-list">
+          ${[0,1,2].map(i=>`<div class="exi-pri-row"><div class="exi-pri-num">${i+1}</div><input type="text" id="exi-r${i+1}" placeholder="${esc(UI.exiRiskPh[i])}" value="${esc((a.rischi||[])[i]||'')}"></div>`).join('')}
+        </div>
+        <label style="display:block;font-size:11.5px;font-weight:700;color:var(--text-2);margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em">${esc(UI.exiRiskLevelLabel)}</label>
+        ${exiSliderBoxHtml(5, UI.exiQ5Ticks, a.q5, true)}
+      </div>
+      <div class="exi-nav"><button class="btn btn-ghost" onclick="exiPrev()">${esc(UI.exiBackBtn)}</button><button class="btn btn-primary" onclick="exiNext()">${esc(UI.exiNextBtn)}</button></div>
+    </div>
+
+    <div class="exi-wizard-step" id="exi-step-6">
+      <div class="card">
+        <div class="exi-eyebrow">${esc(UI.exiQ6Eyebrow)}</div>
+        <div class="exi-qtitle">${esc(UI.exiQ6Title)}</div>
+        <div class="exi-qsub">${esc(UI.exiQ6Sub)}</div>
+        <div class="exi-pri-list">
+          ${[0,1,2].map(i=>`<div class="exi-pri-row"><div class="exi-pri-num">${i+1}</div><input type="text" id="exi-o${i+1}" placeholder="${esc(UI.exiObjPh[i])}" value="${esc((a.obiettivi||[])[i]||'')}"></div>`).join('')}
+        </div>
+        <label style="display:block;font-size:11.5px;font-weight:700;color:var(--text-2);margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em">${esc(UI.exiUrgencyLabel)}</label>
+        ${exiSliderBoxHtml(6, UI.exiQ6Ticks, a.q6, false)}
+      </div>
+      <div class="exi-nav"><button class="btn btn-ghost" onclick="exiPrev()">${esc(UI.exiBackBtn)}</button><button class="btn btn-primary" onclick="exiNext()">${esc(UI.exiNextBtn)}</button></div>
+    </div>
+
+    <div class="exi-wizard-step" id="exi-step-7">
+      <div class="card">
+        <div class="exi-eyebrow">${esc(UI.exiQ7Eyebrow)}</div>
+        <div class="exi-qtitle">${esc(UI.exiQ7Title)}</div>
+        <div class="exi-qsub">${esc(UI.exiQ7Sub)}</div>
+        <div class="exi-dec-grid" id="exi-dec-grid">${exiDecisionsGridHtml(decisions)}</div>
+        <div class="field"><label>${esc(UI.exiCommentLabel)}</label><textarea id="exi-q7c" class="neu-input" placeholder="${esc(UI.exiQ7Ph)}">${esc(a.q7c)}</textarea></div>
+      </div>
+      <div class="exi-nav"><button class="btn btn-ghost" onclick="exiPrev()">${esc(UI.exiBackBtn)}</button><button class="btn btn-primary" onclick="exiGenerate()">${esc(UI.exiGenerateBtn)}</button></div>
+    </div>
   `;
+  setTopbarActions('');
+  exiGoStep(EXI_STEP);
+  [1,2,4,5,6].forEach(n=>exiUpdateSlider(n));
 }
-function toggleAnalisiEdit(on){
-  if(on && !canEdit()){ toast(UI.viewerReadOnly, 'err'); return; }
-  ANALISI_EDIT_MODE = on;
-  renderAnalisi();
-}
-function saveAnalisi(){
+
+function exiGenerate(){
   if(!canEdit()){ toast(UI.viewerReadOnly, 'err'); return; }
+  const g = id => document.getElementById(id);
   STATE.analisiIniziale = {
-    problematiche: document.getElementById('ai-problematiche').value,
-    criticita: document.getElementById('ai-criticita').value,
-    obiettiviProgetto: document.getElementById('ai-obiettivi').value,
-    aspettative: document.getElementById('ai-aspettative').value,
+    completed: true,
+    azienda: g('exi-f-azienda').value, settore: g('exi-f-settore').value,
+    intervistato: g('exi-f-intervistato').value, ruolo: +g('exi-f-ruolo').value,
+    dipendenti: g('exi-f-dipendenti').value, data: g('exi-f-data').value,
+    q1: parseFloat(g('exi-q1').value), q1c: g('exi-q1c').value,
+    q2: parseFloat(g('exi-q2').value), q2c: g('exi-q2c').value,
+    aree: { ...EXI_SEL_AREE }, q3c: g('exi-q3c').value,
+    q4: parseFloat(g('exi-q4').value), q4c: g('exi-q4c').value,
+    q5: parseFloat(g('exi-q5').value),
+    rischi: [g('exi-r1').value, g('exi-r2').value, g('exi-r3').value].filter(x=>x),
+    q6: parseFloat(g('exi-q6').value),
+    obiettivi: [g('exi-o1').value, g('exi-o2').value, g('exi-o3').value].filter(x=>x),
+    decisioni: [...EXI_SEL_DEC],
+    q7c: g('exi-q7c').value,
   };
   persist();
-  ANALISI_EDIT_MODE = false;
+  ANALISI_MODE = 'report';
   renderAnalisi();
   toast(UI.toastAnalisiSaved, 'ok');
+}
+
+function exiStartAssessment(){
+  toast(UI.exiCtaToast, 'ok');
+  navigateTo('anagrafica');
+}
+
+function renderExiReport(){
+  const el = document.getElementById('page-analisi');
+  const a = STATE.analisiIniziale;
+  const areas = UI.exiAreas, decisions = UI.exiDecisions, roles = UI.exiRoles;
+
+  const v1=a.q1, v2=a.q2, v4=a.q4, v5=a.q5, v6=a.q6;
+  const gap = round1(v2-v1);
+  const gapPc = v1>0 ? (gap/v1*100) : 0;
+  const phcv = round1((v1*0.30)+(v2*0.25)+(v4*0.25)+((10-v5)*0.10)+(v6*0.10));
+  const heroTier = exiScoreTier(phcv);
+  const heroText = phcv>=7.5 ? UI.exiHeroTextHigh : phcv>=6 ? UI.exiHeroTextMid : phcv>=4.5 ? UI.exiHeroTextLow : UI.exiHeroTextCritical;
+
+  const KS = [
+    {v:v1, color:'var(--accent)',  label:UI.exiK1Label, sub:UI.exiK1Sub},
+    {v:v2, color:'var(--success)', label:UI.exiK2Label, sub:UI.exiK2Sub},
+    {v:v4, color:'var(--gold)',    label:UI.exiK4Label, sub:UI.exiK4Sub},
+    {v:v5, color:'var(--danger)',  label:UI.exiK5Label, sub:UI.exiK5Sub, inverted:true},
+    {v:v6, color:'var(--warning)', label:UI.exiK6Label, sub:UI.exiK6Sub},
+  ];
+  const kpiGridHtml = KS.map(k=>{
+    const tier = k.inverted ? exiRiskTier(k.v) : exiScoreTier(k.v);
+    return `<div class="exi-kpi" style="border-top-color:${k.color}">
+      <div class="exi-kpi-l">${k.label}</div>
+      <div class="exi-kpi-v" style="color:${tier.color}">${fmt1(k.v)}<small>${esc(UI.exiPointsOf10)}</small></div>
+      <div class="exi-kpi-track"><div class="exi-kpi-fill" style="width:${k.v*10}%;background:${k.color}"></div></div>
+      <div class="exi-kpi-s">${esc(k.sub)}</div>
+    </div>`;
+  }).join('');
+
+  const gapColor = gap<-0.5?'var(--danger)':gap<0?'var(--warning)':'var(--success)';
+  const gapText = gap<0 ? UI.exiGapTextNegative(fmt1(Math.abs(gap)), Math.abs(gapPc).toFixed(1))
+    : gap===0 ? UI.exiGapTextZero : UI.exiGapTextPositive;
+
+  const areaKeys = Object.keys(a.aree||{}).sort((x,y)=>a.aree[y]-a.aree[x]);
+  const areasHtml = areaKeys.length ? areaKeys.map(i=>{
+    const v = a.aree[i];
+    const c = v>=8?'var(--danger)':v>=6?'var(--warning)':'var(--accent)';
+    return `<div class="exi-gap-row">
+      <div class="exi-gap-lbl">${esc(areas[i]||'')}</div>
+      <div class="exi-gap-track"><div class="exi-gap-fill" style="width:${v*10}%;background:${c}"></div></div>
+      <div class="exi-gap-v" style="color:${c}">${v}</div>
+    </div>`;
+  }).join('') : `<div class="small-note">${esc(UI.exiAreasEmpty)}</div>`;
+
+  const q1Tier = exiScoreTier(v1), q2Tier = exiScoreTier(v2), q4Tier = exiScoreTier(v4);
+  const risk = (a.rischi||[]).filter(x=>x);
+  const riskChips = risk.length ? `<div class="chips" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">${risk.map((r,i)=>`<span class="chip chip-red">${i+1}. ${esc(r)}</span>`).join('')}</div>` : '';
+  const obj = (a.obiettivi||[]).filter(x=>x);
+  const objChips = obj.length ? `<div class="chips" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">${obj.map((o,i)=>`<span class="chip chip-blue">${i+1}. ${esc(o)}</span>`).join('')}</div>` : '';
+  const decChips = (a.decisioni||[]).length ? `<div class="chips" style="display:flex;gap:7px;flex-wrap:wrap">${a.decisioni.map(i=>decisions[i]?`<span class="chip chip-gold">${decisions[i].ic} ${esc(decisions[i].nm)}</span>`:'').join('')}</div>` : `<span style="color:var(--text-3)">${esc(UI.exiNoDecisions)}</span>`;
+  const meta = [a.intervistato, roles[a.ruolo], a.settore, a.data].filter(x=>x).join(' · ');
+
+  setTopbarActions(`
+    <button class="btn btn-ghost btn-sm" onclick="exiPrintReport()">${esc(UI.exiPrintBtn)}</button>
+    <button class="btn btn-ghost btn-sm" onclick="exiExportJson()">${esc(UI.exiSaveBtn)}</button>
+    ${canEdit() ? `<button class="btn btn-ghost btn-sm" onclick="exiNewInterview()">${esc(UI.exiNewInterviewBtn)}</button>` : ''}
+    ${canEdit() ? `<button class="btn btn-primary btn-sm" onclick="exiEnterWizard(7)">${ICONS.edit}${esc(UI.exiEditAnswersBtn)}</button>` : ''}
+  `);
+
+  el.innerHTML = `
+    <div class="section-head"><div><h2>${esc(UI.exiRepBadge)}</h2><p>${esc(a.azienda||UI.analisiPageTitle)}${meta?' · '+esc(meta):''}</p></div></div>
+
+    <div class="exi-hero">
+      <div class="exi-hero-label">${esc(UI.exiHeroLabel)}</div>
+      <div class="exi-hero-num" style="color:${heroTier.color}">${fmt1(phcv)}<small>${esc(UI.exiPointsOf10)}</small></div>
+      <div class="exi-hero-text">${esc(heroText)}</div>
+    </div>
+
+    <div class="exi-kpi-grid">${kpiGridHtml}</div>
+
+    <div class="card exi-gapbox">
+      <div class="card-title-row"><div class="card-title">${esc(UI.exiGapTitle)}</div></div>
+      <div class="exi-gap-row">
+        <div class="exi-gap-lbl">${esc(UI.exiGapLabel1)}</div>
+        <div class="exi-gap-track"><div class="exi-gap-fill" style="width:${v1*10}%;background:var(--accent)"></div></div>
+        <div class="exi-gap-v" style="color:var(--accent-dark)">${fmt1(v1)}</div>
+      </div>
+      <div class="exi-gap-row">
+        <div class="exi-gap-lbl">${esc(UI.exiGapLabel2)}</div>
+        <div class="exi-gap-track"><div class="exi-gap-fill" style="width:${v2*10}%;background:var(--success)"></div></div>
+        <div class="exi-gap-v" style="color:var(--success)">${fmt1(v2)}</div>
+      </div>
+      <div class="exi-gap-summary">
+        <div class="exi-gap-sum-n" style="color:${gapColor}">${gap>=0?'+':''}${fmt1(gap)}</div>
+        <div class="exi-gap-sum-t">${gapText}</div>
+      </div>
+    </div>
+
+    <div class="card exi-gapbox">
+      <div class="card-title-row"><div class="card-title">${esc(UI.exiAreasTitle)}</div></div>
+      ${areasHtml}
+    </div>
+
+    <div class="card exi-ans"><div class="exi-ans-q">${esc(UI.exiQ1Eyebrow)}</div><div class="exi-ans-t">${esc(UI.exiAns1Title)}</div><div class="exi-ans-v" style="color:${q1Tier.color}">${fmt1(v1)} ${esc(UI.exiPointsOf10)} — ${esc(q1Tier.label)}</div>${a.q1c?`<div class="exi-ans-quote">"${esc(a.q1c)}"</div>`:''}</div>
+    <div class="card exi-ans"><div class="exi-ans-q">${esc(UI.exiQ2Eyebrow)}</div><div class="exi-ans-t">${esc(UI.exiAns2Title)}</div><div class="exi-ans-v" style="color:${q2Tier.color}">${fmt1(v2)} ${esc(UI.exiPointsOf10)} — ${esc(q2Tier.label)}</div>${a.q2c?`<div class="exi-ans-quote">"${esc(a.q2c)}"</div>`:''}</div>
+    <div class="card exi-ans"><div class="exi-ans-q">${esc(UI.exiQ4Eyebrow)}</div><div class="exi-ans-t">${esc(UI.exiAns4Title)}</div><div class="exi-ans-v" style="color:${q4Tier.color}">${fmt1(v4)} ${esc(UI.exiPointsOf10)} — ${esc(q4Tier.label)}</div>${a.q4c?`<div class="exi-ans-quote">"${esc(a.q4c)}"</div>`:''}</div>
+    <div class="card exi-ans"><div class="exi-ans-q">${esc(UI.exiQ5Eyebrow)}</div><div class="exi-ans-t">${esc(UI.exiAns5Title)}</div><div class="exi-ans-v">${esc(UI.exiRiskInlineLabel)} <strong style="color:${exiRiskTier(v5).color}">${fmt1(v5)} ${esc(UI.exiPointsOf10)}</strong>${riskChips}</div></div>
+    <div class="card exi-ans"><div class="exi-ans-q">${esc(UI.exiQ6Eyebrow)}</div><div class="exi-ans-t">${esc(UI.exiAns6Title)}</div><div class="exi-ans-v">${esc(UI.exiUrgencyInlineLabel)} <strong style="color:${exiScoreTier(v6).color}">${fmt1(v6)} ${esc(UI.exiPointsOf10)}</strong>${objChips}</div></div>
+    <div class="card exi-ans"><div class="exi-ans-q">${esc(UI.exiQ7Eyebrow)}</div><div class="exi-ans-t">${esc(UI.exiAns7Title)}</div><div class="exi-ans-v">${decChips}</div>${a.q7c?`<div class="exi-ans-quote">"${esc(a.q7c)}"</div>`:''}</div>
+
+    <div class="exi-cta">
+      <h3>${esc(UI.exiCtaTitle)}</h3>
+      <p>${esc(UI.exiCtaText)}</p>
+      <button class="btn" onclick="exiStartAssessment()">${esc(UI.exiCtaBtn)}</button>
+    </div>
+
+    <div class="exi-footer-note">${UI.exiFooterNote}</div>
+  `;
+}
+
+function exiPrintReport(){
+  const a = STATE.analisiIniziale;
+  const roles = UI.exiRoles, areas = UI.exiAreas, decisions = UI.exiDecisions;
+  const v1=a.q1,v2=a.q2,v4=a.q4,v5=a.q5,v6=a.q6;
+  const gap = round1(v2-v1);
+  const phcv = round1((v1*0.30)+(v2*0.25)+(v4*0.25)+((10-v5)*0.10)+(v6*0.10));
+  const areaRows = Object.keys(a.aree||{}).sort((x,y)=>a.aree[y]-a.aree[x]).map(i=>`<tr><td>${esc(areas[i]||'')}</td><td>${a.aree[i]}</td></tr>`).join('');
+  const risk = (a.rischi||[]).filter(x=>x).map(r=>`<li>${esc(r)}</li>`).join('');
+  const obj = (a.obiettivi||[]).filter(x=>x).map(o=>`<li>${esc(o)}</li>`).join('');
+  const decs = (a.decisioni||[]).map(i=>decisions[i]?esc(decisions[i].nm):'').filter(Boolean).join(', ');
+  document.getElementById('report-print-container').innerHTML = `
+    <div class="rpt-note"><b>${esc(UI.exiRepBadge)}</b> — ${esc(a.azienda||'')}</div>
+    <div class="rpt-h1">${esc(a.azienda||'')}</div>
+    <div>${[esc(a.intervistato), esc(roles[a.ruolo]||''), esc(a.settore)].filter(Boolean).join(' · ')}</div>
+    <div style="font-size:11px;color:#555;margin-top:2px">${esc(a.data||'')}</div>
+    <div class="rpt-h2">${esc(UI.exiHeroLabel)}</div>
+    <div>${fmt1(phcv)}/10</div>
+    <table class="rpt-table"><thead><tr><th>${esc(UI.analisiPageTitle)}</th><th>/10</th></tr></thead><tbody>
+      <tr><td>${UI.exiK1Label.replace('<br>',' ')}</td><td>${fmt1(v1)}</td></tr>
+      <tr><td>${UI.exiK2Label.replace('<br>',' ')}</td><td>${fmt1(v2)}</td></tr>
+      <tr><td>${UI.exiK4Label.replace('<br>',' ')}</td><td>${fmt1(v4)}</td></tr>
+      <tr><td>${UI.exiK5Label.replace('<br>',' ')}</td><td>${fmt1(v5)}</td></tr>
+      <tr><td>${UI.exiK6Label.replace('<br>',' ')}</td><td>${fmt1(v6)}</td></tr>
+    </tbody></table>
+    <div class="rpt-h2">${esc(UI.exiGapTitle)}</div>
+    <div>${gap>=0?'+':''}${fmt1(gap)}</div>
+    ${areaRows?`<div class="rpt-h2">${esc(UI.exiAreasTitle)}</div><table class="rpt-table"><thead><tr><th>${esc(UI.analisiPageTitle)}</th><th>${esc(UI.exiAreaCriticalityLabel)}</th></tr></thead><tbody>${areaRows}</tbody></table>`:''}
+    ${risk?`<div class="rpt-h2">${esc(UI.exiAns5Title)}</div><ul>${risk}</ul>`:''}
+    ${obj?`<div class="rpt-h2">${esc(UI.exiAns6Title)}</div><ul>${obj}</ul>`:''}
+    ${decs?`<div class="rpt-h2">${esc(UI.exiAns7Title)}</div><div>${decs}</div>`:''}
+  `;
+  setTimeout(()=>window.print(), 150);
+}
+function exiExportJson(){
+  const a = STATE.analisiIniziale;
+  const roles = UI.exiRoles, areas = UI.exiAreas, decisions = UI.exiDecisions;
+  const data = {
+    azienda:a.azienda, settore:a.settore, intervistato:a.intervistato, ruolo:roles[a.ruolo]||'', dipendenti:a.dipendenti, data:a.data,
+    q1:a.q1, q1c:a.q1c, q2:a.q2, q2c:a.q2c,
+    aree: Object.entries(a.aree||{}).map(([i,v])=>({area:areas[i]||'', criticita:v})), q3c:a.q3c,
+    q4:a.q4, q4c:a.q4c, q5:a.q5, rischi:a.rischi||[],
+    q6:a.q6, obiettivi:a.obiettivi||[],
+    decisioni:(a.decisioni||[]).map(i=>decisions[i]?decisions[i].nm:''), q7c:a.q7c,
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'executive_interview_'+(a.azienda||'azienda').replace(/[^a-z0-9]/gi,'_')+'.json';
+  link.click();
+  toast(UI.toastExiSaved, 'ok');
 }
 
 /* ============================= MODULE A — SOFT SKILLS ============================= */
@@ -5741,7 +6343,7 @@ function renderSoftOrgView(body){
       </div>
       <div class="card">
         <div class="card-title-row"><div class="card-title">${UI.softBigFiveOrgTitle}</div></div>
-        <div style="max-width:380px; margin:0 auto;"><canvas id="chart-bigfive-org" height="260"></canvas></div>
+        <div id="chart-bigfive-org"></div>
       </div>
     </div>
     <div class="card" style="margin-top:16px;">
@@ -5750,14 +6352,12 @@ function renderSoftOrgView(body){
     </div>
   `;
   renderQueuedStatTileCharts();
-  const ctx = document.getElementById('chart-bigfive-org');
-  CHART_REGISTRY.bfOrg = new Chart(ctx, { type:'radar', data:{
-    labels: BIGFIVE_ORDER.map(d=>BIGFIVE_DIMS[d].label),
-    datasets:[
-      { label:UI.chartObtained, data: BIGFIVE_ORDER.map(d=>bfOrg[d]), backgroundColor:cssVarRgba('--accent',0.14,'#B4C614'), borderColor:cssVar('--accent')||'#B4C614', pointBackgroundColor:cssVar('--accent')||'#B4C614' },
-      { label:UI.chartExpected, data: BIGFIVE_ORDER.map(d=>bfOrgAtteso[d]), backgroundColor:'rgba(0,0,0,0)', borderColor:BRAND_CHART.guide, borderDash:[4,4], pointBackgroundColor:BRAND_CHART.guide, pointRadius:2 },
-    ]
-  }, options:{ scales:{ r:{ min:0, max:10, ticks:{stepSize:2}, grid:{color:BRAND_CHART.grid}, angleLines:{color:BRAND_CHART.grid}, pointLabels:{font:{size:11}} } }, plugins:{legend:{display:true, position:'bottom', labels:{boxWidth:10, font:{size:11}}}} } });
+  ApexCharts3D.renderIsometricBars('chart-bigfive-org', {
+    groups: BIGFIVE_ORDER.map(d=>({ label:BIGFIVE_DIMS[d].label, values:[bfOrg[d], bfOrgAtteso[d]] })),
+    seriesNames:[UI.chartObtained, UI.chartExpected],
+    seriesColors:[cssVar('--accent')||'#B4C614', BRAND_CHART.guide],
+    max:10, dec:1
+  });
 }
 
 function renderSoftAreaView(body){
@@ -5804,7 +6404,7 @@ function renderSoftIndividualeBody(){
     <div class="grid grid-2" style="margin-bottom:16px;">
       <div class="card">
         <div class="card-title-row"><div class="card-title">${UI.softBigFiveProfile}</div></div>
-        <div style="max-width:340px;margin:0 auto;"><canvas id="chart-bf-ind" height="250"></canvas></div>
+        <div id="chart-bf-ind"></div>
       </div>
       <div class="card">
         <div class="card-title-row"><div class="card-title">${UI.softSummaryTitle}</div></div>
@@ -5822,14 +6422,12 @@ function renderSoftIndividualeBody(){
     </div>
   `;
   renderQueuedStatTileCharts();
-  const ctx = document.getElementById('chart-bf-ind');
-  CHART_REGISTRY.bfInd = new Chart(ctx, { type:'radar', data:{
-    labels: BIGFIVE_ORDER.map(d=>BIGFIVE_DIMS[d].label),
-    datasets:[
-      { label:emp.nome+' ('+UI.chartObtained+')', data: BIGFIVE_ORDER.map(d=>bf[d]), backgroundColor:cssVarRgba('--accent',0.14,'#B4C614'), borderColor:cssVar('--accent')||'#B4C614', pointBackgroundColor:cssVar('--accent')||'#B4C614' },
-      { label:UI.chartExpected, data: BIGFIVE_ORDER.map(d=>bfAtteso[d]), backgroundColor:'rgba(0,0,0,0)', borderColor:BRAND_CHART.guide, borderDash:[4,4], pointBackgroundColor:BRAND_CHART.guide, pointRadius:2 },
-    ]
-  }, options:{ scales:{ r:{ min:0, max:10, ticks:{stepSize:2}, grid:{color:BRAND_CHART.grid}, angleLines:{color:BRAND_CHART.grid}, pointLabels:{font:{size:11}} } }, plugins:{legend:{display:true, position:'bottom', labels:{boxWidth:10, font:{size:11}}}} } });
+  ApexCharts3D.renderIsometricBars('chart-bf-ind', {
+    groups: BIGFIVE_ORDER.map(d=>({ label:BIGFIVE_DIMS[d].label, values:[bf[d], bfAtteso[d]] })),
+    seriesNames:[emp.nome+' ('+UI.chartObtained+')', UI.chartExpected],
+    seriesColors:[cssVar('--accent')||'#B4C614', BRAND_CHART.guide],
+    max:10, dec:1
+  });
 }
 
 function setSoftRankSort(mode){ SOFT_RANK_SORT = mode; renderSoftViewBody(); }
@@ -6342,7 +6940,7 @@ function renderHardIndividualeBody(){
     <div class="grid grid-2" style="margin-bottom:16px;">
       <div class="card">
         <div class="card-title-row"><div class="card-title">${UI.hardMultiSourceTitle}</div></div>
-        <canvas id="chart-hard-bar" height="220"></canvas>
+        <div id="chart-hard-bar"></div>
       </div>
       <div class="card">
         <div class="card-title-row"><div class="card-title">${UI.hardApex5dProfile}</div></div>
@@ -6369,19 +6967,16 @@ function renderHardIndividualeBody(){
   `;
   renderQueuedStatTileCharts();
   renderLongitudinalGapCard(emp);
-  const ctx = document.getElementById('chart-hard-bar');
-  // Radar/spider view (replaces the old grouped-bar + dashed-line combo): one spoke per APEX
-  // dimension, Manager/Peer/Self overlaid as polygons against a dashed Expected reference —
-  // same data, same source colors, easier to read at a glance than four parallel series.
-  CHART_REGISTRY.hardBar = new Chart(ctx, { type:'radar', data:{
-    labels: hsm.dims.map(d=>d.code),
-    datasets:[
-      { label:UI.hardColManager, data:hsm.dims.map(d=>d.perSource.resp), backgroundColor:cssVarRgba('--accent',0.16,'#B4C614'), borderColor:cssVar('--accent')||'#B4C614', pointBackgroundColor:cssVar('--accent')||'#B4C614', borderWidth:2 },
-      { label:UI.hardColPeer, data:hsm.dims.map(d=>d.perSource.peer), backgroundColor:'rgba(0,0,0,0)', borderColor:'rgba(171,167,154,0.9)', pointBackgroundColor:'rgba(171,167,154,0.9)', pointRadius:2 },
-      { label:UI.hardColSelf, data:hsm.dims.map(d=>d.perSource.auto), backgroundColor:'rgba(0,0,0,0)', borderColor:cssVar('--warning')||'#E08A0B', pointBackgroundColor:cssVar('--warning')||'#E08A0B', pointRadius:2 },
-      { label:UI.chartExpected, data:hsm.dims.map(()=>6.5), backgroundColor:'rgba(0,0,0,0)', borderColor:BRAND_CHART.guide, borderDash:[4,4], pointRadius:0 },
-    ]
-  }, options:{ scales:{ r:{ min:2, max:10, ticks:{stepSize:2}, grid:{color:BRAND_CHART.grid}, angleLines:{color:BRAND_CHART.grid}, pointLabels:{font:{size:11}} } }, plugins:{ legend:{ position:'bottom', labels:{boxWidth:10, font:{size:11}} } } } });
+  // 3D isometric grouped bars: one group per APEX dimension, Manager/Peer/Self
+  // as three cuboids side by side, with a dashed Expected reference line (6.5)
+  // drawn across each group — replaces the earlier radar/spider view, which
+  // itself had replaced the original grouped-bar + dashed-line combo.
+  ApexCharts3D.renderIsometricBars('chart-hard-bar', {
+    groups: hsm.dims.map(d=>({ label:d.code, values:[d.perSource.resp, d.perSource.peer, d.perSource.auto], target:6.5 })),
+    seriesNames:[UI.hardColManager, UI.hardColPeer, UI.hardColSelf],
+    seriesColors:[cssVar('--accent')||'#B4C614', 'rgba(171,167,154,0.9)', cssVar('--warning')||'#E08A0B'],
+    max:10, dec:1
+  });
 }
 
 /* Longitudinal gap tracking (Section 3): compares two of this employee's hardHistory snapshots
@@ -7137,7 +7732,7 @@ function renderCustomerCareAgents(body, model){
   body.innerHTML = `
     <div class="card" style="margin-bottom:16px;">
       <div class="card-title-row"><div class="card-title">${UI.ccAgentsChartTitle}</div></div>
-      <div style="position:relative; height:${Math.max(220, model.rows.length*38)}px;"><canvas id="chart-cc-agents"></canvas></div>
+      <div id="chart-cc-agents"></div>
     </div>
     <div class="card" style="padding:0;">
       <div class="card-title-row" style="padding:16px 20px 0 20px;"><div class="card-title">${UI.ccTabAgents} <span class="muted">${esc(UI.ccMatrixSub)}</span></div></div>
@@ -7154,18 +7749,17 @@ function renderCustomerCareAgents(body, model){
     </div>
   `;
 
-  const ctx = document.getElementById('chart-cc-agents');
-  const cc = ccChartTheme();
-  CHART_REGISTRY.ccAgents = new Chart(ctx, {
-    type:'bar',
-    data:{
-      labels: model.rows.map(r => r.emp.cognome + ' ' + (r.emp.nome||' ')[0] + '.'),
-      datasets:[
-        { label:UI.chartObtained, data:model.rows.map(r=>r.compOtt), backgroundColor:cc.accent, borderRadius:6 },
-        { type:'line', label:UI.chartExpected, data:model.rows.map(r=>r.compAtt), backgroundColor:'rgba(0,0,0,0)', borderColor:cc.guide, borderWidth:1.5, borderDash:[4,4], pointRadius:0 },
-      ]
-    },
-    options:{ maintainAspectRatio:false, indexAxis:'y', scales:{ x:{ min:0, max:10, ticks:{color:cc.muted}, grid:{color:cc.grid} }, y:{ ticks:{color:cc.muted}, grid:{display:false} } }, plugins:{ legend:{ position:'bottom', labels:{boxWidth:10, font:{size:11}, color:cc.text} } } }
+  // Capsule/pill bars, one per agent: fill level is the obtained score (color-coded
+  // by the same gap tiers as the table's chips), dashed tick is the expected target.
+  const capsuleColor = { 'gap-ok':'var(--success,#3FBF7F)', 'gap-warn':'var(--warning,#E08A0B)', 'gap-bad':'var(--danger,#EF6B54)' };
+  ApexCharts3D.renderCapsuleBars('chart-cc-agents', {
+    items: model.rows.map(r => ({
+      label: r.emp.cognome + ' ' + (r.emp.nome||' ')[0] + '.',
+      value: r.compOtt,
+      target: r.compAtt,
+      color: capsuleColor[ccGapTag(r.compOtt, r.compAtt)]
+    })),
+    max:10, unit:'', dec:1
   });
 }
 
