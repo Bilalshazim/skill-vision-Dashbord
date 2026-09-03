@@ -422,7 +422,7 @@ const UI_EN = {
   homeQ1Sub: 'Overall indicator of company competency status against expected levels.',
   homeQ1Score: 'Overall Score',
   homeQ1Coverage: 'Role Coverage',
-  homeQ1Gap: 'Average Gap',
+  homeQ1Gap: 'Benchmark Gap',
   homeQ1LevelAchieved: 'Competency Level Achieved',
   homeQ1Green: 'Green',
   homeQ1GreenSub: 'Optimal Level',
@@ -1221,7 +1221,7 @@ const UI_IT = {
   homeQ1Sub: 'Indicatore generale dello stato delle competenze aziendali rispetto ai livelli attesi.',
   homeQ1Score: 'Punteggio Complessivo',
   homeQ1Coverage: 'Copertura Ruoli',
-  homeQ1Gap: 'Gap Medio',
+  homeQ1Gap: 'Benchmark Gap',
   homeQ1LevelAchieved: 'Livello di Competenza Raggiunto',
   homeQ1Green: 'Verde',
   homeQ1GreenSub: 'Livello Ottimale',
@@ -2244,6 +2244,9 @@ const uid = (p='id') => p + '_' + Math.random().toString(36).slice(2,9);
 const avg = (arr) => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
 const round1 = (n) => Math.round(n*10)/10;
 const fmt1 = (n) => (isFinite(n) ? round1(n).toFixed(1) : '–');
+// Same one-decimal rounding as fmt1, but with an Italian decimal comma — used where the display
+// is explicitly meant to read "-0,8" rather than "-0.8" (e.g. the Benchmark Gap card).
+const fmt1it = (n) => (isFinite(n) ? round1(n).toLocaleString('it-IT', {minimumFractionDigits:1, maximumFractionDigits:1}) : '–');
 const fmtCurrency = (n) => (isFinite(n) ? '€ ' + Math.round(n).toLocaleString('it-IT') : '–');
 const initials = (nome, cognome) => ((nome||' ')[0]+(cognome||' ')[0]).toUpperCase();
 const esc = (s) => String(s==null?'':s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -2637,6 +2640,7 @@ function generateDemoData(){
   return {
     settings: { modulo: 'AB', companyName: 'Demo Company S.r.l.', testsAcquired: 50, testsDispatched: 32, surveyLink: '', softSkillTargets: {},
       surveySenderMode: 'referente', adminSenderEmail: '',
+      actionNotes: {},
       preTestLetter: COLLABORATOR_LETTER_TEMPLATE,
       surveyEmailSubject: 'Questionario di valutazione delle competenze',
       surveyEmailBody: 'Ciao {{NOME}},\n\n[Testo standard da inserire — verrà fornito dal cliente]\n\nPer completare il questionario di valutazione delle Competenze Trasversali, utilizza il link seguente:\n\n{{LINK}}\n\nGrazie.',
@@ -2699,6 +2703,7 @@ async function loadState(){
         if(parsed.settings.emailApiEndpoint===undefined) parsed.settings.emailApiEndpoint = '';
         if(parsed.settings.emailApiKey===undefined) parsed.settings.emailApiKey = '';
         if(parsed.settings.preTestLetter===undefined) parsed.settings.preTestLetter = COLLABORATOR_LETTER_TEMPLATE;
+        if(!parsed.settings.actionNotes) parsed.settings.actionNotes = {};
         if(!parsed.settings.softSkillTargets) parsed.settings.softSkillTargets = {};
         if(!parsed.company) parsed.company = { locations:[], contacts:[], referente:{name:'',email:'',phone:''}, ceo:{name:'',email:''}, cfo:{name:'',email:''} };
         if(!Array.isArray(parsed.company.locations)) parsed.company.locations = [];
@@ -4262,6 +4267,9 @@ function renderHome(){
   const overallPct = Math.round(hs.orgAvg/10*100);
   const roleCovPct = roleCoveragePct();
   const avgGap = round1(hs.orgAvg - hs.benchmark);
+  // Gap% = ((Result - ExpectedValue) / ExpectedValue) * 100 — computed from the unrounded
+  // difference so the displayed percentage matches the displayed raw gap as closely as possible.
+  const avgGapPct = hs.benchmark ? round1(((hs.orgAvg - hs.benchmark) / hs.benchmark) * 100) : 0;
   const green = hs.ranked.filter(r=>r.score>=7).length;
   const amber = hs.ranked.filter(r=>r.score>=5 && r.score<7).length;
   const red = hs.ranked.filter(r=>r.score<5).length;
@@ -4284,10 +4292,10 @@ function renderHome(){
   // BOX 4 — What should we do right now?
   const worstSkillLabel = worstSkill ? worstSkill.name : UI.worstSkillFallback;
   const azioni = [
-    { label:UI.azioniTraining, desc:UI.azioniTrainingDesc(esc(worstSkillLabel)), count: tiers.sviluppo.length, variant:'warning' },
-    { label:UI.azioniCoaching, desc:UI.azioniCoachingDesc, count: tiers.valorizzare.length, variant:'success' },
-    { label:UI.azioniReorgShort, desc:UI.azioniReorgDesc, count: tiers.critica.length, variant:'danger' },
-    { label:UI.azioniTalentShort, desc:UI.azioniTalentDesc, count: tiers.top.length, variant:'accent' },
+    { key:'training', label:UI.azioniTraining, desc:UI.azioniTrainingDesc(esc(worstSkillLabel)), count: tiers.sviluppo.length, variant:'warning' },
+    { key:'coaching', label:UI.azioniCoaching, desc:UI.azioniCoachingDesc, count: tiers.valorizzare.length, variant:'success' },
+    { key:'reorg', label:UI.azioniReorgShort, desc:UI.azioniReorgDesc, count: tiers.critica.length, variant:'danger' },
+    { key:'talent', label:UI.azioniTalentShort, desc:UI.azioniTalentDesc, count: tiers.top.length, variant:'accent' },
   ];
 
   el.innerHTML = `
@@ -4344,17 +4352,17 @@ function renderHome(){
           </div>
           <p class="small-note" style="margin-bottom:14px;">${UI.homeQ1Sub}</p>
           <div class="grid grid-3" style="gap:10px; margin-bottom:14px;">
-            <div class="neu-tile">
+            <div class="neu-tile" style="text-align:center;">
               <div class="card-eyebrow">${UI.homeQ1Score}</div>
               <div class="kpi-value" style="font-size:23px;">${overallPct}%</div>
             </div>
-            <div class="neu-tile">
+            <div class="neu-tile" style="text-align:center;">
               <div class="card-eyebrow">${UI.homeQ1Coverage}</div>
               <div class="kpi-value" style="font-size:23px;">${roleCovPct}%</div>
             </div>
-            <div class="neu-tile">
+            <div class="neu-tile" style="text-align:center;">
               <div class="card-eyebrow">${UI.homeQ1Gap}</div>
-              <div class="kpi-value" style="font-size:23px; color:${avgGap<0?'var(--danger)':'var(--success)'};">${avgGap>0?'+':''}${fmt1(avgGap)}</div>
+              <div class="kpi-value" style="font-size:18px; color:${avgGap<0?'var(--danger)':'var(--success)'};">${avgGap>0?'+':''}${fmt1it(avgGap)} = ${avgGapPct>0?'+':''}${fmt1it(avgGapPct)}%</div>
             </div>
           </div>
 
@@ -4483,7 +4491,7 @@ function renderHome(){
           ${azioni.map(a => `<div style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
             <span class="action-tag ${a.variant}" style="margin-top:1px;">${esc(a.label)}</span>
             <div style="flex:1; min-width:0;">
-              <div class="small-note">${a.desc}</div>
+              <textarea class="small-note action-note-input" rows="1" ${canEdit()?'':'readonly'} oninput="autoGrowActionNote(this); saveActionNote('${a.key}', this.value)">${(STATE.settings.actionNotes && STATE.settings.actionNotes[a.key]) ? esc(STATE.settings.actionNotes[a.key]) : a.desc}</textarea>
             </div>
             <span class="chip chip-gray" style="flex-shrink:0;">${a.count}</span>
           </div>`).join('')}
@@ -4507,6 +4515,21 @@ function renderHome(){
     ${f.A ? renderModuleATotalizer() : ''}
   `;
   updateModuleTint();
+  el.querySelectorAll('.action-note-input').forEach(autoGrowActionNote);
+}
+/* Editable "Cosa dobbiamo fare subito?" action notes — each row's text starts pre-filled with the
+   auto-generated suggestion (a.desc) but is a real, persisted textarea: typing overwrites it with
+   a custom note, saved per action key (training/coaching/reorg/talent) in STATE.settings.actionNotes.
+   Clearing it back to empty reverts to showing the auto-generated suggestion again on next render. */
+function saveActionNote(key, value){
+  if(!canEdit()) return;
+  if(!STATE.settings.actionNotes) STATE.settings.actionNotes = {};
+  STATE.settings.actionNotes[key] = value;
+  persist();
+}
+function autoGrowActionNote(el){
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
 }
 function openTierModal(tierKey){
   const tierDef = TIER_DEFS.find(t=>t.key===tierKey);
