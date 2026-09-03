@@ -6370,15 +6370,18 @@ function renderHardIndividualeBody(){
   renderQueuedStatTileCharts();
   renderLongitudinalGapCard(emp);
   const ctx = document.getElementById('chart-hard-bar');
-  CHART_REGISTRY.hardBar = new Chart(ctx, { data:{
+  // Radar/spider view (replaces the old grouped-bar + dashed-line combo): one spoke per APEX
+  // dimension, Manager/Peer/Self overlaid as polygons against a dashed Expected reference —
+  // same data, same source colors, easier to read at a glance than four parallel series.
+  CHART_REGISTRY.hardBar = new Chart(ctx, { type:'radar', data:{
     labels: hsm.dims.map(d=>d.code),
     datasets:[
-      {type:'bar', label:UI.hardColManager, data:hsm.dims.map(d=>d.perSource.resp), backgroundColor:cssVar('--accent')||'#B4C614'},
-      {type:'bar', label:UI.hardColPeer, data:hsm.dims.map(d=>d.perSource.peer), backgroundColor:'rgba(171,167,154,0.55)'},
-      {type:'bar', label:UI.hardColSelf, data:hsm.dims.map(d=>d.perSource.auto), backgroundColor:cssVar('--warning')||'#E08A0B'},
-      {type:'line', label:UI.chartExpected, data:hsm.dims.map(()=>6.5), borderColor:BRAND_CHART.strong, borderDash:[5,4], borderWidth:2, pointRadius:0, fill:false},
+      { label:UI.hardColManager, data:hsm.dims.map(d=>d.perSource.resp), backgroundColor:cssVarRgba('--accent',0.16,'#B4C614'), borderColor:cssVar('--accent')||'#B4C614', pointBackgroundColor:cssVar('--accent')||'#B4C614', borderWidth:2 },
+      { label:UI.hardColPeer, data:hsm.dims.map(d=>d.perSource.peer), backgroundColor:'rgba(0,0,0,0)', borderColor:'rgba(171,167,154,0.9)', pointBackgroundColor:'rgba(171,167,154,0.9)', pointRadius:2 },
+      { label:UI.hardColSelf, data:hsm.dims.map(d=>d.perSource.auto), backgroundColor:'rgba(0,0,0,0)', borderColor:cssVar('--warning')||'#E08A0B', pointBackgroundColor:cssVar('--warning')||'#E08A0B', pointRadius:2 },
+      { label:UI.chartExpected, data:hsm.dims.map(()=>6.5), backgroundColor:'rgba(0,0,0,0)', borderColor:BRAND_CHART.guide, borderDash:[4,4], pointRadius:0 },
     ]
-  }, options:{ scales:{ y:{ min:2, max:10, grid:{color:BRAND_CHART.grid} }, x:{ grid:{display:false} } }, plugins:{ legend:{ position:'bottom', labels:{boxWidth:10, font:{size:11}} } } } });
+  }, options:{ scales:{ r:{ min:2, max:10, ticks:{stepSize:2}, grid:{color:BRAND_CHART.grid}, angleLines:{color:BRAND_CHART.grid}, pointLabels:{font:{size:11}} } }, plugins:{ legend:{ position:'bottom', labels:{boxWidth:10, font:{size:11}} } } } });
 }
 
 /* Longitudinal gap tracking (Section 3): compares two of this employee's hardHistory snapshots
