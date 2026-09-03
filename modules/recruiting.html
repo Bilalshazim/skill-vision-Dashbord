@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="../js/apex-charts.js"></script>
 <link rel="stylesheet" href="recruiting.css">
 </head>
 <body>
@@ -159,6 +160,7 @@
     <button class="sni" data-s="profilo" onclick="go('profilo')"><span class="k">🧩</span>Report<span class="dot" style="background:var(--teal)"></span></button>
     <button class="sni" data-s="jd" onclick="go('jd')"><span class="k">📋</span>Profilo di Lavoro<span class="dot" style="background:var(--teal)"></span></button>
     <button class="sni" data-s="cv" onclick="go('cv')"><span class="k">📄</span>CV &amp; Esportazione<span class="dot" style="background:var(--muted)"></span></button>
+    <button class="sni" data-s="paginaA" onclick="go('paginaA')"><span class="k">🅰️</span>Pagina A<span class="dot" style="background:var(--gold)"></span></button>
     <button class="sni" data-s="ranking" onclick="go('ranking')"><span class="k">🏅</span>Classifica<span class="dot" style="background:var(--gold)"></span></button>
     <button class="sni" data-s="match" onclick="go('match')"><span class="k">🔁</span>Partita interna<span class="dot" style="background:var(--green)"></span></button>
     <button class="sni" data-s="formule" onclick="go('formule')"><span class="k">∑</span>Metodo<span class="dot" style="background:var(--muted)"></span></button>
@@ -429,7 +431,7 @@
     <div class="pstep" id="ps1"><span class="st">1</span>Lettura del documento (OCR / estrazione testo)</div>
     <div class="pstep" id="ps2"><span class="st">2</span>Estrazione entità: esperienze, ruoli, formazione</div>
     <div class="pstep" id="ps3"><span class="st">3</span>Mappatura sulle 35 skill APEX (modello ML)</div>
-    <div class="pstep" id="ps4"><span class="st">4</span>Calcolo Indice CV e inserimento in classifica</div>
+    <div class="pstep" id="ps4"><span class="st">4</span>Calcolo Match CV/Profilo e inserimento in Pagina A</div>
   </div>
   <div class="section-title">Esporta o trasferisci</div>
   <div class="export-row">
@@ -438,6 +440,20 @@
     <button class="btn-act btn-ghost" onclick="toast('In produzione: invio diretto via API al vostro ATS (es. Zucchetti, Factorial)')">➜ Trasferisci ad altro sistema</button>
   </div>
   <p style="color:var(--muted);font-size:13px;margin-top:16px;line-height:1.5">Nota demo: il parsing è simulato con dati realistici. In produzione il modello ML legge il documento reale; nessun dato lascia l'ambiente del cliente senza autorizzazione.</p>
+</div>
+
+<!-- ============ PAGINA A · SCREENING PRE-TEST ============ -->
+<div class="screen" id="scr-paginaA">
+  <div class="panel-head">
+    <div class="ic" style="background:rgba(224,138,11,.15)">🅰️</div>
+    <div><h2 class="disp">Pagina A — Screening pre-test</h2><p>Candidati con CV caricato ma non ancora sottoposti al test soft skill, ordinati per <b>Match CV/Profilo</b>. Spunta "Promosso al test", aggiungi l'email e invia il link in blocco.</p></div>
+  </div>
+  <div id="paginaACtx" style="font-size:12px;color:var(--muted);margin-bottom:16px"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+    <h4 style="font-size:13.5px;font-weight:600">In attesa di test — <span id="paginaACount">0</span></h4>
+    <button id="paginaASendBtn" class="btn-act btn-gold" disabled onclick="sendPaginaABulk()">🔗 Invia link test ai selezionati</button>
+  </div>
+  <div id="paginaAList"></div>
 </div>
 
 <!-- ============ JD · JOB DESCRIPTION ============ -->
@@ -1008,6 +1024,7 @@
   <button data-s="ranking" onclick="go('ranking')"><span class="nic">🏅</span>Ranking</button>
   <button data-s="match" onclick="go('match')"><span class="nic">🔁</span>Match</button>
   <button data-s="cv" onclick="go('cv')"><span class="nic">📄</span>CV</button>
+  <button data-s="paginaA" onclick="go('paginaA')"><span class="nic">🅰️</span>Pagina A</button>
   <button data-s="formule" onclick="go('formule')"><span class="nic">∑</span>Metodo</button>
   <button data-s="ai" onclick="go('ai')"><span class="nic">💬</span>Chiedi</button>
   <button data-s="pipeline" onclick="go('pipeline')"><span class="nic">📊</span>Pipeline</button>
@@ -1209,7 +1226,15 @@ const IT_EN_PAIRS = {
     '+ Aggiungi risultato':'+ Add result',
     '+ Aggiungi colloquio':'+ Add interview',
     '+ Aggiungi':'+ Add',
-    '🏆 Conferma vincitore':'🏆 Confirm winner'
+    '🏆 Conferma vincitore':'🏆 Confirm winner',
+    /* Pagina A · pre-test screening */
+    'Pagina A':'Page A',
+    'Pagina A — Screening pre-test':'Page A — Pre-test screening',
+    'Candidati con CV caricato ma non ancora sottoposti al test soft skill, ordinati per Match CV/Profilo. Spunta "Promosso al test", aggiungi l\'email e invia il link in blocco.':'Candidates with an uploaded CV who have not yet taken the soft-skill test, ranked by CV/Profile match. Check "Promoted to test", add an email, and send the link in bulk.',
+    'In attesa di test':'Awaiting test',
+    '🔗 Invia link test ai selezionati':'🔗 Send test link to selected',
+    'Promosso al test':'Promoted to test',
+    'Calcolo Match CV/Profilo e inserimento in Pagina A':'CV/Profile match calculation and insertion into Page A'
 };
 const LANGUAGE_MAP = { it:{}, en:{} };
 Object.entries(IT_EN_PAIRS).forEach(([itText,enText])=>{
@@ -2114,6 +2139,22 @@ function addPrescreenedManual(){
    recruiter having to click "+ Aggiungi" first. */
 function addPrescreenedEntry(opening, { candidateId, name, email }, auto, matchScore){
   const p = ensurePipeline(opening);
+  /* A candidate can reach this function twice for the same opening — once via
+     the match-threshold auto-dispatch in runPipeline(), once more via a manual
+     "invia link"/bulk send from Pagina A or Classifica. Without this guard
+     that produces two separate pipeline records (two different test links)
+     for one person; instead we just patch the email onto the existing entry
+     and leave its original link/status alone. */
+  if(candidateId){
+    const existing = p.prescreened.find(r=>r.candidateId===candidateId);
+    if(existing){
+      if(email && !existing.email) existing.email = email;
+      persistCvMatchingState();
+      renderPipelineScreen();
+      toast(`${name||existing.name}: link test già inviato in precedenza ✓`);
+      return existing;
+    }
+  }
   const id = plId('pre');
   const slug = String(name||'candidato').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,40)||'candidato';
   const record = {
@@ -2137,9 +2178,119 @@ function setPrescreenStatus(id, status){
   const rec = p.prescreened.find(r=>r.id===id);
   if(!rec) return;
   rec.status = status;
+  /* Marking a pre-screen entry "completato" is the one real signal that a
+     candidate actually took the soft-skill test — that's what moves them
+     out of Pagina A and into the AHI ranking (see completeCandidateTest()). */
+  if(status==='completato' && rec.candidateId){
+    try{completeCandidateTest(rec.candidateId);}catch(e){}
+  }
   persistCvMatchingState();
   renderPipelineDetail();
 }
+
+/* ================= PAGINA A · SCREENING PRE-TEST =================
+   Lists CANDIDATES who have a CV/Job-Profile match (c.icv) but have not yet
+   completed the soft-skill test (c.testCompleted===false), ranked by that
+   pure CV match score. Recruiters flag candidates "Promosso al test" and
+   dispatch the assessment link (+ mandatory cover letter, via
+   addPrescreenedEntry) to all of them in one click. */
+const PAGINA_A_SELECTED = new Set();
+function renderPaginaA(){
+  const list=document.getElementById('paginaAList');
+  if(!list)return;
+  const pending=pendingCandidates();
+  const pendingIds=new Set(pending.map(c=>c.id));
+  Array.from(PAGINA_A_SELECTED).forEach(id=>{ if(!pendingIds.has(id)) PAGINA_A_SELECTED.delete(id); });
+
+  const countEl=document.getElementById('paginaACount');
+  if(countEl)countEl.textContent=pending.length;
+
+  const active=(typeof getActiveContext==='function')?getActiveContext():null;
+  const ctxEl=document.getElementById('paginaACtx');
+  if(ctxEl){
+    ctxEl.innerHTML=(active&&active.opening)
+      ? `Invio nel contesto attivo: <b>${_psEsc(active.company.name)}</b> · <b>${_psEsc(active.opening.title)}</b> — cambialo dalla pagina <b>CV &amp; Esportazione</b>.`
+      : `Nessun contesto CV/opening attivo — selezionane uno dalla pagina <b>CV &amp; Esportazione</b> prima di inviare i test.`;
+  }
+
+  list.innerHTML = pending.length ? pending.map(c=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0" title="Promosso al test">
+        <input type="checkbox" ${PAGINA_A_SELECTED.has(c.id)?'checked':''} onchange="togglePaginaASelect('${c.id}',this.checked)" style="width:16px;height:16px">
+        <span style="font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)">Promosso al test</span>
+      </label>
+      <div style="min-width:160px;flex:1">
+        <div style="font-size:13px;font-weight:600"><span class="nm-link" onclick="openCvMatchModal('${c.id}')">${_psEsc(c.name)}</span></div>
+        <div style="font-size:11px;color:var(--muted)">${_psEsc(c.src||'')}</div>
+      </div>
+      <div class="num" style="font-size:15px;font-weight:600;color:var(--teal);flex-shrink:0" title="Match CV/Profilo di Lavoro (solo CV)">🎯 ${c.icv}%</div>
+      <input type="email" placeholder="email@dominio.it" value="${_psEsc(c.email||'')}" onchange="setPendingCandidateEmail('${c.id}',this.value)" style="padding:8px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--txt);font-size:12px;width:190px;flex-shrink:0">
+      <button class="btn-act btn-ghost" style="flex-shrink:0;font-size:11.5px;padding:8px 12px" onclick="event.stopPropagation();openCandidateCv('${c.id}')">📄 CV</button>
+    </div>`).join('')
+    : '<p style="color:var(--muted);font-size:13.5px;padding:24px 0">Nessun candidato in attesa di test. I candidati compaiono qui appena viene caricato un CV, fino al completamento del test soft skill (segnato dalla Pipeline → "Segna completato").</p>';
+
+  const selCount=PAGINA_A_SELECTED.size;
+  const sendBtn=document.getElementById('paginaASendBtn');
+  if(sendBtn){
+    sendBtn.disabled = selCount===0;
+    sendBtn.textContent = selCount
+      ? `🔗 Invia link test a ${selCount} candidat${selCount===1?'o':'i'} selezionat${selCount===1?'o':'i'}`
+      : '🔗 Invia link test ai selezionati';
+  }
+}
+function togglePaginaASelect(id,checked){
+  if(checked)PAGINA_A_SELECTED.add(id); else PAGINA_A_SELECTED.delete(id);
+  renderPaginaA();
+}
+window.togglePaginaASelect=togglePaginaASelect;
+function setPendingCandidateEmail(id,value){
+  const c=CANDIDATES.find(x=>x.id===id);
+  if(!c)return;
+  c.email=(value||'').trim();
+}
+window.setPendingCandidateEmail=setPendingCandidateEmail;
+/* 1-click batch send: dispatches the assessment link (with the mandatory
+   cover letter — see addPrescreenedEntry/CANDIDATE_LETTER_TEMPLATE) to every
+   checked candidate that has an email on file, into the currently active
+   CV & Export company/opening — same routing the single-candidate send uses. */
+function sendPaginaABulk(){
+  const active=(typeof getActiveContext==='function')?getActiveContext():null;
+  if(!active||!active.opening){ toast('Seleziona prima una company/opening nella pagina CV & Esportazione'); return; }
+  const ids=Array.from(PAGINA_A_SELECTED);
+  if(!ids.length){ toast('Seleziona almeno un candidato da promuovere al test'); return; }
+  let sent=0, missingEmail=0;
+  ids.forEach(id=>{
+    const c=CANDIDATES.find(x=>x.id===id);
+    if(!c||c.testCompleted!==false)return;
+    if(!c.email){ missingEmail++; return; }
+    addPrescreenedEntry(active.opening, {candidateId:c.id,name:c.name,email:c.email}, true, c.icv);
+    sent++;
+  });
+  PAGINA_A_SELECTED.clear();
+  renderPaginaA();
+  if(sent && !missingEmail) toast(`✓ Link test e lettera inviati a ${sent} candidat${sent===1?'o':'i'}`);
+  else if(sent && missingEmail) toast(`✓ Inviati a ${sent} candidati — ${missingEmail} saltati (email mancante)`);
+  else toast(`Nessun invio: aggiungi l'email ai candidati selezionati`);
+}
+window.sendPaginaABulk=sendPaginaABulk;
+/* Generates the real APEX soft-skill scores + Big Five (previously
+   fabricated at CV-upload time — see runPipeline()) only now, the moment
+   the test is actually marked complete, and flips testCompleted so the
+   candidate disappears from Pagina A and appears in "Chi è il candidato
+   migliore?". Wired from setPrescreenStatus('completato'). */
+function completeCandidateTest(candidateId){
+  if(!candidateId)return;
+  const c=CANDIDATES.find(x=>x.id===candidateId);
+  if(!c||c.testCompleted!==false)return;
+  const seed=97+Math.floor(Math.random()*800);
+  c.scores=mkScores(20,{"Comunicazione":3,"Teamwork":3,"Adattabilità":3,"Orientamento al risultato":2.5},seed);
+  c.bf={"Estroversione":62,"Coscienziosità":65,"Apertura":63,"Amicalità":60,"Stabilità emotiva":64};
+  c.testCompleted=true;
+  try{renderPaginaA();}catch(e){}
+  try{ if(document.getElementById('scr-ranking')?.classList.contains('active')) renderRanking(); }catch(e){}
+  toast(`${c.name}: test completato — ora in "Chi è il candidato migliore?" ✓`);
+}
+window.completeCandidateTest=completeCandidateTest;
 /* Mandatory cover letter (CANDIDATE_LETTER_TEMPLATE) — "copia" now copies the full letter with
    the candidate's real link filled in, not the bare URL, so it's never sent without it. */
 function copyPrescreenLetter(id){
@@ -2311,8 +2462,16 @@ function ahi(c){
   if(capped)v=59;
   return {v:Math.round(v*10)/10,fc:Math.round(fc*10)/10,ab:Math.round(ab*10)/10,icv,capped,rf:redFlags(c)};
 }
+/* "Chi è il candidato migliore?" only ever ranks candidates who actually
+   completed the soft-skill test (c.testCompleted !== false — legacy/import
+   records have no such field and count as completed). Candidates still
+   waiting on the test live in Pagina A (see pendingCandidates()) until
+   completeCandidateTest() flips the flag. */
 function ranking(){
-  return CANDIDATES.map(c=>({c,r:ahi(c)})).sort((a,b)=>b.r.v-a.r.v);
+  return CANDIDATES.filter(c=>c.testCompleted!==false).map(c=>({c,r:ahi(c)})).sort((a,b)=>b.r.v-a.r.v);
+}
+function pendingCandidates(){
+  return CANDIDATES.filter(c=>c.testCompleted===false).slice().sort((a,b)=>(b.icv||0)-(a.icv||0));
 }
 function ci(c){ /* compatibilità interna vs benchmark */
   const b=ROLES[currentRole].bench;
@@ -2339,6 +2498,7 @@ function go(s){
   if(s==='ai')renderChips(-1);
   if(s==='jd'){try{_ensureJdSaveBtn();}catch(e){}setTimeout(()=>{try{if(typeof jdState==='undefined')return;if(!jdState)jdState=jd_buildStateFromProfile('sam');jd_syncFromApex();jd_buildEditor();jd_renderPreview();}catch(e){console.warn('JD',e);}},0);}
   if(s==='pipeline'){try{renderPipelineScreen();}catch(e){console.warn('Pipeline',e);}}
+  if(s==='paginaA'){try{renderPaginaA();}catch(e){console.warn('Pagina A',e);}}
   applyLanguage(currentLanguage);
 }
 function toast(m){
@@ -2525,6 +2685,10 @@ function renderSkills(){
 }
 
 /* ================= RANKING ================= */
+/* Italian-locale "85,8/100" style formatting for the ranking card's metric
+   boxes — decimal comma, one decimal place, explicit /100 scale suffix. */
+function fmtIT100(n){ return (Math.round((n||0)*10)/10).toFixed(1).replace('.',',')+'/100'; }
+function fmtITpct(n){ return (Math.round((n||0)*10)/10).toFixed(1).replace('.',',')+'%'; }
 function fasce(v,capped){
   if(capped)return{txt:"Sconsigliato per questo ruolo",cl:"var(--red)"};
   if(v>=85)return{txt:"Assumibile subito",cl:"var(--green)"};
@@ -2549,12 +2713,25 @@ function renderRanking(){
     const sI=Object.entries(flags).filter(([,l])=>l===2).reduce((a,[sk])=>a+(c.scores[sk]||0),0);
     const sU=Object.entries(flags).filter(([,l])=>l===1).reduce((a,[sk])=>a+(c.scores[sk]||0),0);
     const sT=sE+sI+sU;
+    /* sE/sI/sU/sT are raw point sums over a variable number of flagged
+       skills (each 0-31), so they are not naturally on a 0-100 scale like
+       fc/ab/icv — normalize them to % of their own achievable max so all 7
+       metric boxes read consistently (see fmtIT100/fmtITpct). */
+    const essCount=Object.values(flags).filter(l=>l===3).length;
+    const impCount=Object.values(flags).filter(l=>l===2).length;
+    const usfCount=Object.values(flags).filter(l=>l===1).length;
+    const totCount=essCount+impCount+usfCount;
+    const sEpct=essCount?sE/(essCount*31)*100:0;
+    const sIpct=impCount?sI/(impCount*31)*100:0;
+    const sUpct=usfCount?sU/(usfCount*31)*100:0;
+    const sTpct=totCount?sT/(totCount*31)*100:0;
+    const essentialSkills=Object.entries(flags).filter(([,lv])=>lv===3).map(([sk])=>sk);
     card.innerHTML=`
       <div class="rk-top">
         <div class="rk-pos num">${i+1}</div>
         <div><div class="rk-name"><span class="nm-link" onclick="event.stopPropagation();showCand('${c.id}')">${c.name}</span></div>
         <div class="rk-src">${c.src}</div>
-        <div class="rk-match" title="Apri il dettaglio compatibilità CV / Profilo di Lavoro" onclick="event.stopPropagation();openCvMatchModal('${c.id}')">🎯 Match CV/Profilo: <b>${r.fc}%</b> <span style="text-decoration:underline;text-underline-offset:2px">dettagli →</span></div></div>
+        <div class="rk-match" title="Apri il dettaglio compatibilità CV / Profilo di Lavoro (solo CV, indipendente dal test soft skill)" onclick="event.stopPropagation();openCvMatchModal('${c.id}')">🎯 Match CV/Profilo: <b>${c.icv}%</b> <span style="text-decoration:underline;text-underline-offset:2px">dettagli →</span></div></div>
         <div class="rk-row-actions">
           <button class="rk-report-btn" title="Apri il CV del candidato" onclick="event.stopPropagation();openCandidateCv('${c.id}')">📄 CV</button>
           <button class="rk-report-btn" title="Scarica report di valutazione" onclick="event.stopPropagation();downloadCandidateReport('${c.id}')">⬇ Report</button>
@@ -2563,24 +2740,22 @@ function renderRanking(){
       </div>
       <div class="rk-body">
         <div class="sub3">
-          <div class="box"><div class="l">Fit competenze (55%)</div><div class="v num" style="color:var(--teal)">${r.fc}</div></div>
-          <div class="box"><div class="l">Affinità Big Five (30%)</div><div class="v num" style="color:var(--gold)">${r.ab}</div></div>
-          <div class="box"><div class="l">Indice CV — ML (15%)</div><div class="v num" style="color:var(--blue)">${r.icv}</div></div>
+          <div class="box"><div class="l">Fit competenze (55%)</div><div class="v num" style="color:var(--teal-link)">${fmtIT100(r.fc)}</div></div>
+          <div class="box"><div class="l">Affinità Big Five (30%)</div><div class="v num" style="color:var(--gold)">${fmtIT100(r.ab)}</div></div>
+          <div class="box"><div class="l">Indice CV — ML (15%)</div><div class="v num" style="color:var(--green)">${fmtIT100(r.icv)}</div></div>
         </div>
         <div class="sums4">
-          <div class="sbox" style="border-left-color:var(--teal)"><div class="l">Skill essenziali</div><div class="v num" style="color:var(--teal)">${sE.toFixed(1)}</div></div>
-          <div class="sbox" style="border-left-color:var(--gold)"><div class="l">Skill importanti</div><div class="v num" style="color:var(--gold)">${sI.toFixed(1)}</div></div>
-          <div class="sbox" style="border-left-color:var(--green)"><div class="l">Skill utili</div><div class="v num" style="color:var(--green)">${sU.toFixed(1)}</div></div>
-          <div class="sbox tot"><div class="l">Punteggio totale</div><div class="v num">${sT.toFixed(1)}</div></div>
+          <div class="sbox" style="border-left-color:var(--teal)" title="${sE.toFixed(1)} punti su ${essCount*31||0} disponibili">
+            <div class="l">Skill essenziali</div><div class="v num" style="color:var(--teal-link)">${fmtITpct(sEpct)}</div></div>
+          <div class="sbox" style="border-left-color:var(--gold)" title="${sI.toFixed(1)} punti su ${impCount*31||0} disponibili">
+            <div class="l">Skill importanti</div><div class="v num" style="color:var(--gold)">${fmtITpct(sIpct)}</div></div>
+          <div class="sbox" style="border-left-color:var(--green)" title="${sU.toFixed(1)} punti su ${usfCount*31||0} disponibili">
+            <div class="l">Skill utili</div><div class="v num" style="color:var(--green)">${fmtITpct(sUpct)}</div></div>
+          <div class="sbox tot" title="${sT.toFixed(1)} punti su ${totCount*31||0} disponibili">
+            <div class="l">Punteggio totale</div><div class="v num" style="color:var(--txt)">${fmtITpct(sTpct)}</div></div>
         </div>
-        <div class="section-title" style="margin-top:8px">Skill essenziali vs target (● il pallino indica il target)</div>
-        ${Object.entries(flags).filter(([,lv])=>lv===3).map(([sk])=>{
-          const s=c.scores[sk]||0,t=W[3].t,pct=Math.min(s/31*100,100),tp=t/31*100;
-          const col=s>=t?'linear-gradient(90deg,var(--teal),var(--green))':(s>=0.75*t?'linear-gradient(90deg,var(--teal),var(--gold))':'linear-gradient(90deg,var(--teal-dark),var(--red))');
-          return `<div class="dual"><span class="dn">${sk}</span>
-            <div class="tr"><i style="width:${pct}%;background:${col}"></i><span class="tgt" style="left:${tp}%" title="Target: ${t}/31"></span></div>
-            <span class="dv" style="color:${col}">${s.toFixed(1)}</span></div>`;
-        }).join('')}
+        <div class="section-title" style="margin-top:8px">Skill essenziali vs target (linea tratteggiata = target)</div>
+        ${essentialSkills.length ? `<div id="skillCapsule-${c.id}"></div>` : '<div style="color:var(--muted);font-size:12px;padding:8px 0">Nessuna skill essenziale flaggata per questo ruolo.</div>'}
         <div class="section-title" style="margin-top:12px">Big Five (percentili) vs profilo ideale del ruolo</div>
         ${(typeof ROLES!=='undefined'&&ROLES[currentRole]&&ROLES[currentRole].bf)?BF.map(k=>{
           const p=(c.bf||{})[k]||50,ideal=ROLES[currentRole].bf[k]||50;
@@ -2597,6 +2772,16 @@ function renderRanking(){
     card.onclick=()=>card.classList.toggle('open');
     if(i===0)card.classList.add('open');
     list.appendChild(card);
+    if(essentialSkills.length){
+      ApexCharts3D.renderCapsuleBars('#skillCapsule-'+c.id, {
+        items: essentialSkills.map(sk=>{
+          const s=c.scores[sk]||0, t=W[3].t;
+          const color = s>=t?'var(--green)':(s>=0.75*t?'var(--gold)':'var(--red)');
+          return { label:sk, value:s, target:t, color };
+        }),
+        max:31, unit:'', dec:1
+      });
+    }
   });
 }
 
@@ -2654,25 +2839,30 @@ function openCandidateCv(id){
 }
 window.openCandidateCv=openCandidateCv;
 
-/* CV vs Job Profile compatibility modal (Classifica → 🎯 Match CV/Profilo).
-   Shows the same Fit Competenze % as the row badge, broken down skill by
-   skill against the essential-skill targets, plus whether this candidate
-   is at/above the auto-dispatch threshold (Admin → Invio Test) and a manual
-   "invia link test" action for when it isn't (or to resend). */
+/* CV vs Job Profile compatibility modal (Classifica → 🎯 Match CV/Profilo, and
+   Pagina A → 🎯 badge). Shows c.icv — the pure CV/Job-Profile match computed
+   by matchCandidateToProfile() at upload time from CV signals only, never
+   from the soft-skill test — plus whether this candidate is at/above the
+   auto-dispatch threshold (Admin → Invio Test) and a manual "invia link
+   test" action for when it isn't (or to resend). The essential-skill
+   breakdown only applies once the soft-skill test has been taken (c.scores
+   populated) — pending candidates (Pagina A) show a placeholder instead. */
 function openCvMatchModal(id){
   const c=CANDIDATES.find(x=>x.id===id);
   if(!c){toast('Candidato non trovato');return;}
-  const r=ahi(c);
   const threshold=CONFIG.testDispatch?.matchThreshold??70;
-  const above=r.fc>=threshold;
+  const above=c.icv>=threshold;
+  const pending=c.testCompleted===false;
   const essentials=Object.entries(flags).filter(([,lv])=>lv===3);
-  const rows=essentials.map(([sk])=>{
-    const s=c.scores[sk]||0,t=W[3].t,pct=Math.min(s/31*100,100),tp=t/31*100;
-    const col=s>=t?'linear-gradient(90deg,var(--teal),var(--green))':(s>=0.75*t?'linear-gradient(90deg,var(--teal),var(--gold))':'linear-gradient(90deg,var(--teal-dark),var(--red))');
-    return `<div class="dual"><span class="dn">${sk}</span>
-      <div class="tr"><i style="width:${pct}%;background:${col}"></i><span class="tgt" style="left:${tp}%" title="Target: ${t}/31"></span></div>
-      <span class="dv" style="color:${col}">${s.toFixed(1)}</span></div>`;
-  }).join('') || '<p style="color:var(--muted);font-size:12.5px">Nessuna skill essenziale flaggata per questo ruolo — configura il Profilo per vedere il dettaglio.</p>';
+  const rows=pending
+    ? '<p style="color:var(--muted);font-size:12.5px">Test soft skill non ancora completato — il dettaglio per skill sarà disponibile dopo il test (vedi Pagina A).</p>'
+    : essentials.map(([sk])=>{
+        const s=c.scores[sk]||0,t=W[3].t,pct=Math.min(s/31*100,100),tp=t/31*100;
+        const col=s>=t?'linear-gradient(90deg,var(--teal),var(--green))':(s>=0.75*t?'linear-gradient(90deg,var(--teal),var(--gold))':'linear-gradient(90deg,var(--teal-dark),var(--red))');
+        return `<div class="dual"><span class="dn">${sk}</span>
+          <div class="tr"><i style="width:${pct}%;background:${col}"></i><span class="tgt" style="left:${tp}%" title="Target: ${t}/31"></span></div>
+          <span class="dv" style="color:${col}">${s.toFixed(1)}</span></div>`;
+      }).join('') || '<p style="color:var(--muted);font-size:12.5px">Nessuna skill essenziale flaggata per questo ruolo — configura il Profilo per vedere il dettaglio.</p>';
 
   const active=(typeof getActiveContext==='function')?getActiveContext():null;
   const pipeline=active?.opening?ensurePipeline(active.opening):null;
@@ -2680,7 +2870,7 @@ function openCvMatchModal(id){
 
   document.getElementById('cvMatchModalBody').innerHTML=`
     <div style="display:flex;align-items:center;gap:16px;padding:16px 16px;border-radius:var(--r-md);background:var(--panel-2);border:1px solid var(--line);margin-bottom:16px">
-      <div class="num" style="font-size:40px;color:${above?'var(--green)':'var(--gold)'}">${r.fc}%</div>
+      <div class="num" style="font-size:40px;color:${above?'var(--green)':'var(--gold)'}">${c.icv}%</div>
       <div>
         <div style="font-weight:600;font-size:14px">${_psEsc(c.name)}</div>
         <div style="font-size:12px;color:var(--muted);margin-top:2px">Ruolo: ${_psEsc(currentRole)}</div>
@@ -2705,8 +2895,7 @@ function sendCvMatchTestLink(id){
   const c=CANDIDATES.find(x=>x.id===id);
   const active=getActiveContext();
   if(!c||!active.opening){toast('Seleziona prima una company/opening nella pagina CV & Esportazione');return;}
-  const r=ahi(c);
-  addPrescreenedEntry(active.opening, {candidateId:c.id,name:c.name,email:''}, true, r.fc);
+  addPrescreenedEntry(active.opening, {candidateId:c.id,name:c.name,email:c.email||''}, true, c.icv);
   openCvMatchModal(id);
 }
 window.sendCvMatchTestLink=sendCvMatchTestLink;
@@ -2791,13 +2980,17 @@ function runPipeline(inp){
     if(i<steps.length){
       document.getElementById(steps[i]).classList.add('run');i++;setTimeout(next,850);
     }else{
-      const scores=mkScores(20,{"Comunicazione":3,"Teamwork":3,"Adattabilità":3,"Orientamento al risultato":2.5},97);
-      const scoreValues=Object.values(scores);
-      const avgScorePct=Math.round((scoreValues.reduce((s,v)=>s+v,0)/scoreValues.length/31)*100);
+      /* Pure CV/Job-Profile match only at this stage — no soft-skill test
+         has happened yet, so no APEX scores/Big Five are fabricated here
+         any more. The candidate lands in Pagina A (testCompleted:false)
+         and only gets real scores — and only then enters the AHI ranking
+         ("Chi è il candidato migliore?") — once completeCandidateTest()
+         runs, triggered by marking their soft-skill test as completed. */
       const nc={id:'c'+(CANDIDATES.length+1),name:'Nuovo candidato (da CV)',
-        src:'CV caricato ora · parsing ML · in attesa di valutazione APEX completa',icv:avgScorePct,
-        scores,
-        bf:{"Estroversione":62,"Coscienziosità":65,"Apertura":63,"Amicalità":60,"Stabilità emotiva":64}};
+        src:'CV caricato ora · parsing ML · in attesa del test soft skill',icv:0,
+        testCompleted:false, email:'',
+        scores:{},
+        bf:{"Estroversione":50,"Coscienziosità":50,"Apertura":50,"Amicalità":50,"Stabilità emotiva":50}};
       /* Keep a live reference to the actual uploaded file (object URL, this
          session only — nothing is sent anywhere) so the Classifica row's
          "Apri CV" action has something real to open. Legacy/demo candidates
@@ -2812,8 +3005,8 @@ function runPipeline(inp){
       const activeContext = getActiveContext();
       const parsedCv = {
         name: nc.name,
-        skills: Object.entries(nc.scores).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([skill])=>skill),
-        experienceYears: Math.max(2, Math.round(avgScorePct / 15)),
+        skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'AWS'],
+        experienceYears: 2 + Math.floor(Math.random()*7),
         education: 'Bachelor',
         certifications: ['AWS'],
         summary: `Imported from the CV workflow using the current job profile.`
@@ -2828,17 +3021,18 @@ function runPipeline(inp){
         source: 'cv-pipeline'
       });
       renderCvContextSelectors();
+      try{renderPaginaA();}catch(e){}
       /* Soft-skill assessment auto-dispatch: a CV/Job-Profile match at or
          above the configured threshold (Admin → Invio Test) skips the
          manual "+ Aggiungi al pre-screening" step and sends the test link
          (with the configured cover letter) immediately. Below threshold,
          nothing happens automatically — a recruiter adds them by hand from
-         the Pipeline screen, same as before. */
+         the Pipeline screen or from Pagina A, same as before. */
       const threshold=CONFIG.testDispatch?.matchThreshold??70;
       if(activeContext.opening && matchResult.scorePercent>=threshold){
         addPrescreenedEntry(activeContext.opening, {candidateId:nc.id,name:nc.name,email:''}, true, matchResult.scorePercent);
       } else {
-        toast(`Profilo creato · match CV/Profilo: ${matchResult.scorePercent}% ✓`);
+        toast(`Profilo creato · match CV/Profilo: ${matchResult.scorePercent}% · in Pagina A ✓`);
       }
     }
   }
