@@ -69,4 +69,16 @@ export default defineConfig({
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
+  preview: {
+    // `vite preview` is what serves the production build on Railway (see
+    // package.json "start"). Vite blocks unrecognized Host headers by
+    // default (DNS-rebinding protection), so the deployed Railway domain
+    // must be listed explicitly rather than disabling the check outright.
+    // PREVIEW_ALLOWED_HOSTS is a comma-separated list for adding a future
+    // custom domain without another code change.
+    allowedHosts: [
+      'skill-vision-production-6a42.up.railway.app',
+      ...(process.env.PREVIEW_ALLOWED_HOSTS?.split(',').map((h) => h.trim()).filter(Boolean) ?? []),
+    ],
+  },
 })
