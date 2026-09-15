@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import { AppShell } from '@/layouts/AppShell'
 import AssessmentLayout from '@/modules/assessment/AssessmentLayout'
@@ -13,7 +13,6 @@ import AssessmentHardPage from '@/modules/assessment/pages/AssessmentHardPage'
 import AssessmentHomePage from '@/modules/assessment/pages/AssessmentHomePage'
 import AssessmentSoftPage from '@/modules/assessment/pages/AssessmentSoftPage'
 import AssessmentValorePage from '@/modules/assessment/pages/AssessmentValorePage'
-import LoginPage from '@/modules/recruiting/LoginPage'
 import RecruitingHome from '@/modules/recruiting/RecruitingHome'
 import RecruitingLayout from '@/modules/recruiting/RecruitingLayout'
 import CipAdminPage from '@/modules/recruiting/admin/CipAdminPage'
@@ -34,15 +33,6 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* "/" has no page of its own — see nav-config.ts / Topbar.tsx:
-            "Home" was originally the legacy shell's landing page
-            (index.html's #sv-landing), reached only by a real browser
-            navigation, never a React route. This standalone deployment has
-            no legacy shell mounted at this origin, so "/" instead opens
-            this app's own login screen — RecruitingAuthGuard sends
-            unauthenticated visitors to the same place. */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<LoginPage />} />
         {/* "Home" has no React route: the legacy shell's own landing page
             (index.html's #sv-landing) is the single source of truth for it
             — see nav-config.ts / Topbar.tsx. AppShell wraps Recruiting alone. */}
