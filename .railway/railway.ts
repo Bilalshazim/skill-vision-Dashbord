@@ -17,6 +17,14 @@ export default defineRailway(() => {
       JWT_ACCESS_SECRET: preserve(),
       JWT_REFRESH_SECRET: preserve(),
       FILE_URL_SECRET: preserve(),
+      CORS_ORIGIN: preserve(),
+      SMTP_HOST: preserve(),
+      SMTP_PORT: preserve(),
+      SMTP_SECURE: preserve(),
+      SMTP_USER: preserve(),
+      SMTP_PASSWORD: preserve(),
+      MAIL_FROM: preserve(),
+      MAIL_FROM_NAME: preserve(),
     },
   });
   const SkillVision = service("Skill Vision", {
@@ -25,6 +33,9 @@ export default defineRailway(() => {
     networking: { privateNetworkEndpoint: "skill-vision" },
     build: { buildCommand: "npm run build" },
     startCommand: "npm run start",
+    env: {
+      VITE_API_BASE_URL: preserve(),
+    },
   });
 
   return project("zesty-victory", {
