@@ -1,0 +1,9 @@
+{
+  "name": "skill-vision-react-infra",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Railway infrastructure-as-code for this repo (see .railway/railway.ts). The actual app lives in frontend/ and backend/.",
+  "dependencies": {
+    "railway": "^3.11.0"
+  }
+}
