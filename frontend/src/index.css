@@ -1,0 +1,186 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Class-based dark mode (toggle via `.dark` on <html>), matching the
+   legacy app's manual light/dark switcher rather than OS-only switching. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   SKILL-VISION DESIGN TOKENS
+   Ported 1:1 from the legacy Recruiting module's design system
+   (modules/recruiting.css :root + the THEMES runtime object in
+   modules/recruiting.html), NOT invented for this app. Every hex
+   below has an existing counterpart there — see the comment next
+   to each token for its legacy name.
+   ============================================================ */
+:root {
+  --radius: 0.625rem; /* matches legacy --r-sm (10px) */
+
+  /* Surfaces — legacy --bg / --panel / --panel-2 / --line */
+  --background: #FDFCF2;
+  --card: #FFFEF5;
+  --popover: #FFFEF5;
+  --secondary: #EEEADA; /* legacy --panel-2 */
+  --border: #DBD7C7; /* legacy --line */
+  --input: #DBD7C7;
+
+  /* Text — legacy --txt / --muted / --muted-strong */
+  --foreground: #2B2926;
+  --card-foreground: #2B2926;
+  --popover-foreground: #2B2926;
+  --secondary-foreground: #2B2926;
+  --muted-foreground: #767369;
+
+  /* Brand — legacy --teal (lime) / --teal-dark / --ink.
+     --teal-link is intentionally NOT mapped to a generic "brand text"
+     token: the legacy app's own explicit rule is that lime is a fill
+     color, not a body-text color, in light mode (it only becomes
+     text-safe in dark mode). Keep using --foreground for text and
+     --primary only for fills (buttons, active states, chart-1). */
+  --primary: #DDEE1C;
+  --primary-foreground: #0D0C0A; /* legacy --ink */
+  --accent: #EEEADA;
+  --accent-foreground: #2B2926;
+
+  /* Focus / borders-as-sole-indicator — legacy --ring (fixed both themes) */
+  --ring: #8C980B;
+
+  /* Semantic severity — legacy --green / --gold / --red. Reserved for
+     good/warning/poor grading; never reused as decorative/categorical
+     color (same rule as the legacy app). */
+  --success: #1C7A4D;
+  --warning: #8A5107;
+  --destructive: #BF3022;
+  --destructive-foreground: #FAF5DF;
+
+  /* Categorical chart palette — legacy --chart-1..5. chart-1 is the
+     brand lime (teal-dark) for single-series charts; 2-5 are the
+     muted, mutually-distinguishable hues for multi-series charts. */
+  --chart-1: #B4C614;
+  --chart-2: #5B7FA6;
+  --chart-3: #9B6B9E;
+  --chart-4: #9C6A3C;
+  --chart-5: #4F8B8F;
+
+  /* Sidebar tokens (shadcn convention) — reuse the same surfaces as
+     the rest of the app; the legacy app does not skin its sidenav
+     differently from its main content. */
+  --sidebar: #FFFEF5;
+  --sidebar-foreground: #2B2926;
+  --sidebar-primary: #DDEE1C;
+  --sidebar-primary-foreground: #0D0C0A;
+  --sidebar-accent: #EEEADA;
+  --sidebar-accent-foreground: #2B2926;
+  --sidebar-border: #DBD7C7;
+  --sidebar-ring: #8C980B;
+
+  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --font-mono: 'Geist Mono', SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+/* Dark theme — legacy THEMES.dark. Recruiting keeps a real light mode
+   (this is not a dark-only app), so both blocks matter. */
+.dark {
+  --background: #0D0C0A;
+  --card: #1B1A17;
+  --popover: #1B1A17;
+  --secondary: #2B2926;
+  --border: #45433C;
+  --input: #45433C;
+
+  --foreground: #FAF5DF;
+  --card-foreground: #FAF5DF;
+  --popover-foreground: #FAF5DF;
+  --secondary-foreground: #FAF5DF;
+  --muted-foreground: #ABA79A;
+
+  --primary: #DDEE1C;
+  --primary-foreground: #0D0C0A;
+  --accent: #2B2926;
+  --accent-foreground: #FAF5DF;
+
+  --ring: #8C980B;
+
+  --success: #3FBF7F;
+  --warning: #E08A0B;
+  --destructive: #EF6B54;
+  --destructive-foreground: #0D0C0A;
+
+  --chart-1: #E6FB2D;
+  --chart-2: #8FB4D9;
+  --chart-3: #C99BCB;
+  --chart-4: #D9A876;
+  --chart-5: #7CC4C4;
+
+  --sidebar: #1B1A17;
+  --sidebar-foreground: #FAF5DF;
+  --sidebar-primary: #DDEE1C;
+  --sidebar-primary-foreground: #0D0C0A;
+  --sidebar-accent: #2B2926;
+  --sidebar-accent-foreground: #FAF5DF;
+  --sidebar-border: #45433C;
+  --sidebar-ring: #8C980B;
+}
+
+/* ------------------------------------------------------------
+   Tailwind v4 theme mapping — exposes the tokens above as
+   utilities (bg-background, text-foreground, bg-primary, etc.)
+   per shadcn/ui convention. This is the ONLY place utility
+   class names are declared; components should never hardcode
+   a hex value.
+   ------------------------------------------------------------ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--secondary);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}

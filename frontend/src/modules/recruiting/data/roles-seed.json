@@ -1,0 +1,250 @@
+{
+  "Sales Account Manager": {
+    "flags": {
+      "Comunicazione": 3,
+      "Influenza e persuasione": 3,
+      "Orientamento al cliente": 3,
+      "Negoziazione": 3,
+      "Persistenza": 2,
+      "Orientamento al risultato": 2,
+      "Resilienza": 2,
+      "Leadership": 2,
+      "Networking": 1,
+      "Public speaking": 1
+    },
+    "bf": {
+      "Estroversione": 75,
+      "Coscienziosità": 62,
+      "Apertura": 58,
+      "Amicalità": 55,
+      "Stabilità emotiva": 70
+    },
+    "bench": {
+      "name": "Ferri D.",
+      "role": "Account Manager · in azienda da 4 anni",
+      "apex": 28.7,
+      "scores": {
+        "Comunicazione": 26.2,
+        "Influenza e persuasione": 26.1,
+        "Orientamento al cliente": 25,
+        "Negoziazione": 24.4,
+        "Persistenza": 23.8,
+        "Orientamento al risultato": 25.6,
+        "Resilienza": 22.9,
+        "Leadership": 25.4,
+        "Networking": 22,
+        "Public speaking": 21.5
+      }
+    }
+  },
+  "Business Developer": {
+    "flags": {
+      "Comunicazione": 3,
+      "Persistenza": 3,
+      "Spirito di iniziativa": 3,
+      "Orientamento al cliente": 2,
+      "Pianificazione e organizzazione": 2,
+      "Resistenza allo stress": 2,
+      "Autonomia": 1,
+      "Il processo decisionale": 1
+    },
+    "bf": {
+      "Estroversione": 78,
+      "Coscienziosità": 64,
+      "Apertura": 66,
+      "Amicalità": 52,
+      "Stabilità emotiva": 68
+    },
+    "bench": {
+      "name": "Benchmark generico",
+      "role": "Nessun dipendente valutato per questo ruolo",
+      "apex": 21,
+      "scores": {}
+    }
+  },
+  "Recruiter / Talent Acquisition": {
+    "flags": {
+      "Comunicazione": 3,
+      "Sensibilità verso le relazioni": 3,
+      "Orientamento sociale": 3,
+      "Precisione e disciplina": 2,
+      "Gestione delle informazioni": 2,
+      "Autocontrollo": 2,
+      "Intelligenza emotiva": 1,
+      "Cooperazione": 1
+    },
+    "bf": {
+      "Estroversione": 62,
+      "Coscienziosità": 70,
+      "Apertura": 60,
+      "Amicalità": 72,
+      "Stabilità emotiva": 68
+    },
+    "bench": {
+      "name": "Benchmark generico",
+      "role": "Nessun dipendente valutato per questo ruolo",
+      "apex": 21,
+      "scores": {}
+    }
+  },
+  "Project Manager": {
+    "flags": {
+      "Pianificazione e organizzazione": 3,
+      "Leadership": 3,
+      "Il processo decisionale": 3,
+      "Risoluzione dei problemi": 2,
+      "Delegazione": 2,
+      "Comunicazione": 2,
+      "Lavoro di squadra": 1,
+      "Precisione e disciplina": 1
+    },
+    "bf": {
+      "Estroversione": 60,
+      "Coscienziosità": 80,
+      "Apertura": 58,
+      "Amicalità": 58,
+      "Stabilità emotiva": 74
+    },
+    "bench": {
+      "name": "Benchmark generico",
+      "role": "Nessun dipendente valutato per questo ruolo",
+      "apex": 21,
+      "scores": {}
+    }
+  },
+  "Customer Success Manager": {
+    "flags": {
+      "Orientamento al cliente": 3,
+      "Esperienza del cliente": 3,
+      "Comunicazione": 3,
+      "Sensibilità verso le relazioni": 2,
+      "Spirito di iniziativa": 2,
+      "Autocontrollo": 2,
+      "Cooperazione": 1,
+      "Resistenza allo stress": 1
+    },
+    "bf": {
+      "Estroversione": 64,
+      "Coscienziosità": 68,
+      "Apertura": 58,
+      "Amicalità": 76,
+      "Stabilità emotiva": 72
+    },
+    "bench": {
+      "name": "Benchmark generico",
+      "role": "Nessun dipendente valutato per questo ruolo",
+      "apex": 21,
+      "scores": {}
+    }
+  },
+  "Digital Marketing Specialist": {
+    "flags": {
+      "Innovazione": 3,
+      "Comunicazione": 3,
+      "Pensiero analitico": 3,
+      "Curiosità": 2,
+      "Pianificazione e organizzazione": 2,
+      "Adattabilità": 2,
+      "Customer Experience": 2,
+      "Gestione del tempo": 1,
+      "Teamwork": 1,
+      "Visione d'insieme": 1
+    },
+    "bf": {
+      "Estroversione": 58,
+      "Coscienziosità": 68,
+      "Apertura": 80,
+      "Amicalità": 55,
+      "Stabilità emotiva": 62
+    },
+    "bench": {
+      "name": "Galli V.",
+      "role": "Digital Specialist · in azienda da 2 anni",
+      "apex": 26.3,
+      "scores": {
+        "Innovazione": 25.8,
+        "Comunicazione": 23.1,
+        "Pensiero analitico": 24,
+        "Curiosità": 25.2,
+        "Pianificazione e organizzazione": 21.8,
+        "Adattabilità": 23.5,
+        "Customer Experience": 22.7,
+        "Gestione del tempo": 20.9,
+        "Teamwork": 22.2,
+        "Visione d'insieme": 21.6
+      }
+    }
+  },
+  "Customer Care Specialist": {
+    "flags": {
+      "Orientamento al cliente": 3,
+      "Ascolto attivo": 3,
+      "Autocontrollo": 3,
+      "Empatia": 2,
+      "Gestione dei conflitti": 2,
+      "Comunicazione": 2,
+      "Resilienza": 2,
+      "Teamwork": 1,
+      "Precisione": 1
+    },
+    "bf": {
+      "Estroversione": 55,
+      "Coscienziosità": 66,
+      "Apertura": 50,
+      "Amicalità": 78,
+      "Stabilità emotiva": 74
+    },
+    "bench": {
+      "name": "Santoro E.",
+      "role": "Senior Customer Care · in azienda da 5 anni",
+      "apex": 25.1,
+      "scores": {
+        "Orientamento al cliente": 25.4,
+        "Ascolto attivo": 24.6,
+        "Autocontrollo": 23.8,
+        "Empatia": 24.9,
+        "Gestione dei conflitti": 22.7,
+        "Comunicazione": 22.4,
+        "Resilienza": 23,
+        "Teamwork": 23.3,
+        "Precisione": 21.2
+      }
+    }
+  },
+  "Team Leader Produzione": {
+    "flags": {
+      "Leadership": 3,
+      "Delega": 3,
+      "Decision Making": 3,
+      "Problem Solving": 3,
+      "Autocontrollo": 2,
+      "Pianificazione e organizzazione": 2,
+      "Gestione dei conflitti": 2,
+      "Controllo": 1,
+      "Etica del lavoro": 1
+    },
+    "bf": {
+      "Estroversione": 60,
+      "Coscienziosità": 78,
+      "Apertura": 52,
+      "Amicalità": 58,
+      "Stabilità emotiva": 76
+    },
+    "bench": {
+      "name": "Santini C.",
+      "role": "Responsabile Qualità · in azienda da 6 anni",
+      "apex": 27.9,
+      "scores": {
+        "Leadership": 24.7,
+        "Delega": 23.5,
+        "Decision Making": 24.9,
+        "Problem Solving": 27.2,
+        "Autocontrollo": 24.1,
+        "Pianificazione e organizzazione": 24.6,
+        "Gestione dei conflitti": 22.8,
+        "Controllo": 23.9,
+        "Etica del lavoro": 25
+      }
+    }
+  }
+}

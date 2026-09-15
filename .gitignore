@@ -1,0 +1,5 @@
+# Root-level ignores only — frontend/ and backend/ each have their own
+# more specific .gitignore for their own build output, node_modules, and
+# env files.
+.DS_Store
+*.log

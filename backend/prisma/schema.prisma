@@ -1,0 +1,741 @@
+// Phase 30 — Recruiting backend schema.
+// Source of truth: Phase 29 Backend Blueprint §2 (entity model) and the
+// Phase 29B decision sheet (which OD recommendations are approved).
+//
+// STOP-CONDITION NOTE (§21 of the Phase 30 brief): four decisions remain
+// unresolved (OD-1, OD-6, OD-8, OD-10). Nothing below hardcodes a guessed
+// answer to any of them — see the comment directly above each affected
+// model/field for exactly how each is kept configurable instead.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================================================================
+// Users & auth
+// =====================================================================
+
+enum UserRole {
+  PLATFORM_ADMIN
+  COMPANY_ADMIN
+  RECRUITER
+  EVALUATOR
+  READONLY
+}
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+  DISABLED
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String
+  fullName     String
+  role         UserRole
+  companyId    String?
+  company      Company?   @relation(fields: [companyId], references: [id])
+  status       UserStatus @default(ACTIVE)
+  lastLoginAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  refreshTokens             RefreshToken[]
+  evaluatorRecord           Evaluator?
+  cipsGenerated             Cip[]                       @relation("CipGeneratedBy")
+  campaignsGeneratedCip     Cip[]                        @relation("CipVoidedBy")
+  cvsUploaded               Cv[]
+  storedFilesUploaded       StoredFile[]
+  jobProfilesCreated        JobProfile[]
+  shortlistEntriesAdded     Shortlist[]
+  testInvitationsCreated    TestInvitation[]
+  interviewsCreated         Interview[]
+  candidateProfilesApproved CandidateProfile[]
+  senderConfigsCreated      SenderConfig[]
+  emailTemplatesCreated     EmailTemplate[]
+  emailServiceConfigured    EmailServiceConfig[]
+  testProviderConfigured    TestProviderConfig[]
+  auditLogEntries           AuditLog[]
+
+  @@index([companyId])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// =====================================================================
+// Tenancy: Platform, Company, Campaign, CIP, SellerCode
+// =====================================================================
+
+enum PlatformStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  DECOMMISSIONED
+}
+
+model Platform {
+  id          String         @id @default(uuid())
+  name        String
+  status      PlatformStatus @default(PENDING)
+  activatedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  companies           Company[]
+  emailServiceConfigs EmailServiceConfig[]
+
+  // Deliberately NO direct `cip Cip?` relation here. OD-1 (does a CIP
+  // identify a Platform, Company, or Campaign — approved recommendation:
+  // Platform, but the generation TRIGGER and Platform<->Company cardinality
+  // are still unconfirmed) is resolved at the application layer via
+  // Cip.ownerType/ownerId instead of a hardcoded FK, so this table needs no
+  // schema change whichever way OD-1's remaining questions land.
+}
+
+enum CompanyStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Company {
+  id         String        @id @default(uuid())
+  // Nullable and NOT unique on purpose: OD-1 leaves Platform<->Company
+  // cardinality (strict 1:1 vs. one platform serving several companies)
+  // unresolved. Leaving this optional/non-unique supports either answer
+  // without a migration later; do not add `@unique` here until confirmed.
+  platformId String?
+  platform   Platform?     @relation(fields: [platformId], references: [id])
+  name       String
+  vatNumber  String?
+  status     CompanyStatus @default(ACTIVE)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  users          User[]
+  campaigns      Campaign[]
+  evaluators     Evaluator[]
+  senderConfigs  SenderConfig[]
+  emailTemplates EmailTemplate[]
+
+  @@index([platformId])
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  CLOSED
+}
+
+model Campaign {
+  id        String         @id @default(uuid())
+  companyId String
+  company   Company        @relation(fields: [companyId], references: [id])
+  name      String
+  status    CampaignStatus @default(DRAFT)
+  openedAt  DateTime?
+  closedAt  DateTime?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  jobProfiles         JobProfile[]
+  candidates          CampaignCandidate[]
+  cvMatchResults      CvMatchResult[]
+  evaluatorAssignments CampaignEvaluatorAssignment[]
+  emailTemplates      EmailTemplate[]
+  cvs                 Cv[]
+
+  @@index([companyId])
+}
+
+// Admin-managed lookup table — OD-2, approved as-is.
+model SellerCode {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  label     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cips Cip[]
+}
+
+enum CipOwnerType {
+  PLATFORM
+  COMPANY
+  CAMPAIGN
+}
+
+enum CipStatus {
+  ACTIVE
+  VOIDED
+}
+
+// CIP — Blueprint §2.1 / decision sheet OD-1.
+// Approved: Platform-level ownership, immutable once issued, void+reissue
+// instead of in-place edits. NOT approved / still open: the exact
+// generation TRIGGER (what event fires this — see src/modules/cip for the
+// explicit, manually-invoked service that stands in for that trigger until
+// it's confirmed) and the sequence's counting scope. `ownerType`/`ownerId`
+// is intentionally polymorphic (no hard FK) so this table needs no schema
+// change once those two questions are answered.
+model Cip {
+  id           String       @id @default(uuid())
+  code         String       @unique
+  year2        Int
+  sellerCodeId String
+  sellerCode   SellerCode   @relation(fields: [sellerCodeId], references: [id])
+  month2       Int
+  sequence     Int
+  ownerType    CipOwnerType
+  ownerId      String
+  status       CipStatus    @default(ACTIVE)
+  generatedById String
+  generatedBy   User        @relation("CipGeneratedBy", fields: [generatedById], references: [id])
+  generatedAt   DateTime    @default(now())
+  voidedAt      DateTime?
+  voidedById    String?
+  voidedBy      User?       @relation("CipVoidedBy", fields: [voidedById], references: [id])
+  voidReason    String?
+
+  // Sequence scope assumed here: (year, seller, month) — this is the
+  // recommended-but-unconfirmed reading from OD-1 ("progressive number of
+  // active platforms" alongside year/seller/month in the same code). If
+  // Roberto specifies a different scope, only this constraint changes.
+  @@unique([year2, sellerCodeId, month2, sequence])
+  @@index([ownerType, ownerId])
+}
+
+// =====================================================================
+// Candidate & CV
+// =====================================================================
+
+enum ConsentStatus {
+  EXPLICIT
+  IMPLICIT
+  DECLINED
+  UNKNOWN
+}
+
+enum CvRetentionChoice {
+  TWO_YEARS
+  SIX_MONTHS
+}
+
+enum CandidateSource {
+  ARCHIVE
+  NEW_APPLICANT
+  MANUAL
+}
+
+model Candidate {
+  id                     String             @id @default(uuid())
+  fullName               String
+  email                  String?
+  // Lowercased/trimmed mirror of `email`, used only for OD-4's suggestion
+  // matching — never written to directly by API consumers.
+  normalizedEmail        String?
+  phone                  String?
+  consentStatus          ConsentStatus?
+  cvRetentionChoice      CvRetentionChoice?
+  cvRetentionExpiresAt   DateTime?
+  source                 CandidateSource?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  campaigns  CampaignCandidate[]
+  cvs        Cv[]
+  storedFiles StoredFile[]
+
+  @@index([normalizedEmail])
+}
+
+// The full candidate x campaign lifecycle. `status` folds together the old
+// frontend's five pipelineStage() labels and its 3-value PrescreenStatus
+// into one real state machine — see Blueprint §2.2 for the value-by-value
+// mapping. `test_ha_risposto` is written ONLY by the webhook handler
+// (src/modules/webhooks), never by a manual endpoint — see OD-8 note below.
+enum CampaignCandidateStatus {
+  IN_POOL
+  SHORTLISTED
+  TEST_DA_INVIARE
+  TEST_INVIATO
+  TEST_HA_RISPOSTO
+  TEST_NON_HA_RISPOSTO
+  INTERVIEW
+  DECISION_WON
+  DECISION_LOST
+  WITHDRAWN
+}
+
+model CampaignCandidate {
+  id          String                   @id @default(uuid())
+  campaignId  String
+  campaign    Campaign                 @relation(fields: [campaignId], references: [id])
+  candidateId String
+  candidate   Candidate                @relation(fields: [candidateId], references: [id])
+  roleApplied String?
+  icvScore    Float?
+  status      CampaignCandidateStatus  @default(IN_POOL)
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+
+  shortlist   Shortlist?
+  interviews  Interview[]
+  evaluations Evaluation[]
+  profile     CandidateProfile?
+
+  @@unique([campaignId, candidateId])
+  @@index([campaignId, status])
+}
+
+enum CvStatus {
+  UPLOADED
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
+model Cv {
+  id           String    @id @default(uuid())
+  candidateId  String
+  candidate    Candidate @relation(fields: [candidateId], references: [id])
+  campaignId   String?
+  campaign     Campaign? @relation(fields: [campaignId], references: [id])
+  fileId       String    @unique
+  file         StoredFile @relation(fields: [fileId], references: [id])
+  status       CvStatus  @default(UPLOADED)
+  uploadedById String
+  uploadedBy   User      @relation(fields: [uploadedById], references: [id])
+  uploadedAt   DateTime  @default(now())
+
+  matchResults CvMatchResult[]
+
+  @@index([candidateId])
+  @@index([campaignId])
+}
+
+// The JD editor state + role posting, unified per campaign — Blueprint
+// §2.7 recommends consolidating today's disconnected JdState/JobOpening.jobProfile
+// domains; that consolidation happens here, not as two separate tables.
+model JobProfile {
+  id              String   @id @default(uuid())
+  campaignId      String
+  campaign        Campaign @relation(fields: [campaignId], references: [id])
+  title           String?
+  header          Json     @default("{}")
+  sections        Json     @default("{}")
+  hardSkillGroups Json     @default("[]")
+  extraRequirements Json   @default("[]")
+  salaryBenefits  Json     @default("{}")
+  createdById     String
+  createdBy       User     @relation(fields: [createdById], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  matchResults CvMatchResult[]
+
+  @@index([campaignId])
+}
+
+enum Fascia {
+  EXCELLENT
+  DEVELOPABLE
+  GAP
+  NOT_RECOMMENDED
+}
+
+// OD-5: ahiScore is computed by the EXACT existing frontend formula
+// (frontend/src/modules/recruiting/lib/scoring.ts `ahi()`), ported
+// unchanged into src/lib/scoring.ts and covered by tests/scoring.test.ts
+// against fixtures — see the final report for the verification method.
+model CvMatchResult {
+  id                 String      @id @default(uuid())
+  cvId               String
+  cv                 Cv          @relation(fields: [cvId], references: [id])
+  campaignId         String
+  campaign           Campaign    @relation(fields: [campaignId], references: [id])
+  jobProfileId       String?
+  jobProfile         JobProfile? @relation(fields: [jobProfileId], references: [id])
+  matchScorePercent  Float
+  matchBreakdown     Json        @default("{}")
+  ahiScore           Float?
+  fascia             Fascia?
+  hardRedFlag        Boolean     @default(false)
+  computedAt         DateTime    @default(now())
+
+  @@unique([cvId, campaignId])
+  @@index([campaignId])
+}
+
+// =====================================================================
+// Shortlist (Migliori Candidati) — Blueprint §2.3 / decision sheet OD-6, OD-8
+// =====================================================================
+
+// OD-8 note: NON_HA_RISPOSTO exists as a reachable status, but nothing in
+// this codebase decides WHEN a shortlist entry transitions into it — that
+// requires a day-count Roberto hasn't given (§8/§21 of the Phase 30 brief
+// forbid inventing one). See NonResponseThresholdConfig below: the
+// scheduled job that would perform this transition is deliberately NOT
+// implemented; only its configuration row (nullable days) exists, so
+// turning it on later is a config change, not new code.
+enum ShortlistStatus {
+  DA_INVIARE
+  INVIATO
+  HA_RISPOSTO
+  NON_HA_RISPOSTO
+}
+
+enum ShortlistSource {
+  CV_ELABORATI
+  MANUAL
+}
+
+model Shortlist {
+  id                  String            @id @default(uuid())
+  campaignCandidateId String            @unique
+  campaignCandidate   CampaignCandidate @relation(fields: [campaignCandidateId], references: [id])
+  status              ShortlistStatus   @default(DA_INVIARE)
+  selectedFrom        ShortlistSource
+  addedById           String
+  addedBy             User              @relation(fields: [addedById], references: [id])
+  addedAt             DateTime          @default(now())
+
+  testInvitations TestInvitation[]
+}
+
+// OD-8's configuration boundary: a per-campaign override for how many days
+// of silence should eventually mean "Non ha risposto". `thresholdDays` is
+// nullable and starts unset everywhere — the absence of a job reading this
+// table is deliberate (see model comment above), not an oversight.
+model NonResponseThresholdConfig {
+  id            String   @id @default(uuid())
+  campaignId    String?  @unique
+  thresholdDays Int?
+  updatedAt     DateTime @updatedAt
+}
+
+// =====================================================================
+// Test invitation & response — Blueprint §2.4 / §5, §11
+// =====================================================================
+
+enum SentStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model TestInvitation {
+  id                 String         @id @default(uuid())
+  shortlistId        String
+  shortlist          Shortlist      @relation(fields: [shortlistId], references: [id])
+  testLink            String
+  messageTemplateId  String?
+  messageTemplate    EmailTemplate? @relation(fields: [messageTemplateId], references: [id])
+  senderConfigId     String
+  senderConfig       SenderConfig   @relation(fields: [senderConfigId], references: [id])
+  sentStatus         SentStatus     @default(PENDING)
+  sentAt             DateTime?
+  failureReason      String?
+  provider           String?
+  providerMessageId  String?
+  createdById        String
+  createdBy          User           @relation(fields: [createdById], references: [id])
+  createdAt          DateTime       @default(now())
+
+  response TestResponse?
+
+  @@index([shortlistId])
+}
+
+enum ReceivedVia {
+  WEBHOOK
+  MANUAL
+}
+
+model TestResponse {
+  id                 String         @id @default(uuid())
+  testInvitationId   String         @unique
+  testInvitation     TestInvitation @relation(fields: [testInvitationId], references: [id])
+  completedAt        DateTime?
+  score              Float?
+  rawResult          Json?
+  receivedVia        ReceivedVia
+  // Idempotency key from the provider's webhook event — a replayed webhook
+  // with the same id is a no-op, never a duplicate row (§11, §19).
+  webhookEventId     String?        @unique
+  createdAt          DateTime       @default(now())
+}
+
+// §11 — the integration boundary for an external test provider. No real
+// provider is named anywhere in the approved documents, so this table
+// exists to hold configuration WHEN one is chosen; `active` starts false
+// and nothing in this codebase flips it automatically.
+model TestProviderConfig {
+  id               String   @id @default(uuid())
+  name             String
+  // Reference into a secrets manager — never the raw secret (§10, §19).
+  webhookSecretRef String
+  active           Boolean  @default(false)
+  configuredById   String?
+  configuredBy     User?    @relation(fields: [configuredById], references: [id])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// =====================================================================
+// Interview, Evaluator, Evaluation — Blueprint §2.5 / §6
+// =====================================================================
+
+model Interview {
+  id                  String            @id @default(uuid())
+  campaignCandidateId String
+  campaignCandidate   CampaignCandidate @relation(fields: [campaignCandidateId], references: [id])
+  scheduledAt         DateTime
+  completed           Boolean           @default(false)
+  overallScore        Float?
+  notes               String?
+  createdById         String
+  createdBy           User              @relation(fields: [createdById], references: [id])
+  createdAt           DateTime          @default(now())
+
+  @@index([campaignCandidateId])
+}
+
+enum EvaluatorRole {
+  HR
+  MANAGER
+  DIRETTORE_HR
+  ALTRO
+}
+
+// OD-9: supports BOTH a full login (`userId`, nullable) and an accountless,
+// scoped access token (`accessTokenHash`/`accessTokenExpiresAt`) for an
+// external evaluator who only ever fills in one scorecard — see
+// src/modules/evaluators for how the token path authorizes without ever
+// widening what that evaluator can see beyond their own assignment.
+model Evaluator {
+  id                  String    @id @default(uuid())
+  userId              String?   @unique
+  user                User?     @relation(fields: [userId], references: [id])
+  fullName            String
+  email               String
+  role                EvaluatorRole
+  altroLabel          String?
+  companyId           String?
+  company             Company?  @relation(fields: [companyId], references: [id])
+  accessTokenHash     String?   @unique
+  accessTokenExpiresAt DateTime?
+  createdAt           DateTime  @default(now())
+
+  assignments CampaignEvaluatorAssignment[]
+  evaluations Evaluation[]
+
+  @@index([companyId])
+}
+
+model CampaignEvaluatorAssignment {
+  id          String    @id @default(uuid())
+  campaignId  String
+  campaign    Campaign  @relation(fields: [campaignId], references: [id])
+  evaluatorId String
+  evaluator   Evaluator @relation(fields: [evaluatorId], references: [id])
+  assignedAt  DateTime  @default(now())
+
+  @@unique([campaignId, evaluatorId])
+}
+
+enum EvaluationStatus {
+  DRAFT
+  SUBMITTED
+}
+
+enum EvaluationRecommendation {
+  PROCEDI
+  RISERVA
+  CONFRONTA
+  NO
+}
+
+model Evaluation {
+  id                  String                    @id @default(uuid())
+  campaignCandidateId String
+  campaignCandidate   CampaignCandidate         @relation(fields: [campaignCandidateId], references: [id])
+  evaluatorId         String
+  evaluator           Evaluator                 @relation(fields: [evaluatorId], references: [id])
+  status              EvaluationStatus          @default(DRAFT)
+  scores              Json                      @default("{}")
+  finalScore          Float?
+  recommendation      EvaluationRecommendation?
+  notes               String?
+  signedAt            DateTime?
+  submittedAt          DateTime?
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+
+  @@unique([campaignCandidateId, evaluatorId])
+}
+
+// =====================================================================
+// Candidate Profile — Blueprint §2.6
+// =====================================================================
+
+enum CandidateProfileStatus {
+  DRAFT
+  SAVED
+  APPROVED
+  PUBLICATION_READY
+  PUBLISHED
+}
+
+model CandidateProfile {
+  id                  String                  @id @default(uuid())
+  campaignCandidateId String                  @unique
+  campaignCandidate   CampaignCandidate       @relation(fields: [campaignCandidateId], references: [id])
+  status              CandidateProfileStatus  @default(DRAFT)
+  // The single stored document both the preview endpoint and the published
+  // page read — see src/modules/candidateProfiles: there is exactly one
+  // GET path for content, reused before and after publish (§13).
+  content             Json                    @default("{}")
+  approvedById        String?
+  approvedBy          User?                   @relation(fields: [approvedById], references: [id])
+  approvedAt          DateTime?
+  publicationLink     String?
+  publishedAt         DateTime?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+}
+
+// =====================================================================
+// Email configuration — Blueprint §2.7 / §5 / decision sheet OD-7
+// =====================================================================
+
+enum SenderType {
+  COMPANY_HR
+  SKILLVISION_ADMIN
+}
+
+model SenderConfig {
+  id            String     @id @default(uuid())
+  companyId     String
+  company       Company    @relation(fields: [companyId], references: [id])
+  senderType    SenderType
+  displayName   String
+  replyToEmail  String
+  createdById   String
+  createdBy     User       @relation(fields: [createdById], references: [id])
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  testInvitations TestInvitation[]
+
+  @@index([companyId])
+}
+
+model EmailTemplate {
+  id          String    @id @default(uuid())
+  companyId   String?
+  company     Company?  @relation(fields: [companyId], references: [id])
+  campaignId  String?
+  campaign    Campaign? @relation(fields: [campaignId], references: [id])
+  subject     String
+  body        String
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  testInvitations TestInvitation[]
+
+  @@index([companyId])
+  @@index([campaignId])
+}
+
+enum EmailServiceScope {
+  GLOBAL
+  PLATFORM
+}
+
+// Platform-admin-only, per §10 of the Blueprint and §10/§19 of this phase.
+// `apiKeySecretRef` is a reference into a secrets manager, never the raw
+// key — enforced at the API layer (src/modules/emailConfig), which never
+// returns this field in any response, masked or otherwise.
+model EmailServiceConfig {
+  id              String            @id @default(uuid())
+  providerName    String
+  apiEndpointUrl  String
+  apiKeySecretRef String
+  scope           EmailServiceScope @default(GLOBAL)
+  platformId      String?
+  platform        Platform?         @relation(fields: [platformId], references: [id])
+  active          Boolean           @default(false)
+  createdById     String
+  createdBy       User              @relation(fields: [createdById], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+// =====================================================================
+// File storage — Blueprint §7
+// =====================================================================
+
+model StoredFile {
+  id                 String    @id @default(uuid())
+  storageKey         String    @unique
+  originalFilename   String
+  mimeType           String
+  sizeBytes          Int
+  checksumSha256     String
+  candidateId        String?
+  candidate          Candidate? @relation(fields: [candidateId], references: [id])
+  campaignId         String?
+  uploadedById       String
+  uploadedBy         User      @relation(fields: [uploadedById], references: [id])
+  // OD-10: retention is TRACKED here; nothing reads this field to delete,
+  // anonymize, or otherwise act on an expired file. See
+  // src/modules/cv/retention.ts for the explicit no-op + the flag-for-review
+  // report it produces instead (§12/§21).
+  retentionExpiresAt DateTime?
+  deletedAt          DateTime?
+  createdAt          DateTime  @default(now())
+
+  cv Cv?
+
+  @@index([candidateId])
+  @@index([retentionExpiresAt])
+}
+
+// =====================================================================
+// Audit
+// =====================================================================
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  actorUserId   String?
+  actorUser     User?    @relation(fields: [actorUserId], references: [id])
+  action        String
+  entityType    String
+  entityId      String?
+  metadata      Json?
+  occurredAt    DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([occurredAt])
+}

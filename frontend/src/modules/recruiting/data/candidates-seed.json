@@ -1,0 +1,1334 @@
+[
+  {
+    "id": "x1",
+    "name": "Angeloni Nicola",
+    "src": "Excel import · ASSISTENZA CLIENTI",
+    "role": "ASSISTENZA CLIENTI",
+    "job": "Assistenza clienti Yuni",
+    "icv": 70,
+    "scores": {
+      "Comunicazione": 27.56,
+      "Orientamento al cliente": 19.56,
+      "Esperienza del cliente": 21.52,
+      "Spirito di iniziativa": 15.18,
+      "Risoluzione dei problemi": 17.52,
+      "Motivazione ed efficacia personale": 20.99,
+      "Autocontrollo": 24.7
+    },
+    "bf": {
+      "Estroversione": 55,
+      "Coscienziosità": 55,
+      "Apertura": 55,
+      "Amicalità": 55,
+      "Stabilità emotiva": 55
+    }
+  },
+  {
+    "id": "x2",
+    "name": "Barnocchi Giacomo Paolo",
+    "src": "Excel import · SOCIO",
+    "role": "SOCIO",
+    "job": "Direttore amministrativo, direttore area formazione e delle area sviluppo e software",
+    "icv": 73,
+    "scores": {
+      "Leadership": 26.75,
+      "Comunicazione": 29.61,
+      "Strategia": 29.85,
+      "Risoluzione dei problemi": 23.04,
+      "Il processo decisionale": 21.71,
+      "Innovazione": 15.18,
+      "Orientamento al cliente": 16.04
+    },
+    "bf": {
+      "Estroversione": 62,
+      "Coscienziosità": 66,
+      "Apertura": 68,
+      "Amicalità": 72,
+      "Stabilità emotiva": 74
+    }
+  },
+  {
+    "id": "x3",
+    "name": "Bedini Barbara",
+    "src": "Excel import · RESPONSABILE UFFICIO PROGETTAZIONE",
+    "role": "RESPONSABILE UFFICIO PROGETTAZIONE",
+    "job": "Coordinare le attività dell'area progettazione, analisi e scrittura bandi",
+    "icv": 76,
+    "scores": {
+      "Comunicazione": 26.23,
+      "Pianificazione e organizzazione": 18.99,
+      "Risoluzione dei problemi": 21.37,
+      "Innovazione": 25.04,
+      "Orientamento al cliente": 19.09,
+      "Spirito di iniziativa": 23.04,
+      "Leadership": 19.9
+    },
+    "bf": {
+      "Estroversione": 69,
+      "Coscienziosità": 77,
+      "Apertura": 81,
+      "Amicalità": 89,
+      "Stabilità emotiva": 93
+    }
+  },
+  {
+    "id": "x4",
+    "name": "Bordoni Sabrina",
+    "src": "Excel import · RESPONSABILE AMMINISTRAZIONE PIANI FORMATIVI",
+    "role": "RESPONSABILE AMMINISTRAZIONE PIANI FORMATIVI",
+    "job": "Seguire la parte amministrativa legata alla formazione finanziata",
+    "icv": 79,
+    "scores": {
+      "Pianificazione e Organizzazione": 18.75,
+      "Comunicazione": 14.99,
+      "Controllare": 15.23,
+      "Risoluzione dei problemi": 19.56,
+      "Orientamento al cliente": 17.61,
+      "Formazione sulla sensibilità": 25.04,
+      "Motivazione ed efficacia personale": 21.71
+    },
+    "bf": {
+      "Estroversione": 76,
+      "Coscienziosità": 88,
+      "Apertura": 94,
+      "Amicalità": 66,
+      "Stabilità emotiva": 72
+    }
+  },
+  {
+    "id": "x5",
+    "name": "Cancellieri Francesco",
+    "src": "Excel import · TECNICO FORMAZIONE FINANZIATA",
+    "role": "TECNICO FORMAZIONE FINANZIATA",
+    "job": "Lavorazione voucher",
+    "icv": 82,
+    "scores": {
+      "Comunicazione": 21.23,
+      "Pianificazione e Organizzazione": 22.23,
+      "Orientamento al cliente": 20.99,
+      "Risoluzione dei problemi": 24.7,
+      "Formazione sulla sensibilità": 23.99,
+      "Persistenza": 19.56,
+      "Autocontrollo": 22.51
+    },
+    "bf": {
+      "Estroversione": 83,
+      "Coscienziosità": 59,
+      "Apertura": 67,
+      "Amicalità": 83,
+      "Stabilità emotiva": 91
+    }
+  },
+  {
+    "id": "x6",
+    "name": "Cardinali Daniele",
+    "src": "Excel import · PRODUCT MANAGER",
+    "role": "PRODUCT MANAGER",
+    "job": "Individuare e supervisionare le evoluzioni del prodotto CCNL, redigere il DB relazionale dei dati tabellari",
+    "icv": 85,
+    "scores": {
+      "Comunicazione": 27.04,
+      "Innovazione": 26.23,
+      "Strategia": 23.61,
+      "Il processo decisionale": 16.04,
+      "Risoluzione dei problemi": 20.09,
+      "Leadership": 24.7,
+      "Pianificazione e Organizzazione": 28.32
+    },
+    "bf": {
+      "Estroversione": 90,
+      "Coscienziosità": 70,
+      "Apertura": 80,
+      "Amicalità": 60,
+      "Stabilità emotiva": 70
+    }
+  },
+  {
+    "id": "x7",
+    "name": "Cardone Sergio",
+    "src": "Excel import · WEB MARKETER",
+    "role": "WEB MARKETER",
+    "job": "Analizzare dati statistici, svolgere attività grafiche legate al marketing aziendale",
+    "icv": 88,
+    "scores": {
+      "Risoluzione dei problemi": 22.04,
+      "Comunicazione": 24.28,
+      "Innovazione": 22.18,
+      "Orientamento al cliente": 19.9,
+      "Spirito di iniziativa": 19.28,
+      "Pianificazione e Organizzazione": 16.04,
+      "Autocontrollo": 20.94
+    },
+    "bf": {
+      "Estroversione": 57,
+      "Coscienziosità": 81,
+      "Apertura": 93,
+      "Amicalità": 77,
+      "Stabilità emotiva": 89
+    }
+  },
+  {
+    "id": "x8",
+    "name": "Carfagno Alessandra",
+    "src": "Excel import · ADDETTA REDAZIONE",
+    "role": "ADDETTA REDAZIONE",
+    "job": "Redigere sintesi CCNL",
+    "icv": 91,
+    "scores": {
+      "Comunicazione": 28.99,
+      "Pianificazione e Organizzazione": 24.04,
+      "Autocontrollo": 21.04,
+      "Risoluzione dei problemi": 21.71,
+      "Orientamento sociale": 25.94,
+      "Innovazione": 19.9,
+      "Persistenza": 18.33
+    },
+    "bf": {
+      "Estroversione": 64,
+      "Coscienziosità": 92,
+      "Apertura": 66,
+      "Amicalità": 94,
+      "Stabilità emotiva": 68
+    }
+  },
+  {
+    "id": "x9",
+    "name": "Casini Samuel",
+    "src": "Excel import · RESPONSABILE ASSISTENZA CLIENTI",
+    "role": "RESPONSABILE ASSISTENZA CLIENTI",
+    "job": "Coordinare le attività di assistenza clienti gestire la segreteria commerciale e gestione Cloudoc",
+    "icv": 94,
+    "scores": {
+      "Comunicazione": 23.51,
+      "Esperienza del cliente": 24.18,
+      "Spirito di iniziativa": 17.99,
+      "Pianificazione e Organizzazione": 22.51,
+      "Controllare": 19.56,
+      "Orientamento al cliente": 21.71,
+      "Risoluzione dei problemi": 23.42
+    },
+    "bf": {
+      "Estroversione": 71,
+      "Coscienziosità": 63,
+      "Apertura": 79,
+      "Amicalità": 71,
+      "Stabilità emotiva": 87
+    }
+  },
+  {
+    "id": "x10",
+    "name": "Cavadenti Gaspereppi Nicoletta",
+    "src": "Excel import · ADDETTA AL CONTROLLO DI GESTIONE E ADDETTA AMMINISTRATIVA",
+    "role": "ADDETTA AL CONTROLLO DI GESTIONE E ADDETTA AMMINISTRATIVA",
+    "job": "Gestione contabilità industriale e gestione contabilità",
+    "icv": 72,
+    "scores": {
+      "Comunicazione": 24.75,
+      "Pianificazione e Organizzazione": 25.56,
+      "Risoluzione dei problemi": 22.8,
+      "Autocontrollo": 28.32,
+      "Orientamento al cliente": 26.18,
+      "Persistenza": 22.51,
+      "Innovazione": 22.47
+    },
+    "bf": {
+      "Estroversione": 78,
+      "Coscienziosità": 74,
+      "Apertura": 92,
+      "Amicalità": 88,
+      "Stabilità emotiva": 66
+    }
+  },
+  {
+    "id": "x11",
+    "name": "Ceccarelli Silvia",
+    "src": "Excel import · ADDETTA REDAZIONE",
+    "role": "ADDETTA REDAZIONE",
+    "job": "Conversione testi in HTML, ricerca contratti nazionali e territoriali",
+    "icv": 75,
+    "scores": {
+      "Risoluzione dei problemi": 22.51,
+      "Comunicazione": 26.28,
+      "Spirito di iniziativa": 16.8,
+      "Pianificazione e Organizzazione": 20.94,
+      "Orientamento sociale": 25.89,
+      "Innovazione": 28.32,
+      "Autocontrollo": 9.52
+    },
+    "bf": {
+      "Estroversione": 85,
+      "Coscienziosità": 85,
+      "Apertura": 65,
+      "Amicalità": 65,
+      "Stabilità emotiva": 85
+    }
+  },
+  {
+    "id": "x12",
+    "name": "Chiacchierini Simone",
+    "src": "Excel import · ADDETTO AMMINISTRAZIONE, ACQUISTI",
+    "role": "ADDETTO AMMINISTRAZIONE, ACQUISTI",
+    "job": "Gestire la contabilità aziendale e gli acquisti",
+    "icv": 78,
+    "scores": {
+      "Comunicazione": 21.28,
+      "Controllare": 18.04,
+      "Pianificazione e Organizzazione": 18.47,
+      "Risoluzione dei problemi": 18.33,
+      "Spirito di iniziativa": 26.13,
+      "Autocontrollo": 20.94,
+      "Motivazione ed efficacia personale": 22.51
+    },
+    "bf": {
+      "Estroversione": 92,
+      "Coscienziosità": 56,
+      "Apertura": 78,
+      "Amicalità": 82,
+      "Stabilità emotiva": 64
+    }
+  },
+  {
+    "id": "x13",
+    "name": "Chiocchi Nicola",
+    "src": "Excel import · MANAGER FORMAZIONE",
+    "role": "MANAGER FORMAZIONE",
+    "job": "Seguire gli aspetti commerciali della rete partner formazione",
+    "icv": 81,
+    "scores": {
+      "Comunicazione": 29.42,
+      "Orientamento al cliente": 27.27,
+      "Leadership": 24.7,
+      "Influenza e persuasione": 23.42,
+      "Spirito di iniziativa": 32.99,
+      "Pianificazione e Organizzazione": 18.33,
+      "Esperienza del cliente": 23.37
+    },
+    "bf": {
+      "Estroversione": 59,
+      "Coscienziosità": 67,
+      "Apertura": 91,
+      "Amicalità": 59,
+      "Stabilità emotiva": 83
+    }
+  },
+  {
+    "id": "x14",
+    "name": "Ciampelli Erica",
+    "src": "Excel import · TECNICO FORMAZIONE FINANZIATA",
+    "role": "TECNICO FORMAZIONE FINANZIATA",
+    "job": "Referente tecnico area avvisi, referente di piano formativo",
+    "icv": 84,
+    "scores": {
+      "Comunicazione": 21.52,
+      "Pianificazione e Organizzazione": 24.32,
+      "Risoluzione dei problemi": 27.13,
+      "Orientamento sociale": 22.47,
+      "Formazione sulla sensibilità": 27.75,
+      "Autocontrollo": 23.42,
+      "Spirito di iniziativa": 21.18
+    },
+    "bf": {
+      "Estroversione": 66,
+      "Coscienziosità": 78,
+      "Apertura": 64,
+      "Amicalità": 76,
+      "Stabilità emotiva": 62
+    }
+  },
+  {
+    "id": "x15",
+    "name": "Costel Alexandru Stefan",
+    "src": "Excel import · SISTEMISTA JUNIOR",
+    "role": "SISTEMISTA JUNIOR",
+    "job": "Gestire hardware e rete interna aziendale, cyber security",
+    "icv": 87,
+    "scores": {
+      "Risoluzione dei problemi": 17.33,
+      "Comunicazione": 12.61,
+      "Orientamento al cliente": 8.14,
+      "Autocontrollo": 9.52,
+      "Spirito di iniziativa": 9.19,
+      "Formazione sulla sensibilità": 22.47,
+      "Pianificazione e organizzazione": 22.23
+    },
+    "bf": {
+      "Estroversione": 73,
+      "Coscienziosità": 89,
+      "Apertura": 77,
+      "Amicalità": 93,
+      "Stabilità emotiva": 81
+    }
+  },
+  {
+    "id": "x16",
+    "name": "Crisanti Adalgisa",
+    "src": "Excel import · TECNICO FORMAZIONE FINANZIATA",
+    "role": "TECNICO FORMAZIONE FINANZIATA",
+    "job": "Controllare e archiviare la documentazione area formazione",
+    "icv": 90,
+    "scores": {
+      "Controllare": 26.56,
+      "Comunicazione": 20.99,
+      "Pianificazione e Organizzazione": 27.18,
+      "Autocontrollo": 22.51,
+      "Risoluzione dei problemi": 28.42,
+      "Formazione sulla sensibilità": 9.52,
+      "Orientamento al cliente": 17.33
+    },
+    "bf": {
+      "Estroversione": 80,
+      "Coscienziosità": 60,
+      "Apertura": 90,
+      "Amicalità": 70,
+      "Stabilità emotiva": 60
+    }
+  },
+  {
+    "id": "x17",
+    "name": "Di Maio Luca",
+    "src": "Excel import · ASSISTENZA CLIENTI, SOCIAL",
+    "role": "ASSISTENZA CLIENTI, SOCIAL",
+    "job": "Assistenza clienti e gestione social aziendali",
+    "icv": 93,
+    "scores": {
+      "Comunicazione": 25.28,
+      "Esperienza del cliente": 24.56,
+      "Orientamento al cliente": 26.56,
+      "Spirito di iniziativa": 23.37,
+      "Risoluzione dei problemi": 20.8,
+      "Motivazione ed efficacia personale": 22.51,
+      "Innovazione": 15.9
+    },
+    "bf": {
+      "Estroversione": 87,
+      "Coscienziosità": 71,
+      "Apertura": 63,
+      "Amicalità": 87,
+      "Stabilità emotiva": 79
+    }
+  },
+  {
+    "id": "x18",
+    "name": "Fancelli Francesco",
+    "src": "Excel import · JUNIOR DEVELOPER",
+    "role": "JUNIOR DEVELOPER",
+    "job": "Programmare software (full stack developer)",
+    "icv": 71,
+    "scores": {
+      "Risoluzione dei problemi": 26.28,
+      "Comunicazione": 19.23,
+      "Innovazione": 27.27,
+      "Spirito di iniziativa": 21.18,
+      "Autocontrollo": 25.61,
+      "Orientamento al cliente": 23.37,
+      "Formazione sulla sensibilità": 21.66
+    },
+    "bf": {
+      "Estroversione": 94,
+      "Coscienziosità": 82,
+      "Apertura": 76,
+      "Amicalità": 64,
+      "Stabilità emotiva": 58
+    }
+  },
+  {
+    "id": "x19",
+    "name": "Faranfa Emiliano",
+    "src": "Excel import · SOCIO",
+    "role": "SOCIO",
+    "job": "Direttore commerciale, direttore del personale e responsabile area Editoria",
+    "icv": 74,
+    "scores": {
+      "Leadership": 23.23,
+      "Comunicazione": 23.13,
+      "Orientamento al cliente": 21.18,
+      "Strategia": 22.23,
+      "Risoluzione dei problemi": 20.8,
+      "Innovazione": 21.18,
+      "Il processo decisionale": 20.9
+    },
+    "bf": {
+      "Estroversione": 61,
+      "Coscienziosità": 93,
+      "Apertura": 89,
+      "Amicalità": 81,
+      "Stabilità emotiva": 77
+    }
+  },
+  {
+    "id": "x20",
+    "name": "Felicetti Luca",
+    "src": "Excel import · SENIOR DEVELOPER",
+    "role": "SENIOR DEVELOPER",
+    "job": "Sviluppare software e analizzare nuove tecnologie",
+    "icv": 77,
+    "scores": {
+      "Risoluzione dei problemi": 21.61,
+      "Innovazione": 25.8,
+      "Comunicazione": 19.71,
+      "Autocontrollo": 17.33,
+      "Orientamento al cliente": 16.14,
+      "Formazione sulla sensibilità": 22.23,
+      "Spirito di iniziativa": 20.8
+    },
+    "bf": {
+      "Estroversione": 68,
+      "Coscienziosità": 64,
+      "Apertura": 62,
+      "Amicalità": 58,
+      "Stabilità emotiva": 56
+    }
+  },
+  {
+    "id": "x21",
+    "name": "Felicetti Beatrice",
+    "src": "Excel import · ADDETTA AMMINISTRATIVA PIANI FORMATIVI",
+    "role": "ADDETTA AMMINISTRATIVA PIANI FORMATIVI",
+    "job": "Rendicontare piani formativi",
+    "icv": 80,
+    "scores": {
+      "Comunicazione": 9.71,
+      "Pianificazione e Organizzazione": 7.66,
+      "Autocontrollo": 0.9,
+      "Risoluzione dei problemi": 15.9,
+      "Orientamento sociale": 7.19,
+      "Persistenza": 17.33,
+      "Formazione sulla sensibilità": 27.27
+    },
+    "bf": {
+      "Estroversione": 75,
+      "Coscienziosità": 75,
+      "Apertura": 75,
+      "Amicalità": 75,
+      "Stabilità emotiva": 75
+    }
+  },
+  {
+    "id": "x22",
+    "name": "Ferranti Sara",
+    "src": "Excel import · ASSISTENZA CLIENTI",
+    "role": "ASSISTENZA CLIENTI",
+    "job": "Assistenza clienti area formazione",
+    "icv": 83,
+    "scores": {
+      "Comunicazione": 19.66,
+      "Orientamento al cliente": 18.9,
+      "Esperienza del cliente": 21.09,
+      "Spirito di iniziativa": 21.66,
+      "Motivazione ed efficacia personale": 23.28,
+      "Risoluzione dei problemi": 15.9,
+      "Persistenza": 22.23
+    },
+    "bf": {
+      "Estroversione": 82,
+      "Coscienziosità": 86,
+      "Apertura": 88,
+      "Amicalità": 92,
+      "Stabilità emotiva": 94
+    }
+  },
+  {
+    "id": "x23",
+    "name": "Fiorillo Alessandra",
+    "src": "Excel import · PROGETTISTA",
+    "role": "PROGETTISTA",
+    "job": "Rendicontare piani formativi, finanziati a livello locale , nazionale ed europeo",
+    "icv": 86,
+    "scores": {
+      "Comunicazione": 22.61,
+      "Pianificazione e Organizzazione": 23.04,
+      "Risoluzione dei problemi": 21.04,
+      "Controllare": 20.9,
+      "Il processo decisionale": 22.28,
+      "Formazione sulla sensibilità": 21.66,
+      "Autocontrollo": 21.75
+    },
+    "bf": {
+      "Estroversione": 89,
+      "Coscienziosità": 57,
+      "Apertura": 61,
+      "Amicalità": 69,
+      "Stabilità emotiva": 73
+    }
+  },
+  {
+    "id": "x24",
+    "name": "Gemellaro Irene",
+    "src": "Excel import · RECEPTIONIST",
+    "role": "RECEPTIONIST",
+    "job": "Gestire il centralino e l'accoglienza clienti, controllare documenti in ingresso",
+    "icv": 89,
+    "scores": {
+      "Comunicazione": 27.7,
+      "Esperienza del cliente": 24.75,
+      "Orientamento al cliente": 27.47,
+      "Autocontrollo": 20.8,
+      "Formazione sulla sensibilità": 21.56,
+      "Orientamento sociale": 20.9,
+      "Persistenza": 16.95
+    },
+    "bf": {
+      "Estroversione": 56,
+      "Coscienziosità": 68,
+      "Apertura": 74,
+      "Amicalità": 86,
+      "Stabilità emotiva": 92
+    }
+  },
+  {
+    "id": "x25",
+    "name": "Melchiorri Gloria",
+    "src": "Excel import · RESPONSABILE UFFICIO DEL PERSONALE, ASS. DIREZIONE",
+    "role": "RESPONSABILE UFFICIO DEL PERSONALE, ASS. DIREZIONE",
+    "job": "Gestire l'ufficio del personale",
+    "icv": 92,
+    "scores": {
+      "Comunicazione": 25.7,
+      "Pianificazione e Organizzazione": 24.51,
+      "Orientamento al cliente": 27.47,
+      "Leadership": 27.27,
+      "Risoluzione dei problemi": 27.75,
+      "Delegazione": 20.8,
+      "Autocontrollo": 3.71
+    },
+    "bf": {
+      "Estroversione": 63,
+      "Coscienziosità": 79,
+      "Apertura": 87,
+      "Amicalità": 63,
+      "Stabilità emotiva": 71
+    }
+  },
+  {
+    "id": "x26",
+    "name": "Meloni Maria",
+    "src": "Excel import · PROGETTISTA",
+    "role": "PROGETTISTA",
+    "job": "Progettare piani formativi e bandi europei",
+    "icv": 70,
+    "scores": {
+      "Comunicazione": 16.66,
+      "Risoluzione dei problemi": 22.61,
+      "Pianificazione e Organizzazione": 20.71,
+      "Innovazione": 22.23,
+      "Formazione sulla sensibilità": 21.99,
+      "Strategia": 27.27,
+      "Il processo decisionale": 27.32
+    },
+    "bf": {
+      "Estroversione": 70,
+      "Coscienziosità": 90,
+      "Apertura": 60,
+      "Amicalità": 80,
+      "Stabilità emotiva": 90
+    }
+  },
+  {
+    "id": "x27",
+    "name": "Menghinella Federica",
+    "src": "Excel import · PRODUCT MANAGER",
+    "role": "PRODUCT MANAGER",
+    "job": "Analisi, strategia e supervisione dei servizi editoriali edotto.com",
+    "icv": 73,
+    "scores": {
+      "Comunicazione": 25.09,
+      "Innovazione": 25.09,
+      "Strategia": 22.8,
+      "Il processo decisionale": 21.75,
+      "Esperienza del cliente": 21.47,
+      "Leadership": 22.23,
+      "Autocontrollo": 19.14
+    },
+    "bf": {
+      "Estroversione": 77,
+      "Coscienziosità": 61,
+      "Apertura": 73,
+      "Amicalità": 57,
+      "Stabilità emotiva": 69
+    }
+  },
+  {
+    "id": "x28",
+    "name": "Minelli Fabrizio",
+    "src": "Excel import · SALES MANAGER",
+    "role": "SALES MANAGER",
+    "job": "Sviluppare nuovi clienti e strategie marketing",
+    "icv": 76,
+    "scores": {
+      "Comunicazione": 24.61,
+      "Orientamento al cliente": 18.99,
+      "Influenza e persuasione": 23.23,
+      "Spirito di iniziativa": 16.95,
+      "Leadership": 22.28,
+      "Strategia": 21.75,
+      "Risoluzione dei problemi": 23.75
+    },
+    "bf": {
+      "Estroversione": 84,
+      "Coscienziosità": 72,
+      "Apertura": 86,
+      "Amicalità": 74,
+      "Stabilità emotiva": 88
+    }
+  },
+  {
+    "id": "x29",
+    "name": "Montori Valentina",
+    "src": "Excel import · TECNICO FORMAZIONE FINANZIATA",
+    "role": "TECNICO FORMAZIONE FINANZIATA",
+    "job": "Controllo documentale e gestione attestati",
+    "icv": 79,
+    "scores": {
+      "Controllare": 11.61,
+      "Comunicazione": 24.75,
+      "Pianificazione e Organizzazione": 11.66,
+      "Autocontrollo": 3.71,
+      "Orientamento al cliente": 17.56,
+      "Risoluzione dei problemi": 16.95,
+      "Motivazione ed efficacia personale": 22.99
+    },
+    "bf": {
+      "Estroversione": 91,
+      "Coscienziosità": 83,
+      "Apertura": 59,
+      "Amicalità": 91,
+      "Stabilità emotiva": 67
+    }
+  },
+  {
+    "id": "x30",
+    "name": "Moscioni Roberta",
+    "src": "Excel import · ADDETTA REDAZIONE",
+    "role": "ADDETTA REDAZIONE",
+    "job": "Redazione articoli area fiscale",
+    "icv": 82,
+    "scores": {
+      "Comunicazione": 29.89,
+      "Spirito di iniziativa": 27.99,
+      "Risoluzione dei problemi": 28.13,
+      "Innovazione": 27.32,
+      "Pianificazione e Organizzazione": 25.66,
+      "Autocontrollo": 3.71,
+      "Orientamento al cliente": 27.75
+    },
+    "bf": {
+      "Estroversione": 58,
+      "Coscienziosità": 94,
+      "Apertura": 72,
+      "Amicalità": 68,
+      "Stabilità emotiva": 86
+    }
+  },
+  {
+    "id": "x31",
+    "name": "Novelli Marco",
+    "src": "Excel import · ADDETTO REDAZIONE",
+    "role": "ADDETTO REDAZIONE",
+    "job": "Controllo normativa CCNL",
+    "icv": 85,
+    "scores": {
+      "Controllare": 20.37,
+      "Comunicazione": 27.61,
+      "Orientamento al cliente": 27.56,
+      "Risoluzione dei problemi": 19.14,
+      "Formazione sulla sensibilità": 19.61,
+      "Pianificazione e Organizzazione": 27.32,
+      "Autocontrollo": 13.66
+    },
+    "bf": {
+      "Estroversione": 65,
+      "Coscienziosità": 65,
+      "Apertura": 85,
+      "Amicalità": 85,
+      "Stabilità emotiva": 65
+    }
+  },
+  {
+    "id": "x32",
+    "name": "Ornelli Daniele",
+    "src": "Excel import · ",
+    "role": "",
+    "job": "",
+    "icv": 88,
+    "scores": {
+      "Comunicazione": 20.85,
+      "Risoluzione dei problemi": 20.09,
+      "Spirito di iniziativa": 18.9,
+      "Esperienza del cliente": 23.75,
+      "Innovazione": 25.7,
+      "Pianificazione e Organizzazione": 19.14,
+      "Autocontrollo": 22.85
+    },
+    "bf": {
+      "Estroversione": 72,
+      "Coscienziosità": 76,
+      "Apertura": 58,
+      "Amicalità": 62,
+      "Stabilità emotiva": 84
+    }
+  },
+  {
+    "id": "x33",
+    "name": "Paci Marta",
+    "src": "Excel import · ADDETTA ALLO SCOUTING E AL FUND RAISING",
+    "role": "ADDETTA ALLO SCOUTING E AL FUND RAISING",
+    "job": "Ricerca dei finanziamenti, studio dei bandi, condivisione dei requisiti, supporto analisi dei fabbisogni, elaborazione idea progettuale.",
+    "icv": 91,
+    "scores": {
+      "Comunicazione": 29.13,
+      "Spirito di iniziativa": 23.99,
+      "Influenza e persuasione": 28.89,
+      "Orientamento sociale": 22.99,
+      "Risoluzione dei problemi": 27.89,
+      "Pianificazione e Organizzazione": 23.75,
+      "Autocontrollo": 23.18
+    },
+    "bf": {
+      "Estroversione": 79,
+      "Coscienziosità": 87,
+      "Apertura": 71,
+      "Amicalità": 79,
+      "Stabilità emotiva": 63
+    }
+  },
+  {
+    "id": "x34",
+    "name": "Pergolari Eleonora",
+    "src": "Excel import · ADDETTA REDAZIONE",
+    "role": "ADDETTA REDAZIONE",
+    "job": "Redazione articoli area lavoro",
+    "icv": 94,
+    "scores": {
+      "Comunicazione": 24.28,
+      "Spirito di iniziativa": 10.42,
+      "Orientamento sociale": 21.28,
+      "Innovazione": 27.75,
+      "Risoluzione dei problemi": 19.09,
+      "Autocontrollo": 22.99,
+      "Pianificazione e Organizzazione": 22.28
+    },
+    "bf": {
+      "Estroversione": 86,
+      "Coscienziosità": 58,
+      "Apertura": 84,
+      "Amicalità": 56,
+      "Stabilità emotiva": 82
+    }
+  },
+  {
+    "id": "x35",
+    "name": "Pichirallo Cinzia",
+    "src": "Excel import · COORDINATRICE AREA FISCALE",
+    "role": "COORDINATRICE AREA FISCALE",
+    "job": "Coordinare le attività della Redazione Fisco, selezionare e redigere articoli",
+    "icv": 72,
+    "scores": {
+      "Comunicazione": 14.85,
+      "Leadership": 13.66,
+      "Pianificazione e Organizzazione": 12.76,
+      "Controllare": 13.66,
+      "Innovazione": 16.42,
+      "Risoluzione dei problemi": 27.75,
+      "Il processo decisionale": 23.56
+    },
+    "bf": {
+      "Estroversione": 93,
+      "Coscienziosità": 69,
+      "Apertura": 57,
+      "Amicalità": 73,
+      "Stabilità emotiva": 61
+    }
+  },
+  {
+    "id": "x36",
+    "name": "Piergentili Monia",
+    "src": "Excel import · COORDINATRICE AREA SVILUPPO",
+    "role": "COORDINATRICE AREA SVILUPPO",
+    "job": "Coordinare le attività dell'area IT, analisi e supervisione dei progetti informatici",
+    "icv": 75,
+    "scores": {
+      "Leadership": 19.85,
+      "Comunicazione": 14.8,
+      "Innovazione": 19.75,
+      "Risoluzione dei problemi": 22.85,
+      "Pianificazione e Organizzazione": 19.94,
+      "Controllare": 13.66,
+      "Il processo decisionale": 24.85
+    },
+    "bf": {
+      "Estroversione": 60,
+      "Coscienziosità": 80,
+      "Apertura": 70,
+      "Amicalità": 90,
+      "Stabilità emotiva": 80
+    }
+  },
+  {
+    "id": "x37",
+    "name": "Pistola Silvia",
+    "src": "Excel import · COORDINATRICE AREA FORMAZIONE",
+    "role": "COORDINATRICE AREA FORMAZIONE",
+    "job": "Coordinare le attività dell'area formazione",
+    "icv": 78,
+    "scores": {
+      "Comunicazione": 21.56,
+      "Leadership": 24.61,
+      "Pianificazione e Organizzazione": 23.61,
+      "Motivazione ed efficacia personale": 23.18,
+      "Innovazione": 26.04,
+      "Esperienza del cliente": 22.85,
+      "Risoluzione dei problemi": 24.37
+    },
+    "bf": {
+      "Estroversione": 67,
+      "Coscienziosità": 91,
+      "Apertura": 83,
+      "Amicalità": 67,
+      "Stabilità emotiva": 59
+    }
+  },
+  {
+    "id": "x38",
+    "name": "Pizzoni Alessio",
+    "src": "Excel import · RESPONSABILE IT SENIOR DEVELOPER",
+    "role": "RESPONSABILE IT SENIOR DEVELOPER",
+    "job": "responsabile IT, programmazione (full stack developer)",
+    "icv": 81,
+    "scores": {
+      "Comunicazione": 20.23,
+      "Risoluzione dei problemi": 23.23,
+      "Innovazione": 21.52,
+      "Leadership": 22.28,
+      "Pianificazione e Organizzazione": 22.61,
+      "Autocontrollo": 23.18,
+      "Spirito di iniziativa": 22.23
+    },
+    "bf": {
+      "Estroversione": 74,
+      "Coscienziosità": 62,
+      "Apertura": 56,
+      "Amicalità": 84,
+      "Stabilità emotiva": 78
+    }
+  },
+  {
+    "id": "x39",
+    "name": "Pucci Claudia",
+    "src": "Excel import · RESPONSABILE MARKETING",
+    "role": "RESPONSABILE MARKETING",
+    "job": "Seguire le attività di marketing interno, referente progetto Wefar, attività commerciale sui clienti",
+    "icv": 84,
+    "scores": {
+      "Comunicazione": 25.23,
+      "Orientamento al cliente": 20.8,
+      "Spirito di iniziativa": 21.52,
+      "Leadership": 23.56,
+      "Pianificazione e Organizzazione": 20.18,
+      "Innovazione": 22.28,
+      "Influenza e persuasione": 21.28
+    },
+    "bf": {
+      "Estroversione": 81,
+      "Coscienziosità": 73,
+      "Apertura": 69,
+      "Amicalità": 61,
+      "Stabilità emotiva": 57
+    }
+  },
+  {
+    "id": "x40",
+    "name": "Quartucci Alessandro",
+    "src": "Excel import · TECNICO FORMAZIONE FINANZIATA",
+    "role": "TECNICO FORMAZIONE FINANZIATA",
+    "job": "Referente tecnico Eduplan, referente di piani formativi",
+    "icv": 87,
+    "scores": {
+      "Comunicazione": 25.61,
+      "Pianificazione e Organizzazione": 21.9,
+      "Risoluzione dei problemi": 25.42,
+      "Orientamento sociale": 24.85,
+      "Formazione sulla sensibilità": 27.18,
+      "Autocontrollo": 23.56,
+      "Spirito di iniziativa": 21.37
+    },
+    "bf": {
+      "Estroversione": 88,
+      "Coscienziosità": 84,
+      "Apertura": 82,
+      "Amicalità": 78,
+      "Stabilità emotiva": 76
+    }
+  },
+  {
+    "id": "x41",
+    "name": "Ramarro Marta",
+    "src": "Excel import · COORDINATORE AMMINISTRAZIONE",
+    "role": "COORDINATORE AMMINISTRAZIONE",
+    "job": "Coordinare ufficio amministrativo, gestire la contabilità aziendale",
+    "icv": 90,
+    "scores": {
+      "Comunicazione": 26.23,
+      "Leadership": 29.56,
+      "Pianificazione e Organizzazione": 26.7,
+      "Controllare": 24.37,
+      "Il processo decisionale": 30.08,
+      "Innovazione": 24.85,
+      "Orientamento al cliente": 31.89
+    },
+    "bf": {
+      "Estroversione": 55,
+      "Coscienziosità": 55,
+      "Apertura": 55,
+      "Amicalità": 55,
+      "Stabilità emotiva": 55
+    }
+  },
+  {
+    "id": "x42",
+    "name": "Reali Alessio",
+    "src": "Excel import · PROGETTISTA",
+    "role": "PROGETTISTA",
+    "job": "Progettare piani formazione finanziata, e analisi della normativa di riferimento.",
+    "icv": 93,
+    "scores": {
+      "Comunicazione": 17.28,
+      "Pianificazione e Organizzazione": 25.18,
+      "Risoluzione dei problemi": 22.61,
+      "Innovazione": 22.23,
+      "Il processo decisionale": 25.23,
+      "Formazione sulla sensibilità": 24.37,
+      "Autocontrollo": 25.28
+    },
+    "bf": {
+      "Estroversione": 62,
+      "Coscienziosità": 66,
+      "Apertura": 68,
+      "Amicalità": 72,
+      "Stabilità emotiva": 74
+    }
+  },
+  {
+    "id": "x43",
+    "name": "Ricci Giulia",
+    "src": "Excel import · TECNICO FORMAZIONE FINANZIATA",
+    "role": "TECNICO FORMAZIONE FINANZIATA",
+    "job": "Referente piani formativi area avvisi",
+    "icv": 71,
+    "scores": {
+      "Comunicazione": 19.9,
+      "Pianificazione e Organizzazione": 20.99,
+      "Risoluzione dei problemi": 23.28,
+      "Orientamento sociale": 21.28,
+      "Formazione sulla sensibilità": 25.8,
+      "Autocontrollo": 22.23,
+      "Spirito di iniziativa": 20.85
+    },
+    "bf": {
+      "Estroversione": 69,
+      "Coscienziosità": 77,
+      "Apertura": 81,
+      "Amicalità": 89,
+      "Stabilità emotiva": 93
+    }
+  },
+  {
+    "id": "x44",
+    "name": "Ricciolini Cristina",
+    "src": "Excel import · ADDETTA REDAZIONE",
+    "role": "ADDETTA REDAZIONE",
+    "job": "Ricerca rinnovi CCNL",
+    "icv": 74,
+    "scores": {
+      "Comunicazione": 24.47,
+      "Pianificazione e Organizzazione": 23.32,
+      "Autocontrollo": 25.7,
+      "Risoluzione dei problemi": 21.37,
+      "Orientamento sociale": 23.9,
+      "Innovazione": 21.28,
+      "Persistenza": 14.57
+    },
+    "bf": {
+      "Estroversione": 76,
+      "Coscienziosità": 88,
+      "Apertura": 94,
+      "Amicalità": 66,
+      "Stabilità emotiva": 72
+    }
+  },
+  {
+    "id": "x45",
+    "name": "Scarcella Annarita",
+    "src": "Excel import · ADDETTA REDAZIONE",
+    "role": "ADDETTA REDAZIONE",
+    "job": "Coordinare le attività della redazione lavoro, selezione e scrittura articoli, analisi SEO",
+    "icv": 77,
+    "scores": {
+      "Comunicazione": 29.75,
+      "Spirito di iniziativa": 22.51,
+      "Orientamento al cliente": 32.89,
+      "Innovazione": 31.89,
+      "Pianificazione e Organizzazione": 29.89,
+      "Risoluzione dei problemi": 21.37,
+      "Autocontrollo": 22.28
+    },
+    "bf": {
+      "Estroversione": 83,
+      "Coscienziosità": 59,
+      "Apertura": 67,
+      "Amicalità": 83,
+      "Stabilità emotiva": 91
+    }
+  },
+  {
+    "id": "x46",
+    "name": "Scassellati Simona",
+    "src": "Excel import · ADDETTA REDAZIONE",
+    "role": "ADDETTA REDAZIONE",
+    "job": "Coordinare le attività della redazione CCNL, redigere dati tabellari",
+    "icv": 80,
+    "scores": {
+      "Comunicazione": 18.52,
+      "Pianificazione e Organizzazione": 25.37,
+      "Delegazione": 23.18,
+      "Controllare": 25.28,
+      "Orientamento sociale": 27.99,
+      "Autocontrollo": 31.89,
+      "Risoluzione dei problemi": 26.04
+    },
+    "bf": {
+      "Estroversione": 90,
+      "Coscienziosità": 70,
+      "Apertura": 80,
+      "Amicalità": 60,
+      "Stabilità emotiva": 70
+    }
+  },
+  {
+    "id": "x47",
+    "name": "Scolastra Francesco",
+    "src": "Excel import · RESPONSABILE AREA VOUCHER",
+    "role": "RESPONSABILE AREA VOUCHER",
+    "job": "Coordinare attività area voucher, lavorazione voucher",
+    "icv": 83,
+    "scores": {
+      "Pianificazione e organizzazione": 24.28,
+      "Comunicazione": 23.09,
+      "Controllare": 25.89,
+      "Spirito di iniziativa": 20.85,
+      "Risoluzione dei problemi": 23.94,
+      "Esperienza del cliente": 25.28,
+      "Motivazione ed efficacia personale": 30.56
+    },
+    "bf": {
+      "Estroversione": 57,
+      "Coscienziosità": 81,
+      "Apertura": 93,
+      "Amicalità": 77,
+      "Stabilità emotiva": 89
+    }
+  },
+  {
+    "id": "x48",
+    "name": "Sensi Debora",
+    "src": "Excel import · TECNICO FORMAZIONE FINANZIATA",
+    "role": "TECNICO FORMAZIONE FINANZIATA",
+    "job": "Referente piani formativi area avvisi",
+    "icv": 86,
+    "scores": {
+      "Comunicazione": 22.09,
+      "Pianificazione e Organizzazione": 19.33,
+      "Risoluzione dei problemi": 18.8,
+      "Orientamento sociale": 14.57,
+      "Formazione sulla sensibilità": 21.99,
+      "Autocontrollo": 20.85,
+      "Spirito di iniziativa": 26.51
+    },
+    "bf": {
+      "Estroversione": 64,
+      "Coscienziosità": 92,
+      "Apertura": 66,
+      "Amicalità": 94,
+      "Stabilità emotiva": 68
+    }
+  },
+  {
+    "id": "x49",
+    "name": "Sensidoni Doranna",
+    "src": "Excel import · ASSISTENZA CLIENTI",
+    "role": "ASSISTENZA CLIENTI",
+    "job": "Assistenza clienti area formazione",
+    "icv": 89,
+    "scores": {
+      "Comunicazione": 24.85,
+      "Orientamento al cliente": 23.51,
+      "Esperienza del cliente": 24.42,
+      "Spirito di iniziativa": 22.28,
+      "Motivazione ed efficacia personale": 23.75,
+      "Risoluzione dei problemi": 14.57,
+      "Autocontrollo": 20.04
+    },
+    "bf": {
+      "Estroversione": 71,
+      "Coscienziosità": 63,
+      "Apertura": 79,
+      "Amicalità": 71,
+      "Stabilità emotiva": 87
+    }
+  },
+  {
+    "id": "x50",
+    "name": "Sirci Maila",
+    "src": "Excel import · ADDETTA REDAZIONE",
+    "role": "ADDETTA REDAZIONE",
+    "job": "Redigere sintesi CCNL",
+    "icv": 92,
+    "scores": {
+      "Comunicazione": 26.56,
+      "Pianificazione e Organizzazione": 27.23,
+      "Autocontrollo": 29.85,
+      "Risoluzione dei problemi": 26.04,
+      "Orientamento sociale": 24.37,
+      "Innovazione": 22.28,
+      "Persistenza": 24.94
+    },
+    "bf": {
+      "Estroversione": 78,
+      "Coscienziosità": 74,
+      "Apertura": 92,
+      "Amicalità": 88,
+      "Stabilità emotiva": 66
+    }
+  },
+  {
+    "id": "x51",
+    "name": "Stradiotto Attahiru Natasha",
+    "src": "Excel import · TECNICO FORMAZIONE FINANZIATA",
+    "role": "TECNICO FORMAZIONE FINANZIATA",
+    "job": "Lavorazione voucher",
+    "icv": 70,
+    "scores": {
+      "Comunicazione": 28.37,
+      "Pianificazione e Organizzazione": 31.61,
+      "Orientamento al cliente": 29.18,
+      "Risoluzione dei problemi": 30.56,
+      "Formazione sulla sensibilità": 27.7,
+      "Persistenza": 26.04,
+      "Autocontrollo": 32.89
+    },
+    "bf": {
+      "Estroversione": 85,
+      "Coscienziosità": 85,
+      "Apertura": 65,
+      "Amicalità": 65,
+      "Stabilità emotiva": 85
+    }
+  },
+  {
+    "id": "x52",
+    "name": "Testasecca Stefano",
+    "src": "Excel import · Assistente tecnico commerciale formazione",
+    "role": "Assistente tecnico commerciale formazione",
+    "job": "Assistenza clienti e vendita e acquisizione partner",
+    "icv": 73,
+    "scores": {
+      "Comunicazione": 25.32,
+      "Orientamento al cliente": 25.32,
+      "Spirito di iniziativa": 25.51,
+      "Esperienza del cliente": 26.51,
+      "Influenza e persuasione": 24.99,
+      "Motivazione ed efficacia personale": 30.56,
+      "Autocontrollo": 23.18
+    },
+    "bf": {
+      "Estroversione": 92,
+      "Coscienziosità": 56,
+      "Apertura": 78,
+      "Amicalità": 82,
+      "Stabilità emotiva": 64
+    }
+  },
+  {
+    "id": "x53",
+    "name": "Zamponi Emanuela",
+    "src": "Excel import · ADDETTA REDAZIONE E ADDETTA UFFICIO RISORSE UMANE",
+    "role": "ADDETTA REDAZIONE E ADDETTA UFFICIO RISORSE UMANE",
+    "job": "Redazione sintesi CCNL, gestione paghe e contributi, ufficio del personale",
+    "icv": 76,
+    "scores": {
+      "Comunicazione": 24.42,
+      "Risoluzione dei problemi": 24.51,
+      "Orientamento sociale": 22.9,
+      "Pianificazione e Organizzazione": 20.04,
+      "Autocontrollo": 16.76,
+      "Spirito di iniziativa": 26.51,
+      "Leadership": 25.89
+    },
+    "bf": {
+      "Estroversione": 59,
+      "Coscienziosità": 67,
+      "Apertura": 91,
+      "Amicalità": 59,
+      "Stabilità emotiva": 83
+    }
+  },
+  {
+    "id": "x54",
+    "name": "Zannoli Barbara",
+    "src": "Excel import · TECNICO FORMAZIONE FINANZIATA",
+    "role": "TECNICO FORMAZIONE FINANZIATA",
+    "job": "Lavorazione voucher",
+    "icv": 79,
+    "scores": {
+      "Comunicazione": 24.8,
+      "Pianificazione e Organizzazione": 21.37,
+      "Orientamento al cliente": 22.09,
+      "Risoluzione dei problemi": 24.94,
+      "Formazione sulla sensibilità": 31.18,
+      "Persistenza": 20.04,
+      "Autocontrollo": 18.8
+    },
+    "bf": {
+      "Estroversione": 66,
+      "Coscienziosità": 78,
+      "Apertura": 64,
+      "Amicalità": 76,
+      "Stabilità emotiva": 62
+    }
+  },
+  {
+    "id": "x55",
+    "name": "Giulia Campioni",
+    "src": "CV importato · parsing ML completato · in attesa del test soft skill",
+    "role": "Senior Frontend Engineer",
+    "job": "Sviluppo frontend React/TypeScript, design system e accessibilità",
+    "icv": 78,
+    "testCompleted": false,
+    "email": "",
+    "scores": {},
+    "bf": {
+      "Estroversione": 50,
+      "Coscienziosità": 50,
+      "Apertura": 50,
+      "Amicalità": 50,
+      "Stabilità emotiva": 50
+    }
+  },
+  {
+    "id": "x56",
+    "name": "Stefano De Souza",
+    "src": "CV importato · parsing ML completato · in attesa del test soft skill",
+    "role": "Customer Care Specialist",
+    "job": "Assistenza clienti multicanale, gestione ticket e soddisfazione cliente",
+    "icv": 65,
+    "testCompleted": false,
+    "email": "",
+    "scores": {},
+    "bf": {
+      "Estroversione": 50,
+      "Coscienziosità": 50,
+      "Apertura": 50,
+      "Amicalità": 50,
+      "Stabilità emotiva": 50
+    }
+  }
+]

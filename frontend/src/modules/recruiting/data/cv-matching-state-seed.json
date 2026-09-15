@@ -1,0 +1,51 @@
+{
+  "companies": [
+    {
+      "id": "company-acme",
+      "name": "Acme Corp",
+      "jobOpenings": [
+        {
+          "id": "opening-senior-fe",
+          "title": "Senior Frontend Engineer",
+          "active": true,
+          "jobProfile": {
+            "id": "profile-fe-1",
+            "title": "Senior Frontend Engineer",
+            "criteria": {
+              "skills": ["JavaScript", "React", "Node.js", "TypeScript"],
+              "experienceYears": 4,
+              "education": "Bachelor",
+              "certifications": ["AWS"]
+            },
+            "weighting": { "skills": 0.5, "experience": 0.2, "education": 0.15, "certifications": 0.15 }
+          },
+          "candidatePool": []
+        }
+      ]
+    },
+    {
+      "id": "company-ops",
+      "name": "Northwind Ops",
+      "jobOpenings": [
+        {
+          "id": "opening-customer-care",
+          "title": "Customer Care Specialist",
+          "active": true,
+          "jobProfile": {
+            "id": "profile-cc-1",
+            "title": "Customer Care Specialist",
+            "criteria": {
+              "skills": ["Customer Service", "Communication", "Empathy", "Problem Solving"],
+              "experienceYears": 2,
+              "education": "High School",
+              "certifications": []
+            },
+            "weighting": { "skills": 0.55, "experience": 0.2, "education": 0.1, "certifications": 0.15 }
+          },
+          "candidatePool": []
+        }
+      ]
+    }
+  ],
+  "activeContext": { "companyId": "company-acme", "openingId": "opening-senior-fe" }
+}
