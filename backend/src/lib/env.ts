@@ -26,17 +26,27 @@ export const env = {
   // Real SMTP mailer for INVIA LINK TEST — deliberately NOT `required()`:
   // a dev/test environment must still boot without a real mailbox
   // configured (exactly the same reasoning as testProviderWebhookSecret
-  // above). `smtpConfigured` is the single place that decides "is sending
-  // actually possible" — see lib/mailer.ts, which is the ONLY module that
-  // ever reads smtpPassword; it is never read anywhere else, never logged,
-  // and never included in any API response.
+  // above). Kept even though lib/mailer.ts no longer sends over SMTP
+  // (production found SMTP ports 465/587 both blocked outbound from
+  // Railway to this host — a network-layer block, not a config problem)
+  // so the old config still exists if SMTP is ever viable again.
   smtpHost: process.env.SMTP_HOST || '',
   smtpPort: Number(process.env.SMTP_PORT || 465),
   smtpSecure: (process.env.SMTP_SECURE ?? 'true') !== 'false',
   smtpUser: process.env.SMTP_USER || '',
   smtpPassword: process.env.SMTP_PASSWORD || '',
+  // Resend (HTTP API, port 443 — not blocked the way raw SMTP was).
+  // `smtpConfigured` (below) is still the single place that decides "is
+  // sending actually possible" — see lib/mailer.ts, which is the ONLY
+  // module that ever reads resendApiKey; it is never read anywhere else,
+  // never logged, and never included in any API response.
+  resendApiKey: process.env.RESEND_API_KEY || '',
   mailFrom: process.env.MAIL_FROM || '',
   mailFromName: process.env.MAIL_FROM_NAME || 'Skill Vision',
 }
 
-export const smtpConfigured = Boolean(env.smtpHost && env.smtpUser && env.smtpPassword && env.mailFrom)
+// Name kept as `smtpConfigured` — shortlist/routes.ts and emailConfig/routes.ts
+// import it by this exact name, and neither is SMTP-specific in what it
+// actually checks; renaming would touch both files for no functional
+// reason. Means "is lib/mailer.ts able to send at all right now".
+export const smtpConfigured = Boolean(env.resendApiKey && env.mailFrom)

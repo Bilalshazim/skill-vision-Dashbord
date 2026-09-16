@@ -3,21 +3,20 @@ import request from 'supertest'
 
 import { authHeader, loginAs, prisma, resetDb, seedFixture } from './helpers.js'
 
-// Phase "SMTP" — a SEPARATE app instance built with SMTP deliberately
-// unset, to integration-test the real "backend unavailable"/"not
-// configured" path through the actual HTTP route (not just lib/mailer.ts
-// in isolation — see tests/mailer.test.ts for that). The shared `app` in
-// helpers.ts is already bound to .env.test's (fake-but-present) SMTP
-// values by the time any other test file runs, so this needs its own
-// fresh module graph via vi.resetModules() + a dynamic re-import.
-describe('POST /shortlist/:id/send-test — SMTP not configured', () => {
+// Phase "SMTP" — a SEPARATE app instance built with email sending
+// deliberately unset, to integration-test the real "backend unavailable"/
+// "not configured" path through the actual HTTP route (not just
+// lib/mailer.ts in isolation — see tests/mailer.test.ts for that). The
+// shared `app` in helpers.ts is already bound to .env.test's
+// (fake-but-present) RESEND_API_KEY/MAIL_FROM values by the time any other
+// test file runs, so this needs its own fresh module graph via
+// vi.resetModules() + a dynamic re-import.
+describe('POST /shortlist/:id/send-test — email sending not configured', () => {
   let api: ReturnType<typeof request>
 
   beforeEach(async () => {
     await resetDb()
-    vi.stubEnv('SMTP_HOST', '')
-    vi.stubEnv('SMTP_USER', '')
-    vi.stubEnv('SMTP_PASSWORD', '')
+    vi.stubEnv('RESEND_API_KEY', '')
     vi.stubEnv('MAIL_FROM', '')
     vi.resetModules()
     const { createApp } = await import('../src/app.js')

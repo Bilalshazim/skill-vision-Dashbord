@@ -1,54 +1,36 @@
-// Real SMTP mailer for the "INVIA LINK TEST" workflow (shortlist/routes.ts
+// Real mailer for the "INVIA LINK TEST" workflow (shortlist/routes.ts
 // POST /:id/send-test) and the platform-admin test-send endpoint
 // (emailConfig/routes.ts). This is the ONLY module in the codebase that
-// reads env.smtpPassword — nowhere else imports it, nothing logs it, and
+// reads env.resendApiKey — nowhere else imports it, nothing logs it, and
 // no route ever returns it (mirrors the existing EmailServiceConfig
 // redact() discipline for the DB-based provider abstraction, applied here
 // to the real env-based one).
 //
-// WHY ENV, NOT THE DB (EmailServiceConfig): that model's shape
-// (providerName/apiEndpointUrl/apiKeySecretRef) was built for a generic
-// "some external HTTP API" provider Phase 30 hadn't chosen yet. This task
-// specifies a concrete SMTP mailbox with an explicit env-var contract
-// ("the mailbox password will be supplied through the backend .env only")
-// — forcing that through the API-shaped table would mean stuffing an SMTP
-// host/port/secure triple into a field named apiEndpointUrl and lying
-// about what apiKeySecretRef points to. Kept separate instead; the
-// existing EmailServiceConfig table/routes are untouched.
-import nodemailer from 'nodemailer'
-import type { Transporter } from 'nodemailer'
+// WHY RESEND, NOT SMTP: this originally sent over real SMTP (nodemailer).
+// In production, both port 465 (implicit TLS) and 587 (STARTTLS) timed
+// out connecting outbound from Railway to the mailbox host — confirmed via
+// backend logs (a clean ~23s "Connection timeout" on 465, a ~120s hang
+// matching nodemailer's default connectionTimeout on 587) — a network-
+// layer block between Railway and that host, not a credentials or config
+// problem. Resend sends over HTTPS (443), which isn't subject to the same
+// outbound-SMTP-port filtering. The exported interface below
+// (sendMail/verifySmtpConnection/smtpConfigured) is unchanged so neither
+// caller file needed to change.
+import { Resend } from 'resend'
 
 import { env, smtpConfigured } from './env.js'
 import { logger } from './logger.js'
 
 export { smtpConfigured }
 
-let transporter: Transporter | null = null
+let resendClient: Resend | null = null
 
-function getTransporter(): Transporter {
+function getClient(): Resend {
   if (!smtpConfigured) {
-    throw new Error('SMTP is not configured — set SMTP_HOST, SMTP_USER, SMTP_PASSWORD, and MAIL_FROM in the backend .env')
+    throw new Error('Email sending is not configured — set RESEND_API_KEY and MAIL_FROM')
   }
-  if (!transporter) {
-    transporter =
-      env.nodeEnv === 'test'
-        ? // §8 — the automated suite runs against a REAL Postgres database
-          // (see tests/setup.ts) but must never attempt a real network SMTP
-          // connection (no such server exists in CI, and it would make tests
-          // flaky/slow). Nodemailer's built-in JSON transport exercises the
-          // exact same success/failure code path in shortlist/routes.ts
-          // (a real Transporter, a real sendMail() call, a real messageId)
-          // without touching the network — same discipline as logger.ts's
-          // own existing NODE_ENV==='test' branch (silent logging).
-          nodemailer.createTransport({ jsonTransport: true })
-        : nodemailer.createTransport({
-            host: env.smtpHost,
-            port: env.smtpPort,
-            secure: env.smtpSecure, // true for port 465 (implicit TLS), false for STARTTLS on 587
-            auth: { user: env.smtpUser, pass: env.smtpPassword },
-          })
-  }
-  return transporter
+  if (!resendClient) resendClient = new Resend(env.resendApiKey)
+  return resendClient
 }
 
 export type SendMailAttachment = { filename: string; content: Buffer; cid?: string; contentType?: string }
@@ -68,40 +50,53 @@ export type SendMailResult = { ok: true; messageId: string } | { ok: false; reas
 
 // Never throws — every caller needs a clean success/failure result to
 // decide what to persist (TestInvitation.sentStatus), not an exception to
-// catch. The `reason` string is safe to store/log: nodemailer/SMTP error
-// messages describe the failure (auth rejected, connection refused, mailbox
-// unknown, etc.), never the password itself.
+// catch. The `reason` string is safe to store/log: Resend's error messages
+// describe the failure (invalid domain, rate limit, bad address, etc.),
+// never the API key itself.
 export async function sendMail(input: SendMailInput): Promise<SendMailResult> {
   if (!smtpConfigured) {
-    return { ok: false, reason: 'SMTP is not configured on this server (missing SMTP_HOST/SMTP_USER/SMTP_PASSWORD/MAIL_FROM)' }
+    return { ok: false, reason: 'Email sending is not configured on this server (missing RESEND_API_KEY/MAIL_FROM)' }
+  }
+  // §8 — the automated suite runs against a REAL Postgres database (see
+  // tests/setup.ts) but must never attempt a real network call (no Resend
+  // account exists in CI, and it would make tests flaky/slow) — same
+  // discipline as logger.ts's own existing NODE_ENV==='test' branch.
+  if (env.nodeEnv === 'test') {
+    return { ok: true, messageId: `test-${Date.now()}` }
   }
   try {
-    const info = await getTransporter().sendMail({
-      from: `"${env.mailFromName}" <${env.mailFrom}>`,
+    const { data, error } = await getClient().emails.send({
+      from: `${env.mailFromName} <${env.mailFrom}>`,
       to: input.to,
       replyTo: input.replyTo,
       subject: input.subject,
       text: input.text,
       html: input.html,
-      attachments: input.attachments?.map((a) => ({ filename: a.filename, content: a.content, cid: a.cid, contentType: a.contentType })),
+      attachments: input.attachments?.map((a) => ({ filename: a.filename, content: a.content, contentId: a.cid, contentType: a.contentType })),
     })
-    return { ok: true, messageId: info.messageId }
+    if (error) return { ok: false, reason: error.message }
+    return { ok: true, messageId: data!.id }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    logger.error({ smtpHost: env.smtpHost, smtpUser: env.smtpUser }, `SMTP send failed: ${message}`)
+    logger.error({ mailFrom: env.mailFrom }, `Resend send failed: ${message}`)
     return { ok: false, reason: message }
   }
 }
 
-// §7/§8 — verifies the connection + authentication without sending
-// anything, for the platform-admin test-send endpoint's preflight and for
-// a standalone `npm run smtp:verify` CLI check (scripts/verify-smtp.ts).
+// §7/§8 — a lightweight preflight for the platform-admin test-send
+// endpoint and `npm run smtp:verify`. Resend is a stateless HTTP API, so
+// unlike the old SMTP transport there is no persistent connection to
+// verify/handshake ahead of time — this checks the API key is present and
+// correctly formed (via a real, side-effect-free API call: fetching the
+// domain list) rather than actually sending anything.
 export async function verifySmtpConnection(): Promise<{ ok: true } | { ok: false; reason: string }> {
   if (!smtpConfigured) {
-    return { ok: false, reason: 'SMTP is not configured on this server (missing SMTP_HOST/SMTP_USER/SMTP_PASSWORD/MAIL_FROM)' }
+    return { ok: false, reason: 'Email sending is not configured on this server (missing RESEND_API_KEY/MAIL_FROM)' }
   }
+  if (env.nodeEnv === 'test') return { ok: true }
   try {
-    await getTransporter().verify()
+    const { error } = await getClient().domains.list()
+    if (error) return { ok: false, reason: error.message }
     return { ok: true }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)

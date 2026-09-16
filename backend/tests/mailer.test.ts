@@ -8,16 +8,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // from process.env — the same reason every other env-dependent test in
 // this suite that needs a different config re-imports rather than mutating
 // the frozen `env` object in place.
-describe('lib/mailer.ts — SMTP configuration boundary', () => {
+describe('lib/mailer.ts — Resend configuration boundary', () => {
   afterEach(() => {
     vi.unstubAllEnvs()
     vi.resetModules()
   })
 
-  it('reports not configured, and sendMail/verifySmtpConnection fail cleanly, when SMTP env vars are unset', async () => {
-    vi.stubEnv('SMTP_HOST', '')
-    vi.stubEnv('SMTP_USER', '')
-    vi.stubEnv('SMTP_PASSWORD', '')
+  it('reports not configured, and sendMail/verifySmtpConnection fail cleanly, when RESEND_API_KEY/MAIL_FROM are unset', async () => {
+    vi.stubEnv('RESEND_API_KEY', '')
     vi.stubEnv('MAIL_FROM', '')
     vi.resetModules()
     const { smtpConfigured, sendMail, verifySmtpConnection } = await import('../src/lib/mailer.js')
@@ -33,10 +31,8 @@ describe('lib/mailer.ts — SMTP configuration boundary', () => {
     if (!connResult.ok) expect(connResult.reason).toMatch(/not configured/i)
   })
 
-  it('reports configured and sends successfully via the JSON transport in NODE_ENV=test', async () => {
-    vi.stubEnv('SMTP_HOST', 'smtp.test.local')
-    vi.stubEnv('SMTP_USER', 'test@example.com')
-    vi.stubEnv('SMTP_PASSWORD', 'whatever')
+  it('reports configured and sends successfully via the short-circuit in NODE_ENV=test', async () => {
+    vi.stubEnv('RESEND_API_KEY', 'test-resend-api-key')
     vi.stubEnv('MAIL_FROM', 'test@example.com')
     vi.resetModules()
     const { smtpConfigured, sendMail } = await import('../src/lib/mailer.js')
