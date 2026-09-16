@@ -43,11 +43,18 @@ import { authApi } from '@/lib/api/endpoints'
 import { clearBackendSession, getAccessToken, getBackendUser, onRoleForbidden, onUnauthorized, setBackendSession } from '@/lib/api/client'
 import { getShellUser } from '@/modules/assessment/lib/shell-bridge'
 
+// Read at build time by Vite; set as VITE_OPERATORE_BRIDGE_PASSWORD on the
+// Railway "Skill Vision" service — never hardcoded here, so no real
+// credential lives in source control. An empty fallback means a missing var
+// just fails this one bridge login cleanly (the existing "backend
+// unavailable" banner), rather than exposing or guessing anything.
+const OPERATORE_BRIDGE_PASSWORD = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_OPERATORE_BRIDGE_PASSWORD || ''
+
 const SHELL_TO_BACKEND: Record<string, { email: string; password: string }> = {
   admin: { email: 'admin@skill-vision.it', password: 'admin123' }, // PLATFORM_ADMIN
   roberto: { email: 'hr@acme.example', password: 'acme123' }, // COMPANY_ADMIN
   Roberto: { email: 'hr@acme.example', password: 'acme123' }, // COMPANY_ADMIN (same seed account, different shell login)
-  operatore: { email: 'recruiter@acme.example', password: 'acme123' }, // RECRUITER
+  operatore: { email: 'operatore@skill-vision.it', password: OPERATORE_BRIDGE_PASSWORD }, // RECRUITER — real production account (no seeded Company; see campaigns/routes.ts's companyId fallback)
 }
 // A shell user with no mapping (or none logged in yet) falls back to the
 // recruiter account — the most restricted of the three — rather than
