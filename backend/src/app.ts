@@ -24,7 +24,11 @@ import { logger } from './lib/logger.js'
 export function createApp() {
   const app = express()
 
-  app.use(pinoHttp({ logger, autoLogging: { ignore: (req) => req.url === '/health' } }))
+  // CORS is mounted before anything else in the stack (including request
+  // logging) so a preflight OPTIONS never has to pass through any other
+  // middleware first — not that pino-http or anything below ever blocked
+  // one (it just logs and calls next()), but this makes it structurally
+  // impossible for a future middleware inserted above it to ever do so.
   // Phase 34 §16/§23 — open (reflect-all) by default, matching every prior
   // phase's local-dev behavior exactly (no behavior change here) — but now
   // configurable via CORS_ORIGIN so production can lock this to the real
@@ -61,6 +65,8 @@ export function createApp() {
   // options object so it can't silently drift from the real config above
   // if it's ever the one that ends up handling a request.
   app.options('*', cors(corsOptions))
+
+  app.use(pinoHttp({ logger, autoLogging: { ignore: (req) => req.url === '/health' } }))
 
   // `verify` stashes the exact raw bytes Express received, before JSON
   // parsing — the webhook route (§5.3, §19) signs/verifies against THIS,
