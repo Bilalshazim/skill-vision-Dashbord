@@ -33,18 +33,34 @@ export function createApp() {
   // production value — see the final report's production-configuration
   // checklist for what to actually set.
   //
-  // `origin: true` (not the literal string '*') is what "allow every
+  // The origin callback (not the literal string '*') is what "allow every
   // origin" actually has to be here: the Fetch/CORS spec forbids a
   // wildcard Access-Control-Allow-Origin from ever being paired with
   // Access-Control-Allow-Credentials: true — browsers reject that
   // combination outright, so a literal '*' would silently break the
-  // moment credentials were involved. `origin: true` makes the `cors`
-  // package reflect back whatever Origin the browser actually sent
-  // instead, which IS spec-valid alongside credentials. `credentials:
+  // moment credentials were involved. Reflecting the request's own Origin
+  // back (via callback(null, true), or via the allowlist below when
+  // CORS_ORIGIN is set) IS spec-valid alongside credentials. `credentials:
   // true` itself is a no-op for this API's actual auth (a Bearer token in
   // a header, not cookies) but is harmless to enable and future-proofs any
   // caller that does start sending `credentials: 'include'`.
-  app.use(cors(env.corsOrigins ? { origin: env.corsOrigins, credentials: true } : { origin: true, credentials: true }))
+  const corsOptions: cors.CorsOptions = {
+    origin: env.corsOrigins ? env.corsOrigins : (origin, callback) => callback(null, true),
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    optionsSuccessStatus: 204,
+  }
+  app.use(cors(corsOptions))
+  // Belt-and-suspenders: app.use(cors(...)) above already intercepts and
+  // terminates every OPTIONS request for every route (that's how the
+  // `cors` package works — this is what the curl-verified 204 preflight
+  // response already relies on), so this explicit handler never actually
+  // gets reached in normal operation. Added anyway per the request that
+  // preflight be handled explicitly at the route layer too, using the SAME
+  // options object so it can't silently drift from the real config above
+  // if it's ever the one that ends up handling a request.
+  app.options('*', cors(corsOptions))
 
   // `verify` stashes the exact raw bytes Express received, before JSON
   // parsing — the webhook route (§5.3, §19) signs/verifies against THIS,
