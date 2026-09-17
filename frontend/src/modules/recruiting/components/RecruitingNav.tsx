@@ -24,7 +24,14 @@ export function RecruitingNav() {
   return (
     <nav
       aria-label="Recruiting navigation"
-      className="flex gap-1 overflow-x-auto border-b border-border pb-2 lg:w-56 lg:shrink-0 lg:flex-col lg:overflow-visible lg:border-b-0 lg:border-r lg:pb-0 lg:pr-4"
+      // bg-sidebar/border-sidebar-border: this nav previously had no
+      // background of its own at all (it just showed the page's own
+      // bg-background through), so on desktop — where it sits beside the
+      // content as a real sidebar column, not a horizontal scroller —
+      // there was no visual separation between nav and content. The
+      // --sidebar-* tokens already existed in the theme for exactly this
+      // but were never actually applied anywhere in the app until now.
+      className="flex gap-1 overflow-x-auto border-b border-border pb-2 lg:w-56 lg:shrink-0 lg:flex-col lg:overflow-visible lg:rounded-lg lg:border-b-0 lg:border-r lg:border-sidebar-border lg:bg-sidebar lg:p-3"
     >
       {items.map((item) => (
         <NavLink
@@ -40,9 +47,15 @@ export function RecruitingNav() {
               // washed-out near-white pill in light mode since --primary is
               // a bright lime rather than a dark color to tint against; a
               // solid fill has no such mode-dependent contrast problem.
+              // border-transparent (never border-primary) on BOTH states —
+              // same reserved 1px box so active/inactive items don't jump
+              // size, but no border-colored outline riding on top of the
+              // fill (a border the same color as its own background is
+              // dead weight, not a visible line).
+              'border',
               isActive
-                ? 'border border-primary bg-primary text-primary-foreground'
-                : 'border border-transparent text-muted-foreground hover:border-transparent hover:bg-secondary hover:text-foreground',
+                ? 'border-transparent bg-primary text-primary-foreground'
+                : 'border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground',
             )
           }
         >

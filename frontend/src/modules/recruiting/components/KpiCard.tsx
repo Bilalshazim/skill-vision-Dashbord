@@ -12,11 +12,14 @@ export function KpiCard({
   label: string
 }) {
   return (
-    <Card className="flex-row items-center gap-3 px-4 py-4">
+    <Card className="flex-row items-center gap-3 p-6">
       <Icon className="size-6 shrink-0 text-muted-foreground" aria-hidden="true" />
       <div>
-        <div className="font-mono text-2xl font-semibold leading-none tabular-nums">{value}</div>
-        <div className="mt-1 text-[11.5px] text-muted-foreground">{label}</div>
+        <div className="font-mono text-2xl font-semibold leading-none tabular-nums text-foreground">{value}</div>
+        {/* Label token: 11px Geist Mono, uppercase, tracking-wider — distinct
+            from the metric number's own font-mono treatment above (larger,
+            not uppercase) so the two never read as the same visual weight. */}
+        <div className="mt-1.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
       </div>
     </Card>
   )
