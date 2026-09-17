@@ -92,23 +92,35 @@
 /* Dark theme — legacy THEMES.dark. Recruiting keeps a real light mode
    (this is not a dark-only app), so both blocks matter. */
 .dark {
-  --background: #0D0C0A;
-  --card: #1B1A17;
-  --popover: #1B1A17;
+  /* Skill Vision Design System Foundations — dark mode neutral mapping.
+     Previously --background sat at the SAME hex (#0D0C0A) as light mode's
+     neutral-950 (--primary-foreground) — the darkest, most extreme step on
+     the whole scale — while --card was only one step lighter (#1B1A17).
+     That read as a near-black page with barely-elevated cards, and the
+     warm R>G>B undertone shared by every dark surface hex read as a
+     "muddy greenish" cast at that extreme darkness. Moving background to
+     neutral-900 and card to neutral-800 keeps the exact same warm-neutral
+     hexes (nothing invented) but at the correct, less extreme steps —
+     card now reads as genuinely elevated above the page, not just barely
+     distinguishable from it. --border/--muted-foreground were already
+     exactly neutral-700/neutral-400 — untouched. */
+  --background: #1B1A17; /* neutral-900 */
+  --card: #2B2926; /* neutral-800 */
+  --popover: #2B2926; /* neutral-800 */
   --secondary: #2B2926;
-  --border: #45433C;
-  --input: #45433C;
+  --border: #45433C; /* neutral-700 */
+  --input: #45433C; /* neutral-700 */
 
-  --foreground: #FAF5DF;
-  --card-foreground: #FAF5DF;
-  --popover-foreground: #FAF5DF;
-  --secondary-foreground: #FAF5DF;
-  --muted-foreground: #ABA79A;
+  --foreground: #F7F5EA; /* neutral-100 */
+  --card-foreground: #F7F5EA;
+  --popover-foreground: #F7F5EA;
+  --secondary-foreground: #F7F5EA;
+  --muted-foreground: #ABA79A; /* neutral-400 */
 
   --primary: #DDEE1C;
   --primary-foreground: #0D0C0A;
   --accent: #2B2926;
-  --accent-foreground: #FAF5DF;
+  --accent-foreground: #F7F5EA;
 
   --ring: #8C980B;
 
@@ -123,12 +135,15 @@
   --chart-4: #D9A876;
   --chart-5: #7CC4C4;
 
-  --sidebar: #1B1A17;
-  --sidebar-foreground: #FAF5DF;
+  /* --sidebar matches --card here, same as light mode's --sidebar: #F7F5EA
+     (also = light --card) — the sidebar is treated as an elevated surface
+     alongside cards in both themes, not a separate third surface tier. */
+  --sidebar: #2B2926; /* neutral-800, = --card */
+  --sidebar-foreground: #F7F5EA;
   --sidebar-primary: #DDEE1C;
   --sidebar-primary-foreground: #0D0C0A;
-  --sidebar-accent: #2B2926;
-  --sidebar-accent-foreground: #FAF5DF;
+  --sidebar-accent: #45433C;
+  --sidebar-accent-foreground: #F7F5EA;
   --sidebar-border: #45433C;
   --sidebar-ring: #8C980B;
 }
