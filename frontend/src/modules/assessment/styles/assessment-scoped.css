@@ -5,12 +5,22 @@
    flips — Accent-500 (#B4C614) in light mode, Accent-400 (#DDEE1C) in dark mode. No pure
    white and no pure black anywhere in the UI. */
 .sv-assessment-shell{
-  --bg: #0D0C0A;               /* Neutral-950 */
-  --surface: #1B1A17;          /* Neutral-900 */
-  --surface-alt: #2B2926;      /* Neutral-800 */
+  /* Dark-mode neutral mapping fix (matches the same correction already
+     applied to Recruiting's index.css): --bg previously sat at the SAME
+     hex as neutral-950 (#0D0C0A) — the most extreme, near-black step on
+     the whole scale — while --surface was only one step lighter
+     (#1B1A17). That read as a near-black page with barely-elevated
+     cards. Moving --bg to neutral-900 and --surface to neutral-800 (and
+     --surface-alt to neutral-700, aligning it with --border) keeps the
+     exact same warm-neutral hexes — nothing invented — just at the
+     correct, less extreme steps, so surfaces actually read as elevated
+     above the page instead of nearly merging with it. */
+  --bg: #1B1A17;               /* Neutral-900 */
+  --surface: #2B2926;          /* Neutral-800 */
+  --surface-alt: #45433C;      /* Neutral-700 */
   --border: #45433C;           /* Neutral-700 */
   --border-strong: #55534B;    /* Neutral-600 */
-  --text-1: #FAF5DF;           /* Neutral-100 — high-contrast text */
+  --text-1: #F7F5EA;           /* Neutral-100 — high-contrast text */
   --text-2: #ABA79A;           /* Neutral-400 — secondary text */
   --text-3: #767369;           /* Neutral-500 — muted text */
   --accent: #B4C614;           /* Accent-500 — lime (light mode); verified against public/brand/logo_black.svg's own fill="#B4C614" */
@@ -566,7 +576,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .ai-input-row input:focus{ outline:none; border-color:var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 
 /* toast */
-#toast{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); background: #1B1A17; color:#FAF5DF;
+#toast{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); background: #2B2926; color:#F7F5EA;
   padding:11px 18px; border-radius: var(--radius-md); font-size:12.5px; font-weight:600; box-shadow: var(--shadow-lg);
   opacity:0; pointer-events:none; transition: all .25s ease; z-index:200; display:flex; align-items:center; gap:8px; }
 #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
@@ -887,13 +897,22 @@ a.linklike:hover{ text-decoration:underline; }
 }
 
 /* Global rule: lime is a high-luminance fill, so text/marks sitting on it are always Neutral-950,
-   never pure white (Skill Vision brand manual). Covers primary buttons and every active tab/pill. */
+   never pure white (Skill Vision brand manual). Covers primary buttons and every active tab/pill.
+   !important is required, not decorative: `.sv-assessment-shell button{ color: inherit }` (line 130)
+   has specificity (0,1,1) — one class + one element — which is HIGHER than a single-class selector
+   like `.btn-primary` (0,1,0). Verified live: that reset rule was winning over the plain (non-
+   !important) version of this exact rule for every actual <button>.btn-primary element (e.g. "+
+   Nuova Valutazione"), making it inherit the surrounding --text-1 (light) color instead — while
+   .nav-item.active (two classes, specificity 0,2,0) already beat the reset rule on its own and
+   needed no !important. Applying it uniformly here rather than only where currently required, so
+   this rule stays correct if a future .btn-primary/.view-tab.active/etc. element is ever a <button>
+   too. */
 .btn-primary, .btn-primary:hover,
 .view-tab.active,
 .nav-item.active, .nav-item.active .ic,
 .nav-subitem.active,
 .module-pill.active,
-.segmented button.active{ color:#0D0C0A; }
+.segmented button.active{ color:#0D0C0A !important; }
 
 /* ============================= EXECUTIVE HUMAN CAPITAL INTERVIEW (Analisi Iniziale) =============================
    The multi-step interview + generated Executive Profile report replacing the old free-text notes
