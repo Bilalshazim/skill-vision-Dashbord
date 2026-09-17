@@ -180,9 +180,10 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     if (token) headers.Authorization = `Bearer ${token}`
   }
 
+  const targetUrl = buildUrl(path, options.query)
   let res: Response
   try {
-    res = await fetch(buildUrl(path, options.query), {
+    res = await fetch(targetUrl, {
       method: options.method || 'GET',
       headers,
       body: options.form ? options.form : options.body !== undefined ? JSON.stringify(options.body) : undefined,
@@ -190,6 +191,13 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   } catch (err) {
     // The backend is unreachable — §16 "backend unavailable". Never
     // silently treated as success; the caller decides how to show this.
+    // A raw `fetch()` throw (TypeError, typically "Failed to fetch") is
+    // indistinguishable from JS alone between "wrong host" (e.g.
+    // VITE_API_BASE_URL still pointing at localhost in a deployed build)
+    // and a real CORS rejection — logging the exact URL this build
+    // actually targeted is what makes that diagnosable from the browser
+    // console instead of guessed at.
+    console.error(`[apiRequest] fetch failed for ${options.method || 'GET'} ${targetUrl}`, err)
     throw new ApiError(err instanceof Error ? err.message : 'Impossibile contattare il server', 0, 'NETWORK_ERROR', true)
   }
 

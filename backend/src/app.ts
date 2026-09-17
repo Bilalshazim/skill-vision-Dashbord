@@ -32,7 +32,19 @@ export function createApp() {
   // keeps the original dev-friendly default. This does not itself pick a
   // production value — see the final report's production-configuration
   // checklist for what to actually set.
-  app.use(cors(env.corsOrigins ? { origin: env.corsOrigins } : undefined))
+  //
+  // `origin: true` (not the literal string '*') is what "allow every
+  // origin" actually has to be here: the Fetch/CORS spec forbids a
+  // wildcard Access-Control-Allow-Origin from ever being paired with
+  // Access-Control-Allow-Credentials: true — browsers reject that
+  // combination outright, so a literal '*' would silently break the
+  // moment credentials were involved. `origin: true` makes the `cors`
+  // package reflect back whatever Origin the browser actually sent
+  // instead, which IS spec-valid alongside credentials. `credentials:
+  // true` itself is a no-op for this API's actual auth (a Bearer token in
+  // a header, not cookies) but is harmless to enable and future-proofs any
+  // caller that does start sending `credentials: 'include'`.
+  app.use(cors(env.corsOrigins ? { origin: env.corsOrigins, credentials: true } : { origin: true, credentials: true }))
 
   // `verify` stashes the exact raw bytes Express received, before JSON
   // parsing — the webhook route (§5.3, §19) signs/verifies against THIS,
