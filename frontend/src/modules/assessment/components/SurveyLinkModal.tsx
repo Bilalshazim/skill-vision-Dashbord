@@ -73,6 +73,21 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
     if (!canEdit) return
     setState((prev) => ({ ...prev, settings: { ...prev.settings, surveySenderMode: mode as 'referente' | 'admin' } }))
   }
+  function setSurveyLink(value: string) {
+    if (!canEdit) return
+    setState((prev) => ({ ...prev, settings: { ...prev.settings, surveyLink: value } }))
+  }
+
+  // The recipient actually sees this exact text once real sends land in
+  // their inbox — nothing here previewed it before now, so a broken
+  // {{NOME}}/{{LINK}} substitution or an empty letter template could only
+  // ever be discovered after a real send. Uses the first selected employee
+  // once one's checked (their real name), or a generic placeholder name
+  // before that, so the preview is always something, never blank.
+  const previewEmployee = employees.find((e) => selected.has(e.id))
+  const previewName = previewEmployee ? `${previewEmployee.nome} ${previewEmployee.cognome}` : (ui.surveyLetterPreviewSampleName as string)
+  const previewLink = link || (ui.surveyLinkInputPlaceholder as string)
+  const preview = fillSurveyEmailTemplate(state, uiRec, previewName, previewLink)
 
   function prepareRecipients(): { link: string; sender: typeof sender; recipients: Recipient[] } | null {
     if (!link) {
@@ -214,6 +229,17 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
       )}
+      <label className="small-note" style={{ display: 'block', marginBottom: 16 }}>
+        <div style={{ marginBottom: 4, fontWeight: 600 }}>{ui.surveyLinkInputLabel}</div>
+        <input
+          type="text"
+          value={state.settings.surveyLink || ''}
+          onChange={(e) => setSurveyLink(e.target.value)}
+          placeholder={ui.surveyLinkInputPlaceholder as string}
+          disabled={!canEdit}
+          style={{ width: '100%' }}
+        />
+      </label>
       <div className="survey-sender-box">
         <div>
           <b>{ui.surveySenderLabel}:</b> {sender.mode === 'admin' ? ui.surveySenderAdminOption(sender.email) : ui.surveySenderReferenteOption(sender.name, sender.email)}
@@ -257,6 +283,20 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
           </div>
         )}
       </div>
+
+      <div style={{ marginTop: 16 }}>
+        <div style={{ fontWeight: 600 }}>{ui.surveyLetterPreviewTitle}</div>
+        <div className="small-note" style={{ marginBottom: 6 }}>
+          {ui.surveyLetterPreviewHint}
+        </div>
+        <div style={{ border: '1px solid var(--border, #ddd)', borderRadius: 8, padding: 12 }}>
+          <div style={{ marginBottom: 8 }}>
+            <b>{ui.surveyLetterPreviewSubjectLabel}:</b> {preview.subject}
+          </div>
+          <div style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>{preview.body}</div>
+        </div>
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
         {!apiConfigured && <span className="small-note" style={{ color: 'var(--warning)' }}>{ui.toastSurveyApiNotConfigured}</span>}
         {!apiConfigured && (
