@@ -4,7 +4,8 @@
 
 export type BackendRole = 'PLATFORM_ADMIN' | 'COMPANY_ADMIN' | 'RECRUITER' | 'EVALUATOR' | 'HIRING_MANAGER'
 
-export type BackendCompany = { id: string; name: string; platformId: string | null; vatNumber: string | null }
+export type PlatformModule = 'RECRUITING' | 'ASSESSMENT'
+export type BackendCompany = { id: string; name: string; platformId: string | null; vatNumber: string | null; purchasedModules: PlatformModule[] }
 
 export type BackendCampaignStatus = 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'CLOSED'
 export type BackendCampaign = { id: string; companyId: string; name: string; status: BackendCampaignStatus; createdAt: string }
@@ -136,6 +137,9 @@ export type BackendJobProfile = {
   extraRequirements: unknown[]
   salaryBenefits: Record<string, unknown>
   createdAt: string
+  approved: boolean
+  approvedAt: string | null
+  publicationLink: string | null
 }
 
 // Phase 32 §6 — a recruiter-entered test score (ReceivedVia.MANUAL),

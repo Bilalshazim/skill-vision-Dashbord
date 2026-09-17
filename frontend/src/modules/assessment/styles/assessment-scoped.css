@@ -13,7 +13,7 @@
   --text-1: #FAF5DF;           /* Neutral-100 — high-contrast text */
   --text-2: #ABA79A;           /* Neutral-400 — secondary text */
   --text-3: #767369;           /* Neutral-500 — muted text */
-  --accent: #B4C614;           /* Accent-500 — lime (light mode) */
+  --accent: #B4C614;           /* Accent-500 — lime (light mode); verified against public/brand/logo_black.svg's own fill="#B4C614" */
   --accent-dark: #8C980B;      /* Accent-600 */
   --link: #565D05;             /* Accent-800 — legible lime-family text/link color (light mode); --accent is a button-fill color and fails contrast as bare text on a light surface */
   --accent-soft: rgba(221,238,28,0.12);
@@ -36,13 +36,21 @@
   --shadow-md: 0 4px 16px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.35);
   --shadow-lg: 0 12px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4);
   --sidebar-w: 248px;
-  --font: 'Gudea', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-  --font-serif: 'Noto Serif JP', 'Times New Roman', Times, serif;
+  /* Harmonization note: 'Gudea'/'Noto Serif JP' were never actually loaded
+     by the React SPA (only frontend/index.html's Geist <link> is) — this
+     module was silently falling back to the browser's system UI font/serif
+     instead of the intended typeface, and diverging from Recruiting (which
+     genuinely renders Geist). 'Geist' first in both stacks makes Assessment
+     render the SAME loaded font Recruiting already does; the original
+     families are kept as later fallbacks only, not removed, in case a
+     future build does load them. */
+  --font: 'Geist', 'Gudea', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --font-serif: 'Geist', 'Noto Serif JP', 'Times New Roman', Times, serif;
   --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   color-scheme: dark;
 }
 .sv-assessment-shell[data-theme="dark"]{
-  --accent: #DDEE1C;           /* Accent-400 — lime (dark mode) */
+  --accent: #DDEE1C;           /* Accent-400 — lime (dark mode); verified against public/brand/logo_white.svg's own fill="#DDEE1C" */
   --accent-dark: #B4C614;      /* Accent-500 */
   --link: #DDEE1C;              /* Accent-400 — legible lime-family text/link color (dark mode) */
   color-scheme: dark;

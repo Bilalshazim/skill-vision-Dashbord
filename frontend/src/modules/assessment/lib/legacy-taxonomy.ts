@@ -42,40 +42,46 @@ export type NavConfigEntry =
   | { type: 'group'; groupId: string; label: string; icon: string; items: { id: string; label: string; requires: string }[] }
   | { type: 'action'; id: string; label: string; icon: string; action: string; editOnly?: boolean }
   | { type: 'section'; label: string; editOnly?: boolean }
+// Client-requested 14-section order (2026 revision). "Logica Customer
+// Care" and "Caricamento Dati Risorse" (the latter already inert — see the
+// openImportModal special-case in AssessmentLayout.tsx) are removed from
+// the menu entirely, not just hidden — their pages/routes still exist
+// (customercare in particular is left fully working, just unlisted) so no
+// functionality is deleted, only the nav entries.
 export const NAV_CONFIG_EN: NavConfigEntry[] = [
   { type:'link', id:'home', label:'Home', icon:'home', requires:null },
+  { type:'link', id:'soft-overview', label:'Cross-Functional Competencies', icon:'soft', requires:null },
+  { type:'link', id:'hard-overview', label:'Professional Competencies', icon:'hard', requires:null },
   { type:'link', id:'company', label:'Company Data', icon:'users', requires:null },
   { type:'link', id:'analisi', label:'Interview', icon:'notes', requires:null },
   { type:'link', id:'anagrafica', label:'Employee Directory', icon:'users', requires:null },
-  { type:'group', groupId:'results', label:'Results', icon:'soft', items:[
-    { id:'soft', label:'Soft Skills', requires:'A' },
-    { id:'hard', label:'Hard Skills', requires:'B' },
-  ]},
+  { type:'link', id:'soft', label:'Cross-Functional Evaluation Area (7/A Soft Skill Evaluation)', icon:'soft', requires:'A' },
+  { type:'link', id:'hard', label:'Professional Evaluation Area (8/A Hard Skill Evaluation)', icon:'hard', requires:'B' },
+  { type:'link', id:'soft-risultati', label:'Cross-Functional Evaluation Results', icon:'soft', requires:'A' },
+  { type:'link', id:'hard-risultati', label:'Professional Evaluation Results', icon:'hard', requires:'B' },
   { type:'link', id:'valore', label:'Overall Value', icon:'value', requires:null },
-  { type:'link', id:'customercare', label:'Customer Care Logic', icon:'headset', requires:null },
-  { type:'link', id:'feedback', label:'Feedback & Development Plan', icon:'feedback', requires:null, badge:true },
+  { type:'link', id:'feedback', label:'Development Plans', icon:'feedback', requires:null, badge:true },
   { type:'link', id:'ai', label:'AI Assistant', icon:'ai', requires:null },
   { type:'action', id:'methodology', label:'Methodology Notes', icon:'notes', action:'openMethodologyModal' },
   { type:'section', label:'Admin Tools', editOnly:true },
-  { type:'action', id:'import', label:'Resource Data Upload', icon:'upload', action:'openImportModal', editOnly:true },
   { type:'action', id:'reset', label:'Reset Demo', icon:'refresh', action:'confirmResetDemo', editOnly:true },
 ];
 export const NAV_CONFIG_IT: NavConfigEntry[] = [
   { type:'link', id:'home', label:'Home', icon:'home', requires:null },
+  { type:'link', id:'soft-overview', label:'Competenze Trasversali', icon:'soft', requires:null },
+  { type:'link', id:'hard-overview', label:'Competenze Professionali', icon:'hard', requires:null },
   { type:'link', id:'company', label:'Dati Aziendali', icon:'users', requires:null },
   { type:'link', id:'analisi', label:'Intervista', icon:'notes', requires:null },
   { type:'link', id:'anagrafica', label:'Anagrafica', icon:'users', requires:null },
-  { type:'group', groupId:'results', label:'Risultati', icon:'soft', items:[
-    { id:'soft', label:'Competenze Trasversali', requires:'A' },
-    { id:'hard', label:'Competenze Professionali', requires:'B' },
-  ]},
+  { type:'link', id:'soft', label:'Area Valutazioni Trasversali (7/A Valutazione delle Soft Skill)', icon:'soft', requires:'A' },
+  { type:'link', id:'hard', label:'Area Valutazioni Professionali (8/A Valutazione delle Hard Skill)', icon:'hard', requires:'B' },
+  { type:'link', id:'soft-risultati', label:'Risultati Valutazioni Trasversali', icon:'soft', requires:'A' },
+  { type:'link', id:'hard-risultati', label:'Risultati Valutazioni Professionali', icon:'hard', requires:'B' },
   { type:'link', id:'valore', label:'Valori Complessivi', icon:'value', requires:null },
-  { type:'link', id:'customercare', label:'Logica Customer Care', icon:'headset', requires:null },
-  { type:'link', id:'feedback', label:'Feedback e Piano di Sviluppo', icon:'feedback', requires:null, badge:true },
-  { type:'link', id:'ai', label:'Assistenza AI', icon:'ai', requires:null },
+  { type:'link', id:'feedback', label:'Piani di Sviluppo', icon:'feedback', requires:null, badge:true },
+  { type:'link', id:'ai', label:'Assistenza IA', icon:'ai', requires:null },
   { type:'action', id:'methodology', label:'Note Metodologiche', icon:'notes', action:'openMethodologyModal' },
   { type:'section', label:'Strumenti Amministrazione', editOnly:true },
-  { type:'action', id:'import', label:'Caricamento Dati Risorse', icon:'upload', action:'openImportModal', editOnly:true },
   { type:'action', id:'reset', label:'Reset Demo', icon:'refresh', action:'confirmResetDemo', editOnly:true },
 ];
 
@@ -318,25 +324,33 @@ export const TIER_DEFS_IT = [
 // from the shorter nav labels above).
 export const PAGE_META_TEXT_EN: Record<string, { title: string; sub: string }> = {
   home: { title: 'Home', sub: 'Overall organization status' },
+  'soft-overview': { title: 'Cross-Functional Competencies', sub: 'What they are and how they are measured — Soft Skills & Big Five' },
+  'hard-overview': { title: 'Professional Competencies', sub: 'What they are and how they are measured — multi-source APEX 5D protocol' },
   company: { title: 'Company Profile', sub: 'Locations, contacts, headcount by type, and key company roles' },
   anagrafica: { title: 'Employee Directory', sub: 'Employee list, roles, duties, and role requirements' },
   analisi: { title: 'Interview', sub: 'Executive Human Capital Interview — Leadership perception before the objective Assessment' },
-  soft: { title: 'Soft Skills', sub: 'Soft Skills & Big Five' },
-  hard: { title: 'Hard Skills', sub: 'Multi-source APEX 5D Protocol' },
+  soft: { title: 'Cross-Functional Evaluation Area', sub: 'Soft Skills & Big Five — data entry' },
+  hard: { title: 'Professional Evaluation Area', sub: 'Multi-source APEX 5D Protocol — data entry' },
+  'soft-risultati': { title: 'Cross-Functional Evaluation Results', sub: 'Soft Skills & Big Five — reporting' },
+  'hard-risultati': { title: 'Professional Evaluation Results', sub: 'Multi-source APEX 5D Protocol — reporting' },
   valore: { title: 'Overall Individual Value', sub: 'Integration of Soft Skills + Hard Skills' },
   customercare: { title: 'Customer Care Logic', sub: 'Customer Care competency management and analysis' },
-  feedback: { title: 'Feedback & Development Plan', sub: 'Individual debrief and growth actions' },
+  feedback: { title: 'Development Plans', sub: 'Individual debrief and growth actions' },
   ai: { title: 'AI Assistant', sub: 'Query the dashboard in natural language' },
 }
 export const PAGE_META_TEXT_IT: Record<string, { title: string; sub: string }> = {
   home: { title: 'Home', sub: "Stato generale dell'organizzazione" },
+  'soft-overview': { title: 'Competenze Trasversali', sub: 'Cosa sono e come si misurano — Soft Skills & Big Five' },
+  'hard-overview': { title: 'Competenze Professionali', sub: 'Cosa sono e come si misurano — protocollo APEX 5D multi-source' },
   company: { title: 'Profilo Azienda', sub: 'Sedi, contatti, organico per tipologia e ruoli chiave aziendali' },
   anagrafica: { title: 'Anagrafica Risorse', sub: 'Elenco dipendenti, ruoli, mansioni e requisiti di ruolo' },
   analisi: { title: 'Intervista', sub: 'Executive Human Capital Interview — la percezione della Direzione prima della misurazione oggettiva' },
-  soft: { title: 'Competenze Trasversali', sub: 'Soft Skills & Big Five' },
-  hard: { title: 'Competenze Professionali', sub: 'Protocollo APEX 5D multi-source' },
+  soft: { title: 'Area Valutazioni Trasversali', sub: 'Soft Skills & Big Five — inserimento dati' },
+  hard: { title: 'Area Valutazioni Professionali', sub: 'Protocollo APEX 5D multi-source — inserimento dati' },
+  'soft-risultati': { title: 'Risultati Valutazioni Trasversali', sub: 'Soft Skills & Big Five — reportistica' },
+  'hard-risultati': { title: 'Risultati Valutazioni Professionali', sub: 'Protocollo APEX 5D multi-source — reportistica' },
   valore: { title: 'Valore Complessivo della Persona', sub: 'Integrazione Competenze Trasversali + Competenze Professionali' },
   customercare: { title: 'Logica Customer Care', sub: 'Gestione e analisi delle competenze Customer Care' },
-  feedback: { title: 'Feedback e Piano di Sviluppo', sub: 'Restituzione individuale e azioni di crescita' },
+  feedback: { title: 'Piani di Sviluppo', sub: 'Restituzione individuale e azioni di crescita' },
   ai: { title: 'Assistente AI', sub: 'Interroga la dashboard in linguaggio naturale' },
 }

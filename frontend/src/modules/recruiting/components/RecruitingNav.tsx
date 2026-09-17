@@ -34,9 +34,15 @@ export function RecruitingNav() {
           className={({ isActive }) =>
             cn(
               itemClass,
+              // Harmonized with Assessment's .nav-item.active (assessment-
+              // scoped.css:212) — a SOLID accent fill with dark text, not a
+              // tinted 10%-opacity background. bg-primary/10 read as a
+              // washed-out near-white pill in light mode since --primary is
+              // a bright lime rather than a dark color to tint against; a
+              // solid fill has no such mode-dependent contrast problem.
               isActive
-                ? 'border border-primary/20 bg-primary/10 text-foreground'
-                : 'border border-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                ? 'border border-primary bg-primary text-primary-foreground'
+                : 'border border-transparent text-muted-foreground hover:border-transparent hover:bg-secondary hover:text-foreground',
             )
           }
         >

@@ -1,7 +1,9 @@
-import { AlertTriangle, ChevronDown, FileText, Save } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, ChevronDown, Copy, FileText, Pencil, Save } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 
+import { jobProfilesApi } from '@/lib/api/endpoints'
+import { ApiError } from '@/lib/api/client'
 import { cn } from '@/lib/utils'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { buildJdStateFromPreset, loadJdTemplate, saveJdTemplate } from '@/modules/recruiting/lib/jd'
@@ -46,7 +48,7 @@ const SECTION_ORDER_REST: JdSectionKey[] = ['competenzeTecniche', 'titoliStudio'
 
 function AccordionSection({ index, title, sub, collapsed, onToggle, children }: { index: number; title: string; sub?: string; collapsed: boolean; onToggle: () => void; children: ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
       <button type="button" onClick={onToggle} className="flex w-full items-center gap-3 border-b border-border bg-secondary px-4 py-3.5 text-left">
         <span className="rounded-sm border border-border bg-card px-2 py-0.5 font-mono text-[11px] font-semibold text-muted-foreground">{String(index).padStart(2, '0')}</span>
         <h2 className="flex-1 text-[14px] font-semibold">{title}</h2>
@@ -100,6 +102,20 @@ export default function JobProfilePage() {
   const [saveMessage, setSaveMessage] = useState('')
   const [backendNote, setBackendNote] = useState('')
 
+  // Client §3 — "Compile -> Save -> Display clean finished preview state",
+  // an edit toggle, and an "Approvata" flag that generates a publication
+  // link. 'preview' mode hides every accordion editor and shows only
+  // JdPreview full-width — the existing side-by-side layout (still used in
+  // 'edit' mode) already keeps editor/preview in sync by construction (both
+  // read the same jdState), so this isn't fixing a data bug, it's adding
+  // the distinct "clean finished view" the brief asks for.
+  const [mode, setMode] = useState<'edit' | 'preview'>('edit')
+  const [backendProfileId, setBackendProfileId] = useState<string | null>(null)
+  const [approved, setApproved] = useState(false)
+  const [publicationLink, setPublicationLink] = useState<string | null>(null)
+  const [approvalPending, setApprovalPending] = useState(false)
+  const [approvalError, setApprovalError] = useState('')
+
   // Phase 32 §5 — backend becomes primary for READ too: on mount, if the
   // active opening has a linked backend Campaign AND that campaign already
   // has a saved JobProfile, it REPLACES whatever buildInitialState() showed
@@ -117,6 +133,10 @@ export default function JobProfilePage() {
       if (result.ok) {
         setJdState(result.jdState)
         setBackendNote('Scheda caricata dal server ✓')
+        setBackendProfileId(result.profileId)
+        setApproved(result.approved)
+        setPublicationLink(result.publicationLink)
+        if (result.approved) setMode('preview')
       } else if (result.reason === 'error') {
         setBackendNote(`Impossibile leggere la scheda dal server (${result.message}) — mostrata la versione locale.`)
       } else if (result.reason === 'incompatible-shape') {
@@ -158,6 +178,14 @@ export default function JobProfilePage() {
       const backendResult = await saveJobProfileToBackend(opening.id, jdState)
       if (backendResult.ok) {
         setBackendNote('')
+        // A fresh save always creates a NEW JobProfile row (see
+        // jobProfiles/routes.ts — no upsert, versioned by design), so it
+        // is never the previously-approved one: reset approval state
+        // rather than carrying a stale "Approvata" flag over to content
+        // that hasn't itself been approved yet.
+        setBackendProfileId(backendResult.profileId)
+        setApproved(false)
+        setPublicationLink(null)
       } else if (backendResult.reason === 'error') {
         setBackendNote(`Salvato solo localmente — impossibile salvare sul server (${backendResult.message}).`)
       }
@@ -167,6 +195,22 @@ export default function JobProfilePage() {
     }
     saveJdTemplate(DEFAULT_ROLE, jdState)
     setSaveMessage(`JD salvata per il ruolo "${DEFAULT_ROLE}" ✓`)
+    setMode('preview')
+  }
+
+  async function handleToggleApproval() {
+    if (!backendProfileId || approvalPending) return
+    setApprovalPending(true)
+    setApprovalError('')
+    try {
+      const updated = approved ? await jobProfilesApi.unapprove(backendProfileId) : await jobProfilesApi.approve(backendProfileId)
+      setApproved(updated.approved)
+      setPublicationLink(updated.publicationLink)
+    } catch (err) {
+      setApprovalError(err instanceof ApiError ? err.message : 'Errore sconosciuto')
+    } finally {
+      setApprovalPending(false)
+    }
   }
 
   function updateSection(key: JdSectionKey, next: JdState['sections'][JdSectionKey]) {
@@ -188,92 +232,159 @@ export default function JobProfilePage() {
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
           <FileText className="size-[22px] text-muted-foreground" aria-hidden="true" />
         </div>
-        <div>
+        <div className="flex-1">
           <h2 className="text-lg font-semibold tracking-tight">Configura la Scheda Professionale per la ricerca in corso</h2>
           <p className="max-w-[70ch] text-[13px] text-muted-foreground">
-            Parti da un profilo precompilato, poi seleziona, deseleziona, cambia livelli e aggiungi righe libere per adattarlo alla ricerca specifica.
-            L'anteprima a destra si aggiorna in tempo reale ed è pronta per essere stampata o condivisa.
+            {mode === 'edit'
+              ? "Parti da un profilo precompilato, poi seleziona, deseleziona, cambia livelli e aggiungi righe libere per adattarlo alla ricerca specifica. L'anteprima a destra si aggiorna in tempo reale ed è pronta per essere stampata o condivisa."
+              : 'Anteprima pulita della scheda salvata — pronta per essere approvata e condivisa. Usa "Modifica" per tornare all\'editor.'}
           </p>
         </div>
-      </div>
-
-      <p className="rounded-md border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
-        Ricerca/cambio ruolo, "Crea scheda vuota" e l'importazione CSV/XLSX restano disponibili solo nell'app corrente — questa scheda resta sul ruolo
-        attivo (<b className="font-semibold text-foreground">{DEFAULT_ROLE}</b>).
-      </p>
-
-      <div>
-        <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Profilo di partenza</div>
-        <div className="flex flex-wrap gap-2">
-          {(Object.keys(JD_PROFILES) as JdPresetId[]).map((pid) => (
-            <button
-              key={pid}
-              type="button"
-              onClick={() => handleSelectPreset(pid)}
-              className={cn(
-                'rounded-md border px-3.5 py-2 text-[13px] font-medium transition-colors',
-                pid === currentPreset ? 'border-primary bg-primary/10 font-semibold text-foreground' : 'border-border text-muted-foreground hover:border-ring',
-              )}
-            >
-              {JD_PROFILES[pid].label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
-        <div className="flex flex-col gap-4">
-          <AccordionSection index={nextIdx()} title="Intestazione posizione" collapsed={!!collapsed.header} onToggle={() => toggleSection('header')}>
-            <JdHeaderFields header={jdState.header} scopo={jdState.scopo} onHeaderChange={(patch) => setJdState((prev) => ({ ...prev, header: { ...prev.header, ...patch } }))} onScopoChange={(scopo) => setJdState((prev) => ({ ...prev, scopo }))} />
-          </AccordionSection>
-
-          <AccordionSection index={nextIdx()} title="Fasce Retributive e Benefit" collapsed={!!collapsed.salary} onToggle={() => toggleSection('salary')}>
-            <JdSalaryBenefits role={DEFAULT_ROLE} />
-          </AccordionSection>
-
-          {SECTION_ORDER.map((key) => (
-            <AccordionSection key={key} index={nextIdx()} title={SECTION_TITLES[key]} sub={SECTION_SUB[key]} collapsed={!!collapsed[key]} onToggle={() => toggleSection(key)}>
-              <JdSection section={jdState.sections[key]} onChange={(next) => updateSection(key, next)} />
-            </AccordionSection>
-          ))}
-
-          <AccordionSection index={nextIdx()} title="Hard skills" sub="Livello richiesto: seleziona una voce, poi Base / Intermedio / Avanzato / Esperto." collapsed={!!collapsed.hard} onToggle={() => toggleSection('hard')}>
-            <JdHardSkills groups={jdState.hardSkillGroups} onChange={updateHardSkillGroups} />
-          </AccordionSection>
-
-          <AccordionSection index={nextIdx()} title="Soft skills" sub={SECTION_SUB.softSkills} collapsed={!!collapsed.softSkills} onToggle={() => toggleSection('softSkills')}>
-            <JdSection section={jdState.sections.softSkills} onChange={(next) => updateSection('softSkills', next)} />
-          </AccordionSection>
-
-          {SECTION_ORDER_REST.map((key) => (
-            <AccordionSection key={key} index={nextIdx()} title={SECTION_TITLES[key]} sub={SECTION_SUB[key]} collapsed={!!collapsed[key]} onToggle={() => toggleSection(key)}>
-              <JdSection section={jdState.sections[key]} onChange={(next) => updateSection(key, next)} />
-            </AccordionSection>
-          ))}
-
-          <AccordionSection index={nextIdx()} title="Richieste specifiche aggiuntive" sub="Spazi liberi per competenze o requisiti non coperti sopra — cambia ad ogni ricerca." collapsed={!!collapsed.extra} onToggle={() => toggleSection('extra')}>
-            <JdExtraRequirements rows={jdState.extra} onChange={updateExtra} />
-          </AccordionSection>
-        </div>
-
-        <div className="rounded-lg border border-border bg-card p-5 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
-          <JdPreview jd={jdState} />
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
-        <button type="button" onClick={handleSave} className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-primary bg-primary px-4 py-2.5 text-[13px] font-semibold text-primary-foreground transition-colors hover:brightness-95">
-          <Save className="size-4 shrink-0" aria-hidden="true" />
-          Salva JD per &quot;{DEFAULT_ROLE}&quot;
+        <button
+          type="button"
+          onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')}
+          className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3.5 py-2 text-[12.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground"
+        >
+          {mode === 'edit' ? (
+            <>
+              <FileText className="size-4 shrink-0" aria-hidden="true" />
+              Vedi anteprima
+            </>
+          ) : (
+            <>
+              <Pencil className="size-4 shrink-0" aria-hidden="true" />
+              Modifica
+            </>
+          )}
         </button>
-        {saveMessage && <span className="text-[12.5px] font-medium text-success">{saveMessage}</span>}
-        {backendNote && (
-          <span className="flex items-center gap-1.5 text-[12.5px] font-medium text-muted-foreground">
-            <AlertTriangle className="size-3.5 shrink-0" aria-hidden="true" />
-            {backendNote}
-          </span>
-        )}
       </div>
+
+      {mode === 'edit' ? (
+        <>
+          <p className="rounded-md border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
+            Ricerca/cambio ruolo, "Crea scheda vuota" e l'importazione CSV/XLSX restano disponibili solo nell'app corrente — questa scheda resta sul ruolo
+            attivo (<b className="font-semibold text-foreground">{DEFAULT_ROLE}</b>).
+          </p>
+
+          <div>
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Profilo di partenza</div>
+            <div className="flex flex-wrap gap-2">
+              {(Object.keys(JD_PROFILES) as JdPresetId[]).map((pid) => (
+                <button
+                  key={pid}
+                  type="button"
+                  onClick={() => handleSelectPreset(pid)}
+                  className={cn(
+                    'rounded-md border px-3.5 py-2 text-[13px] font-medium transition-colors',
+                    pid === currentPreset ? 'border-primary bg-primary/10 font-semibold text-foreground' : 'border-border text-muted-foreground hover:border-ring',
+                  )}
+                >
+                  {JD_PROFILES[pid].label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
+            <div className="flex flex-col gap-4">
+              <AccordionSection index={nextIdx()} title="Intestazione posizione" collapsed={!!collapsed.header} onToggle={() => toggleSection('header')}>
+                <JdHeaderFields header={jdState.header} scopo={jdState.scopo} onHeaderChange={(patch) => setJdState((prev) => ({ ...prev, header: { ...prev.header, ...patch } }))} onScopoChange={(scopo) => setJdState((prev) => ({ ...prev, scopo }))} />
+              </AccordionSection>
+
+              <AccordionSection index={nextIdx()} title="Fasce Retributive e Benefit" collapsed={!!collapsed.salary} onToggle={() => toggleSection('salary')}>
+                <JdSalaryBenefits role={DEFAULT_ROLE} />
+              </AccordionSection>
+
+              {SECTION_ORDER.map((key) => (
+                <AccordionSection key={key} index={nextIdx()} title={SECTION_TITLES[key]} sub={SECTION_SUB[key]} collapsed={!!collapsed[key]} onToggle={() => toggleSection(key)}>
+                  <JdSection section={jdState.sections[key]} onChange={(next) => updateSection(key, next)} />
+                </AccordionSection>
+              ))}
+
+              <AccordionSection index={nextIdx()} title="Hard skills" sub="Livello richiesto: seleziona una voce, poi Base / Intermedio / Avanzato / Esperto." collapsed={!!collapsed.hard} onToggle={() => toggleSection('hard')}>
+                <JdHardSkills groups={jdState.hardSkillGroups} onChange={updateHardSkillGroups} />
+              </AccordionSection>
+
+              <AccordionSection index={nextIdx()} title="Soft skills" sub={SECTION_SUB.softSkills} collapsed={!!collapsed.softSkills} onToggle={() => toggleSection('softSkills')}>
+                <JdSection section={jdState.sections.softSkills} onChange={(next) => updateSection('softSkills', next)} />
+              </AccordionSection>
+
+              {SECTION_ORDER_REST.map((key) => (
+                <AccordionSection key={key} index={nextIdx()} title={SECTION_TITLES[key]} sub={SECTION_SUB[key]} collapsed={!!collapsed[key]} onToggle={() => toggleSection(key)}>
+                  <JdSection section={jdState.sections[key]} onChange={(next) => updateSection(key, next)} />
+                </AccordionSection>
+              ))}
+
+              <AccordionSection index={nextIdx()} title="Richieste specifiche aggiuntive" sub="Spazi liberi per competenze o requisiti non coperti sopra — cambia ad ogni ricerca." collapsed={!!collapsed.extra} onToggle={() => toggleSection('extra')}>
+                <JdExtraRequirements rows={jdState.extra} onChange={updateExtra} />
+              </AccordionSection>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card shadow-sm p-5 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+              <JdPreview jd={jdState} />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+            <button type="button" onClick={handleSave} className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-primary bg-primary px-4 py-2.5 text-[13px] font-semibold text-primary-foreground transition-colors hover:brightness-95">
+              <Save className="size-4 shrink-0" aria-hidden="true" />
+              Salva JD per &quot;{DEFAULT_ROLE}&quot;
+            </button>
+            {saveMessage && <span className="text-[12.5px] font-medium text-success">{saveMessage}</span>}
+            {backendNote && (
+              <span className="flex items-center gap-1.5 text-[12.5px] font-medium text-muted-foreground">
+                <AlertTriangle className="size-3.5 shrink-0" aria-hidden="true" />
+                {backendNote}
+              </span>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="rounded-xl border border-border bg-card shadow-sm p-5 sm:p-8">
+            <JdPreview jd={jdState} />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+            <label className="flex items-center gap-2 text-[13px] font-semibold">
+              <input
+                type="checkbox"
+                checked={approved}
+                disabled={!backendProfileId || approvalPending}
+                onChange={handleToggleApproval}
+                className="size-4 shrink-0 cursor-pointer accent-ring disabled:cursor-not-allowed"
+              />
+              {approved ? (
+                <span className="flex items-center gap-1.5 text-success">
+                  <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
+                  Approvata
+                </span>
+              ) : (
+                'Approvata'
+              )}
+            </label>
+            {!backendProfileId && (
+              <span className="text-[12px] text-muted-foreground">Salva sul server (carica un CV per collegare la posizione) prima di approvare.</span>
+            )}
+            {approvalError && <span className="text-[12px] font-medium text-destructive">{approvalError}</span>}
+            {approved && publicationLink && (
+              <div className="flex min-w-0 items-center gap-1.5 text-[12px] text-muted-foreground">
+                <span>Link di pubblicazione:</span>
+                <code className="truncate rounded bg-secondary px-1.5 py-0.5">{publicationLink}</code>
+                <button
+                  type="button"
+                  onClick={() => navigator.clipboard?.writeText(publicationLink)}
+                  title="Copia link"
+                  aria-label="Copia link"
+                  className="inline-flex shrink-0 items-center justify-center rounded border border-border p-1 text-muted-foreground hover:text-foreground"
+                >
+                  <Copy className="size-3 shrink-0" aria-hidden="true" />
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 }

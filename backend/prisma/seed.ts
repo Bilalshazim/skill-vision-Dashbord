@@ -23,8 +23,18 @@ async function main() {
 
   const company = await prisma.company.upsert({
     where: { id: '00000000-0000-0000-0000-000000000002' },
+    update: { purchasedModules: ['RECRUITING'] },
+    // Recruiting pre-entitled (this seed's whole point is exercising the
+    // Recruiting flow) — Assessment deliberately left locked so the new
+    // paywall/redeem-code UI has something real to test locally. See the
+    // AccessCode below for the matching unlock code.
+    create: { id: '00000000-0000-0000-0000-000000000002', platformId: platform.id, name: 'Acme Corp', status: 'ACTIVE', purchasedModules: ['RECRUITING'] },
+  })
+
+  await prisma.accessCode.upsert({
+    where: { code: 'ASSESSMENT-DEMO-2026' },
     update: {},
-    create: { id: '00000000-0000-0000-0000-000000000002', platformId: platform.id, name: 'Acme Corp', status: 'ACTIVE' },
+    create: { code: 'ASSESSMENT-DEMO-2026', module: 'ASSESSMENT' },
   })
 
   const [platformAdmin, companyAdmin, recruiter] = await Promise.all([

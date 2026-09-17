@@ -1,6 +1,6 @@
 import { computeHardSummary, computeSoftSummary, getEmployeePeriodSnapshots, getEmployeeSoftHistorySorted } from '@/modules/assessment/lib/calculations'
 import { assessmentSourceLabel, fmt1, getSoftSkills, type AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
-import { weightLabel } from '@/modules/assessment/lib/role-census'
+import { getEmployeeExpectedSkillIds, getEmployeeSkillWeight, weightLabel } from '@/modules/assessment/lib/role-census'
 import type { AssessmentState, Employee } from '@/modules/assessment/lib/types'
 
 // Migrated from buildAssessmentReportPayload()/renderAssessmentReportPrintHtml()/
@@ -17,12 +17,11 @@ export function buildAssessmentReportPayload(state: AssessmentState, emp: Employ
   const lastSoftSnap = softHistory.length ? softHistory[softHistory.length - 1] : null
   const hsm = computeHardSummary(emp, lang)
   const ss = computeSoftSummary(emp, lang)
-  const rp = state.roleProfiles[emp.ruolo]
-  const weightedIds = rp?.skillWeights ? Object.keys(rp.skillWeights) : []
+  const weightedIds = getEmployeeExpectedSkillIds(state, emp)
   const SOFT_SKILLS = getSoftSkills(lang)
   const expectedProfile = SOFT_SKILLS.filter((s) => weightedIds.includes(s.id)).map((s) => {
-    const w = rp!.skillWeights![s.id]
-    return { id: s.id, name: s.name, weight: w, weightLabel: weightLabel(w, lang), expected: rp!.skillExpected?.[s.id] }
+    const { weight: w, expected } = getEmployeeSkillWeight(state, emp, s.id)
+    return { id: s.id, name: s.name, weight: w, weightLabel: weightLabel(w, lang), expected }
   })
   const currentHard = lastSnap ? { apexScore: lastSnap.apexScore, dims: lastSnap.dims } : { apexScore: hsm.apexScore, dims: hsm.dims.map((d) => ({ code: d.code, name: d.name, score: d.mediaTotale })) }
   return {

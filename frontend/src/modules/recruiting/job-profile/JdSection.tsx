@@ -8,7 +8,7 @@ import type { JdSection as JdSectionData } from '@/modules/recruiting/lib/jd-typ
 export const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const addBtnClass =
-  'inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 const WEIGHT_LABEL: Record<number, string> = { 3: 'ESSENZIALE', 2: 'IMPORTANTE', 1: 'UTILE' }
 const WEIGHT_CLASS: Record<number, string> = { 3: 'bg-primary/12 text-primary', 2: 'bg-warning/14 text-warning', 1: 'bg-success/14 text-success' }

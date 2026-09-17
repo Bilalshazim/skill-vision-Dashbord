@@ -18,10 +18,10 @@
 import { DEFAULT_MATCH_THRESHOLD, DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { setCandidateEmail } from '@/modules/recruiting/lib/candidates'
 import { buildSimulatedCvData, matchCandidateToProfile } from '@/modules/recruiting/lib/cv-upload'
-import { addCandidateToPool, addPrescreenedEntry, buildDefaultJobProfile, getActiveOpening } from '@/modules/recruiting/lib/pipeline'
+import { addCandidateToPool, addPrescreenedEntry, buildDefaultJobProfile, getActiveOpening, setPrescreenStatus } from '@/modules/recruiting/lib/pipeline'
 import { getAllCachedBackendLinks, getCachedBackendLink, resolveBackendLink } from '@/modules/recruiting/lib/backend-link'
 import { readCandidates, readCvMatchingState, writeCandidates, writeCvMatchingState } from '@/modules/recruiting/lib/storage'
-import type { Candidate, PrescreenStatus } from '@/modules/recruiting/lib/types'
+import type { Candidate, PrescreenedEntry, PrescreenStatus } from '@/modules/recruiting/lib/types'
 import type { JdState } from '@/modules/recruiting/lib/jd-types'
 import { candidatesApi, cvApi, jobProfilesApi, shortlistApi } from '@/lib/api/endpoints'
 import { apiBaseUrl, ApiError } from '@/lib/api/client'
@@ -29,13 +29,30 @@ import type { BackendShortlistStatus } from '@/lib/api/types'
 
 const NEUTRAL_BIG_FIVE = { Estroversione: 50, Coscienziosità: 50, Apertura: 50, Amicalità: 50, 'Stabilità emotiva': 50 }
 
+// Legacy's own guard message for this exact failure (sendCvMatchTestLink,
+// modules/recruiting.html line 3076) — same string CvMatchDialog.tsx /
+// PaginaAPage.tsx already show for this case, reused here rather than a
+// third copy drifting out of sync.
+const NO_ACTIVE_OPENING_MESSAGE = 'Seleziona prima una company/opening nella pagina CV & Esportazione'
+
 function apiErrorMessage(err: unknown): string {
   if (err instanceof ApiError) return err.network ? 'Impossibile contattare il server backend.' : err.message
   return err instanceof Error ? err.message : 'Errore sconosciuto'
 }
 
+// Detects the specific "no mail provider configured on this backend" 502
+// (lib/mailer.ts's own message, thrown as-is by POST /shortlist/:id/send-
+// test — see backend/src/modules/shortlist/routes.ts) as distinct from any
+// other backend-failed reason. There is no dedicated error code for this on
+// the wire (just a generic "bad_gateway"), so this matches the exact,
+// stable substring the backend always emits for this one condition —
+// narrow on purpose, so an unrelated 502 is never mistaken for it.
+function isMailNotConfiguredError(message: string): boolean {
+  return message.includes('RESEND_API_KEY') || message.includes('MAIL_FROM')
+}
+
 export type UploadCvViaBackendResult =
-  | { ok: true; candidateName: string; icv: number; companyName: string; openingTitle: string; autoSent: boolean; cvSyncFailed?: boolean }
+  | { ok: true; candidateName: string; icv: number; companyName: string; openingTitle: string; autoSent: boolean; cvSyncFailed?: boolean; backendCandidateId: string }
   | { ok: false; reason: 'no-active-opening' }
   | { ok: false; reason: 'backend-link'; message: string }
   | { ok: false; reason: 'backend-error'; message: string }
@@ -136,6 +153,7 @@ export async function uploadCvViaBackend(file: File): Promise<UploadCvViaBackend
       openingTitle: opening.title,
       autoSent,
       cvSyncFailed: true,
+      backendCandidateId: backendCandidate.id,
     }
   }
 
@@ -176,7 +194,19 @@ export async function uploadCvViaBackend(file: File): Promise<UploadCvViaBackend
     }
   }
 
-  return { ok: true, candidateName, icv: matchResult.scorePercent, companyName: company.name, openingTitle: opening.title, autoSent, cvSyncFailed: false }
+  return { ok: true, candidateName, icv: matchResult.scorePercent, companyName: company.name, openingTitle: opening.title, autoSent, cvSyncFailed: false, backendCandidateId: backendCandidate.id }
+}
+
+// GDPR retention consent (§6 of this phase's brief): best-effort, non-
+// blocking — the CV upload itself has already fully succeeded by the time
+// this runs, so a retention-save failure is logged, never surfaced as an
+// upload failure. Called once, right after a successful uploadCvViaBackend().
+export async function setCvRetentionChoice(backendCandidateId: string, choice: 'TWO_YEARS' | 'SIX_MONTHS'): Promise<void> {
+  try {
+    await candidatesApi.setRetention(backendCandidateId, choice)
+  } catch (err) {
+    console.error('[setCvRetentionChoice] failed to save retention choice:', err)
+  }
 }
 
 export type SetCandidateEmailWithSyncResult =
@@ -358,14 +388,79 @@ export function patchPrescreenedBackendId(openingId: string, entryId: string, ba
 // campaignCandidateId — shortlistApi.add() is NOT idempotent by design,
 // see shortlist/routes.ts's own uniqueness check).
 function findLocalBackendShortlistId(candidateId: string): string | undefined {
+  return findLocalPrescreenedEntry(candidateId)?.backendShortlistId
+}
+
+// Same traversal as findLocalBackendShortlistId() above, but returns the
+// whole entry — used by Pagina A / Migliori Candidati (§5) to derive each
+// candidate's dispatch-status badge (Da inviare/Inviato/Ha risposto al
+// test/Non ha ancora risposto) from the SAME record Pipeline already
+// maintains, rather than a second local shortlist-status store.
+export function findLocalPrescreenedEntry(candidateId: string): PrescreenedEntry | undefined {
   const state = readCvMatchingState()
   for (const c of state.companies) {
     for (const o of c.jobOpenings) {
       const rec = o.pipeline?.prescreened.find((p) => p.candidateId === candidateId && p.backendShortlistId)
-      if (rec?.backendShortlistId) return rec.backendShortlistId
+      if (rec) return rec
     }
   }
   return undefined
+}
+
+// Self-heals the "already shortlisted on the backend (409), no local
+// record of it" case — previously a terminal failure telling the recruiter
+// to "reload the page", which doesn't actually help once localStorage
+// itself is what's missing the link (reloading reads the same empty
+// state). The backend's own uniqueness rule (one Shortlist per
+// campaignCandidateId) means the row we tried to create already exists —
+// this looks it up by listing the candidate's backend campaign and
+// matching on campaignCandidateId, then hands back its real id so the
+// caller can proceed exactly as if POST /shortlist had just succeeded.
+async function recoverShortlistIdOnConflict(
+  candidateId: string,
+  campaignCandidateId: string,
+): Promise<{ ok: true; shortlistId: string } | { ok: false; message: string }> {
+  const stillUnrecoverable = 'Candidato già in shortlist sul server, ma non è stato possibile recuperarne il riferimento — ricarica la pagina.'
+  const campaignId = readCandidates().find((c) => c.id === candidateId)?.backendCampaignId
+  if (!campaignId) return { ok: false, message: stillUnrecoverable }
+  try {
+    const rows = await shortlistApi.listByCampaign(campaignId)
+    const existing = rows.find((r) => r.campaignCandidateId === campaignCandidateId)
+    if (!existing) return { ok: false, message: stillUnrecoverable }
+    return { ok: true, shortlistId: existing.id }
+  } catch (err) {
+    return { ok: false, message: apiErrorMessage(err) }
+  }
+}
+
+export type AddToShortlistViaBackendResult = { ok: true; backendShortlistId: string } | { ok: false; message: string }
+
+// Client §4 — "Selezionato per approfondimento" (Pipeline/CV Elaborati):
+// flags a candidate into the real Shortlist (Migliori Candidati) WITHOUT
+// sending a test yet — the distinct "Invia Lettera e Link Test" trigger
+// (Pagina A / Migliori Candidati, §5) is the separate action that does
+// that. Deliberately a subset of sendTestLinkViaBackend() below (same
+// shortlist-creation/409-handling logic, minus the sendTest call) rather
+// than that function with a flag, so a reader of either doesn't have to
+// reason about a send-vs-no-send branch inside one function.
+export async function addToShortlistViaBackend(candidateId: string, campaignCandidateId: string): Promise<AddToShortlistViaBackendResult> {
+  try {
+    let shortlistId = findLocalBackendShortlistId(candidateId)
+    if (!shortlistId) {
+      try {
+        const shortlist = await shortlistApi.add(campaignCandidateId, 'CV_ELABORATI')
+        shortlistId = shortlist.id
+      } catch (err) {
+        if (!(err instanceof ApiError && err.status === 409)) throw err
+        const recovered = await recoverShortlistIdOnConflict(candidateId, campaignCandidateId)
+        if (!recovered.ok) return recovered
+        shortlistId = recovered.shortlistId
+      }
+    }
+    return { ok: true, backendShortlistId: shortlistId }
+  } catch (err) {
+    return { ok: false, message: apiErrorMessage(err) }
+  }
 }
 
 export type SendTestLinkViaBackendResult = { ok: true; backendShortlistId: string } | { ok: false; message: string }
@@ -385,12 +480,14 @@ export async function sendTestLinkViaBackend(candidateId: string, campaignCandid
         shortlistId = shortlist.id
       } catch (err) {
         // Already shortlisted on the backend (409) with no local record of
-        // it (e.g. local storage was cleared) — an honest, rare edge case,
-        // not silently guessed at.
-        if (err instanceof ApiError && err.status === 409) {
-          return { ok: false, message: 'Candidato già in shortlist sul server, ma il riferimento locale è andato perso — ricarica la pagina.' }
-        }
-        throw err
+        // it (e.g. local storage was cleared, or the same candidate email
+        // got de-duped onto an existing backend Candidate) — recovered by
+        // looking the real row up server-side instead of dead-ending here,
+        // so the send below still goes out for real.
+        if (!(err instanceof ApiError && err.status === 409)) throw err
+        const recovered = await recoverShortlistIdOnConflict(candidateId, campaignCandidateId)
+        if (!recovered.ok) return recovered
+        shortlistId = recovered.shortlistId
       }
     }
     try {
@@ -412,6 +509,57 @@ export async function sendTestLinkViaBackend(candidateId: string, campaignCandid
   }
 }
 
+export type SendTestLinkForCandidateResult =
+  | { ok: true; backendShortlistId: string }
+  | { ok: false; reason: 'missing-email' }
+  | { ok: false; reason: 'unlinked'; message: string }
+  // No mail provider configured on this backend (local dev only — see
+  // isMailNotConfiguredError above): the real send genuinely can't go out,
+  // but a real local PrescreenedEntry + testLink WAS generated (status
+  // 'link_pronto'), so the caller can open the manual-send modal on it
+  // immediately instead of dead-ending on a plain error.
+  | { ok: false; reason: 'mail-not-configured'; message: string; entry: PrescreenedEntry }
+  | { ok: false; reason: 'backend-failed'; message: string }
+
+// Client §5 (Migliori Candidati) — the single-candidate "Invia Lettera e
+// Link Test" trigger, factored out of PaginaAPage's bulk-send loop (which
+// this phase's brief asks to keep working unchanged) so a per-row button
+// can call the exact same real logic instead of a second implementation.
+// Fresh-reads candidates itself (same discipline as every other mutation
+// here) rather than trusting a value the caller captured earlier.
+export async function sendTestLinkForCandidate(candidateId: string): Promise<SendTestLinkForCandidateResult> {
+  const c = readCandidates().find((x) => x.id === candidateId)
+  if (!c?.email) return { ok: false, reason: 'missing-email' }
+
+  let campaignCandidateId = c.backendCampaignCandidateId
+  if (!campaignCandidateId) {
+    const linked = await linkExistingCandidateToBackend(c.id)
+    if (!linked.ok) {
+      const message = linked.reason === 'no-active-opening' ? NO_ACTIVE_OPENING_MESSAGE : linked.message
+      return { ok: false, reason: 'unlinked', message }
+    }
+    if (!linked.candidate.backendCampaignCandidateId) return { ok: false, reason: 'unlinked', message: 'Candidato non collegato al server.' }
+    campaignCandidateId = linked.candidate.backendCampaignCandidateId
+  }
+
+  const result = await sendTestLinkViaBackend(c.id, campaignCandidateId)
+  if (!result.ok) {
+    if (isMailNotConfiguredError(result.message)) {
+      const added = addPrescreenedEntry(c.id, c.name, c.email, false, c.icv)
+      if (added.ok) {
+        const marked = setPrescreenStatus(added.entry.id, 'link_pronto')
+        return { ok: false, reason: 'mail-not-configured', message: result.message, entry: marked.ok ? marked.entry : added.entry }
+      }
+    }
+    return { ok: false, reason: 'backend-failed', message: result.message }
+  }
+
+  const { opening } = getActiveOpening(readCvMatchingState())
+  const added = addPrescreenedEntry(c.id, c.name, c.email, true, c.icv)
+  if (added.ok && opening) patchPrescreenedBackendId(opening.id, added.entry.id, result.backendShortlistId)
+  return { ok: true, backendShortlistId: result.backendShortlistId }
+}
+
 export type MarkSentViaBackendResult = { ok: true } | { ok: false; message: string }
 
 // Real replacement for the "Segna inviato" click (CvMatchDialog.tsx /
@@ -427,7 +575,9 @@ export async function markSentViaBackend(backendShortlistId: string): Promise<Ma
   }
 }
 
-export type LoadJobProfileResult = { ok: true; jdState: JdState } | { ok: false; reason: 'no-link' | 'not-found' | 'incompatible-shape' | 'error'; message?: string }
+export type LoadJobProfileResult =
+  | { ok: true; jdState: JdState; profileId: string; approved: boolean; publicationLink: string | null }
+  | { ok: false; reason: 'no-link' | 'not-found' | 'incompatible-shape' | 'error'; message?: string }
 
 // Phase 32 §5 — folds the local JdState's `scopo` field (which has no
 // dedicated backend column — JobProfile.header is free-form Json, see
@@ -487,20 +637,20 @@ export async function loadJobProfileFromBackend(openingId: string): Promise<Load
     if (!profile) return { ok: false, reason: 'not-found' }
     const jdState = backendProfileToJdState(profile)
     if (!jdState) return { ok: false, reason: 'incompatible-shape' }
-    return { ok: true, jdState }
+    return { ok: true, jdState, profileId: profile.id, approved: profile.approved, publicationLink: profile.publicationLink }
   } catch (err) {
     return { ok: false, reason: 'error', message: apiErrorMessage(err) }
   }
 }
 
-export type SaveJobProfileResult = { ok: true } | { ok: false; reason: 'no-link' | 'error'; message?: string }
+export type SaveJobProfileResult = { ok: true; profileId: string } | { ok: false; reason: 'no-link' | 'error'; message?: string }
 
 export async function saveJobProfileToBackend(openingId: string, jdState: JdState): Promise<SaveJobProfileResult> {
   const link = getCachedBackendLink(openingId)
   if (!link) return { ok: false, reason: 'no-link' }
   try {
-    await jobProfilesApi.save(link.campaignId, jdStateToBackendPayload(jdState))
-    return { ok: true }
+    const profile = await jobProfilesApi.save(link.campaignId, jdStateToBackendPayload(jdState))
+    return { ok: true, profileId: profile.id }
   } catch (err) {
     return { ok: false, reason: 'error', message: apiErrorMessage(err) }
   }

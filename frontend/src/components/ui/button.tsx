@@ -4,25 +4,31 @@ import type * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
+// Harmonized with Assessment's .btn/.btn-primary/.btn-sm/.btn-ghost/
+// .btn-danger-outline (frontend/src/modules/assessment/styles/
+// assessment-scoped.css:298-313) — pill shape (999px radius, not
+// rounded-md), padding-driven height rather than a fixed h-9/h-8/h-10,
+// bold 12.5px/11.5px type, and a 0.4 disabled opacity (Assessment's own
+// value) instead of Tailwind's default 0.5. Colors still resolve through
+// the shared shadcn tokens (bg-primary/bg-card/etc.), which were already
+// numerically identical to Assessment's own dark-mode palette before this
+// change — only the SHAPE was diverging, not the color system.
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full text-[12.5px] font-bold transition-colors disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline:
-          'border border-border bg-card hover:bg-accent hover:text-accent-foreground',
-        secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        default: 'bg-primary text-primary-foreground hover:brightness-95',
+        destructive: 'border border-destructive/50 bg-transparent text-destructive hover:bg-destructive/10',
+        outline: 'border border-border bg-card text-muted-foreground hover:bg-secondary hover:text-foreground',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        ghost: 'border border-transparent bg-transparent hover:bg-accent hover:text-accent-foreground',
         link: 'text-foreground underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-9 px-4 py-2',
-        sm: 'h-8 rounded-md px-3 text-xs',
-        lg: 'h-10 rounded-md px-6',
+        default: 'px-4 py-2',
+        sm: 'px-2.5 py-[5px] text-[11.5px]',
+        lg: 'px-6 py-2.5',
         icon: 'size-9',
       },
     },

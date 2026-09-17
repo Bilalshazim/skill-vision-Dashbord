@@ -19,9 +19,12 @@ type HardView = 'individuale' | 'area' | 'ranking' | 'match'
 // shipped only a simplified Individuale table). The Evaluation Manager is
 // what actually creates real ?evalToken= assignments, so this page is also
 // what makes /assessment/evaluate testable end-to-end with real data.
-export default function AssessmentHardPage() {
+// `defaultView` lets "Area Valutazioni" (id:'hard', evaluation entry) and
+// "Risultati" (id:'hard-risultati', reporting) open the same tab set on a
+// different default tab — see pages/AssessmentHardRisultatiPage.tsx.
+export default function AssessmentHardPage({ defaultView = 'individuale' }: { defaultView?: HardView }) {
   const { state, setState, ui, canEdit, toast } = useAssessment()
-  const [view, setView] = useState<HardView>('individuale')
+  const [view, setView] = useState<HardView>(defaultView)
   const [selectedEmp, setSelectedEmp] = useState<string | null>(null)
   const [rankSort, setRankSort] = useState<'score' | 'gap'>('score')
   const [match, setMatch] = useState<string[]>([])

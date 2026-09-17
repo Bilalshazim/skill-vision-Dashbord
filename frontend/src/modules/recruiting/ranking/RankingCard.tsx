@@ -54,7 +54,7 @@ export function RankingCard({
   const sums = skillTierSums(candidate)
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/40 sm:p-6">
+    <div className="rounded-xl border border-border bg-card shadow-sm p-4 transition-colors hover:border-primary/40 sm:p-6">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

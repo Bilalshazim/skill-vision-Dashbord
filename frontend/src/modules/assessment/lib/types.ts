@@ -38,6 +38,16 @@ export type Employee = {
   developmentPlan: DevelopmentPlan
   createdAt?: string
   _archetype?: string
+  /**
+   * Per-individual Soft Skill assignment (skill ids), on top of whatever
+   * role-census.ts's role-level requiredSkills already assigns. Undefined
+   * means "use the role's list as-is"; once set (even to an empty array),
+   * it's this specific person's own list, independent of their Ruolo AND
+   * Mansione — see components/EmployeeSoftSkillModal.tsx.
+   */
+  softSkillOverrides?: string[]
+  /** ISO timestamp of the last successful "INVIA LINK TEST" send to this employee — see components/SurveyLinkModal.tsx. */
+  surveySentAt?: string
 }
 
 // Two genuinely different shapes in legacy (not a single unified snapshot):
@@ -122,6 +132,8 @@ export type ExiData = {
   q2c: string
   aree: Record<string, number>
   q3c: string
+  /** 3 free-text "Altro" fields for a custom area not in the fixed 12-area list. */
+  q3Altro: string[]
   q4: number
   q4c: string
   q5: number
@@ -130,6 +142,8 @@ export type ExiData = {
   obiettivi: string[]
   decisioni: number[]
   q7c: string
+  /** 2 free-text "Altro" fields for a custom decision not in the fixed decisions list. */
+  q7Altro: string[]
 }
 
 export type RoleProfile = { requiredSkills: string[]; skillWeights?: Record<string, 1 | 2 | 3>; skillExpected?: Record<string, number> }

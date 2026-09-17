@@ -40,7 +40,7 @@
 // backend-dependent actions show the "not connected" error state (§16)
 // until re-bridged.
 import { authApi } from '@/lib/api/endpoints'
-import { clearBackendSession, getAccessToken, getBackendUser, onRoleForbidden, onUnauthorized, setBackendSession } from '@/lib/api/client'
+import { ApiError, clearBackendSession, getAccessToken, getBackendUser, onRoleForbidden, onUnauthorized, setBackendSession } from '@/lib/api/client'
 import { getShellUser } from '@/modules/assessment/lib/shell-bridge'
 
 // Read at build time by Vite; set as VITE_OPERATORE_BRIDGE_PASSWORD on the
@@ -63,6 +63,18 @@ const SHELL_TO_BACKEND: Record<string, { email: string; password: string }> = {
 const FALLBACK = SHELL_TO_BACKEND.operatore
 
 let bridgeInFlight: Promise<boolean> | null = null
+
+// Tracks WHY the most recent bridge login failed, so callers can tell "the
+// backend/DB is unreachable" (connectivity — see entitlements.ts's dev-only
+// fail-open) apart from "the backend answered but said no" (a real auth
+// problem, e.g. a bad seeded password, which should stay visible even in
+// dev). ApiError.network is set by client.ts only when fetch() itself never
+// reached the server; a 5xx means it reached a broken backend (e.g. the
+// local Postgres isn't up) — both count as connectivity, not an auth bug.
+let lastBridgeFailureWasConnectivity = false
+export function wasLastBridgeFailureConnectivity(): boolean {
+  return lastBridgeFailureWasConnectivity
+}
 
 // Phase 34 §2/§16 — REAL BUG FOUND AND FIXED during final QA: this key
 // records WHICH shell user the cached backend session was bridged for. The
@@ -91,8 +103,10 @@ async function performBridgeLogin(): Promise<boolean> {
     } catch {
       /* non-fatal — worst case, the next check just re-bridges unnecessarily */
     }
+    lastBridgeFailureWasConnectivity = false
     return true
-  } catch {
+  } catch (err) {
+    lastBridgeFailureWasConnectivity = err instanceof ApiError && (err.network || err.status >= 500)
     return false
   }
 }

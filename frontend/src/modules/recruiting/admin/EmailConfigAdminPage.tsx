@@ -13,9 +13,9 @@ const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const textareaClass = cn(inputClass, 'w-full min-h-[100px]')
 const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12.5px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12.5px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 const ghostBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3.5 py-1.5 text-[12.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[12.5px] font-bold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 
 function apiErrorMessage(err: unknown): string {
   if (err instanceof ApiError) return err.network ? 'Impossibile contattare il server.' : err.message

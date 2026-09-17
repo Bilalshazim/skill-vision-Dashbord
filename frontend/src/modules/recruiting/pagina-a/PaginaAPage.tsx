@@ -3,8 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { cn } from '@/lib/utils'
 import { EmptyState } from '@/modules/recruiting/components/EmptyState'
-import { addPrescreenedEntry, getActiveOpening } from '@/modules/recruiting/lib/pipeline'
-import { linkExistingCandidateToBackend, patchPrescreenedBackendId, sendTestLinkViaBackend, syncRankingFromBackend } from '@/modules/recruiting/lib/backend-sync'
+import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
+import { sendTestLinkForCandidate, syncRankingFromBackend } from '@/modules/recruiting/lib/backend-sync'
 import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import { usePaginaAData } from '@/modules/recruiting/lib/use-pagina-a-data'
 import { PaginaACandidateRow } from '@/modules/recruiting/pagina-a/PaginaACandidateRow'
@@ -18,7 +18,7 @@ const NO_ACTIVE_OPENING_MESSAGE = 'Seleziona prima una company/opening nella pag
 // 471) — reproduced with the identical --warning-token mapping WinnerCard.tsx
 // already established for that same legacy CSS class, not a new color.
 const goldBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-warning/40 bg-warning/15 px-4 py-2 text-[12.5px] font-semibold text-foreground transition-colors hover:bg-warning/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-warning/40 bg-warning/15 px-4 py-2 text-[12.5px] font-bold text-foreground transition-colors hover:bg-warning/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 
 type SendState =
   | { kind: 'idle' }
@@ -134,36 +134,19 @@ export default function PaginaAPage() {
       // skipped — exactly like legacy's bare `return` here, counted in
       // neither `sent` nor `missingEmail`.
       if (!c || c.testCompleted !== false) continue
-      if (!c.email) {
+      // sendTestLinkForCandidate() (lib/backend-sync.ts) is the same
+      // real send used by the per-row "Invia Lettera e Link Test" button
+      // below — one implementation, two call sites.
+      const result = await sendTestLinkForCandidate(id)
+      if (result.ok) {
+        sent++
+      } else if (result.reason === 'missing-email') {
         missingEmail++
-        continue
-      }
-      // A candidate with no backendCampaignCandidateId cannot have a real
-      // email sent for it as-is — see the send-test investigation: the
-      // previous behavior here (addPrescreenedEntry() with no backend
-      // call) wrote a local "sent" record and counted it in `sent` even
-      // though no email ever left the server. Existing-candidate backfill:
-      // try linkExistingCandidateToBackend() first (finds/creates the
-      // matching backend Candidate + CampaignCandidate by email, no CV
-      // re-upload needed) before giving up — only a genuine failure to
-      // link is counted as `unlinked`, never silently folded into `sent`.
-      let campaignCandidateId = c.backendCampaignCandidateId
-      if (!campaignCandidateId) {
-        const linked = await linkExistingCandidateToBackend(c.id)
-        if (!linked.ok || !linked.candidate.backendCampaignCandidateId) {
-          unlinked++
-          continue
-        }
-        campaignCandidateId = linked.candidate.backendCampaignCandidateId
-      }
-      const backendResult = await sendTestLinkViaBackend(c.id, campaignCandidateId)
-      if (!backendResult.ok) {
+      } else if (result.reason === 'unlinked') {
+        unlinked++
+      } else {
         backendFailed++
-        continue
       }
-      const added = addPrescreenedEntry(c.id, c.name, c.email, true, c.icv)
-      if (added.ok) patchPrescreenedBackendId(activeOpening.id, added.entry.id, backendResult.backendShortlistId)
-      sent++
     }
 
     setSelected(new Set())
@@ -195,10 +178,10 @@ export default function PaginaAPage() {
           <ClipboardCheck className="size-[22px] text-muted-foreground" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Pagina A — Screening pre-test</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Migliori Candidati</h2>
           <p className="text-[13px] text-muted-foreground">
             Candidati con CV caricato ma non ancora sottoposti al test soft skill, ordinati per Match CV/Profilo. Spunta
-            "Promosso al test", aggiungi l'email e invia il link in blocco.
+            "Promosso al test", aggiungi l'email e invia il link in blocco, oppure invia singolarmente da ogni riga.
           </p>
         </div>
       </div>

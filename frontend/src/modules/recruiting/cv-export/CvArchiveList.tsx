@@ -42,7 +42,7 @@ export function CvArchiveList({ candidates }: { candidates: Candidate[] }) {
   const filtered = q ? candidates.filter((c) => c.name.toLowerCase().includes(q)) : candidates
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="rounded-xl border border-border bg-card shadow-sm p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-[15px] font-semibold">
           CV caricati <span className="ml-2 text-[12px] font-medium text-muted-foreground">({filtered.length} di {candidates.length})</span>

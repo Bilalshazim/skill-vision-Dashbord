@@ -49,7 +49,7 @@ export default function ProfileHubPage() {
           >
             <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span className="flex-1 text-[13px] font-medium text-foreground">Scheda professionale</span>
-            <span className="text-[12px] font-medium text-primary">Apri scheda →</span>
+            <span className="text-[12px] font-medium text-foreground dark:text-primary">Apri scheda →</span>
           </button>
         </MasterCard>
 

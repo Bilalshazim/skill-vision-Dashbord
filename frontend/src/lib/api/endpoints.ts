@@ -40,6 +40,12 @@ export const platformsApi = {
 export const companiesApi = {
   list: () => apiGet<BackendCompany[]>('/companies'),
   get: (id: string) => apiGet<BackendCompany>(`/companies/${id}`),
+  redeemAccessCode: (id: string, code: string) => apiPost<BackendCompany>(`/companies/${id}/redeem-access-code`, { code }),
+}
+
+export const assessmentAiApi = {
+  expertReview: (companyName: string, answers: { question: string; answer: string }[]) =>
+    apiPost<{ insight: string }>('/assessment-ai/expert-review', { companyName, answers }),
 }
 
 export type BackendCampaignEvaluator = {
@@ -105,6 +111,8 @@ export const jobProfilesApi = {
     campaignId: string,
     input: { title?: string; header: Record<string, unknown>; sections: Record<string, unknown>; hardSkillGroups: unknown[]; extraRequirements: unknown[]; salaryBenefits: Record<string, unknown> },
   ) => apiPatch<BackendJobProfile>(`/job-profiles/campaign/${campaignId}`, input),
+  approve: (id: string) => apiPost<BackendJobProfile>(`/job-profiles/${id}/approve`),
+  unapprove: (id: string) => apiPost<BackendJobProfile>(`/job-profiles/${id}/unapprove`),
 }
 
 export const cipApi = {

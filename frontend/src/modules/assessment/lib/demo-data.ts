@@ -164,6 +164,7 @@ export function exiDefaultData(): ExiData {
     q2c: 'Manca un sistema strutturato per individuare in modo oggettivo chi ha margini di crescita inespressi.',
     aree: { '9': 8, '2': 6, '5': 5 },
     q3c: "Il turnover nell'area Customer Service resta la criticità più urgente.",
+    q3Altro: ['', '', ''],
     q4: 6.5,
     q4c: 'Alcuni ruoli chiave sono stati assegnati più per necessità organizzativa che per reale idoneità.',
     q5: 6,
@@ -172,6 +173,7 @@ export function exiDefaultData(): ExiData {
     obiettivi: ['Mappare oggettivamente le competenze', 'Individuare i talenti da valorizzare', 'Definire le priorità di formazione'],
     decisioni: [0, 1, 3, 5],
     q7c: 'Vorremmo uno strumento che il team HR possa usare in autonomia.',
+    q7Altro: ['', ''],
   }
 }
 
@@ -192,6 +194,7 @@ export function exiBlankData(companyName: string): ExiData {
     q2c: '',
     aree: {},
     q3c: '',
+    q3Altro: ['', '', ''],
     q4: 7,
     q4c: '',
     q5: 5,
@@ -200,6 +203,7 @@ export function exiBlankData(companyName: string): ExiData {
     obiettivi: ['', '', ''],
     decisioni: [],
     q7c: '',
+    q7Altro: ['', ''],
   }
 }
 

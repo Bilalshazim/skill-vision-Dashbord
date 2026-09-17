@@ -115,7 +115,17 @@ export type Interview = {
 // webhook (§10, no real provider wired) and 'non_ha_risposto' requires
 // OD-8's still-unresolved day-count. A record with no backendShortlistId
 // (below) can never reach either value.
-export type PrescreenStatus = 'da_inviare' | 'inviato' | 'completato' | 'ha_risposto' | 'non_ha_risposto'
+//
+// 'link_pronto' — local-only, added for the "no mail provider configured
+// locally" case (lib/backend-sync.ts sendTestLinkForCandidate(): the real
+// backend dispatch got far enough to generate a real link but genuinely
+// can't email it from this environment). Deliberately its own value, not
+// 'inviato' — the link is real and ready, but nothing has actually been
+// sent yet, so reusing 'inviato' here would be a false "sent" claim (see
+// this file's own §16 discipline elsewhere in this codebase). Only
+// SendTestLinkFallbackModal's explicit "Segna come inviato" (→ 'inviato')
+// closes that gap.
+export type PrescreenStatus = 'da_inviare' | 'inviato' | 'link_pronto' | 'completato' | 'ha_risposto' | 'non_ha_risposto'
 
 export type PrescreenedEntry = {
   id: string

@@ -73,7 +73,7 @@ export default function MatchPage() {
           <div>
             <div className="mb-3 flex items-center gap-3">
               <div className="h-[22px] w-[3px] rounded-sm bg-primary" />
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-primary">Candidati (max 2)</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-foreground dark:text-primary">Candidati (max 2)</span>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {CAND_SLOTS.map((s) => (
@@ -85,7 +85,7 @@ export default function MatchPage() {
           <div>
             <div className="mb-3 flex flex-wrap items-center gap-3">
               <div className="h-[22px] w-[3px] rounded-sm bg-primary" />
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-primary">Talenti Interni — dipendenti (max 5)</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-foreground dark:text-primary">Talenti Interni — dipendenti (max 5)</span>
               {/* "Carica Excel dipendenti →" (modules/recruiting.html line
                   384) opens an admin-only panel (openAdmin(), gated on
                   isAdmin) this migration has no equivalent for — bridged,

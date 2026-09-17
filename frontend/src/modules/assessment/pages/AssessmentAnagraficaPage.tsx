@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 
 import { AddEmployeeModal } from '@/modules/assessment/components/AddEmployeeModal'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
+import { EmployeeSoftSkillModal } from '@/modules/assessment/components/EmployeeSoftSkillModal'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { RoleCensusModal } from '@/modules/assessment/components/RoleCensusModal'
 import { SurveyLinkModal } from '@/modules/assessment/components/SurveyLinkModal'
@@ -24,6 +25,7 @@ export default function AssessmentAnagraficaPage() {
   const [showArchived, setShowArchived] = useState(false)
   const [page, setPage] = useState(1)
   const [drawerId, setDrawerId] = useState<string | null>(null)
+  const [softSkillModalId, setSoftSkillModalId] = useState<string | null>(null)
   const [archiveModalId, setArchiveModalId] = useState<string | null>(null)
   const [showRoleCensus, setShowRoleCensus] = useState(false)
   const [showSurveyLink, setShowSurveyLink] = useState(false)
@@ -76,36 +78,23 @@ export default function AssessmentAnagraficaPage() {
 
   return (
     <div>
-      <div className="rc-entry-row">
-        <div className="card rc-entry-card" role="button" tabIndex={0} onClick={() => setShowRoleCensus(true)} onKeyDown={(e) => e.key === 'Enter' && setShowRoleCensus(true)}>
-          <div className="rc-entry-icon">
-            <Icon name="users" />
-          </div>
-          <div className="rc-entry-text">
-            <h3>{ui.anagRoleSkillsTitle}</h3>
-            <p>{ui.anagRoleSkillsSub}</p>
-          </div>
-          <div className="rc-entry-arrow">
-            <Icon name="chevronRight" />
-          </div>
-        </div>
-        <button className="card rc-linksurvey-btn" type="button" onClick={() => setShowSurveyLink(true)}>
-          <div className="rc-entry-icon">
-            <Icon name="notes" />
-          </div>
-          <div className="rc-linksurvey-text">
-            <span className="rc-linksurvey-title">{ui.linkSurveyBtn}</span>
-            <span className="rc-linksurvey-hint">{ui.linkSurveyHint}</span>
-          </div>
-        </button>
-      </div>
-
       <div className="section-head">
         <div>
           <h2>{ui.anagListTitle}</h2>
           <p>{ui.anagListSub}</p>
         </div>
         <div className="toolbar">
+          {/* Was two full-width header cards ("Competenze trasversali
+              richieste per ruolo" / "Link Survey") — declutter per client
+              feedback: same actions, as compact icon buttons in the
+              toolbar instead of standalone cards. Nothing removed
+              functionally, both still open the same modals. */}
+          <button type="button" className="icon-btn" title={ui.anagRoleSkillsTitle} onClick={() => setShowRoleCensus(true)}>
+            <Icon name="users" />
+          </button>
+          <button type="button" className="icon-btn" title={ui.linkSurveyBtn} onClick={() => setShowSurveyLink(true)}>
+            <Icon name="notes" />
+          </button>
           <div className="search-box">
             <Icon name="search" />
             <input
@@ -217,7 +206,15 @@ export default function AssessmentAnagraficaPage() {
                       <td style={{ color: 'var(--text-2)', whiteSpace: 'nowrap' }}>{e.ral ? fmtCurrency(e.ral) : '—'}</td>
                       <td style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-2)' }}>{e.benefit || '—'}</td>
                       <td>
-                        <span className={`chip ${soft.cls}`}>
+                        <span
+                          className={`chip ${soft.cls}`}
+                          style={{ cursor: 'pointer' }}
+                          title={ui.anagColSoftAssigned}
+                          onClick={(ev) => {
+                            ev.stopPropagation()
+                            setSoftSkillModalId(e.id)
+                          }}
+                        >
                           <span className="dt" />
                           {soft.text}
                         </span>
@@ -275,6 +272,7 @@ export default function AssessmentAnagraficaPage() {
       </div>
 
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
+      {softSkillModalId && <EmployeeSoftSkillModal employeeId={softSkillModalId} onClose={() => setSoftSkillModalId(null)} />}
       {showRoleCensus && <RoleCensusModal onClose={() => setShowRoleCensus(false)} />}
       {showSurveyLink && <SurveyLinkModal onClose={() => setShowSurveyLink(false)} />}
       {showAddEmployee && <AddEmployeeModal onClose={() => setShowAddEmployee(false)} />}

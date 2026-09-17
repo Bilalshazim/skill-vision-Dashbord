@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 
 type ActionState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string }
 const IDLE: ActionState = { kind: 'idle' }
@@ -205,7 +205,7 @@ export function TestResultList({
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className="font-mono text-[14px] font-semibold text-primary tabular-nums">{r.score}/100</span>
+                    <span className="font-mono text-[14px] font-semibold text-foreground tabular-nums dark:text-primary">{r.score}/100</span>
                     <button
                       type="button"
                       onClick={() => handleRemove(r.id)}

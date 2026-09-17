@@ -23,7 +23,7 @@ const ROLE_LABEL = new Map(ROLES.map((r) => [r.value, r.label]))
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const btnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 
 function apiErrorMessage(err: unknown): string {
   return err instanceof ApiError ? err.message : 'Errore sconosciuto'
@@ -211,7 +211,7 @@ export function EvaluatorsBackendPanel() {
                     >
                       <Copy className="size-3 shrink-0" aria-hidden="true" />
                     </button>
-                    <Link to={`/evaluate?evaluatorToken=${encodeURIComponent(token)}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    <Link to={`/evaluate?evaluatorToken=${encodeURIComponent(token)}`} target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline dark:text-primary">
                       Apri come valutatore →
                     </Link>
                   </div>

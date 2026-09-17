@@ -2,6 +2,7 @@ node_modules/
 dist/
 .env
 storage/files/
+storage/test-files/
 *.log
 *.tsbuildinfo
 .DS_Store

@@ -8,6 +8,26 @@ import { exiRiskTier, exiScoreTier, fmt1, round1 } from '@/modules/assessment/li
 import { printReportHtml } from '@/modules/assessment/lib/print'
 import { useNavigate } from 'react-router-dom'
 import type { ExiData } from '@/modules/assessment/lib/types'
+import { assessmentAiApi } from '@/lib/api/endpoints'
+import { ApiError } from '@/lib/api/client'
+import type { getUI } from '@/modules/assessment/lib/legacy-utils'
+
+// The exact Q&A pairs sent to POST /assessment-ai/expert-review (real,
+// server-side Claude call — see backend/src/modules/assessmentAi/routes.ts).
+// Kept to a plain question/answer transcript rather than the raw ExiData
+// shape so the prompt built server-side stays simple and doesn't need to
+// know this module's internal field names.
+function buildInterviewTranscript(a: ExiData, ui: ReturnType<typeof getUI>): { question: string; answer: string }[] {
+  return [
+    { question: ui.exiQ1Title, answer: `${a.q1}/10 — ${a.q1c}` },
+    { question: ui.exiQ2Title, answer: `${a.q2}/10 — ${a.q2c}` },
+    { question: ui.exiQ3Title, answer: [a.q3c, ...a.q3Altro].filter(Boolean).join('; ') },
+    { question: ui.exiQ4Title, answer: `${a.q4}/10 — ${a.q4c}` },
+    { question: ui.exiQ5Title, answer: [...a.rischi, a.q5 ? `${a.q5}/10` : ''].filter(Boolean).join('; ') },
+    { question: ui.exiQ6Title, answer: [...a.obiettivi, a.q6 ? `${a.q6}/10` : ''].filter(Boolean).join('; ') },
+    { question: ui.exiQ7Title, answer: [a.q7c, ...a.q7Altro].filter(Boolean).join('; ') },
+  ].filter((qa) => qa.answer.trim().length > 0)
+}
 
 // Migrated from renderAnalisi()/renderExiReport()/renderExiWizard()/
 // exiPrintReport()/exiExportJson() (js/assessment.js ~5892-6360) — the
@@ -36,7 +56,19 @@ export default function AssessmentAnalisiPage() {
 }
 
 function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: { a: ExiData; onNewInterview: () => void; onEditAnswers: () => void; onStartAssessment: () => void }) {
-  const { setState, lang, ui, canEdit, toast } = useAssessment()
+  const { setState, lang, ui, canEdit, toast, state } = useAssessment()
+  const [expertReview, setExpertReview] = useState<{ status: 'idle' | 'loading' | 'done' | 'error'; text?: string }>({ status: 'idle' })
+
+  async function requestExpertReview() {
+    setExpertReview({ status: 'loading' })
+    try {
+      const transcript = buildInterviewTranscript(a, ui)
+      const { insight } = await assessmentAiApi.expertReview(state.settings.companyName || 'Azienda', transcript)
+      setExpertReview({ status: 'done', text: insight })
+    } catch (err) {
+      setExpertReview({ status: 'error', text: err instanceof ApiError ? err.message : 'Errore di connessione' })
+    }
+  }
 
   const v1 = a.q1
   const v2 = a.q2
@@ -348,6 +380,28 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
         >
           {ui.exiCtaBtn}
         </button>
+      </div>
+
+      {/* "CONSIDERAZIONI DELL'ESPERTO" — a real, server-side Claude call
+          (backend/src/modules/assessmentAi/routes.ts) reviewing this exact
+          interview's answers, for the consultant to read with the client.
+          Distinct from the fully-local "Assistenza AI" page/canned Q&A
+          (AssessmentAiPage.tsx) — this is genuine generative text, so it
+          can be slow/fail (network, quota), unlike that page's instant
+          local answers. */}
+      <div className="card" style={{ marginTop: 18 }}>
+        <button className="btn btn-primary" onClick={requestExpertReview} disabled={expertReview.status === 'loading'}>
+          <Icon name="sparkles" />
+          {expertReview.status === 'loading' ? ui.exiExpertReviewLoading : ui.exiExpertReviewBtn}
+        </button>
+        {expertReview.status === 'done' && (
+          <p style={{ marginTop: 12, whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{expertReview.text}</p>
+        )}
+        {expertReview.status === 'error' && (
+          <p role="alert" style={{ marginTop: 12, color: 'var(--danger)' }}>
+            {expertReview.text}
+          </p>
+        )}
       </div>
 
       <div className="exi-footer-note" dangerouslySetInnerHTML={{ __html: ui.exiFooterNote }} />

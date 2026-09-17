@@ -13,7 +13,7 @@ const inputClass =
 // every other "+ Aggiungi..." button uses — reproduced here as the
 // --warning token (the app's semantic gold/amber) rather than --primary.
 const goldBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-warning/40 bg-warning/15 px-3 py-1.5 text-[11.5px] font-semibold text-foreground transition-colors hover:bg-warning/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-warning/40 bg-warning/15 px-3 py-1.5 text-[11.5px] font-bold text-foreground transition-colors hover:bg-warning/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 
 type ActionState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string }
 const IDLE: ActionState = { kind: 'idle' }

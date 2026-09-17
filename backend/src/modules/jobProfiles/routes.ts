@@ -1,8 +1,11 @@
+import crypto from 'node:crypto'
+
 import type { Prisma } from '@prisma/client'
 import { Router } from 'express'
 import { z } from 'zod'
 
 import { audit } from '../../lib/audit.js'
+import { ConflictError, NotFoundError } from '../../lib/errors.js'
 import { prisma } from '../../lib/prisma.js'
 import { requireAuth, requireCompanyScope, requireRole } from '../../middleware/auth.js'
 import { validateBody } from '../../middleware/validate.js'
@@ -68,6 +71,49 @@ jobProfilesRouter.patch('/campaign/:campaignId', requireRole('RECRUITER', 'COMPA
     })
     await audit(prisma, { actorUserId: req.auth!.sub, action: 'job_profile.saved', entityType: 'JobProfile', entityId: profile.id })
     res.status(201).json(profile)
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Client §3 — "Approvata" toggle + publication link, generated once on
+// first approval and kept stable across a later unapprove/re-approve of
+// this SAME row (a later edit creates a brand-new JobProfile row per the
+// existing versioning scheme above, which starts unapproved again — that's
+// intentional, not a gap: an edited profile needs a fresh approval).
+async function requireJobProfileCompanyScope(req: Parameters<typeof requireCompanyScope>[0], jobProfileId: string) {
+  const profile = await prisma.jobProfile.findUnique({ where: { id: jobProfileId }, include: { campaign: true } })
+  if (!profile) throw new NotFoundError('Job profile not found')
+  requireCompanyScope(req, profile.campaign.companyId)
+  return profile
+}
+
+jobProfilesRouter.post('/:id/approve', requireRole('RECRUITER', 'COMPANY_ADMIN'), async (req, res, next) => {
+  try {
+    const profile = await requireJobProfileCompanyScope(req, req.params.id)
+    if (profile.approved) {
+      res.json(profile)
+      return
+    }
+    const publicationLink = profile.publicationLink || `https://dashboard.skill-vision.it/jd/${crypto.randomBytes(12).toString('hex')}`
+    const approved = await prisma.jobProfile.update({
+      where: { id: profile.id },
+      data: { approved: true, approvedById: req.auth!.sub, approvedAt: new Date(), publicationLink },
+    })
+    await audit(prisma, { actorUserId: req.auth!.sub, action: 'job_profile.approved', entityType: 'JobProfile', entityId: profile.id })
+    res.json(approved)
+  } catch (err) {
+    next(err)
+  }
+})
+
+jobProfilesRouter.post('/:id/unapprove', requireRole('RECRUITER', 'COMPANY_ADMIN'), async (req, res, next) => {
+  try {
+    const profile = await requireJobProfileCompanyScope(req, req.params.id)
+    if (!profile.approved) throw new ConflictError('Job profile is not approved')
+    const updated = await prisma.jobProfile.update({ where: { id: profile.id }, data: { approved: false } })
+    await audit(prisma, { actorUserId: req.auth!.sub, action: 'job_profile.unapproved', entityType: 'JobProfile', entityId: profile.id })
+    res.json(updated)
   } catch (err) {
     next(err)
   }

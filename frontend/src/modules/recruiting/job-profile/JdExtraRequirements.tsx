@@ -6,7 +6,7 @@ import type { JdExtraRow } from '@/modules/recruiting/lib/jd-types'
 import { inputClass } from '@/modules/recruiting/job-profile/JdSection'
 
 const ghostBtnClass =
-  'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-dashed border-border px-3 py-2 text-[12px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-dashed border-border px-3 py-2 text-[12px] font-bold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 // Migrated from extraSectionHTML()/updateExtra()/addExtraRow()/removeExtra()
 // (modules/recruiting.html ~4035-4046, ~4147-4149) — always starts seeded

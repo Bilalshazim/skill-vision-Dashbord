@@ -59,7 +59,17 @@ export default function AssessmentHomePage() {
   const worstRole = orgCriticalRoles(state, lang, 1)[0]
   const worstSkill = worstCompetenza(state, lang, f)
   const severeCount = hs.ranked.filter((r) => round1(r.score - hs.benchmark) <= -2).length
-  const detailPage = both ? 'valore' : f.A ? 'soft' : 'hard'
+  // Bug fix: this used to always land on 'valore' ("Valori Complessivi")
+  // when both modules were active — a different screen entirely (overall
+  // individual value, not an organizational problem breakdown), so "Vedi
+  // Analisi Dettagliata" never actually showed the detailed analysis of
+  // the critical area this card itself just computed. Now routes to
+  // whichever domain's results page (soft/hard) is the more critical one —
+  // the lower of the two average metrics — or the single active module's
+  // results page when only one is active.
+  const softAvgForDetail = computeAvgMetric(state, lang, 'soft')
+  const hardAvgForDetail = computeAvgMetric(state, lang, 'hard')
+  const detailPage = both ? (softAvgForDetail <= hardAvgForDetail ? 'soft-risultati' : 'hard-risultati') : f.A ? 'soft-risultati' : 'hard-risultati'
   const rowDotColor = (gapVal: number) => (gapVal <= -2 ? 'var(--danger)' : gapVal < 0 ? 'var(--warning)' : 'var(--success)')
 
   const tiers = hs.tiers
@@ -135,7 +145,10 @@ export default function AssessmentHomePage() {
                 <span className="icon-chip success">
                   <Icon name="activity" />
                 </span>
-                <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ1Title}</h3>
+                <div>
+                  <div className="card-eyebrow">{ui.homeQ1Kicker}</div>
+                  <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ1Title}</h3>
+                </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                 <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
@@ -219,7 +232,10 @@ export default function AssessmentHomePage() {
               <span className="icon-chip danger">
                 <Icon name="alertTriangle" />
               </span>
-              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ2Title}</h3>
+              <div>
+                <div className="card-eyebrow">{ui.homeQ2Kicker}</div>
+                <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ2Title}</h3>
+              </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
               <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
@@ -291,7 +307,10 @@ export default function AssessmentHomePage() {
               <span className="icon-chip accent">
                 <Icon name="users" />
               </span>
-              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ3Title}</h3>
+              <div>
+                <div className="card-eyebrow">{ui.homeQ3Kicker}</div>
+                <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ3Title}</h3>
+              </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
               <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
@@ -354,7 +373,10 @@ export default function AssessmentHomePage() {
               <span className="icon-chip warning">
                 <Icon name="checkSquare" />
               </span>
-              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ4Title}</h3>
+              <div>
+                <div className="card-eyebrow">{ui.homeQ4Kicker}</div>
+                <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ4Title}</h3>
+              </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
               <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>

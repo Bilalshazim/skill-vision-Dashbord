@@ -53,7 +53,8 @@ model User {
   campaignsGeneratedCip     Cip[]                        @relation("CipVoidedBy")
   cvsUploaded               Cv[]
   storedFilesUploaded       StoredFile[]
-  jobProfilesCreated        JobProfile[]
+  jobProfilesCreated        JobProfile[]                @relation("JobProfileCreatedBy")
+  jobProfilesApproved       JobProfile[]                @relation("JobProfileApprovedBy")
   shortlistEntriesAdded     Shortlist[]
   testInvitationsCreated    TestInvitation[]
   interviewsCreated         Interview[]
@@ -128,13 +129,40 @@ model Company {
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
 
+  // Real, server-enforced module entitlements — a locked module (Recruiting
+  // or Assessment) in the frontend checks this via GET /companies/:id, and
+  // POST /companies/:id/redeem-access-code is the only way to add to it.
+  // Empty by default: a Company must be explicitly entitled, never assumed.
+  purchasedModules PlatformModule[] @default([])
+
   users          User[]
   campaigns      Campaign[]
   evaluators     Evaluator[]
   senderConfigs  SenderConfig[]
   emailTemplates EmailTemplate[]
+  redeemedCodes  AccessCode[]
 
   @@index([platformId])
+}
+
+enum PlatformModule {
+  RECRUITING
+  ASSESSMENT
+}
+
+// One row per issuable access code. `companyId`/`redeemedAt` are null until
+// redeemed — a code is single-use and, once redeemed, permanently tied to
+// the Company that redeemed it (never transferable, never re-redeemable).
+model AccessCode {
+  id         String         @id @default(uuid())
+  code       String         @unique
+  module     PlatformModule
+  companyId  String?
+  company    Company?       @relation(fields: [companyId], references: [id])
+  redeemedAt DateTime?
+  createdAt  DateTime       @default(now())
+
+  @@index([companyId])
 }
 
 enum CampaignStatus {
@@ -346,9 +374,24 @@ model JobProfile {
   extraRequirements Json   @default("[]")
   salaryBenefits  Json     @default("{}")
   createdById     String
-  createdBy       User     @relation(fields: [createdById], references: [id])
+  createdBy       User     @relation("JobProfileCreatedBy", fields: [createdById], references: [id])
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  // Client §3 (Pagina Scheda Professionale) — "Approvata" toggle that
+  // generates a publication link on final save. Deliberately a plain
+  // boolean, not CandidateProfile's multi-stage status machine (DRAFT/
+  // SAVED/APPROVED/PUBLICATION_READY/PUBLISHED): the client asked for a
+  // single toggle/flag, and JobProfile already has its own versioning
+  // scheme (every save creates a new row, see jobProfiles/routes.ts) that
+  // makes a full status machine per-version unnecessary complexity. The
+  // link is generated once, on first approval, and kept stable across a
+  // later unapprove/re-approve of the SAME row.
+  approved        Boolean   @default(false)
+  approvedById    String?
+  approvedBy      User?     @relation("JobProfileApprovedBy", fields: [approvedById], references: [id])
+  approvedAt      DateTime?
+  publicationLink String?
 
   matchResults CvMatchResult[]
 

@@ -18,12 +18,21 @@ import { useSharedLang } from '@/hooks/use-shared-lang'
 // and Recruiting) and once more directly by AssessmentLayout's own shell
 // (Assessment deliberately sits outside AppShell — see its comment in
 // App.tsx) — same component both times, never a second implementation.
+// Harmonized with Assessment's own tab-switcher pattern, .view-tab
+// (frontend/src/modules/assessment/styles/assessment-scoped.css:423-425) —
+// pill shape (rounded-full, not rounded-md), 12.5px/600-weight type, and a
+// solid primary fill (not a tinted 10%-opacity background) for the active
+// state, matching .view-tab.active's `background: var(--accent); color:
+// #0D0C0A` exactly (bg-primary/text-primary-foreground resolve to the same
+// values here). This is the ONE Topbar instance shared by both Home/
+// Recruiting and Assessment (see the module comment above), so this single
+// change makes the switcher look the same everywhere it renders.
 const navLinkBase = cn(
-  'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors',
+  'flex items-center gap-2 rounded-full px-3.5 py-2 text-[12.5px] font-semibold whitespace-nowrap transition-colors',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
 )
-const navLinkInactive = 'border border-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-const navLinkActive = 'border border-primary/20 bg-primary/10 text-foreground'
+const navLinkInactive = 'border border-border bg-card text-muted-foreground hover:bg-secondary hover:text-foreground'
+const navLinkActive = 'border border-primary bg-primary font-bold text-primary-foreground'
 
 function ModuleLinks({ onNavigate, layout = 'row' }: { onNavigate?: () => void; layout?: 'row' | 'column' }) {
   return (

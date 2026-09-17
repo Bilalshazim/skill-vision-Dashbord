@@ -43,6 +43,11 @@ export const env = {
   resendApiKey: process.env.RESEND_API_KEY || '',
   mailFrom: process.env.MAIL_FROM || '',
   mailFromName: process.env.MAIL_FROM_NAME || 'Skill Vision',
+  // "CONSIDERAZIONI DELL'ESPERTO" (Assessment interview summary) — the ONLY
+  // module that reads this is modules/assessmentAi/routes.ts; never logged,
+  // never returned in any response. Not required(): the button shows a
+  // clear "not configured" error rather than the server failing to boot.
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
 }
 
 // Name kept as `smtpConfigured` — shortlist/routes.ts and emailConfig/routes.ts

@@ -1,6 +1,6 @@
 import type { AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import { getUI } from '@/modules/assessment/lib/legacy-utils'
-import type { AssessmentState, RoleProfile } from '@/modules/assessment/lib/types'
+import type { AssessmentState, Employee, RoleProfile } from '@/modules/assessment/lib/types'
 
 // Ported verbatim from ensureRoleProfile()/roleSkillCounts()/
 // applyRoleSkillToEmployees()/cycleRoleSkillWeight()/setRoleSkillExpected()
@@ -53,6 +53,28 @@ export function applyRoleSkillToEmployees(state: AssessmentState, role: string, 
     if (!e.soft[skillId]) e.soft[skillId] = { ottenuto: 6, atteso: 6 }
     e.soft[skillId].atteso = expected
   })
+}
+
+// Per-individual override (set via EmployeeSoftSkillModal.tsx) takes
+// precedence over the role's own weighted skill list — used everywhere
+// an "expected soft-skill profile" for one employee is rendered (Employee
+// Drawer, downloadable report), so a person assigned a custom list based
+// on their Ruolo+Mansione sees their own skills, not just their role's.
+export function getEmployeeExpectedSkillIds(state: AssessmentState, emp: Employee): string[] {
+  if (emp.softSkillOverrides) return emp.softSkillOverrides
+  const rp = state.roleProfiles[emp.ruolo]
+  return rp?.skillWeights ? Object.keys(rp.skillWeights) : []
+}
+
+// A skill outside the role's own skillWeights map (only possible for an
+// overridden employee's extra skill) has no role-defined weight/expected —
+// falls back to Essenziale/8, matching what setExpected()'s own default
+// (js/assessment.js ~5010) uses for a freshly-weighted skill.
+export function getEmployeeSkillWeight(state: AssessmentState, emp: Employee, skillId: string): { weight: 1 | 2 | 3; expected: number } {
+  const rp = state.roleProfiles[emp.ruolo]
+  const weight = (rp?.skillWeights?.[skillId] as 1 | 2 | 3 | undefined) || 3
+  const expected = rp?.skillExpected?.[skillId] ?? 8
+  return { weight, expected }
 }
 
 export function weightLabel(w: number, lang: AssessmentLang): string {

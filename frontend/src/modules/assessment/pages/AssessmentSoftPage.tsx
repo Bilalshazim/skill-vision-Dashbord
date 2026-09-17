@@ -5,6 +5,7 @@ import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { SoftEvalModal } from '@/modules/assessment/components/SoftEvalModal'
 import { StatTile } from '@/modules/assessment/components/StatTile'
+import { SurveyLinkModal } from '@/modules/assessment/components/SurveyLinkModal'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { computeSoftSummary, gapInterpretation, matchCellClasses, orgWorstSoftSkills } from '@/modules/assessment/lib/calculations'
 import { avg, fmt1, getBigFiveDims, getSoftClusters, getSoftSkills, initials, round1 } from '@/modules/assessment/lib/legacy-utils'
@@ -24,10 +25,16 @@ const BF_ORDER = ['O', 'C', 'E', 'A', 'S'] as const
 // state changed — a component defined inside another component gets a new
 // identity on every parent render, forcing a full unmount/remount of
 // whatever's inside it.
-export default function AssessmentSoftPage() {
+// `defaultView` lets the "Area Valutazioni" (id:'soft', evaluation entry)
+// and "Risultati" (id:'soft-risultati', reporting) nav items open the same
+// tab set on a different default tab, rather than duplicating all 6 tabs'
+// chart/calculation logic into a second page — see
+// pages/AssessmentSoftRisultatiPage.tsx.
+export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultView?: SoftView }) {
   const { canEdit, ui } = useAssessment()
-  const [view, setView] = useState<SoftView>('org')
+  const [view, setView] = useState<SoftView>(defaultView)
   const [showEvalModal, setShowEvalModal] = useState(false)
+  const [showSurveyLink, setShowSurveyLink] = useState(false)
   const [drawerId, setDrawerId] = useState<string | null>(null)
   const [selectedEmp, setSelectedEmp] = useState<string | null>(null)
   const [rankSort, setRankSort] = useState<'score' | 'gap'>('score')
@@ -35,10 +42,16 @@ export default function AssessmentSoftPage() {
 
   useTopbarActions(
     canEdit ? (
-      <button className="btn btn-primary" onClick={() => setShowEvalModal(true)}>
-        <Icon name="plus" />
-        {ui.newEvaluation}
-      </button>
+      <>
+        <button className="btn" onClick={() => setShowSurveyLink(true)}>
+          <Icon name="notes" />
+          {ui.surveyInviaLinkTestBtn}
+        </button>
+        <button className="btn btn-primary" onClick={() => setShowEvalModal(true)}>
+          <Icon name="plus" />
+          {ui.newEvaluation}
+        </button>
+      </>
     ) : null,
     [canEdit, ui],
   )
@@ -70,6 +83,7 @@ export default function AssessmentSoftPage() {
       {view === 'match' && <SoftMatchView match={match} onChangeMatch={setMatch} />}
 
       {showEvalModal && <SoftEvalModal onClose={() => setShowEvalModal(false)} />}
+      {showSurveyLink && <SurveyLinkModal onClose={() => setShowSurveyLink(false)} />}
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
     </div>
   )
@@ -197,12 +211,18 @@ function SoftAlfaView({ onOpenDrawer }: { onOpenDrawer: (id: string) => void }) 
               <th>{ui.colObtained}</th>
               <th>{ui.colExpected}</th>
               <th>{ui.colGap}</th>
+              <th>{ui.softColDispatchDate}</th>
+              <th>{ui.softColAwaitingTest} / {ui.softColTestDone}</th>
             </tr>
           </thead>
           <tbody>
             {list.map((e) => {
               const s = computeSoftSummary(e, lang)
               const gi = gapInterpretation(s.gapOverall, lang)
+              // "Test effettuato" = a soft evaluation was recorded at/after the
+              // last dispatch; otherwise, if a link was ever sent, the test is
+              // still pending. No dispatch at all shows neither status badge.
+              const testDone = !!e.surveySentAt && e.softHistory.some((h) => new Date(h.date).getTime() >= new Date(e.surveySentAt!).getTime())
               return (
                 <tr key={e.id} onClick={() => onOpenDrawer(e.id)}>
                   <td>
@@ -215,6 +235,25 @@ function SoftAlfaView({ onOpenDrawer }: { onOpenDrawer: (id: string) => void }) 
                   <td>{fmt1(s.overallAtteso)}</td>
                   <td>
                     <span className={`gap-tag ${gi.tag}`}>{fmt1(s.gapOverall)}</span>
+                  </td>
+                  <td style={{ color: 'var(--text-2)', whiteSpace: 'nowrap' }}>{e.surveySentAt ? new Date(e.surveySentAt).toLocaleDateString(lang === 'it' ? 'it-IT' : 'en-US') : '—'}</td>
+                  <td>
+                    {!e.surveySentAt ? (
+                      <span className="chip chip-gray">
+                        <span className="dt" />
+                        {ui.softStatusNotSent}
+                      </span>
+                    ) : testDone ? (
+                      <span className="chip chip-green">
+                        <span className="dt" />
+                        {ui.softColTestDone}
+                      </span>
+                    ) : (
+                      <span className="chip chip-amber">
+                        <span className="dt" />
+                        {ui.softColAwaitingTest}
+                      </span>
+                    )}
                   </td>
                 </tr>
               )

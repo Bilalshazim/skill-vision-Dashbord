@@ -8,9 +8,9 @@ import { inputClass } from '@/modules/recruiting/job-profile/JdSection'
 
 const EMPTY_LEVEL: SalaryLevelRecord = { min: '', max: '', variableChoice: '', variablePct: '' }
 const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const dangerBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3.5 py-1.5 text-[12px] font-semibold text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[12px] font-bold text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 // Migrated from the Salary & Benefits sub-feature (modules/recruiting.html
 // ~4407-4478) — a SEPARATE storage model (apex5d_salary_benefits) from the

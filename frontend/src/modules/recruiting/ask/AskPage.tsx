@@ -12,9 +12,9 @@ import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/st
 const textareaClass =
   'w-full min-h-[70px] resize-y rounded-md border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 const ghostBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3.5 py-1.5 text-[12px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[12px] font-bold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const chipClass =
   'rounded-full border border-border bg-secondary px-3 py-1.5 text-[12px] font-medium text-foreground transition-colors hover:border-ring hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
@@ -110,7 +110,7 @@ export default function AskPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
         <h3 className="text-[15px] font-semibold">💬 Chiedi a Skill-Vision AI</h3>
         <p className="mt-1 text-[12.5px] text-muted-foreground">
           Fai una domanda libera sui dati della piattaforma: un candidato specifico, un'analisi comparativa, l'interpretazione di un ranking…
@@ -152,7 +152,7 @@ export default function AskPage() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
         <div className="flex flex-col gap-3">
           {askedQuestions.length === 0 ? (
             <div className="rounded-md bg-secondary px-3.5 py-2.5 text-[13px]">

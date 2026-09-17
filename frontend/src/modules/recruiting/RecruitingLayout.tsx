@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 
+import { ModuleLockGate } from '@/components/ModuleLockGate'
+import { RecruitingHeader } from '@/modules/recruiting/components/RecruitingHeader'
 import { RecruitingNav } from '@/modules/recruiting/components/RecruitingNav'
 // Shared shell-session check — same module Assessment already uses (see
 // its own AssessmentAuthGuard for the identical pattern). Not module-specific
@@ -45,7 +47,12 @@ export default function RecruitingLayout() {
         <RecruitingNav />
         <div className="min-w-0 flex-1">
           <BackendStatusBanner status={backend.status} />
-          <Outlet />
+          <ModuleLockGate module="RECRUITING">
+            <div className="mb-4">
+              <RecruitingHeader />
+            </div>
+            <Outlet />
+          </ModuleLockGate>
         </div>
       </div>
     </RecruitingAuthGuard>

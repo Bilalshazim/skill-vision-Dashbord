@@ -51,17 +51,23 @@ export type RecruitingNavItem = {
   roles?: string[]
 }
 
+// Client-requested reorder/rename (10-item index) — same screens/routes as
+// before, just a new order and new Italian labels. `screen` keys are kept
+// stable (they're referenced elsewhere, e.g. page-local logic keyed off the
+// active nav item) even where the label changed; only 'jd' picked up a
+// clearer id-adjacent comment since its label change is the least obvious
+// mapping (Profilo di Lavoro -> Profilo Candidatura).
 export const RECRUITING_NAV_ITEMS: RecruitingNavItem[] = [
-  { screen: 'home', label: 'Menu', icon: LayoutDashboard, to: '/recruiting', end: true },
-  { screen: 'profilo', label: 'Report', icon: FileBarChart, to: '/recruiting/profile' },
-  { screen: 'jd', label: 'Profilo di Lavoro', icon: FileText, to: '/recruiting/job-profile' },
+  { screen: 'home', label: 'Inizia', icon: LayoutDashboard, to: '/recruiting', end: true },
+  { screen: 'profilo', label: 'Menu', icon: FileBarChart, to: '/recruiting/profile' },
+  { screen: 'jd', label: 'Profilo Candidatura', icon: FileText, to: '/recruiting/job-profile' },
   { screen: 'cv', label: 'CV & Esportazione', icon: FileText, to: '/recruiting/cv' },
-  { screen: 'paginaA', label: 'Pagina A', icon: ClipboardCheck, to: '/recruiting/pagina-a' },
-  { screen: 'ranking', label: 'Classifica', icon: Trophy, to: '/recruiting/ranking' },
+  { screen: 'pipeline', label: 'CV Elaborati', icon: Workflow, to: '/recruiting/pipeline' },
+  { screen: 'paginaA', label: 'Migliori Candidati', icon: ClipboardCheck, to: '/recruiting/pagina-a' },
+  { screen: 'ranking', label: 'Risultati', icon: Trophy, to: '/recruiting/ranking' },
   { screen: 'match', label: 'Partita interna', icon: ArrowLeftRight, to: '/recruiting/match' },
   { screen: 'formule', label: 'Metodo', icon: Sigma, to: '/recruiting/metodo' },
   { screen: 'ai', label: 'Ask', icon: Sparkles, to: '/recruiting/ask' },
-  { screen: 'pipeline', label: 'Pipeline', icon: Workflow, to: '/recruiting/pipeline' },
   { screen: 'cipAdmin', label: 'CIP', icon: IdCard, to: '/recruiting/admin/cip', roles: ['PLATFORM_ADMIN'] },
   { screen: 'emailAdmin', label: 'Email', icon: Mail, to: '/recruiting/admin/email', roles: ['PLATFORM_ADMIN', 'COMPANY_ADMIN'] },
 ]

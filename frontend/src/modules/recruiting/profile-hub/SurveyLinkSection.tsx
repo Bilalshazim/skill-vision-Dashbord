@@ -9,11 +9,11 @@ import { clearSurveyLink, isValidUrl, loadSurveyLink, saveSurveyLink } from '@/m
 const inputClass =
   'w-full rounded-md border border-border bg-background px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
 const ghostBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3.5 py-1.5 text-[12px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[12px] font-bold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const dangerBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3.5 py-1.5 text-[12px] font-semibold text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[12px] font-bold text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 // Ported verbatim from the "Survey Link" teaser row (modules/recruiting.html
 // ~278-282) + its modal (svModalOv ~681-693, openSurveyModal()/saveSvUrl()/
@@ -85,7 +85,7 @@ export function SurveyLinkSection() {
             <Link2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span className="flex-1 text-[13px] font-medium text-foreground">Survey Link</span>
             <span className={cn('truncate text-[12px]', has ? 'text-foreground' : 'text-muted-foreground')}>{has ? link.replace(/^https?:\/\//, '').slice(0, 32) + '…' : 'Non configurato'}</span>
-            <span className="shrink-0 text-[12px] font-medium text-primary">Configura link →</span>
+            <span className="shrink-0 text-[12px] font-medium text-foreground dark:text-primary">Configura link →</span>
           </button>
         </DialogTrigger>
         <DialogContent>

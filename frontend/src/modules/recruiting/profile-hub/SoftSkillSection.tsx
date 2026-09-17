@@ -49,7 +49,7 @@ export function SoftSkillSection() {
         >
           <span className="text-[12px] text-muted-foreground">Scegliere almeno 6 ESSENZIALI - 4 IMPORTANTI e 2 UTILI</span>
           <span className="text-[13px] font-semibold text-foreground">{flaggedCount > 0 ? `${flaggedCount} selezionate (${essentialCount} essenziali)` : '0 selezionate'}</span>
-          <span className="text-[12px] font-medium text-primary">Apri selezione →</span>
+          <span className="text-[12px] font-medium text-foreground dark:text-primary">Apri selezione →</span>
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-[calc(100%-4rem)] lg:max-w-[1150px]">

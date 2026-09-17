@@ -145,7 +145,14 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
     if (outcome.networkError) toast(ui.toastSurveyApiError(outcome.results[0]?.error || ''), 'err')
     else if (okCount === 0) toast(ui.toastSurveySendAllFailed, 'err')
     else if (failCount === 0) toast(ui.toastSurveySendAllOk(okCount), 'ok')
+    markDispatched(outcome.results.filter((r) => r.success).map((r) => r.id))
     setResults({ recipients, results: outcome.results })
+  }
+
+  function markDispatched(ids: string[]) {
+    if (!ids.length) return
+    const now = new Date().toISOString()
+    setState((prev) => ({ ...prev, employees: prev.employees.map((e) => (ids.includes(e.id) ? { ...e, surveySentAt: now } : e)) }))
   }
 
   function mailtoFallback() {
@@ -160,6 +167,7 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
         else window.open(mailto, '_blank')
       }, i * 350)
     })
+    markDispatched(recipients.map((r) => r.id))
     toast(ui.toastSurveyMailtoOpened(recipients.length), 'ok')
   }
 

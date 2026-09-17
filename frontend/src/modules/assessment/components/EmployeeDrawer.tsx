@@ -8,7 +8,7 @@ import { computeBigFive, computeHardSummary, computeSoftSummary, gapInterpretati
 import { buildAssessmentReportPayload, renderAssessmentReportPrintHtml } from '@/modules/assessment/lib/employee-report'
 import { archiveReasonLabel, assessmentSourceLabel, contractTypeDisplayLabel, fmt1, fmtCurrency, genderDisplayLabel, getBigFiveDims } from '@/modules/assessment/lib/legacy-utils'
 import { printReportHtml } from '@/modules/assessment/lib/print'
-import { SKILL_WEIGHT_LEVELS, weightLabel } from '@/modules/assessment/lib/role-census'
+import { getEmployeeExpectedSkillIds, getEmployeeSkillWeight, SKILL_WEIGHT_LEVELS, weightLabel } from '@/modules/assessment/lib/role-census'
 import type { Employee } from '@/modules/assessment/lib/types'
 
 const BF_ORDER = ['O', 'C', 'E', 'A', 'S'] as const
@@ -66,8 +66,7 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
     toast(ui.toastReportOpening, 'ok')
   }
 
-  const rp = state.roleProfiles[emp.ruolo]
-  const weightedIds = rp?.skillWeights ? Object.keys(rp.skillWeights) : []
+  const weightedIds = getEmployeeExpectedSkillIds(state, emp)
 
   return (
     <>
@@ -164,9 +163,8 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
                   {computeSoftSummary(emp, lang)
                     .perSkill.filter((s) => weightedIds.includes(s.id))
                     .map((s) => {
-                      const w = rp!.skillWeights![s.id]
+                      const { weight: w, expected } = getEmployeeSkillWeight(state, emp, s.id)
                       const lvl = SKILL_WEIGHT_LEVELS[w]
-                      const expected = rp!.skillExpected?.[s.id] ?? 8
                       return (
                         <div className="rc-skill-row" key={s.id}>
                           <span className="rc-skill-name">{s.name}</span>

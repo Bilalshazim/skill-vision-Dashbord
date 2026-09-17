@@ -73,6 +73,36 @@ export function setActiveContext(companyId: string, openingId: string): { compan
   return { company, opening }
 }
 
+// Client §1 — the new Recruiting header's editable "Company Name"/
+// "Campaign Name" fields. Renames the SAME local Company/JobOpening record
+// every other screen already reads via getActiveOpening() — not a second,
+// header-only copy of the name — so a rename here is immediately visible
+// everywhere else (Pipeline, Pagina A, CV & Esportazione's own selector).
+// A rename does NOT touch lib/backend-link.ts's cached companyId/campaignId
+// (keyed by the local company/opening id, not by name), so an
+// already-resolved backend link survives a rename unaffected; only the
+// NEXT resolveBackendLink() call for a not-yet-linked opening would look up
+// the backend Company by the new name.
+export function renameCompany(companyId: string, name: string): void {
+  const trimmed = name.trim()
+  if (!trimmed) return
+  const state = readCvMatchingState()
+  const company = state.companies.find((c) => c.id === companyId)
+  if (!company) return
+  company.name = trimmed
+  writeCvMatchingState(state)
+}
+
+export function renameOpening(companyId: string, openingId: string, title: string): void {
+  const trimmed = title.trim()
+  if (!trimmed) return
+  const state = readCvMatchingState()
+  const opening = state.companies.find((c) => c.id === companyId)?.jobOpenings?.find((o) => o.id === openingId)
+  if (!opening) return
+  opening.title = trimmed
+  writeCvMatchingState(state)
+}
+
 // Ported verbatim from plId() (modules/recruiting.html line ~1947).
 function plId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
@@ -253,7 +283,7 @@ export type SetPrescreenStatusResult =
 // 11C-1, pipeline/PrescreenedList.tsx) is what now supplies `target`.
 export function setPrescreenStatus(
   recordId: string,
-  status: Extract<PrescreenStatus, 'inviato'>,
+  status: Extract<PrescreenStatus, 'inviato' | 'link_pronto'>,
   target?: PipelineTarget,
 ): SetPrescreenStatusResult {
   const state = readCvMatchingState()

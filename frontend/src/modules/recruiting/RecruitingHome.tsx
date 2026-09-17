@@ -7,6 +7,39 @@ import { QualityChart } from '@/modules/recruiting/components/QualityChart'
 import { UpcomingList } from '@/modules/recruiting/components/UpcomingList'
 import { useRecruitingHomeData } from '@/modules/recruiting/lib/use-recruiting-home-data'
 
+// Client-requested nav rename: this route (index, now labeled "Inizia" —
+// see nav-config.ts) is asked to be "the 'From Search to Talent' landing
+// page". The KPI dashboard below is real, working functionality that isn't
+// named anywhere else in the client's 10-item index, so rather than discard
+// it, this hero is added ON TOP of it — "Inizia" becomes a real landing
+// moment for the module without losing the dashboard.
+function StartHero() {
+  return (
+    <div className="rounded-xl border border-border bg-gradient-to-br from-primary/10 via-card to-card px-6 py-8 sm:px-8 sm:py-10">
+      <div className="flex items-center gap-2">
+        {/* The official Recruiting module icon — the exact same glyph as
+            the legacy landing page's "Cruscotto Recruiting" card and the
+            top-bar module switcher (see nav-config.ts). currentColor +
+            text-foreground makes it theme-adaptive for free: --foreground
+            is a dark near-black in light mode and a light cream in dark
+            mode, so this never needs a separate light/dark SVG asset. */}
+        <Users className="size-4 shrink-0 text-foreground" aria-hidden="true" />
+        {/* text-primary (the lime brand color) reads fine as text in dark
+            mode but fails contrast as bare text on the light background —
+            index.css's own token comment says as much ("--primary only
+            for fills... lime is a fill color, not a body-text color, in
+            light mode"). Dark near-black in light mode, lime in dark
+            mode, matching every other heading's contrast in light mode. */}
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground dark:text-primary">Skill Vision · Recruiting</p>
+      </div>
+      <h1 className="mt-1.5 text-2xl font-bold tracking-tight sm:text-3xl">From Search to Talent</h1>
+      <p className="mt-2 max-w-2xl text-[13.5px] text-muted-foreground">
+        Dalla definizione del profilo alla selezione finale: un unico percorso guidato per trasformare una ricerca aperta nel talento giusto.
+      </p>
+    </div>
+  )
+}
+
 // Same four icons as the legacy KPI row (group/hourglass_top/work/event,
 // Material Symbols) — swapped to lucide-react equivalents, same order,
 // same meaning.
@@ -22,6 +55,8 @@ export default function RecruitingHome() {
 
   return (
     <div className="flex flex-col gap-4">
+      <StartHero />
+
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {data.kpis.map((k, i) => (
           <KpiCard key={k.key} icon={KPI_ICONS[i]} value={k.value} label={k.label} />

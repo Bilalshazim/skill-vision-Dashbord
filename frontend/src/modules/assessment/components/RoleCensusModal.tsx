@@ -84,9 +84,16 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
         <div className="field" style={{ flex: 1, minWidth: 220, maxWidth: 320 }}>
           <label>{ui.anagSelectRole}</label>
           <select
-            disabled={!roles.length}
-            value={selected || ''}
+            disabled={!roles.length && !canEdit}
+            value={creating ? '__altro__' : selected || ''}
             onChange={(e) => {
+              // "Altro ruolo" replaces the separate green "+Crea Ruolo"
+              // button — picking it opens the same inline name input this
+              // modal already had, just reached from the dropdown itself.
+              if (e.target.value === '__altro__') {
+                setCreating(true)
+                return
+              }
               setSelected(e.target.value)
               setCreating(false)
             }}
@@ -96,27 +103,29 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
                 {r}
               </option>
             ))}
+            {canEdit && <option value="__altro__">{ui.altroRuoloOption}</option>}
           </select>
         </div>
-        {canEdit &&
-          (creating ? (
-            <>
-              <div className="field" style={{ flex: 1, minWidth: 200, maxWidth: 280 }}>
-                <label>{ui.newRoleTitleLabel}</label>
-                <input className="neu-input" type="text" placeholder={ui.newRoleTitlePh} value={newRoleName} onChange={(e) => setNewRoleName(e.target.value)} />
-              </div>
-              <button className="btn btn-primary" onClick={confirmCreateRole}>
-                {ui.newRoleSaveBtn}
-              </button>
-              <button className="btn" onClick={() => setCreating(false)}>
-                {ui.importCancel}
-              </button>
-            </>
-          ) : (
-            <button className="btn btn-primary" onClick={() => setCreating(true)}>
-              {ui.createRoleBtn}
+        {canEdit && creating && (
+          <>
+            <div className="field" style={{ flex: 1, minWidth: 200, maxWidth: 280 }}>
+              <label>{ui.newRoleTitleLabel}</label>
+              <input className="neu-input" type="text" placeholder={ui.newRoleTitlePh} value={newRoleName} onChange={(e) => setNewRoleName(e.target.value)} />
+            </div>
+            <button className="btn btn-primary" onClick={confirmCreateRole}>
+              {ui.newRoleSaveBtn}
             </button>
-          ))}
+            <button
+              className="btn"
+              onClick={() => {
+                setCreating(false)
+                setNewRoleName('')
+              }}
+            >
+              {ui.importCancel}
+            </button>
+          </>
+        )}
       </div>
 
       {!selected ? (

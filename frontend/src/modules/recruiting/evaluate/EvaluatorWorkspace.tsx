@@ -14,9 +14,9 @@ const ROLE_LABEL: Record<string, string> = { HR: 'HR', MANAGER: 'Manager', DIRET
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-4 py-2 text-[13px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-[13px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 const ghostBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-4 py-2 text-[13px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-4 py-2 text-[13px] font-bold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 
 function apiErrorMessage(err: unknown): string {
   if (err instanceof ApiError) {
@@ -95,7 +95,7 @@ export function EvaluatorWorkspace({ evaluatorToken }: { evaluatorToken?: string
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary px-4 py-3">
+      <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary px-4 py-3">
         <UserCircle2 className="size-8 shrink-0 text-muted-foreground" aria-hidden="true" />
         <div className="min-w-0">
           <div className="text-[13.5px] font-semibold">{evaluator.fullName}</div>
@@ -212,7 +212,7 @@ function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignmen
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-5">
+    <div className="rounded-xl border border-border bg-card shadow-sm p-5">
       <div className="mb-3">
         <div className="text-[15px] font-semibold">{assignment.candidate.fullName}</div>
         <div className="text-[12px] text-muted-foreground">

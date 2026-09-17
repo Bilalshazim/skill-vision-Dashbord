@@ -24,20 +24,33 @@
   --border: #DBD7C7; /* legacy --line */
   --input: #DBD7C7;
 
-  /* Text — legacy --txt / --muted / --muted-strong */
-  --foreground: #2B2926;
-  --card-foreground: #2B2926;
-  --popover-foreground: #2B2926;
-  --secondary-foreground: #2B2926;
-  --muted-foreground: #767369;
+  /* Text — legacy --txt / --muted / --muted-strong.
+     Harmonization fix: these previously used the legacy Recruiting site's
+     own warm-grey text tokens (#2B2926/#767369), which are measurably
+     LOWER-CONTRAST in light mode than Assessment's actual light-mode text
+     tokens (assessment-scoped.css's .sv-assessment-shell:not([data-theme=
+     "dark"]) block: --text-1:#111827, --text-2:#4B5563) — that's what was
+     read as "washed-out" subtitle/body text. Dark mode was NOT touched:
+     it was already numerically identical to Assessment's dark --text-1/
+     --text-2 (#FAF5DF/#ABA79A) before this change. */
+  --foreground: #111827;
+  --card-foreground: #111827;
+  --popover-foreground: #111827;
+  --secondary-foreground: #111827;
+  --muted-foreground: #4B5563;
 
   /* Brand — legacy --teal (lime) / --teal-dark / --ink.
      --teal-link is intentionally NOT mapped to a generic "brand text"
      token: the legacy app's own explicit rule is that lime is a fill
      color, not a body-text color, in light mode (it only becomes
      text-safe in dark mode). Keep using --foreground for text and
-     --primary only for fills (buttons, active states, chart-1). */
-  --primary: #DDEE1C;
+     --primary only for fills (buttons, active states, chart-1).
+
+     Ground truth fix: verified directly against the actual logo assets
+     (public/brand/logo_black.svg's fill="#B4C614", logo_white.svg's
+     fill="#DDEE1C") rather than an eyeballed/screenshotted hex — this is
+     the real brand green, per mode, straight from the source file. */
+  --primary: #B4C614;
   --primary-foreground: #0D0C0A; /* legacy --ink */
   --accent: #EEEADA;
   --accent-foreground: #2B2926;
@@ -66,16 +79,25 @@
      the rest of the app; the legacy app does not skin its sidenav
      differently from its main content. */
   --sidebar: #FFFEF5;
-  --sidebar-foreground: #2B2926;
-  --sidebar-primary: #DDEE1C;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #B4C614;
   --sidebar-primary-foreground: #0D0C0A;
   --sidebar-accent: #EEEADA;
-  --sidebar-accent-foreground: #2B2926;
+  --sidebar-accent-foreground: #111827;
   --sidebar-border: #DBD7C7;
   --sidebar-ring: #8C980B;
 
   --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
   --font-mono: 'Geist Mono', SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  /* Harmonization with Assessment's --shadow-sm/--shadow-md (assessment-
+     scoped.css) — literal values copied from its light-mode block so
+     shadcn's generic shadow-sm/shadow-md utilities (Card, dialogs, etc.)
+     read the exact same shadow Assessment's own .card uses, instead of
+     Tailwind's unrelated default. Mapped into Tailwind's shadow scale via
+     @theme inline below. */
+  --shadow-color-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 1px rgba(15, 23, 42, 0.04);
+  --shadow-color-md: 0 4px 16px rgba(15, 23, 42, 0.1), 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 
 /* Dark theme — legacy THEMES.dark. Recruiting keeps a real light mode
@@ -120,6 +142,9 @@
   --sidebar-accent-foreground: #FAF5DF;
   --sidebar-border: #45433C;
   --sidebar-ring: #8C980B;
+
+  --shadow-color-sm: 0 1px 2px rgba(0, 0, 0, 0.45), 0 1px 1px rgba(0, 0, 0, 0.35);
+  --shadow-color-md: 0 4px 16px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
 /* ------------------------------------------------------------
@@ -174,6 +199,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-sm: var(--shadow-color-sm);
+  --shadow-md: var(--shadow-color-md);
 }
 
 @layer base {

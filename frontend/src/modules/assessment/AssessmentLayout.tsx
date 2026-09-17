@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { Topbar as GlobalTopbar } from '@/layouts/Topbar'
+import { ModuleLockGate } from '@/components/ModuleLockGate'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { MethodologyModal } from '@/modules/assessment/components/MethodologyModal'
 import { ToastHost } from '@/modules/assessment/components/ToastHost'
@@ -219,7 +220,9 @@ function AssessmentShell() {
           <div className="main">
             <Topbar onToggleMobile={() => setMobileOpen((v) => !v)} />
             <div className="content">
-              <Outlet />
+              <ModuleLockGate module="ASSESSMENT">
+                <Outlet />
+              </ModuleLockGate>
             </div>
           </div>
         </div>

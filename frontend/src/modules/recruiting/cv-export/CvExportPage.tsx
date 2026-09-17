@@ -1,23 +1,24 @@
-import { CheckCircle2, FileSpreadsheet, FileText, Loader2, Upload } from 'lucide-react'
+import { CheckCircle2, FileCheck2, FileSpreadsheet, FileText, Loader2, Percent, Upload } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { cn } from '@/lib/utils'
+import { KpiCard } from '@/modules/recruiting/components/KpiCard'
 import { CvArchiveList } from '@/modules/recruiting/cv-export/CvArchiveList'
 import { downloadRankingCsv, downloadRankingJson } from '@/modules/recruiting/lib/candidateExport'
 import { setActiveContext } from '@/modules/recruiting/lib/pipeline'
 import { ranking } from '@/modules/recruiting/lib/scoring'
 import { uploadCvToActiveOpening } from '@/modules/recruiting/lib/cv-upload'
-import { syncRankingFromBackend, uploadCvViaBackend } from '@/modules/recruiting/lib/backend-sync'
+import { setCvRetentionChoice, syncRankingFromBackend, uploadCvViaBackend } from '@/modules/recruiting/lib/backend-sync'
 import { useCvExportData } from '@/modules/recruiting/lib/use-cv-export-data'
 
 const selectClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const goldBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-warning/40 bg-warning/15 px-3.5 py-1.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-warning/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-warning/40 bg-warning/15 px-3.5 py-1.5 text-[12px] font-bold text-foreground transition-colors hover:bg-warning/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const ghostBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3.5 py-1.5 text-[12px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[12px] font-bold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 const STEP_LABELS = [
   'Lettura del documento (OCR / estrazione testo)',
@@ -68,6 +69,10 @@ export default function CvExportPage() {
   const [uploading, setUploading] = useState(false)
   const [uploadFeedback, setUploadFeedback] = useState<UploadFeedback>(IDLE_FEEDBACK)
   const [transferMessage, setTransferMessage] = useState('')
+  // GDPR retention consent (§6) — default 2 years, candidate can ask to
+  // shorten to 6 months; captured at upload time, saved against the real
+  // backend Candidate record once one exists (setCvRetentionChoice below).
+  const [retentionChoice, setRetentionChoice] = useState<'TWO_YEARS' | 'SIX_MONTHS'>('TWO_YEARS')
 
   // Phase 32 §3/§8 — same backend-primary reconciliation Ranking runs, so
   // the "CV caricati" archive list (CvArchiveList below) shows a
@@ -166,6 +171,7 @@ export default function CvExportPage() {
                 : `${backendResult.candidateName} salvato sul server · match CV/Profilo: ${backendResult.icv}% · in Pagina A ✓`,
             },
       )
+      void setCvRetentionChoice(backendResult.backendCandidateId, retentionChoice)
       handleMutated()
       return
     }
@@ -197,11 +203,13 @@ export default function CvExportPage() {
   }
 
   const rk = ranking(candidates)
+  const avgIcv = candidates.length ? Math.round(candidates.reduce((sum, c) => sum + (c.icv ?? 0), 0) / candidates.length) : 0
 
   return (
     <div className="flex flex-col gap-4">
-      <CvArchiveList candidates={candidates} />
-
+      {/* TOP — header & summary: page identity plus at-a-glance counters,
+          so the recruiter sees the state of the archive before touching
+          any control below. */}
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
           <FileText className="size-[22px] text-muted-foreground" aria-hidden="true" />
@@ -214,6 +222,14 @@ export default function CvExportPage() {
         </div>
       </div>
 
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <KpiCard icon={FileText} value={candidates.length} label="CV caricati" />
+        <KpiCard icon={Percent} value={avgIcv} label="Match medio (ICV %)" />
+        <KpiCard icon={FileCheck2} value={rk.length} label="Pronti per il ranking" />
+      </div>
+
+      {/* MIDDLE — action area: upload, GDPR retention consent, routing,
+          bulk import and export/transfer controls. */}
       <label
         className={cn(
           'flex flex-col items-center gap-2 rounded-lg border-2 border-dashed border-border bg-secondary px-6 py-8 text-center transition-colors',
@@ -226,8 +242,33 @@ export default function CvExportPage() {
         <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFileChange} disabled={uploading} />
       </label>
 
+      {/* Client §6 — GDPR retention disclosure, shown once per upload session
+          (retentionChoice persists across uploads in this same page visit).
+          Consent default is 2 years; a candidate can always ask to shorten
+          it to 6 months, which is why this stays a live control rather than
+          a static notice — see setCvRetentionChoice() (lib/backend-sync.ts),
+          which persists it against the real backend Candidate record. */}
+      <div className="flex flex-col gap-2 rounded-md border border-border bg-secondary/60 px-4 py-3 text-[12px] text-muted-foreground">
+        <p>
+          I dati del CV vengono conservati per <b className="font-semibold text-foreground">2 anni</b> dalla candidatura, salvo revoca. Il
+          candidato può in qualsiasi momento richiedere di limitare la conservazione a <b className="font-semibold text-foreground">6 mesi</b>.
+        </p>
+        <label className="flex w-fit items-center gap-2 text-[11.5px] font-semibold text-foreground">
+          <span>Conservazione dati:</span>
+          <select
+            value={retentionChoice}
+            onChange={(e) => setRetentionChoice(e.target.value as 'TWO_YEARS' | 'SIX_MONTHS')}
+            disabled={uploading}
+            className={selectClass}
+          >
+            <option value="TWO_YEARS">2 anni (default)</option>
+            <option value="SIX_MONTHS">6 mesi (su richiesta del candidato)</option>
+          </select>
+        </label>
+      </div>
+
       {showProgress && (
-        <div className="rounded-lg border border-border bg-card p-5">
+        <div className="rounded-xl border border-border bg-card shadow-sm p-5">
           <div className="flex flex-col gap-3">
             {STEP_LABELS.map((label, i) => (
               <div key={label} className={cn('flex items-center gap-3 text-[13.5px] font-semibold', steps[i] === 'done' ? 'text-foreground' : 'text-muted-foreground')}>
@@ -250,7 +291,7 @@ export default function CvExportPage() {
         </div>
       )}
 
-      <div className="rounded-lg border border-border bg-secondary p-4">
+      <div className="rounded-xl border border-border bg-secondary p-4">
         <div className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Routing &amp; Isolation</div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-muted-foreground">
@@ -290,7 +331,7 @@ export default function CvExportPage() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-secondary p-4">
+      <div className="rounded-xl border border-border bg-secondary p-4">
         <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Import massivo · archivio storico</div>
         <p className="mb-3 text-[12.5px] leading-relaxed text-muted-foreground">
           Carica in un colpo solo l'intero database di CV esistente (più PDF insieme) nell'archivio della company selezionata sopra. Richiede il
@@ -332,6 +373,10 @@ export default function CvExportPage() {
         Nota demo: il parsing è simulato con dati realistici. In produzione il modello ML legge il documento reale; nessun dato lascia l'ambiente del
         cliente senza autorizzazione.
       </p>
+
+      {/* BOTTOM — data table: the full candidate archive, as the page's
+          main content view below all controls. */}
+      <CvArchiveList candidates={candidates} />
     </div>
   )
 }

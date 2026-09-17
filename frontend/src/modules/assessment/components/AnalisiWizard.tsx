@@ -13,6 +13,9 @@ function toDraft(a: ExiData): Draft {
     objDraft: [0, 1, 2].map((i) => a.obiettivi[i] || ''),
     areaSel: { ...a.aree },
     decSel: [...a.decisioni],
+    // Safe fallback for state persisted before these fields existed.
+    q3Altro: [0, 1, 2].map((i) => a.q3Altro?.[i] || ''),
+    q7Altro: [0, 1].map((i) => a.q7Altro?.[i] || ''),
   }
 }
 
@@ -112,6 +115,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
       q2c: draft.q2c,
       aree: { ...draft.areaSel },
       q3c: draft.q3c,
+      q3Altro: draft.q3Altro.filter(Boolean),
       q4: draft.q4,
       q4c: draft.q4c,
       q5: draft.q5,
@@ -120,6 +124,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
       obiettivi: draft.objDraft.filter(Boolean),
       decisioni: [...draft.decSel],
       q7c: draft.q7c,
+      q7Altro: draft.q7Altro.filter(Boolean),
     })
   }
 
@@ -253,6 +258,25 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
                 )
               })}
             </div>
+            <div className="exi-pri-list">
+              {[0, 1, 2].map((i) => (
+                <div className="exi-pri-row" key={i}>
+                  <div className="exi-pri-num">{ui.exiAltroLabel}</div>
+                  <input
+                    type="text"
+                    placeholder={ui.exiAltroPh}
+                    value={draft.q3Altro[i]}
+                    onChange={(e) =>
+                      setDraft((p) => {
+                        const q3Altro = [...p.q3Altro]
+                        q3Altro[i] = e.target.value
+                        return { ...p, q3Altro }
+                      })
+                    }
+                  />
+                </div>
+              ))}
+            </div>
             <div className="field">
               <label>{ui.exiQ3NotesLabel}</label>
               <textarea className={`neu-input${fieldInvalid(3, 'q3c') ? ' exi-field-invalid' : ''}`} placeholder={ui.exiQ3Ph} value={draft.q3c} onChange={(e) => setDraft((p) => ({ ...p, q3c: e.target.value }))} />
@@ -371,6 +395,25 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
                   </div>
                 )
               })}
+            </div>
+            <div className="exi-pri-list">
+              {[0, 1].map((i) => (
+                <div className="exi-pri-row" key={i}>
+                  <div className="exi-pri-num">{ui.exiAltroLabel}</div>
+                  <input
+                    type="text"
+                    placeholder={ui.exiAltroPh}
+                    value={draft.q7Altro[i]}
+                    onChange={(e) =>
+                      setDraft((p) => {
+                        const q7Altro = [...p.q7Altro]
+                        q7Altro[i] = e.target.value
+                        return { ...p, q7Altro }
+                      })
+                    }
+                  />
+                </div>
+              ))}
             </div>
             <div className="field">
               <label>{ui.exiCommentLabel}</label>

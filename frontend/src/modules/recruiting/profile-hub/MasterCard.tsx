@@ -54,7 +54,7 @@ export function MasterCard({ icon: Icon, title, children }: { icon: LucideIcon; 
       aria-expanded={!collapsed}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      className="cursor-pointer overflow-hidden rounded-lg border border-border bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+      className="cursor-pointer overflow-hidden rounded-xl border border-border bg-card shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
     >
       <div className="flex items-center gap-3 px-4 py-3.5">
         <Icon className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />

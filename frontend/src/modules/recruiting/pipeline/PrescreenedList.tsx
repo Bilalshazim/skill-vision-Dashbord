@@ -1,10 +1,13 @@
-import { AlertTriangle, CheckCircle2, Clock3, Loader2, Plus, RefreshCw, Search, SendHorizonal, Trash2, XCircle } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Clock3, Link2, Loader2, Plus, RefreshCw, Search, SendHorizonal, Star, Trash2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 
+import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { CvInlineViewerButton } from '@/modules/recruiting/cv/CvInlineViewerButton'
 import { addPrescreenedEntry, plDateFmt, removePrescreenedCandidate, setPrescreenStatus } from '@/modules/recruiting/lib/pipeline'
-import { markSentViaBackend, refreshShortlistStatuses } from '@/modules/recruiting/lib/backend-sync'
+import { addToShortlistViaBackend, markSentViaBackend, patchPrescreenedBackendId, refreshShortlistStatuses } from '@/modules/recruiting/lib/backend-sync'
 import { getCachedBackendLink } from '@/modules/recruiting/lib/backend-link'
+import { readCandidates } from '@/modules/recruiting/lib/storage'
 import type { CandidatePoolEntry, PrescreenedEntry, PrescreenStatus } from '@/modules/recruiting/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -20,12 +23,18 @@ import { cn } from '@/lib/utils'
 // Phase 31 §8 — 'ha_risposto'/'non_ha_risposto' added: real backend
 // ShortlistStatus values (see lib/types.ts's PrescreenStatus comment),
 // only ever reached by refreshing from the server, never set locally.
-const STATUS_STYLE: Record<PrescreenStatus, { icon: typeof Clock3; label: string; tone: string }> = {
-  da_inviare: { icon: Clock3, label: 'Da inviare', tone: 'text-destructive' },
-  inviato: { icon: SendHorizonal, label: 'Test inviato', tone: 'text-warning' },
-  completato: { icon: CheckCircle2, label: 'Test completato', tone: 'text-success' },
-  ha_risposto: { icon: CheckCircle2, label: 'Ha risposto', tone: 'text-success' },
-  non_ha_risposto: { icon: XCircle, label: 'Non ha risposto', tone: 'text-destructive' },
+const STATUS_STYLE: Record<PrescreenStatus, { icon: typeof Clock3; label: string; tone: 'red' | 'amber' | 'green' }> = {
+  da_inviare: { icon: Clock3, label: 'Da inviare', tone: 'red' },
+  // Local-only status set by Pagina A's manual-send fallback when no mail
+  // provider is configured — see lib/types.ts's PrescreenStatus comment.
+  // Reachable here too since both screens read the SAME prescreened
+  // records; "Segna inviato" below still works on it like any other
+  // pre-send state.
+  link_pronto: { icon: Link2, label: 'Link pronto', tone: 'amber' },
+  inviato: { icon: SendHorizonal, label: 'Test inviato', tone: 'amber' },
+  completato: { icon: CheckCircle2, label: 'Test completato', tone: 'green' },
+  ha_risposto: { icon: CheckCircle2, label: 'Ha risposto', tone: 'green' },
+  non_ha_risposto: { icon: XCircle, label: 'Non ha risposto', tone: 'red' },
 }
 
 // This can only actually fire if the Pipeline-selected opening is deleted
@@ -40,7 +49,7 @@ const OPENING_UNAVAILABLE_MESSAGE = "La posizione selezionata non è più dispon
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 
 type ActionState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string }
 const IDLE: ActionState = { kind: 'idle' }
@@ -209,6 +218,32 @@ export function PrescreenedList({
     onMutated()
   }
 
+  // Client §4 — "Selezionato per approfondimento": flags a candidate into
+  // the real Shortlist (Migliori Candidati) as DA_INVIARE, without sending
+  // a test yet (that's the separate "Invia Lettera e Link Test" trigger on
+  // Migliori Candidati itself, §5). Only usable once this candidate has a
+  // backendCampaignCandidateId — i.e. went through the real backend CV
+  // upload flow (lib/backend-sync.ts's uploadCvViaBackend) — a candidate
+  // added here manually or from the local pool has nothing to shortlist on
+  // the server yet.
+  async function handleFlagForReview(entryId: string, candidateId: string) {
+    if (rowState[entryId]?.kind === 'pending') return
+    const backendCampaignCandidateId = readCandidates().find((c) => c.id === candidateId)?.backendCampaignCandidateId
+    if (!backendCampaignCandidateId) {
+      setRow(entryId, { kind: 'error', message: 'Candidato non ancora collegato al server — carica il CV dalla pagina CV & Esportazione.' })
+      return
+    }
+    setRow(entryId, { kind: 'pending' })
+    const result = await addToShortlistViaBackend(candidateId, backendCampaignCandidateId)
+    if (!result.ok) {
+      setRow(entryId, { kind: 'error', message: result.message })
+      return
+    }
+    patchPrescreenedBackendId(openingId, entryId, result.backendShortlistId)
+    setRow(entryId, IDLE)
+    onMutated()
+  }
+
   return (
     <div>
       {backendCampaignId && (
@@ -275,10 +310,19 @@ export function PrescreenedList({
         <EmptyState icon={Search} text="Nessun candidato ancora in pre-screening per questa posizione." />
       ) : (
         <div>
-          {entries.map((r) => {
+          {/* Client §4 — "sorted by ranking match percentage (including low
+              % match candidates)": descending by matchScore, nothing
+              filtered out; a candidate with no score yet (null) sorts
+              last rather than being excluded. */}
+          {(() => {
+            const allCandidates = readCandidates()
+            return [...entries]
+              .sort((a, b) => (b.matchScore ?? -1) - (a.matchScore ?? -1))
+              .map((r) => {
             const status = STATUS_STYLE[r.status]
             const state = rowState[r.id] ?? IDLE
             const pending = state.kind === 'pending'
+            const candidate = allCandidates.find((c) => c.id === r.candidateId)
             return (
               <div key={r.id} className="border-b border-border py-3 last:border-0">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -286,9 +330,9 @@ export function PrescreenedList({
                     <div className="flex items-center gap-1.5 text-[13px] font-semibold">
                       {r.name || '—'}
                       {r.autoSent && (
-                        <span className="rounded-full bg-success/12 px-2 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-success">
+                        <Badge tone="green" dot={false}>
                           auto
-                        </span>
+                        </Badge>
                       )}
                     </div>
                     <div className="mt-0.5 text-[11px] text-muted-foreground">
@@ -304,17 +348,35 @@ export function PrescreenedList({
                       href={r.testLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-0.5 inline-block break-all text-[11px] text-primary hover:underline"
+                      className="mt-0.5 inline-block break-all text-[11px] text-foreground hover:underline dark:text-primary"
                     >
                       {r.testLink}
                     </a>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className={cn('inline-flex items-center gap-1.5 text-[12px] font-medium', status.tone)}>
-                      <status.icon className="size-3.5 shrink-0" aria-hidden="true" />
+                    <label
+                      className={cn(
+                        'flex items-center gap-1.5 whitespace-nowrap text-[10.5px] font-semibold uppercase tracking-wide',
+                        r.backendShortlistId ? 'text-success' : 'text-muted-foreground',
+                      )}
+                      title="Aggiunge il candidato a Migliori Candidati, senza inviare ancora il test"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={!!r.backendShortlistId}
+                        disabled={pending || !!r.backendShortlistId}
+                        onChange={() => handleFlagForReview(r.id, r.candidateId)}
+                        className="size-4 shrink-0 cursor-pointer accent-ring disabled:cursor-not-allowed"
+                      />
+                      <Star className="size-3 shrink-0" aria-hidden="true" />
+                      Selezionato per approfondimento
+                    </label>
+                    <CvInlineViewerButton backendCvId={candidate?.backendCvId} candidateName={r.name || '—'} />
+                    <Badge tone={status.tone} dot={false}>
+                      <status.icon className="size-3 shrink-0" aria-hidden="true" />
                       {status.label}
-                    </span>
-                    {r.status === 'da_inviare' && (
+                    </Badge>
+                    {(r.status === 'da_inviare' || r.status === 'link_pronto') && (
                       <button
                         type="button"
                         onClick={() => handleMarkSent(r.id)}
@@ -340,7 +402,8 @@ export function PrescreenedList({
                 {state.kind === 'error' && <ErrorNote message={state.message} />}
               </div>
             )
-          })}
+              })
+          })()}
         </div>
       )}
     </div>
