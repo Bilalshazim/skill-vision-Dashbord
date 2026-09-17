@@ -18,7 +18,6 @@ import { jobProfilesRouter } from './modules/jobProfiles/routes.js'
 import { platformsRouter } from './modules/platforms/routes.js'
 import { shortlistRouter } from './modules/shortlist/routes.js'
 import { webhooksRouter } from './modules/webhooks/routes.js'
-import { env } from './lib/env.js'
 import { logger } from './lib/logger.js'
 
 export function createApp() {
@@ -26,33 +25,38 @@ export function createApp() {
 
   // CORS is mounted before anything else in the stack (including request
   // logging) so a preflight OPTIONS never has to pass through any other
-  // middleware first — not that pino-http or anything below ever blocked
-  // one (it just logs and calls next()), but this makes it structurally
-  // impossible for a future middleware inserted above it to ever do so.
-  // Phase 34 §16/§23 — open (reflect-all) by default, matching every prior
-  // phase's local-dev behavior exactly (no behavior change here) — but now
-  // configurable via CORS_ORIGIN so production can lock this to the real
-  // frontend origin(s) without a code change. Comma-separated list; unset
-  // keeps the original dev-friendly default. This does not itself pick a
-  // production value — see the final report's production-configuration
-  // checklist for what to actually set.
+  // middleware first.
   //
-  // The origin callback (not the literal string '*') is what "allow every
+  // Always reflects the incoming Origin back, unconditionally — no longer
+  // gated on a CORS_ORIGIN env var (previously: an unset CORS_ORIGIN
+  // reflected any origin, but a SET one restricted to an explicit
+  // allowlist; if that var were ever set on the deployed backend to a
+  // value that didn't exactly match the real frontend origin, preflight
+  // would 204 with no Access-Control-Allow-Origin header at all — which is
+  // indistinguishable from a CORS rejection in the browser, and not
+  // something fixable from this file without knowing that var's live
+  // value). Removing the conditional entirely closes that off: this
+  // service's CORS behavior is now fully determined by this file, not by
+  // whatever happens to be set in Railway's dashboard.
+  //
+  // The callback form (not the literal string '*') is what "allow every
   // origin" actually has to be here: the Fetch/CORS spec forbids a
   // wildcard Access-Control-Allow-Origin from ever being paired with
   // Access-Control-Allow-Credentials: true — browsers reject that
   // combination outright, so a literal '*' would silently break the
-  // moment credentials were involved. Reflecting the request's own Origin
-  // back (via callback(null, true), or via the allowlist below when
-  // CORS_ORIGIN is set) IS spec-valid alongside credentials. `credentials:
-  // true` itself is a no-op for this API's actual auth (a Bearer token in
-  // a header, not cookies) but is harmless to enable and future-proofs any
-  // caller that does start sending `credentials: 'include'`.
+  // moment credentials were involved. `credentials: true` itself is a
+  // no-op for this API's actual auth (a Bearer token in a header, not
+  // cookies) but is harmless to enable and future-proofs any caller that
+  // does start sending `credentials: 'include'`.
   const corsOptions: cors.CorsOptions = {
-    origin: env.corsOrigins ? env.corsOrigins : (origin, callback) => callback(null, true),
+    origin: (origin, callback) => callback(null, origin || true),
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    // X-Evaluator-Token: the accountless evaluator path's own auth header
+    // (see frontend lib/api/client.ts / EvaluatorWorkspace.tsx) — added
+    // here since it was missing from this list even before this change,
+    // which would have preflight-blocked that one feature specifically.
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Evaluator-Token'],
     optionsSuccessStatus: 204,
   }
   app.use(cors(corsOptions))
