@@ -46,6 +46,17 @@ const server = http.createServer((req, res) => {
     if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) filePath = path.join(filePath, 'index.html')
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) return send(res, filePath)
 
+    // Not in the legacy shell root — fall back to the React build's own
+    // top-level static files (favicon.svg, etc.) before giving up. Vite
+    // copies frontend/public/* verbatim to dist/'s root, but the ROOT-only
+    // lookup above never checked there, so a bare request like
+    // /favicon.svg (which every browser makes regardless of which page
+    // loaded) 404'd even though the file genuinely exists in dist/.
+    if (urlPath !== '/') {
+      const distFallback = path.join(DIST, urlPath)
+      if (fs.existsSync(distFallback) && fs.statSync(distFallback).isFile()) return send(res, distFallback)
+    }
+
     res.writeHead(404)
     res.end('Not found: ' + urlPath)
   } catch (err) {
