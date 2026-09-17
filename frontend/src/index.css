@@ -14,15 +14,16 @@
    to each token for its legacy name.
    ============================================================ */
 :root {
-  --radius: 0.625rem; /* matches legacy --r-sm (10px) */
-
-  /* Surfaces — legacy --bg / --panel / --panel-2 / --line */
-  --background: #FDFCF2;
-  --card: #FFFEF5;
-  --popover: #FFFEF5;
+  /* Surfaces — Skill Vision Design System Foundations: page bg =
+     neutral-50, card/container bg = neutral-100, primary border =
+     neutral-200. No pure #FFFFFF anywhere — neutral-100 (#F7F5EA) is the
+     lightest surface any card/panel/popover/sidebar ever uses. */
+  --background: #FDFCF2; /* neutral-50 */
+  --card: #F7F5EA; /* neutral-100 */
+  --popover: #F7F5EA; /* neutral-100 */
   --secondary: #EEEADA; /* legacy --panel-2 */
-  --border: #DBD7C7; /* legacy --line */
-  --input: #DBD7C7;
+  --border: #EEEADA; /* neutral-200 */
+  --input: #EEEADA; /* neutral-200 */
 
   /* Text — legacy --txt / --muted / --muted-strong.
      Harmonization fix: these previously used the legacy Recruiting site's
@@ -39,19 +40,16 @@
   --secondary-foreground: #111827;
   --muted-foreground: #4B5563;
 
-  /* Brand — legacy --teal (lime) / --teal-dark / --ink.
-     --teal-link is intentionally NOT mapped to a generic "brand text"
-     token: the legacy app's own explicit rule is that lime is a fill
-     color, not a body-text color, in light mode (it only becomes
-     text-safe in dark mode). Keep using --foreground for text and
-     --primary only for fills (buttons, active states, chart-1).
-
-     Ground truth fix: verified directly against the actual logo assets
-     (public/brand/logo_black.svg's fill="#B4C614", logo_white.svg's
-     fill="#DDEE1C") rather than an eyeballed/screenshotted hex — this is
-     the real brand green, per mode, straight from the source file. */
-  --primary: #B4C614;
-  --primary-foreground: #0D0C0A; /* legacy --ink */
+  /* Brand — Skill Vision Design System Foundations: primary button fill
+     is accent-400 (#DDEE1C) with neutral-950 text, same value in both
+     themes now (previously light mode used the darker #B4C614 logo-lime
+     for contrast on a near-white card; the design system supersedes that
+     per-theme distinction — dark mode already used #DDEE1C before this
+     change, only light mode moves to match). Keep using --foreground for
+     body text; --primary stays fill-only (buttons, active states,
+     chart-1), never body/link text. */
+  --primary: #DDEE1C; /* accent-400 */
+  --primary-foreground: #0D0C0A; /* neutral-950 */
   --accent: #EEEADA;
   --accent-foreground: #2B2926;
 
@@ -78,26 +76,17 @@
   /* Sidebar tokens (shadcn convention) — reuse the same surfaces as
      the rest of the app; the legacy app does not skin its sidenav
      differently from its main content. */
-  --sidebar: #FFFEF5;
+  --sidebar: #F7F5EA; /* neutral-100 */
   --sidebar-foreground: #111827;
-  --sidebar-primary: #B4C614;
+  --sidebar-primary: #DDEE1C; /* accent-400 */
   --sidebar-primary-foreground: #0D0C0A;
   --sidebar-accent: #EEEADA;
   --sidebar-accent-foreground: #111827;
-  --sidebar-border: #DBD7C7;
+  --sidebar-border: #EEEADA; /* neutral-200 */
   --sidebar-ring: #8C980B;
 
   --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
   --font-mono: 'Geist Mono', SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-
-  /* Harmonization with Assessment's --shadow-sm/--shadow-md (assessment-
-     scoped.css) — literal values copied from its light-mode block so
-     shadcn's generic shadow-sm/shadow-md utilities (Card, dialogs, etc.)
-     read the exact same shadow Assessment's own .card uses, instead of
-     Tailwind's unrelated default. Mapped into Tailwind's shadow scale via
-     @theme inline below. */
-  --shadow-color-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 1px rgba(15, 23, 42, 0.04);
-  --shadow-color-md: 0 4px 16px rgba(15, 23, 42, 0.1), 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 
 /* Dark theme — legacy THEMES.dark. Recruiting keeps a real light mode
@@ -142,9 +131,6 @@
   --sidebar-accent-foreground: #FAF5DF;
   --sidebar-border: #45433C;
   --sidebar-ring: #8C980B;
-
-  --shadow-color-sm: 0 1px 2px rgba(0, 0, 0, 0.45), 0 1px 1px rgba(0, 0, 0, 0.35);
-  --shadow-color-md: 0 4px 16px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
 /* ------------------------------------------------------------
@@ -195,13 +181,31 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* Skill Vision Design System Foundations — card radius (lg) = 24px,
+     input radius (sm) = 10px. Independent fixed values rather than
+     offsets from one base: the previous single-base+offset scheme (sm =
+     base-4, lg = base) can't reach both a 10px input and a 24px card at
+     once. --radius-md is also pinned to 10px (not left at its old
+     base-2 midpoint) because the ad-hoc input/select styling across this
+     app (no shared Input component exists) uses `rounded-md`, not
+     `rounded-sm` — this is what actually makes "input radii = 10px" true
+     app-wide, with zero per-file edits. --radius-xl mirrors --radius-lg
+     as a safety net for any other `rounded-xl` usage app-wide (Card.tsx
+     itself now uses `rounded-lg` directly — see card.tsx). */
+  --radius-sm: 10px;
+  --radius-md: 10px;
+  --radius-lg: 24px;
+  --radius-xl: 24px;
 
-  --shadow-sm: var(--shadow-color-sm);
-  --shadow-md: var(--shadow-color-md);
+  /* Skill Vision Design System Foundations — no box-shadows on cards or
+     panels; surfaces are distinguished by background contrast (card vs.
+     background) and a 1px border alone. Overrides Tailwind's own built-in
+     shadow-lg/xl defaults too (Dialog/Sheet use those literally), not
+     just the shadow-sm/md this app's own components reference. */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
 }
 
 @layer base {
