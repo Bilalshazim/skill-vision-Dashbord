@@ -1,3 +1,4 @@
+import { AlertTriangle, CheckSquare, Gem, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -140,30 +141,26 @@ export default function AssessmentHomePage() {
         <div className="quad quad-accent-1">
           <div className="blur-decor" style={{ background: 'var(--success-soft)' }} />
           <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
-            <div className="quad-header" onClick={() => setOpenCardsState('q1')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="icon-chip success">
-                  <Icon name="activity" />
-                </span>
-                <div>
-                  <div className="card-eyebrow">{ui.homeQ1Kicker}</div>
-                  <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ1Title}</h3>
-                </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
-                <span className={`quad-chevron${openCards.q1 ? ' open' : ''}`}>
-                  <Icon name="chevron" />
-                </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span className="icon-chip success">
+                <Gem />
+              </span>
+              <div>
+                <div className="home-card-kicker">{ui.homeQ1Kicker}</div>
+                <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ1Title}</h3>
               </div>
             </div>
+            <p className="home-card-desc">{ui.homeQ1Sub}</p>
+            <button type="button" className="home-card-action" onClick={() => setOpenCardsState('q1')}>
+              <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
+              <span className={`quad-chevron${openCards.q1 ? ' open' : ''}`}>
+                <Icon name="chevron" />
+              </span>
+            </button>
             <div className={`home-quad-body${openCards.q1 ? ' open' : ''}`}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <span className={`chip chip-${statusTier.variant === 'success' ? 'green' : statusTier.variant === 'warning' ? 'amber' : 'red'}`}>{statusTier.label}</span>
               </div>
-              <p className="small-note" style={{ marginBottom: 14 }}>
-                {ui.homeQ1Sub}
-              </p>
               <div className="grid grid-3" style={{ gap: 10, marginBottom: 14 }}>
                 <div className="neu-tile" style={{ textAlign: 'center' }}>
                   <div className="card-eyebrow">{ui.homeQ1Score}</div>
@@ -227,30 +224,26 @@ export default function AssessmentHomePage() {
 
         {/* Q2 */}
         <div className="quad quad-accent-2">
-          <div className="quad-header" onClick={() => setOpenCardsState('q2')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span className="icon-chip danger">
-                <Icon name="alertTriangle" />
-              </span>
-              <div>
-                <div className="card-eyebrow">{ui.homeQ2Kicker}</div>
-                <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ2Title}</h3>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-              <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
-              <span className={`quad-chevron${openCards.q2 ? ' open' : ''}`}>
-                <Icon name="chevron" />
-              </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span className="icon-chip danger">
+              <AlertTriangle />
+            </span>
+            <div>
+              <div className="home-card-kicker">{ui.homeQ2Kicker}</div>
+              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ2Title}</h3>
             </div>
           </div>
+          <p className="home-card-desc">{ui.homeQ2Sub}</p>
+          <button type="button" className="home-card-action" onClick={() => setOpenCardsState('q2')}>
+            <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
+            <span className={`quad-chevron${openCards.q2 ? ' open' : ''}`}>
+              <Icon name="chevron" />
+            </span>
+          </button>
           <div className={`home-quad-body${openCards.q2 ? ' open' : ''}`}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <span className="chip chip-red">{ui.homeQ2CriticalIssues(severeCount)}</span>
             </div>
-            <p className="small-note" style={{ marginBottom: 12 }}>
-              {ui.homeQ2Sub}
-            </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-alt)' }}>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', background: worstArea ? rowDotColor(round1(worstArea.avg - hs.benchmark)) : 'var(--text-3)', flexShrink: 0 }} />
@@ -302,30 +295,26 @@ export default function AssessmentHomePage() {
 
         {/* Q3 */}
         <div className="quad quad-accent-3">
-          <div className="quad-header" onClick={() => setOpenCardsState('q3')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span className="icon-chip accent">
-                <Icon name="users" />
-              </span>
-              <div>
-                <div className="card-eyebrow">{ui.homeQ3Kicker}</div>
-                <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ3Title}</h3>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-              <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
-              <span className={`quad-chevron${openCards.q3 ? ' open' : ''}`}>
-                <Icon name="chevron" />
-              </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span className="icon-chip accent">
+              <Users />
+            </span>
+            <div>
+              <div className="home-card-kicker">{ui.homeQ3Kicker}</div>
+              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ3Title}</h3>
             </div>
           </div>
+          <p className="home-card-desc">{ui.homeQ3Sub}</p>
+          <button type="button" className="home-card-action" onClick={() => setOpenCardsState('q3')}>
+            <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
+            <span className={`quad-chevron${openCards.q3 ? ' open' : ''}`}>
+              <Icon name="chevron" />
+            </span>
+          </button>
           <div className={`home-quad-body${openCards.q3 ? ' open' : ''}`}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <span className="chip chip-gray">{ui.homeQ3ResourceMapping}</span>
             </div>
-            <p className="small-note" style={{ marginBottom: 12 }}>
-              {ui.homeQ3Sub}
-            </p>
             <div className="grid grid-2" style={{ gap: 10 }}>
               {quadDefs(ui).map((q) => {
                 const count = tiers[q.key].length
@@ -368,30 +357,26 @@ export default function AssessmentHomePage() {
 
         {/* Q4 */}
         <div className="quad quad-accent-4">
-          <div className="quad-header" onClick={() => setOpenCardsState('q4')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span className="icon-chip warning">
-                <Icon name="checkSquare" />
-              </span>
-              <div>
-                <div className="card-eyebrow">{ui.homeQ4Kicker}</div>
-                <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ4Title}</h3>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-              <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
-              <span className={`quad-chevron${openCards.q4 ? ' open' : ''}`}>
-                <Icon name="chevron" />
-              </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span className="icon-chip warning">
+              <CheckSquare />
+            </span>
+            <div>
+              <div className="home-card-kicker">{ui.homeQ4Kicker}</div>
+              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ4Title}</h3>
             </div>
           </div>
+          <p className="home-card-desc">{ui.homeQ4Sub}</p>
+          <button type="button" className="home-card-action" onClick={() => setOpenCardsState('q4')}>
+            <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
+            <span className={`quad-chevron${openCards.q4 ? ' open' : ''}`}>
+              <Icon name="chevron" />
+            </span>
+          </button>
           <div className={`home-quad-body${openCards.q4 ? ' open' : ''}`}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <span className="chip chip-gray">{ui.homeQ4AiPriorities}</span>
             </div>
-            <p className="small-note" style={{ marginBottom: 12 }}>
-              {ui.homeQ4Sub}
-            </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {azioni.map((a) => (
                 <div key={a.key} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)' }}>

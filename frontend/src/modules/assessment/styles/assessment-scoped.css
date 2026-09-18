@@ -56,7 +56,7 @@
      future build does load them. */
   --font: 'Geist', 'Gudea', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
   --font-serif: 'Geist', 'Noto Serif JP', 'Times New Roman', Times, serif;
-  --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-mono: 'Geist Mono', SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   color-scheme: dark;
 }
 .sv-assessment-shell[data-theme="dark"]{
@@ -506,6 +506,16 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .home-quad-body.open{ max-height:2000px; margin-top:14px; }
 .quad:has(.home-quad-body:not(.open)){ min-height:140px; }
 .quad-collapse-hint{ font-size:11px; font-weight:600; color: var(--text-3); }
+
+/* Home hero cards — always-visible kicker/description. Previously the
+   description (homeQ*Sub) lived inside .home-quad-body and was hidden
+   until the card was expanded; per client requirement it must now sit
+   on the card face at all times, between the title and the "Clicca per
+   i dettagli" action, which moved out of the header into its own
+   trigger below the description. */
+.home-card-kicker{ font-family: var(--font-mono); font-size:11px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color: var(--text-3); margin-bottom:4px; }
+.home-card-desc{ font-size:13px; line-height:1.5; color: var(--text-2); margin:10px 0 0; }
+.home-card-action{ display:flex; align-items:center; gap:8px; margin-top:14px; padding:0; border:none; background:none; cursor:pointer; align-self:flex-start; font: inherit; }
 
 /* ---- Module toggle switch — adapted from Uiverse.io by gharsh11032000 ---- */
 .switch{ font-size:16px; position:relative; display:inline-block; width:3.4em; height:2em; flex-shrink:0; }
