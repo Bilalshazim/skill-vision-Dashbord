@@ -147,7 +147,7 @@ export default function AssessmentHomePage() {
               </span>
               <div>
                 <div className="home-card-kicker">{ui.homeQ1Kicker}</div>
-                <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ1Title}</h3>
+                <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 22 }}>{ui.homeQ1Title}</h3>
               </div>
             </div>
             <p className="home-card-desc">{ui.homeQ1Sub}</p>
@@ -230,7 +230,7 @@ export default function AssessmentHomePage() {
             </span>
             <div>
               <div className="home-card-kicker">{ui.homeQ2Kicker}</div>
-              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ2Title}</h3>
+              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 22 }}>{ui.homeQ2Title}</h3>
             </div>
           </div>
           <p className="home-card-desc">{ui.homeQ2Sub}</p>
@@ -301,7 +301,7 @@ export default function AssessmentHomePage() {
             </span>
             <div>
               <div className="home-card-kicker">{ui.homeQ3Kicker}</div>
-              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ3Title}</h3>
+              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 22 }}>{ui.homeQ3Title}</h3>
             </div>
           </div>
           <p className="home-card-desc">{ui.homeQ3Sub}</p>
@@ -363,7 +363,7 @@ export default function AssessmentHomePage() {
             </span>
             <div>
               <div className="home-card-kicker">{ui.homeQ4Kicker}</div>
-              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 18 }}>{ui.homeQ4Title}</h3>
+              <h3 style={{ textTransform: 'none', marginBottom: 0, fontSize: 22 }}>{ui.homeQ4Title}</h3>
             </div>
           </div>
           <p className="home-card-desc">{ui.homeQ4Sub}</p>
