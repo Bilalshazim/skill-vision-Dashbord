@@ -492,30 +492,33 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 }
 .quad .qnum{ font-size:11px; font-weight:800; color: var(--text-3); letter-spacing:0.5px; margin-bottom:6px; }
 .quad h3{ font-size:14.5px; font-weight:800; margin-bottom:12px; letter-spacing:-.1px; }
-.quad-accent-1{ border-top:3px solid var(--accent); }
-.quad-accent-2{ border-top:3px solid var(--danger); }
-.quad-accent-3{ border-top:3px solid var(--gold); }
-.quad-accent-4{ border-top:3px solid var(--success); }
+/* Reference mockup uses one uniform lime border on all 4 hero cards,
+   not per-card severity hues — so all four accent classes now resolve
+   to the same border. */
+.quad-accent-1, .quad-accent-2, .quad-accent-3, .quad-accent-4{ border: 1px solid var(--accent); }
 
 /* Home KPI accordion — click the quad header to expand/collapse its body, same pattern as the sidebar nav
    groups. Collapsed state shows only the title (no chip, no numbers) until the user clicks to expand. */
 .quad-header{ cursor:pointer; user-select:none; }
-.quad-header .quad-chevron{ width:18px; height:18px; flex-shrink:0; color: var(--text-3); transition: transform .15s ease; }
-.quad-header .quad-chevron.open{ transform: rotate(90deg); }
+.quad-chevron{ width:18px; height:18px; flex-shrink:0; color: var(--text-3); transition: transform .15s ease; }
+.quad-chevron.open{ transform: rotate(90deg); }
 .home-quad-body{ max-height:0; overflow:hidden; transition: max-height .25s ease; }
 .home-quad-body.open{ max-height:2000px; margin-top:14px; }
 .quad:has(.home-quad-body:not(.open)){ min-height:140px; }
-.quad-collapse-hint{ font-size:11px; font-weight:600; color: var(--text-3); }
+.quad-collapse-hint{ font-size:13px; font-weight:600; color: var(--text-2); }
 
-/* Home hero cards — always-visible kicker/description. Previously the
-   description (homeQ*Sub) lived inside .home-quad-body and was hidden
-   until the card was expanded; per client requirement it must now sit
-   on the card face at all times, between the title and the "Clicca per
-   i dettagli" action, which moved out of the header into its own
-   trigger below the description. */
-.home-card-kicker{ font-family: var(--font-mono); font-size:12px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color: var(--text-3); margin-bottom:4px; }
-.home-card-desc{ font-size:15.5px; line-height:1.5; color: var(--text-2); margin:10px 0 0; }
-.home-card-action{ display:flex; align-items:center; gap:8px; margin-top:14px; padding:0; border:none; background:none; cursor:pointer; align-self:flex-start; font: inherit; }
+/* Home hero cards — laid out to match the client's reference mockup:
+   plain black icon + big uppercase title on the left, "Clicca per i
+   dettagli ->" pinned top-right on the same row, a bold uppercase
+   subtitle under the title, then the always-visible description
+   underneath. Previously the description (homeQ*Sub) lived inside
+   .home-quad-body and was hidden until the card was expanded. */
+.home-card-icon{ width:40px; height:40px; flex-shrink:0; color: var(--text-1); }
+.home-card-icon svg{ width:100%; height:100%; }
+.home-card-title{ font-size:24px; font-weight:800; text-transform:uppercase; letter-spacing:-.2px; margin:0 0 4px; color: var(--text-1); }
+.home-card-kicker{ font-size:14px; font-weight:700; letter-spacing:0.2px; text-transform:uppercase; color: var(--text-1); }
+.home-card-desc{ font-size:14px; line-height:1.5; color: var(--text-2); margin:14px 0 0; }
+.home-card-action{ display:flex; align-items:center; gap:6px; padding:0; border:none; background:none; cursor:pointer; flex-shrink:0; font: inherit; font-size:13px; }
 
 /* ---- Module toggle switch — adapted from Uiverse.io by gharsh11032000 ---- */
 .switch{ font-size:16px; position:relative; display:inline-block; width:3.4em; height:2em; flex-shrink:0; }
