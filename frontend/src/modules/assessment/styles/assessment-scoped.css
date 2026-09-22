@@ -246,7 +246,11 @@
 .sv-assessment-shell[data-theme="dark"] .theme-logo-dark{ display:block; }
 .login-brand .brand-logo{ height:46px; margin-bottom:4px; }
 
-nav.mainnav{ flex:1; overflow-y:auto; padding: 10px 12px; }
+/* Still scrolls (wheel/touch/keyboard) when the nav list is taller than the
+   sidebar — just without a visible track/thumb, matching Recruiting's own
+   sidebar nav, which never shows one (it has no overflow at all). */
+nav.mainnav{ flex:1; overflow-y:auto; padding: 10px 12px; scrollbar-width:none; }
+nav.mainnav::-webkit-scrollbar{ display:none; }
 .nav-section-title{
   font-size:10.5px; font-weight:700; color: var(--text-3); text-transform:uppercase;
   letter-spacing:0.6px; padding: 14px 10px 6px 10px;
