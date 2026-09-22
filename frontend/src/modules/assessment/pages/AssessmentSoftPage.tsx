@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { IsometricBarsChart } from '@/modules/assessment/components/Chart3D'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
+import { GroupedBarsChart } from '@/modules/assessment/components/GroupedBarsChart'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { SoftEvalModal } from '@/modules/assessment/components/SoftEvalModal'
 import { StatTile } from '@/modules/assessment/components/StatTile'
@@ -17,9 +17,10 @@ const BF_ORDER = ['O', 'C', 'E', 'A', 'S'] as const
 // Migrated from renderSoft()/renderSoftViewBody()/renderSoft*View()
 // (js/assessment.js ~6368-6625) — all 6 legacy tabs (Org/Area/Alfa/
 // Individuale/Ranking/Match) plus the "Nuova valutazione" modal, completed in
-// Phase 25 (Phase 24 had shipped only Org+Alfa). The Big Five 3D bar chart
-// (Org and Individuale tabs) uses the ported apex-charts-3d.ts, byte-for-byte
-// the same SVG-generation code as legacy's ApexCharts3D.renderIsometricBars.
+// Phase 25 (Phase 24 had shipped only Org+Alfa). The Big Five chart (Org and
+// Individuale tabs) is GroupedBarsChart.tsx, a real Chart.js bar chart —
+// it used to be the ported apex-charts-3d.ts isometric-SVG renderer, moved
+// off that for a flat/rounded bar restyle (see GroupedBarsChart.tsx).
 //
 // Each tab is a top-level component (not defined inside AssessmentSoftPage)
 // so React never remounts an entire tab's subtree just because a sibling's
@@ -132,13 +133,15 @@ function SoftOrgView() {
           {/* Obtained/Expected is a profile comparison, not a severity signal —
               was lime for Obtained; charts stay off lime, so it uses the
               app's designated multi-series categorical hue instead. */}
-          <IsometricBarsChart
-            groups={BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, values: [bfOrg[d], bfOrgAtteso[d]] }))}
-            seriesNames={[ui.chartObtained, ui.chartExpected]}
-            seriesColors={['var(--chart-2)', 'var(--text-3)']}
-            max={10}
-            dec={1}
-          />
+          <div style={{ position: 'relative', height: 280 }}>
+            <GroupedBarsChart
+              groups={BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, values: [bfOrg[d], bfOrgAtteso[d]] }))}
+              seriesNames={[ui.chartObtained, ui.chartExpected]}
+              seriesColors={['var(--chart-2)', 'var(--text-3)']}
+              max={10}
+              dec={1}
+            />
+          </div>
         </div>
       </div>
       <div className="card" style={{ marginTop: 16 }}>
@@ -308,13 +311,15 @@ function SoftIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
           <div className="card-title-row">
             <div className="card-title">{ui.softBigFiveProfile}</div>
           </div>
-          <IsometricBarsChart
-            groups={BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, values: [bf[d], bfAtteso[d]] }))}
-            seriesNames={[`${emp.nome} (${ui.chartObtained})`, ui.chartExpected]}
-            seriesColors={['var(--chart-2)', 'var(--text-3)']}
-            max={10}
-            dec={1}
-          />
+          <div style={{ position: 'relative', height: 280 }}>
+            <GroupedBarsChart
+              groups={BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, values: [bf[d], bfAtteso[d]] }))}
+              seriesNames={[`${emp.nome} (${ui.chartObtained})`, ui.chartExpected]}
+              seriesColors={['var(--chart-2)', 'var(--text-3)']}
+              max={10}
+              dec={1}
+            />
+          </div>
         </div>
         <div className="card">
           <div className="card-title-row">

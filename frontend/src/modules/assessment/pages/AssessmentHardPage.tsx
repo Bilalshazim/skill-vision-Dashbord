@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { IsometricBarsChart } from '@/modules/assessment/components/Chart3D'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { EvaluationManagerModal } from '@/modules/assessment/components/EvaluationManagerModal'
+import { GroupedBarsChart } from '@/modules/assessment/components/GroupedBarsChart'
 import { HardEvalModal } from '@/modules/assessment/components/HardEvalModal'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { StatTile } from '@/modules/assessment/components/StatTile'
@@ -180,13 +180,15 @@ function HardIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
           {/* Manager/Peer/Self are rating sources, not a severity signal — was
               lime for Manager; charts stay off lime, so it uses the app's
               designated multi-series categorical hue instead. */}
-          <IsometricBarsChart
-            groups={hsm.dims.map((d) => ({ label: d.code, values: [d.perSource.resp, d.perSource.peer, d.perSource.auto], target: 6.5 }))}
-            seriesNames={[ui.hardColManager, ui.hardColPeer, ui.hardColSelf]}
-            seriesColors={['var(--chart-2)', 'rgba(171,167,154,0.9)', 'var(--warning)']}
-            max={10}
-            dec={1}
-          />
+          <div style={{ position: 'relative', height: 280 }}>
+            <GroupedBarsChart
+              groups={hsm.dims.map((d) => ({ label: d.code, values: [d.perSource.resp, d.perSource.peer, d.perSource.auto], target: 6.5 }))}
+              seriesNames={[ui.hardColManager, ui.hardColPeer, ui.hardColSelf]}
+              seriesColors={['var(--chart-2)', 'rgba(171,167,154,0.9)', 'var(--warning)']}
+              max={10}
+              dec={1}
+            />
+          </div>
         </div>
         <div className="card">
           <div className="card-title-row">
