@@ -55,7 +55,13 @@
      families are kept as later fallbacks only, not removed, in case a
      future build does load them. */
   --font: 'Geist', 'Gudea', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-  --font-serif: 'Geist', 'Noto Serif JP', 'Times New Roman', Times, serif;
+  /* Renamed from --font-serif: the old name promised a serif face but
+     listed 'Geist' (a sans) first, so it never actually resolved to serif —
+     it silently rendered Times New Roman on any machine without a
+     Noto-Serif-JP-adjacent font installed. Headings were always meant to
+     use the app's loaded sans display face, same as body text, so this is
+     now an explicit alias of --font rather than a second, diverging stack. */
+  --font-display: var(--font);
   --font-mono: 'Geist Mono', SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   color-scheme: dark;
 }
@@ -148,7 +154,7 @@
 .sv-assessment-shell .card, .sv-assessment-shell .sidebar, .sv-assessment-shell .topbar, .sv-assessment-shell .modal, .sv-assessment-shell .drawer, .sv-assessment-shell .quad, .sv-assessment-shell .neu-tile, .sv-assessment-shell .login-form, .sv-assessment-shell table.dtable th, .sv-assessment-shell .content{
   transition: background-color .2s ease-in-out, border-color .2s ease-in-out, box-shadow .2s ease-in-out;
 }
-.sv-assessment-shell h1, .sv-assessment-shell h2, .sv-assessment-shell h3{ font-family: var(--font-serif); font-weight:500; }
+.sv-assessment-shell h1, .sv-assessment-shell h2, .sv-assessment-shell h3{ font-family: var(--font-display); font-weight:500; }
 .sv-assessment-shell button, .sv-assessment-shell input, .sv-assessment-shell textarea, .sv-assessment-shell select{ font-family: inherit; font-size: inherit; color: inherit; }
 .sv-assessment-shell button{ cursor:pointer; }
 .sv-assessment-shell ::selection{ background: var(--accent-soft-2); }
@@ -967,7 +973,7 @@ a.linklike:hover{ text-decoration:underline; }
 
 .exi-eyebrow{ font-size:10px; font-weight:800; letter-spacing:.14em; color:var(--accent-dark); text-transform:uppercase; margin-bottom:10px; }
 .sv-assessment-shell[data-theme="dark"] .exi-eyebrow{ color:var(--accent); }
-.exi-qtitle{ font-size:19px; font-weight:700; line-height:1.4; margin-bottom:8px; font-family:var(--font-serif); }
+.exi-qtitle{ font-size:19px; font-weight:700; line-height:1.4; margin-bottom:8px; font-family:var(--font-display); }
 .exi-qsub{ font-size:12.8px; color:var(--text-2); line-height:1.6; margin-bottom:20px; }
 .exi-qsub strong{ color:var(--text-1); }
 
@@ -1046,7 +1052,7 @@ a.linklike:hover{ text-decoration:underline; }
 .exi-ans-quote{ font-size:12.8px; color:var(--text-2); font-style:italic; line-height:1.7; padding:11px 14px; background:var(--surface-alt); border-radius:10px; border-left:3px solid var(--accent); margin-top:10px; }
 
 .exi-cta{ background:linear-gradient(135deg, var(--accent-dark), var(--accent)); border-radius:18px; padding:1.8rem; text-align:center; margin:1.5rem 0; }
-.exi-cta h3{ font-size:18px; font-weight:700; color:#0D0C0A; margin-bottom:8px; font-family:var(--font-serif); }
+.exi-cta h3{ font-size:18px; font-weight:700; color:#0D0C0A; margin-bottom:8px; font-family:var(--font-display); }
 .exi-cta p{ font-size:13.5px; color:rgba(13,12,10,.75); line-height:1.6; max-width:520px; margin:0 auto 16px; }
 .exi-cta .btn{ background:#0D0C0A; color:var(--accent); border-color:#0D0C0A; }
 .exi-cta .btn:hover{ background:#000; }
