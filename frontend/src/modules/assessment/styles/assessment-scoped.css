@@ -97,10 +97,24 @@
   --text-1:#111827 !important;
   --text-2:#4B5563 !important;
   --text-3:#6B7280 !important;
-  --accent:#B4C614;
-  --accent-dark:#8C980B;
-  --accent-soft:rgba(180,198,20,0.14);
-  --accent-soft-2:rgba(180,198,20,0.26);
+  /* Was #B4C614 (Accent-500) — the actual button/nav-item lime fill this
+     module renders in light mode, while the shared top bar and Recruiting's
+     own light mode both render --primary/--accent as #DDEE1C (Accent-400;
+     see index.css's own comment: light mode moved to match dark mode's
+     value as a deliberate Design System Foundations decision, superseding
+     the old per-theme split). The result was two visibly different limes
+     in the same light-mode screen — e.g. the topbar's active module tab
+     (#DDEE1C) next to this sidebar's active nav item (#B4C614) below it.
+     Matching dark mode's own --accent/--accent-dark pair exactly (just the
+     roles swap: DDEE1C is now the fill, B4C614 becomes its hover/darker
+     shade) makes every lime fill in the app the same hex in both themes.
+     --accent-soft/-2 are intentionally NOT overridden here anymore — the
+     base rule above already defines them as this same DDEE1C tint, which
+     dark mode already relies on too; keeping one definition instead of a
+     second, now-matching copy. --gold is a distinct token (Top Talent tier)
+     and untouched. */
+  --accent:#DDEE1C;
+  --accent-dark:#B4C614;
   --gold:#8C980B;
   --gold-soft:rgba(180,198,20,0.16);
   --shadow-sm:0 1px 2px rgba(15,23,42,.06), 0 1px 1px rgba(15,23,42,.04);
