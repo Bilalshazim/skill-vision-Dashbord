@@ -1,13 +1,13 @@
+import { Minus, TrendingDown, TrendingUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { AndamentoChart } from '@/modules/assessment/components/AndamentoChart'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
-import { ValoreAreaChart } from '@/modules/assessment/components/ValoreAreaChart'
-import { ValoreTierDistChart } from '@/modules/assessment/components/ValoreChart'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { bothActive, classifyPopulation, computeHardSummary, computeSoftSummary, primaryScore, primaryScoreLabel, tierFor } from '@/modules/assessment/lib/calculations'
-import { fmt1, getTierDefs } from '@/modules/assessment/lib/legacy-utils'
+import { fmt1, getTierDefs, round1 } from '@/modules/assessment/lib/legacy-utils'
 
 // PHASE 25 fix: legacy's data-theme dark-mode tiers use different hex values
 // than what this file originally used ('#B0208C' etc were the LIGHT-mode
@@ -24,6 +24,15 @@ function tierColors(isDark: boolean): Record<string, string> {
     critica: 'var(--danger)',
   }
 }
+
+// Client-supplied reference (skillvision-chart.html) hardcodes these exact
+// 6 monthly points for each module rather than deriving them from any real
+// per-month history — this app has no such history (every employee record
+// is a single current snapshot, see demo-data.ts), so there's nothing to
+// compute here differently. Kept verbatim as the demo trend, same as the
+// rest of the app's demo data is also a fixed illustrative snapshot.
+const ANDAMENTO_SOFT = [6.1, 6.2, 6.1, 6.3, 6.3, 6.4]
+const ANDAMENTO_HARD = [6.0, 6.1, 6.3, 6.2, 6.4, 6.5]
 
 function exportValoreCsv(rows: { e: { cognome: string; nome: string; area: string; ruolo: string }; soft: number; hard: number; combined: number; tier: { label: string } }[], csvHeader: string) {
   let csv = csvHeader + '\n'
@@ -64,6 +73,15 @@ export default function AssessmentValorePage() {
     [state, lang],
   )
   const colors = tierColors(theme === 'dark')
+
+  // "Score medio" for the trend footer blends both series equally at each
+  // point, same as the reference's own single trend line/label — compares
+  // the blended first vs. last month to decide the rising/falling/stable
+  // wording (a >=0.05 move either way counts as a real trend, not noise).
+  const andamentoBlendFirst = (ANDAMENTO_SOFT[0] + ANDAMENTO_HARD[0]) / 2
+  const andamentoBlendLast = (ANDAMENTO_SOFT[ANDAMENTO_SOFT.length - 1] + ANDAMENTO_HARD[ANDAMENTO_HARD.length - 1]) / 2
+  const andamentoDelta = round1(andamentoBlendLast - andamentoBlendFirst)
+  const andamentoTrend = andamentoDelta > 0.05 ? 'up' : andamentoDelta < -0.05 ? 'down' : 'flat'
 
   useTopbarActions(
     <Button variant="outline" size="sm" onClick={() => exportValoreCsv(rows, ui.csvHeaderValore)}>
@@ -112,21 +130,30 @@ export default function AssessmentValorePage() {
             {ui.valoreIndexNote(both ? ui.valoreIndexBoth : state.settings.modulo === 'A' ? ui.valoreIndexAOnly : ui.valoreIndexBOnly)}
           </div>
         </div>
-        <div className={both ? 'card dark-chart-card' : 'card'} style={{ minHeight: 480 }}>
+        <div className="card">
           <div className="card-title-row">
-            <div className="card-title">{both ? ui.valoreScatterTitle : ui.valoreTierDistTitle}</div>
+            <div className="card-title">{ui.homeAndamentoTitle}</div>
           </div>
-          {both && (
-            <div className="small-note" style={{ marginBottom: 4 }}>
-              {ui.valoreBubbleSizeNote}
-            </div>
-          )}
-          <div style={{ position: 'relative', height: 420 }}>
-            {both ? (
-              <ValoreAreaChart rows={rows} onOpenDrawer={setDrawerId} softSeriesLabel={ui.valoreModuleALabel} hardSeriesLabel={ui.valoreModuleBLabel} theme={theme} />
-            ) : (
-              <ValoreTierDistChart labels={TIER_DEFS.map((t) => t.label)} counts={TIER_DEFS.map((t) => tiers[t.key].length)} colors={TIER_DEFS.map((t) => colors[t.key])} />
-            )}
+          <div className="small-note" style={{ marginBottom: 14 }}>
+            {ui.homeAndamentoSub(state.employees.length)}
+          </div>
+          <div style={{ position: 'relative', height: 320 }}>
+            <AndamentoChart months={ui.homeAndamentoMonths} softSeries={ANDAMENTO_SOFT} hardSeries={ANDAMENTO_HARD} softLabel={ui.moduleASoft} hardLabel={ui.moduleBHard} />
+          </div>
+          <div className="legend-row" style={{ marginTop: 12 }}>
+            <span className="legend-dot">
+              <i style={{ background: 'var(--chart-2)' }} />
+              {ui.moduleASoft}
+            </span>
+            <span className="legend-dot">
+              <i style={{ background: 'var(--success)' }} />
+              {ui.moduleBHard}
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 14, fontSize: 13, fontWeight: 600, color: 'var(--text-1)' }}>
+            {andamentoTrend === 'up' ? <TrendingUp size={14} color="var(--success)" /> : andamentoTrend === 'down' ? <TrendingDown size={14} color="var(--danger)" /> : <Minus size={14} color="var(--text-3)" />}
+            {andamentoTrend === 'up' ? ui.homeAndamentoRising : andamentoTrend === 'down' ? ui.homeAndamentoFalling : ui.homeAndamentoStable}
+            <span className="small-note">· {ui.homeAndamentoPeriod}</span>
           </div>
         </div>
       </div>
