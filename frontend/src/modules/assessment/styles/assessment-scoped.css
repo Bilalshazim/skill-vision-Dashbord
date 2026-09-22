@@ -171,7 +171,10 @@
   transition: background-color .2s ease-in-out, border-color .2s ease-in-out, box-shadow .2s ease-in-out;
 }
 .sv-assessment-shell h1, .sv-assessment-shell h2, .sv-assessment-shell h3{ font-family: var(--font-display); font-weight:500; }
-.sv-assessment-shell button, .sv-assessment-shell input, .sv-assessment-shell textarea, .sv-assessment-shell select{ font-family: inherit; font-size: inherit; color: inherit; }
+/* Legacy controls inherit the Assessment palette. Shared shadcn Buttons own
+   their semantic foregrounds (for example, neutral-950 text on lime
+   primary buttons), so they must not inherit the surrounding page color. */
+.sv-assessment-shell button:not([data-slot="button"]), .sv-assessment-shell input, .sv-assessment-shell textarea, .sv-assessment-shell select{ font-family: inherit; font-size: inherit; color: inherit; }
 .sv-assessment-shell button{ cursor:pointer; }
 .sv-assessment-shell ::selection{ background: var(--accent-soft-2); }
 
