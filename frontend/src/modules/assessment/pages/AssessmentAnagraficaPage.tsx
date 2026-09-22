@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { AddEmployeeModal } from '@/modules/assessment/components/AddEmployeeModal'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { EmployeeSoftSkillModal } from '@/modules/assessment/components/EmployeeSoftSkillModal'
@@ -33,10 +34,10 @@ export default function AssessmentAnagraficaPage() {
 
   useTopbarActions(
     canEdit ? (
-      <button className="btn btn-primary" onClick={() => setShowAddEmployee(true)}>
+      <Button variant="default" onClick={() => setShowAddEmployee(true)}>
         <Icon name="plus" />
         {ui.anagAddEmployee}
-      </button>
+      </Button>
     ) : null,
     [canEdit, ui],
   )
@@ -227,25 +228,25 @@ export default function AssessmentAnagraficaPage() {
                       </td>
                       <td>
                         {e.archived ? (
-                          <button
-                            className="btn btn-sm"
+                          <Button
+                            variant="outline" size="sm"
                             onClick={(ev) => {
                               ev.stopPropagation()
                               restoreEmployee(e.id)
                             }}
                           >
                             {ui.anagRestore}
-                          </button>
+                          </Button>
                         ) : (
-                          <button
-                            className="btn btn-sm btn-danger-outline"
+                          <Button
+                            variant="destructive" size="sm"
                             onClick={(ev) => {
                               ev.stopPropagation()
                               setArchiveModalId(e.id)
                             }}
                           >
                             {ui.anagArchive}
-                          </button>
+                          </Button>
                         )}
                       </td>
                     </tr>
@@ -256,15 +257,15 @@ export default function AssessmentAnagraficaPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderTop: '1px solid var(--border)', flexWrap: 'wrap', gap: 10 }}>
               <div className="small-note">{ui.anagShowing(start + 1, Math.min(start + PAGE_SIZE, total), total)}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <button className="btn btn-sm" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
+                <Button variant="outline" size="sm" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
                   <Icon name="chevronLeft" />
-                </button>
+                </Button>
                 <span className="small-note" style={{ fontWeight: 700, color: 'var(--text-1)' }}>
                   {ui.anagPageOf(currentPage, totalPages)}
                 </span>
-                <button className="btn btn-sm" disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)}>
+                <Button variant="outline" size="sm" disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)}>
                   <Icon name="chevronRight" />
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -329,18 +330,18 @@ function ArchiveModal({ employeeId, onClose, onConfirm }: { employeeId: string; 
           )}
         </div>
         <div className="modal-foot">
-          <button className="btn" onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             {ui.importCancel}
-          </button>
-          <button
-            className="btn btn-danger-outline"
+          </Button>
+          <Button
+            variant="destructive"
             onClick={() => {
               if (reason === 'altro' && !note.trim()) return
               onConfirm(reason, reason === 'altro' ? note.trim() : '')
             }}
           >
             {ui.archiveConfirmBtn}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Modal } from '@/modules/assessment/components/Modal'
 import { COLLABORATOR_LETTER_TEMPLATE } from '@/modules/assessment/lib/demo-data'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
@@ -191,7 +192,7 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
     const okCount = results.results.filter((r) => r.success).length
     const failCount = results.results.length - okCount
     return (
-      <Modal title={ui.surveySendResultsTitle} wide onClose={onClose} footer={<button className="btn btn-primary" onClick={() => setResults(null)}>{ui.btnClose}</button>}>
+      <Modal title={ui.surveySendResultsTitle} wide onClose={onClose} footer={<Button variant="default" onClick={() => setResults(null)}>{ui.btnClose}</Button>}>
         <div className="small-note" style={{ marginBottom: 12 }}>
           {ui.surveySendResultsSub(okCount, failCount)}
         </div>
@@ -220,7 +221,7 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Modal title={ui.surveyLinkModalTitle} sub={ui.surveyLinkModalSub} wide onClose={onClose} footer={<button className="btn" onClick={onClose}>{ui.btnClose}</button>}>
+    <Modal title={ui.surveyLinkModalTitle} sub={ui.surveyLinkModalSub} wide onClose={onClose} footer={<Button variant="outline" onClick={onClose}>{ui.btnClose}</Button>}>
       {!link && (
         <div className="survey-warning-box">
           <div>
@@ -300,13 +301,13 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
         {!apiConfigured && <span className="small-note" style={{ color: 'var(--warning)' }}>{ui.toastSurveyApiNotConfigured}</span>}
         {!apiConfigured && (
-          <button className="btn btn-sm" onClick={mailtoFallback} title={ui.surveyMailtoFallbackHint}>
+          <Button variant="outline" size="sm" onClick={mailtoFallback} title={ui.surveyMailtoFallbackHint}>
             {ui.surveyMailtoFallbackBtn}
-          </button>
+          </Button>
         )}
-        <button className="btn btn-primary" disabled={sending} onClick={submitSend}>
+        <Button variant="default" disabled={sending} onClick={submitSend}>
           {sending ? ui.toastSurveySending(selected.size) : ui.surveyInviaBtn}
-        </button>
+        </Button>
       </div>
     </Modal>
   )

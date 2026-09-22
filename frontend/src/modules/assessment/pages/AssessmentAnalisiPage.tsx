@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { AnalisiWizard } from '@/modules/assessment/components/AnalisiWizard'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
@@ -171,22 +172,22 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
 
   useTopbarActions(
     <>
-      <button className="btn btn-ghost btn-sm" onClick={printReport}>
+      <Button variant="ghost" size="sm" onClick={printReport}>
         {ui.exiPrintBtn}
-      </button>
-      <button className="btn btn-ghost btn-sm" onClick={exportJson}>
+      </Button>
+      <Button variant="ghost" size="sm" onClick={exportJson}>
         {ui.exiSaveBtn}
-      </button>
+      </Button>
       {canEdit && (
-        <button className="btn btn-ghost btn-sm" onClick={newInterview}>
+        <Button variant="ghost" size="sm" onClick={newInterview}>
           {ui.exiNewInterviewBtn}
-        </button>
+        </Button>
       )}
       {canEdit && (
-        <button className="btn btn-primary btn-sm" onClick={onEditAnswers}>
+        <Button variant="default" size="sm" onClick={onEditAnswers}>
           <Icon name="edit" />
           {ui.exiEditAnswersBtn}
-        </button>
+        </Button>
       )}
     </>,
     [a, ui, canEdit],
@@ -371,15 +372,15 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
       <div className="exi-cta">
         <h3>{ui.exiCtaTitle}</h3>
         <p>{ui.exiCtaText}</p>
-        <button
-          className="btn"
+        <Button
+          variant="outline"
           onClick={() => {
             toast(ui.exiCtaToast, 'ok')
             onStartAssessment()
           }}
         >
           {ui.exiCtaBtn}
-        </button>
+        </Button>
       </div>
 
       {/* "CONSIDERAZIONI DELL'ESPERTO" — a real, server-side Claude call
@@ -390,10 +391,10 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
           can be slow/fail (network, quota), unlike that page's instant
           local answers. */}
       <div className="card" style={{ marginTop: 18 }}>
-        <button className="btn btn-primary" onClick={requestExpertReview} disabled={expertReview.status === 'loading'}>
+        <Button variant="default" onClick={requestExpertReview} disabled={expertReview.status === 'loading'}>
           <Icon name="sparkles" />
           {expertReview.status === 'loading' ? ui.exiExpertReviewLoading : ui.exiExpertReviewBtn}
-        </button>
+        </Button>
         {expertReview.status === 'done' && (
           <p style={{ marginTop: 12, whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{expertReview.text}</p>
         )}

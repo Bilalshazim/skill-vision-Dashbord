@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { AbsencesEditor } from '@/modules/assessment/components/AbsencesEditor'
 import { Modal } from '@/modules/assessment/components/Modal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
@@ -99,12 +100,12 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
       onClose={onClose}
       footer={
         <>
-          <button className="btn" onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             {ui.importCancel}
-          </button>
-          <button className="btn btn-primary" onClick={submit}>
+          </Button>
+          <Button variant="default" onClick={submit}>
             {ui.anagAddEmployee}
-          </button>
+          </Button>
         </>
       }
     >

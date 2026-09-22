@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { exiRiskTier, exiScoreTier, fmt1 } from '@/modules/assessment/lib/legacy-utils'
 import type { ExiData } from '@/modules/assessment/lib/types'
@@ -149,9 +150,9 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
 
   const total = steps.length - 1
   const cancelBtn = initial.completed && onCancel ? (
-    <button className="btn btn-ghost btn-sm" onClick={onCancel}>
+    <Button variant="ghost" size="sm" onClick={onCancel}>
       {ui.exiCancelEditBtn}
-    </button>
+    </Button>
   ) : null
 
   return (
@@ -220,9 +221,9 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
           </div>
           <div className="exi-nav">
             <span />
-            <button className="btn btn-primary" onClick={next}>
+            <Button variant="default" onClick={next}>
               {ui.exiStartBtn}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -283,12 +284,12 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
             </div>
           </div>
           <div className="exi-nav">
-            <button className="btn btn-ghost" onClick={prev}>
+            <Button variant="ghost" onClick={prev}>
               {ui.exiBackBtn}
-            </button>
-            <button className="btn btn-primary" onClick={next}>
+            </Button>
+            <Button variant="default" onClick={next}>
               {ui.exiNextBtn}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -326,12 +327,12 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
             <SliderBox ticks={ui.exiQ5Ticks} value={draft.q5} inverted pointsOf10Label={ui.exiPointsOf10} onChange={(v) => setDraft((p) => ({ ...p, q5: v }))} />
           </div>
           <div className="exi-nav">
-            <button className="btn btn-ghost" onClick={prev}>
+            <Button variant="ghost" onClick={prev}>
               {ui.exiBackBtn}
-            </button>
-            <button className="btn btn-primary" onClick={next}>
+            </Button>
+            <Button variant="default" onClick={next}>
               {ui.exiNextBtn}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -367,12 +368,12 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
             <SliderBox ticks={ui.exiQ6Ticks} value={draft.q6} inverted={false} pointsOf10Label={ui.exiPointsOf10} onChange={(v) => setDraft((p) => ({ ...p, q6: v }))} />
           </div>
           <div className="exi-nav">
-            <button className="btn btn-ghost" onClick={prev}>
+            <Button variant="ghost" onClick={prev}>
               {ui.exiBackBtn}
-            </button>
-            <button className="btn btn-primary" onClick={next}>
+            </Button>
+            <Button variant="default" onClick={next}>
               {ui.exiNextBtn}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -421,12 +422,12 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
             </div>
           </div>
           <div className="exi-nav">
-            <button className="btn btn-ghost" onClick={prev}>
+            <Button variant="ghost" onClick={prev}>
               {ui.exiBackBtn}
-            </button>
-            <button className="btn btn-primary" onClick={generate}>
+            </Button>
+            <Button variant="default" onClick={generate}>
               {ui.exiGenerateBtn}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -508,12 +509,12 @@ function SliderStep({
         </div>
       </div>
       <div className="exi-nav">
-        <button className="btn btn-ghost" onClick={onBack}>
+        <Button variant="ghost" onClick={onBack}>
           {backLabel}
-        </button>
-        <button className="btn btn-primary" onClick={onNext}>
+        </Button>
+        <Button variant="default" onClick={onNext}>
           {nextLabel}
-        </button>
+        </Button>
       </div>
     </div>
   )

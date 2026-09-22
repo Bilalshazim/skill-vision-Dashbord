@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { IsometricBarsChart } from '@/modules/assessment/components/Chart3D'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { EvaluationManagerModal } from '@/modules/assessment/components/EvaluationManagerModal'
@@ -36,14 +37,14 @@ export default function AssessmentHardPage({ defaultView = 'individuale' }: { de
   useTopbarActions(
     canEdit ? (
       <>
-        <button className="btn btn-sm" onClick={() => setShowManagerModal(true)}>
+        <Button variant="outline" size="sm" onClick={() => setShowManagerModal(true)}>
           <Icon name="userGear" />
           {ui.evalManagerBtn}
-        </button>
-        <button className="btn btn-primary" onClick={() => setShowEvalModal(true)}>
+        </Button>
+        <Button variant="default" onClick={() => setShowEvalModal(true)}>
           <Icon name="plus" />
           {ui.newEvaluation}
-        </button>
+        </Button>
       </>
     ) : null,
     [canEdit, ui],
@@ -108,10 +109,10 @@ export default function AssessmentHardPage({ defaultView = 'individuale' }: { de
               <label>{ui.newEvaluatorName}</label>
               <input type="text" placeholder={ui.evaluatorNameExamplePh} value={newEvaluatorName} onChange={(e) => setNewEvaluatorName(e.target.value)} />
             </div>
-            <button className="btn btn-sm btn-primary" onClick={addEvaluator}>
+            <Button variant="default" size="sm" onClick={addEvaluator}>
               <Icon name="plus" />
               {ui.addEvaluator}
-            </button>
+            </Button>
           </div>
         )}
       </div>

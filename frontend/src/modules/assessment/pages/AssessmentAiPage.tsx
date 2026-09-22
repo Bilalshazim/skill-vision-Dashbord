@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { featuredQuestions, formatAIBlocks, localIntentMatch, splitEmphasis, suggestedQuestions, type AiTextBlock } from '@/modules/assessment/lib/ai-answers'
 
@@ -117,9 +118,9 @@ export default function AssessmentAiPage() {
                 if (e.key === 'Enter') send()
               }}
             />
-            <button className="btn btn-primary" onClick={send}>
+            <Button variant="default" onClick={send}>
               {ui.aiSendBtn}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { primaryScore, tierFor } from '@/modules/assessment/lib/calculations'
 import { fmt1 } from '@/modules/assessment/lib/legacy-utils'
@@ -91,9 +92,9 @@ export default function AssessmentFeedbackPage() {
                 </div>
               ))}
               {canEdit && (
-                <button className="btn btn-sm btn-primary" onClick={() => save(e.id)}>
+                <Button variant="default" size="sm" onClick={() => save(e.id)}>
                   {ui.btnSave}
-                </button>
+                </Button>
               )}
             </div>
           )

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Modal } from '@/modules/assessment/components/Modal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { computeHardSummary } from '@/modules/assessment/lib/calculations'
@@ -86,12 +87,12 @@ export function HardEvalModal({ onClose }: { onClose: () => void }) {
       onClose={onClose}
       footer={
         <>
-          <button className="btn" onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             {ui.importCancel}
-          </button>
-          <button className="btn btn-primary" onClick={submit}>
+          </Button>
+          <Button variant="default" onClick={submit}>
             {ui.btnSaveEvaluation}
-          </button>
+          </Button>
         </>
       }
     >

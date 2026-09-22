@@ -122,7 +122,19 @@
    Recruiting's own light-first Tailwind theme. This is the ONLY structural
    change made to this file; every rule, value and selector otherwise
    between rules is untouched — see legacy-assessment.css for the byte-for-byte original. */
-.sv-assessment-shell, .sv-assessment-shell *{box-sizing:border-box; margin:0; padding:0;}
+/* :not(:where([data-slot="button"])) — the shadcn <Button> component (used
+   for every former .btn/.btn-primary/etc element, see button.tsx) sets its
+   own padding via Tailwind utility classes. Those live in Tailwind's @layer
+   utilities, which loses to this file's unlayered padding:0 on ties, so
+   Button's own padding was being silently zeroed out. Excluding it here lets
+   Button own its own box model, exactly like .btn used to win by coming
+   later in this same file. The :where() wrapper keeps this exclusion at
+   zero added specificity — plain :not([data-slot="button"]) would raise the
+   whole selector's specificity and start winning ties against every other
+   single-class rule below that currently relies on source order against
+   this same reset (e.g. .card, .topbar) — that was verified live and broke
+   layout module-wide, so :where() is required, not decorative. */
+.sv-assessment-shell, .sv-assessment-shell *:not(:where([data-slot="button"])){box-sizing:border-box; margin:0; padding:0;}
 .sv-assessment-shell{height:100%;}
 .sv-assessment-shell{
   font-family: var(--font);

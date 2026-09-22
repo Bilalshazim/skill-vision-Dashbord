@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { AbsencesEditor } from '@/modules/assessment/components/AbsencesEditor'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { allRolesKnown, areasList, repartiList } from '@/modules/assessment/lib/calculations'
@@ -139,12 +140,12 @@ export function EmployeeEditForm({ emp, onSave, onCancel }: { emp: Employee; onS
       </div>
       <AbsencesEditor rows={absences} onChange={setAbsences} />
       <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-        <button className="btn btn-primary btn-sm" onClick={save}>
+        <Button variant="default" size="sm" onClick={save}>
           {ui.saveChanges}
-        </button>
-        <button className="btn btn-sm" onClick={onCancel}>
+        </Button>
+        <Button variant="outline" size="sm" onClick={onCancel}>
           {ui.cancelEdit}
-        </button>
+        </Button>
       </div>
     </div>
   )

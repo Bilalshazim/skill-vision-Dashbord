@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { Button } from '@/components/ui/button'
 import { computeHardSummary } from '@/modules/assessment/lib/calculations'
 import { getApex5dDimensions, getApexSources, getUI } from '@/modules/assessment/lib/legacy-utils'
 import { readSharedLang, readSharedTheme } from '@/modules/assessment/lib/shell-bridge'
@@ -157,9 +158,9 @@ export default function AssessmentEvaluatePage() {
           ))}
         </div>
         <div style={{ marginTop: 16, textAlign: 'right' }}>
-          <button className="btn btn-primary" onClick={submit}>
+          <Button variant="default" onClick={submit}>
             {ui.reSubmitBtn}
-          </button>
+          </Button>
         </div>
       </>
     )

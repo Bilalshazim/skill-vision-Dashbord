@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { IsometricBarsChart } from '@/modules/assessment/components/Chart3D'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
@@ -43,14 +44,14 @@ export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultVie
   useTopbarActions(
     canEdit ? (
       <>
-        <button className="btn" onClick={() => setShowSurveyLink(true)}>
+        <Button variant="outline" onClick={() => setShowSurveyLink(true)}>
           <Icon name="notes" />
           {ui.surveyInviaLinkTestBtn}
-        </button>
-        <button className="btn btn-primary" onClick={() => setShowEvalModal(true)}>
+        </Button>
+        <Button variant="default" onClick={() => setShowEvalModal(true)}>
           <Icon name="plus" />
           {ui.newEvaluation}
-        </button>
+        </Button>
       </>
     ) : null,
     [canEdit, ui],

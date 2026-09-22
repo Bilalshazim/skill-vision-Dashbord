@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { Modal } from '@/modules/assessment/components/Modal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { getSoftClusters, getSoftSkills } from '@/modules/assessment/lib/legacy-utils'
@@ -45,13 +46,13 @@ export function EmployeeSoftSkillModal({ employeeId, onClose }: { employeeId: st
       footer={
         <div style={{ display: 'flex', gap: 8 }}>
           {canEdit && isOverridden && (
-            <button className="btn" onClick={resetToRoleDefault}>
+            <Button variant="outline" onClick={resetToRoleDefault}>
               {ui.empSoftModalResetBtn}
-            </button>
+            </Button>
           )}
-          <button className="btn btn-primary" onClick={onClose}>
+          <Button variant="default" onClick={onClose}>
             {ui.settingsClose}
-          </button>
+          </Button>
         </div>
       }
     >

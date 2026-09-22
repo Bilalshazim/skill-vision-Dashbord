@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { Modal } from '@/modules/assessment/components/Modal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 
@@ -11,9 +12,9 @@ export function MethodologyModal({ onClose }: { onClose: () => void }) {
       sub={ui.methodologyModalSub}
       onClose={onClose}
       footer={
-        <button className="btn btn-primary" onClick={onClose}>
+        <Button variant="default" onClick={onClose}>
           {ui.methodologyGotIt}
-        </button>
+        </Button>
       }
     >
       {/* These strings carry literal <b> tags (legacy renders them via innerHTML). */}

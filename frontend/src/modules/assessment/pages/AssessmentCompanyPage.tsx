@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import type { CompanyContact, CompanyLocation } from '@/modules/assessment/lib/types'
@@ -91,9 +92,9 @@ export default function AssessmentCompanyPage() {
               )}
             </div>
             <div className="modal-foot">
-              <button className="btn" onClick={() => setHeadcountModal(null)}>
+              <Button variant="outline" onClick={() => setHeadcountModal(null)}>
                 {ui.btnClose}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -127,17 +128,17 @@ export default function AssessmentCompanyPage() {
               <input type="text" value={l.city} onChange={(e) => updateLocation(i, { city: e.target.value })} />
             </div>
             {canEdit && (
-              <button type="button" className="btn btn-sm btn-danger-outline" onClick={() => setDraft((prev) => ({ ...prev, locations: prev.locations.filter((_, idx) => idx !== i) }))}>
+              <Button type="button" variant="destructive" size="sm" onClick={() => setDraft((prev) => ({ ...prev, locations: prev.locations.filter((_, idx) => idx !== i) }))}>
                 <Icon name="trash" />
-              </button>
+              </Button>
             )}
           </div>
         ))}
         {canEdit && (
-          <button type="button" className="btn btn-sm" style={{ marginTop: 6 }} onClick={() => setDraft((prev) => ({ ...prev, locations: [...prev.locations, { name: '', address: '', city: '' }] }))}>
+          <Button type="button" variant="outline" size="sm" style={{ marginTop: 6 }} onClick={() => setDraft((prev) => ({ ...prev, locations: [...prev.locations, { name: '', address: '', city: '' }] }))}>
             <Icon name="plus" />
             {ui.companyAddLocationBtn}
-          </button>
+          </Button>
         )}
       </div>
 
@@ -173,17 +174,17 @@ export default function AssessmentCompanyPage() {
               <input type="text" value={ct.phone} onChange={(e) => updateContact(i, { phone: e.target.value })} />
             </div>
             {canEdit && (
-              <button type="button" className="btn btn-sm btn-danger-outline" onClick={() => setDraft((prev) => ({ ...prev, contacts: prev.contacts.filter((_, idx) => idx !== i) }))}>
+              <Button type="button" variant="destructive" size="sm" onClick={() => setDraft((prev) => ({ ...prev, contacts: prev.contacts.filter((_, idx) => idx !== i) }))}>
                 <Icon name="trash" />
-              </button>
+              </Button>
             )}
           </div>
         ))}
         {canEdit && (
-          <button type="button" className="btn btn-sm" style={{ marginTop: 6 }} onClick={() => setDraft((prev) => ({ ...prev, contacts: [...prev.contacts, { label: '', name: '', email: '', phone: '' }] }))}>
+          <Button type="button" variant="outline" size="sm" style={{ marginTop: 6 }} onClick={() => setDraft((prev) => ({ ...prev, contacts: [...prev.contacts, { label: '', name: '', email: '', phone: '' }] }))}>
             <Icon name="plus" />
             {ui.companyAddContactBtn}
-          </button>
+          </Button>
         )}
       </div>
 
@@ -242,9 +243,9 @@ export default function AssessmentCompanyPage() {
 
       {canEdit && (
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18 }}>
-          <button className="btn btn-primary" onClick={save}>
+          <Button variant="default" onClick={save}>
             {ui.companySaveBtn}
-          </button>
+          </Button>
         </div>
       )}
     </div>

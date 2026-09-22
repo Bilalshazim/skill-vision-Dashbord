@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
@@ -135,10 +136,10 @@ export default function AssessmentCustomerCarePage() {
   const model = useMemo(() => customerCareModel(state.employees, ui), [state.employees, ui])
 
   useTopbarActions(
-    <button className="btn btn-sm" onClick={() => exportCustomerCareCsv(model, competencyName)}>
+    <Button variant="outline" size="sm" onClick={() => exportCustomerCareCsv(model, competencyName)}>
       <Icon name="download" />
       {ui.ccExportCsv}
-    </button>,
+    </Button>,
     [model, ui],
   )
 

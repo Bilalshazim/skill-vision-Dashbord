@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Modal } from '@/modules/assessment/components/Modal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { allRolesKnown } from '@/modules/assessment/lib/calculations'
@@ -79,7 +80,7 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
   if (rp?.skillWeights) Object.values(rp.skillWeights).forEach((w) => (counts[w as 1 | 2 | 3] = (counts[w as 1 | 2 | 3] || 0) + 1))
 
   return (
-    <Modal title={ui.roleCensusTitle} sub={ui.roleCensusSub} wide onClose={onClose} footer={<button className="btn" onClick={onClose}>{ui.settingsClose}</button>}>
+    <Modal title={ui.roleCensusTitle} sub={ui.roleCensusSub} wide onClose={onClose} footer={<Button variant="outline" onClick={onClose}>{ui.settingsClose}</Button>}>
       <div className="rc-role-bar">
         <div className="field" style={{ flex: 1, minWidth: 220, maxWidth: 320 }}>
           <label>{ui.anagSelectRole}</label>
@@ -112,18 +113,18 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
               <label>{ui.newRoleTitleLabel}</label>
               <input className="neu-input" type="text" placeholder={ui.newRoleTitlePh} value={newRoleName} onChange={(e) => setNewRoleName(e.target.value)} />
             </div>
-            <button className="btn btn-primary" onClick={confirmCreateRole}>
+            <Button variant="default" onClick={confirmCreateRole}>
               {ui.newRoleSaveBtn}
-            </button>
-            <button
-              className="btn"
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => {
                 setCreating(false)
                 setNewRoleName('')
               }}
             >
               {ui.importCancel}
-            </button>
+            </Button>
           </>
         )}
       </div>

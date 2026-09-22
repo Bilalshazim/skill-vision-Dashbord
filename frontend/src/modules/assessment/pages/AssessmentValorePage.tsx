@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { ValoreAreaChart } from '@/modules/assessment/components/ValoreAreaChart'
@@ -65,10 +66,10 @@ export default function AssessmentValorePage() {
   const colors = tierColors(theme === 'dark')
 
   useTopbarActions(
-    <button className="btn btn-sm" onClick={() => exportValoreCsv(rows, ui.csvHeaderValore)}>
+    <Button variant="outline" size="sm" onClick={() => exportValoreCsv(rows, ui.csvHeaderValore)}>
       <Icon name="download" />
       {ui.valoreExportCsv}
-    </button>,
+    </Button>,
     [rows, ui],
   )
 

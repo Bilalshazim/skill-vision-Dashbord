@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { EmployeeEditForm } from '@/modules/assessment/components/EmployeeEditForm'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { StatTile } from '@/modules/assessment/components/StatTile'
@@ -105,22 +106,22 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
                     </div>
                   )}
                   {canEdit && (
-                    <button className="btn btn-sm" style={{ marginTop: 10 }} onClick={restore}>
+                    <Button variant="outline" size="sm" style={{ marginTop: 10 }} onClick={restore}>
                       {ui.anagRestore}
-                    </button>
+                    </Button>
                   )}
                 </div>
               ) : (
                 canEdit && (
                   <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-                    <button className="btn btn-sm" onClick={() => setEditMode(true)}>
+                    <Button variant="outline" size="sm" onClick={() => setEditMode(true)}>
                       <Icon name="edit" />
                       {ui.editProfileBtn}
-                    </button>
-                    <button className="btn btn-sm btn-danger-outline" onClick={downloadReport}>
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={downloadReport}>
                       <Icon name="download" />
                       {ui.reportBtn}
-                    </button>
+                    </Button>
                   </div>
                 )
               )}
@@ -209,9 +210,9 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
                 </div>
               ))}
               {canEdit && (
-                <button className="btn btn-primary btn-sm" onClick={saveFeedback}>
+                <Button variant="default" size="sm" onClick={saveFeedback}>
                   {ui.profileSaveFeedbackBtn}
-                </button>
+                </Button>
               )}
             </>
           )}

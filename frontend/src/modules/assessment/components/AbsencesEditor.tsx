@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { Icon } from '@/modules/assessment/components/Icon'
 import type { Absence } from '@/modules/assessment/lib/types'
@@ -39,9 +40,9 @@ export function AbsencesEditor({ rows, onChange }: { rows: Absence[]; onChange: 
                 <label>{ui.absenceReasonLabel}</label>
                 <input type="text" value={a.motivo} placeholder={ui.absenceReasonPh} onChange={(e) => update(i, 'motivo', e.target.value)} />
               </div>
-              <button type="button" className="btn btn-sm btn-danger-outline" onClick={() => remove(i)} aria-label={ui.removeAbsenceBtn}>
+              <Button type="button" variant="destructive" size="sm" onClick={() => remove(i)} aria-label={ui.removeAbsenceBtn}>
                 <Icon name="trash" />
-              </button>
+              </Button>
             </div>
           ))
         ) : (
@@ -50,10 +51,10 @@ export function AbsencesEditor({ rows, onChange }: { rows: Absence[]; onChange: 
           </div>
         )}
       </div>
-      <button type="button" className="btn btn-sm" style={{ marginTop: 6 }} onClick={add}>
+      <Button type="button" variant="outline" size="sm" style={{ marginTop: 6 }} onClick={add}>
         <Icon name="plus" />
         {ui.addAbsenceBtn}
-      </button>
+      </Button>
     </div>
   )
 }

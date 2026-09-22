@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Modal } from '@/modules/assessment/components/Modal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { buildAssignmentLink } from '@/modules/assessment/lib/shell-bridge'
@@ -117,9 +118,9 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
         title={ui.evalLinkModalTitle}
         onClose={() => setLinkModal(null)}
         footer={
-          <button className="btn btn-primary" onClick={() => setLinkModal(null)}>
+          <Button variant="default" onClick={() => setLinkModal(null)}>
             {ui.btnClose}
-          </button>
+          </Button>
         }
       >
         <p className="small-note" style={{ marginBottom: 10 }}>
@@ -155,9 +156,9 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
         title={ui.evalManagerTitle}
         onClose={() => setBreakdownOpen(false)}
         footer={
-          <button className="btn" onClick={() => setBreakdownOpen(false)}>
+          <Button variant="outline" onClick={() => setBreakdownOpen(false)}>
             {ui.btnClose}
-          </button>
+          </Button>
         }
       >
         <div className="card-eyebrow" style={{ marginBottom: 6 }}>
@@ -173,7 +174,7 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Modal title={ui.evalManagerTitle} sub={ui.evalManagerSub} wide onClose={onClose} footer={<button className="btn" onClick={onClose}>{ui.btnClose}</button>}>
+    <Modal title={ui.evalManagerTitle} sub={ui.evalManagerSub} wide onClose={onClose} footer={<Button variant="outline" onClick={onClose}>{ui.btnClose}</Button>}>
       <div className="grid grid-2" style={{ gap: 10, marginBottom: 16 }}>
         <div className="tinted-tile clickable accent" onClick={() => setBreakdownOpen(true)}>
           <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--accent-dark)' }}>{ui.evalSentLabel}</div>
@@ -216,9 +217,9 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
           <label>{ui.evalNewPeriodLabel}</label>
           <input type="text" placeholder={ui.evalNewPeriodPh} value={newPeriodLabel} onChange={(e) => setNewPeriodLabel(e.target.value)} />
         </div>
-        <button type="button" className="btn btn-sm" onClick={addPeriod}>
+        <Button type="button" variant="outline" size="sm" onClick={addPeriod}>
           {ui.evalAddPeriodBtn}
-        </button>
+        </Button>
       </div>
       {template !== 'auto' ? (
         <div className="field-row" style={{ alignItems: 'flex-end' }}>
@@ -256,9 +257,9 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
             ))}
         </div>
       </div>
-      <button className="btn btn-primary btn-sm" onClick={createAssignments}>
+      <Button variant="default" size="sm" onClick={createAssignments}>
         {ui.evalCreateBtn}
-      </button>
+      </Button>
 
       <div className="divider" />
       <div className="card-title" style={{ marginBottom: 10 }}>
@@ -295,20 +296,20 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
                       </span>
                     </td>
                     <td style={{ whiteSpace: 'nowrap' }}>
-                      <button className="btn btn-sm" onClick={() => copyLink(a.id)}>
+                      <Button variant="outline" size="sm" onClick={() => copyLink(a.id)}>
                         {ui.evalCopyLinkBtn}
-                      </button>
-                      <button className="btn btn-sm" onClick={() => sendEmail(a.id)}>
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => sendEmail(a.id)}>
                         {ui.evalSendEmailBtn}
-                      </button>
+                      </Button>
                       {a.status !== 'completed' && (
-                        <button className="btn btn-sm" onClick={() => markCompleted(a.id)}>
+                        <Button variant="outline" size="sm" onClick={() => markCompleted(a.id)}>
                           {ui.evalMarkDoneBtn}
-                        </button>
+                        </Button>
                       )}
-                      <button className="btn btn-sm btn-danger-outline" onClick={() => deleteAssignment(a.id)}>
+                      <Button variant="destructive" size="sm" onClick={() => deleteAssignment(a.id)}>
                         ✕
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 )
