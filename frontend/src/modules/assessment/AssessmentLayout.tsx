@@ -145,26 +145,10 @@ function NavList() {
 
 function Sidebar({ mobileOpen, onCloseMobile }: { mobileOpen: boolean; onCloseMobile: () => void }) {
   const { state, ui } = useAssessment()
-  const flags = { A: state.settings.modulo === 'A' || state.settings.modulo === 'AB', B: state.settings.modulo === 'B' || state.settings.modulo === 'AB' }
   return (
     <>
       <div className={`drawer-overlay${mobileOpen ? ' open' : ''}`} onClick={onCloseMobile} />
       <aside className={`sidebar${mobileOpen ? ' mobile-open' : ''}`}>
-        {/* The secondary Skill-Vision logo + "VALUTAZIONE DELLE COMPETENZE"
-            tagline that used to sit here were removed (global top bar already
-            carries the one Skill-Vision logo) — module-pill-row is now the
-            sidebar's first element, no leftover empty header block. */}
-        <div className="module-pill-row">
-          <span className="module-pill-label">{ui.activeModules}</span>
-          <div className="module-pills">
-            <div className={`module-pill${flags.A ? ' active' : ''}`}>
-              <span className="dot" /> {ui.moduleASoft}
-            </div>
-            <div className={`module-pill${flags.B ? ' active' : ''}`}>
-              <span className="dot" /> {ui.moduleBHard}
-            </div>
-          </div>
-        </div>
         <NavList />
         <div className="sidebar-footer">
           <div>

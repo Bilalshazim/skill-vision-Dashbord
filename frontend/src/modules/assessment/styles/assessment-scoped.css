@@ -246,27 +246,6 @@
 .sv-assessment-shell[data-theme="dark"] .theme-logo-dark{ display:block; }
 .login-brand .brand-logo{ height:46px; margin-bottom:4px; }
 
-.module-pill-row{
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--sidebar-border);
-}
-.module-pill-label{
-  font-size:10.5px; font-weight:700; color: var(--text-3); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px; display:block;
-}
-.module-pills{ display:flex; flex-direction:column; gap:6px; }
-/* Was a filled pill — lime background, border and near-black text when
-   active. Now plain text with a small dot: the only lime left here is the
-   7px dot, not a full block fill. */
-.module-pill{
-  display:flex; align-items:center; gap:8px;
-  padding:2px 0;
-  font-size:12.5px; font-weight:600; color: var(--text-2);
-  transition: color .15s ease;
-}
-.module-pill.active{ color: var(--text-1); }
-.module-pill .dot{ width:7px; height:7px; border-radius:50%; background: var(--text-3); flex-shrink:0; transition: background-color .15s ease; }
-.module-pill.active .dot{ background: var(--accent); }
-
 nav.mainnav{ flex:1; overflow-y:auto; padding: 10px 12px; }
 .nav-section-title{
   font-size:10.5px; font-weight:700; color: var(--text-3); text-transform:uppercase;
