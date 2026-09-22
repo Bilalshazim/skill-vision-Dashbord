@@ -25,7 +25,7 @@ export function ansAndamento(state: AssessmentState, lang: AssessmentLang): stri
   const ui = getUI(lang)
   const hs = homeStats(state, lang)
   const rel = hs.orgAvg >= hs.benchmark ? ui.aiRelInLine : hs.orgAvg >= hs.benchmark - 1 ? ui.aiRelSlightlyBelow : ui.aiRelBelow
-  return ui.aiAndamentoTemplate(fmt1(hs.orgAvg), primaryScoreLabel(state, lang), rel, fmt1(hs.benchmark), hs.tiers.top.length + hs.tiers.valorizzare.length, state.employees.length, hs.tiers.sviluppo.length + hs.tiers.critica.length, hs.feedbackDue)
+  return ui.aiAndamentoTemplate(fmt1(hs.orgAvg), primaryScoreLabel(state, lang), rel, fmt1(hs.benchmark), hs.valueCount, state.employees.length, hs.riskCount, hs.feedbackDue)
 }
 export function ansAreeCritiche(state: AssessmentState, lang: AssessmentLang): string {
   const ui = getUI(lang)

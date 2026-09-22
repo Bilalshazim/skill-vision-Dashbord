@@ -196,6 +196,17 @@ export function orgWorstHardDims(state: AssessmentState, lang: AssessmentLang, n
     .slice(0, n)
 }
 
+// Single source of truth for every Home-page population count (KPI row, the
+// Q1 Verde/Giallo/Rosso band, the Q2 "gap severo" chip, the Q3 tier map).
+// Everything below is derived from ONE partition — the 5-tier classification
+// (classifyPopulation, which already covers 100% of employees by construction:
+// TIER_DEFS' last bucket has min:-1) — plus one deliberately separate axis
+// (severeGapCount). Previously each widget recomputed its own thresholds
+// in-place (Q1's band used a 7/5 cutoff, Q2's "gap severo" used a fresh
+// benchmark-2 filter), which drifted from the tier cutpoints (8.3/7.0/5.5/4.0)
+// and from each other, producing counts that didn't reconcile on screen.
+// riskCount/valueCount are exhaustive tier unions (talenti + nellaNorma +
+// aRischio = total, always), so no widget should invent a different split.
 export function homeStats(state: AssessmentState, lang: AssessmentLang) {
   const ranked = rankedEmployees(state, lang)
   const orgAvg = round1(avg(ranked.map((r) => r.score)))
@@ -203,6 +214,14 @@ export function homeStats(state: AssessmentState, lang: AssessmentLang) {
   const tiers = classifyPopulation(state, lang)
   const riskCount = tiers.critica.length + tiers.sviluppo.length
   const valueCount = tiers.top.length + tiers.valorizzare.length
+  const nellaNormaCount = tiers.adeguata.length
+  const criticiCount = tiers.critica.length
+  // A genuinely different axis from the tiers above: distance from the
+  // benchmark target, not an absolute score band. Kept separate on purpose
+  // (see calculations.ts comment above) rather than folded into a tier —
+  // but computed once, here, so every widget that shows "gap severo" reads
+  // the same number instead of re-deriving it.
+  const severeGapCount = ranked.filter((r) => round1(r.score - benchmark) <= -2).length
   const feedbackDue = state.employees.filter((e) => e.feedbackNeeded).length
   let biggestGaps: { emp: Employee; dim: string; gap: number }[] = []
   if (moduleActive(state, 'B')) {
@@ -215,7 +234,7 @@ export function homeStats(state: AssessmentState, lang: AssessmentLang) {
     biggestGaps.sort((a, b) => b.gap - a.gap)
     biggestGaps = biggestGaps.slice(0, 3)
   }
-  return { orgAvg, benchmark, tiers, riskCount, valueCount, feedbackDue, ranked, biggestGaps }
+  return { orgAvg, benchmark, tiers, riskCount, valueCount, nellaNormaCount, criticiCount, severeGapCount, feedbackDue, ranked, biggestGaps }
 }
 
 export type PriorityAction = { icon: string; text: string }
@@ -308,12 +327,18 @@ export function worstCompetenza(state: AssessmentState, lang: AssessmentLang, f:
   return candidates[0]
 }
 
+// The 4 highlighted tiles (talent + risk extremes) plus a 5th "on track"
+// tile for the tier this map used to leave out entirely (Persona Adeguata —
+// see calculations.ts's homeStats comment). All 5 keys are TIER_DEFS keys,
+// so their counts always sum to the full employee total: nothing here is
+// invented, it's the same partition classifyPopulation already produces.
 export function quadDefs(ui: ReturnType<typeof getUI>) {
   return [
-    { key: 'valorizzare', label: ui.quadHighPotential, variant: 'success', icon: 'sparkles', caption: ui.quadReadyToGrow },
-    { key: 'top', label: ui.quadHighValue, variant: 'accent', icon: 'award', caption: ui.quadOperationalPillars },
-    { key: 'critica', label: ui.quadCritical, variant: 'danger', icon: 'userX', caption: ui.quadUrgentAction },
-    { key: 'sviluppo', label: ui.quadAtRisk, variant: 'warning', icon: 'alertCircle', caption: ui.quadNeedsSupport },
+    { key: 'valorizzare', label: ui.quadHighPotential, variant: 'success', icon: 'sparkles', caption: ui.quadReadyToGrow, span: false },
+    { key: 'top', label: ui.quadHighValue, variant: 'accent', icon: 'award', caption: ui.quadOperationalPillars, span: false },
+    { key: 'critica', label: ui.quadCritical, variant: 'danger', icon: 'userX', caption: ui.quadUrgentAction, span: false },
+    { key: 'sviluppo', label: ui.quadNeedsDevelopment, variant: 'warning', icon: 'alertCircle', caption: ui.quadNeedsSupport, span: false },
+    { key: 'adeguata', label: ui.quadOnTrack, variant: 'neutral', icon: 'activity', caption: ui.quadOnTrackCaption, span: true },
   ] as const
 }
 

@@ -49,17 +49,20 @@ export default function AssessmentHomePage() {
   const roleCovPct = roleCoveragePct(state, lang)
   const avgGap = round1(hs.orgAvg - hs.benchmark)
   const avgGapPct = hs.benchmark ? round1(((hs.orgAvg - hs.benchmark) / hs.benchmark) * 100) : 0
-  const green = hs.ranked.filter((r) => r.score >= 7).length
-  const amber = hs.ranked.filter((r) => r.score >= 5 && r.score < 7).length
-  const gPct = totalEmp ? Math.round((green / totalEmp) * 100) : 0
-  const aPct = totalEmp ? Math.round((amber / totalEmp) * 100) : 0
+  // Green/Amber/Red now reads the SAME tier partition as the rest of the
+  // page (Talenti / Nella Norma / A Rischio) instead of its own 7/5 cutoff —
+  // that old cutoff didn't line up with the tier breakpoints (7.0/5.5), so
+  // this band's percentages could disagree with "Talenti"/"A Rischio" counts
+  // shown elsewhere on the same screen. Deriving from hs.tiers guarantees
+  // green+amber+red always sums to 100% of the same population.
+  const gPct = totalEmp ? Math.round((hs.valueCount / totalEmp) * 100) : 0
+  const aPct = totalEmp ? Math.round((hs.nellaNormaCount / totalEmp) * 100) : 0
   const rPct = 100 - gPct - aPct
   const statusTier = hs.orgAvg >= hs.benchmark ? { label: ui.statusGood, variant: 'success' } : hs.orgAvg >= hs.benchmark - 1 ? { label: ui.statusModerate, variant: 'warning' } : { label: ui.statusBelow, variant: 'danger' }
 
   const worstArea = orgCriticalAreas(state, lang, 1)[0]
   const worstRole = orgCriticalRoles(state, lang, 1)[0]
   const worstSkill = worstCompetenza(state, lang, f)
-  const severeCount = hs.ranked.filter((r) => round1(r.score - hs.benchmark) <= -2).length
   // Bug fix: this used to always land on 'valore' ("Valori Complessivi")
   // when both modules were active — a different screen entirely (overall
   // individual value, not an organizational problem breakdown), so "Vedi
@@ -246,7 +249,7 @@ export default function AssessmentHomePage() {
           <p className="home-card-desc">{ui.homeQ2Sub}</p>
           <div className={`home-quad-body${openCards.q2 ? ' open' : ''}`}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <span className="chip chip-red">{ui.homeQ2CriticalIssues(severeCount)}</span>
+              <span className="chip chip-red">{ui.homeQ2CriticalIssues(hs.severeGapCount)}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-alt)' }}>
@@ -288,7 +291,7 @@ export default function AssessmentHomePage() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
               <span className="small-note">
-                {ui.homeQ2SevereGapLabel} <b style={{ color: 'var(--text-1)' }}>{ui.homeQ2People(severeCount)}</b>
+                {ui.homeQ2SevereGapLabel} <b style={{ color: 'var(--text-1)' }}>{ui.homeQ2People(hs.severeGapCount)}</b>
               </span>
               <a className="linklike" style={{ fontSize: 11.5 }} onClick={() => navigate(`/assessment/${detailPage}`)}>
                 {ui.homeQ2ViewDetail}
@@ -324,17 +327,19 @@ export default function AssessmentHomePage() {
             <div className="grid grid-2" style={{ gap: 10 }}>
               {quadDefs(ui).map((q) => {
                 const count = tiers[q.key].length
+                const colorVar = q.variant === 'accent' ? 'accent-dark' : q.variant === 'neutral' ? 'text-2' : q.variant
                 return (
                   <div
                     key={q.key}
                     className={`tinted-tile clickable ${q.variant}`}
+                    style={q.span ? { gridColumn: '1 / -1' } : undefined}
                     onClick={(e) => {
                       e.stopPropagation()
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 11.5, fontWeight: 700, color: `var(--${q.variant === 'accent' ? 'accent-dark' : q.variant})` }}>{q.label}</span>
-                      <span style={{ width: 16, height: 16, color: `var(--${q.variant === 'accent' ? 'accent-dark' : q.variant})` }}>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: `var(--${colorVar})` }}>{q.label}</span>
+                      <span style={{ width: 16, height: 16, color: `var(--${colorVar})` }}>
                         <Icon name={q.icon as never} />
                       </span>
                     </div>
@@ -345,6 +350,13 @@ export default function AssessmentHomePage() {
                   </div>
                 )
               })}
+            </div>
+            {/* Reconciliation line: the 5 tiles above are the full TIER_DEFS
+                partition, so this should always read N/N — makes the
+                coverage explicit rather than leaving the reader to add up
+                4 tiles and wonder where the rest of the population went. */}
+            <div className="small-note" style={{ marginTop: 10, textAlign: 'right' }}>
+              {ui.homeQ3CoverageNote(quadDefs(ui).reduce((sum, q) => sum + tiers[q.key].length, 0), totalEmp)}
             </div>
             <div style={{ textAlign: 'right', marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
               <a
@@ -432,16 +444,21 @@ export default function AssessmentHomePage() {
         <div className="card">
           <div className="card-eyebrow">{ui.homeKpiTalent}</div>
           <div className="kpi-value" style={{ color: 'var(--success)' }}>
-            {hs.tiers.top.length + hs.tiers.valorizzare.length}
+            {hs.valueCount}
           </div>
           <div className="kpi-label">{ui.homeKpiTalentSub(state.employees.length)}</div>
         </div>
         <div className="card">
           <div className="card-eyebrow">{ui.homeKpiRisk}</div>
           <div className="kpi-value" style={{ color: 'var(--danger)' }}>
-            {hs.tiers.critica.length + hs.tiers.sviluppo.length}
+            {hs.riskCount}
           </div>
-          <div className="kpi-label">{ui.homeKpiRiskSub}</div>
+          {/* Makes the "a rischio" union explicit: this KPI is Persona da
+              Sviluppare + Persona Critica combined, so the subset that's
+              specifically critical is now spelled out with its real count
+              instead of a static "or critical" that gave no way to tell
+              how much of the total was which tier. */}
+          <div className="kpi-label">{ui.homeKpiRiskSub(hs.criticiCount)}</div>
         </div>
         <div className="card">
           <div className="card-eyebrow">{ui.homeKpiAreas}</div>

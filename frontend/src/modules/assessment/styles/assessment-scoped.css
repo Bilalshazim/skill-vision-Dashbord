@@ -779,6 +779,9 @@ a.linklike:hover{ text-decoration:underline; }
 .tinted-tile.accent{ background:var(--accent-soft); border-color:var(--accent-soft-2); }
 .tinted-tile.warning{ background:var(--warning-soft); border-color:rgba(224,138,11,.42); }
 .tinted-tile.danger{ background:var(--danger-soft); border-color:rgba(239,107,84,.42); }
+/* Nella Norma — reuses existing surface/border tokens, not a new hue: this
+   tier is deliberately "no news is good news", not a severity color. */
+.tinted-tile.neutral{ background:var(--surface-alt); border-color:var(--border); }
 
 /* ---- Action category tags (box4) ---- */
 .action-tag{ font-size:10px; font-weight:700; padding:3px 8px; border-radius:6px; white-space:nowrap; flex-shrink:0; text-transform:uppercase; letter-spacing:.3px; }
