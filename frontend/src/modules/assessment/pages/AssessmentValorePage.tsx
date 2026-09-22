@@ -1,4 +1,3 @@
-import { Minus, TrendingDown, TrendingUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -7,7 +6,7 @@ import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { bothActive, classifyPopulation, computeHardSummary, computeSoftSummary, primaryScore, primaryScoreLabel, tierFor } from '@/modules/assessment/lib/calculations'
-import { fmt1, getTierDefs, round1 } from '@/modules/assessment/lib/legacy-utils'
+import { fmt1, getTierDefs } from '@/modules/assessment/lib/legacy-utils'
 
 // PHASE 25 fix: legacy's data-theme dark-mode tiers use different hex values
 // than what this file originally used ('#B0208C' etc were the LIGHT-mode
@@ -74,15 +73,6 @@ export default function AssessmentValorePage() {
   )
   const colors = tierColors(theme === 'dark')
 
-  // "Score medio" for the trend footer blends both series equally at each
-  // point, same as the reference's own single trend line/label — compares
-  // the blended first vs. last month to decide the rising/falling/stable
-  // wording (a >=0.05 move either way counts as a real trend, not noise).
-  const andamentoBlendFirst = (ANDAMENTO_SOFT[0] + ANDAMENTO_HARD[0]) / 2
-  const andamentoBlendLast = (ANDAMENTO_SOFT[ANDAMENTO_SOFT.length - 1] + ANDAMENTO_HARD[ANDAMENTO_HARD.length - 1]) / 2
-  const andamentoDelta = round1(andamentoBlendLast - andamentoBlendFirst)
-  const andamentoTrend = andamentoDelta > 0.05 ? 'up' : andamentoDelta < -0.05 ? 'down' : 'flat'
-
   useTopbarActions(
     <Button variant="outline" size="sm" onClick={() => exportValoreCsv(rows, ui.csvHeaderValore)}>
       <Icon name="download" />
@@ -140,6 +130,10 @@ export default function AssessmentValorePage() {
           <div style={{ position: 'relative', height: 320 }}>
             <AndamentoChart months={ui.homeAndamentoMonths} softSeries={ANDAMENTO_SOFT} hardSeries={ANDAMENTO_HARD} softLabel={ui.moduleASoft} hardLabel={ui.moduleBHard} />
           </div>
+          {/* The bar-chart reference (skillvision-barchart.html) drops the
+              line-chart version's trend-arrow sentence entirely — just a
+              plain legend under the chart — so this matches that, not the
+              line-chart's own footer. */}
           <div className="legend-row" style={{ marginTop: 12 }}>
             <span className="legend-dot">
               <i style={{ background: 'var(--chart-2)' }} />
@@ -149,11 +143,6 @@ export default function AssessmentValorePage() {
               <i style={{ background: 'var(--success)' }} />
               {ui.moduleBHard}
             </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 14, fontSize: 13, fontWeight: 600, color: 'var(--text-1)' }}>
-            {andamentoTrend === 'up' ? <TrendingUp size={14} color="var(--success)" /> : andamentoTrend === 'down' ? <TrendingDown size={14} color="var(--danger)" /> : <Minus size={14} color="var(--text-3)" />}
-            {andamentoTrend === 'up' ? ui.homeAndamentoRising : andamentoTrend === 'down' ? ui.homeAndamentoFalling : ui.homeAndamentoStable}
-            <span className="small-note">· {ui.homeAndamentoPeriod}</span>
           </div>
         </div>
       </div>
