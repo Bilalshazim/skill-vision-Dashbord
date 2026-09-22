@@ -168,16 +168,31 @@
 /* ---------- APP SHELL ---------- */
 #app{ display:flex; min-height:100vh; }
 
+/* Container now matches Recruiting's own sidebar nav (RecruitingNav.tsx's
+   lg:rounded-lg/lg:bg-sidebar/lg:border-r/lg:border-sidebar-border) pixel
+   for pixel: same global --sidebar/--sidebar-border tokens (not this
+   module's own local --bg/--border, which differ in light mode) and the
+   same 24px radius (index.css's --radius-lg, the documented Design System
+   Foundations card radius — Assessment's own local --radius-lg is an
+   older, unrelated 14px). The 24px margin/height inset is this module's
+   own way of getting the same "floating card" look Recruiting gets for
+   free from its parent <main>'s p-6 + gap-6 (Assessment renders outside
+   that shared shell, so there's no parent padding to inherit here).
+   Reset to the original flush/edge-to-edge values for the mobile
+   slide-in drawer below — that interaction pattern is unrelated to this
+   parity fix and stays exactly as it was. */
 .sidebar{
   width: var(--sidebar-w);
   flex-shrink:0;
-  background: var(--bg);
-  border-right: 1px solid var(--border);
+  background: var(--sidebar);
+  border-right: 1px solid var(--sidebar-border);
+  border-radius: 24px;
+  margin: 24px;
   display:flex;
   flex-direction:column;
   position: sticky;
-  top:0;
-  height:100vh;
+  top:24px;
+  height: calc(100vh - 48px);
 }
 .sidebar-brand{
   display:flex; align-items:center; gap:10px;
@@ -205,7 +220,7 @@
 
 .module-pill-row{
   padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--sidebar-border);
 }
 .module-pill-label{
   font-size:10.5px; font-weight:700; color: var(--text-3); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px; display:block;
@@ -296,7 +311,7 @@ nav.mainnav{ flex:1; overflow-y:auto; padding: 10px 12px; }
 .sidebar-secondary{ padding: 10px 12px; border-top: 1px solid var(--border); }
 
 .sidebar-footer{
-  padding: 12px 16px 18px 16px; border-top: 1px solid var(--border);
+  padding: 12px 16px 18px 16px; border-top: 1px solid var(--sidebar-border);
   font-size:11px; color: var(--text-3);
 }
 .sidebar-footer b{ color: var(--text-2); }
@@ -817,6 +832,14 @@ a.linklike:hover{ text-decoration:underline; }
   .sidebar-toggle-btn{ display:inline-flex; }
   .sidebar{
     position:fixed; top:0; left:0; z-index:101;
+    /* The floating-card margin/radius/height above is a desktop-only
+       parity fix with Recruiting's own sidebar (also desktop-only —
+       Recruiting drops its lg: rounded/bg/border treatment below that
+       breakpoint too). Reset back to the original flush, full-height
+       slide-in drawer — unrelated to this fix, unchanged otherwise. */
+    margin:0;
+    border-radius:0;
+    height:100vh;
     transform: translateX(-100%);
     transition: transform .25s ease;
     box-shadow: var(--shadow-lg);
