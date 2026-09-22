@@ -218,7 +218,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
         </DialogHeader>
 
         <div className="flex items-center gap-4 rounded-md border border-border bg-secondary p-4">
-          <div className={cn('font-mono text-4xl font-bold', above ? 'text-success' : 'text-warning')}>{candidate.icv}%</div>
+          <div className={cn('font-mono text-4xl font-black tracking-[-.045em] tabular-nums', above ? 'text-success' : 'text-warning')}>{candidate.icv}%</div>
           <p className="text-[12.5px] text-muted-foreground">
             {above
               ? `✓ Sopra soglia (${DEFAULT_MATCH_THRESHOLD}%) — link test idoneo all'invio automatico`

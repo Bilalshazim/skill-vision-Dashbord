@@ -63,7 +63,7 @@ export function RankingCard({
       >
         <div
           className={cn(
-            'grid size-[46px] shrink-0 place-items-center rounded-md font-mono text-xl font-bold',
+            'grid size-[46px] shrink-0 place-items-center rounded-md font-mono text-xl font-black tracking-[-.045em] tabular-nums',
             position === 1 ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground',
           )}
         >
@@ -76,7 +76,7 @@ export function RankingCard({
         </div>
 
         <div className="hidden text-right sm:block">
-          <div className="font-mono text-[28px] font-semibold leading-none text-foreground">{result.v}</div>
+          <div className="font-mono text-[28px] font-black leading-none tracking-[-.045em] tabular-nums text-foreground">{result.v}</div>
           <ScoreBadge fascia={f} className="mt-1 block" />
         </div>
 
@@ -86,7 +86,7 @@ export function RankingCard({
       {/* Score repeats on its own row on narrow screens — the header grid
           hides it above md to keep the header from wrapping awkwardly. */}
       <div className="mt-3 flex items-center justify-between sm:hidden">
-        <div className="font-mono text-2xl font-semibold">{result.v}</div>
+        <div className="font-mono text-2xl font-black tracking-[-.045em] tabular-nums">{result.v}</div>
         <ScoreBadge fascia={f} />
       </div>
 

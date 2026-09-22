@@ -370,10 +370,10 @@ nav.mainnav{ flex:1; overflow-y:auto; padding: 10px 12px; }
 .card-title-row{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
 .card-title{ font-size:13.5px; font-weight:700; color: var(--text-1); }
 .card-title .muted{ font-weight:500; color: var(--text-3); font-size:11.5px; }
-.card-eyebrow{ font-size:10.5px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color: var(--text-3); margin-bottom:4px; }
+.card-eyebrow{ font-size:10.5px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color: var(--text-3); margin-bottom:4px; font-family: var(--font-mono); }
 
-.kpi-value{ font-size:30px; font-weight:800; letter-spacing:-0.8px; font-variant-numeric: tabular-nums; }
-.kpi-label{ font-size:12px; color: var(--text-2); font-weight:600; margin-top:2px; }
+.kpi-value{ font-size:30px; font-weight:900; letter-spacing:-.045em; font-variant-numeric: tabular-nums; }
+.kpi-label{ font-size:12px; color: var(--text-2); font-weight:600; margin-top:2px; font-variant-numeric: tabular-nums; }
 .kpi-delta{ font-size:11.5px; font-weight:700; margin-top:6px; display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:20px; }
 .kpi-delta.up{ color: var(--success); background: var(--success-soft); }
 .kpi-delta.down{ color: var(--danger); background: var(--danger-soft); }
@@ -400,11 +400,15 @@ nav.mainnav{ flex:1; overflow-y:auto; padding: 10px 12px; }
 .pbar.thin{ height:5px; }
 
 /* tables */
-table.dtable{ width:100%; border-collapse:collapse; font-size:12.8px; }
+/* tabular-nums here (inherited property) covers every numeric td below it
+   too, so ranked/score columns line up instead of each digit's own width
+   nudging the column as values change. */
+table.dtable{ width:100%; border-collapse:collapse; font-size:12.8px; font-variant-numeric: tabular-nums; }
 table.dtable th{
   text-align:left; font-size:10.8px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px;
   color: var(--text-3); padding:9px 12px; border-bottom:1px solid var(--border); white-space:nowrap;
   position:sticky; top:0; background:var(--surface); z-index:1;
+  font-family: var(--font-mono);
 }
 table.dtable td{ padding:10px 12px; border-bottom:1px solid var(--border); color: var(--text-1); vertical-align:middle; }
 table.dtable tbody tr{ transition: background .1s ease; }
@@ -569,7 +573,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 }
 .merge-a{ background: linear-gradient(135deg, var(--accent), var(--accent-dark)); margin-right:-24px; color:#0D0C0A; }
 .merge-b{ background: linear-gradient(135deg, var(--success), var(--success-dark, #1C7A4D)); margin-left:-24px; color:#0D0C0A; }
-.merge-circle span.n{ font-size:20px; font-weight:800; margin-bottom:1px; }
+.merge-circle span.n{ font-size:20px; font-weight:900; letter-spacing:-.045em; margin-bottom:1px; font-variant-numeric: tabular-nums; }
 .merge-plus{ font-size:20px; font-weight:800; color: var(--text-3); margin:0 6px; z-index:3; cursor:pointer; }
 .merge-single .merge-a, .merge-single .merge-b{ margin:0; }
 /* Selection state (Section: interactive module widget) — the active module scales up and gains
@@ -716,9 +720,9 @@ a.linklike:hover{ text-decoration:underline; }
 /* ---- Stat card (paired with ApexCharts area chart) ---- */
 .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:20px; }
 .stat-card .stat-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
-.stat-card .stat-value{ font-size:26px; font-weight:800; letter-spacing:-.5px; color:var(--text-1); }
+.stat-card .stat-value{ font-size:26px; font-weight:900; letter-spacing:-.045em; color:var(--text-1); font-variant-numeric: tabular-nums; }
 .stat-card .stat-label{ font-size:12.5px; color:var(--text-2); font-weight:600; margin-top:2px; }
-.stat-card .stat-trend{ display:flex; align-items:center; gap:2px; font-weight:700; font-size:13px; }
+.stat-card .stat-trend{ display:flex; align-items:center; gap:2px; font-weight:700; font-size:13px; font-variant-numeric: tabular-nums; }
 .stat-card .stat-trend.up{ color:var(--success); }
 .stat-card .stat-trend.down{ color:var(--danger); }
 .stat-card .stat-trend svg{ width:18px; height:18px; }
@@ -739,8 +743,8 @@ a.linklike:hover{ text-decoration:underline; }
 .datatable-wrapper .datatable-search input, .datatable-wrapper .datatable-selector{
   border:1px solid var(--border-strong); border-radius:8px; padding:8px 12px; font-size:12.5px; font-family:inherit;
 }
-.datatable-wrapper table.datatable-table{ font-family:inherit; font-size:12.8px; }
-.datatable-wrapper table.datatable-table th{ color:var(--text-3); font-weight:700; text-transform:uppercase; font-size:10.8px; letter-spacing:.4px; }
+.datatable-wrapper table.datatable-table{ font-family:inherit; font-size:12.8px; font-variant-numeric: tabular-nums; }
+.datatable-wrapper table.datatable-table th{ color:var(--text-3); font-weight:700; text-transform:uppercase; font-size:10.8px; letter-spacing:.4px; font-family: var(--font-mono); }
 .datatable-wrapper .datatable-pagination a.datatable-active a{ background:var(--accent); border-color:var(--accent); }
 
 /* ---- Dark mode toggle ---- */
@@ -992,9 +996,9 @@ a.linklike:hover{ text-decoration:underline; }
    until the recruiter types something, then it clears itself (see exiMarkInvalid). */
 .exi-field-invalid{ border-color:var(--danger) !important; box-shadow:0 0 0 3px var(--danger-soft); }
 .exi-slider-value{ text-align:center; margin-bottom:16px; }
-.exi-slider-num{ font-size:52px; font-weight:800; line-height:1; letter-spacing:-1.5px; font-variant-numeric:tabular-nums; transition:color .3s ease; }
+.exi-slider-num{ font-size:52px; font-weight:900; line-height:1; letter-spacing:-.045em; font-variant-numeric:tabular-nums; transition:color .3s ease; }
 .exi-slider-scale{ font-size:13px; color:var(--text-3); font-weight:600; }
-.exi-slider-label{ font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-top:8px; transition:color .3s ease; }
+.exi-slider-label{ font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-top:8px; transition:color .3s ease; font-family: var(--font-mono); }
 .exi-slider-ticks{ display:flex; justify-content:space-between; margin-top:10px; font-size:10.5px; color:var(--text-3); font-weight:600; }
 
 .exi-areas-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-bottom:18px; }
@@ -1029,14 +1033,14 @@ a.linklike:hover{ text-decoration:underline; }
 
 /* ---- Report ---- */
 .exi-hero{ background:linear-gradient(135deg, var(--accent-soft-2) 0%, var(--surface) 65%); border:1px solid var(--accent-soft-2); border-radius:20px; padding:2.2rem; text-align:center; margin-bottom:16px; position:relative; overflow:hidden; }
-.exi-hero-label{ font-size:11px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--text-2); margin-bottom:12px; }
+.exi-hero-label{ font-size:11px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--text-2); margin-bottom:12px; font-family: var(--font-mono); }
 .exi-hero-num{ font-size:70px; font-weight:800; line-height:1; letter-spacing:-2.5px; }
 .exi-hero-num small{ font-size:26px; color:var(--text-3); font-weight:500; }
 .exi-hero-text{ font-size:14.5px; color:var(--text-2); margin-top:12px; line-height:1.6; max-width:520px; margin-left:auto; margin-right:auto; }
 
 .exi-kpi-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:16px; }
 .exi-kpi{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.1rem 1.2rem; border-top:3px solid var(--accent); box-shadow:var(--shadow-sm); }
-.exi-kpi-l{ font-size:10px; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; line-height:1.4; }
+.exi-kpi-l{ font-size:10px; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; line-height:1.4; font-family: var(--font-mono); }
 .exi-kpi-v{ font-size:28px; font-weight:800; line-height:1; letter-spacing:-1px; }
 .exi-kpi-v small{ font-size:13px; color:var(--text-3); font-weight:500; }
 .exi-kpi-track{ height:5px; background:var(--surface-alt); border-radius:3px; margin-top:10px; overflow:hidden; }

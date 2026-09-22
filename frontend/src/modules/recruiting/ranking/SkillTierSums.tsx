@@ -19,16 +19,16 @@ export function SkillTierSums({ sums }: { sums: SkillTierSumsData }) {
           style={{ borderLeftColor: t.color }}
           title={`${sums[t.key].sum.toFixed(1)} punti su ${sums[t.key].count * 31 || 0} disponibili`}
         >
-          <div className="text-[10.5px] font-semibold uppercase tracking-wide">{t.label}</div>
-          <div className="mt-0.5 text-lg font-bold">{fmtITpct(sums[t.key].pct)}</div>
+          <div className="text-[10.5px] font-semibold uppercase tracking-wide font-mono">{t.label}</div>
+          <div className="mt-0.5 text-lg font-black tracking-[-.045em] tabular-nums">{fmtITpct(sums[t.key].pct)}</div>
         </div>
       ))}
       <div
         className="flex flex-col items-center justify-center rounded-md border border-l-4 border-l-foreground border-border bg-secondary px-3 py-3 text-center"
         title={`${sums.total.sum.toFixed(1)} punti su ${sums.total.count * 31 || 0} disponibili`}
       >
-        <div className="text-[10.5px] font-semibold uppercase tracking-wide">Punteggio totale</div>
-        <div className="mt-0.5 text-lg font-bold">{fmtITpct(sums.total.pct)}</div>
+        <div className="text-[10.5px] font-semibold uppercase tracking-wide font-mono">Punteggio totale</div>
+        <div className="mt-0.5 text-lg font-black tracking-[-.045em] tabular-nums">{fmtITpct(sums.total.pct)}</div>
       </div>
     </div>
   )
