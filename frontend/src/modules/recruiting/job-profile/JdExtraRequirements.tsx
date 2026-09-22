@@ -1,12 +1,15 @@
 import { Plus, X } from 'lucide-react'
 
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { JD_LEVELS } from '@/modules/recruiting/lib/jd-presets'
 import type { JdExtraRow } from '@/modules/recruiting/lib/jd-types'
 import { inputClass } from '@/modules/recruiting/job-profile/JdSection'
 
-const ghostBtnClass =
-  'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-dashed border-border px-3 py-2 text-[12px] font-bold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+// See admin/CipAdminPage.tsx's identical comment — the dashed border/center
+// justify is this "add a free row" affordance's own distinguishing touch,
+// layered on top of the shared outline variant rather than duplicated whole.
+const ghostBtnClass = cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'justify-center border-dashed')
 
 // Migrated from extraSectionHTML()/updateExtra()/addExtraRow()/removeExtra()
 // (modules/recruiting.html ~4035-4046, ~4147-4149) — always starts seeded

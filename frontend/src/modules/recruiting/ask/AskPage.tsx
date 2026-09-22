@@ -2,6 +2,7 @@ import { ArrowRight, Loader2, Sparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { AskAnswerView } from '@/modules/recruiting/ask/AskAnswerView'
 import { ScreeningResultView } from '@/modules/recruiting/ask/ScreeningResultView'
@@ -11,10 +12,9 @@ import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/st
 
 const textareaClass =
   'w-full min-h-[70px] resize-y rounded-md border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
-const ghostBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[12px] font-bold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+// See CipAdminPage.tsx's identical comment.
+const primaryBtnClass = buttonVariants({ size: 'sm' })
+const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
 const chipClass =
   'rounded-full border border-border bg-secondary px-3 py-1.5 text-[12px] font-medium text-foreground transition-colors hover:border-ring hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 

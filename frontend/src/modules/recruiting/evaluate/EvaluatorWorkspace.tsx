@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle2, ClipboardList, Loader2, Send, UserCircle2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ApiError } from '@/lib/api/client'
 import { evaluatorsApi } from '@/lib/api/endpoints'
@@ -13,10 +14,11 @@ const ROLE_LABEL: Record<string, string> = { HR: 'HR', MANAGER: 'Manager', DIRET
 
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-[13px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
-const ghostBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-4 py-2 text-[13px] font-bold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+// See admin/CipAdminPage.tsx's identical comment — 'default' size (not
+// 'sm') since this was already the page's main Save/Submit action, at the
+// larger px-4/py-2 scale.
+const primaryBtnClass = buttonVariants({ size: 'default' })
+const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'default' })
 
 function apiErrorMessage(err: unknown): string {
   if (err instanceof ApiError) {

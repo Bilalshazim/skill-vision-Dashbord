@@ -2,6 +2,7 @@ import { AlertTriangle, CheckCircle2, Clock3, Link2, Loader2, Plus, RefreshCw, S
 import { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
+import { buttonVariants } from '@/components/ui/button'
 import { EmptyState } from '@/modules/recruiting/components/EmptyState'
 import { CvInlineViewerButton } from '@/modules/recruiting/cv/CvInlineViewerButton'
 import { addPrescreenedEntry, plDateFmt, removePrescreenedCandidate, setPrescreenStatus } from '@/modules/recruiting/lib/pipeline'
@@ -48,8 +49,7 @@ const OPENING_UNAVAILABLE_MESSAGE = "La posizione selezionata non è più dispon
 
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+const primaryBtnClass = buttonVariants({ size: 'sm' })
 
 type ActionState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string }
 const IDLE: ActionState = { kind: 'idle' }

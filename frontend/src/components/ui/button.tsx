@@ -24,6 +24,11 @@ const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'border border-transparent bg-transparent hover:bg-accent hover:text-accent-foreground',
         link: 'text-foreground underline-offset-4 hover:underline',
+        // Recruiting's own hand-rolled "gold" action button (WinnerCard's
+        // confirm, CvExportPage's JSON export, PaginaAPage's bulk send) —
+        // promoted from a duplicated local className string to a real
+        // variant so it's one definition instead of N copies.
+        warning: 'border border-warning/40 bg-warning/15 text-foreground hover:bg-warning/25',
       },
       size: {
         default: 'px-4 py-2',

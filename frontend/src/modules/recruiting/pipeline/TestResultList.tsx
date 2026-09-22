@@ -1,6 +1,7 @@
 import { AlertTriangle, FileCheck2, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
+import { buttonVariants } from '@/components/ui/button'
 import { EmptyState } from '@/modules/recruiting/components/EmptyState'
 import { addTestResult, removeTestResult } from '@/modules/recruiting/lib/pipeline'
 import { recordManualResponseViaBackend, deleteManualResponseViaBackend } from '@/modules/recruiting/lib/backend-sync'
@@ -9,8 +10,7 @@ import { cn } from '@/lib/utils'
 
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+const primaryBtnClass = buttonVariants({ size: 'sm' })
 
 type ActionState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string }
 const IDLE: ActionState = { kind: 'idle' }

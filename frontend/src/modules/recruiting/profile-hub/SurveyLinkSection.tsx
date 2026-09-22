@@ -1,6 +1,7 @@
 import { Link2 } from 'lucide-react'
 import { useState } from 'react'
 
+import { buttonVariants } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
@@ -8,12 +9,9 @@ import { clearSurveyLink, isValidUrl, loadSurveyLink, saveSurveyLink } from '@/m
 
 const inputClass =
   'w-full rounded-md border border-border bg-background px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
-const ghostBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[12px] font-bold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-const dangerBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[12px] font-bold text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
+const dangerBtnClass = buttonVariants({ variant: 'destructive', size: 'sm' })
+const primaryBtnClass = buttonVariants({ size: 'sm' })
 
 // Ported verbatim from the "Survey Link" teaser row (modules/recruiting.html
 // ~278-282) + its modal (svModalOv ~681-693, openSurveyModal()/saveSvUrl()/

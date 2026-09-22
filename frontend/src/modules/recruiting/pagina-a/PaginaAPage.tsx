@@ -1,6 +1,7 @@
 import { ClipboardCheck, Loader2, Send } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { EmptyState } from '@/modules/recruiting/components/EmptyState'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
@@ -15,10 +16,10 @@ const NO_ACTIVE_OPENING_MESSAGE = 'Seleziona prima una company/opening nella pag
 
 // Legacy gives Pagina A's send button the same gold treatment as Pipeline's
 // "Conferma vincitore" (`btn-act btn-gold`, modules/recruiting.html line
-// 471) — reproduced with the identical --warning-token mapping WinnerCard.tsx
-// already established for that same legacy CSS class, not a new color.
-const goldBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-warning/40 bg-warning/15 px-4 py-2 text-[12.5px] font-bold text-foreground transition-colors hover:bg-warning/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+// 471) — same --warning-token mapping WinnerCard.tsx already established,
+// now via the shared Button component's own `warning` variant instead of a
+// third hand-rolled copy of that recipe.
+const goldBtnClass = buttonVariants({ variant: 'warning', size: 'default' })
 
 type SendState =
   | { kind: 'idle' }

@@ -1,6 +1,7 @@
 import { CheckCircle2, FileCheck2, FileSpreadsheet, FileText, Loader2, Percent, Upload } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { KpiCard } from '@/modules/recruiting/components/KpiCard'
 import { CvArchiveList } from '@/modules/recruiting/cv-export/CvArchiveList'
@@ -13,12 +14,10 @@ import { useCvExportData } from '@/modules/recruiting/lib/use-cv-export-data'
 
 const selectClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-const primaryBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[12px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-const goldBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-warning/40 bg-warning/15 px-3.5 py-1.5 text-[12px] font-bold text-foreground transition-colors hover:bg-warning/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-const ghostBtnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[12px] font-bold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+// See admin/CipAdminPage.tsx's identical comment.
+const primaryBtnClass = buttonVariants({ size: 'sm' })
+const goldBtnClass = buttonVariants({ variant: 'warning', size: 'sm' })
+const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
 
 const STEP_LABELS = [
   'Lettura del documento (OCR / estrazione testo)',
