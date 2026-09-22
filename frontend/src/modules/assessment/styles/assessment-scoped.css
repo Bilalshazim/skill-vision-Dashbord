@@ -523,7 +523,12 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .home-quad-body{ max-height:0; overflow:hidden; transition: max-height .25s ease; }
 .home-quad-body.open{ max-height:2000px; margin-top:14px; }
 .quad:has(.home-quad-body:not(.open)){ min-height:140px; }
-.quad-collapse-hint{ font-size:13px; font-weight:600; color: var(--text-2); }
+/* Was a fixed one-line hint ("Clicca per i dettagli", ~21 chars); now a
+   per-tile question (up to ~53 chars), so it needs to wrap onto 2 lines
+   within a capped width instead of stretching wide and squeezing the
+   title/kicker column next to it (flex-shrink:0 + no width cap on a longer
+   string pushed the header's left side into a one-word-per-line stack). */
+.quad-collapse-hint{ font-size:13px; font-weight:600; color: var(--text-2); text-align:right; max-width:160px; }
 
 /* Home hero cards — laid out to match the client's reference mockup:
    plain black icon + big uppercase title on the left, "Clicca per i
@@ -536,7 +541,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .home-card-title{ font-size:32px; font-weight:900; text-transform:uppercase; letter-spacing:-.3px; line-height:1.1; margin:0 0 4px; color: var(--text-1); }
 .home-card-kicker{ font-size:14px; font-weight:500; letter-spacing:0.2px; text-transform:uppercase; color: var(--text-2); }
 .home-card-desc{ font-size:14px; line-height:1.5; color: var(--text-2); margin:14px 0 0; }
-.home-card-action{ display:flex; align-items:center; gap:6px; padding:0; border:none; background:none; cursor:pointer; flex-shrink:0; font: inherit; font-size:13px; }
+.home-card-action{ display:flex; align-items:flex-start; gap:6px; padding:0; border:none; background:none; cursor:pointer; flex-shrink:0; font: inherit; font-size:13px; }
 
 /* ---- Module toggle switch — adapted from Uiverse.io by gharsh11032000 ---- */
 .switch{ font-size:16px; position:relative; display:inline-block; width:3.4em; height:2em; flex-shrink:0; }

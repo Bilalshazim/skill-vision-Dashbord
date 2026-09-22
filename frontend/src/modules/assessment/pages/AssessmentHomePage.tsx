@@ -155,13 +155,29 @@ export default function AssessmentHomePage() {
                 </div>
               </div>
               <button type="button" className="home-card-action" onClick={() => setOpenCardsState('q1')}>
-                <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
+                <span className="quad-collapse-hint">{ui.homeQ1ExpandQuestion}</span>
                 <span className={`quad-chevron${openCards.q1 ? ' open' : ''}`}>
                   <Icon name="chevron" />
                 </span>
               </button>
             </div>
             <p className="home-card-desc">{ui.homeQ1Sub}</p>
+            {/* Closed-tile teaser: a preview number + comparison (both already
+                shown inside the body once expanded) plus a "hidden subject"
+                line that names a real fact without naming which area it's
+                about — the only reason to click was "Clicca per i dettagli"
+                before this, which gave no hint of what was inside. */}
+            <div style={{ marginTop: 14 }}>
+              <div className="kpi-value" style={{ fontSize: 28 }}>
+                {overallPct}%
+              </div>
+              <div className="kpi-label">{ui.homeQ1TeaserCompare(`${avgGap > 0 ? '+' : ''}${fmt1it(avgGap)}`, fmt1it(hs.benchmark))}</div>
+            </div>
+            {worstArea && (
+              <div className="small-note" style={{ marginTop: 8 }}>
+                {ui.homeQ1TeaserHidden(fmt1(Math.abs(round1(worstArea.avg - hs.benchmark))))}
+              </div>
+            )}
             <div className={`home-quad-body${openCards.q1 ? ' open' : ''}`}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <span className={`chip chip-${statusTier.variant === 'success' ? 'green' : statusTier.variant === 'warning' ? 'amber' : 'red'}`}>{statusTier.label}</span>
@@ -240,13 +256,24 @@ export default function AssessmentHomePage() {
               </div>
             </div>
             <button type="button" className="home-card-action" onClick={() => setOpenCardsState('q2')}>
-              <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
+              <span className="quad-collapse-hint">{ui.homeQ2ExpandQuestion}</span>
               <span className={`quad-chevron${openCards.q2 ? ' open' : ''}`}>
                 <Icon name="chevron" />
               </span>
             </button>
           </div>
           <p className="home-card-desc">{ui.homeQ2Sub}</p>
+          <div style={{ marginTop: 14 }}>
+            <div className="kpi-value" style={{ fontSize: 28, color: 'var(--danger)' }}>
+              {hs.severeGapCount}
+            </div>
+            <div className="kpi-label">{ui.homeQ2TeaserCompare(totalEmp ? Math.round((hs.severeGapCount / totalEmp) * 100) : 0)}</div>
+          </div>
+          {worstRole && (
+            <div className="small-note" style={{ marginTop: 8 }}>
+              {ui.homeQ2TeaserHidden(fmt1(round1(worstRole.avg - hs.benchmark)))}
+            </div>
+          )}
           <div className={`home-quad-body${openCards.q2 ? ' open' : ''}`}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <span className="chip chip-red">{ui.homeQ2CriticalIssues(hs.severeGapCount)}</span>
@@ -313,13 +340,22 @@ export default function AssessmentHomePage() {
               </div>
             </div>
             <button type="button" className="home-card-action" onClick={() => setOpenCardsState('q3')}>
-              <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
+              <span className="quad-collapse-hint">{ui.homeQ3ExpandQuestion}</span>
               <span className={`quad-chevron${openCards.q3 ? ' open' : ''}`}>
                 <Icon name="chevron" />
               </span>
             </button>
           </div>
           <p className="home-card-desc">{ui.homeQ3Sub}</p>
+          <div style={{ marginTop: 14 }}>
+            <div className="kpi-value" style={{ fontSize: 28, color: 'var(--success)' }}>
+              {hs.valueCount}
+            </div>
+            <div className="kpi-label">{ui.homeQ3TeaserCompare(totalEmp)}</div>
+          </div>
+          <div className="small-note" style={{ marginTop: 8 }}>
+            {ui.homeQ3TeaserHidden(hs.criticiCount)}
+          </div>
           <div className={`home-quad-body${openCards.q3 ? ' open' : ''}`}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <span className="chip chip-gray">{ui.homeQ3ResourceMapping}</span>
@@ -386,13 +422,24 @@ export default function AssessmentHomePage() {
               </div>
             </div>
             <button type="button" className="home-card-action" onClick={() => setOpenCardsState('q4')}>
-              <span className="quad-collapse-hint">{ui.homeCardExpandHint}</span>
+              <span className="quad-collapse-hint">{ui.homeQ4ExpandQuestion}</span>
               <span className={`quad-chevron${openCards.q4 ? ' open' : ''}`}>
                 <Icon name="chevron" />
               </span>
             </button>
           </div>
           <p className="home-card-desc">{ui.homeQ4Sub}</p>
+          <div style={{ marginTop: 14 }}>
+            <div className="kpi-value" style={{ fontSize: 28 }}>
+              {hs.feedbackDue}
+            </div>
+            <div className="kpi-label">{ui.homeQ4TeaserCompare(totalEmp)}</div>
+          </div>
+          {worstSkill && (
+            <div className="small-note" style={{ marginTop: 8 }}>
+              {ui.homeQ4TeaserHidden((worstSkill.gap > 0 ? '+' : '') + fmt1(worstSkill.gap))}
+            </div>
+          )}
           <div className={`home-quad-body${openCards.q4 ? ' open' : ''}`}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <span className="chip chip-gray">{ui.homeQ4AiPriorities}</span>
