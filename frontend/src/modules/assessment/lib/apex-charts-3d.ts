@@ -32,7 +32,7 @@ function _ensureTip(): HTMLDivElement {
   _tipEl.className = 'apx-tip'
   _tipEl.setAttribute('role', 'tooltip')
   _tipEl.style.cssText =
-    'position:fixed;z-index:9999;pointer-events:none;opacity:0;transition:opacity .12s ease;background:var(--panel,#FFFEF5);border:1px solid var(--line,#DBD7C7);border-radius:8px;padding:8px 10px;font-family:var(--font,inherit);font-size:11.5px;line-height:1.5;color:var(--txt,#2B2926);box-shadow:0 4px 16px rgba(13,12,10,.14);max-width:240px;left:0;top:0'
+    'position:fixed;z-index:9999;pointer-events:none;opacity:0;transition:opacity .12s ease;background:var(--popover);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:var(--font-sans,inherit);font-size:11.5px;line-height:1.5;color:var(--popover-foreground);box-shadow:0 4px 16px rgba(13,12,10,.14);max-width:240px;left:0;top:0'
   document.body.appendChild(_tipEl)
   return _tipEl
 }

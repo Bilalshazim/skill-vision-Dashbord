@@ -11,33 +11,29 @@ import { Chart } from 'chart.js/auto'
 // React hosts Assessment inside the shared SPA document instead, where
 // data-theme is scoped to .sv-assessment-shell (Phase 24), not <html>, so
 // the same document.documentElement read here always missed it.
-function isAssessmentDark(): boolean {
-  return document.querySelector('.sv-assessment-shell')?.getAttribute('data-theme') === 'dark'
+function token(el: Element, name: string, fallback: string): string {
+  return getComputedStyle(el.closest('.sv-assessment-shell') ?? el).getPropertyValue(name).trim() || fallback
 }
 
-export const BRAND_CHART = {
-  // Kept for ValoreChart.tsx's unused legacy ValoreScatterChart (superseded
-  // by ValoreAreaChart.tsx) — no live chart reads lime data-series color
-  // anymore; live charts use `success` (the semantic "good" green) below.
-  lime: () => (isAssessmentDark() ? '#DDEE1C' : '#B4C614'),
-  limeSoft: 'rgba(221,238,28,0.14)',
-  // --success is the same hex in both themes (assessment-scoped.css never
-  // overrides it for light mode), so this needs no isAssessmentDark() branch.
-  success: () => '#3FBF7F',
-  successSoft: 'rgba(63,191,127,0.14)',
-  grid: 'rgba(221,238,28,0.1)',
-  text: '#ABA79A',
-  strong: '#FAF5DF',
-  guide: '#8C8779',
+export function chartPalette(el: Element) {
+  return {
+    lime: token(el, '--accent', '#DDEE1C'),
+    limeSoft: token(el, '--accent-soft', 'rgba(221,238,28,0.14)'),
+    success: token(el, '--success', '#3FBF7F'),
+    successSoft: token(el, '--success-soft', 'rgba(63,191,127,0.14)'),
+    grid: token(el, '--border', '#E5E7EB'),
+    text: token(el, '--text-2', '#4B5563'),
+    strong: token(el, '--text-1', '#111827'),
+    guide: token(el, '--text-3', '#6B7280'),
+  }
 }
 
-let configured = false
-export function ensureChartDefaults() {
-  if (configured) return
-  configured = true
-  Chart.defaults.color = BRAND_CHART.text
-  Chart.defaults.borderColor = BRAND_CHART.grid
+export function ensureChartDefaults(el: Element) {
+  const palette = chartPalette(el)
+  Chart.defaults.color = palette.text
+  Chart.defaults.borderColor = palette.grid
   Chart.defaults.font.family = "'Gudea', -apple-system, 'Segoe UI', Roboto, sans-serif"
+  return palette
 }
 
 export { Chart }

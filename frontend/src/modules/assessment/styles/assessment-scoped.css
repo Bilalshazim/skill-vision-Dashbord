@@ -23,6 +23,15 @@
   --text-1: #F7F5EA;           /* Neutral-100 — high-contrast text */
   --text-2: #ABA79A;           /* Neutral-400 — secondary text */
   --text-3: #767369;           /* Neutral-500 — muted text */
+  /* Compatibility aliases used by the legacy SVG chart renderer. Keeping
+     these tied to Assessment's semantic tokens prevents its fallback dark
+     ink from being drawn on dark-mode charts. */
+  --ink: var(--text-1);
+  --muted: var(--text-2);
+  --txt: var(--text-1);
+  --panel: var(--surface);
+  --panel-2: var(--surface-alt);
+  --line: var(--border);
   --accent: #B4C614;           /* Accent-500 — lime (light mode); verified against public/brand/logo_black.svg's own fill="#B4C614" */
   --accent-dark: #8C980B;      /* Accent-600 */
   --link: #565D05;             /* Accent-800 — legible lime-family text/link color (light mode); --accent is a button-fill color and fails contrast as bare text on a light surface */

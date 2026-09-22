@@ -1,6 +1,7 @@
 import ApexCharts from 'apexcharts'
 import { useEffect, useRef } from 'react'
 
+import { useTheme } from '@/hooks/use-theme'
 import { fmt1, round1 } from '@/modules/assessment/lib/legacy-utils'
 
 // Reads from the given element, NOT document.documentElement — Assessment's
@@ -23,6 +24,7 @@ function cssVar(el: Element, name: string): string {
 // approximation.
 export function StatTile({ label, value, benchmark, max = 10, children }: { label: string; value: number; benchmark: number; max?: number; children?: React.ReactNode }) {
   const chartRef = useRef<HTMLDivElement>(null)
+  const { theme } = useTheme()
   const delta = round1(value - benchmark)
   const up = delta >= 0
 
@@ -45,7 +47,7 @@ export function StatTile({ label, value, benchmark, max = 10, children }: { labe
     return () => {
       chart.destroy()
     }
-  }, [value, benchmark, max])
+  }, [value, benchmark, max, theme])
 
   return (
     <div className="stat-card compact">

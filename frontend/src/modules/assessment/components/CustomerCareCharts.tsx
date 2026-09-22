@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 
-import { BRAND_CHART, Chart, ensureChartDefaults } from '@/modules/assessment/lib/brand-chart'
+import { useTheme } from '@/hooks/use-theme'
+import { Chart, ensureChartDefaults } from '@/modules/assessment/lib/brand-chart'
 
 // Migrated from renderCustomerCareOverview()'s Chart.js dual-axis chart
 // (js/assessment.js ~7780-7799) — CSAT (line, left axis) + resolved tickets
@@ -8,20 +9,21 @@ import { BRAND_CHART, Chart, ensureChartDefaults } from '@/modules/assessment/li
 export function CustomerCareTrendChart({ weeks, csatSeries, resolvedSeries, csatLabel, resolvedLabel }: { weeks: string[]; csatSeries: number[]; resolvedSeries: number[]; csatLabel: string; resolvedLabel: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const chartRef = useRef<Chart | null>(null)
+  const { theme } = useTheme()
 
   useEffect(() => {
-    ensureChartDefaults()
     if (!canvasRef.current) return
+    const palette = ensureChartDefaults(canvasRef.current)
     // CSAT trending up is a "good" signal, so it takes the same green used
     // for every other good/attention/critical read in the app instead of
     // the brand lime — charts stay off lime entirely (see brand-chart.ts).
     const cc = {
-      accent: BRAND_CHART.success(),
-      accentSoft: BRAND_CHART.successSoft,
+      accent: palette.success,
+      accentSoft: palette.successSoft,
       neutralBar: 'rgba(171,167,154,0.5)',
-      grid: BRAND_CHART.grid,
-      muted: BRAND_CHART.text,
-      text: BRAND_CHART.strong,
+      grid: palette.grid,
+      muted: palette.text,
+      text: palette.strong,
     }
     chartRef.current?.destroy()
     chartRef.current = new Chart(canvasRef.current, {
@@ -43,7 +45,7 @@ export function CustomerCareTrendChart({ weeks, csatSeries, resolvedSeries, csat
       },
     })
     return () => chartRef.current?.destroy()
-  }, [weeks, csatSeries, resolvedSeries, csatLabel, resolvedLabel])
+  }, [weeks, csatSeries, resolvedSeries, csatLabel, resolvedLabel, theme])
 
   return <canvas ref={canvasRef} />
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 
-import { BRAND_CHART, Chart, ensureChartDefaults } from '@/modules/assessment/lib/brand-chart'
+import { useTheme } from '@/hooks/use-theme'
+import { Chart, ensureChartDefaults } from '@/modules/assessment/lib/brand-chart'
 import { fmt1, fmtCurrency } from '@/modules/assessment/lib/legacy-utils'
 import type { Employee } from '@/modules/assessment/lib/types'
 
@@ -15,10 +16,11 @@ type Row = { e: Employee; soft: number; hard: number; combined: number; tier: { 
 export function ValoreScatterChart({ rows, tierColors, onOpenDrawer, axisHardLabel, axisSoftLabel }: { rows: Row[]; tierColors: Record<string, string>; onOpenDrawer: (id: string) => void; axisHardLabel: string; axisSoftLabel: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const chartRef = useRef<Chart | null>(null)
+  const { theme } = useTheme()
 
   useEffect(() => {
-    ensureChartDefaults()
     if (!canvasRef.current) return
+    const palette = ensureChartDefaults(canvasRef.current)
     // Reads .sv-assessment-shell, not document.documentElement — Assessment's
     // data-theme lives on its own root div (Phase 24 scoping), not <html>, so
     // a documentElement read here always missed it and this chart silently
@@ -35,7 +37,7 @@ export function ValoreScatterChart({ rows, tierColors, onOpenDrawer, axisHardLab
         datasets: [
           {
             data: rows.map((r) => r.combined),
-            borderColor: BRAND_CHART.lime(),
+            borderColor: palette.lime,
             borderWidth: 2,
             tension: 0.35,
             pointRadius: 5,
@@ -89,7 +91,7 @@ export function ValoreScatterChart({ rows, tierColors, onOpenDrawer, axisHardLab
       ],
     })
     return () => chartRef.current?.destroy()
-  }, [rows, tierColors, onOpenDrawer, axisHardLabel, axisSoftLabel])
+  }, [rows, tierColors, onOpenDrawer, axisHardLabel, axisSoftLabel, theme])
 
   return <canvas ref={canvasRef} />
 }
@@ -97,16 +99,17 @@ export function ValoreScatterChart({ rows, tierColors, onOpenDrawer, axisHardLab
 export function ValoreTierDistChart({ labels, counts, colors }: { labels: string[]; counts: number[]; colors: string[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const chartRef = useRef<Chart | null>(null)
+  const { theme } = useTheme()
   useEffect(() => {
-    ensureChartDefaults()
     if (!canvasRef.current) return
+    const palette = ensureChartDefaults(canvasRef.current)
     chartRef.current?.destroy()
     chartRef.current = new Chart(canvasRef.current, {
       type: 'bar',
       data: { labels, datasets: [{ data: counts, backgroundColor: colors, borderRadius: 6 }] },
-      options: { maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: BRAND_CHART.grid } }, y: { grid: { display: false } } }, plugins: { legend: { display: false } } },
+      options: { maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: palette.grid } }, y: { grid: { display: false } } }, plugins: { legend: { display: false } } },
     })
     return () => chartRef.current?.destroy()
-  }, [labels, counts, colors])
+  }, [labels, counts, colors, theme])
   return <canvas ref={canvasRef} />
 }
