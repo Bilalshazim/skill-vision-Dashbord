@@ -92,7 +92,10 @@ export function renderIsometricBars(el: HTMLElement | null, opts: { groups: Isom
     return
   }
   const seriesNames = opts.seriesNames || []
-  const seriesColors = opts.seriesColors || ['var(--accent,#B4C614)']
+  // Default when no seriesColors is passed — was the brand lime; charts
+  // stay off lime entirely, so this falls back to the app's designated
+  // multi/single-series categorical hue instead (index.css --chart-2..5).
+  const seriesColors = opts.seriesColors || ['var(--chart-2,#5B7FA6)']
   const max = opts.max || 10
   const unit = opts.unit || ''
   const dec = opts.dec == null ? 1 : opts.dec
@@ -190,7 +193,10 @@ export function renderCapsuleBars(el: HTMLElement | null, opts: { items: Capsule
     const v = Math.max(0, Math.min(Number(it.value) || 0, max))
     const fillH = Math.max(pillW * 0.55, (v / max) * trackH)
     const clipId = `${uid}-clip${i}`
-    const color = it.color || 'var(--teal, #DDEE1C)'
+    // Was 'var(--teal, ...)' with a lime fallback hex — --teal is never
+    // defined anywhere, so that fallback was the only color that ever
+    // actually rendered. Charts stay off lime entirely.
+    const color = it.color || 'var(--chart-2, #5B7FA6)'
     const tipText = escXml(it.label || '') + ': ' + fmtVal(v, unit, dec) + (it.target != null ? ` (target ${fmtVal(it.target, unit, dec)})` : '')
     defs += `<clipPath id="${clipId}"><rect x="${x}" y="${padTop}" width="${pillW}" height="${trackH}" rx="${pillW / 2}"/></clipPath>`
     body += `

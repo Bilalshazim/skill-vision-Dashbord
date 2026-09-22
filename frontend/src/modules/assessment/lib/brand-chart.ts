@@ -16,8 +16,15 @@ function isAssessmentDark(): boolean {
 }
 
 export const BRAND_CHART = {
+  // Kept for ValoreChart.tsx's unused legacy ValoreScatterChart (superseded
+  // by ValoreAreaChart.tsx) — no live chart reads lime data-series color
+  // anymore; live charts use `success` (the semantic "good" green) below.
   lime: () => (isAssessmentDark() ? '#DDEE1C' : '#B4C614'),
   limeSoft: 'rgba(221,238,28,0.14)',
+  // --success is the same hex in both themes (assessment-scoped.css never
+  // overrides it for light mode), so this needs no isAssessmentDark() branch.
+  success: () => '#3FBF7F',
+  successSoft: 'rgba(63,191,127,0.14)',
   grid: 'rgba(221,238,28,0.1)',
   text: '#ABA79A',
   strong: '#FAF5DF',

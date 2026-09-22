@@ -34,7 +34,10 @@ export function StatTile({ label, value, benchmark, max = 10, children }: { labe
       chart: { type: 'bar', height: 24, sparkline: { enabled: true }, animations: { enabled: true, easing: 'easeout', speed: 650 } },
       series: [{ data: [value] }],
       plotOptions: { bar: { horizontal: true, barHeight: '62%', borderRadius: 3 } },
-      colors: [color || '#B4C614'],
+      // Neutral fallback for the (in practice unreachable) case of an empty
+      // CSS var read — was the lime brand hex, which has no place in a
+      // green/amber/red severity sparkline.
+      colors: [color || '#767369'],
       xaxis: { max },
       tooltip: { enabled: false },
     })

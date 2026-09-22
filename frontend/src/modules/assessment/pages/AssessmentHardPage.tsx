@@ -177,10 +177,13 @@ function HardIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
           <div className="card-title-row">
             <div className="card-title">{ui.hardMultiSourceTitle}</div>
           </div>
+          {/* Manager/Peer/Self are rating sources, not a severity signal — was
+              lime for Manager; charts stay off lime, so it uses the app's
+              designated multi-series categorical hue instead. */}
           <IsometricBarsChart
             groups={hsm.dims.map((d) => ({ label: d.code, values: [d.perSource.resp, d.perSource.peer, d.perSource.auto], target: 6.5 }))}
             seriesNames={[ui.hardColManager, ui.hardColPeer, ui.hardColSelf]}
-            seriesColors={['var(--accent)', 'rgba(171,167,154,0.9)', 'var(--warning)']}
+            seriesColors={['var(--chart-2)', 'rgba(171,167,154,0.9)', 'var(--warning)']}
             max={10}
             dec={1}
           />

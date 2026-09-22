@@ -129,10 +129,13 @@ function SoftOrgView() {
           <div className="card-title-row">
             <div className="card-title">{ui.softBigFiveOrgTitle}</div>
           </div>
+          {/* Obtained/Expected is a profile comparison, not a severity signal —
+              was lime for Obtained; charts stay off lime, so it uses the
+              app's designated multi-series categorical hue instead. */}
           <IsometricBarsChart
             groups={BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, values: [bfOrg[d], bfOrgAtteso[d]] }))}
             seriesNames={[ui.chartObtained, ui.chartExpected]}
-            seriesColors={['var(--accent)', 'var(--text-3)']}
+            seriesColors={['var(--chart-2)', 'var(--text-3)']}
             max={10}
             dec={1}
           />
@@ -308,7 +311,7 @@ function SoftIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
           <IsometricBarsChart
             groups={BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, values: [bf[d], bfAtteso[d]] }))}
             seriesNames={[`${emp.nome} (${ui.chartObtained})`, ui.chartExpected]}
-            seriesColors={['var(--accent)', 'var(--text-3)']}
+            seriesColors={['var(--chart-2)', 'var(--text-3)']}
             max={10}
             dec={1}
           />

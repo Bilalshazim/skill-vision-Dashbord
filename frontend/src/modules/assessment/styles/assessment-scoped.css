@@ -211,18 +211,18 @@
   font-size:10.5px; font-weight:700; color: var(--text-3); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px; display:block;
 }
 .module-pills{ display:flex; flex-direction:column; gap:6px; }
+/* Was a filled pill — lime background, border and near-black text when
+   active. Now plain text with a small dot: the only lime left here is the
+   7px dot, not a full block fill. */
 .module-pill{
   display:flex; align-items:center; gap:8px;
-  padding:8px 10px; border-radius: var(--radius-sm);
-  border:1px solid var(--border); background: var(--surface-alt);
+  padding:2px 0;
   font-size:12.5px; font-weight:600; color: var(--text-2);
-  transition: all .15s ease;
+  transition: color .15s ease;
 }
-.module-pill.active{
-  background: var(--accent); border-color: var(--accent); color:#0D0C0A;
-}
-.module-pill .dot{ width:7px; height:7px; border-radius:50%; background: var(--text-3); flex-shrink:0; }
-.module-pill.active .dot{ background: #0D0C0A; }
+.module-pill.active{ color: var(--text-1); }
+.module-pill .dot{ width:7px; height:7px; border-radius:50%; background: var(--text-3); flex-shrink:0; transition: background-color .15s ease; }
+.module-pill.active .dot{ background: var(--accent); }
 
 nav.mainnav{ flex:1; overflow-y:auto; padding: 10px 12px; }
 .nav-section-title{
@@ -510,10 +510,13 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 }
 .quad .qnum{ font-size:11px; font-weight:800; color: var(--text-3); letter-spacing:0.5px; margin-bottom:6px; }
 .quad h3{ font-size:14.5px; font-weight:800; margin-bottom:12px; letter-spacing:-.1px; }
-/* Reference mockup uses one uniform lime border on all 4 hero cards,
-   not per-card severity hues — so all four accent classes now resolve
-   to the same border. */
-.quad-accent-1, .quad-accent-2, .quad-accent-3, .quad-accent-4{ border: 1px solid var(--accent); }
+/* Lime was previously a uniform border on all 4 hero cards — pure
+   decoration, not a signal, since every card looked equally "important".
+   Now it marks only whichever ONE card is most urgent for the current
+   data (computed in AssessmentHomePage.tsx's urgencyScores/mostUrgentQuad),
+   so it functions as an accent again instead of wallpaper. The other 3
+   cards fall back to .quad's own plain neutral border. */
+.quad-urgent{ border: 1px solid var(--accent); }
 
 /* Home KPI accordion — click the quad header to expand/collapse its body, same pattern as the sidebar nav
    groups. Collapsed state shows only the title (no chip, no numbers) until the user clicks to expand. */
@@ -950,7 +953,6 @@ a.linklike:hover{ text-decoration:underline; }
 .view-tab.active,
 .nav-item.active, .nav-item.active .ic,
 .nav-subitem.active,
-.module-pill.active,
 .segmented button.active{ color:#0D0C0A !important; }
 
 /* ============================= EXECUTIVE HUMAN CAPITAL INTERVIEW (Analisi Iniziale) =============================

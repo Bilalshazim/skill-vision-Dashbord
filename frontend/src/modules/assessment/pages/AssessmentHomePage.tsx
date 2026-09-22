@@ -60,6 +60,22 @@ export default function AssessmentHomePage() {
   const rPct = 100 - gPct - aPct
   const statusTier = hs.orgAvg >= hs.benchmark ? { label: ui.statusGood, variant: 'success' } : hs.orgAvg >= hs.benchmark - 1 ? { label: ui.statusModerate, variant: 'warning' } : { label: ui.statusBelow, variant: 'danger' }
 
+  // Lime border is now reserved for the single most urgent tile instead of
+  // decorating all 4 uniformly. Each score is that tile's own severity
+  // signal normalized to a 0..1 share of the workforce, so the 4 are
+  // comparable on one scale despite covering different data: how far the
+  // org average sits below benchmark (Q1), the share with a severe gap
+  // (Q2), the share in the Critica tier (Q3), the share flagged for a
+  // training/reorg action (Q4). Whichever is highest gets the border —
+  // this is recomputed from live data, so it moves as the data does.
+  const urgencyScores: Record<'q1' | 'q2' | 'q3' | 'q4', number> = {
+    q1: hs.benchmark ? Math.max(0, -avgGap) / hs.benchmark : 0,
+    q2: totalEmp ? hs.severeGapCount / totalEmp : 0,
+    q3: totalEmp ? hs.criticiCount / totalEmp : 0,
+    q4: totalEmp ? hs.riskCount / totalEmp : 0,
+  }
+  const mostUrgentQuad = (['q1', 'q2', 'q3', 'q4'] as const).reduce((best, key) => (urgencyScores[key] > urgencyScores[best] ? key : best))
+
   const worstArea = orgCriticalAreas(state, lang, 1)[0]
   const worstRole = orgCriticalRoles(state, lang, 1)[0]
   const worstSkill = worstCompetenza(state, lang, f)
@@ -141,7 +157,7 @@ export default function AssessmentHomePage() {
 
       <div className="home-hero">
         {/* Q1 */}
-        <div className="quad quad-accent-1">
+        <div className={`quad${mostUrgentQuad === 'q1' ? ' quad-urgent' : ''}`}>
           <div className="blur-decor" style={{ background: 'var(--success-soft)' }} />
           <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
@@ -244,7 +260,7 @@ export default function AssessmentHomePage() {
         </div>
 
         {/* Q2 */}
-        <div className="quad quad-accent-2">
+        <div className={`quad${mostUrgentQuad === 'q2' ? ' quad-urgent' : ''}`}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
               <span className="home-card-icon">
@@ -328,7 +344,7 @@ export default function AssessmentHomePage() {
         </div>
 
         {/* Q3 */}
-        <div className="quad quad-accent-3">
+        <div className={`quad${mostUrgentQuad === 'q3' ? ' quad-urgent' : ''}`}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
               <span className="home-card-icon">
@@ -410,7 +426,7 @@ export default function AssessmentHomePage() {
         </div>
 
         {/* Q4 */}
-        <div className="quad quad-accent-4">
+        <div className={`quad${mostUrgentQuad === 'q4' ? ' quad-urgent' : ''}`}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
               <span className="home-card-icon">

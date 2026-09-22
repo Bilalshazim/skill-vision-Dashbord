@@ -12,9 +12,12 @@ export function CustomerCareTrendChart({ weeks, csatSeries, resolvedSeries, csat
   useEffect(() => {
     ensureChartDefaults()
     if (!canvasRef.current) return
+    // CSAT trending up is a "good" signal, so it takes the same green used
+    // for every other good/attention/critical read in the app instead of
+    // the brand lime — charts stay off lime entirely (see brand-chart.ts).
     const cc = {
-      accent: BRAND_CHART.lime(),
-      accentSoft: BRAND_CHART.limeSoft,
+      accent: BRAND_CHART.success(),
+      accentSoft: BRAND_CHART.successSoft,
       neutralBar: 'rgba(171,167,154,0.5)',
       grid: BRAND_CHART.grid,
       muted: BRAND_CHART.text,

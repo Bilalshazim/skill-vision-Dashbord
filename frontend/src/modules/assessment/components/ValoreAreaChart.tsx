@@ -45,7 +45,11 @@ export function ValoreAreaChart({
   useEffect(() => {
     if (!containerRef.current) return
     const el = containerRef.current
-    const accent = cssVar(el, '--accent', '#B4C614')
+    // Was --accent (lime) — charts stay off the brand accent entirely, so
+    // "Soft Skills" gets the app's designated multi-series categorical hue
+    // instead (index.css's --chart-2..5, reserved for exactly this: a
+    // series that isn't itself a good/attention/critical severity signal).
+    const softColor = cssVar(el, '--chart-2', '#5B7FA6')
     const success = cssVar(el, '--success', '#3FBF7F')
     const textPrimary = cssVar(el, '--text-1', '#111827')
     const textMuted = cssVar(el, '--text-2', '#4B5563')
@@ -56,7 +60,7 @@ export function ValoreAreaChart({
     chartRef.current?.destroy()
     chartRef.current = new ApexCharts(el, {
       series: [
-        { name: softSeriesLabel, data: rows.map((r) => r.soft), color: accent },
+        { name: softSeriesLabel, data: rows.map((r) => r.soft), color: softColor },
         { name: hardSeriesLabel, data: rows.map((r) => r.hard), color: success },
       ],
       chart: {
@@ -105,7 +109,7 @@ export function ValoreAreaChart({
       },
       fill: {
         type: 'gradient',
-        gradient: { opacityFrom: 0.55, opacityTo: 0, shade: accent, gradientToColors: [accent, success] },
+        gradient: { opacityFrom: 0.55, opacityTo: 0, shade: softColor, gradientToColors: [softColor, success] },
       },
       stroke: { width: 6, curve: 'smooth' },
       // Area/line series render no real per-point marker by default (just an
