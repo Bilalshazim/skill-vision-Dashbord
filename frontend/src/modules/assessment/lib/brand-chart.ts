@@ -11,7 +11,11 @@ import { Chart } from 'chart.js/auto'
 // React hosts Assessment inside the shared SPA document instead, where
 // data-theme is scoped to .sv-assessment-shell (Phase 24), not <html>, so
 // the same document.documentElement read here always missed it.
-function token(el: Element, name: string, fallback: string): string {
+// Exported so a chart that needs one more token than chartPalette() covers
+// (e.g. --chart-2, the multi-series categorical hue — see AndamentoChart.tsx)
+// can reuse the same .sv-assessment-shell-aware lookup instead of a second
+// copy of it.
+export function token(el: Element, name: string, fallback: string): string {
   return getComputedStyle(el.closest('.sv-assessment-shell') ?? el).getPropertyValue(name).trim() || fallback
 }
 

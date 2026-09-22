@@ -1,7 +1,8 @@
-import { CheckSquare, Gem, TrendingDown, Users } from 'lucide-react'
+import { CheckSquare, Gem, Minus, TrendingDown, TrendingUp, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { AndamentoChart } from '@/modules/assessment/components/AndamentoChart'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import {
@@ -19,6 +20,15 @@ import { fmt1, fmt1it, round1 } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import type { getUI } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentState } from '@/modules/assessment/lib/types'
+
+// Client-supplied reference (skillvision-chart.html) hardcodes these exact
+// 6 monthly points for each module rather than deriving them from any real
+// per-month history — this app has no such history (every employee record
+// is a single current snapshot, see demo-data.ts), so there's nothing to
+// compute here differently. Kept verbatim as the demo trend, same as the
+// rest of the app's demo data is also a fixed illustrative snapshot.
+const ANDAMENTO_SOFT = [6.1, 6.2, 6.1, 6.3, 6.3, 6.4]
+const ANDAMENTO_HARD = [6.0, 6.1, 6.3, 6.2, 6.4, 6.5]
 
 // Migrated from renderHome() (js/assessment.js ~4464-4726) — same 4 KPI
 // quadrants (Q1 status / Q2 problem areas / Q3 talent classification / Q4
@@ -75,6 +85,15 @@ export default function AssessmentHomePage() {
     q4: totalEmp ? hs.riskCount / totalEmp : 0,
   }
   const mostUrgentQuad = (['q1', 'q2', 'q3', 'q4'] as const).reduce((best, key) => (urgencyScores[key] > urgencyScores[best] ? key : best))
+
+  // "Score medio" for the trend footer blends both series equally at each
+  // point, same as the reference's own single trend line/label — compares
+  // the blended first vs. last month to decide the rising/falling/stable
+  // wording (a >=0.05 move either way counts as a real trend, not noise).
+  const andamentoBlendFirst = (ANDAMENTO_SOFT[0] + ANDAMENTO_HARD[0]) / 2
+  const andamentoBlendLast = (ANDAMENTO_SOFT[ANDAMENTO_SOFT.length - 1] + ANDAMENTO_HARD[ANDAMENTO_HARD.length - 1]) / 2
+  const andamentoDelta = round1(andamentoBlendLast - andamentoBlendFirst)
+  const andamentoTrend = andamentoDelta > 0.05 ? 'up' : andamentoDelta < -0.05 ? 'down' : 'flat'
 
   const worstArea = orgCriticalAreas(state, lang, 1)[0]
   const worstRole = orgCriticalRoles(state, lang, 1)[0]
@@ -495,6 +514,38 @@ export default function AssessmentHomePage() {
               </a>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 18 }}>
+        <div className="card-title-row">
+          <div className="card-title">{ui.homeAndamentoTitle}</div>
+        </div>
+        <div className="small-note" style={{ marginTop: -8, marginBottom: 14 }}>
+          {ui.homeAndamentoSub(totalEmp)}
+        </div>
+        <div style={{ position: 'relative', height: 240 }}>
+          <AndamentoChart months={ui.homeAndamentoMonths} softSeries={ANDAMENTO_SOFT} hardSeries={ANDAMENTO_HARD} softLabel={ui.moduleASoft} hardLabel={ui.moduleBHard} />
+        </div>
+        {/* The chart's own Chart.js legend is off (AndamentoChart.tsx) since
+            this reuses the app's existing static legend-dot pattern instead
+            of a second, chart-library-drawn one — same two colors as the
+            chart itself (--chart-2 / --success), so the key stays accurate
+            even if the chart's own color source ever changes. */}
+        <div className="legend-row" style={{ marginTop: 12 }}>
+          <span className="legend-dot">
+            <i style={{ background: 'var(--chart-2)' }} />
+            {ui.moduleASoft}
+          </span>
+          <span className="legend-dot">
+            <i style={{ background: 'var(--success)' }} />
+            {ui.moduleBHard}
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 14, fontSize: 13, fontWeight: 600, color: 'var(--text-1)' }}>
+          {andamentoTrend === 'up' ? <TrendingUp size={14} color="var(--success)" /> : andamentoTrend === 'down' ? <TrendingDown size={14} color="var(--danger)" /> : <Minus size={14} color="var(--text-3)" />}
+          {andamentoTrend === 'up' ? ui.homeAndamentoRising : andamentoTrend === 'down' ? ui.homeAndamentoFalling : ui.homeAndamentoStable}
+          <span className="small-note">· {ui.homeAndamentoPeriod}</span>
         </div>
       </div>
 
