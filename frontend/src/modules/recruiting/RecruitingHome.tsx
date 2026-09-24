@@ -1,10 +1,13 @@
-import { Briefcase, CalendarClock, Hourglass, Users } from 'lucide-react'
+import { Users } from 'lucide-react'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { CrossModuleBanner } from '@/components/CrossModuleBanner'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { KpiCard } from '@/modules/recruiting/components/KpiCard'
 import { OpeningsList } from '@/modules/recruiting/components/OpeningsList'
-import { QualityChart } from '@/modules/recruiting/components/QualityChart'
+import { QualityStackedBar } from '@/modules/recruiting/components/QualityStackedBar'
+import { SelectionFunnel } from '@/modules/recruiting/components/SelectionFunnel'
 import { UpcomingList } from '@/modules/recruiting/components/UpcomingList'
 import { downloadFile } from '@/modules/recruiting/lib/download'
 import { useRecruitingHomeData, type RecruitingHomeData } from '@/modules/recruiting/lib/use-recruiting-home-data'
@@ -59,11 +62,6 @@ function StartHero() {
   )
 }
 
-// Same four icons as the legacy KPI row (group/hourglass_top/work/event,
-// Material Symbols) — swapped to lucide-react equivalents, same order,
-// same meaning.
-const KPI_ICONS = [Users, Hourglass, Briefcase, CalendarClock]
-
 // Migrated from modules/recruiting.html #scr-home (renderHomeDashboard()).
 // Same KPI values, same quality-distribution buckets/thresholds, same
 // open-positions list, same upcoming-interviews list — see
@@ -71,6 +69,7 @@ const KPI_ICONS = [Users, Hourglass, Briefcase, CalendarClock]
 // lib/storage.ts for the read-only localStorage boundary.
 export default function RecruitingHome() {
   const data = useRecruitingHomeData()
+  const [interviewsTab, setInterviewsTab] = useState<'arrivo' | 'completati'>('arrivo')
 
   // Cross-module banner stats — all derived from the same real data already
   // computed above, no new sources invented (see CrossModuleBanner.tsx).
@@ -84,11 +83,40 @@ export default function RecruitingHome() {
     <div className="flex flex-col gap-4">
       <StartHero />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {data.kpis.map((k, i) => (
-          <KpiCard key={k.key} icon={KPI_ICONS[i]} value={k.value} label={k.label} />
-        ))}
-      </div>
+      {/* "Il Talento in Pipeline" hero (Phase 5) — combines the 4 separate
+          KpiCard tiles into one card: candidate count as the headline,
+          the other 3 KPIs as inline mini-stats, plus 3 real actions.
+          KpiCard.tsx is left in place, unused. */}
+      <Card className="p-6">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <Users className="size-8 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <div>
+              <div className="font-mono text-3xl font-black leading-none tracking-[-.045em] tabular-nums text-foreground">{data.kpis[0].value}</div>
+              <div className="mt-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">{data.kpis[0].label}</div>
+            </div>
+          </div>
+          <div className="flex gap-6">
+            {[data.kpis[2], data.kpis[3], data.kpis[1]].map((k) => (
+              <div key={k.key}>
+                <div className="font-mono text-xl font-black tabular-nums text-foreground">{k.value}</div>
+                <div className="mt-1 font-mono text-[10.5px] uppercase tracking-wider text-muted-foreground">{k.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Button asChild size="sm">
+            <Link to="/recruiting/pipeline">Vedi Pipeline</Link>
+          </Button>
+          <Button asChild size="sm" variant="outline">
+            <Link to="/recruiting/job-profile">Nuova Ricerca</Link>
+          </Button>
+          <Button asChild size="sm" variant="outline">
+            <Link to="/recruiting/cv">Esporta Elenco</Link>
+          </Button>
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="flex min-w-0 flex-col gap-4">
@@ -101,7 +129,7 @@ export default function RecruitingHome() {
             </CardHeader>
             <CardContent className="overflow-x-auto p-0">
               {data.rankedCount ? (
-                <QualityChart buckets={data.buckets} max={data.rankedCount} />
+                <QualityStackedBar buckets={data.buckets} total={data.rankedCount} />
               ) : (
                 <p className="py-1 text-[13px] text-muted-foreground">
                   Nessun candidato ancora in classifica per questo ruolo. Carica i primi CV dalla pagina CV &amp;
@@ -124,10 +152,37 @@ export default function RecruitingHome() {
         <div className="flex min-w-0 flex-col gap-4">
           <Card className="p-6">
             <CardHeader className="p-0 pb-4">
-              <CardTitle className="text-sm">Prossimi colloqui</CardTitle>
+              <CardTitle className="text-sm">Imbuto di Selezione</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <UpcomingList upcoming={data.upcoming} />
+              <SelectionFunnel stages={data.funnel} />
+            </CardContent>
+          </Card>
+
+          <Card className="p-6">
+            <CardHeader className="flex-row items-center justify-between p-0 pb-4">
+              <CardTitle className="text-sm">Prossimi colloqui</CardTitle>
+              <div className="flex gap-1 rounded-md bg-secondary p-0.5">
+                <button
+                  className={`rounded-[5px] px-2 py-1 text-[11px] font-semibold ${interviewsTab === 'arrivo' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+                  onClick={() => setInterviewsTab('arrivo')}
+                >
+                  In arrivo
+                </button>
+                <button
+                  className={`rounded-[5px] px-2 py-1 text-[11px] font-semibold ${interviewsTab === 'completati' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+                  onClick={() => setInterviewsTab('completati')}
+                >
+                  Completati
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              {interviewsTab === 'arrivo' ? (
+                <UpcomingList upcoming={data.upcoming} />
+              ) : (
+                <UpcomingList upcoming={data.completed} emptyText="Nessun colloquio completato ancora." />
+              )}
             </CardContent>
           </Card>
         </div>

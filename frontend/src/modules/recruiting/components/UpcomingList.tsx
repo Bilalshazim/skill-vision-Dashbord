@@ -3,9 +3,9 @@ import { CalendarCheck } from 'lucide-react'
 import { EmptyState } from '@/modules/recruiting/components/EmptyState'
 import type { UpcomingRow } from '@/modules/recruiting/lib/use-recruiting-home-data'
 
-export function UpcomingList({ upcoming }: { upcoming: UpcomingRow[] }) {
+export function UpcomingList({ upcoming, emptyText }: { upcoming: UpcomingRow[]; emptyText?: string }) {
   if (!upcoming.length) {
-    return <EmptyState icon={CalendarCheck} text="Nessun colloquio programmato al momento." />
+    return <EmptyState icon={CalendarCheck} text={emptyText ?? 'Nessun colloquio programmato al momento.'} />
   }
 
   return (

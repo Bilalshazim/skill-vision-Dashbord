@@ -35,6 +35,8 @@ export type UpcomingRow = {
   meta: string
 }
 
+export type FunnelStage = { key: string; label: string; count: number; note?: string }
+
 export type RecruitingHomeData = {
   kpis: KpiDatum[]
   roleLabel: string
@@ -42,10 +44,20 @@ export type RecruitingHomeData = {
   buckets: QualityBucket[]
   openings: OpeningRow[]
   upcoming: UpcomingRow[]
+  completed: UpcomingRow[]
   /** Not-completed interviews scheduled within the next 7 days, and how
    *  many distinct companies they span — feeds the cross-module banner's
    *  "Colloqui questa settimana" stat (see CrossModuleBanner.tsx). */
   interviewsThisWeek: { count: number; companies: number }
+  /** "Imbuto di Selezione" (Phase 5) — real counts summed across every
+   *  open position's own pipeline (prescreened/testResults/interviews),
+   *  plus the full candidate pool for the first stage. "Assunti" has no
+   *  real tracked hire-count anywhere in this app (Pipeline only ever
+   *  stores a single `winner` slot per opening, overwritten, no history)
+   *  — counting openings with a winner set is the best honest proxy, not
+   *  a precise hire count, hence the `note`.
+   */
+  funnel: FunnelStage[]
 }
 
 // Faithful port of renderHomeDashboard() (modules/recruiting.html
@@ -127,6 +139,25 @@ export function useRecruitingHomeData(): RecruitingHomeData {
       meta: `${iv.companyName} · ${iv.openingTitle}`,
     }))
 
+    const completedRows: UpcomingRow[] = allInterviews
+      .filter((iv) => iv.completed)
+      .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime())
+      .slice(0, 5)
+      .map((iv, i) => ({
+        id: `c${i}-${iv.scheduledAt}`,
+        date: plDateFmt(iv.scheduledAt),
+        name: iv.name || '—',
+        meta: `${iv.companyName} · ${iv.openingTitle}`,
+      }))
+
+    const funnel: FunnelStage[] = [
+      { key: 'candidature', label: 'Candidature', count: candidates.length },
+      { key: 'screening', label: 'Screening', count: openings.reduce((sum, { opening }) => sum + ensurePipeline(opening).prescreened.length, 0) },
+      { key: 'test', label: 'Test Tecnico', count: openings.reduce((sum, { opening }) => sum + ensurePipeline(opening).testResults.length, 0) },
+      { key: 'colloqui', label: 'Colloqui', count: openings.reduce((sum, { opening }) => sum + ensurePipeline(opening).interviews.length, 0) },
+      { key: 'assunti', label: 'Assunti', count: openings.filter(({ opening }) => ensurePipeline(opening).winner).length, note: 'Posizioni con un vincitore selezionato — non un conteggio storico delle assunzioni' },
+    ]
+
     const now = Date.now()
     const weekMs = 7 * 24 * 60 * 60 * 1000
     const thisWeek = allInterviews.filter((iv) => {
@@ -143,7 +174,9 @@ export function useRecruitingHomeData(): RecruitingHomeData {
       buckets,
       openings: openingRows,
       upcoming: upcomingRows,
+      completed: completedRows,
       interviewsThisWeek,
+      funnel,
     }
   }, [])
 }
