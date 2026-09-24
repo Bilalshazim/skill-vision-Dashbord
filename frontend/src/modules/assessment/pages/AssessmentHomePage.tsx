@@ -2,6 +2,7 @@ import { CheckSquare, Gem, TrendingDown, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { CrossModuleBanner } from '@/components/CrossModuleBanner'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import {
@@ -78,6 +79,13 @@ export default function AssessmentHomePage() {
 
   const worstArea = orgCriticalAreas(state, lang, 1)[0]
   const worstRole = orgCriticalRoles(state, lang, 1)[0]
+  // Cross-module banner stat: a real count of roles below benchmark, not
+  // just the top-1 "worst role" above — orgCriticalRoles(n) always returns
+  // its top n regardless of severity, so getting every role and filtering
+  // by the same benchmark used everywhere else on this page is what makes
+  // this an honest "at risk" count instead of a fixed top-3.
+  const rolesAtRiskCount = orgCriticalRoles(state, lang, Number.MAX_SAFE_INTEGER).filter((r) => r.avg < hs.benchmark).length
+  const pendingEvalsCount = state.evalAssignments.filter((a) => a.status === 'pending').length
   const worstSkill = worstCompetenza(state, lang, f)
   // Bug fix: this used to always land on 'valore' ("Valori Complessivi")
   // when both modules were active — a different screen entirely (overall
@@ -531,6 +539,21 @@ export default function AssessmentHomePage() {
       </div>
 
       {f.A && <ModuleATotalizer />}
+
+      <CrossModuleBanner
+        heading={ui.crossBannerHeading}
+        body={ui.crossBannerBody}
+        ctaLabel={ui.crossBannerCtaToRecruiting}
+        ctaTo="/recruiting"
+        secondaryLabel={ui.crossBannerReport}
+        onSecondary={() => exportActionPlan(state, lang, ui)}
+        stats={[
+          { label: ui.crossBannerCriticalArea, value: worstArea ? worstArea.area : '—', sub: worstArea ? ui.crossBannerCriticalAreaSub(fmt1(round1(worstArea.avg - hs.benchmark))) : undefined },
+          { label: ui.crossBannerToValorize, value: hs.valueCount, sub: ui.crossBannerToValorizeSub(gPct) },
+          { label: ui.crossBannerRolesAtRisk, value: rolesAtRiskCount, sub: ui.crossBannerRolesAtRiskSub(roleCovPct) },
+          { label: ui.crossBannerEvalsInProgress, value: pendingEvalsCount, sub: ui.crossBannerEvalsInProgressSub },
+        ]}
+      />
     </div>
   )
 }

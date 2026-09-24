@@ -42,6 +42,10 @@ export type RecruitingHomeData = {
   buckets: QualityBucket[]
   openings: OpeningRow[]
   upcoming: UpcomingRow[]
+  /** Not-completed interviews scheduled within the next 7 days, and how
+   *  many distinct companies they span — feeds the cross-module banner's
+   *  "Colloqui questa settimana" stat (see CrossModuleBanner.tsx). */
+  interviewsThisWeek: { count: number; companies: number }
 }
 
 // Faithful port of renderHomeDashboard() (modules/recruiting.html
@@ -123,6 +127,15 @@ export function useRecruitingHomeData(): RecruitingHomeData {
       meta: `${iv.companyName} · ${iv.openingTitle}`,
     }))
 
+    const now = Date.now()
+    const weekMs = 7 * 24 * 60 * 60 * 1000
+    const thisWeek = allInterviews.filter((iv) => {
+      if (iv.completed) return false
+      const t = new Date(iv.scheduledAt).getTime()
+      return t >= now && t <= now + weekMs
+    })
+    const interviewsThisWeek = { count: thisWeek.length, companies: new Set(thisWeek.map((iv) => iv.companyName)).size }
+
     return {
       kpis,
       roleLabel: DEFAULT_ROLE,
@@ -130,6 +143,7 @@ export function useRecruitingHomeData(): RecruitingHomeData {
       buckets,
       openings: openingRows,
       upcoming: upcomingRows,
+      interviewsThisWeek,
     }
   }, [])
 }

@@ -1,11 +1,30 @@
 import { Briefcase, CalendarClock, Hourglass, Users } from 'lucide-react'
 
+import { CrossModuleBanner } from '@/components/CrossModuleBanner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { KpiCard } from '@/modules/recruiting/components/KpiCard'
 import { OpeningsList } from '@/modules/recruiting/components/OpeningsList'
 import { QualityChart } from '@/modules/recruiting/components/QualityChart'
 import { UpcomingList } from '@/modules/recruiting/components/UpcomingList'
-import { useRecruitingHomeData } from '@/modules/recruiting/lib/use-recruiting-home-data'
+import { downloadFile } from '@/modules/recruiting/lib/download'
+import { useRecruitingHomeData, type RecruitingHomeData } from '@/modules/recruiting/lib/use-recruiting-home-data'
+
+const csvEsc = (v: unknown) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`
+
+// Same plain client-side CSV Blob pattern as candidateExport.ts's
+// downloadCandidateReport() — a summary across all openings instead of one
+// candidate, feeding the cross-module banner's "Report completo" button.
+function exportHomeSummary(data: RecruitingHomeData): void {
+  const rows: [string, string | number][] = [
+    ['Candidati in archivio', data.kpis[0].value],
+    ['In attesa di test', data.kpis[1].value],
+    ['Posizioni aperte', data.kpis[2].value],
+    ['Colloqui programmati', data.kpis[3].value],
+  ]
+  let csv = '﻿' + rows.map((r) => r.map(csvEsc).join(';')).join('\r\n') + '\r\n\r\nPosizione;Azienda;Fase;Avanzamento %;Assegnata\r\n'
+  csv += data.openings.map((o) => [o.openingTitle, o.companyName, o.stageLabel, o.stagePct, o.won ? 'SI' : 'NO'].map(csvEsc).join(';')).join('\r\n')
+  downloadFile('report_recruiting.csv', csv, 'text/csv;charset=utf-8;')
+}
 
 // Client-requested nav rename: this route (index, now labeled "Inizia" —
 // see nav-config.ts) is asked to be "the 'From Search to Talent' landing
@@ -52,6 +71,14 @@ const KPI_ICONS = [Users, Hourglass, Briefcase, CalendarClock]
 // lib/storage.ts for the read-only localStorage boundary.
 export default function RecruitingHome() {
   const data = useRecruitingHomeData()
+
+  // Cross-module banner stats — all derived from the same real data already
+  // computed above, no new sources invented (see CrossModuleBanner.tsx).
+  const openOpenings = data.openings.filter((o) => !o.won)
+  const urgentOpening = openOpenings.length ? openOpenings.reduce((a, b) => (b.stagePct < a.stagePct ? b : a)) : undefined
+  const suitableCount = data.buckets[0].count + data.buckets[1].count
+  const suitablePct = data.kpis[0].value ? Math.round((suitableCount / data.kpis[0].value) * 100) : 0
+  const closedCount = data.openings.filter((o) => o.won).length
 
   return (
     <div className="flex flex-col gap-4">
@@ -105,6 +132,21 @@ export default function RecruitingHome() {
           </Card>
         </div>
       </div>
+
+      <CrossModuleBanner
+        heading="Una sola lettura, mai due sistemi diversi."
+        body="Assessment e Recruiting condividono gli stessi indicatori e le stesse priorità: un'unica decisione da prendere, non due strumenti da confrontare."
+        ctaLabel="Apri Assessment"
+        ctaTo="/assessment"
+        secondaryLabel="Report completo"
+        onSecondary={() => exportHomeSummary(data)}
+        stats={[
+          { label: 'POSIZIONE PIÙ URGENTE', value: urgentOpening ? urgentOpening.openingTitle : '—', sub: urgentOpening?.stageLabel },
+          { label: 'CANDIDATI IDONEI', value: suitableCount, sub: `${suitablePct}% del bacino` },
+          { label: 'COLLOQUI QUESTA SETTIMANA', value: data.interviewsThisWeek.count, sub: `${data.interviewsThisWeek.companies} aziende coinvolte` },
+          { label: 'POSIZIONI CHIUSE', value: closedCount, sub: `su ${data.openings.length} posizioni aperte` },
+        ]}
+      />
     </div>
   )
 }
