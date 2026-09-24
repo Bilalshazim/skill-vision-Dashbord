@@ -128,7 +128,7 @@ export default function RecruitingHome() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[2fr_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="flex min-w-0 flex-col gap-4">
           <Card className="p-6">
             <CardHeader className="flex-row items-start justify-between p-0 pb-4">
@@ -167,7 +167,7 @@ export default function RecruitingHome() {
             </CardContent>
           </Card>
 
-          <Card className="p-6">
+          <Card className="flex flex-1 flex-col p-6">
             <CardHeader className="p-0 pb-4">
               <CardTitle className="text-sm">Posizioni aperte</CardTitle>
             </CardHeader>
@@ -187,7 +187,7 @@ export default function RecruitingHome() {
             </CardContent>
           </Card>
 
-          <Card className="p-6">
+          <Card className="flex flex-1 flex-col p-6">
             <CardHeader className="p-0 pb-3">
               <CardTitle className="text-sm">Prossimi colloqui</CardTitle>
               <p className="mt-0.5 text-xs text-muted-foreground">Ordinati per data</p>

@@ -79,22 +79,6 @@ export default function AssessmentHomePage() {
   const gPct = totalEmp ? Math.round((hs.valueCount / totalEmp) * 100) : 0
   const statusTier = hs.orgAvg >= hs.benchmark ? { variant: 'success' } : hs.orgAvg >= hs.benchmark - 1 ? { variant: 'warning' } : { variant: 'danger' }
 
-  // Lime border is now reserved for the single most urgent card instead of
-  // decorating all of them uniformly. Each score is that card's own
-  // severity signal normalized to a 0..1 share of the workforce, so the 3
-  // remaining cards (Le Perdite/Q2 was removed from Home in the concept
-  // correction pass) are comparable on one scale: how far the org average
-  // sits below benchmark (Il Valore), the share in the Critica tier (Il
-  // Capitale Umano), the share flagged for a training/reorg action (Le
-  // Decisioni). Whichever is highest gets the border — recomputed from
-  // live data, so it moves as the data does.
-  const urgencyScores: Record<'q1' | 'q3' | 'q4', number> = {
-    q1: hs.benchmark ? Math.max(0, -avgGap) / hs.benchmark : 0,
-    q3: totalEmp ? hs.criticiCount / totalEmp : 0,
-    q4: totalEmp ? hs.riskCount / totalEmp : 0,
-  }
-  const mostUrgentQuad = (['q1', 'q3', 'q4'] as const).reduce((best, key) => (urgencyScores[key] > urgencyScores[best] ? key : best))
-
   const worstArea = orgCriticalAreas(state, lang, 1)[0]
   // Cross-module banner stat: a real count of roles below benchmark, not
   // just the top-1 "worst role" above — orgCriticalRoles(n) always returns
@@ -152,7 +136,7 @@ export default function AssessmentHomePage() {
             two stat tiles, one headline %, one benchmark caption, 3
             buttons. No description line, no progress bar, no RGB band —
             none of those are in the concept. */}
-        <div className={`quad${mostUrgentQuad === 'q1' ? ' quad-urgent' : ''}`}>
+        <div className="quad">
           <div className="blur-decor" style={{ background: 'var(--success-soft)' }} />
           <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
@@ -210,7 +194,7 @@ export default function AssessmentHomePage() {
             top-right "Vedi analisi" link, and the stacked bar with a full
             5-tier inline legend. No description line, no chip tag, no
             reconciliation note, no bottom link — none are in the concept. */}
-        <div className={`quad${mostUrgentQuad === 'q3' ? ' quad-urgent' : ''}`}>
+        <div className="quad">
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <span className="home-card-icon">
@@ -284,8 +268,8 @@ export default function AssessmentHomePage() {
           the concept (confirmed with the user) — their real numbers
           still surface elsewhere (Le Decisioni's own counts, the
           cross-module banner, Il Capitale Umano's tiles). */}
-      <div className="grid" style={{ gridTemplateColumns: '2fr 1fr', gap: 18, marginBottom: 18, alignItems: 'start' }}>
-        <div className="card" style={{ position: 'relative' }}>
+      <div className="grid" style={{ gridTemplateColumns: '2fr 1fr', gap: 18, marginBottom: 18 }}>
+        <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
           <div className="card-title-row" style={{ alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
             <div>
               <div className="card-title">{ui.homeOrgTrendTitle}</div>
@@ -303,12 +287,12 @@ export default function AssessmentHomePage() {
               <span className="small-note" style={{ fontSize: 10.5, whiteSpace: 'nowrap' }}>{trendMonths[0]} — {trendMonths[trendMonths.length - 1]}</span>
             </div>
           </div>
-          <div style={{ position: 'relative', height: 220, marginTop: 8 }}>
+          <div style={{ position: 'relative', flex: 1, minHeight: 220, marginTop: 8 }}>
             <OrgScoreTrendChart months={trendMonths} series={orgTrendSeries} benchmark={hs.benchmark} mode={trendMode} />
           </div>
         </div>
 
-        <div className={`quad${mostUrgentQuad === 'q4' ? ' quad-urgent' : ''}`} style={{ minHeight: 0 }}>
+        <div className="quad" style={{ minHeight: 0 }}>
           <div>
             <h3 className="home-card-title">{ui.homeQ4Title}</h3>
             <div className="home-card-kicker">{ui.homeQ4PrioritiesKicker}</div>
