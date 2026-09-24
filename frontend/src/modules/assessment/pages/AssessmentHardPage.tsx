@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
@@ -25,7 +26,12 @@ type HardView = 'individuale' | 'area' | 'ranking' | 'match'
 // different default tab — see pages/AssessmentHardRisultatiPage.tsx.
 export default function AssessmentHardPage({ defaultView = 'individuale' }: { defaultView?: HardView }) {
   const { state, setState, ui, canEdit, toast } = useAssessment()
-  const [view, setView] = useState<HardView>(defaultView)
+  // Lets Home's "Confronta Aree" (see AssessmentHomePage.tsx's Il Valore
+  // card) deep-link straight into the Area tab instead of always landing
+  // on defaultView — read once on mount, same as defaultView itself.
+  const [searchParams] = useSearchParams()
+  const initialView = (searchParams.get('view') as HardView | null) || defaultView
+  const [view, setView] = useState<HardView>(initialView)
   const [selectedEmp, setSelectedEmp] = useState<string | null>(null)
   const [rankSort, setRankSort] = useState<'score' | 'gap'>('score')
   const [match, setMatch] = useState<string[]>([])

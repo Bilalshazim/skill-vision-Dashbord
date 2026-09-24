@@ -12,6 +12,7 @@ import {
   homeStats,
   orgCriticalAreas,
   orgCriticalRoles,
+  primaryScore,
   quadDefs,
   roleCoveragePct,
   worstCompetenza,
@@ -49,7 +50,6 @@ export default function AssessmentHomePage() {
   const overallPct = Math.round((hs.orgAvg / 10) * 100)
   const roleCovPct = roleCoveragePct(state, lang)
   const avgGap = round1(hs.orgAvg - hs.benchmark)
-  const avgGapPct = hs.benchmark ? round1(((hs.orgAvg - hs.benchmark) / hs.benchmark) * 100) : 0
   // Green/Amber/Red now reads the SAME tier partition as the rest of the
   // page (Talenti / Nella Norma / A Rischio) instead of its own 7/5 cutoff —
   // that old cutoff didn't line up with the tier breakpoints (7.0/5.5), so
@@ -164,7 +164,12 @@ export default function AssessmentHomePage() {
       </div>
 
       <div className="home-hero">
-        {/* Q1 */}
+        {/* Q1 — Il Valore: always-expanded per the client concept (Phase 2),
+            no more accordion/teaser. The old Score/Coverage/Gap 3-tile grid
+            is replaced by the concept's own "Persone Valutate" + "Copertura
+            Ruoli" pair + one big headline %; the Green/Yellow/Red band below
+            is real, already-computed data the concept doesn't mention
+            removing, so it stays. */}
         <div className={`quad${mostUrgentQuad === 'q1' ? ' quad-urgent' : ''}`}>
           <div className="blur-decor" style={{ background: 'var(--success-soft)' }} />
           <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
@@ -178,91 +183,74 @@ export default function AssessmentHomePage() {
                   <div className="home-card-kicker">{ui.homeQ1Kicker}</div>
                 </div>
               </div>
-              <button type="button" className="home-card-action" onClick={() => setOpenCardsState('q1')}>
-                <span className="quad-collapse-hint">{ui.homeQ1ExpandQuestion}</span>
-                <span className={`quad-chevron${openCards.q1 ? ' open' : ''}`}>
-                  <Icon name="chevron" />
-                </span>
-              </button>
+              <span className={`chip chip-${statusTier.variant === 'success' ? 'green' : statusTier.variant === 'warning' ? 'amber' : 'red'}`}>{statusTier.label}</span>
             </div>
             <p className="home-card-desc">{ui.homeQ1Sub}</p>
-            {/* Closed-tile teaser: a preview number + comparison (both already
-                shown inside the body once expanded) plus a "hidden subject"
-                line that names a real fact without naming which area it's
-                about — the only reason to click was "Clicca per i dettagli"
-                before this, which gave no hint of what was inside. */}
-            <div style={{ marginTop: 14 }}>
-              <div className="kpi-value" style={{ fontSize: 28 }}>
-                {overallPct}%
+
+            <div className="grid grid-2" style={{ gap: 10, margin: '14px 0' }}>
+              <div className="neu-tile" style={{ textAlign: 'center' }}>
+                <div className="card-eyebrow">{ui.homeQ1EvaluatedPeople}</div>
+                <div className="kpi-value" style={{ fontSize: 23 }}>
+                  {totalEmp}
+                </div>
               </div>
-              <div className="kpi-label">{ui.homeQ1TeaserCompare(`${avgGap > 0 ? '+' : ''}${fmt1it(avgGap)}`, fmt1it(hs.benchmark))}</div>
+              <div className="neu-tile" style={{ textAlign: 'center' }}>
+                <div className="card-eyebrow">{ui.homeQ1Coverage}</div>
+                <div className="kpi-value" style={{ fontSize: 23 }}>
+                  {roleCovPct}%
+                </div>
+              </div>
             </div>
-            {worstArea && (
-              <div className="small-note" style={{ marginTop: 8 }}>
-                {ui.homeQ1TeaserHidden(fmt1(Math.abs(round1(worstArea.avg - hs.benchmark))))}
+
+            <div className="kpi-value" style={{ fontSize: 40 }}>
+              {overallPct}%
+            </div>
+            <div style={{ margin: '10px 0 14px' }}>
+              <div className="small-note" style={{ fontWeight: 700, marginBottom: 6 }}>
+                {ui.homeQ1LevelCaption(fmt1it(hs.benchmark), `${avgGap > 0 ? '+' : ''}${fmt1it(avgGap)}`)}
               </div>
-            )}
-            <div className={`home-quad-body${openCards.q1 ? ' open' : ''}`}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <span className={`chip chip-${statusTier.variant === 'success' ? 'green' : statusTier.variant === 'warning' ? 'amber' : 'red'}`}>{statusTier.label}</span>
+              <div className="pbar" style={{ height: 10 }}>
+                <i style={{ width: `${overallPct}%`, background: 'var(--success)' }} />
               </div>
-              <div className="grid grid-3" style={{ gap: 10, marginBottom: 14 }}>
-                <div className="neu-tile" style={{ textAlign: 'center' }}>
-                  <div className="card-eyebrow">{ui.homeQ1Score}</div>
-                  <div className="kpi-value" style={{ fontSize: 23 }}>
-                    {overallPct}%
-                  </div>
+            </div>
+
+            <div className="grid grid-3" style={{ gap: 8, marginBottom: 14 }}>
+              <div className="tinted-tile success" style={{ textAlign: 'center', padding: 10 }}>
+                <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--success)' }}>
+                  {gPct}% {ui.homeQ1Green}
                 </div>
-                <div className="neu-tile" style={{ textAlign: 'center' }}>
-                  <div className="card-eyebrow">{ui.homeQ1Coverage}</div>
-                  <div className="kpi-value" style={{ fontSize: 23 }}>
-                    {roleCovPct}%
-                  </div>
-                </div>
-                <div className="neu-tile" style={{ textAlign: 'center' }}>
-                  <div className="card-eyebrow">{ui.homeQ1Gap}</div>
-                  <div className="kpi-value" style={{ fontSize: 18, color: avgGap < 0 ? 'var(--danger)' : 'var(--success)' }}>
-                    {avgGap > 0 ? '+' : ''}
-                    {fmt1it(avgGap)} = {avgGapPct > 0 ? '+' : ''}
-                    {fmt1it(avgGapPct)}%
-                  </div>
+                <div className="small-note" style={{ fontSize: 10, marginTop: 2 }}>
+                  {ui.homeQ1GreenSub}
                 </div>
               </div>
-              <div style={{ marginBottom: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, fontWeight: 700, color: 'var(--text-2)', marginBottom: 6 }}>
-                  <span>{ui.homeQ1LevelAchieved}</span>
-                  <span>{overallPct}%</span>
+              <div className="tinted-tile warning" style={{ textAlign: 'center', padding: 10 }}>
+                <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--warning)' }}>
+                  {aPct}% {ui.homeQ1Yellow}
                 </div>
-                <div className="pbar" style={{ height: 10 }}>
-                  <i style={{ width: `${overallPct}%`, background: 'var(--success)' }} />
-                </div>
-              </div>
-              <div className="grid grid-3" style={{ gap: 8 }}>
-                <div className="tinted-tile success" style={{ textAlign: 'center', padding: 10 }}>
-                  <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--success)' }}>
-                    {gPct}% {ui.homeQ1Green}
-                  </div>
-                  <div className="small-note" style={{ fontSize: 10, marginTop: 2 }}>
-                    {ui.homeQ1GreenSub}
-                  </div>
-                </div>
-                <div className="tinted-tile warning" style={{ textAlign: 'center', padding: 10 }}>
-                  <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--warning)' }}>
-                    {aPct}% {ui.homeQ1Yellow}
-                  </div>
-                  <div className="small-note" style={{ fontSize: 10, marginTop: 2 }}>
-                    {ui.homeQ1YellowSub}
-                  </div>
-                </div>
-                <div className="tinted-tile danger" style={{ textAlign: 'center', padding: 10 }}>
-                  <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--danger)' }}>
-                    {rPct}% {ui.homeQ1Red}
-                  </div>
-                  <div className="small-note" style={{ fontSize: 10, marginTop: 2 }}>
-                    {ui.homeQ1RedSub}
-                  </div>
+                <div className="small-note" style={{ fontSize: 10, marginTop: 2 }}>
+                  {ui.homeQ1YellowSub}
                 </div>
               </div>
+              <div className="tinted-tile danger" style={{ textAlign: 'center', padding: 10 }}>
+                <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--danger)' }}>
+                  {rPct}% {ui.homeQ1Red}
+                </div>
+                <div className="small-note" style={{ fontSize: 10, marginTop: 2 }}>
+                  {ui.homeQ1RedSub}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 'auto' }}>
+              <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate(`/assessment/${detailPage}`)}>
+                {ui.homeQ1ViewDetails}
+              </button>
+              <button type="button" className="btn btn-sm" onClick={() => navigate(`/assessment/${detailPage === 'soft-risultati' ? 'soft' : 'hard'}?view=area`)}>
+                {ui.homeQ1CompareAreas}
+              </button>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => exportValoreReport(state, lang, ui)}>
+                {ui.homeQ1ExportReport}
+              </button>
             </div>
           </div>
         </div>
@@ -351,7 +339,12 @@ export default function AssessmentHomePage() {
           </div>
         </div>
 
-        {/* Q3 */}
+        {/* Q3 — Il Capitale Umano: always-expanded per the client concept
+            (Phase 2), no more accordion/teaser. The 5-tile TIER_DEFS grid
+            (a superset of the concept's 3 requested tiles — Top Talent/Da
+            Valorizzare/Critica — that already existed here) stays, since
+            it's real data and the reconciliation note below it depends on
+            all 5; the concept's new stacked bar is added underneath it. */}
         <div className={`quad${mostUrgentQuad === 'q3' ? ' quad-urgent' : ''}`}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
@@ -363,24 +356,12 @@ export default function AssessmentHomePage() {
                 <div className="home-card-kicker">{ui.homeQ3Kicker}</div>
               </div>
             </div>
-            <button type="button" className="home-card-action" onClick={() => setOpenCardsState('q3')}>
-              <span className="quad-collapse-hint">{ui.homeQ3ExpandQuestion}</span>
-              <span className={`quad-chevron${openCards.q3 ? ' open' : ''}`}>
-                <Icon name="chevron" />
-              </span>
-            </button>
+            <span className="small-note">
+              {totalEmp} · {ui.homeQ3UpdatedNow}
+            </span>
           </div>
           <p className="home-card-desc">{ui.homeQ3Sub}</p>
           <div style={{ marginTop: 14 }}>
-            <div className="kpi-value" style={{ fontSize: 28, color: 'var(--success)' }}>
-              {hs.valueCount}
-            </div>
-            <div className="kpi-label">{ui.homeQ3TeaserCompare(totalEmp)}</div>
-          </div>
-          <div className="small-note" style={{ marginTop: 8 }}>
-            {ui.homeQ3TeaserHidden(hs.criticiCount)}
-          </div>
-          <div className={`home-quad-body${openCards.q3 ? ' open' : ''}`}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <span className="chip chip-gray">{ui.homeQ3ResourceMapping}</span>
             </div>
@@ -410,6 +391,19 @@ export default function AssessmentHomePage() {
                   </div>
                 )
               })}
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <div className="small-note" style={{ fontWeight: 700, marginBottom: 6 }}>
+                {ui.homeQ3DistributionLabel}
+              </div>
+              <div className="pbar" style={{ height: 10, display: 'flex' }}>
+                {quadDefs(ui).map((q) => {
+                  const count = tiers[q.key].length
+                  const colorVar = q.variant === 'accent' ? 'accent-dark' : q.variant === 'neutral' ? 'text-2' : q.variant
+                  const pct = totalEmp ? (count / totalEmp) * 100 : 0
+                  return pct ? <i key={q.key} style={{ width: `${pct}%`, background: `var(--${colorVar})` }} /> : null
+                })}
+              </div>
             </div>
             {/* Reconciliation line: the 5 tiles above are the full TIER_DEFS
                 partition, so this should always read N/N — makes the
@@ -627,6 +621,29 @@ function exportActionPlan(state: AssessmentState, lang: AssessmentLang, ui: Retu
   const a = document.createElement('a')
   a.href = url
   a.download = 'action_plan.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+// "Esporta Report" on the new always-expanded Il Valore card (Phase 2) —
+// same plain CSV Blob pattern as exportActionPlan() above, one row per
+// employee with their org-wide value score, feeding the same real numbers
+// the card itself shows (overall %, benchmark, role coverage).
+function exportValoreReport(state: AssessmentState, lang: AssessmentLang, ui: ReturnType<typeof getUI>) {
+  const hs = homeStats(state, lang)
+  const roleCovPct = roleCoveragePct(state, lang)
+  const overallPct = Math.round((hs.orgAvg / 10) * 100)
+  let csv = ui.exportValoreCsvHeader + '\n'
+  csv += [overallPct + '%', fmt1it(hs.benchmark), roleCovPct + '%', state.employees.length].join(';') + '\n\n'
+  csv += ui.exportValoreCsvEmployeeHeader + '\n'
+  state.employees.forEach((e) => {
+    csv += [e.cognome, e.nome, e.ruolo, e.area, fmt1(primaryScore(e, state, lang))].join(';') + '\n'
+  })
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'report_valore.csv'
   a.click()
   URL.revokeObjectURL(url)
 }

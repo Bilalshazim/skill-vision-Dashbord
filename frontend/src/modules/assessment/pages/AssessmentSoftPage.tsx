@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
@@ -34,7 +35,12 @@ const BF_ORDER = ['O', 'C', 'E', 'A', 'S'] as const
 // pages/AssessmentSoftRisultatiPage.tsx.
 export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultView?: SoftView }) {
   const { canEdit, ui } = useAssessment()
-  const [view, setView] = useState<SoftView>(defaultView)
+  // Lets Home's "Confronta Aree" (see AssessmentHomePage.tsx's Il Valore
+  // card) deep-link straight into the Area tab instead of always landing
+  // on defaultView — read once on mount, same as defaultView itself.
+  const [searchParams] = useSearchParams()
+  const initialView = (searchParams.get('view') as SoftView | null) || defaultView
+  const [view, setView] = useState<SoftView>(initialView)
   const [showEvalModal, setShowEvalModal] = useState(false)
   const [showSurveyLink, setShowSurveyLink] = useState(false)
   const [drawerId, setDrawerId] = useState<string | null>(null)
