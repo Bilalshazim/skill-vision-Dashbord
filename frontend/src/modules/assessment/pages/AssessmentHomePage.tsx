@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { CrossModuleBanner } from '@/components/CrossModuleBanner'
 import { Icon } from '@/modules/assessment/components/Icon'
+import { OrgScoreTrendChart } from '@/modules/assessment/components/OrgScoreTrendChart'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import {
   areasList,
@@ -46,6 +47,14 @@ export default function AssessmentHomePage() {
   const totalEmp = state.employees.length
   const both = bothActive(state)
   const modeLabel = both ? ui.homeModuleCompleteLabel : f.A ? ui.homeModuleALabel : ui.homeModuleBLabel
+
+  // Phase 3: no real monthly history exists anywhere in demo-data.ts, so
+  // this is the same "illustrative walk anchored to today's real number"
+  // treatment as AssessmentCustomerCarePage.tsx's customerCareModel()
+  // trend — the last point is always exactly the live hs.orgAvg, the 5
+  // before it are a deterministic seeded walk backward from it.
+  const orgTrendSeries = buildOrgTrendSeries(hs.orgAvg)
+  const orgTrendDelta = round1(orgTrendSeries[orgTrendSeries.length - 1] - orgTrendSeries[orgTrendSeries.length - 2])
 
   const overallPct = Math.round((hs.orgAvg / 10) * 100)
   const roleCovPct = roleCoveragePct(state, lang)
@@ -160,6 +169,29 @@ export default function AssessmentHomePage() {
               {ui.homeModuleCompleteLabel}
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Phase 3: a new sibling chart, not a reuse of AndamentoChart's
+          Trasversali/Professionali pairing (AssessmentValorePage.tsx) —
+          this one plots the single org-wide average against the fixed
+          benchmark. */}
+      <div className="card" style={{ marginBottom: 18, position: 'relative' }}>
+        <div className="card-title-row">
+          <div className="card-title">{ui.homeOrgTrendTitle}</div>
+        </div>
+        <div className="small-note" style={{ marginBottom: 14 }}>{ui.homeOrgTrendSub(fmt1it(hs.benchmark))}</div>
+        <div style={{ position: 'absolute', top: 18, right: 20, textAlign: 'right' }}>
+          <div className="kpi-value" style={{ fontSize: 22 }}>
+            {fmt1it(hs.orgAvg)}
+          </div>
+          <div className="small-note" style={{ fontSize: 10.5, color: orgTrendDelta < 0 ? 'var(--danger)' : orgTrendDelta > 0 ? 'var(--success)' : 'var(--text-3)' }}>
+            {orgTrendDelta > 0 ? '▲' : orgTrendDelta < 0 ? '▼' : '→'} {orgTrendDelta > 0 ? '+' : ''}
+            {fmt1it(orgTrendDelta)} {ui.homeOrgTrendDeltaCaption}
+          </div>
+        </div>
+        <div style={{ position: 'relative', height: 220 }}>
+          <OrgScoreTrendChart months={ui.homeAndamentoMonths} series={orgTrendSeries} benchmark={hs.benchmark} />
         </div>
       </div>
 
@@ -596,6 +628,34 @@ function ModuleATotalizer() {
       </div>
     </div>
   )
+}
+
+// Same seeded-PRNG shape as AssessmentCustomerCarePage.tsx's seedRandom()
+// — deterministic per fixed seed so the trend doesn't reshuffle on every
+// render/reload.
+function seedRandom(seed: number) {
+  let t = seed
+  return function () {
+    t |= 0
+    t = (t + 0x6d2b79f5) | 0
+    let r = Math.imul(t ^ (t >>> 15), 1 | t)
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+// Builds backward from the real live org average so the series always
+// ends exactly on today's real number (see orgTrendSeries above) — the 5
+// months before it are an illustrative bounded walk, not real history.
+function buildOrgTrendSeries(orgAvg: number): number[] {
+  const r = seedRandom(20260724)
+  const series = [orgAvg]
+  for (let i = 0; i < 5; i++) {
+    const prev = series[0]
+    const next = Math.max(0, Math.min(10, prev - (r() * 0.6 - 0.3)))
+    series.unshift(Math.round(next * 10) / 10)
+  }
+  return series
 }
 
 // Ported from exportActionPlan() (js/assessment.js ~4409-4427) — a plain
