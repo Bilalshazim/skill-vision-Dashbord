@@ -127,6 +127,10 @@ export default function AssessmentHomePage() {
   }
 
   const [openCards, setOpenCardsState] = usePersistentAccordion()
+  // Phase 4: Le Decisioni tab filter. "Completate" has no real source —
+  // no action/note carries a completion flag anywhere in AssessmentState —
+  // so it ships as an honest empty state rather than a fabricated count.
+  const [decisioniTab, setDecisioniTab] = useState<'tutte' | 'urgenti' | 'completate'>('tutte')
 
   return (
     <div>
@@ -491,30 +495,47 @@ export default function AssessmentHomePage() {
             </div>
           )}
           <div className={`home-quad-body${openCards.q4 ? ' open' : ''}`}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
               <span className="chip chip-gray">{ui.homeQ4AiPriorities}</span>
+              <div className="segmented" onClick={(e) => e.stopPropagation()}>
+                <button className={decisioniTab === 'tutte' ? 'active' : ''} onClick={() => setDecisioniTab('tutte')}>
+                  {ui.homeQ4TabAll}
+                </button>
+                <button className={decisioniTab === 'urgenti' ? 'active' : ''} onClick={() => setDecisioniTab('urgenti')}>
+                  {ui.homeQ4TabUrgent}
+                </button>
+                <button className={decisioniTab === 'completate' ? 'active' : ''} onClick={() => setDecisioniTab('completate')}>
+                  {ui.homeQ4TabCompleted}
+                </button>
+              </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {azioni.map((a) => (
-                <div key={a.key} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)' }}>
-                  <span className={`action-tag ${a.variant}`} style={{ marginTop: 1 }}>
-                    {a.label}
-                  </span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <textarea
-                      className="small-note action-note-input"
-                      rows={1}
-                      readOnly={!canEdit}
-                      value={state.settings.actionNotes?.[a.key] ?? a.desc}
-                      onChange={(e) => saveActionNote(a.key, e.target.value)}
-                    />
+            {decisioniTab === 'completate' ? (
+              <div className="small-note" style={{ padding: '10px 12px' }}>
+                {ui.homeQ4NoCompleted}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {(decisioniTab === 'urgenti' ? azioni.filter((a) => a.variant === 'danger') : azioni).map((a) => (
+                  <div key={a.key} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)' }}>
+                    <span className={`action-tag ${a.variant}`} style={{ marginTop: 1 }}>
+                      {a.label}
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <textarea
+                        className="small-note action-note-input"
+                        rows={1}
+                        readOnly={!canEdit}
+                        value={state.settings.actionNotes?.[a.key] ?? a.desc}
+                        onChange={(e) => saveActionNote(a.key, e.target.value)}
+                      />
+                    </div>
+                    <span className="chip chip-gray" style={{ flexShrink: 0 }}>
+                      {a.count}
+                    </span>
                   </div>
-                  <span className="chip chip-gray" style={{ flexShrink: 0 }}>
-                    {a.count}
-                  </span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
               <span className="small-note">{ui.homeQ4RealTime}</span>
               <a
