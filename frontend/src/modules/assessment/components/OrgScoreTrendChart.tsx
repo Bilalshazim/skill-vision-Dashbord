@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
+import { Area, AreaChart, CartesianGrid, Label, ReferenceLine, XAxis, YAxis } from 'recharts'
 
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart'
 import { useTheme } from '@/hooks/use-theme'
-import { fmt1it, round1 } from '@/modules/assessment/lib/legacy-utils'
-import { Chart, ensureChartDefaults, token } from '@/modules/assessment/lib/brand-chart'
+import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
 
 const IT_MONTHS = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic']
 
@@ -19,165 +20,72 @@ export function lastSixMonthLabels(): string[] {
   return labels
 }
 
-type Badge = { leftPct: number; topPct: number; label: string; value: string; delta: string; deltaCls: 'up' | 'down' | 'flat' }
+const chartConfig: ChartConfig = {
+  value: { label: 'Punteggio medio' },
+}
 
-// Same recipe as AndamentoChart.tsx (fill:true, tension 0.4, 4px points,
-// --chart-2 so no lime touches a chart), but one series instead of two —
-// the org-wide average against the fixed benchmark, drawn as a dashed
-// target line (same technique as GroupedBarsChart.tsx's targetLine
-// plugin) with an inline "Benchmark X,X" label, rather than a second
-// dataset, since the benchmark is a constant, not a second real series.
-// The floating "current value" badge on the last point uses the same
-// pixel-position-as-percentage technique QualityChart.tsx already uses
-// for its hover tooltip, just permanently anchored to the last point
-// instead of shown on hover.
+// Recharts area chart via the shadcn chart primitives already scaffolded in
+// components/ui/chart.tsx (ChartContainer/ChartTooltip) but never used
+// elsewhere yet — replaces the previous Chart.js canvas version. Gradient
+// fill (50% at the top fading to 5%) instead of a flat fill, same 2px
+// stroke. The benchmark stays a real target line — Recharts' own
+// ReferenceLine draws and labels it natively, no custom canvas plugin
+// needed. Assessment's tokens (--chart-2 etc.) are scoped to
+// .sv-assessment-shell, not :root, so the stroke/fill color is resolved
+// from this component's own DOM node rather than assumed as a literal.
 export function OrgScoreTrendChart({
   months,
   series,
   benchmark,
-  mode,
 }: {
   months: string[]
   series: number[]
   benchmark: number
-  mode: 'media' | 'benchmark'
 }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const chartRef = useRef<Chart | null>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
   const { theme } = useTheme()
-  const [badge, setBadge] = useState<Badge | null>(null)
+  const [color, setColor] = useState('#5B7FA6')
 
   useEffect(() => {
-    if (!canvasRef.current || !series.length) return
-    const el = canvasRef.current
-    const palette = ensureChartDefaults(el)
-    const color = token(el, '--chart-2', '#5B7FA6')
-    const ring = token(el, '--surface', '#FFFFFF')
-    const min = Math.floor(Math.min(...series, benchmark) * 2) / 2 - 0.5
-    const max = Math.ceil(Math.max(...series, benchmark) * 2) / 2 + 0.5
+    if (!wrapRef.current) return
+    const v = getComputedStyle(wrapRef.current).getPropertyValue('--chart-2').trim()
+    if (v) setColor(v)
+  }, [theme])
 
-    const last = series[series.length - 1]
-    const prev = series[series.length - 2] ?? last
-    const deltaVsPrev = round1(last - prev)
-    const deltaVsBenchmark = round1(last - benchmark)
-    const delta = mode === 'benchmark' ? deltaVsBenchmark : deltaVsPrev
-    const deltaPct = mode === 'benchmark' ? (benchmark ? round1((deltaVsBenchmark / benchmark) * 100) : 0) : prev ? round1((deltaVsPrev / prev) * 100) : 0
-    const deltaCls: Badge['deltaCls'] = Math.abs(delta) < 0.05 ? 'flat' : delta > 0 ? 'up' : 'down'
-    const deltaArrow = deltaCls === 'flat' ? '→' : deltaCls === 'up' ? '▲' : '▼'
-    const deltaText = `${deltaArrow} ${delta > 0 ? '+' : ''}${fmt1it(delta)} · ${deltaPct > 0 ? '+' : ''}${fmt1it(deltaPct)}%`
-
-    chartRef.current?.destroy()
-    chartRef.current = new Chart(el, {
-      type: 'line',
-      data: {
-        labels: months,
-        datasets: [
-          {
-            data: series,
-            borderColor: color,
-            backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`,
-            borderWidth: 2,
-            pointRadius: 4,
-            pointBackgroundColor: color,
-            pointBorderColor: ring,
-            pointBorderWidth: 2,
-            fill: true,
-            tension: 0.4,
-          },
-        ],
-      },
-      options: {
-        maintainAspectRatio: false,
-        layout: { padding: { top: 46 } },
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: (ctx) => ` ${(ctx.parsed.y as number).toFixed(1)}` } },
-        },
-        scales: {
-          x: { ticks: { color: palette.text, font: { size: 12 } }, grid: { display: false }, border: { display: false } },
-          y: { min, max, ticks: { color: palette.text, font: { size: 11 }, stepSize: 0.5 }, grid: { color: palette.grid }, border: { display: false } },
-        },
-      },
-      plugins: [
-        {
-          id: 'benchmarkLine',
-          afterDatasetsDraw(chart) {
-            const y = chart.scales.y.getPixelForValue(benchmark)
-            const { left, right } = chart.chartArea
-            const ctx = chart.ctx
-            ctx.save()
-            ctx.strokeStyle = palette.strong
-            ctx.globalAlpha = 0.55
-            ctx.setLineDash([4, 4])
-            ctx.lineWidth = 1.5
-            ctx.beginPath()
-            ctx.moveTo(left, y)
-            ctx.lineTo(right, y)
-            ctx.stroke()
-            ctx.restore()
-            ctx.save()
-            ctx.globalAlpha = 0.85
-            ctx.fillStyle = palette.strong
-            ctx.font = '600 11px inherit'
-            ctx.textBaseline = 'bottom'
-            ctx.fillText(`Benchmark ${fmt1it(benchmark)}`, left + 4, y - 4)
-            ctx.restore()
-          },
-        },
-        {
-          id: 'lastPointBadge',
-          afterRender(chart) {
-            const meta = chart.getDatasetMeta(0)
-            const point = meta.data[meta.data.length - 1]
-            if (!point || !chart.width || !chart.height) return
-            const leftPct = (point.x / chart.width) * 100
-            const topPct = (point.y / chart.height) * 100
-            setBadge((prevBadge) => {
-              const next: Badge = { leftPct, topPct, label: months[months.length - 1], value: `${fmt1it(last)} / 10`, delta: deltaText, deltaCls }
-              if (
-                prevBadge &&
-                Math.abs(prevBadge.leftPct - next.leftPct) < 0.1 &&
-                Math.abs(prevBadge.topPct - next.topPct) < 0.1 &&
-                prevBadge.value === next.value &&
-                prevBadge.delta === next.delta
-              ) {
-                return prevBadge
-              }
-              return next
-            })
-          },
-        },
-      ],
-    })
-    return () => chartRef.current?.destroy()
-  }, [months, series, benchmark, mode, theme])
+  const data = months.map((m, i) => ({ month: m, value: series[i] }))
+  const min = Math.floor(Math.min(...series, benchmark) * 2) / 2 - 0.5
+  const max = Math.ceil(Math.max(...series, benchmark) * 2) / 2 + 0.5
+  const gradientId = 'orgTrendFill'
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <canvas ref={canvasRef} />
-      {badge && (
-        <div
-          style={{
-            position: 'absolute',
-            left: `${badge.leftPct}%`,
-            top: `${badge.topPct}%`,
-            transform: 'translate(-50%, calc(-100% - 12px))',
-            background: 'var(--text-1)',
-            color: 'var(--surface)',
-            borderRadius: 10,
-            padding: '8px 12px',
-            fontSize: 11.5,
-            lineHeight: 1.4,
-            whiteSpace: 'nowrap',
-            pointerEvents: 'none',
-            boxShadow: 'var(--shadow-sm)',
-          }}
-        >
-          <div style={{ opacity: 0.7, fontSize: 10 }}>{badge.label}</div>
-          <div style={{ fontWeight: 800, fontSize: 13 }}>{badge.value}</div>
-          <div style={{ color: badge.deltaCls === 'up' ? 'var(--success)' : badge.deltaCls === 'down' ? 'var(--danger)' : 'var(--text-3)', fontWeight: 700 }}>{badge.delta}</div>
-        </div>
-      )}
+    <div ref={wrapRef} style={{ width: '100%', height: '100%' }}>
+      <ChartContainer config={chartConfig} className="aspect-auto h-full w-full">
+        <AreaChart data={data} margin={{ top: 12, right: 8, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={color} stopOpacity={0.5} />
+              <stop offset="95%" stopColor={color} stopOpacity={0.05} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid vertical={false} stroke="var(--border)" />
+          <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} stroke="var(--text-3)" />
+          <YAxis domain={[min, max]} tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="var(--text-3)" width={40} />
+          <ReferenceLine y={benchmark} stroke="var(--text-3)" strokeDasharray="4 4">
+            <Label value={`Benchmark ${fmt1it(benchmark)}`} position="insideTopLeft" fill="var(--text-3)" fontSize={11} fontWeight={600} />
+          </ReferenceLine>
+          <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${fmt1it(Number(value))} / 10`} />} />
+          <Area
+            dataKey="value"
+            type="monotone"
+            stroke={color}
+            fill={`url(#${gradientId})`}
+            fillOpacity={1}
+            strokeWidth={2}
+            dot={{ r: 4, fill: color, strokeWidth: 2, stroke: 'var(--surface)' }}
+            activeDot={{ r: 5 }}
+          />
+        </AreaChart>
+      </ChartContainer>
     </div>
   )
 }

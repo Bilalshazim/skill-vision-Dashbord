@@ -69,6 +69,15 @@ export default function AssessmentHomePage() {
   const orgTrendSeries = buildOrgTrendSeries(hs.orgAvg)
   const trendMonths = lastSixMonthLabels()
   const [trendMode, setTrendMode] = useState<'media' | 'benchmark'>('media')
+  const trendLast = orgTrendSeries[orgTrendSeries.length - 1]
+  const trendPrev = orgTrendSeries[orgTrendSeries.length - 2] ?? trendLast
+  const trendDeltaVsPrev = round1(trendLast - trendPrev)
+  const trendDeltaVsBenchmark = round1(trendLast - hs.benchmark)
+  const trendDelta = trendMode === 'benchmark' ? trendDeltaVsBenchmark : trendDeltaVsPrev
+  const trendDeltaBase = trendMode === 'benchmark' ? hs.benchmark : trendPrev
+  const trendDeltaPct = trendDeltaBase ? round1((trendDelta / trendDeltaBase) * 100) : 0
+  const trendDeltaTone = Math.abs(trendDelta) < 0.05 ? 'text-3' : trendDelta > 0 ? 'success' : 'danger'
+  const trendDeltaArrow = Math.abs(trendDelta) < 0.05 ? '→' : trendDelta > 0 ? '▲' : '▼'
 
   const overallPct = Math.round((hs.orgAvg / 10) * 100)
   const roleCovPct = roleCoveragePct(state, lang)
@@ -273,7 +282,14 @@ export default function AssessmentHomePage() {
           <div className="card-title-row" style={{ alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
             <div>
               <div className="card-title">{ui.homeOrgTrendTitle}</div>
-              <div className="small-note" style={{ marginTop: 2 }}>{ui.homeOrgTrendSub(fmt1it(hs.benchmark))}</div>
+              <div className="small-note" style={{ marginTop: 2 }}>
+                {ui.homeOrgTrendSub(fmt1it(hs.benchmark))} · <strong style={{ color: 'var(--text-1)' }}>{fmt1it(trendLast)}/10</strong>{' '}
+                <span style={{ color: `var(--${trendDeltaTone})`, fontWeight: 700 }}>
+                  {trendDeltaArrow} {trendDelta > 0 ? '+' : ''}
+                  {fmt1it(trendDelta)} · {trendDeltaPct > 0 ? '+' : ''}
+                  {fmt1it(trendDeltaPct)}%
+                </span>
+              </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
               <div className="segmented">
@@ -288,7 +304,7 @@ export default function AssessmentHomePage() {
             </div>
           </div>
           <div style={{ position: 'relative', flex: 1, minHeight: 220, marginTop: 8 }}>
-            <OrgScoreTrendChart months={trendMonths} series={orgTrendSeries} benchmark={hs.benchmark} mode={trendMode} />
+            <OrgScoreTrendChart months={trendMonths} series={orgTrendSeries} benchmark={hs.benchmark} />
           </div>
         </div>
 
