@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { Area, AreaChart, CartesianGrid, Label, ReferenceLine, XAxis, YAxis } from 'recharts'
+import { Area, AreaChart, Label, ReferenceLine, XAxis, YAxis } from 'recharts'
+import type { TooltipContentProps } from 'recharts'
 
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart'
+import { ChartContainer, ChartTooltip, type ChartConfig } from '@/components/ui/chart'
 import { useTheme } from '@/hooks/use-theme'
 import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
 
@@ -22,6 +23,18 @@ export function lastSixMonthLabels(): string[] {
 
 const chartConfig: ChartConfig = {
   value: { label: 'Punteggio medio' },
+}
+
+// Bare value on hover — no card/border, matching the request that only the
+// number itself should show, not a boxed tooltip.
+function PlainTooltip({ active, payload, label }: Partial<TooltipContentProps<number, string>>) {
+  if (!active || !payload?.length) return null
+  return (
+    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-1)', whiteSpace: 'nowrap', textShadow: '0 1px 3px var(--surface)' }}>
+      <span style={{ opacity: 0.65, fontWeight: 600, marginRight: 6 }}>{label}</span>
+      {fmt1it(Number(payload[0].value))} / 10
+    </div>
+  )
 }
 
 // Recharts area chart via the shadcn chart primitives already scaffolded in
@@ -67,13 +80,12 @@ export function OrgScoreTrendChart({
               <stop offset="95%" stopColor={color} stopOpacity={0.05} />
             </linearGradient>
           </defs>
-          <CartesianGrid vertical={false} stroke="var(--border)" />
           <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} stroke="var(--text-3)" />
           <YAxis domain={[min, max]} tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="var(--text-3)" width={40} />
           <ReferenceLine y={benchmark} stroke="var(--text-3)" strokeDasharray="4 4">
             <Label value={`Benchmark ${fmt1it(benchmark)}`} position="insideTopLeft" fill="var(--text-3)" fontSize={11} fontWeight={600} />
           </ReferenceLine>
-          <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${fmt1it(Number(value))} / 10`} />} />
+          <ChartTooltip cursor={false} content={<PlainTooltip />} />
           <Area
             dataKey="value"
             type="monotone"
