@@ -1,4 +1,4 @@
-import { Users } from 'lucide-react'
+import { ArrowUpRight, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -83,21 +83,31 @@ export default function RecruitingHome() {
     <div className="flex flex-col gap-4">
       <StartHero />
 
-      {/* "Il Talento in Pipeline" hero (Phase 5) — combines the 4 separate
-          KpiCard tiles into one card: candidate count as the headline,
-          the other 3 KPIs as inline mini-stats, plus 3 real actions.
-          KpiCard.tsx is left in place, unused. */}
+      {/* "Il Talento in Pipeline" hero (correction pass matches the
+          concept exactly): candidate count as the headline, exactly 2
+          mini-stats (Posizioni aperte/Colloqui programmati — "in attesa
+          di test" folds into the caption line instead of a 3rd
+          mini-stat), plus 3 real actions. The concept's "+7 questa
+          settimana" delta chip has no real source anywhere — Candidate
+          has no creation timestamp in lib/types.ts — so it's honestly
+          omitted rather than fabricated. KpiCard.tsx is left in place,
+          unused. */}
       <Card className="p-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <Users className="size-8 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <div>
-              <div className="font-mono text-3xl font-black leading-none tracking-[-.045em] tabular-nums text-foreground">{data.kpis[0].value}</div>
-              <div className="mt-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">{data.kpis[0].label}</div>
+          <div>
+            <div className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">Panoramica Candidati</div>
+            <div className="mt-1 flex items-center gap-3">
+              <Users className="size-8 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <div>
+                <div className="font-mono text-3xl font-black leading-none tracking-[-.045em] tabular-nums text-foreground">{data.kpis[0].value}</div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  {data.kpis[0].label} · {data.kpis[1].value} {data.kpis[1].label.toLowerCase()}
+                </div>
+              </div>
             </div>
           </div>
           <div className="flex gap-6">
-            {[data.kpis[2], data.kpis[3], data.kpis[1]].map((k) => (
+            {[data.kpis[2], data.kpis[3]].map((k) => (
               <div key={k.key}>
                 <div className="font-mono text-xl font-black tabular-nums text-foreground">{k.value}</div>
                 <div className="mt-1 font-mono text-[10.5px] uppercase tracking-wider text-muted-foreground">{k.label}</div>
@@ -121,15 +131,33 @@ export default function RecruitingHome() {
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="flex min-w-0 flex-col gap-4">
           <Card className="p-6">
-            <CardHeader className="p-0 pb-4">
-              <CardTitle className="text-sm">Candidati per fascia di idoneità</CardTitle>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                Ruolo attivo: <b className="font-semibold text-foreground">{data.roleLabel}</b>
-              </p>
+            <CardHeader className="flex-row items-start justify-between p-0 pb-4">
+              <div>
+                <CardTitle className="text-sm">Candidati per fascia di idoneità</CardTitle>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {data.rankedCount} candidati · ruolo attivo: <b className="font-semibold text-foreground">{data.roleLabel}</b>
+                </p>
+              </div>
+              <Link to="/recruiting/ranking" className="flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:underline">
+                Vedi ranking <ArrowUpRight className="size-3.5" />
+              </Link>
             </CardHeader>
             <CardContent className="overflow-x-auto p-0">
               {data.rankedCount ? (
-                <QualityStackedBar buckets={data.buckets} total={data.rankedCount} />
+                <>
+                  {/* 3 of the 4 real buckets get a KPI tile, matching the
+                      concept's own choice — "Gap Strutturali" (buckets[2])
+                      stays bar-only, same as the concept. */}
+                  <div className="mb-4 grid grid-cols-3 gap-3">
+                    {[data.buckets[0], data.buckets[1], data.buckets[3]].map((b) => (
+                      <div key={b.label} className="rounded-lg border border-border bg-secondary/40 p-3">
+                        <div className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">{b.label}</div>
+                        <div className="mt-1 font-mono text-xl font-black tabular-nums text-foreground">{b.count}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <QualityStackedBar buckets={data.buckets} total={data.rankedCount} />
+                </>
               ) : (
                 <p className="py-1 text-[13px] text-muted-foreground">
                   Nessun candidato ancora in classifica per questo ruolo. Carica i primi CV dalla pagina CV &amp;
@@ -160,29 +188,36 @@ export default function RecruitingHome() {
           </Card>
 
           <Card className="p-6">
-            <CardHeader className="flex-row items-center justify-between p-0 pb-4">
+            <CardHeader className="p-0 pb-3">
               <CardTitle className="text-sm">Prossimi colloqui</CardTitle>
-              <div className="flex gap-1 rounded-md bg-secondary p-0.5">
-                <button
-                  className={`rounded-[5px] px-2 py-1 text-[11px] font-semibold ${interviewsTab === 'arrivo' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
-                  onClick={() => setInterviewsTab('arrivo')}
-                >
-                  In arrivo
-                </button>
-                <button
-                  className={`rounded-[5px] px-2 py-1 text-[11px] font-semibold ${interviewsTab === 'completati' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
-                  onClick={() => setInterviewsTab('completati')}
-                >
-                  Completati
-                </button>
-              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground">Ordinati per data</p>
             </CardHeader>
-            <CardContent className="p-0">
+            <div className="flex gap-1 rounded-md bg-secondary p-0.5">
+              <button
+                className={`flex-1 rounded-[5px] px-2 py-1.5 text-[11.5px] font-semibold ${interviewsTab === 'arrivo' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+                onClick={() => setInterviewsTab('arrivo')}
+              >
+                In arrivo
+              </button>
+              <button
+                className={`flex-1 rounded-[5px] px-2 py-1.5 text-[11.5px] font-semibold ${interviewsTab === 'completati' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+                onClick={() => setInterviewsTab('completati')}
+              >
+                Completati
+              </button>
+            </div>
+            <CardContent className="p-0 pt-3">
               {interviewsTab === 'arrivo' ? (
                 <UpcomingList upcoming={data.upcoming} />
               ) : (
                 <UpcomingList upcoming={data.completed} emptyText="Nessun colloquio completato ancora." />
               )}
+              <Link
+                to="/recruiting/pipeline"
+                className="mt-3 flex w-full items-center justify-center gap-1 rounded-md border border-border py-2 text-[12.5px] font-semibold text-foreground hover:bg-secondary"
+              >
+                Vedi tutti i colloqui <ArrowUpRight className="size-3.5" />
+              </Link>
             </CardContent>
           </Card>
         </div>
