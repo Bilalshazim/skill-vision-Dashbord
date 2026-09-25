@@ -598,7 +598,8 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .folder-title{ font-size:clamp(18px, 1.6vw, 24px); font-weight:700; text-transform:uppercase; letter-spacing:-.3px; line-height:1.1; margin:12px 0 0; color: var(--fc-ink); overflow-wrap:anywhere; }
 .valore-folder .folder-title{ font-size:clamp(28px, 2.6vw, 40px); white-space:nowrap; margin-top:20px; }
 .folder-kicker{ font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:.02em; color: var(--fc-ink); margin-left:calc(24% - 20px); }
-.valore-folder .folder-kicker{ font-size:18px; }
+.valore-folder .folder-kicker{ font-size:15px; }
+.valore-folder .sv-question{ font-size:20px; font-weight:500; }
 .folder-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:auto; padding-top:20px; }
 .folder-actions-split{ justify-content:space-between; align-items:center; }
 
@@ -665,7 +666,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .home-grid:has(> .sv-block.is-active):not(:has(> .sv-block.is-active ~ .sv-block.is-active)) > :last-child{ grid-column: 1 / -1; }
 .sv-question{ font-size:18px; color: var(--fc-ink); margin:20px 0 0; text-align:center; }
 .valore-today{ text-align:center; }
-.valore-today .sv-question{ font-size:14px; margin-top:16px; }
+.valore-today .sv-question{ margin-top:16px; }
 .valore-today .small-note{ color: var(--fc-ink-2); }
 .sv-panel{ animation: sv-panel-in .25s ease both; }
 .valore-panel{ display:grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap:12px; }
