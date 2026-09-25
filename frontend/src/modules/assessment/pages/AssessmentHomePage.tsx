@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { CrossModuleBanner } from '@/components/CrossModuleBanner'
 import { lastSixMonthLabels, OrgScoreTrendChart } from '@/modules/assessment/components/OrgScoreTrendChart'
 import { FolderCard, FolderPill } from '@/modules/assessment/components/FolderCard'
+import { SkillVisionCard } from '@/modules/assessment/components/SkillVisionCard'
 import { ToneTile } from '@/modules/assessment/components/ToneTile'
 import type { TileTone } from '@/modules/assessment/components/ToneTile'
 import { ValoreCard } from '@/modules/assessment/components/ValoreCard'
@@ -175,50 +176,56 @@ export default function AssessmentHomePage() {
           }
         />
 
-        {/* Q3 — Il Capitale Umano: 3 tier tiles (Alto Potenziale / Alto
-            Valore / Critici), the "Vedi analisi" link, and the 5-tier
-            distribution bar with its inline legend. */}
-        <FolderCard
+        {/* Q3 — Il Capitale Umano, same pattern as Il Valore: the card
+            alone on "oggi"; "Skill Vision" opens the 3 tier tiles (Alto
+            Potenziale / Alto Valore / Critici) and the 5-tier distribution. */}
+        <SkillVisionCard
+          storageKey="sv-assessment-home-capitale-view"
           tone="capitale"
           Icon={UsersThree}
           title={ui.homeQ3Title}
-          kicker={`${totalEmp} ${ui.homeQ3PeopleUnit} · ${ui.homeQ3UpdatedNow}`}
-          aside={
-            <button type="button" className="folder-link" onClick={() => navigate('/assessment/valore')}>
+          kicker={ui.homeQ3Kicker}
+          panelClassName="capitale-panel"
+          body={() => <p className="sv-question">{ui.homeQ3ExpandQuestion}</p>}
+          actions={
+            <button type="button" className="btn btn-sm" onClick={() => navigate('/assessment/valore')}>
               {ui.homeQ3ViewAnalysis} <ArrowUpRight size={14} />
             </button>
           }
-        >
-          <div className="folder-tiles-3">
-            {quadDefs(ui)
-              .filter((q) => q.key === 'valorizzare' || q.key === 'top' || q.key === 'critica')
-              .map((q) => {
-                const count = tiers[q.key].length
-                const pct = totalEmp ? Math.round((count / totalEmp) * 100) : 0
-                return <ToneTile key={q.key} tone={TIER_TILE[q.key].tone} Icon={TIER_TILE[q.key].Icon} size="sm" label={q.label} value={count} sub={`${pct}%`} pct={pct} />
-              })}
-          </div>
-          <div className="folder-dist">
-            <div className="folder-dist-label">{ui.homeQ3DistributionLabel}</div>
-            <div className="folder-dist-bar">
-              {quadDefs(ui).map((q) => {
-                const pct = totalEmp ? (tiers[q.key].length / totalEmp) * 100 : 0
-                return pct ? <i key={q.key} className={`dist-${q.key}`} style={{ width: `${pct}%` }} /> : null
-              })}
-            </div>
-            <div className="folder-dist-legend">
-              {quadDefs(ui).map((q) => {
-                const pct = totalEmp ? Math.round((tiers[q.key].length / totalEmp) * 100) : 0
-                return (
-                  <span key={q.key}>
-                    <i className={`dist-${q.key}`} aria-hidden="true" />
-                    {pct}% {q.label}
-                  </span>
-                )
-              })}
-            </div>
-          </div>
-        </FolderCard>
+          panel={
+            <>
+              <div className="folder-tiles-3">
+                {quadDefs(ui)
+                  .filter((q) => q.key === 'valorizzare' || q.key === 'top' || q.key === 'critica')
+                  .map((q) => {
+                    const count = tiers[q.key].length
+                    const pct = totalEmp ? Math.round((count / totalEmp) * 100) : 0
+                    return <ToneTile key={q.key} tone={TIER_TILE[q.key].tone} Icon={TIER_TILE[q.key].Icon} label={q.label} value={count} sub={`${pct}%`} pct={pct} />
+                  })}
+              </div>
+              <div className="folder-dist sv-panel-box">
+                <div className="folder-dist-label">{ui.homeQ3DistributionLabel}</div>
+                <div className="folder-dist-bar">
+                  {quadDefs(ui).map((q) => {
+                    const pct = totalEmp ? (tiers[q.key].length / totalEmp) * 100 : 0
+                    return pct ? <i key={q.key} className={`dist-${q.key}`} style={{ width: `${pct}%` }} /> : null
+                  })}
+                </div>
+                <div className="folder-dist-legend">
+                  {quadDefs(ui).map((q) => {
+                    const pct = totalEmp ? Math.round((tiers[q.key].length / totalEmp) * 100) : 0
+                    return (
+                      <span key={q.key}>
+                        <i className={`dist-${q.key}`} aria-hidden="true" />
+                        {pct}% {q.label}
+                      </span>
+                    )
+                  })}
+                </div>
+              </div>
+            </>
+          }
+        />
 
         {/* Andamento: org score trend vs benchmark. The last point is the
             live org average; see buildOrgTrendSeries(). */}
