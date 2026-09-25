@@ -128,99 +128,103 @@ export default function RecruitingHome() {
         </div>
       </Card>
 
+      {/* 4 direct grid children instead of 2 flex-col column stacks — each
+          ROW's height is now independent (Candidati/Imbuto vs Posizioni/
+          Prossimi), so a tall card only affects its own row's gap instead
+          of the whole column accumulating one large dead zone at the
+          bottom before the cross-module banner (the ring chart made that
+          column-stack gap severe enough to look broken). Visual position
+          is identical to before — grid auto-placement fills row-major,
+          same as the two stacks did. */}
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[2fr_1fr]">
-        <div className="flex min-w-0 flex-col gap-4">
-          <Card className="p-6">
-            <CardHeader className="flex-row items-start justify-between p-0 pb-4">
-              <div>
-                <CardTitle className="text-sm">Candidati per fascia di idoneità</CardTitle>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {data.rankedCount} candidati · ruolo attivo: <b className="font-semibold text-foreground">{data.roleLabel}</b>
-                </p>
-              </div>
-              <Link to="/recruiting/ranking" className="flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:underline">
-                Vedi ranking <ArrowUpRight className="size-3.5" />
-              </Link>
-            </CardHeader>
-            <CardContent className="overflow-x-auto p-0">
-              {data.rankedCount ? (
-                <>
-                  {/* 3 of the 4 real buckets get a KPI tile, matching the
-                      concept's own choice — "Gap Strutturali" (buckets[2])
-                      stays bar-only, same as the concept. */}
-                  <div className="mb-4 grid grid-cols-3 gap-3">
-                    {[data.buckets[0], data.buckets[1], data.buckets[3]].map((b) => (
-                      <div key={b.label} className="rounded-lg border border-border bg-secondary/40 p-3">
-                        <div className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">{b.label}</div>
-                        <div className="mt-1 font-mono text-xl font-black tabular-nums text-foreground">{b.count}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <QualityStackedBar buckets={data.buckets} total={data.rankedCount} />
-                </>
-              ) : (
-                <p className="py-1 text-[13px] text-muted-foreground">
-                  Nessun candidato ancora in classifica per questo ruolo. Carica i primi CV dalla pagina CV &amp;
-                  Export.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="p-6">
-            <CardHeader className="p-0 pb-4">
-              <CardTitle className="text-sm">Posizioni aperte</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <OpeningsList openings={data.openings} />
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="flex min-w-0 flex-col gap-4">
-          <Card className="p-6">
-            <CardHeader className="p-0 pb-4">
-              <CardTitle className="text-sm">Imbuto di Selezione</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <SelectionFunnel stages={data.funnel} />
-            </CardContent>
-          </Card>
-
-          <Card className="p-6">
-            <CardHeader className="p-0 pb-3">
-              <CardTitle className="text-sm">Prossimi colloqui</CardTitle>
-              <p className="mt-0.5 text-xs text-muted-foreground">Ordinati per data</p>
-            </CardHeader>
-            <div className="flex gap-1 rounded-md bg-secondary p-0.5">
-              <button
-                className={`flex-1 rounded-[5px] px-2 py-1.5 text-[11.5px] font-semibold ${interviewsTab === 'arrivo' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
-                onClick={() => setInterviewsTab('arrivo')}
-              >
-                In arrivo
-              </button>
-              <button
-                className={`flex-1 rounded-[5px] px-2 py-1.5 text-[11.5px] font-semibold ${interviewsTab === 'completati' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
-                onClick={() => setInterviewsTab('completati')}
-              >
-                Completati
-              </button>
+        <Card className="p-6">
+          <CardHeader className="flex-row items-start justify-between p-0 pb-4">
+            <div>
+              <CardTitle className="text-sm">Candidati per fascia di idoneità</CardTitle>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {data.rankedCount} candidati · ruolo attivo: <b className="font-semibold text-foreground">{data.roleLabel}</b>
+              </p>
             </div>
-            <CardContent className="p-0 pt-3">
-              {interviewsTab === 'arrivo' ? (
-                <UpcomingList upcoming={data.upcoming} />
-              ) : (
-                <UpcomingList upcoming={data.completed} emptyText="Nessun colloquio completato ancora." />
-              )}
-              <Link
-                to="/recruiting/pipeline"
-                className="mt-3 flex w-full items-center justify-center gap-1 rounded-md border border-border py-2 text-[12.5px] font-semibold text-foreground hover:bg-secondary"
-              >
-                Vedi tutti i colloqui <ArrowUpRight className="size-3.5" />
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
+            <Link to="/recruiting/ranking" className="flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:underline">
+              Vedi ranking <ArrowUpRight className="size-3.5" />
+            </Link>
+          </CardHeader>
+          <CardContent className="overflow-x-auto p-0">
+            {data.rankedCount ? (
+              <>
+                {/* 3 of the 4 real buckets get a KPI tile, matching the
+                    concept's own choice — "Gap Strutturali" (buckets[2])
+                    stays bar-only, same as the concept. */}
+                <div className="mb-4 grid grid-cols-3 gap-3">
+                  {[data.buckets[0], data.buckets[1], data.buckets[3]].map((b) => (
+                    <div key={b.label} className="rounded-lg border border-border bg-secondary/40 p-3">
+                      <div className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">{b.label}</div>
+                      <div className="mt-1 font-mono text-xl font-black tabular-nums text-foreground">{b.count}</div>
+                    </div>
+                  ))}
+                </div>
+                <QualityStackedBar buckets={data.buckets} total={data.rankedCount} />
+              </>
+            ) : (
+              <p className="py-1 text-[13px] text-muted-foreground">
+                Nessun candidato ancora in classifica per questo ruolo. Carica i primi CV dalla pagina CV &amp;
+                Export.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="p-6">
+          <CardHeader className="p-0 pb-4">
+            <CardTitle className="text-sm">Imbuto di Selezione</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <SelectionFunnel stages={data.funnel} />
+          </CardContent>
+        </Card>
+
+        <Card className="p-6">
+          <CardHeader className="p-0 pb-4">
+            <CardTitle className="text-sm">Posizioni aperte</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <OpeningsList openings={data.openings} />
+          </CardContent>
+        </Card>
+
+        <Card className="p-6">
+          <CardHeader className="p-0 pb-3">
+            <CardTitle className="text-sm">Prossimi colloqui</CardTitle>
+            <p className="mt-0.5 text-xs text-muted-foreground">Ordinati per data</p>
+          </CardHeader>
+          <div className="flex gap-1 rounded-md bg-secondary p-0.5">
+            <button
+              className={`flex-1 rounded-[5px] px-2 py-1.5 text-[11.5px] font-semibold ${interviewsTab === 'arrivo' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+              onClick={() => setInterviewsTab('arrivo')}
+            >
+              In arrivo
+            </button>
+            <button
+              className={`flex-1 rounded-[5px] px-2 py-1.5 text-[11.5px] font-semibold ${interviewsTab === 'completati' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+              onClick={() => setInterviewsTab('completati')}
+            >
+              Completati
+            </button>
+          </div>
+          <CardContent className="p-0 pt-3">
+            {interviewsTab === 'arrivo' ? (
+              <UpcomingList upcoming={data.upcoming} />
+            ) : (
+              <UpcomingList upcoming={data.completed} emptyText="Nessun colloquio completato ancora." />
+            )}
+            <Link
+              to="/recruiting/pipeline"
+              className="mt-3 flex w-full items-center justify-center gap-1 rounded-md border border-border py-2 text-[12.5px] font-semibold text-foreground hover:bg-secondary"
+            >
+              Vedi tutti i colloqui <ArrowUpRight className="size-3.5" />
+            </Link>
+          </CardContent>
+        </Card>
       </div>
 
       <CrossModuleBanner
