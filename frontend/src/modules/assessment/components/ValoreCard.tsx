@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, CircleMinus } from 'lucide-react'
+import { CircleDollarSign } from 'lucide-react'
 import { useId, useState } from 'react'
 
 import type { getUI } from '@/modules/assessment/lib/legacy-utils'
@@ -19,21 +19,23 @@ type Props = {
   actions: React.ReactNode
 }
 
-// Remembered per browser so the panel reopens the way the user left it.
-// Storage can throw (private mode, blocked site data): fall back to closed.
-const STORAGE_KEY = 'sv-assessment-home-valore-open'
+type View = 'oggi' | 'skillvision'
 
-function readOpen(): boolean {
+// Remembered per browser so the card reopens the way the user left it.
+// Storage can throw (private mode, blocked site data): fall back to "oggi".
+const STORAGE_KEY = 'sv-assessment-home-valore-view'
+
+function readView(): View {
   try {
-    return window.localStorage.getItem(STORAGE_KEY) === '1'
+    return window.localStorage.getItem(STORAGE_KEY) === 'skillvision' ? 'skillvision' : 'oggi'
   } catch {
-    return false
+    return 'oggi'
   }
 }
 
-function writeOpen(open: boolean) {
+function writeView(view: View) {
   try {
-    window.localStorage.setItem(STORAGE_KEY, open ? '1' : '0')
+    window.localStorage.setItem(STORAGE_KEY, view)
   } catch {
     // not persisted — the toggle still works for this session
   }
@@ -41,84 +43,92 @@ function writeOpen(open: boolean) {
 
 const signed = (n: number) => `${n > 0 ? '+' : ''}${fmt1it(n)}`
 
-// Q1 — Il Valore. The "Skill Vision" pill toggles the detail panel (the
-// three headline metrics + the Ottimale/Moderato/Critico split). Every
-// number is passed in from AssessmentHomePage, which derives it from the
-// same homeStats() partition the rest of the page uses.
+// Q1 — Il Valore, per the client concept (E.pdf): a folder-shaped card with
+// two pills. "Oggi" shows today's snapshot inside the card; "Skill Vision"
+// opens the value panel beside it (the three headline metrics + the
+// Ottimale/Moderato/Critico split). Every number is passed in from
+// AssessmentHomePage, derived from the same homeStats() partition the rest
+// of the page uses.
 export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgGapPct, breakdown, actions }: Props) {
-  const [isActive, setIsActive] = useState(readOpen)
+  const [view, setView] = useState<View>(readView)
   const panelId = useId()
+  const isActive = view === 'skillvision'
 
-  function toggle() {
-    setIsActive((prev) => {
-      writeOpen(!prev)
-      return !prev
-    })
+  function select(next: View) {
+    setView(next)
+    writeView(next)
   }
 
   const levels = [
-    { key: 'ottimale', label: ui.homeQ1GreenSub, pct: breakdown.ottimale, chip: 'chip-green', Icon: CheckCircle2 },
-    { key: 'moderato', label: ui.homeQ1YellowSub, pct: breakdown.moderato, chip: 'chip-amber', Icon: CircleMinus },
-    { key: 'critico', label: ui.homeQ1RedSub, pct: breakdown.critico, chip: 'chip-red', Icon: AlertTriangle },
+    { key: 'ottimale', label: ui.homeQ1GreenSub, color: ui.homeQ1Green, pct: breakdown.ottimale },
+    { key: 'moderato', label: ui.homeQ1YellowSub, color: ui.homeQ1Yellow, pct: breakdown.moderato },
+    { key: 'critico', label: ui.homeQ1RedSub, color: ui.homeQ1Red, pct: breakdown.critico },
   ] as const
 
   return (
-    <div className={`quad valore-card${isActive ? ' is-active' : ''}`}>
-      <div className="valore-head">
-        <div>
-          <div className="card-eyebrow">{ui.homeQ1Kicker}</div>
+    <div className={`valore-block${isActive ? ' is-active' : ''}`}>
+      <div className="valore-folder">
+        <span className="valore-folder-icon" aria-hidden="true">
+          <CircleDollarSign />
+        </span>
+        <div className="valore-folder-tab">
+          <div className="valore-pills" role="group" aria-label={ui.homeQ1Title}>
+            <button type="button" className="valore-pill" aria-pressed={!isActive} onClick={() => select('oggi')}>
+              oggi
+            </button>
+            <button type="button" className="valore-pill valore-pill-sv" aria-pressed={isActive} aria-expanded={isActive} aria-controls={panelId} onClick={() => select(isActive ? 'oggi' : 'skillvision')}>
+              Skill Vision
+            </button>
+          </div>
           <h3 className="valore-title">{ui.homeQ1Title}</h3>
         </div>
-        <button type="button" className="sv-pill" aria-pressed={isActive} aria-expanded={isActive} aria-controls={panelId} onClick={toggle}>
-          Skill Vision
-        </button>
-      </div>
-
-      <div className="valore-headline">
-        <span className="kpi-value">{overallPct}%</span>
-        <span className="small-note">{ui.homeQ1LevelCaption(fmt1it(benchmark), signed(avgGap))}</span>
-      </div>
-
-      <div id={panelId} className="valore-panel" aria-hidden={!isActive} inert={!isActive}>
-        <div className="valore-panel-inner">
-          <div className="valore-metrics">
-            <div className="neu-tile">
-              <div className="card-eyebrow">{ui.homeQ1Score}</div>
-              <div className="valore-metric">
-                {overallPct}%<span className="valore-metric-den"> / 100</span>
-              </div>
+        <div className="valore-folder-body">
+          <div className="valore-kicker">{ui.homeQ1Kicker}</div>
+          {isActive ? (
+            <p className="valore-question">{ui.homeQ1ExpandQuestion.replace(/\?$/, '')}</p>
+          ) : (
+            <div className="valore-today">
+              <p className="valore-question">{ui.homeQ1Sub}</p>
+              <div className="valore-today-value">{overallPct}%</div>
+              <div className="small-note">{ui.homeQ1TeaserCompare(signed(avgGap), fmt1it(benchmark))}</div>
             </div>
-            <div className="neu-tile">
-              <div className="card-eyebrow">{ui.homeQ1Coverage}</div>
-              <div className="valore-metric">
-                {roleCovPct}%<span className="valore-metric-den"> / 100</span>
-              </div>
-            </div>
-            <div className="neu-tile">
-              <div className="card-eyebrow">{ui.homeQ1Gap}</div>
-              <div className="valore-metric">{signed(avgGap)}</div>
-              <div className="small-note">{signed(avgGapPct)}% vs {fmt1it(benchmark)}/10</div>
-            </div>
-          </div>
-
-          <div className="valore-breakdown">
-            <div className="valore-breakdown-q">{ui.homeQ1ExpandQuestion}</div>
-            <ul>
-              {levels.map(({ key, label, pct, chip, Icon }) => (
-                <li key={key}>
-                  <span className={`chip ${chip}`}>
-                    <Icon size={13} aria-hidden="true" />
-                    {label}
-                  </span>
-                  <span className="valore-level-pct">{pct}%</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          )}
+          <div className="valore-actions">{actions}</div>
         </div>
       </div>
 
-      <div className="valore-actions">{actions}</div>
+      {isActive && (
+        <div id={panelId} className="valore-panel">
+          <div className="valore-tile valore-tile-main">
+            <div className="valore-tile-label">{ui.homeQ1Score}</div>
+            <div className="valore-tile-value valore-tile-value-lg">
+              {overallPct}% <span className="valore-tile-den">/100</span>
+            </div>
+          </div>
+          <div className="valore-tile valore-tile-side">
+            <div className="valore-tile-label">{ui.homeQ1Coverage}</div>
+            <div className="valore-tile-value">
+              {roleCovPct}% <span className="valore-tile-den">/ 100</span>
+            </div>
+          </div>
+          <div className="valore-tile valore-tile-side">
+            <div className="valore-tile-label">{ui.homeQ1Gap}</div>
+            <div className="valore-tile-value">
+              {signed(avgGap)}% = {signed(avgGapPct)}%
+            </div>
+          </div>
+          <div className="valore-levels">
+            {levels.map(({ key, label, color, pct }) => (
+              <div key={key} className={`valore-tile valore-level valore-level-${key}`}>
+                <div className="valore-tile-label">{label}</div>
+                <div className="valore-level-value">
+                  {pct}% {color}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
