@@ -85,7 +85,6 @@ export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgG
         ) : (
           <div className="valore-today">
             <p className="valore-question">{ui.homeQ1Sub}</p>
-            <div className="valore-today-value">{overallPct}%</div>
             <div className="small-note">{ui.homeQ1TeaserCompare(signed(avgGap), fmt1it(benchmark))}</div>
           </div>
         )}
