@@ -36,8 +36,7 @@ export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgG
       Icon={CurrencyCircleDollar}
       title={ui.homeQ1Title}
       kicker={ui.homeQ1Kicker}
-      className="valore-folder"
-      panelClassName="valore-panel"
+      panelClassName="sv-panel-stack"
       body={(isActive) =>
         isActive ? (
           <p className="sv-question">{ui.homeQ1ExpandQuestion.replace(/\?$/, '')}</p>
@@ -51,19 +50,21 @@ export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgG
       actions={actions}
       panel={
         <>
-          <ToneTile tone="peach" size="lg" className="valore-panel-main" Icon={Gauge} label={ui.homeQ1Score} value={`${overallPct}%`} den="/100" pct={overallPct} />
-          <ToneTile tone="gold" Icon={Target} label={ui.homeQ1Coverage} value={`${roleCovPct}%`} den="/ 100" pct={roleCovPct} />
-          <ToneTile
-            tone="gold"
-            Icon={avgGap < 0 ? TrendingDown : TrendingUp}
-            label={ui.homeQ1Gap}
-            value={`${signed(avgGap)} punti = ${signed(avgGapPct)}%`}
-            sub={`Benchmark ${fmt1it(benchmark)}/10`}
-          />
-          <div className="valore-levels">
-            <ToneTile tone="green" size="sm" Icon={CheckCircle2} label={ui.homeQ1GreenSub} value={`${breakdown.ottimale}% ${ui.homeQ1Green}`} pct={breakdown.ottimale} />
-            <ToneTile tone="yellow" size="sm" Icon={CircleMinus} label={ui.homeQ1YellowSub} value={`${breakdown.moderato}% ${ui.homeQ1Yellow}`} pct={breakdown.moderato} />
-            <ToneTile tone="red" size="sm" Icon={AlertTriangle} label={ui.homeQ1RedSub} value={`${breakdown.critico}% ${ui.homeQ1Red}`} pct={breakdown.critico} />
+          <div className="folder-tiles-3">
+            <ToneTile tone="peach" Icon={Gauge} label={ui.homeQ1Score} value={`${overallPct}%`} den="/100" pct={overallPct} />
+            <ToneTile tone="gold" Icon={Target} label={ui.homeQ1Coverage} value={`${roleCovPct}%`} den="/100" pct={roleCovPct} />
+            <ToneTile
+              tone="gold"
+              Icon={avgGap < 0 ? TrendingDown : TrendingUp}
+              label={ui.homeQ1Gap}
+              value={`${signed(avgGap)} punti`}
+              sub={`${signed(avgGapPct)}% · Benchmark ${fmt1it(benchmark)}/10`}
+            />
+          </div>
+          <div className="folder-tiles-3">
+            <ToneTile tone="green" Icon={CheckCircle2} label={ui.homeQ1GreenSub} value={`${breakdown.ottimale}%`} sub={ui.homeQ1Green} pct={breakdown.ottimale} />
+            <ToneTile tone="yellow" Icon={CircleMinus} label={ui.homeQ1YellowSub} value={`${breakdown.moderato}%`} sub={ui.homeQ1Yellow} pct={breakdown.moderato} />
+            <ToneTile tone="red" Icon={AlertTriangle} label={ui.homeQ1RedSub} value={`${breakdown.critico}%`} sub={ui.homeQ1Red} pct={breakdown.critico} />
           </div>
         </>
       }

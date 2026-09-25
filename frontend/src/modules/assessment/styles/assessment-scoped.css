@@ -596,10 +596,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 }
 .folder-aside{ float:right; display:flex; flex-direction:column; align-items:flex-end; gap:8px; margin-left:12px; }
 .folder-title{ font-size:clamp(18px, 1.6vw, 24px); font-weight:700; text-transform:uppercase; letter-spacing:-.3px; line-height:1.1; margin:12px 0 0; color: var(--fc-ink); overflow-wrap:anywhere; }
-.valore-folder .folder-title{ font-size:clamp(28px, 2.6vw, 40px); white-space:nowrap; margin-top:20px; }
 .folder-kicker{ font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:.02em; color: var(--fc-ink); margin-left:calc(24% - 20px); }
-.valore-folder .folder-kicker{ font-size:15px; }
-.valore-folder .sv-question{ font-size:20px; font-weight:500; }
 .folder-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:auto; padding-top:20px; }
 .folder-actions-split{ justify-content:space-between; align-items:center; }
 
@@ -669,13 +666,12 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .valore-today .sv-question{ margin-top:16px; }
 .valore-today .small-note{ color: var(--fc-ink-2); }
 .sv-panel{ animation: sv-panel-in .25s ease both; }
-.valore-panel{ display:grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap:12px; }
-.capitale-panel{ display:flex; flex-direction:column; gap:12px; }
-.capitale-panel .folder-tiles-3, .capitale-panel .folder-dist{ margin-top:0; }
+/* Opened Skill Vision panel (Il Valore, Il Capitale Umano): rows of
+   three equal tiles, stacked. */
+.sv-panel-stack{ display:flex; flex-direction:column; gap:12px; }
+.sv-panel-stack .folder-tiles-3, .sv-panel-stack .folder-dist{ margin-top:0; }
 .sv-panel-box{ background: var(--fc-bg); border:1.5px solid var(--fc-border); border-radius:16px; padding:16px; }
 @keyframes sv-panel-in{ from{ opacity:0; transform: translateX(-12px); } to{ opacity:1; transform:none; } }
-.valore-panel-main{ grid-row: 1 / span 2; }
-.valore-levels{ grid-column: 1 / -1; display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; }
 
 /* Il Capitale Umano */
 .folder-tiles-3{ display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; margin-top:16px; }
@@ -709,8 +705,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .decision-count{ flex-shrink:0; font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; background: var(--tt-icon-bg); color: var(--tt-ink); }
 
 @media (max-width: 560px){
-  .folder-tiles-3, .valore-levels, .valore-panel{ grid-template-columns: 1fr; }
-  .valore-panel-main{ grid-row:auto; }
+  .folder-tiles-3{ grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce){ .sv-panel{ animation:none; } .tone-tile, .tone-tile-bar i, .folder-pill{ transition:none; } .tone-tile:hover{ transform:none; } }
 .quad{

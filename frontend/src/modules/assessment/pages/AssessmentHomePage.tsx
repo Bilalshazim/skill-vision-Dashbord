@@ -185,7 +185,7 @@ export default function AssessmentHomePage() {
           Icon={UsersThree}
           title={ui.homeQ3Title}
           kicker={ui.homeQ3Kicker}
-          panelClassName="capitale-panel"
+          panelClassName="sv-panel-stack"
           body={() => <p className="sv-question">{ui.homeQ3ExpandQuestion}</p>}
           actions={
             <button type="button" className="btn btn-sm" onClick={() => navigate('/assessment/valore')}>
