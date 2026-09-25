@@ -1,9 +1,13 @@
-import { AlertTriangle, Award, ArrowUpRight, GraduationCap, TrendingUp, Users } from 'lucide-react'
+import { AlertTriangle, Award, ArrowUpRight, GraduationCap, LineChart, ListChecks, Sparkles, TrendingUp, UserX, Users } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { CrossModuleBanner } from '@/components/CrossModuleBanner'
 import { lastSixMonthLabels, OrgScoreTrendChart } from '@/modules/assessment/components/OrgScoreTrendChart'
+import { FolderCard, FolderPill } from '@/modules/assessment/components/FolderCard'
+import { ToneTile } from '@/modules/assessment/components/ToneTile'
+import type { TileTone } from '@/modules/assessment/components/ToneTile'
 import { ValoreCard } from '@/modules/assessment/components/ValoreCard'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import {
@@ -170,184 +174,132 @@ export default function AssessmentHomePage() {
           }
         />
 
-        {/* Q3 — Il Capitale Umano: matches the concept exactly (correction
-            pass) — 3 tiles (Top Talent/Da Valorizzare/Critica), a
-            top-right "Vedi analisi" link, and the stacked bar with a full
-            5-tier inline legend. No description line, no chip tag, no
-            reconciliation note, no bottom link — none are in the concept. */}
-        <div className="quad">
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <span className="home-card-icon">
-                <Users />
-              </span>
-              <h3 className="home-card-title" style={{ margin: 0 }}>
-                {ui.homeQ3Title}
-              </h3>
-            </div>
-            <a
-              className="linklike"
-              style={{ fontSize: 11.5, display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}
-              onClick={(e) => {
-                e.stopPropagation()
-                navigate('/assessment/valore')
-              }}
-            >
+        {/* Q3 — Il Capitale Umano: 3 tier tiles (Alto Potenziale / Alto
+            Valore / Critici), the "Vedi analisi" link, and the 5-tier
+            distribution bar with its inline legend. */}
+        <FolderCard
+          tone="capitale"
+          Icon={Users}
+          title={ui.homeQ3Title}
+          kicker={`${totalEmp} ${ui.homeQ3PeopleUnit} · ${ui.homeQ3UpdatedNow}`}
+          aside={
+            <button type="button" className="folder-link" onClick={() => navigate('/assessment/valore')}>
               {ui.homeQ3ViewAnalysis} <ArrowUpRight size={14} />
-            </a>
-          </div>
-          <div className="small-note" style={{ marginTop: 2, marginBottom: 14 }}>
-            {totalEmp} {ui.homeQ3PeopleUnit} · {ui.homeQ3UpdatedNow}
-          </div>
-          <div className="grid grid-3" style={{ gap: 10 }}>
+            </button>
+          }
+        >
+          <div className="folder-tiles-3">
             {quadDefs(ui)
-              .filter((q) => q.key === 'top' || q.key === 'valorizzare' || q.key === 'critica')
+              .filter((q) => q.key === 'valorizzare' || q.key === 'top' || q.key === 'critica')
               .map((q) => {
                 const count = tiers[q.key].length
-                const colorVar = q.variant === 'accent' ? 'accent-dark' : q.variant
-                return (
-                  <div key={q.key} className="neu-tile" style={{ textAlign: 'center' }}>
-                    <div className="card-eyebrow">{q.label}</div>
-                    <div className="kpi-value" style={{ fontSize: 23, color: `var(--${colorVar})` }}>
-                      {count}
-                    </div>
-                  </div>
-                )
+                const pct = totalEmp ? Math.round((count / totalEmp) * 100) : 0
+                return <ToneTile key={q.key} tone={TIER_TILE[q.key].tone} Icon={TIER_TILE[q.key].Icon} size="sm" label={q.label} value={count} sub={`${pct}%`} pct={pct} />
               })}
           </div>
-          <div style={{ marginTop: 16 }}>
-            <div className="small-note" style={{ fontWeight: 700, marginBottom: 6 }}>
-              {ui.homeQ3DistributionLabel}
-            </div>
-            <div className="pbar" style={{ height: 10, display: 'flex' }}>
+          <div className="folder-dist">
+            <div className="folder-dist-label">{ui.homeQ3DistributionLabel}</div>
+            <div className="folder-dist-bar">
               {quadDefs(ui).map((q) => {
-                const count = tiers[q.key].length
-                const colorVar = q.variant === 'accent' ? 'accent-dark' : q.variant === 'neutral' ? 'text-2' : q.variant
-                const pct = totalEmp ? (count / totalEmp) * 100 : 0
-                return pct ? <i key={q.key} style={{ width: `${pct}%`, background: `var(--${colorVar})` }} /> : null
+                const pct = totalEmp ? (tiers[q.key].length / totalEmp) * 100 : 0
+                return pct ? <i key={q.key} className={`dist-${q.key}`} style={{ width: `${pct}%` }} /> : null
               })}
             </div>
-            <div className="small-note" style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            <div className="folder-dist-legend">
               {quadDefs(ui).map((q) => {
-                const count = tiers[q.key].length
-                const pct = totalEmp ? Math.round((count / totalEmp) * 100) : 0
+                const pct = totalEmp ? Math.round((tiers[q.key].length / totalEmp) * 100) : 0
                 return (
                   <span key={q.key}>
+                    <i className={`dist-${q.key}`} aria-hidden="true" />
                     {pct}% {q.label}
                   </span>
                 )
               })}
             </div>
           </div>
-        </div>
+        </FolderCard>
 
-        {/* Row 2 of the same 2x2 grid: trend chart + Le Decisioni. The
-            bottom KPI row and Module A totalizer stay removed (see git
-            history) — their numbers surface in Le Decisioni, the
-            cross-module banner and Il Capitale Umano. */}
-        <div className="quad">
-          <div className="card-title-row" style={{ alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <div>
-              <div className="card-title">{ui.homeOrgTrendTitle}</div>
-              <div className="small-note" style={{ marginTop: 2 }}>
-                {ui.homeOrgTrendSub(fmt1it(hs.benchmark))} · <strong style={{ color: 'var(--text-1)' }}>{fmt1it(trendLast)}/10</strong>{' '}
-                <span style={{ color: `var(--${trendDeltaTone})`, fontWeight: 700 }}>
-                  {trendDeltaArrow} {trendDelta > 0 ? '+' : ''}
-                  {fmt1it(trendDelta)} · {trendDeltaPct > 0 ? '+' : ''}
-                  {fmt1it(trendDeltaPct)}%
-                </span>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
-              <div className="segmented">
-                <button className={trendMode === 'media' ? 'active' : ''} onClick={() => setTrendMode('media')}>
-                  {ui.homeOrgTrendModeAvg}
-                </button>
-                <button className={trendMode === 'benchmark' ? 'active' : ''} onClick={() => setTrendMode('benchmark')}>
-                  {ui.homeOrgTrendModeBenchmark}
-                </button>
-              </div>
-              <span className="small-note" style={{ fontSize: 10.5, whiteSpace: 'nowrap' }}>{trendMonths[0]} — {trendMonths[trendMonths.length - 1]}</span>
+        {/* Andamento: org score trend vs benchmark. The last point is the
+            live org average; see buildOrgTrendSeries(). */}
+        <FolderCard
+          tone="andamento"
+          Icon={LineChart}
+          title={ui.homeOrgTrendTitle}
+          kicker={ui.homeOrgTrendSub(fmt1it(hs.benchmark))}
+        >
+          <div className="folder-trend-head">
+            <span className="folder-trend-value">{fmt1it(trendLast)}/10</span>
+            <span className={`folder-trend-delta tone-tile-${trendDeltaTone === 'success' ? 'green' : trendDeltaTone === 'danger' ? 'red' : 'yellow'}`}>
+              {trendDeltaArrow} {trendDelta > 0 ? '+' : ''}
+              {fmt1it(trendDelta)} · {trendDeltaPct > 0 ? '+' : ''}
+              {fmt1it(trendDeltaPct)}%
+            </span>
+            <span className="folder-trend-period">
+              {trendMonths[0]} — {trendMonths[trendMonths.length - 1]}
+            </span>
+            <div className="folder-pill-row folder-pill-row-inline" role="group" aria-label={ui.homeOrgTrendTitle}>
+              <FolderPill active={trendMode === 'media'} onClick={() => setTrendMode('media')}>
+                {ui.homeOrgTrendModeAvg}
+              </FolderPill>
+              <FolderPill active={trendMode === 'benchmark'} onClick={() => setTrendMode('benchmark')}>
+                {ui.homeOrgTrendModeBenchmark}
+              </FolderPill>
             </div>
           </div>
-          <div style={{ position: 'relative', flex: 1, minHeight: 220, marginTop: 8 }}>
-            <OrgScoreTrendChart months={trendMonths} series={orgTrendSeries} benchmark={hs.benchmark} />
+          <div className="folder-chart">
+            <OrgScoreTrendChart months={trendMonths} series={orgTrendSeries} benchmark={hs.benchmark} colorVar="--fc-accent" />
           </div>
-        </div>
+        </FolderCard>
 
-        <div className="quad">
-          <div>
-            <h3 className="home-card-title">{ui.homeQ4Title}</h3>
-            <div className="home-card-kicker">{ui.homeQ4PrioritiesKicker}</div>
-          </div>
-          <div className="segmented" style={{ margin: '12px 0' }}>
-            <button className={decisioniTab === 'tutte' ? 'active' : ''} onClick={() => setDecisioniTab('tutte')}>
+        <FolderCard tone="decisioni" Icon={ListChecks} title={ui.homeQ4Title} kicker={ui.homeQ4PrioritiesKicker}>
+          <div className="folder-pill-row" role="group" aria-label={ui.homeQ4Title}>
+            <FolderPill active={decisioniTab === 'tutte'} onClick={() => setDecisioniTab('tutte')}>
               {ui.homeQ4TabAll}
-            </button>
-            <button className={decisioniTab === 'urgenti' ? 'active' : ''} onClick={() => setDecisioniTab('urgenti')}>
+            </FolderPill>
+            <FolderPill active={decisioniTab === 'urgenti'} onClick={() => setDecisioniTab('urgenti')}>
               {ui.homeQ4TabUrgent}
-            </button>
-            <button className={decisioniTab === 'completate' ? 'active' : ''} onClick={() => setDecisioniTab('completate')}>
+            </FolderPill>
+            <FolderPill active={decisioniTab === 'completate'} onClick={() => setDecisioniTab('completate')}>
               {ui.homeQ4TabCompleted}
-            </button>
+            </FolderPill>
           </div>
           {decisioniTab === 'completate' ? (
-            <div className="small-note" style={{ padding: '10px 0' }}>
+            <div className="small-note" style={{ padding: '8px 0' }}>
               {ui.homeQ4NoCompleted}
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {(decisioniTab === 'urgenti' ? azioni.filter((a) => a.variant === 'danger') : azioni).map((a) => {
-                const colorVar = a.variant === 'accent' ? 'accent-dark' : a.variant
-                return (
-                  <div key={a.key} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                    <span
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: 32,
-                        height: 32,
-                        borderRadius: 8,
-                        flexShrink: 0,
-                        background: `var(--${colorVar}-soft)`,
-                        color: `var(--${colorVar})`,
-                      }}
-                    >
-                      <a.Icon size={15} />
-                    </span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: 13 }}>{a.label}</div>
-                      <textarea
-                        className="small-note action-note-input"
-                        rows={1}
-                        readOnly={!canEdit}
-                        value={state.settings.actionNotes?.[a.key] ?? a.desc}
-                        onChange={(e) => saveActionNote(a.key, e.target.value)}
-                      />
-                    </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: `var(--${colorVar})`, flexShrink: 0 }}>
-                      {a.count} {ui.homeQ4PeopleUnit}
-                    </span>
+            <div className="decision-list">
+              {(decisioniTab === 'urgenti' ? azioni.filter((a) => a.variant === 'danger') : azioni).map((a) => (
+                <div key={a.key} className={`decision-row tone-tile-${ACTION_TONE[a.variant]}`}>
+                  <span className="tone-tile-icon" aria-hidden="true">
+                    <a.Icon />
+                  </span>
+                  <div className="decision-text">
+                    <div className="decision-label">{a.label}</div>
+                    <textarea
+                      className="small-note action-note-input"
+                      rows={1}
+                      readOnly={!canEdit}
+                      value={state.settings.actionNotes?.[a.key] ?? a.desc}
+                      onChange={(e) => saveActionNote(a.key, e.target.value)}
+                    />
                   </div>
-                )
-              })}
+                  <span className="decision-count">
+                    {a.count} {ui.homeQ4PeopleUnit}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
-          <div style={{ textAlign: 'right', marginTop: 10 }}>
-            <a className="linklike" style={{ fontSize: 11.5 }} onClick={() => exportActionPlan(state, lang, ui)}>
+          <div className="folder-actions folder-actions-split">
+            <button type="button" className="folder-link" onClick={() => exportActionPlan(state, lang, ui)}>
               {ui.homeQ4Export}
-            </a>
+            </button>
+            <button type="button" className="btn btn-sm" onClick={() => navigate('/assessment/feedback')}>
+              {ui.homeQ4ViewAll} <ArrowUpRight size={14} />
+            </button>
           </div>
-          <button
-            type="button"
-            className="btn btn-sm"
-            style={{ width: '100%', justifyContent: 'center', display: 'flex', alignItems: 'center', gap: 4, marginTop: 10 }}
-            onClick={() => navigate('/assessment/feedback')}
-          >
-            {ui.homeQ4ViewAll} <ArrowUpRight size={14} />
-          </button>
-        </div>
+        </FolderCard>
       </div>
 
       <CrossModuleBanner
@@ -366,6 +318,20 @@ export default function AssessmentHomePage() {
       />
     </div>
   )
+}
+
+// Tile tone + icon for the three Capitale Umano tiers, and the tile tone
+// for each Le Decisioni action variant.
+const TIER_TILE: Record<'valorizzare' | 'top' | 'critica', { tone: TileTone; Icon: LucideIcon }> = {
+  valorizzare: { tone: 'green', Icon: Sparkles },
+  top: { tone: 'gold', Icon: Award },
+  critica: { tone: 'red', Icon: UserX },
+}
+const ACTION_TONE: Record<'warning' | 'success' | 'danger' | 'accent', TileTone> = {
+  warning: 'yellow',
+  success: 'green',
+  danger: 'red',
+  accent: 'gold',
 }
 
 // Same seeded-PRNG shape as AssessmentCustomerCarePage.tsx's seedRandom()

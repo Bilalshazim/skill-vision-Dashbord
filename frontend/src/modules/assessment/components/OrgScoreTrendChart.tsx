@@ -50,10 +50,13 @@ export function OrgScoreTrendChart({
   months,
   series,
   benchmark,
+  colorVar = '--chart-2',
 }: {
   months: string[]
   series: number[]
   benchmark: number
+  // CSS custom property (resolved on this node) for the line/area color.
+  colorVar?: string
 }) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const { theme } = useTheme()
@@ -61,9 +64,9 @@ export function OrgScoreTrendChart({
 
   useEffect(() => {
     if (!wrapRef.current) return
-    const v = getComputedStyle(wrapRef.current).getPropertyValue('--chart-2').trim()
+    const v = getComputedStyle(wrapRef.current).getPropertyValue(colorVar).trim()
     if (v) setColor(v)
-  }, [theme])
+  }, [theme, colorVar])
 
   const data = months.map((m, i) => ({ month: m, value: series[i] }))
   const min = Math.floor(Math.min(...series, benchmark) * 2) / 2 - 0.5
@@ -93,7 +96,7 @@ export function OrgScoreTrendChart({
             fill={`url(#${gradientId})`}
             fillOpacity={1}
             strokeWidth={2}
-            dot={{ r: 4, fill: color, strokeWidth: 2, stroke: 'var(--surface)' }}
+            dot={{ r: 4, fill: color, strokeWidth: 2, stroke: 'var(--fc-bg, var(--surface))' }}
             activeDot={{ r: 5 }}
           />
         </AreaChart>

@@ -566,81 +566,142 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .home-grid{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px; margin-bottom:24px; align-items:stretch; }
 .home-grid > .quad{ box-shadow:none; min-height:0; }
 
-/* Il Valore — client concept (E.pdf): folder-shaped card + "oggi" /
-   "Skill Vision" pills; Skill Vision opens the tile panel beside the card,
-   and the block then spans the full grid row. Colors follow the concept;
-   the dark-mode values are the same hues, darkened for a dark page. */
-.valore-block{
-  --vl-ink:#F7F5EA; --vl-ink-2:#ABA79A;
-  --vl-card-bg:#3A3526; --vl-card-border:#C8913A;
-  --vl-main-bg:#5A4424; --vl-main-border:#C8913A; --vl-side-bg:#4E4520;
-  --vl-ok-bg:#243A26; --vl-mid-bg:#45431F; --vl-bad-bg:#4A2626;
-  --vl-pill-bg:#FFFEF5; --vl-pill-sv-bg:#F2EE14; --vl-pill-ink:#0D0C0A;
-  display:flex; flex-direction:column;
+/* Assessment Home — folder cards (client concept, E.pdf). One khaki/amber
+   family, four variations (.folder-tone-*). Base values are dark mode; the
+   light-mode block below overrides them. */
+.folder{ --fc-ink:#F7F5EA; --fc-ink-2:#ABA79A; position:relative; display:flex; flex-direction:column; min-width:0; color: var(--fc-ink); }
+.folder-tone-valore{ --fc-bg:#3A3526; --fc-border:#C8913A; --fc-accent:#E0A43F; }
+.folder-tone-capitale{ --fc-bg:#37351F; --fc-border:#B89A2E; --fc-accent:#D4B03A; }
+.folder-tone-andamento{ --fc-bg:#35322A; --fc-border:#B98446; --fc-accent:#E0A060; }
+.folder-tone-decisioni{ --fc-bg:#3B3126; --fc-border:#C47A3C; --fc-accent:#E08F4A; }
+.sv-assessment-shell:not([data-theme="dark"]) .folder{ --fc-ink:#0D0C0A; --fc-ink-2:#45433C; }
+.sv-assessment-shell:not([data-theme="dark"]) .folder-tone-valore{ --fc-bg:#E2DDC5; --fc-border:#E0A43F; --fc-accent:#C9822A; }
+.sv-assessment-shell:not([data-theme="dark"]) .folder-tone-capitale{ --fc-bg:#E5E0BF; --fc-border:#CFAE38; --fc-accent:#A8861A; }
+.sv-assessment-shell:not([data-theme="dark"]) .folder-tone-andamento{ --fc-bg:#DFDCCB; --fc-border:#D39A5A; --fc-accent:#B8702E; }
+.sv-assessment-shell:not([data-theme="dark"]) .folder-tone-decisioni{ --fc-bg:#E8DCC6; --fc-border:#E08F4A; --fc-accent:#C0692A; }
+
+.folder-icon{ position:absolute; left:8px; top:24px; color: var(--fc-ink); }
+.folder-icon svg{ width:48px; height:48px; stroke-width:1.5; }
+.folder-tab{
+  margin-left:24%; position:relative; z-index:1; margin-bottom:-2px;
+  background: var(--fc-bg); border:2px solid var(--fc-border); border-bottom:none;
+  border-radius:20px 20px 0 0; padding:16px 20px 0; min-height:72px;
 }
-.sv-assessment-shell:not([data-theme="dark"]) .valore-block{
-  --vl-ink:#0D0C0A; --vl-ink-2:#45433C;
-  --vl-card-bg:#E2DDC5; --vl-card-border:#E0A43F;
-  --vl-main-bg:#F2D29E; --vl-main-border:#E0A43F; --vl-side-bg:#EAD27E;
-  --vl-ok-bg:#D9EDD3; --vl-mid-bg:#F6F5C2; --vl-bad-bg:#F2BDBD;
-  --vl-pill-bg:#FFFFFF;
+.folder-body{
+  flex:1; display:flex; flex-direction:column;
+  background: var(--fc-bg); border:2px solid var(--fc-border);
+  border-radius:20px 0 20px 20px; padding:12px 20px 20px;
 }
+.folder-aside{ float:right; display:flex; flex-direction:column; align-items:flex-end; gap:8px; margin-left:12px; }
+.folder-title{ font-size:clamp(18px, 1.6vw, 24px); font-weight:700; text-transform:uppercase; letter-spacing:-.3px; line-height:1.1; margin:12px 0 0; color: var(--fc-ink); overflow-wrap:anywhere; }
+.valore-folder .folder-title{ font-size:clamp(28px, 2.6vw, 40px); white-space:nowrap; margin-top:20px; }
+.folder-kicker{ font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:.02em; color: var(--fc-ink); margin-left:calc(24% - 20px); }
+.valore-folder .folder-kicker{ font-size:18px; }
+.folder-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:auto; padding-top:20px; }
+.folder-actions-split{ justify-content:space-between; align-items:center; }
+
+/* Pills + links in folders. :is() lifts specificity above the shell's
+   `button:not([data-slot="button"]){ color:inherit }` reset. */
+.folder :is(.folder-aside, .folder-pill-row) button.folder-pill{
+  border-radius:9999px; padding:4px 16px; font-size:12px; font-weight:600; line-height:1.4; white-space:nowrap;
+  background:#FFFFFF; color:#0D0C0A; border:1px solid var(--fc-border); cursor:pointer;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+.folder :is(.folder-aside, .folder-pill-row) button.folder-pill[aria-pressed="true"]{ background:#F2EE14; border-color:#F2EE14; }
+.folder :is(.folder-aside, .folder-pill-row) button.folder-pill:hover{ filter: brightness(.95); }
+.folder :is(.folder-aside, .folder-actions) button.folder-link{
+  display:inline-flex; align-items:center; gap:4px; background:none; border:none; padding:4px 0; cursor:pointer;
+  font-size:13px; font-weight:600; color: var(--fc-ink); text-decoration: underline; text-decoration-color: var(--fc-border); text-underline-offset:3px;
+}
+.folder button.folder-pill:focus-visible, .folder button.folder-link:focus-visible{ outline:2px solid var(--accent-dark); outline-offset:2px; }
+.folder-pill-row{ display:flex; gap:8px; flex-wrap:wrap; margin:16px 0 12px; }
+.folder-pill-row-inline{ margin:0; }
+
+/* Number tiles (ToneTile) — rounded, tinted, icon badge + progress bar. */
+.tone-tile-peach{ --tt-bg:#4E3B22; --tt-border:#8A6630; --tt-fill:#F0B35E; }
+.tone-tile-gold{ --tt-bg:#463E1C; --tt-border:#8A7628; --tt-fill:#E8CB4A; }
+.tone-tile-green{ --tt-bg:#22382A; --tt-border:#3F6B47; --tt-fill:#7ED58E; }
+.tone-tile-yellow{ --tt-bg:#3F3D1E; --tt-border:#7A7430; --tt-fill:#E6DD5A; }
+.tone-tile-red{ --tt-bg:#45262A; --tt-border:#7E4046; --tt-fill:#F08A8A; }
+[class*="tone-tile-"]{ --tt-ink:#F7F5EA; --tt-icon-bg:rgba(0,0,0,.25); --tt-track:rgba(255,255,255,.12); }
+.sv-assessment-shell:not([data-theme="dark"]) [class*="tone-tile-"]{ --tt-ink:#0D0C0A; --tt-icon-bg:rgba(255,255,255,.6); --tt-track:rgba(13,12,10,.1); }
+.sv-assessment-shell:not([data-theme="dark"]) .tone-tile-peach{ --tt-bg:#F6DDB2; --tt-border:#E8B25C; --tt-fill:#B8671C; }
+.sv-assessment-shell:not([data-theme="dark"]) .tone-tile-gold{ --tt-bg:#EFDB8F; --tt-border:#D4B03A; --tt-fill:#8C6D0B; }
+.sv-assessment-shell:not([data-theme="dark"]) .tone-tile-green{ --tt-bg:#DDF0D6; --tt-border:#9CCB93; --tt-fill:#2F8446; }
+.sv-assessment-shell:not([data-theme="dark"]) .tone-tile-yellow{ --tt-bg:#F7F5C6; --tt-border:#DCD35E; --tt-fill:#8E8612; }
+.sv-assessment-shell:not([data-theme="dark"]) .tone-tile-red{ --tt-bg:#F5C9C9; --tt-border:#E39494; --tt-fill:#B23A3A; }
+.tone-tile{
+  background: var(--tt-bg); border:1.5px solid var(--tt-border); border-radius:16px; padding:16px;
+  display:flex; flex-direction:column; gap:8px; color: var(--tt-ink); min-width:0;
+  transition: transform .15s ease, border-color .15s ease;
+}
+.tone-tile:hover{ transform: translateY(-2px); border-color: var(--tt-fill); }
+.tone-tile-head{ display:flex; align-items:center; gap:8px; min-width:0; }
+.tone-tile-icon{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:10px; background: var(--tt-icon-bg); color: var(--tt-fill); flex-shrink:0; }
+.tone-tile-icon svg{ width:16px; height:16px; }
+.tone-tile-label{ font-size:13px; font-weight:600; line-height:1.3; }
+.tone-tile-value{ font-size:26px; font-weight:700; line-height:1.1; letter-spacing:-.02em; font-variant-numeric: tabular-nums; }
+.tone-tile-lg .tone-tile-value{ font-size:56px; margin-top:auto; }
+.tone-tile-sm .tone-tile-value{ font-size:20px; }
+.tone-tile-den{ font-size:.45em; font-weight:500; margin-left:4px; opacity:.75; }
+.tone-tile-bar{ height:6px; border-radius:999px; background: var(--tt-track); overflow:hidden; }
+.tone-tile-bar i{ display:block; height:100%; border-radius:inherit; background: var(--tt-fill); transition: width .4s ease; }
+.tone-tile-sub{ font-size:12px; opacity:.8; }
+
+/* Il Valore block: when "Skill Vision" is on it spans the full row, card
+   left and tile panel right. */
+.valore-block{ display:flex; flex-direction:column; }
+.valore-block > .folder{ flex:1; }
 .valore-block.is-active{ grid-column: 1 / -1; display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap:24px; align-items:center; }
 /* With Il Valore spanning a whole row, three cards remain: the last one
    takes the full row instead of leaving an empty cell beside it. */
 .home-grid:has(> .valore-block.is-active) > :last-child{ grid-column: 1 / -1; }
-
-.valore-folder{ position:relative; display:flex; flex-direction:column; flex:1; color: var(--vl-ink); }
-.valore-folder-icon{ position:absolute; left:8px; top:24px; color: var(--vl-ink); }
-.valore-folder-icon svg{ width:56px; height:56px; stroke-width:1.5; }
-.valore-folder-tab{
-  margin-left:24%; position:relative; z-index:1; margin-bottom:-2px;
-  background: var(--vl-card-bg); border:2px solid var(--vl-card-border); border-bottom:none;
-  border-radius:16px 16px 0 0; padding:16px 24px 0;
-}
-.valore-folder-body{
-  flex:1; display:flex; flex-direction:column;
-  background: var(--vl-card-bg); border:2px solid var(--vl-card-border);
-  border-radius:16px 0 16px 16px; padding:12px 24px 24px; min-height:180px;
-}
-.valore-pills{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; float:right; margin-left:12px; }
-/* Selectors below are prefixed with .valore-pills button so they outrank
-   the shell's `button:not([data-slot="button"]){ color:inherit }` reset. */
-.valore-pills button.valore-pill{
-  border-radius:9999px; padding:4px 16px; font-size:12px; font-weight:500; line-height:1.4;
-  background: var(--vl-pill-bg); color: var(--vl-pill-ink); border:1px solid transparent; cursor:pointer;
-  transition: background-color .2s ease, border-color .2s ease;
-}
-.valore-pills button.valore-pill-sv{ background: var(--vl-pill-sv-bg); text-transform:uppercase; }
-.valore-pills button.valore-pill[aria-pressed="true"]{ border-color: var(--vl-pill-ink); }
-.valore-pills button.valore-pill:hover{ filter: brightness(.95); }
-.valore-pills button.valore-pill:focus-visible{ outline:2px solid var(--accent-dark); outline-offset:2px; }
-.valore-title{ font-size:clamp(28px, 2.6vw, 40px); font-weight:700; text-transform:uppercase; letter-spacing:-.5px; line-height:1.1; white-space:nowrap; margin:24px 0 0; color: var(--vl-ink); }
-.valore-kicker{ font-size:18px; font-weight:700; text-transform:uppercase; color: var(--vl-ink); margin-left:calc(24% - 24px + 2px); }
-.valore-question{ font-size:18px; color: var(--vl-ink); margin:24px 0 0; text-align:center; }
+.valore-question{ font-size:18px; color: var(--fc-ink); margin:20px 0 0; text-align:center; }
 .valore-today{ text-align:center; }
 .valore-today .valore-question{ font-size:14px; margin-top:16px; }
-.valore-today-value{ font-size:40px; font-weight:700; line-height:1.1; margin-top:8px; font-variant-numeric: tabular-nums; }
-.valore-today .small-note{ color: var(--vl-ink-2); }
-.valore-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:auto; padding-top:24px; }
-
-.valore-panel{
-  display:grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap:12px;
-  color: var(--vl-ink); animation: valore-panel-in .25s ease both;
-}
+.valore-today-value{ font-size:44px; font-weight:700; line-height:1.1; margin-top:8px; font-variant-numeric: tabular-nums; }
+.valore-today .small-note{ color: var(--fc-ink-2); }
+.valore-panel{ display:grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap:12px; animation: valore-panel-in .25s ease both; }
 @keyframes valore-panel-in{ from{ opacity:0; transform: translateX(-12px); } to{ opacity:1; transform:none; } }
-.valore-tile{ background: var(--vl-side-bg); padding:16px; text-align:center; display:flex; flex-direction:column; justify-content:center; gap:4px; }
-.valore-tile-main{ grid-row: 1 / span 2; background: var(--vl-main-bg); border:2px solid var(--vl-main-border); }
-.valore-tile-label{ font-size:15px; color: var(--vl-ink); }
-.valore-tile-value{ font-size:24px; font-weight:700; font-variant-numeric: tabular-nums; }
-.valore-tile-value-lg{ font-size:56px; line-height:1.1; margin-top:8px; }
-.valore-tile-den{ font-size:.5em; font-weight:400; }
+.valore-panel-main{ grid-row: 1 / span 2; }
 .valore-levels{ grid-column: 1 / -1; display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; }
-.valore-level-value{ font-size:18px; font-weight:700; font-variant-numeric: tabular-nums; }
-.valore-level-ottimale{ background: var(--vl-ok-bg); }
-.valore-level-moderato{ background: var(--vl-mid-bg); }
-.valore-level-critico{ background: var(--vl-bad-bg); }
-@media (prefers-reduced-motion: reduce){ .valore-panel{ animation:none; } .valore-pill{ transition:none; } }
+
+/* Il Capitale Umano */
+.folder-tiles-3{ display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; margin-top:16px; }
+.folder-dist{ margin-top:20px; }
+.folder-dist-label{ font-size:13px; font-weight:600; margin-bottom:8px; }
+.folder-dist-bar{ display:flex; gap:3px; height:12px; }
+.folder-dist-bar i{ display:block; height:100%; border-radius:999px; }
+.folder-dist-legend{ display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:12px; font-size:12px; color: var(--fc-ink-2); }
+.folder-dist-legend span{ display:inline-flex; align-items:center; gap:6px; }
+.folder-dist-legend i{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+.dist-valorizzare{ background:#7ED58E; } .dist-top{ background:#E8CB4A; } .dist-critica{ background:#F08A8A; }
+.dist-sviluppo{ background:#F0B35E; } .dist-adeguata{ background:#8A8574; }
+.sv-assessment-shell:not([data-theme="dark"]) .dist-valorizzare{ background:#2F8446; } .sv-assessment-shell:not([data-theme="dark"]) .dist-top{ background:#C9A21A; } .sv-assessment-shell:not([data-theme="dark"]) .dist-critica{ background:#C24848; }
+.sv-assessment-shell:not([data-theme="dark"]) .dist-sviluppo{ background:#D98A2B; } .sv-assessment-shell:not([data-theme="dark"]) .dist-adeguata{ background:#A8A28A; }
+
+/* Andamento */
+.folder-trend-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:16px; }
+.folder-trend-value{ font-size:28px; font-weight:700; font-variant-numeric: tabular-nums; }
+.folder-trend-delta{ font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; background: var(--tt-bg); color: var(--tt-ink); border:1.5px solid var(--tt-border); }
+.folder-trend-period{ margin-left:auto; font-size:12px; color: var(--fc-ink-2); }
+.folder-chart{ position:relative; flex:1; min-height:220px; margin-top:12px; border-radius:16px; padding:8px 8px 0; background: rgba(0,0,0,.15); }
+.sv-assessment-shell:not([data-theme="dark"]) .folder-chart{ background: rgba(255,255,255,.4); }
+
+/* Le Decisioni */
+.decision-list{ display:flex; flex-direction:column; gap:8px; }
+.decision-row{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background: var(--tt-bg); border:1.5px solid var(--tt-border); color: var(--tt-ink); transition: border-color .15s ease; }
+.decision-row:hover{ border-color: var(--tt-fill); }
+.decision-text{ flex:1; min-width:0; }
+.decision-label{ font-size:14px; font-weight:700; }
+.decision-row .action-note-input{ color: inherit; opacity:.85; background: transparent; }
+.decision-count{ flex-shrink:0; font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; background: var(--tt-icon-bg); color: var(--tt-ink); }
+
+@media (max-width: 560px){
+  .folder-tiles-3, .valore-levels, .valore-panel{ grid-template-columns: 1fr; }
+  .valore-panel-main{ grid-row:auto; }
+}
+@media (prefers-reduced-motion: reduce){ .valore-panel{ animation:none; } .tone-tile, .tone-tile-bar i, .folder-pill{ transition:none; } .tone-tile:hover{ transform:none; } }
 .quad{
   background: var(--surface); border:1px solid var(--border); border-radius: var(--radius-lg);
   padding:26px; box-shadow: var(--shadow-sm); position:relative; overflow:hidden; min-height:220px;
