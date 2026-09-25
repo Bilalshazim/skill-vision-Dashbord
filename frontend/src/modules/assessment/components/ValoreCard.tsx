@@ -57,7 +57,7 @@ export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgG
             tone="gold"
             Icon={avgGap < 0 ? TrendingDown : TrendingUp}
             label={ui.homeQ1Gap}
-            value={`${signed(avgGap)}% = ${signed(avgGapPct)}%`}
+            value={`${signed(avgGap)} punti = ${signed(avgGapPct)}%`}
             sub={`Benchmark ${fmt1it(benchmark)}/10`}
           />
           <div className="valore-levels">
