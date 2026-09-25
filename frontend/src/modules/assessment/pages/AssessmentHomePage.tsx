@@ -1,13 +1,13 @@
-import { ChartLineUp, ListChecks, UsersThree } from '@phosphor-icons/react'
-import { AlertTriangle, Award, ArrowUpRight, GraduationCap, Sparkles, TrendingUp, UserX } from 'lucide-react'
+import { ChartLineDown, ListChecks, UsersThree } from '@phosphor-icons/react'
+import { AlertTriangle, Award, ArrowUpRight, Briefcase, GraduationCap, MapPin, Sparkles, TrendingDown, TrendingUp, UserX } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { CrossModuleBanner } from '@/components/CrossModuleBanner'
 import { lastSixMonthLabels, OrgScoreTrendChart } from '@/modules/assessment/components/OrgScoreTrendChart'
-import { FolderCard, FolderPill } from '@/modules/assessment/components/FolderCard'
-import { SkillVisionCard } from '@/modules/assessment/components/SkillVisionCard'
+import { FolderPill } from '@/modules/assessment/components/FolderCard'
+import { homeCardLayout, SkillVisionCard, useSkillVisionOpen } from '@/modules/assessment/components/SkillVisionCard'
 import { ToneTile } from '@/modules/assessment/components/ToneTile'
 import type { TileTone } from '@/modules/assessment/components/ToneTile'
 import { ValoreCard } from '@/modules/assessment/components/ValoreCard'
@@ -101,6 +101,7 @@ export default function AssessmentHomePage() {
   const valoreBreakdown = { ottimale: ottimalePct, moderato: moderatoPct, critico: totalEmp ? 100 - ottimalePct - moderatoPct : 0 }
 
   const worstArea = orgCriticalAreas(state, lang, 1)[0]
+  const worstRole = orgCriticalRoles(state, lang, 1)[0]
   // Cross-module banner stat: a real count of roles below benchmark, not
   // just the top-1 "worst role" above — orgCriticalRoles(n) always returns
   // its top n regardless of severity, so getting every role and filtering
@@ -143,6 +144,20 @@ export default function AssessmentHomePage() {
   // so it ships as an honest empty state rather than a fabricated count.
   const [decisioniTab, setDecisioniTab] = useState<'tutte' | 'urgenti' | 'completate'>('tutte')
 
+  // Skill Vision open state per card (remembered per browser) and the grid
+  // placement that follows from it — see homeCardLayout().
+  const [openValore, setOpenValore] = useSkillVisionOpen('sv-assessment-home-valore-view')
+  const [openCapitale, setOpenCapitale] = useSkillVisionOpen('sv-assessment-home-capitale-view')
+  const [openPerdite, setOpenPerdite] = useSkillVisionOpen('sv-assessment-home-perdite-view')
+  const [openDecisioni, setOpenDecisioni] = useSkillVisionOpen('sv-assessment-home-decisioni-view')
+  const cardLayout = homeCardLayout(
+    [
+      ['valore', 'capitale'],
+      ['perdite', 'decisioni'],
+    ] as const,
+    { valore: openValore, capitale: openCapitale, perdite: openPerdite, decisioni: openDecisioni },
+  )
+
   return (
     <div>
       <div className="section-head">
@@ -161,6 +176,9 @@ export default function AssessmentHomePage() {
           avgGap={avgGap}
           avgGapPct={avgGapPct}
           breakdown={valoreBreakdown}
+          open={openValore}
+          onOpenChange={setOpenValore}
+          style={cardLayout.valore}
           actions={
             <>
               <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate(`/assessment/${detailPage}`)}>
@@ -176,17 +194,18 @@ export default function AssessmentHomePage() {
           }
         />
 
-        {/* Q3 — Il Capitale Umano, same pattern as Il Valore: the card
-            alone on "oggi"; "Skill Vision" opens the 3 tier tiles (Alto
+        {/* Q3 — Il Capitale Umano: Skill Vision opens the 3 tier tiles (Alto
             Potenziale / Alto Valore / Critici) and the 5-tier distribution. */}
         <SkillVisionCard
-          storageKey="sv-assessment-home-capitale-view"
           tone="capitale"
           Icon={UsersThree}
           title={ui.homeQ3Title}
-          kicker={ui.homeQ3Kicker}
+          subtitle={ui.homeQ3Kicker}
+          lines={ui.homeQ3CardLines}
+          open={openCapitale}
+          onOpenChange={setOpenCapitale}
+          style={cardLayout.capitale}
           panelClassName="sv-panel-stack"
-          body={() => <p className="sv-question">{ui.homeQ3ExpandQuestion}</p>}
           actions={
             <button type="button" className="btn btn-sm" onClick={() => navigate('/assessment/valore')}>
               {ui.homeQ3ViewAnalysis} <ArrowUpRight size={14} />
@@ -227,87 +246,146 @@ export default function AssessmentHomePage() {
           }
         />
 
-        {/* Andamento: org score trend vs benchmark. The last point is the
-            live org average; see buildOrgTrendSeries(). */}
-        <FolderCard
-          tone="andamento"
-          Icon={ChartLineUp}
-          title={ui.homeOrgTrendTitle}
-          kicker={ui.homeOrgTrendSub(fmt1it(hs.benchmark))}
-        >
-          <div className="folder-trend-head">
-            <span className="folder-trend-value">{fmt1it(trendLast)}/10</span>
-            <span className={`folder-trend-delta tone-tile-${trendDeltaTone === 'success' ? 'green' : trendDeltaTone === 'danger' ? 'red' : 'yellow'}`}>
-              {trendDeltaArrow} {trendDelta > 0 ? '+' : ''}
-              {fmt1it(trendDelta)} · {trendDeltaPct > 0 ? '+' : ''}
-              {fmt1it(trendDeltaPct)}%
-            </span>
-            <span className="folder-trend-period">
-              {trendMonths[0]} — {trendMonths[trendMonths.length - 1]}
-            </span>
-            <div className="folder-pill-row folder-pill-row-inline" role="group" aria-label={ui.homeOrgTrendTitle}>
-              <FolderPill active={trendMode === 'media'} onClick={() => setTrendMode('media')}>
-                {ui.homeOrgTrendModeAvg}
-              </FolderPill>
-              <FolderPill active={trendMode === 'benchmark'} onClick={() => setTrendMode('benchmark')}>
-                {ui.homeOrgTrendModeBenchmark}
-              </FolderPill>
-            </div>
-          </div>
-          <div className="folder-chart">
-            <OrgScoreTrendChart months={trendMonths} series={orgTrendSeries} benchmark={hs.benchmark} colorVar="--fc-accent" />
-          </div>
-        </FolderCard>
-
-        <FolderCard tone="decisioni" Icon={ListChecks} title={ui.homeQ4Title} kicker={ui.homeQ4PrioritiesKicker}>
-          <div className="folder-pill-row" role="group" aria-label={ui.homeQ4Title}>
-            <FolderPill active={decisioniTab === 'tutte'} onClick={() => setDecisioniTab('tutte')}>
-              {ui.homeQ4TabAll}
-            </FolderPill>
-            <FolderPill active={decisioniTab === 'urgenti'} onClick={() => setDecisioniTab('urgenti')}>
-              {ui.homeQ4TabUrgent}
-            </FolderPill>
-            <FolderPill active={decisioniTab === 'completate'} onClick={() => setDecisioniTab('completate')}>
-              {ui.homeQ4TabCompleted}
-            </FolderPill>
-          </div>
-          {decisioniTab === 'completate' ? (
-            <div className="small-note" style={{ padding: '8px 0' }}>
-              {ui.homeQ4NoCompleted}
-            </div>
-          ) : (
-            <div className="decision-list">
-              {(decisioniTab === 'urgenti' ? azioni.filter((a) => a.variant === 'danger') : azioni).map((a) => (
-                <div key={a.key} className={`decision-row tone-tile-${ACTION_TONE[a.variant]}`}>
-                  <span className="tone-tile-icon" aria-hidden="true">
-                    <a.Icon />
-                  </span>
-                  <div className="decision-text">
-                    <div className="decision-label">{a.label}</div>
-                    <textarea
-                      className="small-note action-note-input"
-                      rows={1}
-                      readOnly={!canEdit}
-                      value={state.settings.actionNotes?.[a.key] ?? a.desc}
-                      onChange={(e) => saveActionNote(a.key, e.target.value)}
-                    />
-                  </div>
-                  <span className="decision-count">
-                    {a.count} {ui.homeQ4PeopleUnit}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-          <div className="folder-actions folder-actions-split">
-            <button type="button" className="folder-link" onClick={() => exportActionPlan(state, lang, ui)}>
-              {ui.homeQ4Export}
+        {/* Q2 — Le Perdite: where value stalls. Skill Vision opens the most
+            critical area / role / competency, and the org score trend vs
+            benchmark (the former Andamento card). */}
+        <SkillVisionCard
+          tone="perdite"
+          Icon={ChartLineDown}
+          title={ui.homeQ2Title}
+          subtitle={ui.homeQ2Kicker}
+          lines={ui.homeQ2CardLines}
+          open={openPerdite}
+          onOpenChange={setOpenPerdite}
+          style={cardLayout.perdite}
+          panelClassName="sv-panel-stack"
+          actions={
+            <button type="button" className="btn btn-sm" onClick={() => navigate(`/assessment/${detailPage}`)}>
+              {ui.homeQ2ViewDetail}
             </button>
+          }
+          panel={
+            <>
+              <div className="folder-tiles-3">
+                <ToneTile
+                  tone="red"
+                  Icon={MapPin}
+                  label={ui.homeQ2MostCriticalArea}
+                  value={worstArea ? worstArea.area : '—'}
+                  sub={worstArea ? ui.homeQ2Gap(fmt1it(round1(worstArea.avg - hs.benchmark))) : undefined}
+                  className="tone-tile-text"
+                />
+                <ToneTile
+                  tone="peach"
+                  Icon={Briefcase}
+                  label={ui.homeQ2RoleAtRisk}
+                  value={worstRole ? worstRole.ruolo : '—'}
+                  sub={worstRole ? ui.homeQ2Gap(fmt1it(round1(worstRole.avg - hs.benchmark))) : undefined}
+                  className="tone-tile-text"
+                />
+                <ToneTile
+                  tone="yellow"
+                  Icon={TrendingDown}
+                  label={ui.homeQ2WeakestCompetency}
+                  value={worstSkill ? worstSkill.name : '—'}
+                  sub={worstSkill ? ui.homeQ2Gap(fmt1it(worstSkill.gap)) : undefined}
+                  className="tone-tile-text"
+                />
+              </div>
+              <div className="sv-panel-box">
+                <div className="folder-dist-label">{ui.homeOrgTrendTitle}</div>
+                <div className="folder-trend-head">
+                  <span className="folder-trend-value">{fmt1it(trendLast)}/10</span>
+                  <span className={`folder-trend-delta tone-tile-${trendDeltaTone === 'success' ? 'green' : trendDeltaTone === 'danger' ? 'red' : 'yellow'}`}>
+                    {trendDeltaArrow} {trendDelta > 0 ? '+' : ''}
+                    {fmt1it(trendDelta)} · {trendDeltaPct > 0 ? '+' : ''}
+                    {fmt1it(trendDeltaPct)}%
+                  </span>
+                  <span className="folder-trend-period">
+                    {trendMonths[0]} — {trendMonths[trendMonths.length - 1]}
+                  </span>
+                  <div className="folder-pill-row folder-pill-row-inline" role="group" aria-label={ui.homeOrgTrendTitle}>
+                    <FolderPill active={trendMode === 'media'} onClick={() => setTrendMode('media')}>
+                      {ui.homeOrgTrendModeAvg}
+                    </FolderPill>
+                    <FolderPill active={trendMode === 'benchmark'} onClick={() => setTrendMode('benchmark')}>
+                      {ui.homeOrgTrendModeBenchmark}
+                    </FolderPill>
+                  </div>
+                </div>
+                <div className="folder-chart">
+                  <OrgScoreTrendChart months={trendMonths} series={orgTrendSeries} benchmark={hs.benchmark} colorVar="--fc-accent" />
+                </div>
+              </div>
+            </>
+          }
+        />
+
+        {/* Q4 — Le Decisioni: Skill Vision opens the priority actions. */}
+        <SkillVisionCard
+          tone="decisioni"
+          Icon={ListChecks}
+          title={ui.homeQ4Title}
+          subtitle={ui.homeQ4Kicker}
+          lines={ui.homeQ4CardLines}
+          open={openDecisioni}
+          onOpenChange={setOpenDecisioni}
+          style={cardLayout.decisioni}
+          panelClassName="sv-panel-stack"
+          actions={
             <button type="button" className="btn btn-sm" onClick={() => navigate('/assessment/feedback')}>
               {ui.homeQ4ViewAll} <ArrowUpRight size={14} />
             </button>
-          </div>
-        </FolderCard>
+          }
+          panel={
+            <div className="sv-panel-box">
+              <div className="folder-pill-row folder-pill-row-inline" role="group" aria-label={ui.homeQ4Title}>
+                <FolderPill active={decisioniTab === 'tutte'} onClick={() => setDecisioniTab('tutte')}>
+                  {ui.homeQ4TabAll}
+                </FolderPill>
+                <FolderPill active={decisioniTab === 'urgenti'} onClick={() => setDecisioniTab('urgenti')}>
+                  {ui.homeQ4TabUrgent}
+                </FolderPill>
+                <FolderPill active={decisioniTab === 'completate'} onClick={() => setDecisioniTab('completate')}>
+                  {ui.homeQ4TabCompleted}
+                </FolderPill>
+              </div>
+              {decisioniTab === 'completate' ? (
+                <div className="small-note" style={{ padding: '12px 0 0' }}>
+                  {ui.homeQ4NoCompleted}
+                </div>
+              ) : (
+                <div className="decision-list">
+                  {(decisioniTab === 'urgenti' ? azioni.filter((a) => a.variant === 'danger') : azioni).map((a) => (
+                    <div key={a.key} className={`decision-row tone-tile-${ACTION_TONE[a.variant]}`}>
+                      <span className="tone-tile-icon" aria-hidden="true">
+                        <a.Icon />
+                      </span>
+                      <div className="decision-text">
+                        <div className="decision-label">{a.label}</div>
+                        <textarea
+                          className="small-note action-note-input"
+                          rows={1}
+                          readOnly={!canEdit}
+                          value={state.settings.actionNotes?.[a.key] ?? a.desc}
+                          onChange={(e) => saveActionNote(a.key, e.target.value)}
+                        />
+                      </div>
+                      <span className="decision-count">
+                        {a.count} {ui.homeQ4PeopleUnit}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="folder-actions folder-actions-end">
+                <button type="button" className="folder-link" onClick={() => exportActionPlan(state, lang, ui)}>
+                  {ui.homeQ4Export}
+                </button>
+              </div>
+            </div>
+          }
+        />
       </div>
 
       <CrossModuleBanner

@@ -1,6 +1,6 @@
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react'
 
-export type FolderTone = 'valore' | 'capitale' | 'andamento' | 'decisioni'
+export type FolderTone = 'valore' | 'capitale' | 'perdite' | 'decisioni'
 
 type Props = {
   tone: FolderTone

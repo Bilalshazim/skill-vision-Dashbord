@@ -19,34 +19,30 @@ type Props = {
   avgGapPct: number
   breakdown: ValoreBreakdown
   actions: React.ReactNode
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  style?: React.CSSProperties
 }
 
 const signed = (n: number) => `${n > 0 ? '+' : ''}${fmt1it(n)}`
 
-// Q1 — Il Valore, per the client concept (E.pdf). "Oggi" shows the card
-// alone; "Skill Vision" opens the value panel beside it (the three headline
+// Q1 — Il Valore, per the client concept (E.pdf). The card carries only
+// text; "Skill Vision" opens the value panel beside it (the three headline
 // metrics + the Ottimale/Moderato/Critico split). Every number is passed in
 // from AssessmentHomePage, derived from the same homeStats() partition the
 // rest of the page uses.
-export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgGapPct, breakdown, actions }: Props) {
+export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgGapPct, breakdown, actions, open, onOpenChange, style }: Props) {
   return (
     <SkillVisionCard
-      storageKey="sv-assessment-home-valore-view"
       tone="valore"
       Icon={CurrencyCircleDollar}
       title={ui.homeQ1Title}
-      kicker={ui.homeQ1Kicker}
+      subtitle={ui.homeQ1Kicker}
+      lines={ui.homeQ1CardLines}
+      open={open}
+      onOpenChange={onOpenChange}
+      style={style}
       panelClassName="sv-panel-stack"
-      body={(isActive) =>
-        isActive ? (
-          <p className="sv-question">{ui.homeQ1ExpandQuestion.replace(/\?$/, '')}</p>
-        ) : (
-          <div className="valore-today">
-            <p className="sv-question">{ui.homeQ1Sub}</p>
-            <div className="small-note">{ui.homeQ1TeaserCompare(signed(avgGap), fmt1it(benchmark))}</div>
-          </div>
-        )
-      }
       actions={actions}
       panel={
         <>
