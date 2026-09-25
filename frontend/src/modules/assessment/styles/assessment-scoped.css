@@ -560,6 +560,49 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 /* home hero quadrants — the 4 primary Home cards (Section: top-of-page layout). Large by design: generous
    padding/min-height even when collapsed, so title-only state still reads as a prominent tile, not a stub. */
 .home-hero{ display:grid; grid-template-columns: repeat(2, 1fr); gap:18px; margin-bottom:22px; align-items:start; }
+/* Assessment Home — 2x2 card grid. All four cards share the same neutral
+   surface and 1px border; minmax(0,1fr) keeps both columns the same width
+   whatever their content (the old 2fr/1fr second row did not). */
+.home-grid{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px; margin-bottom:24px; align-items:stretch; }
+.home-grid > .quad{ box-shadow:none; min-height:0; }
+
+/* Il Valore card */
+.valore-card{ transition: border-color .2s ease; }
+.valore-card.is-active{ border-color: var(--accent-dark); }
+.valore-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+.valore-title{ font-size:18px; font-weight:600; letter-spacing:0; text-transform:none; margin:4px 0 0; color: var(--text-1); }
+.valore-headline{ display:flex; flex-direction:column; gap:4px; margin:16px 0 0; }
+.valore-headline .kpi-value{ font-size:40px; line-height:1; }
+.valore-actions{ display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; padding-top:16px; }
+
+/* "Skill Vision" pill — label style (mono, 11px, uppercase). Off: surface
+   fill with lime-family text/border. On: lime fill, near-black text. */
+.sv-pill{
+  flex-shrink:0; border-radius:9999px; padding:4px 12px;
+  font-family: var(--font-mono); font-size:11px; font-weight:500; letter-spacing:.08em; text-transform:uppercase;
+  background: var(--surface); color: var(--link); border:1px solid var(--link);
+  cursor:pointer; transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.sv-pill:hover{ background: var(--accent-soft); }
+.sv-pill[aria-pressed="true"]{ background: var(--accent); border-color: var(--accent); color:#0D0C0A; }
+.sv-pill[aria-pressed="true"]:hover{ background: var(--accent-dark); border-color: var(--accent-dark); }
+.sv-pill:focus-visible{ outline:2px solid var(--accent-dark); outline-offset:2px; }
+
+/* Detail panel: grid-rows 0fr -> 1fr animates to the content's real height. */
+.valore-panel{ display:grid; grid-template-rows:0fr; opacity:0; transition: grid-template-rows .25s ease, opacity .2s ease; }
+.valore-card.is-active .valore-panel{ grid-template-rows:1fr; opacity:1; }
+.valore-panel-inner{ overflow:hidden; min-height:0; }
+.valore-card.is-active .valore-panel-inner{ padding-top:16px; }
+.valore-metrics{ display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:8px; }
+.valore-metric{ font-family: var(--font-mono); font-size:20px; font-weight:600; color: var(--text-1); font-variant-numeric: tabular-nums; }
+.valore-metric-den{ font-size:12px; font-weight:400; color: var(--text-3); }
+.valore-breakdown{ margin-top:16px; }
+.valore-breakdown-q{ font-size:13px; font-weight:600; color: var(--text-1); margin-bottom:8px; }
+.valore-breakdown ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+.valore-breakdown li{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.valore-breakdown .chip{ gap:4px; }
+.valore-level-pct{ font-family: var(--font-mono); font-size:14px; font-weight:600; color: var(--text-1); font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce){ .valore-panel, .sv-pill, .valore-card{ transition:none; } }
 .quad{
   background: var(--surface); border:1px solid var(--border); border-radius: var(--radius-lg);
   padding:26px; box-shadow: var(--shadow-sm); position:relative; overflow:hidden; min-height:220px;
@@ -857,6 +900,7 @@ a.linklike:hover{ text-decoration:underline; }
   .grid-2{ grid-template-columns: 1fr; }
   .valore-top-grid{ grid-template-columns: 1fr; }
   .home-hero{ grid-template-columns: 1fr; }
+  .home-grid{ grid-template-columns: 1fr; }
   .ai-shell{ grid-template-columns: 1fr; height:auto; }
 
   .sidebar-toggle-btn{ display:inline-flex; }

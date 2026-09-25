@@ -1,9 +1,10 @@
-import { AlertTriangle, Award, ArrowUpRight, GraduationCap, Gem, TrendingUp, Users } from 'lucide-react'
+import { AlertTriangle, Award, ArrowUpRight, GraduationCap, TrendingUp, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { CrossModuleBanner } from '@/components/CrossModuleBanner'
 import { lastSixMonthLabels, OrgScoreTrendChart } from '@/modules/assessment/components/OrgScoreTrendChart'
+import { ValoreCard } from '@/modules/assessment/components/ValoreCard'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import {
   bothActive,
@@ -86,7 +87,12 @@ export default function AssessmentHomePage() {
   // Share of the workforce in the "Da Valorizzare" tier — used by the
   // cross-module banner's "Da Valorizzare" stat.
   const gPct = totalEmp ? Math.round((hs.valueCount / totalEmp) * 100) : 0
-  const statusTier = hs.orgAvg >= hs.benchmark ? { variant: 'success' } : hs.orgAvg >= hs.benchmark - 1 ? { variant: 'warning' } : { variant: 'danger' }
+  // Il Valore breakdown — same exhaustive tier union homeStats() documents:
+  // Ottimale = top + valorizzare, Moderato = adeguata, Critico = the rest
+  // (sviluppo + critica), so the three always sum to 100.
+  const ottimalePct = gPct
+  const moderatoPct = totalEmp ? Math.round((hs.nellaNormaCount / totalEmp) * 100) : 0
+  const valoreBreakdown = { ottimale: ottimalePct, moderato: moderatoPct, critico: totalEmp ? 100 - ottimalePct - moderatoPct : 0 }
 
   const worstArea = orgCriticalAreas(state, lang, 1)[0]
   // Cross-module banner stat: a real count of roles below benchmark, not
@@ -140,50 +146,17 @@ export default function AssessmentHomePage() {
         </div>
       </div>
 
-      <div className="home-hero">
-        {/* Q1 — Il Valore: matches the concept exactly (correction pass) —
-            two stat tiles, one headline %, one benchmark caption, 3
-            buttons. No description line, no progress bar, no RGB band —
-            none of those are in the concept. */}
-        <div className="quad">
-          <div className="blur-decor" style={{ background: 'var(--success-soft)' }} />
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-                <span className="home-card-icon">
-                  <Gem />
-                </span>
-                <div>
-                  <h3 className="home-card-title">{ui.homeQ1Title}</h3>
-                  <div className="home-card-kicker">{ui.homeQ1Kicker}</div>
-                </div>
-              </div>
-              <span className={`chip chip-${statusTier.variant === 'success' ? 'green' : statusTier.variant === 'warning' ? 'amber' : 'red'}`}>{ui.homeQ1DeltaChip(`${avgGapPct > 0 ? '+' : ''}${fmt1it(avgGapPct)}%`)}</span>
-            </div>
-
-            <div className="grid grid-2" style={{ gap: 10, margin: '14px 0' }}>
-              <div className="neu-tile" style={{ textAlign: 'center' }}>
-                <div className="card-eyebrow">{ui.homeQ1EvaluatedPeople}</div>
-                <div className="kpi-value" style={{ fontSize: 23 }}>
-                  {totalEmp}
-                </div>
-              </div>
-              <div className="neu-tile" style={{ textAlign: 'center' }}>
-                <div className="card-eyebrow">{ui.homeQ1Coverage}</div>
-                <div className="kpi-value" style={{ fontSize: 23 }}>
-                  {roleCovPct}%
-                </div>
-              </div>
-            </div>
-
-            <div className="kpi-value" style={{ fontSize: 40 }}>
-              {overallPct}%
-            </div>
-            <div className="small-note" style={{ fontWeight: 700, marginTop: 10, marginBottom: 14 }}>
-              {ui.homeQ1LevelCaption(fmt1it(hs.benchmark), `${avgGap > 0 ? '+' : ''}${fmt1it(avgGap)}`)}
-            </div>
-
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 'auto' }}>
+      <div className="home-grid">
+        <ValoreCard
+          ui={ui}
+          overallPct={overallPct}
+          roleCovPct={roleCovPct}
+          benchmark={hs.benchmark}
+          avgGap={avgGap}
+          avgGapPct={avgGapPct}
+          breakdown={valoreBreakdown}
+          actions={
+            <>
               <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate(`/assessment/${detailPage}`)}>
                 {ui.homeQ1ViewDetails}
               </button>
@@ -193,10 +166,9 @@ export default function AssessmentHomePage() {
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => exportValoreReport(state, lang, ui)}>
                 {ui.homeQ1ExportReport}
               </button>
-            </div>
-          </div>
-        </div>
-
+            </>
+          }
+        />
 
         {/* Q3 — Il Capitale Umano: matches the concept exactly (correction
             pass) — 3 tiles (Top Talent/Da Valorizzare/Critica), a
@@ -268,17 +240,12 @@ export default function AssessmentHomePage() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Correction pass: matches the concept's second row exactly — the
-          trend chart (left, wider) paired with Le Decisioni (right),
-          instead of Le Decisioni living inside the 4-quad hero grid. The
-          bottom KPI row and Module A totalizer are removed entirely per
-          the concept (confirmed with the user) — their real numbers
-          still surface elsewhere (Le Decisioni's own counts, the
-          cross-module banner, Il Capitale Umano's tiles). */}
-      <div className="grid" style={{ gridTemplateColumns: '2fr 1fr', gap: 18, marginBottom: 18 }}>
-        <div className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
+        {/* Row 2 of the same 2x2 grid: trend chart + Le Decisioni. The
+            bottom KPI row and Module A totalizer stay removed (see git
+            history) — their numbers surface in Le Decisioni, the
+            cross-module banner and Il Capitale Umano. */}
+        <div className="quad">
           <div className="card-title-row" style={{ alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
             <div>
               <div className="card-title">{ui.homeOrgTrendTitle}</div>
@@ -308,7 +275,7 @@ export default function AssessmentHomePage() {
           </div>
         </div>
 
-        <div className="quad" style={{ minHeight: 0 }}>
+        <div className="quad">
           <div>
             <h3 className="home-card-title">{ui.homeQ4Title}</h3>
             <div className="home-card-kicker">{ui.homeQ4PrioritiesKicker}</div>
