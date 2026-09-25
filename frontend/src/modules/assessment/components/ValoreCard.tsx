@@ -1,4 +1,5 @@
-import { AlertTriangle, CheckCircle2, CircleDollarSign, CircleMinus, Gauge, Target, TrendingDown, TrendingUp } from 'lucide-react'
+import { CurrencyCircleDollar } from '@phosphor-icons/react'
+import { AlertTriangle, CheckCircle2, CircleMinus, Gauge, Target, TrendingDown, TrendingUp } from 'lucide-react'
 import { useId, useState } from 'react'
 
 import { FolderCard, FolderPill } from '@/modules/assessment/components/FolderCard'
@@ -64,7 +65,7 @@ export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgG
     <div className={`valore-block${isActive ? ' is-active' : ''}`}>
       <FolderCard
         tone="valore"
-        Icon={CircleDollarSign}
+        Icon={CurrencyCircleDollar}
         title={ui.homeQ1Title}
         kicker={ui.homeQ1Kicker}
         className="valore-folder"

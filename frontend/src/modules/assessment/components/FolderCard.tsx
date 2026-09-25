@@ -1,10 +1,11 @@
-import type { LucideIcon } from 'lucide-react'
+import type { Icon as PhosphorIcon } from '@phosphor-icons/react'
 
 export type FolderTone = 'valore' | 'capitale' | 'andamento' | 'decisioni'
 
 type Props = {
   tone: FolderTone
-  Icon: LucideIcon
+  // Phosphor icon, drawn duotone and centered in the notch beside the tab.
+  Icon: PhosphorIcon
   title: string
   kicker?: React.ReactNode
   // Top-right of the tab: pills, links.
@@ -20,12 +21,14 @@ type Props = {
 export function FolderCard({ tone, Icon, title, kicker, aside, className, children }: Props) {
   return (
     <section className={`folder folder-tone-${tone}${className ? ` ${className}` : ''}`}>
-      <span className="folder-icon" aria-hidden="true">
-        <Icon />
-      </span>
-      <div className="folder-tab">
-        {aside && <div className="folder-aside">{aside}</div>}
-        <h3 className="folder-title">{title}</h3>
+      <div className="folder-head">
+        <span className="folder-icon" aria-hidden="true">
+          <Icon weight="duotone" />
+        </span>
+        <div className="folder-tab">
+          {aside && <div className="folder-aside">{aside}</div>}
+          <h3 className="folder-title">{title}</h3>
+        </div>
       </div>
       <div className="folder-body">
         {kicker && <div className="folder-kicker">{kicker}</div>}

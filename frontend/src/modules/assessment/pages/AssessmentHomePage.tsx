@@ -1,4 +1,5 @@
-import { AlertTriangle, Award, ArrowUpRight, GraduationCap, LineChart, ListChecks, Sparkles, TrendingUp, UserX, Users } from 'lucide-react'
+import { ChartLineUp, ListChecks, UsersThree } from '@phosphor-icons/react'
+import { AlertTriangle, Award, ArrowUpRight, GraduationCap, Sparkles, TrendingUp, UserX } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -179,7 +180,7 @@ export default function AssessmentHomePage() {
             distribution bar with its inline legend. */}
         <FolderCard
           tone="capitale"
-          Icon={Users}
+          Icon={UsersThree}
           title={ui.homeQ3Title}
           kicker={`${totalEmp} ${ui.homeQ3PeopleUnit} · ${ui.homeQ3UpdatedNow}`}
           aside={
@@ -223,7 +224,7 @@ export default function AssessmentHomePage() {
             live org average; see buildOrgTrendSeries(). */}
         <FolderCard
           tone="andamento"
-          Icon={LineChart}
+          Icon={ChartLineUp}
           title={ui.homeOrgTrendTitle}
           kicker={ui.homeOrgTrendSub(fmt1it(hs.benchmark))}
         >

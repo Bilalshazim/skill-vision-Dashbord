@@ -580,10 +580,12 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .sv-assessment-shell:not([data-theme="dark"]) .folder-tone-andamento{ --fc-bg:#DFDCCB; --fc-border:#D39A5A; --fc-accent:#B8702E; }
 .sv-assessment-shell:not([data-theme="dark"]) .folder-tone-decisioni{ --fc-bg:#E8DCC6; --fc-border:#E08F4A; --fc-accent:#C0692A; }
 
-.folder-icon{ position:absolute; left:8px; top:24px; color: var(--fc-ink); }
-.folder-icon svg{ width:48px; height:48px; stroke-width:1.5; }
+/* Head row: the notch (icon, centered both ways) + the tab. */
+.folder-head{ display:flex; align-items:stretch; }
+.folder-icon{ flex:0 0 24%; display:flex; align-items:center; justify-content:center; color: var(--fc-ink); }
+.folder-icon svg{ width:56px; height:56px; }
 .folder-tab{
-  margin-left:24%; position:relative; z-index:1; margin-bottom:-2px;
+  flex:1; min-width:0; position:relative; z-index:1; margin-bottom:-2px;
   background: var(--fc-bg); border:2px solid var(--fc-border); border-bottom:none;
   border-radius:20px 20px 0 0; padding:16px 20px 0; min-height:72px;
 }
