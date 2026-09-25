@@ -97,12 +97,18 @@
      visibly cooler/whiter than Recruiting's page background. Both apps now
      share one page underneath the same top bar, so this reads from the
      shared shell token (index.css `:root{--background}`, #FDFCF2) instead
-     of a second hardcoded value that can drift out of sync. Only the page
-     background changes — --surface/--surface-alt/--border etc. (cards,
-     panels, borders) are untouched. */
+     of a second hardcoded value that can drift out of sync.
+     --surface/--surface-alt were pure white/near-white (#FFFFFF/#F8F9FA)
+     against that cream page — cards read as a colder, separate white box
+     rather than sitting IN the cream shell. Now the same two literal cream
+     tones Recruiting already uses for the same roles (index.css's --card
+     and --secondary, light mode) — hardcoded rather than var()-referenced
+     since --card/--secondary flip on the unrelated global `.dark` class,
+     while this block's own light/dark split is Assessment's independent
+     `data-theme` attribute; the two aren't guaranteed to agree. */
   --bg:var(--background) !important;
-  --surface:#FFFFFF !important;
-  --surface-alt:#F8F9FA !important;
+  --surface:#F7F5EA !important;
+  --surface-alt:#EEEADA !important;
   --border:#E5E7EB !important;
   --border-strong:#D1D5DB !important;
   --text-1:#111827 !important;
