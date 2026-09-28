@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Card, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
@@ -54,7 +55,7 @@ export default function AssessmentCompanyPage() {
           <p>{ui.companyHeadcountSub}</p>
         </div>
       </div>
-      <div className="card">
+      <Card>
         <div className="grid grid-4" style={{ gap: 10 }}>
           {CONTRACT_TYPES.map((type) => (
             <div key={type} className={`tinted-tile clickable ${VARIANTS[type]}`} style={{ textAlign: 'center', padding: '14px 10px' }} onClick={() => setHeadcountModal(type)}>
@@ -63,7 +64,7 @@ export default function AssessmentCompanyPage() {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
       {headcountModal && (
         <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && setHeadcountModal(null)}>
@@ -107,7 +108,7 @@ export default function AssessmentCompanyPage() {
           <p>{ui.companyLocationsSub}</p>
         </div>
       </div>
-      <div className="card">
+      <Card>
         {draft.locations.length === 0 && (
           <div className="small-note" style={{ marginBottom: 8 }}>
             {ui.companyNoLocations}
@@ -140,7 +141,7 @@ export default function AssessmentCompanyPage() {
             {ui.companyAddLocationBtn}
           </Button>
         )}
-      </div>
+      </Card>
 
       <div className="divider" />
       <div className="section-head">
@@ -149,7 +150,7 @@ export default function AssessmentCompanyPage() {
           <p>{ui.companyContactsSub}</p>
         </div>
       </div>
-      <div className="card">
+      <Card>
         {draft.contacts.length === 0 && (
           <div className="small-note" style={{ marginBottom: 8 }}>
             {ui.companyNoContacts}
@@ -186,7 +187,7 @@ export default function AssessmentCompanyPage() {
             {ui.companyAddContactBtn}
           </Button>
         )}
-      </div>
+      </Card>
 
       <div className="divider" />
       <div className="section-head">
@@ -196,10 +197,10 @@ export default function AssessmentCompanyPage() {
         </div>
       </div>
       <div className="grid grid-3">
-        <div className="card">
-          <div className="card-title" style={{ marginBottom: 10 }}>
+        <Card>
+          <CardTitle  style={{ marginBottom: 10 }}>
             {ui.companyReferenteLabel}
-          </div>
+          </CardTitle>
           <div className="field">
             <label>{ui.companyNameLabel}</label>
             <input type="text" value={draft.referente.name} onChange={(e) => setDraft((prev) => ({ ...prev, referente: { ...prev.referente, name: e.target.value } }))} />
@@ -212,11 +213,11 @@ export default function AssessmentCompanyPage() {
             <label>{ui.companyPhoneLabel}</label>
             <input type="text" value={draft.referente.phone} onChange={(e) => setDraft((prev) => ({ ...prev, referente: { ...prev.referente, phone: e.target.value } }))} />
           </div>
-        </div>
-        <div className="card">
-          <div className="card-title" style={{ marginBottom: 10 }}>
+        </Card>
+        <Card>
+          <CardTitle  style={{ marginBottom: 10 }}>
             {ui.companyCeoLabel}
-          </div>
+          </CardTitle>
           <div className="field">
             <label>{ui.companyNameLabel}</label>
             <input type="text" value={draft.ceo.name} onChange={(e) => setDraft((prev) => ({ ...prev, ceo: { ...prev.ceo, name: e.target.value } }))} />
@@ -225,11 +226,11 @@ export default function AssessmentCompanyPage() {
             <label>{ui.companyEmailLabel}</label>
             <input type="email" value={draft.ceo.email} onChange={(e) => setDraft((prev) => ({ ...prev, ceo: { ...prev.ceo, email: e.target.value } }))} />
           </div>
-        </div>
-        <div className="card">
-          <div className="card-title" style={{ marginBottom: 10 }}>
+        </Card>
+        <Card>
+          <CardTitle  style={{ marginBottom: 10 }}>
             {ui.companyCfoLabel}
-          </div>
+          </CardTitle>
           <div className="field">
             <label>{ui.companyNameLabel}</label>
             <input type="text" value={draft.cfo.name} onChange={(e) => setDraft((prev) => ({ ...prev, cfo: { ...prev.cfo, name: e.target.value } }))} />
@@ -238,7 +239,7 @@ export default function AssessmentCompanyPage() {
             <label>{ui.companyEmailLabel}</label>
             <input type="email" value={draft.cfo.email} onChange={(e) => setDraft((prev) => ({ ...prev, cfo: { ...prev.cfo, email: e.target.value } }))} />
           </div>
-        </div>
+        </Card>
       </div>
 
       {canEdit && (

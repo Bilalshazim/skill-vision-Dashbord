@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
+import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { getApex5dDimensions } from '@/modules/assessment/lib/legacy-utils'
@@ -15,7 +17,7 @@ export default function AssessmentHardOverviewPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="card" style={{ padding: 20 }}>
+      <Card  style={{ padding: 20 }}>
         <h3 style={{ marginBottom: 8 }}>{lang === 'it' ? 'Cosa sono le Competenze Professionali' : 'What Professional Competencies are'}</h3>
         <p style={{ color: 'var(--text-2)', lineHeight: 1.6 }}>
           {lang === 'it'
@@ -24,15 +26,15 @@ export default function AssessmentHardOverviewPage() {
         </p>
         <div className="flex flex-wrap gap-2" style={{ marginTop: 14 }}>
           {dimensions.map((d) => (
-            <span key={d.code} className="chip" title={d.desc}>
+            <Badge key={d.code}  title={d.desc}>
               {d.code} · {d.name}
-            </span>
+            </Badge>
           ))}
         </div>
-      </div>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="card rc-entry-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/assessment/hard')}>
+        <Card className="rc-entry-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/assessment/hard')}>
           <div className="flex items-center gap-3">
             <Icon name="hard" />
             <div>
@@ -42,8 +44,8 @@ export default function AssessmentHardOverviewPage() {
               </p>
             </div>
           </div>
-        </div>
-        <div className="card rc-entry-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/assessment/hard-risultati')}>
+        </Card>
+        <Card className="rc-entry-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/assessment/hard-risultati')}>
           <div className="flex items-center gap-3">
             <Icon name="award" />
             <div>
@@ -55,7 +57,7 @@ export default function AssessmentHardOverviewPage() {
               </p>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   )

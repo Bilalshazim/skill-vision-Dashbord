@@ -11,7 +11,7 @@ import type { BackendCampaign, BackendCompany, BackendEmailServiceConfig, Backen
 import { EmptyState } from '@/modules/recruiting/components/EmptyState'
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const textareaClass = cn(inputClass, 'w-full min-h-[100px]')
 // See CipAdminPage.tsx's identical comment — same duplicated-className
 // cleanup, now the shared buttonVariants() instead of a local copy.
@@ -205,16 +205,16 @@ export default function EmailConfigAdminPage() {
       </div>
 
       {!canSeeCompanyConfig ? (
-        <Card className="p-6">
+        <Card>
           <EmptyState icon={ShieldAlert} text="Il tuo ruolo non ha accesso a questa configurazione." />
         </Card>
       ) : (
         <>
-          <Card className="p-6">
-            <CardHeader className="p-0 pb-3">
-              <CardTitle className="text-sm">A. Configurazione mittente (Company/HR o Skill Vision admin)</CardTitle>
+          <Card>
+            <CardHeader>
+              <CardTitle>A. Configurazione mittente (Company/HR o Skill Vision admin)</CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent>
               {isPlatformAdmin && (
                 <label className="mb-3 flex flex-col gap-1.5 text-[12px] font-semibold text-muted-foreground">
                   Company
@@ -234,7 +234,7 @@ export default function EmailConfigAdminPage() {
                   <div className="mb-3 flex flex-col gap-1.5">
                     {senderConfigs.length ? (
                       senderConfigs.map((s) => (
-                        <div key={s.id} className="rounded-md border border-border px-3 py-2 text-[12.5px]">
+                        <div key={s.id} className="rounded-sm border border-border px-3 py-2 text-[12.5px]">
                           <b className="font-semibold text-foreground">{s.displayName}</b> · {s.senderType === 'COMPANY_HR' ? 'Company/HR' : 'Skill Vision admin'} ·{' '}
                           {s.replyToEmail}
                         </div>
@@ -271,11 +271,11 @@ export default function EmailConfigAdminPage() {
             </CardContent>
           </Card>
 
-          <Card className="p-6">
-            <CardHeader className="p-0 pb-3">
-              <CardTitle className="text-sm">B. Modello email (soggetto e messaggio)</CardTitle>
+          <Card>
+            <CardHeader>
+              <CardTitle>B. Modello email (soggetto e messaggio)</CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent>
               {companyId ? (
                 <label className="mb-3 flex flex-col gap-1.5 text-[12px] font-semibold text-muted-foreground">
                   Campagna
@@ -319,14 +319,14 @@ export default function EmailConfigAdminPage() {
         </>
       )}
 
-      <Card className="p-6">
-        <CardHeader className="p-0 pb-3">
-          <CardTitle className="text-sm">C. Servizio di invio email (solo platform admin)</CardTitle>
+      <Card>
+        <CardHeader>
+          <CardTitle>C. Servizio di invio email (solo platform admin)</CardTitle>
           <p className="mt-0.5 text-[11.5px] font-normal text-muted-foreground">
             La credenziale reale non viene mai mostrata qui né restituita dal server — solo se è configurata o meno.
           </p>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent>
           {!isPlatformAdmin ? (
             <EmptyState icon={ShieldAlert} text="Sezione riservata ai platform admin — le credenziali del servizio non sono visibili né modificabili da questo account." />
           ) : (
@@ -334,7 +334,7 @@ export default function EmailConfigAdminPage() {
               <div className="mb-3 flex flex-col gap-1.5">
                 {serviceConfigs.length ? (
                   serviceConfigs.map((s) => (
-                    <div key={s.id} className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2 text-[12.5px]">
+                    <div key={s.id} className="flex items-center justify-between gap-3 rounded-sm border border-border px-3 py-2 text-[12.5px]">
                       <span>
                         <b className="font-semibold text-foreground">{s.providerName}</b> · {s.apiEndpointUrl} · {s.scope}
                         {' · '}

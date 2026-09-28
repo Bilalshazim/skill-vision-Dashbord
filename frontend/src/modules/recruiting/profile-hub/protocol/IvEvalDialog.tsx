@@ -257,7 +257,7 @@ export function IvEvalDialog({ role, savedAt, onSavedAtChange }: { role: string;
             </tbody>
           </table>
         </div>
-        <p className="rounded-md border border-border bg-secondary px-3 py-2 text-[12px] text-foreground">{calc.suitabilityText}</p>
+        <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-[12px] text-foreground">{calc.suitabilityText}</p>
 
         <SectionLabel>5. Fascia di idoneità</SectionLabel>
         <div className={tableWrapClass}>

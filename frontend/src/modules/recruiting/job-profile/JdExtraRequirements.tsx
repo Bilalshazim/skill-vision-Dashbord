@@ -39,7 +39,7 @@ export function JdExtraRequirements({ rows, onChange }: { rows: JdExtraRow[]; on
             ))}
           </select>
           <input type="text" value={r.note} onChange={(e) => update(r.id, 'note', e.target.value)} placeholder="Nota (opzionale)" className={inputClass} />
-          <button type="button" onClick={() => remove(r.id)} aria-label="Rimuovi riga" className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-destructive">
+          <button type="button" onClick={() => remove(r.id)} aria-label="Rimuovi riga" className="inline-flex size-8 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-destructive">
             <X className="size-4" aria-hidden="true" />
           </button>
         </div>

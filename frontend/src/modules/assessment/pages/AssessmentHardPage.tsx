@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { Badge } from '@/components/ui/badge'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { EvaluationManagerModal } from '@/modules/assessment/components/EvaluationManagerModal'
@@ -86,24 +88,24 @@ export default function AssessmentHardPage({ defaultView = 'individuale' }: { de
 
   return (
     <div>
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="card-title-row">
-          <div className="card-title">{ui.evaluatorsTitle}</div>
-        </div>
+      <Card  style={{ marginBottom: 16 }}>
+        <CardHeader>
+          <CardTitle>{ui.evaluatorsTitle}</CardTitle>
+        </CardHeader>
         <div className="small-note" style={{ marginBottom: 10 }}>
           {ui.evaluatorsHint}
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: canEdit ? 12 : 0 }}>
           {state.evaluators.length ? (
             state.evaluators.map((name, i) => (
-              <span className="chip chip-gray" style={{ gap: 7 }} key={name + i}>
+              <Badge style={{ gap: 7 }} key={name + i}>
                 {name}
                 {canEdit && (
                   <span style={{ cursor: 'pointer', fontWeight: 800 }} onClick={() => removeEvaluator(i)} title={ui.removeEvaluator}>
                     ✕
                   </span>
                 )}
-              </span>
+              </Badge>
             ))
           ) : (
             <span className="small-note">{ui.noEvaluators}</span>
@@ -121,7 +123,7 @@ export default function AssessmentHardPage({ defaultView = 'individuale' }: { de
             </Button>
           </div>
         )}
-      </div>
+      </Card>
 
       <div className="view-tabs">
         {tabs.map((t) => (
@@ -179,10 +181,10 @@ function HardIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
         </div>
       )}
       <div className="grid grid-2" style={{ marginBottom: 16 }}>
-        <div className="card">
-          <div className="card-title-row">
-            <div className="card-title">{ui.hardMultiSourceTitle}</div>
-          </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>{ui.hardMultiSourceTitle}</CardTitle>
+          </CardHeader>
           {/* Manager/Peer/Self are rating sources, not a severity signal — was
               lime for Manager; charts stay off lime, so it uses the app's
               designated multi-series categorical hue instead. */}
@@ -195,11 +197,11 @@ function HardIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
               dec={1}
             />
           </div>
-        </div>
-        <div className="card">
-          <div className="card-title-row">
-            <div className="card-title">{ui.hardApex5dProfile}</div>
-          </div>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{ui.hardApex5dProfile}</CardTitle>
+          </CardHeader>
           <div className="kpi-value">{fmt1(hsm.apexScore)}</div>
           <div className="kpi-label">{ui.hardOverallApexLabel}</div>
           <div className="divider" />
@@ -208,9 +210,9 @@ function HardIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
               <StatTile key={d.code} label={`${d.code} · ${d.name}`} value={d.mediaTotale} benchmark={6.5} />
             ))}
           </div>
-        </div>
+        </Card>
       </div>
-      <div className="card" style={{ padding: 0, marginBottom: 16 }}>
+      <Card  style={{ padding: 0, marginBottom: 16 }}>
         <div className="table-wrap">
           <table className="dtable">
             <thead>
@@ -238,10 +240,10 @@ function HardIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
                       <b>{fmt1(d.mediaTotale)}</b>
                     </td>
                     <td>
-                      <span className="chip" style={{ background: `${lvl.color}22`, color: lvl.color }}>
+                      <Badge style={{ background: `${lvl.color}22`, color: lvl.color }}>
                         <span className="dt" style={{ background: lvl.color }} />
                         {lvl.label}
-                      </span>
+                      </Badge>
                     </td>
                   </tr>
                 )
@@ -259,11 +261,11 @@ function HardIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
             </tbody>
           </table>
         </div>
-      </div>
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="card-title-row">
-          <div className="card-title">{ui.hardGapAnalysisTitle}</div>
-        </div>
+      </Card>
+      <Card  style={{ marginBottom: 16 }}>
+        <CardHeader>
+          <CardTitle>{ui.hardGapAnalysisTitle}</CardTitle>
+        </CardHeader>
         <div className="table-wrap">
           <table className="dtable">
             <thead>
@@ -295,7 +297,7 @@ function HardIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </>
   )
 }
@@ -310,23 +312,22 @@ function HardAreaView() {
         const emps = state.employees.filter((e) => e.area === area)
         const apex = round1(avg(emps.map((e) => computeHardSummary(e, lang).apexScore)))
         return (
-          <div className="card" key={area}>
-            <div className="card-title-row">
-              <div className="card-title">
+          <Card  key={area}>
+            <CardHeader>
+              <CardTitle>
                 {area} <span className="muted">{ui.softAreaEmpCount(emps.length)}</span>
-              </div>
-              <span className={`chip ${apex >= 7 ? 'chip-green' : apex >= 5 ? 'chip-amber' : 'chip-red'}`} style={{ marginLeft: 'auto' }}>
-                <span className="dt" />
+              </CardTitle>
+              <Badge tone={apex >= 7 ? 'success' : apex >= 5 ? 'warning' : 'destructive'} dot style={{ marginLeft: 'auto' }}>
                 {fmt1(apex)}
-              </span>
-            </div>
+              </Badge>
+            </CardHeader>
             <div className="grid grid-2" style={{ gap: 8 }}>
               {APEX5D_DIMENSIONS.map((dim) => {
                 const v = round1(avg(emps.map((e) => computeHardSummary(e, lang).dims.find((d) => d.code === dim.code)!.mediaTotale)))
                 return <StatTile key={dim.code} label={`${dim.code} · ${dim.name}`} value={v} benchmark={6.5} />
               })}
             </div>
-          </div>
+          </Card>
         )
       })}
     </div>
@@ -350,7 +351,7 @@ function HardRankingView({ sort, onSort, onOpenDrawer }: { sort: 'score' | 'gap'
           {ui.softSortByGap}
         </button>
       </div>
-      <div className="card" style={{ padding: 0 }}>
+      <Card  style={{ padding: 0 }}>
         <div className="table-wrap">
           <table className="dtable">
             <thead>
@@ -378,10 +379,9 @@ function HardRankingView({ sort, onSort, onOpenDrawer }: { sort: 'score' | 'gap'
                   <td>{r.e.area}</td>
                   <td>{r.e.ruolo}</td>
                   <td>
-                    <span className={`chip ${r.s >= 7 ? 'chip-green' : r.s >= 5 ? 'chip-amber' : 'chip-red'}`}>
-                      <span className="dt" />
+                    <Badge tone={r.s >= 7 ? 'success' : r.s >= 5 ? 'warning' : 'destructive'} dot>
                       {fmt1(r.s)}
-                    </span>
+                    </Badge>
                   </td>
                   <td>
                     <span className={`gap-tag ${gapInterpretation(r.gap, lang).tag}`}>
@@ -394,7 +394,7 @@ function HardRankingView({ sort, onSort, onOpenDrawer }: { sort: 'score' | 'gap'
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </>
   )
 }
@@ -414,10 +414,10 @@ function HardMatchView({ match, onChangeMatch }: { match: string[]; onChangeMatc
   const overallCls = matchCellClasses(overallVals)
   return (
     <>
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="card-title-row">
-          <div className="card-title">{ui.softSelectUpTo5}</div>
-        </div>
+      <Card  style={{ marginBottom: 16 }}>
+        <CardHeader>
+          <CardTitle>{ui.softSelectUpTo5}</CardTitle>
+        </CardHeader>
         <select
           value=""
           onChange={(e) => {
@@ -436,14 +436,14 @@ function HardMatchView({ match, onChangeMatch }: { match: string[]; onChangeMatc
         </select>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
           {emps.map((e) => (
-            <span className="chip chip-blue" key={e.id}>
+            <Badge key={e.id}>
               {e.nome} {e.cognome} <span style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => remove(e.id)}>✕</span>
-            </span>
+            </Badge>
           ))}
         </div>
-      </div>
+      </Card>
       {emps.length ? (
-        <div className="card" style={{ padding: 0 }}>
+        <Card  style={{ padding: 0 }}>
           <div className="table-wrap">
             <table className="dtable">
               <thead>
@@ -496,11 +496,11 @@ function HardMatchView({ match, onChangeMatch }: { match: string[]; onChangeMatc
               {ui.legendLowest}
             </span>
             <span className="small-note">
-              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', marginRight: 5 }} />
+              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)', marginRight: 5 }} />
               {ui.legendAligned}
             </span>
           </div>
-        </div>
+        </Card>
       ) : (
         <div className="empty-state">
           <div className="t">{ui.softNoEmpSelectedTitle}</div>

@@ -23,7 +23,7 @@ export function SubScoreBoxes({ fc, ab, icv }: { fc: number; ab: number; icv: nu
       {BOXES.map((b) => (
         <div
           key={b.key}
-          className="flex flex-col items-center justify-center rounded-md border border-border bg-secondary px-3 py-3 text-center"
+          className="flex flex-col items-center justify-center rounded-sm border border-border bg-secondary px-3 py-3 text-center"
         >
           <div className="text-[11px] font-semibold uppercase tracking-wide">{b.label}</div>
           <div className="mt-1 text-lg font-bold" style={{ color: b.color }}>

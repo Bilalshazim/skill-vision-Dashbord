@@ -1,5 +1,8 @@
 import { useState } from 'react'
 
+import { Badge } from '@/components/ui/badge'
+import { chipTone } from '@/modules/assessment/lib/chip-tone'
+import { CardLabel } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EmployeeEditForm } from '@/modules/assessment/components/EmployeeEditForm'
 import { Icon } from '@/modules/assessment/components/Icon'
@@ -127,16 +130,14 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
               )}
 
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-                <span className={`chip ${tier.chip}`}>
-                  <span className="dt" />
+                <Badge tone={chipTone(tier.chip)} dot>
                   {tier.label}
-                </span>
-                <span className="chip chip-gray">{emp.tipoProfilo || ui.profileEmployeeType}</span>
+                </Badge>
+                <Badge>{emp.tipoProfilo || ui.profileEmployeeType}</Badge>
                 {emp.feedbackNeeded && (
-                  <span className="chip chip-red">
-                    <span className="dt" />
+                  <Badge tone="destructive" dot>
                     {ui.profileDebriefPending}
-                  </span>
+                  </Badge>
                 )}
               </div>
 
@@ -155,9 +156,9 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
 
               {weightedIds.length > 0 && (
                 <>
-                  <div className="card-eyebrow" style={{ marginTop: 6 }}>
+                  <CardLabel  style={{ marginTop: 6 }}>
                     {ui.profileRoleExpectedTitle}
-                  </div>
+                  </CardLabel>
                   <div className="small-note" style={{ marginBottom: 8 }}>
                     {ui.profileRoleExpectedSub(emp.ruolo)}
                   </div>
@@ -169,10 +170,9 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
                       return (
                         <div className="rc-skill-row" key={s.id}>
                           <span className="rc-skill-name">{s.name}</span>
-                          <span className={`chip ${lvl ? lvl.chip : 'chip-gray'}`}>
-                            <span className="dt" />
+                          <Badge tone={chipTone(lvl?.chip)} dot>
                             {weightLabel(w, lang)}
-                          </span>
+                          </Badge>
                           <span className="small-note" style={{ minWidth: 104, textAlign: 'right', flexShrink: 0 }}>
                             {ui.rcExpectedLabel}: <b>{fmt1(expected)}</b>
                           </span>
@@ -186,9 +186,9 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
               {f.A && <ModuleADetail emp={emp} />}
               {f.B && <ModuleBDetail emp={emp} />}
 
-              <div className="card-eyebrow" style={{ marginBottom: 8 }}>
+              <CardLabel  style={{ marginBottom: 8 }}>
                 {ui.profileFeedbackDevPlanTitle}
-              </div>
+              </CardLabel>
               <div className="switch-row" style={{ marginBottom: 12 }}>
                 <label className="switch">
                   <input type="checkbox" checked={feedbackNeeded ?? emp.feedbackNeeded} onChange={(e) => setFeedbackNeeded(e.target.checked)} />
@@ -233,9 +233,9 @@ function ModuleADetail({ emp }: { emp: Employee }) {
   const devAreas = [...ss.perSkill].sort((a, b) => a.gap - b.gap).slice(0, 3)
   return (
     <>
-      <div className="card-eyebrow" style={{ marginTop: 6 }}>
+      <CardLabel  style={{ marginTop: 6 }}>
         {ui.profileModuleATitle}
-      </div>
+      </CardLabel>
       <div className="small-note" style={{ marginBottom: 6 }}>
         <b>{ui.profileLastAssessmentLabel}:</b> {lastSoftSnap ? lastSoftSnap.date.slice(0, 10) : ui.profileNoAssessmentYet}
       </div>
@@ -248,17 +248,17 @@ function ModuleADetail({ emp }: { emp: Employee }) {
           <StatTile key={d} label={BIGFIVE_DIMS[d].label} value={bf[d]} benchmark={6.5} />
         ))}
       </div>
-      <div className="card-eyebrow" style={{ marginTop: 14 }}>
+      <CardLabel  style={{ marginTop: 14 }}>
         {ui.profileTop3Strengths}
-      </div>
+      </CardLabel>
       <div className="grid grid-2" style={{ gap: 8 }}>
         {strengths.map((s) => (
           <StatTile key={s.id} label={s.name} value={s.ottenuto} benchmark={s.atteso} />
         ))}
       </div>
-      <div className="card-eyebrow" style={{ marginTop: 14 }}>
+      <CardLabel  style={{ marginTop: 14 }}>
         {ui.profileDevAreas}
-      </div>
+      </CardLabel>
       <div className="grid grid-2" style={{ gap: 8 }}>
         {devAreas.map((s) => (
           <StatTile key={s.id} label={s.name} value={s.ottenuto} benchmark={s.atteso} />
@@ -276,7 +276,7 @@ function ModuleBDetail({ emp }: { emp: Employee }) {
   const lastAssessSnap = assessSnapshots.length ? assessSnapshots[assessSnapshots.length - 1] : null
   return (
     <>
-      <div className="card-eyebrow">{ui.profileModuleBTitle}</div>
+      <CardLabel>{ui.profileModuleBTitle}</CardLabel>
       <div className="small-note" style={{ marginBottom: 6 }}>
         <b>{ui.profileLastAssessmentLabel}:</b> {lastAssessSnap ? lastAssessSnap.date.slice(0, 10) : ui.profileNoAssessmentYet}
         {lastAssessSnap?.periodLabel ? ` · ${lastAssessSnap.periodLabel}` : ''}

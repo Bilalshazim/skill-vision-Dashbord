@@ -1,3 +1,4 @@
+import { Card } from '@/components/ui/card'
 import { Search } from 'lucide-react'
 import { useState } from 'react'
 
@@ -7,7 +8,7 @@ import { CvMatchDialog } from '@/modules/recruiting/cv/CvMatchDialog'
 import type { Candidate } from '@/modules/recruiting/lib/types'
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 function initialsOf(name: string): string {
   return name
@@ -42,7 +43,7 @@ export function CvArchiveList({ candidates }: { candidates: Candidate[] }) {
   const filtered = q ? candidates.filter((c) => c.name.toLowerCase().includes(q)) : candidates
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+    <Card>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-[15px] font-semibold">
           CV caricati <span className="ml-2 text-[12px] font-medium text-muted-foreground">({filtered.length} di {candidates.length})</span>
@@ -64,8 +65,8 @@ export function CvArchiveList({ candidates }: { candidates: Candidate[] }) {
       ) : (
         <div className="flex flex-col gap-2">
           {filtered.map((c) => (
-            <div key={c.id} className="flex items-center gap-3 rounded-md border border-border bg-secondary px-3 py-2">
-              <div className="grid size-7 shrink-0 place-items-center rounded-md bg-primary text-[11px] font-semibold text-primary-foreground">
+            <div key={c.id} className="flex items-center gap-3 rounded-sm border border-border bg-secondary px-3 py-2">
+              <div className="grid size-7 shrink-0 place-items-center rounded-sm bg-primary text-[11px] font-semibold text-primary-foreground">
                 {initialsOf(c.name)}
               </div>
               <div className="min-w-0 flex-1">
@@ -79,6 +80,6 @@ export function CvArchiveList({ candidates }: { candidates: Candidate[] }) {
           ))}
         </div>
       )}
-    </div>
+    </Card>
   )
 }

@@ -1,5 +1,9 @@
 import { useMemo, useState } from 'react'
 
+import { Hint } from '@/components/patterns/Hint'
+import { Badge } from '@/components/ui/badge'
+import { chipTone } from '@/modules/assessment/lib/chip-tone'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AddEmployeeModal } from '@/modules/assessment/components/AddEmployeeModal'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
@@ -90,12 +94,16 @@ export default function AssessmentAnagraficaPage() {
               feedback: same actions, as compact icon buttons in the
               toolbar instead of standalone cards. Nothing removed
               functionally, both still open the same modals. */}
-          <button type="button" className="icon-btn" title={ui.anagRoleSkillsTitle} onClick={() => setShowRoleCensus(true)}>
-            <Icon name="users" />
-          </button>
-          <button type="button" className="icon-btn" title={ui.linkSurveyBtn} onClick={() => setShowSurveyLink(true)}>
-            <Icon name="notes" />
-          </button>
+          <Hint label={ui.anagRoleSkillsTitle}>
+            <Button type="button" variant="outline" size="icon" aria-label={ui.anagRoleSkillsTitle} onClick={() => setShowRoleCensus(true)}>
+              <Icon name="users" />
+            </Button>
+          </Hint>
+          <Hint label={ui.linkSurveyBtn}>
+            <Button type="button" variant="outline" size="icon" aria-label={ui.linkSurveyBtn} onClick={() => setShowSurveyLink(true)}>
+              <Icon name="notes" />
+            </Button>
+          </Hint>
           <div className="search-box">
             <Icon name="search" />
             <input
@@ -150,7 +158,7 @@ export default function AssessmentAnagraficaPage() {
         </div>
       </div>
 
-      <div className="card" style={{ padding: 0 }}>
+      <Card  style={{ padding: 0 }}>
         {!list.length ? (
           <div className="empty-state">
             <Icon name="users" />
@@ -191,9 +199,9 @@ export default function AssessmentAnagraficaPage() {
                             {e.nome} {e.cognome}
                           </b>
                           {e.archived && (
-                            <span className="chip chip-gray" style={{ flexShrink: 0 }}>
+                            <Badge style={{ flexShrink: 0 }}>
                               {e.archived.reason}
-                            </span>
+                            </Badge>
                           )}
                         </div>
                       </td>
@@ -221,15 +229,15 @@ export default function AssessmentAnagraficaPage() {
                         </span>
                       </td>
                       <td>
-                        <span className={`chip ${semanticChip(primaryScore(e, state, lang))}`}>
-                          <span className="dt" />
+                        <Badge tone={chipTone(semanticChip(primaryScore(e, state, lang)))} dot>
                           {fmt1(primaryScore(e, state, lang))}
-                        </span>
+                        </Badge>
                       </td>
                       <td>
                         {e.archived ? (
                           <Button
-                            variant="outline" size="sm"
+                            variant="outline"
+                            size="sm"
                             onClick={(ev) => {
                               ev.stopPropagation()
                               restoreEmployee(e.id)
@@ -239,7 +247,8 @@ export default function AssessmentAnagraficaPage() {
                           </Button>
                         ) : (
                           <Button
-                            variant="destructive" size="sm"
+                            variant="destructive"
+                            size="sm"
                             onClick={(ev) => {
                               ev.stopPropagation()
                               setArchiveModalId(e.id)
@@ -270,7 +279,7 @@ export default function AssessmentAnagraficaPage() {
             </div>
           </div>
         )}
-      </div>
+      </Card>
 
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
       {softSkillModalId && <EmployeeSoftSkillModal employeeId={softSkillModalId} onClose={() => setSoftSkillModalId(null)} />}

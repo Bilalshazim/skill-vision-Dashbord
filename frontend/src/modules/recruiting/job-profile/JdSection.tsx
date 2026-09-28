@@ -7,7 +7,7 @@ import { JD_LEVELS } from '@/modules/recruiting/lib/jd-presets'
 import type { JdSection as JdSectionData } from '@/modules/recruiting/lib/jd-types'
 
 export const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // See admin/CipAdminPage.tsx's identical comment.
 const addBtnClass = buttonVariants({ size: 'icon' })
 
@@ -140,7 +140,7 @@ export function JdSection({ section, onChange }: { section: JdSectionData; onCha
           type="button"
           onClick={() => onChange({ ...section, selected: section.selected === l ? null : l })}
           className={cn(
-            'rounded-md border px-3.5 py-2 text-[12.5px] font-medium transition-colors',
+            'rounded-sm border px-3.5 py-2 text-[12.5px] font-medium transition-colors',
             section.selected === l ? 'border-primary bg-primary/10 font-semibold text-foreground' : 'border-border text-muted-foreground hover:border-ring',
           )}
         >

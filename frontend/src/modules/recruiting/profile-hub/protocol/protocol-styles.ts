@@ -8,7 +8,7 @@ import { buttonVariants } from '@/components/ui/button'
 // exporting both.
 
 export const inputClass =
-  'w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
+  'w-full rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
 export const textareaClass = cn(inputClass, 'min-h-[64px] resize-y')
 export const selectClass = cn(inputClass, 'appearance-auto')
 
@@ -17,7 +17,7 @@ export const dangerBtnClass = buttonVariants({ variant: 'destructive', size: 'sm
 export const primaryBtnClass = buttonVariants({ size: 'sm' })
 export const dashedBtnClass = cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'self-start border-dashed')
 
-export const tableWrapClass = 'overflow-x-auto rounded-md border border-border'
+export const tableWrapClass = 'overflow-x-auto rounded-sm border border-border'
 export const tableClass = 'w-full min-w-[520px] border-collapse text-[12px]'
 export const thClass = 'border-b border-border bg-secondary px-2 py-1.5 text-left font-semibold text-muted-foreground'
 export const tdClass = 'border-b border-border px-2 py-1.5 align-top'

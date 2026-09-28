@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle2, ClipboardList, Loader2, Send, UserCircle2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+import { Card } from '@/components/ui/card'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ApiError } from '@/lib/api/client'
@@ -13,7 +14,7 @@ import { EmptyState } from '@/modules/recruiting/components/EmptyState'
 const ROLE_LABEL: Record<string, string> = { HR: 'HR', MANAGER: 'Manager', DIRETTORE_HR: 'Direttore HR', ALTRO: 'Altro' }
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // See admin/CipAdminPage.tsx's identical comment — 'default' size (not
 // 'sm') since this was already the page's main Save/Submit action, at the
 // larger px-4/py-2 scale.
@@ -97,7 +98,7 @@ export function EvaluatorWorkspace({ evaluatorToken }: { evaluatorToken?: string
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary px-4 py-3">
+      <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary px-4 py-3">
         <UserCircle2 className="size-8 shrink-0 text-muted-foreground" aria-hidden="true" />
         <div className="min-w-0">
           <div className="text-[13.5px] font-semibold">{evaluator.fullName}</div>
@@ -119,7 +120,7 @@ export function EvaluatorWorkspace({ evaluatorToken }: { evaluatorToken?: string
                 type="button"
                 onClick={() => setSelectedId(a.campaignCandidateId)}
                 className={cn(
-                  'flex flex-col items-start gap-0.5 rounded-md border px-3 py-2.5 text-left text-[12.5px] transition-colors',
+                  'flex flex-col items-start gap-0.5 rounded-sm border px-3 py-2.5 text-left text-[12.5px] transition-colors',
                   a.campaignCandidateId === selectedId ? 'border-primary/30 bg-primary/10' : 'border-border hover:border-ring',
                 )}
               >
@@ -214,7 +215,7 @@ function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignmen
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-sm p-5">
+    <Card>
       <div className="mb-3">
         <div className="text-[15px] font-semibold">{assignment.candidate.fullName}</div>
         <div className="text-[12px] text-muted-foreground">
@@ -223,7 +224,7 @@ function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignmen
       </div>
 
       {isSubmitted ? (
-        <div className="flex items-start gap-2 rounded-md border border-success/30 bg-success/10 px-3.5 py-3 text-[13px] text-success">
+        <div className="flex items-start gap-2 rounded-sm border border-success/30 bg-success/10 px-3.5 py-3 text-[13px] text-success">
           <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <div>
             <div className="font-semibold">Valutazione già inviata — non modificabile.</div>
@@ -273,6 +274,6 @@ function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignmen
           )}
         </div>
       )}
-    </div>
+    </Card>
   )
 }

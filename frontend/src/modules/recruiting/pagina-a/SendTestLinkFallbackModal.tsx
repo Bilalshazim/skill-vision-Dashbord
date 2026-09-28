@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { setPrescreenStatus } from '@/modules/recruiting/lib/pipeline'
 import type { Candidate, PrescreenedEntry } from '@/modules/recruiting/lib/types'
+import { Button } from '@/components/ui/button'
 
 // Fallback path for "Invia Lettera e Link Test" (Migliori Candidati) when
 // the real backend dispatch can't complete — the active opening's company
@@ -85,7 +86,7 @@ export function SendTestLinkFallbackModal({
 
         <div className="flex min-w-0 flex-col gap-1.5">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Link test</div>
-          <div className="min-w-0 rounded-md border border-border bg-secondary px-3 py-2">
+          <div className="min-w-0 rounded-sm border border-border bg-secondary px-3 py-2">
             <code className="block min-w-0 truncate text-[12px]">{entry.testLink}</code>
           </div>
           {copied && <p className="text-[11px] font-medium text-success">Link copiato negli appunti.</p>}
@@ -98,14 +99,15 @@ export function SendTestLinkFallbackModal({
         )}
 
         <DialogFooter className="min-w-0 flex-col items-stretch gap-2 border-t border-border pt-4 sm:flex-col sm:items-stretch sm:justify-start">
-          <button
+          <Button
             type="button"
             onClick={handleCopy}
-            className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[11.5px] font-medium text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            variant="outline"
+            size="sm"
           >
             <Copy className="size-3.5 shrink-0" aria-hidden="true" />
             Copia link test
-          </button>
+          </Button>
           {mailto ? (
             <a
               href={mailto}
@@ -117,14 +119,14 @@ export function SendTestLinkFallbackModal({
           ) : (
             <p className="text-[11px] text-muted-foreground">Nessuna email per questo candidato — copia il link e invialo tramite un altro canale.</p>
           )}
-          <button
+          <Button
             type="button"
             onClick={handleMarkSent}
-            className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-[11.5px] font-medium text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            size="sm"
           >
             <CheckCircle2 className="size-3.5 shrink-0" aria-hidden="true" />
             Segna come inviato
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

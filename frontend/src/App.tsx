@@ -43,11 +43,16 @@ const AssessmentSoftPage = lazy(() => import('@/modules/assessment/pages/Assessm
 const AssessmentSoftRisultatiPage = lazy(() => import('@/modules/assessment/pages/AssessmentSoftRisultatiPage'))
 const AssessmentValorePage = lazy(() => import('@/modules/assessment/pages/AssessmentValorePage'))
 
+// Catalogo dei componenti: solo in sviluppo. In produzione la condizione è
+// falsa già in compilazione e il modulo non entra nella build.
+const ComponentCatalog = import.meta.env.DEV ? lazy(() => import('@/dev/ComponentCatalog')) : null
+
 function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={null}>
         <Routes>
+          {ComponentCatalog && <Route path="dev/components" element={<ComponentCatalog />} />}
           {/* "Home" has no React route: the legacy shell's own landing page
               (index.html's #sv-landing) is the single source of truth for it
               — see nav-config.ts / Topbar.tsx. AppShell wraps Recruiting alone. */}

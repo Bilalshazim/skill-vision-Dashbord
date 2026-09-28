@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { Hint } from '@/components/patterns/Hint'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/modules/assessment/components/Modal'
 import { COLLABORATOR_LETTER_TEMPLATE } from '@/modules/assessment/lib/demo-data'
@@ -201,10 +203,9 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
             const rec = byId.get(r.id)
             return (
               <div className="survey-emp-row" key={r.id}>
-                <span className={`chip ${r.success ? 'chip-green' : 'chip-red'}`}>
-                  <span className="dt" />
+                <Badge tone={r.success ? 'success' : 'destructive'} dot>
                   {r.success ? ui.surveySendResultsOkLabel : ui.surveySendResultsFailLabel}
-                </span>
+                </Badge>
                 <div style={{ flex: 1 }}>
                   <div className="survey-emp-name">{rec?.name || r.email}</div>
                   <div className="survey-emp-email">
@@ -273,7 +274,7 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
                   <div className="survey-emp-name">
                     {e.nome} {e.cognome}
                   </div>
-                  <div className="survey-emp-email">{hasEmail ? e.email : <span className="chip chip-gray">{ui.surveyNoEmailBadge}</span>}</div>
+                  <div className="survey-emp-email">{hasEmail ? e.email : <Badge>{ui.surveyNoEmailBadge}</Badge>}</div>
                 </div>
               </div>
             )
@@ -301,9 +302,11 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
         {!apiConfigured && <span className="small-note" style={{ color: 'var(--warning)' }}>{ui.toastSurveyApiNotConfigured}</span>}
         {!apiConfigured && (
-          <Button variant="outline" size="sm" onClick={mailtoFallback} title={ui.surveyMailtoFallbackHint}>
-            {ui.surveyMailtoFallbackBtn}
-          </Button>
+          <Hint label={ui.surveyMailtoFallbackHint}>
+            <Button variant="outline" size="sm" onClick={mailtoFallback}>
+              {ui.surveyMailtoFallbackBtn}
+            </Button>
+          </Hint>
         )}
         <Button variant="default" disabled={sending} onClick={submitSend}>
           {sending ? ui.toastSurveySending(selected.size) : ui.surveyInviaBtn}

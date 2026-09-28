@@ -1,14 +1,15 @@
 import { AlertTriangle, CheckCircle2, Clock3, Loader2, MessageSquare, Plus, Save, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
-import { buttonVariants } from '@/components/ui/button'
+import { Hint } from '@/components/patterns/Hint'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { EmptyState } from '@/modules/recruiting/components/EmptyState'
 import { addInterview, plDateFmt, removeInterview, saveInterviewScorecard } from '@/modules/recruiting/lib/pipeline'
 import type { Interview, TestResult } from '@/modules/recruiting/lib/types'
 import { cn } from '@/lib/utils'
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // See admin/CipAdminPage.tsx's identical comment.
 const primaryBtnClass = buttonVariants({ size: 'sm' })
 
@@ -121,25 +122,28 @@ function InterviewRow({
           placeholder="Note del colloquio…"
           className={cn(inputClass, 'min-w-[160px] flex-1')}
         />
-        <button
+        <Button
           type="button"
           onClick={handleSave}
           disabled={pending}
-          className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
+          variant="secondary"
+          size="sm"
         >
           {pending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Save className="size-3.5 shrink-0" aria-hidden="true" />}
           Salva scorecard
-        </button>
-        <button
-          type="button"
-          onClick={handleRemove}
-          disabled={pending}
-          title="Rimuovi"
-          aria-label="Rimuovi colloquio"
-          className="inline-flex items-center justify-center rounded-md border border-border p-1.5 text-destructive transition-colors hover:border-destructive/40 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {pending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Trash2 className="size-3.5 shrink-0" aria-hidden="true" />}
-        </button>
+        </Button>
+        <Hint label="Rimuovi">
+          <Button
+            type="button"
+            onClick={handleRemove}
+            disabled={pending}
+            aria-label="Rimuovi colloquio"
+            variant="destructive"
+            size="icon-sm"
+          >
+            {pending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Trash2 className="size-3.5 shrink-0" aria-hidden="true" />}
+          </Button>
+        </Hint>
       </div>
       {state.kind === 'error' && <ErrorNote message={state.message} />}
     </div>
@@ -198,7 +202,7 @@ export function InterviewList({
 
   return (
     <div>
-      <div className="mb-3 flex flex-col gap-2 rounded-md bg-secondary p-3">
+      <div className="mb-3 flex flex-col gap-2 rounded-sm bg-secondary p-3">
         <div className="flex flex-wrap items-center gap-2">
           <select value={candidateId} onChange={(e) => setCandidateId(e.target.value)} disabled={addPending} className={cn(inputClass, 'max-w-[220px]')}>
             <option value="">{testResults.length ? 'Seleziona candidato testato…' : '(nessun candidato testato)'}</option>

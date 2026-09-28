@@ -46,7 +46,7 @@ function LockedScreen({ module, companyId, onUnlocked }: { module: PlatformModul
               onChange={(e) => setCode(e.target.value)}
               placeholder="Codice di attivazione"
               required
-              className="h-9 rounded-md border border-border bg-card px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              className="h-9 rounded-sm border border-border bg-card px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             />
             {error && (
               <p role="alert" className="text-sm text-destructive">

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { Badge } from '@/components/ui/badge'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { AnalisiWizard } from '@/modules/assessment/components/AnalisiWizard'
@@ -83,7 +85,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
   const heroText = phcv >= 7.5 ? ui.exiHeroTextHigh : phcv >= 6 ? ui.exiHeroTextMid : phcv >= 4.5 ? ui.exiHeroTextLow : ui.exiHeroTextCritical
 
   const KS = [
-    { v: v1, color: 'var(--accent)', label: ui.exiK1Label, sub: ui.exiK1Sub, inverted: false },
+    { v: v1, color: 'var(--primary)', label: ui.exiK1Label, sub: ui.exiK1Sub, inverted: false },
     { v: v2, color: 'var(--success)', label: ui.exiK2Label, sub: ui.exiK2Sub, inverted: false },
     { v: v4, color: 'var(--gold)', label: ui.exiK4Label, sub: ui.exiK4Sub, inverted: false },
     { v: v5, color: 'var(--danger)', label: ui.exiK5Label, sub: ui.exiK5Sub, inverted: true },
@@ -235,14 +237,14 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
         })}
       </div>
 
-      <div className="card exi-gapbox">
-        <div className="card-title-row">
-          <div className="card-title">{ui.exiGapTitle}</div>
-        </div>
+      <Card className="exi-gapbox">
+        <CardHeader>
+          <CardTitle>{ui.exiGapTitle}</CardTitle>
+        </CardHeader>
         <div className="exi-gap-row">
           <div className="exi-gap-lbl">{ui.exiGapLabel1}</div>
           <div className="exi-gap-track">
-            <div className="exi-gap-fill" style={{ width: `${v1 * 10}%`, background: 'var(--accent)' }} />
+            <div className="exi-gap-fill" style={{ width: `${v1 * 10}%`, background: 'var(--primary)' }} />
           </div>
           <div className="exi-gap-v" style={{ color: 'var(--accent-dark)' }}>
             {fmt1(v1)}
@@ -265,16 +267,16 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
           {/* gapText (exiGapTextNegative/...) carries <strong> tags — see exi-kpi-l note above. */}
           <div className="exi-gap-sum-t" dangerouslySetInnerHTML={{ __html: gapText }} />
         </div>
-      </div>
+      </Card>
 
-      <div className="card exi-gapbox">
-        <div className="card-title-row">
-          <div className="card-title">{ui.exiAreasTitle}</div>
-        </div>
+      <Card className="exi-gapbox">
+        <CardHeader>
+          <CardTitle>{ui.exiAreasTitle}</CardTitle>
+        </CardHeader>
         {areaKeys.length ? (
           areaKeys.map((i) => {
             const v = a.aree[i]
-            const c = v >= 8 ? 'var(--danger)' : v >= 6 ? 'var(--warning)' : 'var(--accent)'
+            const c = v >= 8 ? 'var(--danger)' : v >= 6 ? 'var(--warning)' : 'var(--primary)'
             return (
               <div className="exi-gap-row" key={i}>
                 <div className="exi-gap-lbl">{ui.exiAreas[Number(i)] || ''}</div>
@@ -290,33 +292,33 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
         ) : (
           <div className="small-note">{ui.exiAreasEmpty}</div>
         )}
-      </div>
+      </Card>
 
-      <div className="card exi-ans">
+      <Card className="exi-ans">
         <div className="exi-ans-q">{ui.exiQ1Eyebrow}</div>
         <div className="exi-ans-t">{ui.exiAns1Title}</div>
         <div className="exi-ans-v" style={{ color: exiScoreTier(v1, lang).color }}>
           {fmt1(v1)} {ui.exiPointsOf10} — {exiScoreTier(v1, lang).label}
         </div>
         {a.q1c && <div className="exi-ans-quote">"{a.q1c}"</div>}
-      </div>
-      <div className="card exi-ans">
+      </Card>
+      <Card className="exi-ans">
         <div className="exi-ans-q">{ui.exiQ2Eyebrow}</div>
         <div className="exi-ans-t">{ui.exiAns2Title}</div>
         <div className="exi-ans-v" style={{ color: exiScoreTier(v2, lang).color }}>
           {fmt1(v2)} {ui.exiPointsOf10} — {exiScoreTier(v2, lang).label}
         </div>
         {a.q2c && <div className="exi-ans-quote">"{a.q2c}"</div>}
-      </div>
-      <div className="card exi-ans">
+      </Card>
+      <Card className="exi-ans">
         <div className="exi-ans-q">{ui.exiQ4Eyebrow}</div>
         <div className="exi-ans-t">{ui.exiAns4Title}</div>
         <div className="exi-ans-v" style={{ color: exiScoreTier(v4, lang).color }}>
           {fmt1(v4)} {ui.exiPointsOf10} — {exiScoreTier(v4, lang).label}
         </div>
         {a.q4c && <div className="exi-ans-quote">"{a.q4c}"</div>}
-      </div>
-      <div className="card exi-ans">
+      </Card>
+      <Card className="exi-ans">
         <div className="exi-ans-q">{ui.exiQ5Eyebrow}</div>
         <div className="exi-ans-t">{ui.exiAns5Title}</div>
         <div className="exi-ans-v">
@@ -324,15 +326,15 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
           {risk.length > 0 && (
             <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginTop: 10 }}>
               {risk.map((r, i) => (
-                <span className="chip chip-red" key={i}>
+                <Badge tone="destructive" key={i}>
                   {i + 1}. {r}
-                </span>
+                </Badge>
               ))}
             </div>
           )}
         </div>
-      </div>
-      <div className="card exi-ans">
+      </Card>
+      <Card className="exi-ans">
         <div className="exi-ans-q">{ui.exiQ6Eyebrow}</div>
         <div className="exi-ans-t">{ui.exiAns6Title}</div>
         <div className="exi-ans-v">
@@ -340,15 +342,15 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
           {obj.length > 0 && (
             <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginTop: 10 }}>
               {obj.map((o, i) => (
-                <span className="chip chip-blue" key={i}>
+                <Badge key={i}>
                   {i + 1}. {o}
-                </span>
+                </Badge>
               ))}
             </div>
           )}
         </div>
-      </div>
-      <div className="card exi-ans">
+      </Card>
+      <Card className="exi-ans">
         <div className="exi-ans-q">{ui.exiQ7Eyebrow}</div>
         <div className="exi-ans-t">{ui.exiAns7Title}</div>
         <div className="exi-ans-v">
@@ -356,9 +358,9 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
             <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
               {a.decisioni.map((i) =>
                 ui.exiDecisions[i] ? (
-                  <span className="chip chip-gold" key={i}>
+                  <Badge tone="accent" key={i}>
                     {ui.exiDecisions[i].ic} {ui.exiDecisions[i].nm}
-                  </span>
+                  </Badge>
                 ) : null,
               )}
             </div>
@@ -367,7 +369,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
           )}
         </div>
         {a.q7c && <div className="exi-ans-quote">"{a.q7c}"</div>}
-      </div>
+      </Card>
 
       <div className="exi-cta">
         <h3>{ui.exiCtaTitle}</h3>
@@ -390,7 +392,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
           (AssessmentAiPage.tsx) — this is genuine generative text, so it
           can be slow/fail (network, quota), unlike that page's instant
           local answers. */}
-      <div className="card" style={{ marginTop: 18 }}>
+      <Card  style={{ marginTop: 18 }}>
         <Button variant="default" onClick={requestExpertReview} disabled={expertReview.status === 'loading'}>
           <Icon name="sparkles" />
           {expertReview.status === 'loading' ? ui.exiExpertReviewLoading : ui.exiExpertReviewBtn}
@@ -403,7 +405,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
             {expertReview.text}
           </p>
         )}
-      </div>
+      </Card>
 
       <div className="exi-footer-note" dangerouslySetInnerHTML={{ __html: ui.exiFooterNote }} />
     </div>

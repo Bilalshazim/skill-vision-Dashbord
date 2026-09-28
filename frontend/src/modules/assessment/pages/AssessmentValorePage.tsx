@@ -1,6 +1,9 @@
 import { Minus, TrendingDown, TrendingUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { Badge } from '@/components/ui/badge'
+import { chipTone } from '@/modules/assessment/lib/chip-tone'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AndamentoChart } from '@/modules/assessment/components/AndamentoChart'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
@@ -101,18 +104,18 @@ export default function AssessmentValorePage() {
       </div>
 
       {!both && (
-        <div className="small-note" style={{ marginBottom: 14, padding: '10px 12px', background: 'var(--warning-soft)', border: '1px solid #F0D6A6', borderRadius: 'var(--radius-sm)' }}>
+        <div className="small-note" style={{ marginBottom: 14, padding: '10px 12px', background: 'var(--warning-soft)', border: '1px solid #F0D6A6', borderRadius: 'var(--a-radius-sm)' }}>
           {ui.valoreOnlyModuleNote(state.settings.modulo === 'A' ? ui.valoreModuleALabel : ui.valoreModuleBLabel)}
         </div>
       )}
 
       <div className="valore-top-grid" style={{ marginBottom: 16 }}>
-        <div className="card">
-          <div className="card-title-row">
-            <div className="card-title" style={{ fontSize: 13 }}>
+        <Card>
+          <CardHeader>
+            <CardTitle  style={{ fontSize: 13 }}>
               {ui.valoreClassificationTitle}
-            </div>
-          </div>
+            </CardTitle>
+          </CardHeader>
           <div className="tier-list">
             {TIER_DEFS.map((t) => (
               <div className="tier-row" key={t.key} style={{ padding: '8px 10px' }}>
@@ -129,11 +132,11 @@ export default function AssessmentValorePage() {
           <div className="small-note" style={{ marginTop: 12 }}>
             {ui.valoreIndexNote(both ? ui.valoreIndexBoth : state.settings.modulo === 'A' ? ui.valoreIndexAOnly : ui.valoreIndexBOnly)}
           </div>
-        </div>
-        <div className="card">
-          <div className="card-title-row">
-            <div className="card-title">{ui.homeAndamentoTitle}</div>
-          </div>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{ui.homeAndamentoTitle}</CardTitle>
+          </CardHeader>
           <div className="small-note" style={{ marginBottom: 14 }}>
             {ui.homeAndamentoSub(state.employees.length)}
           </div>
@@ -155,16 +158,16 @@ export default function AssessmentValorePage() {
             {andamentoTrend === 'up' ? ui.homeAndamentoRising : andamentoTrend === 'down' ? ui.homeAndamentoFalling : ui.homeAndamentoStable}
             <span className="small-note">· {ui.homeAndamentoPeriod}</span>
           </div>
-        </div>
+        </Card>
       </div>
 
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="card-title">
+      <Card  style={{ marginBottom: 16 }}>
+        <CardTitle>
           {ui.valoreMatrixTitle} <span className="muted">{ui.valoreMatrixSub}</span>
-        </div>
+        </CardTitle>
         <div className="grid grid-5" style={{ gap: 10, marginTop: 14, alignItems: 'start' }}>
           {TIER_DEFS.map((t) => (
-            <div key={t.key} style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 12 }}>
+            <div key={t.key} style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: 'var(--a-radius-md)', padding: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', background: colors[t.key], display: 'inline-block', flexShrink: 0 }} />
                 <span style={{ fontSize: 11, fontWeight: 800, color: colors[t.key] }}>{t.label}</span>
@@ -187,10 +190,9 @@ export default function AssessmentValorePage() {
                           </div>
                           <div style={{ fontSize: 11, color: 'var(--text-3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.ruolo}</div>
                         </div>
-                        <span className={`chip ${score >= 7 ? 'chip-green' : score >= 5 ? 'chip-amber' : 'chip-red'}`}>
-                          <span className="dt" />
+                        <Badge tone={score >= 7 ? 'success' : score >= 5 ? 'warning' : 'destructive'} dot>
                           {fmt1(score)}
-                        </span>
+                        </Badge>
                       </div>
                     )
                   })
@@ -203,12 +205,12 @@ export default function AssessmentValorePage() {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
-      <div className="card" style={{ padding: 0 }}>
-        <div className="card-title-row" style={{ padding: '16px 20px 0 20px' }}>
-          <div className="card-title">{ui.valoreByEmployeeTitle}</div>
-        </div>
+      <Card  style={{ padding: 0 }}>
+        <CardHeader  style={{ padding: '16px 20px 0 20px' }}>
+          <CardTitle>{ui.valoreByEmployeeTitle}</CardTitle>
+        </CardHeader>
         <div className="table-wrap">
           <table className="dtable">
             <thead>
@@ -259,17 +261,16 @@ export default function AssessmentValorePage() {
                     </td>
                   )}
                   <td>
-                    <span className={`chip ${r.tier.chip}`}>
-                      <span className="dt" />
+                    <Badge tone={chipTone(r.tier.chip)} dot>
                       {r.tier.label}
-                    </span>
+                    </Badge>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
     </div>

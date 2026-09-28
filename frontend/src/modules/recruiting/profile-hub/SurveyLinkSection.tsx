@@ -8,7 +8,7 @@ import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { clearSurveyLink, isValidUrl, loadSurveyLink, saveSurveyLink } from '@/modules/recruiting/lib/profile-hub'
 
 const inputClass =
-  'w-full rounded-md border border-border bg-background px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
+  'w-full rounded-sm border border-border bg-background px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
 const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
 const dangerBtnClass = buttonVariants({ variant: 'destructive', size: 'sm' })
 const primaryBtnClass = buttonVariants({ size: 'sm' })
@@ -78,7 +78,7 @@ export function SurveyLinkSection() {
           <button
             type="button"
             onClick={(e) => e.stopPropagation()}
-            className="flex w-full items-center gap-2.5 rounded-md border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            className="flex w-full items-center gap-2.5 rounded-sm border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <Link2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span className="flex-1 text-[13px] font-medium text-foreground">Survey Link</span>

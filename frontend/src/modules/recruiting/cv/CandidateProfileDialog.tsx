@@ -6,6 +6,7 @@ import { candidateProfilesApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
 import type { BackendCandidateProfile } from '@/lib/api/types'
 import type { Candidate } from '@/modules/recruiting/lib/types'
+import { Button } from '@/components/ui/button'
 
 const STATUS_LABEL: Record<BackendCandidateProfile['status'], string> = {
   DRAFT: 'Bozza',
@@ -87,13 +88,14 @@ export function CandidateProfileDialog({ candidate }: { candidate: Candidate }) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button
+        <Button
           type="button"
-          className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3 py-1.5 text-[11.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+          variant="outline"
+          size="sm"
         >
           <ClipboardList className="size-3.5 shrink-0" aria-hidden="true" />
           Profilo candidatura
-        </button>
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -120,7 +122,7 @@ export function CandidateProfileDialog({ candidate }: { candidate: Candidate }) 
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
               placeholder="Note sul profilo candidatura (contenuto salvato sul server)…"
-              className="rounded-md border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              className="rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             />
             {state.profile.publicationLink && (
               <p className="text-[11.5px] text-muted-foreground">
@@ -133,35 +135,37 @@ export function CandidateProfileDialog({ candidate }: { candidate: Candidate }) 
         <DialogFooter className="flex-col items-stretch gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-end">
           {state.kind === 'ready' && (
             <>
-              <button
+              <Button
                 type="button"
                 onClick={handleSave}
                 disabled={actionPending}
-                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-semibold text-foreground transition-colors hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
+                size="sm"
               >
                 {actionPending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : null}
                 Salva
-              </button>
+              </Button>
               {state.profile.status === 'SAVED' && (
-                <button
+                <Button
                   type="button"
                   onClick={() => handleApprove(state.profile)}
                   disabled={actionPending}
-                  className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3 py-1.5 text-[11.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                  variant="outline"
+                  size="sm"
                 >
                   Approva
-                </button>
+                </Button>
               )}
               {(state.profile.status === 'APPROVED' || state.profile.status === 'PUBLICATION_READY') && (
-                <button
+                <Button
                   type="button"
                   onClick={() => handlePublish(state.profile)}
                   disabled={actionPending}
-                  className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-warning/40 bg-warning/15 px-3 py-1.5 text-[11.5px] font-semibold text-foreground transition-colors hover:bg-warning/25 disabled:cursor-not-allowed disabled:opacity-60"
+                  variant="warning"
+                  size="sm"
                 >
                   <Send className="size-3.5 shrink-0" aria-hidden="true" />
                   Pubblica
-                </button>
+                </Button>
               )}
             </>
           )}

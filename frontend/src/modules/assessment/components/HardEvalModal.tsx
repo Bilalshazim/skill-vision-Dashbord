@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/modules/assessment/components/Modal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
@@ -168,9 +169,9 @@ export function HardEvalModal({ onClose }: { onClose: () => void }) {
               </div>
               <input className="sslider" type="range" min={1} max={10} step={1} value={values[it.cod] ?? 6} onChange={(e) => setValues((prev) => ({ ...prev, [it.cod]: Number(e.target.value) }))} />
               <div className="sval">{values[it.cod] ?? 6}</div>
-              <span className="chip chip-gray" style={{ flexShrink: 0 }}>
+              <Badge style={{ flexShrink: 0 }}>
                 {ui.hardExpChip}
-              </span>
+              </Badge>
             </div>
           ))}
         </div>

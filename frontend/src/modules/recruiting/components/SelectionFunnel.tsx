@@ -94,7 +94,7 @@ export function SelectionFunnel({ stages }: { stages: FunnelStage[] }) {
             return (
               <div
                 key={s.key}
-                className="flex items-center gap-2.5 rounded-md px-1.5 py-1 transition-opacity hover:bg-secondary/60"
+                className="flex items-center gap-2.5 rounded-sm px-1.5 py-1 transition-opacity hover:bg-secondary/60"
                 style={{ opacity: hovered === null || hovered === i ? 1 : 0.4 }}
                 onMouseEnter={() => setHovered(i)}
                 onMouseLeave={() => setHovered(null)}

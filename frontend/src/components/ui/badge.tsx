@@ -3,34 +3,41 @@ import type * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-// Harmonized with Assessment's .chip/.chip-* system (frontend/src/modules/
-// assessment/styles/assessment-scoped.css:347-359) — same pill shape, gap,
-// font-size/weight, and small leading dot, so a status pill looks
-// identical whether it's rendered by Assessment's own markup or by this
-// component in Recruiting. Recruiting had no shared badge component before
-// this — every status pill was a hand-composed Tailwind string, drifting
-// in size/casing from file to file (see PrescreenedList.tsx's old inline
-// "auto" pill for one example) — this replaces those call sites.
-const badgeVariants = cva('inline-flex items-center gap-[5px] whitespace-nowrap rounded-full px-[9px] py-[3px] text-[11px] font-bold', {
+// Il badge della libreria. Un tag è stile label (Geist Mono maiuscolo,
+// 11px): tre o quattro parole al massimo. Raggio full, come da scala.
+// I toni di stato usano i fondi tenui del sistema (12% di superficie, 20%
+// di bordo) e vanno sempre con la parola: il colore accompagna, non
+// sostituisce (regola 10). Nessun tono decorativo.
+const badgeVariants = cva('label-mono inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1', {
   variants: {
     tone: {
-      green: 'bg-success/16 text-success',
-      amber: 'bg-warning/16 text-warning',
-      red: 'bg-destructive/16 text-destructive',
-      blue: 'bg-primary/12 text-ring',
-      gray: 'border border-border bg-secondary text-muted-foreground',
+      neutral: 'border border-border bg-secondary text-muted-foreground',
+      accent: 'surface-accent text-foreground',
+      success: 'surface-success text-success',
+      warning: 'surface-warning text-warning',
+      destructive: 'surface-danger text-destructive',
     },
   },
   defaultVariants: {
-    tone: 'gray',
+    tone: 'neutral',
   },
 })
 
-export function Badge({ tone, dot = true, className, children, ...props }: React.ComponentProps<'span'> & VariantProps<typeof badgeVariants> & { dot?: boolean }) {
+type BadgeTone = NonNullable<VariantProps<typeof badgeVariants>['tone']>
+
+function Badge({
+  tone,
+  dot = false,
+  className,
+  children,
+  ...props
+}: React.ComponentProps<'span'> & VariantProps<typeof badgeVariants> & { dot?: boolean }) {
   return (
     <span data-slot="badge" className={cn(badgeVariants({ tone }), className)} {...props}>
-      {dot && <span className="size-[6px] shrink-0 rounded-full bg-current" aria-hidden="true" />}
+      {dot && <span className="size-1.5 shrink-0 rounded-full bg-current" aria-hidden="true" />}
       {children}
     </span>
   )
 }
+
+export { Badge, type BadgeTone }

@@ -1,7 +1,7 @@
 import { CheckCircle2, Clock3, Link2, Loader2, Send, SendHorizonal, XCircle } from 'lucide-react'
 import { useState } from 'react'
 
-import { Badge } from '@/components/ui/badge'
+import { Badge, type BadgeTone } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { CvMatchDialog } from '@/modules/recruiting/cv/CvMatchDialog'
 import { CvOpenButton } from '@/modules/recruiting/cv/CvOpenButton'
@@ -10,11 +10,12 @@ import { addPrescreenedEntry, getActiveOpening } from '@/modules/recruiting/lib/
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import { SendTestLinkFallbackModal } from '@/modules/recruiting/pagina-a/SendTestLinkFallbackModal'
 import type { Candidate, PrescreenedEntry, PrescreenStatus } from '@/modules/recruiting/lib/types'
+import { Button } from '@/components/ui/button'
 
 const NO_ACTIVE_OPENING_MESSAGE = 'Seleziona prima una company/opening nella pagina CV & Esportazione'
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 type SaveState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string } | { kind: 'warning'; message: string }
 const IDLE: SaveState = { kind: 'idle' }
@@ -25,17 +26,17 @@ const IDLE: SaveState = { kind: 'idle' }
 // (or no prescreened record at all yet) is the only state with the
 // "Invia Lettera e Link Test" trigger — every other state means a real
 // send already happened, tracked server-side.
-const STATUS_STYLE: Record<PrescreenStatus, { icon: typeof Clock3; label: string; tone: 'red' | 'amber' | 'green' }> = {
-  da_inviare: { icon: Clock3, label: 'Da inviare', tone: 'red' },
+const STATUS_STYLE: Record<PrescreenStatus, { icon: typeof Clock3; label: string; tone: BadgeTone }> = {
+  da_inviare: { icon: Clock3, label: 'Da inviare', tone: 'destructive' },
   // Local-only: a real test link exists and is ready, but no email
   // provider is configured on this backend, so nothing was actually sent
   // yet — see lib/types.ts's PrescreenStatus comment for why this is its
   // own state rather than reusing 'inviato'.
-  link_pronto: { icon: Link2, label: 'Link pronto', tone: 'amber' },
-  inviato: { icon: SendHorizonal, label: 'Inviato', tone: 'amber' },
-  completato: { icon: CheckCircle2, label: 'Test completato', tone: 'green' },
-  ha_risposto: { icon: CheckCircle2, label: 'Ha risposto al test', tone: 'green' },
-  non_ha_risposto: { icon: XCircle, label: 'Non ha ancora risposto', tone: 'red' },
+  link_pronto: { icon: Link2, label: 'Link pronto', tone: 'warning' },
+  inviato: { icon: SendHorizonal, label: 'Inviato', tone: 'warning' },
+  completato: { icon: CheckCircle2, label: 'Test completato', tone: 'success' },
+  ha_risposto: { icon: CheckCircle2, label: 'Ha risposto al test', tone: 'success' },
+  non_ha_risposto: { icon: XCircle, label: 'Non ha ancora risposto', tone: 'destructive' },
 }
 
 // One row = one pending candidate. Migrated from renderPaginaA()'s
@@ -210,7 +211,7 @@ export function PaginaACandidateRow({
       </div>
 
       <div className="flex shrink-0 flex-col items-end gap-1">
-        <Badge tone={STATUS_STYLE[status].tone} dot={false}>
+        <Badge tone={STATUS_STYLE[status].tone}>
           {(() => {
             const Icon = STATUS_STYLE[status].icon
             return <Icon className="size-3 shrink-0" aria-hidden="true" />
@@ -218,25 +219,27 @@ export function PaginaACandidateRow({
           {STATUS_STYLE[status].label}
         </Badge>
         {status === 'da_inviare' && (
-          <button
+          <Button
             type="button"
             onClick={handleSingleSend}
             disabled={sendState.kind === 'pending'}
-            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
+            variant="outline"
+            size="sm"
           >
             {sendState.kind === 'pending' ? <Loader2 className="size-3 shrink-0 animate-spin" aria-hidden="true" /> : <Send className="size-3 shrink-0" aria-hidden="true" />}
             Invia Lettera e Link Test
-          </button>
+          </Button>
         )}
         {status === 'link_pronto' && prescreened && (
-          <button
+          <Button
             type="button"
             onClick={() => setFallback({ open: true, entry: prescreened, reasonMessage: 'Nessun provider email configurato su questo server.' })}
-            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            variant="outline"
+            size="sm"
           >
             <Link2 className="size-3 shrink-0" aria-hidden="true" />
             Invia manualmente
-          </button>
+          </Button>
         )}
         {sendState.kind === 'error' && (
           <div className="max-w-[190px] text-right">

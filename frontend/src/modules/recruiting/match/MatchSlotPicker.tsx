@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 import type { Candidate } from '@/modules/recruiting/lib/types'
 
 const selectClass =
-  'w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'w-full rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 // Migrated from _buildMatchSlots()/_pickMatchSlot()/_renderSlotPreview()
 // (modules/recruiting.html ~4911-4951) — one dropdown + small preview per
@@ -32,7 +32,7 @@ export function MatchSlotPicker({
   return (
     <div
       className={cn(
-        'flex flex-col gap-2 rounded-md border border-border bg-card p-3 transition-colors',
+        'flex flex-col gap-2 rounded-sm border border-border bg-card p-3 transition-colors',
         selectedId && (filled === 'it' ? 'border-warning/40 bg-warning/5' : 'border-primary/40 bg-primary/5'),
       )}
     >

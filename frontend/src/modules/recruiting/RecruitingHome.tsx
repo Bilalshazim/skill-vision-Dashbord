@@ -37,7 +37,7 @@ function exportHomeSummary(data: RecruitingHomeData): void {
 // moment for the module without losing the dashboard.
 function StartHero() {
   return (
-    <div className="rounded-xl border border-border bg-gradient-to-br from-primary/10 via-card to-card px-6 py-8 sm:px-8 sm:py-10">
+    <div className="rounded-lg border border-border bg-gradient-to-br from-primary/10 via-card to-card px-6 py-8 sm:px-8 sm:py-10">
       <div className="flex items-center gap-2">
         {/* The official Recruiting module icon — the exact same glyph as
             the legacy landing page's "Cruscotto Recruiting" card and the
@@ -92,7 +92,7 @@ export default function RecruitingHome() {
           has no creation timestamp in lib/types.ts — so it's honestly
           omitted rather than fabricated. KpiCard.tsx is left in place,
           unused. */}
-      <Card className="p-6">
+      <Card>
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">Panoramica Candidati</div>
@@ -137,10 +137,10 @@ export default function RecruitingHome() {
           is identical to before — grid auto-placement fills row-major,
           same as the two stacks did. */}
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[2fr_1fr]">
-        <Card className="p-6">
-          <CardHeader className="flex-row items-start justify-between p-0 pb-4">
+        <Card>
+          <CardHeader>
             <div>
-              <CardTitle className="text-sm">Candidati per fascia di idoneità</CardTitle>
+              <CardTitle>Candidati per fascia di idoneità</CardTitle>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 {data.rankedCount} candidati · ruolo attivo: <b className="font-semibold text-foreground">{data.roleLabel}</b>
               </p>
@@ -149,7 +149,7 @@ export default function RecruitingHome() {
               Vedi ranking <ArrowUpRight className="size-3.5" />
             </Link>
           </CardHeader>
-          <CardContent className="overflow-x-auto p-0">
+          <CardContent className="overflow-x-auto">
             {data.rankedCount ? (
               <>
                 {/* 3 of the 4 real buckets get a KPI tile, matching the
@@ -174,30 +174,30 @@ export default function RecruitingHome() {
           </CardContent>
         </Card>
 
-        <Card className="p-6">
-          <CardHeader className="p-0 pb-4">
-            <CardTitle className="text-sm">Imbuto di Selezione</CardTitle>
+        <Card>
+          <CardHeader>
+            <CardTitle>Imbuto di Selezione</CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent>
             <SelectionFunnel stages={data.funnel} />
           </CardContent>
         </Card>
 
-        <Card className="p-6">
-          <CardHeader className="p-0 pb-4">
-            <CardTitle className="text-sm">Posizioni aperte</CardTitle>
+        <Card>
+          <CardHeader>
+            <CardTitle>Posizioni aperte</CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent>
             <OpeningsList openings={data.openings} />
           </CardContent>
         </Card>
 
-        <Card className="p-6">
-          <CardHeader className="p-0 pb-3">
-            <CardTitle className="text-sm">Prossimi colloqui</CardTitle>
+        <Card>
+          <CardHeader>
+            <CardTitle>Prossimi colloqui</CardTitle>
             <p className="mt-0.5 text-xs text-muted-foreground">Ordinati per data</p>
           </CardHeader>
-          <div className="flex gap-1 rounded-md bg-secondary p-0.5">
+          <div className="flex gap-1 rounded-sm bg-secondary p-0.5">
             <button
               className={`flex-1 rounded-[5px] px-2 py-1.5 text-[11.5px] font-semibold ${interviewsTab === 'arrivo' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
               onClick={() => setInterviewsTab('arrivo')}
@@ -211,7 +211,7 @@ export default function RecruitingHome() {
               Completati
             </button>
           </div>
-          <CardContent className="p-0 pt-3">
+          <CardContent className="pt-3">
             {interviewsTab === 'arrivo' ? (
               <UpcomingList upcoming={data.upcoming} />
             ) : (
@@ -219,7 +219,7 @@ export default function RecruitingHome() {
             )}
             <Link
               to="/recruiting/pipeline"
-              className="mt-3 flex w-full items-center justify-center gap-1 rounded-md border border-border py-2 text-[12.5px] font-semibold text-foreground hover:bg-secondary"
+              className="mt-3 flex w-full items-center justify-center gap-1 rounded-sm border border-border py-2 text-[12.5px] font-semibold text-foreground hover:bg-secondary"
             >
               Vedi tutti i colloqui <ArrowUpRight className="size-3.5" />
             </Link>

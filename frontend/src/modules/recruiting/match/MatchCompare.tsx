@@ -38,7 +38,7 @@ const TONE_BAR_CLASS: Record<string, string> = {
 export function MatchCompare({ picks }: { picks: MatchPick[] }) {
   if (picks.length < 2) {
     return (
-      <div className="rounded-md border border-border bg-card p-6 text-center text-[13px] text-muted-foreground">
+      <div className="rounded-sm border border-border bg-card p-6 text-center text-[13px] text-muted-foreground">
         {picks.length === 1 ? 'Seleziona almeno un altro profilo per avviare il confronto' : 'Seleziona 2 o più profili per confrontarli'}
       </div>
     )
@@ -71,7 +71,7 @@ export function MatchCompare({ picks }: { picks: MatchPick[] }) {
   })
 
   return (
-    <div className="rounded-md border border-border bg-card p-5">
+    <div className="rounded-sm border border-border bg-card p-5">
       <div className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Gap Analysis — soft skill</div>
 
       <div className="mb-2 flex flex-wrap items-center gap-2 text-[12px] font-semibold">

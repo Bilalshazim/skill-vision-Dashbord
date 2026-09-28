@@ -28,7 +28,7 @@ export function OpeningsList({ openings }: { openings: OpeningRow[] }) {
         <Link
           key={o.key}
           to={`/recruiting/pipeline?companyId=${encodeURIComponent(o.companyId)}&openingId=${encodeURIComponent(o.openingId)}`}
-          className="flex items-center justify-between gap-4 rounded-md border-b border-border py-3 transition-colors last:border-0 hover:bg-accent/50 sm:flex-row flex-col sm:items-center items-start"
+          className="flex items-center justify-between gap-4 rounded-sm border-b border-border py-3 transition-colors last:border-0 hover:bg-accent/50 sm:flex-row flex-col sm:items-center items-start"
         >
           <div>
             <div className="text-[10.5px] uppercase tracking-wide text-muted-foreground">{o.companyName}</div>

@@ -2,8 +2,8 @@ import { Eye, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { cn } from '@/lib/utils'
 import { resolveCandidateCvUrl } from '@/modules/recruiting/lib/backend-sync'
+import { Button } from '@/components/ui/button'
 
 type ViewState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'ready'; url: string } | { kind: 'error'; message: string }
 
@@ -39,22 +39,21 @@ export function CvInlineViewerButton({ backendCvId, candidateName, className }: 
         if (!next) setState({ kind: 'idle' })
       }}
     >
-      <button
+      <Button
         type="button"
         onClick={handleOpen}
-        className={cn(
-          'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3 py-1.5 text-[11.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
-          className,
-        )}
+        variant="outline"
+        size="sm"
+        className={className}
       >
         <Eye className="size-3.5 shrink-0" aria-hidden="true" />
         Visualizza CV
-      </button>
+      </Button>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>CV — {candidateName}</DialogTitle>
         </DialogHeader>
-        <div className="h-[70vh] w-full overflow-hidden rounded-md border border-border bg-secondary">
+        <div className="h-[70vh] w-full overflow-hidden rounded-sm border border-border bg-secondary">
           {state.kind === 'pending' && (
             <div className="flex h-full items-center justify-center">
               <Loader2 className="size-6 animate-spin text-muted-foreground" aria-hidden="true" />

@@ -8,6 +8,9 @@ import { cn } from '@/lib/utils'
 import { getCachedBackendLink } from '@/modules/recruiting/lib/backend-link'
 import { getActiveOpening, renameCompany, renameOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
+import { Hint } from '@/components/patterns/Hint'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 function EditableField({ label, value, onSave }: { label: string; value: string; onSave: (next: string) => void }) {
   const [editing, setEditing] = useState(false)
@@ -38,17 +41,19 @@ function EditableField({ label, value, onSave }: { label: string; value: string;
                 setEditing(false)
               }
             }}
-            className="w-full rounded-md border border-border bg-background px-2 py-1 text-[14px] font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            className="w-full rounded-sm border border-border bg-background px-2 py-1 text-[14px] font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           />
-          <button
-            type="button"
-            onClick={commit}
-            title="Salva"
-            aria-label="Salva"
-            className="inline-flex shrink-0 items-center justify-center rounded-md border border-border p-1.5 text-muted-foreground hover:text-foreground"
-          >
-            <Check className="size-3.5 shrink-0" aria-hidden="true" />
-          </button>
+          <Hint label="Salva">
+            <Button
+              type="button"
+              onClick={commit}
+              aria-label="Salva"
+              variant="outline"
+              size="icon-sm"
+            >
+              <Check className="size-3.5 shrink-0" aria-hidden="true" />
+            </Button>
+          </Hint>
         </div>
       ) : (
         <button
@@ -120,7 +125,7 @@ export function RecruitingHeader() {
   if (!company || !opening) return null
 
   return (
-    <div className="flex flex-wrap items-center gap-x-8 gap-y-3 rounded-xl border border-border bg-card shadow-sm px-4 py-3">
+    <Card className="flex-row flex-wrap items-center gap-x-8 gap-y-3">
       <EditableField label="Company" value={company.name} onSave={(next) => {
         renameCompany(company.id, next)
         forceRerender((n) => n + 1)
@@ -149,6 +154,6 @@ export function RecruitingHeader() {
           )}
         </div>
       </div>
-    </div>
+    </Card>
   )
 }

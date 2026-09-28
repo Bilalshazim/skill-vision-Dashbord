@@ -39,7 +39,7 @@ export function PipelineDashboard({
             onClick={() => onSelect(card.companyId, card.openingId)}
             aria-pressed={isSelected}
             className={cn(
-              'flex flex-col gap-2.5 rounded-xl border bg-card p-4 text-left shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
+              'flex flex-col gap-2.5 rounded-lg border bg-card p-4 text-left shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
               isSelected ? 'border-primary ring-1 ring-primary' : 'border-border hover:border-ring',
             )}
           >

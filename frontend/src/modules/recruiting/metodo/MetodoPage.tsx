@@ -33,7 +33,7 @@ export default function MetodoPage() {
         </div>
       </div>
 
-      <Card className="p-6">
+      <Card>
         <h3 className="flex items-center gap-2 text-[14.5px] font-semibold">
           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-[11px] text-muted-foreground">1</span>
           Fit Competenze — FC (peso 55%)
@@ -42,7 +42,7 @@ export default function MetodoPage() {
           Misura quanto il candidato copre le skill che <b className="font-semibold text-foreground">tu hai flaggato</b> per il ruolo. Ogni skill ha un
           peso (Essenziale=3, Importante=2, Utile=1) e un target minimo sulla scala APEX /31.
         </p>
-        <div className="my-3 overflow-x-auto rounded-md border border-border bg-secondary px-4 py-3 font-mono text-[15px] font-semibold text-foreground">
+        <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-[15px] font-semibold text-foreground">
           FC = [ Σᵢ wᵢ · min( Sᵢ / Tᵢ , 1 ) / Σᵢ wᵢ ] × 100
         </div>
         <p className="text-[13px] leading-relaxed text-muted-foreground">
@@ -63,7 +63,7 @@ export default function MetodoPage() {
         </p>
       </Card>
 
-      <Card className="p-6">
+      <Card>
         <h3 className="flex items-center gap-2 text-[14.5px] font-semibold">
           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-[11px] text-muted-foreground">2</span>
           Affinità Big Five — AB (peso 30%)
@@ -72,7 +72,7 @@ export default function MetodoPage() {
           Ogni ruolo ha un profilo di personalità ideale (percentili sui 5 fattori, con i sottofattori a supporto). L'affinità è 100 meno la distanza
           media dal profilo ideale.
         </p>
-        <div className="my-3 overflow-x-auto rounded-md border border-border bg-secondary px-4 py-3 font-mono text-[15px] font-semibold text-foreground">
+        <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-[15px] font-semibold text-foreground">
           AB = 100 − ( Σₖ |Pₖ − Iₖ| / 5 )
         </div>
         <p className="text-[13px] leading-relaxed text-muted-foreground">
@@ -93,7 +93,7 @@ export default function MetodoPage() {
         </p>
       </Card>
 
-      <Card className="p-6">
+      <Card>
         <h3 className="flex items-center gap-2 text-[14.5px] font-semibold">
           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-[11px] text-muted-foreground">3</span>
           Indice CV — ICV (peso 15%)
@@ -102,17 +102,17 @@ export default function MetodoPage() {
           Prodotto dal parsing ML del curriculum: anni di esperienza pertinente, coerenza del percorso, settore, segnali di competenza nel testo. Serve
           da contesto, non da giudice: per questo pesa solo il 15%.
         </p>
-        <div className="my-3 overflow-x-auto rounded-md border border-border bg-secondary px-4 py-3 font-mono text-[15px] font-semibold text-foreground">
+        <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-[15px] font-semibold text-foreground">
           ICV = 0.5·Esperienza + 0.3·Coerenza + 0.2·Settore &nbsp;(scala 0–100)
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card>
         <h3 className="flex items-center gap-2 text-[14.5px] font-semibold">
           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-[11px] text-muted-foreground">4</span>
           APEX Hiring Index — la classifica
         </h3>
-        <div className="my-3 overflow-x-auto rounded-md border border-border bg-secondary px-4 py-3 font-mono text-[15px] font-semibold text-foreground">
+        <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-[15px] font-semibold text-foreground">
           AHI = 0.55 · FC + 0.30 · AB + 0.15 · ICV
         </div>
         <p className="text-[13px] leading-relaxed text-muted-foreground">
@@ -150,7 +150,7 @@ export default function MetodoPage() {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card>
         <h3 className="flex items-center gap-2 text-[14.5px] font-semibold">
           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-[11px] text-muted-foreground">5</span>
           Compatibilità Interna — CI (il match con i tuoi)
@@ -159,7 +159,7 @@ export default function MetodoPage() {
           Confronta il candidato con il <b className="font-semibold text-foreground">benchmark interno</b>: il dipendente già valutato APEX che
           performa meglio nel ruolo. Si calcola solo sulle skill flaggate, pesate.
         </p>
-        <div className="my-3 overflow-x-auto rounded-md border border-border bg-secondary px-4 py-3 font-mono text-[14px] font-semibold text-foreground">
+        <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-[14px] font-semibold text-foreground">
           CI = 100 − [ Σᵢ wᵢ · |Sᵢᶜᵃⁿᵈ − Sᵢᵇᵉⁿᶜʰ| / (Σᵢ wᵢ · 31) ] × 100
         </div>
         <p className="text-[13px] leading-relaxed text-muted-foreground">

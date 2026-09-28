@@ -4,6 +4,7 @@ import type { LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { Badge } from '@/components/ui/badge'
 import { CrossModuleBanner } from '@/components/CrossModuleBanner'
 import { lastSixMonthLabels, OrgScoreTrendChart } from '@/modules/assessment/components/OrgScoreTrendChart'
 import { FolderPill } from '@/modules/assessment/components/FolderCard'
@@ -27,6 +28,7 @@ import { fmt1, fmt1it, round1 } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import type { getUI } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentState } from '@/modules/assessment/lib/types'
+import { Button } from '@/components/ui/button'
 
 // Migrated from renderHome() (js/assessment.js ~4464-4726) — same 4 KPI
 // quadrants (Q1 status / Q2 problem areas / Q3 talent classification / Q4
@@ -60,10 +62,10 @@ export default function AssessmentHomePage() {
           {ui.homeModuleCompleteLabel}
         </button>
       </div>
-      <span className="chip chip-green" style={{ gap: 7 }}>
+      <Badge tone="success" style={{ gap: 7 }}>
         <span className="pulse-dot" />
         {ui.homeSystemActive}
-      </span>
+      </Badge>
     </>,
     [ui, both, f.A, f.B],
   )
@@ -181,15 +183,15 @@ export default function AssessmentHomePage() {
           style={cardLayout.valore}
           actions={
             <>
-              <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate(`/assessment/${detailPage}`)}>
+              <Button type="button" size="sm" onClick={() => navigate(`/assessment/${detailPage}`)}>
                 {ui.homeQ1ViewDetails}
-              </button>
-              <button type="button" className="btn btn-sm" onClick={() => navigate(`/assessment/${detailPage === 'soft-risultati' ? 'soft' : 'hard'}?view=area`)}>
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => navigate(`/assessment/${detailPage === 'soft-risultati' ? 'soft' : 'hard'}?view=area`)}>
                 {ui.homeQ1CompareAreas}
-              </button>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => exportValoreReport(state, lang, ui)}>
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => exportValoreReport(state, lang, ui)}>
                 {ui.homeQ1ExportReport}
-              </button>
+              </Button>
             </>
           }
         />
@@ -207,9 +209,9 @@ export default function AssessmentHomePage() {
           style={cardLayout.capitale}
           panelClassName="sv-panel-stack"
           actions={
-            <button type="button" className="btn btn-sm" onClick={() => navigate('/assessment/valore')}>
+            <Button type="button" variant="outline" size="sm" onClick={() => navigate('/assessment/valore')}>
               {ui.homeQ3ViewAnalysis} <ArrowUpRight size={14} />
-            </button>
+            </Button>
           }
           panel={
             <>
@@ -260,9 +262,9 @@ export default function AssessmentHomePage() {
           style={cardLayout.perdite}
           panelClassName="sv-panel-stack"
           actions={
-            <button type="button" className="btn btn-sm" onClick={() => navigate(`/assessment/${detailPage}`)}>
+            <Button type="button" variant="outline" size="sm" onClick={() => navigate(`/assessment/${detailPage}`)}>
               {ui.homeQ2ViewDetail}
-            </button>
+            </Button>
           }
           panel={
             <>
@@ -333,9 +335,9 @@ export default function AssessmentHomePage() {
           style={cardLayout.decisioni}
           panelClassName="sv-panel-stack"
           actions={
-            <button type="button" className="btn btn-sm" onClick={() => navigate('/assessment/feedback')}>
+            <Button type="button" variant="outline" size="sm" onClick={() => navigate('/assessment/feedback')}>
               {ui.homeQ4ViewAll} <ArrowUpRight size={14} />
-            </button>
+            </Button>
           }
           panel={
             <div className="sv-panel-box">

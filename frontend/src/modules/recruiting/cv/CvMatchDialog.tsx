@@ -2,6 +2,7 @@ import { AlertTriangle, CheckCircle2, Clock3, Loader2, RefreshCw, Send, Target, 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import { Hint } from '@/components/patterns/Hint'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { EssentialSkillBars } from '@/modules/recruiting/components/EssentialSkillBars'
@@ -10,6 +11,7 @@ import { addPrescreenedEntry, getActiveOpening, removePrescreenedCandidate, setP
 import { linkExistingCandidateToBackend, markSentViaBackend, refreshShortlistStatuses, sendTestLinkViaBackend } from '@/modules/recruiting/lib/backend-sync'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import type { Candidate, PrescreenedEntry } from '@/modules/recruiting/lib/types'
+import { Button } from '@/components/ui/button'
 
 const ESSENTIAL_SKILLS = Object.entries(DEFAULT_FLAGS)
   .filter(([, lv]) => lv === 3)
@@ -201,13 +203,14 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button
+        <Button
           type="button"
-          className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3 py-1.5 text-[11.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+          variant="outline"
+          size="sm"
         >
           <Target className="size-3.5 shrink-0" aria-hidden="true" />
           Match CV/Profilo: {candidate.icv}%
-        </button>
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -217,7 +220,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center gap-4 rounded-md border border-border bg-secondary p-4">
+        <div className="flex items-center gap-4 rounded-sm border border-border bg-secondary p-4">
           <div className={cn('font-mono text-4xl font-black tracking-[-.045em] tabular-nums', above ? 'text-success' : 'text-warning')}>{candidate.icv}%</div>
           <p className="text-[12.5px] text-muted-foreground">
             {above
@@ -249,11 +252,11 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
                 never a local-only fake send. 'Segna inviato' stays for the
                 out-of-band "I already sent it myself" marking. */}
             {(!already || already.status === 'da_inviare') && (
-              <button
+              <Button
                 type="button"
                 onClick={handleSendTestLink}
                 disabled={writeState.kind === 'pending'}
-                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
+                size="sm"
               >
                 {writeState.kind === 'pending' ? (
                   <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
@@ -261,7 +264,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
                   <Send className="size-3.5 shrink-0" aria-hidden="true" />
                 )}
                 {SEND_TEST_LINK_LABEL}
-              </button>
+              </Button>
             )}
 
             {already?.status === 'da_inviare' && (
@@ -270,11 +273,11 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
                   <Clock3 className="size-3.5 shrink-0" aria-hidden="true" />
                   Da inviare
                 </span>
-                <button
+                <Button
                   type="button"
                   onClick={handleMarkSent}
                   disabled={writeState.kind === 'pending'}
-                  className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
+                  size="sm"
                 >
                   {writeState.kind === 'pending' ? (
                     <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
@@ -282,7 +285,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
                     <Send className="size-3.5 shrink-0" aria-hidden="true" />
                   )}
                   Segna inviato
-                </button>
+                </Button>
               </>
             )}
 
@@ -317,43 +320,46 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
             )}
 
             {already?.backendShortlistId && (
-              <button
-                type="button"
-                onClick={handleRefreshStatus}
-                disabled={writeState.kind === 'pending'}
-                title="Aggiorna stato dal server"
-                aria-label="Aggiorna stato dal server"
-                className="inline-flex items-center justify-center rounded-md border border-border p-1.5 text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <RefreshCw className={cn('size-3.5 shrink-0', writeState.kind === 'pending' && 'animate-spin')} aria-hidden="true" />
-              </button>
+              <Hint label="Aggiorna stato dal server">
+                <Button
+                  type="button"
+                  onClick={handleRefreshStatus}
+                  disabled={writeState.kind === 'pending'}
+                  aria-label="Aggiorna stato dal server"
+                  variant="outline"
+                  size="icon-sm"
+                >
+                  <RefreshCw className={cn('size-3.5 shrink-0', writeState.kind === 'pending' && 'animate-spin')} aria-hidden="true" />
+                </Button>
+              </Hint>
             )}
 
             {already && (
-              <button
-                type="button"
-                onClick={handleRemove}
-                disabled={writeState.kind === 'pending'}
-                title="Rimuovi dal pre-screening"
-                aria-label="Rimuovi dal pre-screening"
-                className="inline-flex items-center justify-center rounded-md border border-border p-1.5 text-destructive transition-colors hover:border-destructive/40 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {writeState.kind === 'pending' ? (
-                  <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
-                ) : (
-                  <Trash2 className="size-3.5 shrink-0" aria-hidden="true" />
-                )}
-              </button>
+              <Hint label="Rimuovi dal pre-screening">
+                <Button
+                  type="button"
+                  onClick={handleRemove}
+                  disabled={writeState.kind === 'pending'}
+                  aria-label="Rimuovi dal pre-screening"
+                  variant="destructive"
+                  size="icon-sm"
+                >
+                  {writeState.kind === 'pending' ? (
+                    <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Trash2 className="size-3.5 shrink-0" aria-hidden="true" />
+                  )}
+                </Button>
+              </Hint>
             )}
 
             {activeIds.companyId && activeIds.openingId && (
-              <Link
-                to={`/recruiting/pipeline?companyId=${encodeURIComponent(activeIds.companyId)}&openingId=${encodeURIComponent(activeIds.openingId)}`}
-                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3 py-1.5 text-[11.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-              >
-                <Workflow className="size-3.5 shrink-0" aria-hidden="true" />
-                Apri nella Pipeline
-              </Link>
+              <Button asChild variant="outline" size="sm">
+                <Link to={`/recruiting/pipeline?companyId=${encodeURIComponent(activeIds.companyId)}&openingId=${encodeURIComponent(activeIds.openingId)}`}>
+                  <Workflow className="size-3.5 shrink-0" aria-hidden="true" />
+                  Apri nella Pipeline
+                </Link>
+              </Button>
             )}
           </div>
 

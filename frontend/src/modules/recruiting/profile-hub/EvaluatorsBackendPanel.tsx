@@ -21,7 +21,7 @@ const ROLES: { value: BackendEvaluatorRole; label: string }[] = [
 const ROLE_LABEL = new Map(ROLES.map((r) => [r.value, r.label]))
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const btnClass =
   'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 
@@ -129,7 +129,7 @@ export function EvaluatorsBackendPanel() {
           (see evaluate/EvaluateStandalonePage.tsx). */}
       <Link
         to="/recruiting/evaluate"
-        className="inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3 py-1.5 text-[11.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground"
+        className="inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-sm border border-border px-3 py-1.5 text-[11.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground"
       >
         <Users className="size-3.5 shrink-0" aria-hidden="true" />
         Apri la mia area valutatore
@@ -148,7 +148,7 @@ export function EvaluatorsBackendPanel() {
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-2 rounded-md bg-secondary p-3">
+      <div className="flex flex-wrap items-center gap-2 rounded-sm bg-secondary p-3">
         <input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Nome valutatore" disabled={pending} className={inputClass} />
         <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" disabled={pending} className={inputClass} />
         <select value={role} onChange={(e) => setRole(e.target.value as BackendEvaluatorRole)} disabled={pending} className={inputClass}>
@@ -181,7 +181,7 @@ export function EvaluatorsBackendPanel() {
           {roster.map((r, i) => {
             const token = issuedTokens[r.id]
             return (
-              <div key={r.id} className="flex flex-col gap-1 rounded-md border border-border p-2.5 text-[12px]">
+              <div key={r.id} className="flex flex-col gap-1 rounded-sm border border-border p-2.5 text-[12px]">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span>
                     <b className="font-semibold text-foreground">
@@ -262,7 +262,7 @@ function EvaluatorResultsSection({ campaignId, roster }: { campaignId: string; r
   }, [selectedId])
 
   return (
-    <div className="rounded-md border border-border">
+    <div className="rounded-sm border border-border">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -298,7 +298,7 @@ function EvaluatorResultsSection({ campaignId, roster }: { campaignId: string; r
                 roster.map((r, i) => {
                   const evalu = evaluations.find((e) => e.evaluatorId === r.id)
                   return (
-                    <div key={r.id} className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2 text-[12px]">
+                    <div key={r.id} className="flex items-center justify-between gap-3 rounded-sm border border-border px-3 py-2 text-[12px]">
                       <span>
                         <b className="font-semibold text-foreground">
                           Valutatore {i + 1} — {ROLE_LABEL.get(r.role) || r.role}

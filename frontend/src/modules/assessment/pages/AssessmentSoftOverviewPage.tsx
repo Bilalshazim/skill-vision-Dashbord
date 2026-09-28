@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
+import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { getSoftClusters } from '@/modules/assessment/lib/legacy-utils'
@@ -17,7 +19,7 @@ export default function AssessmentSoftOverviewPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="card" style={{ padding: 20 }}>
+      <Card  style={{ padding: 20 }}>
         <h3 style={{ marginBottom: 8 }}>
           {lang === 'it' ? 'Cosa sono le Competenze Trasversali' : 'What Cross-Functional Competencies are'}
         </h3>
@@ -28,15 +30,15 @@ export default function AssessmentSoftOverviewPage() {
         </p>
         <div className="flex flex-wrap gap-2" style={{ marginTop: 14 }}>
           {clusters.map((c) => (
-            <span key={c} className="chip">
+            <Badge key={c} >
               {c}
-            </span>
+            </Badge>
           ))}
         </div>
-      </div>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="card rc-entry-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/assessment/soft')}>
+        <Card className="rc-entry-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/assessment/soft')}>
           <div className="flex items-center gap-3">
             <Icon name="soft" />
             <div>
@@ -46,8 +48,8 @@ export default function AssessmentSoftOverviewPage() {
               </p>
             </div>
           </div>
-        </div>
-        <div className="card rc-entry-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/assessment/soft-risultati')}>
+        </Card>
+        <Card className="rc-entry-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/assessment/soft-risultati')}>
           <div className="flex items-center gap-3">
             <Icon name="award" />
             <div>
@@ -59,7 +61,7 @@ export default function AssessmentSoftOverviewPage() {
               </p>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   )

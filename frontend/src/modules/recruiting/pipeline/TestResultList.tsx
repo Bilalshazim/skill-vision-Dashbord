@@ -9,7 +9,7 @@ import type { PrescreenedEntry, TestResult } from '@/modules/recruiting/lib/type
 import { cn } from '@/lib/utils'
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const primaryBtnClass = buttonVariants({ size: 'sm' })
 
 type ActionState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string }
@@ -149,7 +149,7 @@ export function TestResultList({
 
   return (
     <div>
-      <div className="mb-3 flex flex-col gap-2 rounded-md bg-secondary p-3">
+      <div className="mb-3 flex flex-col gap-2 rounded-sm bg-secondary p-3">
         <div className="flex flex-wrap items-center gap-2">
           <select value={candidateId} onChange={(e) => setCandidateId(e.target.value)} disabled={addPending} className={cn(inputClass, 'max-w-[220px]')}>
             <option value="">{prescreened.length ? 'Seleziona candidato…' : '(nessun candidato in pre-screening)'}</option>
@@ -212,7 +212,7 @@ export function TestResultList({
                       disabled={pending}
                       title="Rimuovi"
                       aria-label="Rimuovi risultato test"
-                      className="inline-flex items-center justify-center rounded-md border border-border p-1.5 text-destructive transition-colors hover:border-destructive/40 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex items-center justify-center rounded-sm border border-border p-1.5 text-destructive transition-colors hover:border-destructive/40 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {pending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Trash2 className="size-3.5 shrink-0" aria-hidden="true" />}
                     </button>

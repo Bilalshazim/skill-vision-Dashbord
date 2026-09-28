@@ -110,7 +110,7 @@ export default function PipelinePage() {
         </div>
       </div>
 
-      <p className="rounded-md border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
+      <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
         "Segna completato" resta disponibile solo nell'app corrente.
       </p>
 

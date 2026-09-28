@@ -19,6 +19,9 @@ import { JdHeaderFields } from '@/modules/recruiting/job-profile/JdHeaderFields'
 import { JdPreview } from '@/modules/recruiting/job-profile/JdPreview'
 import { JdSalaryBenefits } from '@/modules/recruiting/job-profile/JdSalaryBenefits'
 import { JdSection } from '@/modules/recruiting/job-profile/JdSection'
+import { Hint } from '@/components/patterns/Hint'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 const SECTION_TITLES: Record<JdSectionKey, string> = {
   responsabilita: 'Responsabilità',
@@ -48,7 +51,7 @@ const SECTION_ORDER_REST: JdSectionKey[] = ['competenzeTecniche', 'titoliStudio'
 
 function AccordionSection({ index, title, sub, collapsed, onToggle, children }: { index: number; title: string; sub?: string; collapsed: boolean; onToggle: () => void; children: ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+    <Card padding="none">
       <button type="button" onClick={onToggle} className="flex w-full items-center gap-3 border-b border-border bg-secondary px-4 py-3.5 text-left">
         <span className="rounded-sm border border-border bg-card px-2 py-0.5 font-mono text-[11px] font-semibold text-muted-foreground">{String(index).padStart(2, '0')}</span>
         <h2 className="flex-1 text-[14px] font-semibold">{title}</h2>
@@ -60,7 +63,7 @@ function AccordionSection({ index, title, sub, collapsed, onToggle, children }: 
           {children}
         </div>
       )}
-    </div>
+    </Card>
   )
 }
 
@@ -240,10 +243,11 @@ export default function JobProfilePage() {
               : 'Anteprima pulita della scheda salvata — pronta per essere approvata e condivisa. Usa "Modifica" per tornare all\'editor.'}
           </p>
         </div>
-        <button
+        <Button
           type="button"
           onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')}
-          className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3.5 py-2 text-[12.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground"
+          variant="outline"
+          size="sm"
         >
           {mode === 'edit' ? (
             <>
@@ -256,12 +260,12 @@ export default function JobProfilePage() {
               Modifica
             </>
           )}
-        </button>
+        </Button>
       </div>
 
       {mode === 'edit' ? (
         <>
-          <p className="rounded-md border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
+          <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
             Ricerca/cambio ruolo, "Crea scheda vuota" e l'importazione CSV/XLSX restano disponibili solo nell'app corrente — questa scheda resta sul ruolo
             attivo (<b className="font-semibold text-foreground">{DEFAULT_ROLE}</b>).
           </p>
@@ -275,7 +279,7 @@ export default function JobProfilePage() {
                   type="button"
                   onClick={() => handleSelectPreset(pid)}
                   className={cn(
-                    'rounded-md border px-3.5 py-2 text-[13px] font-medium transition-colors',
+                    'rounded-sm border px-3.5 py-2 text-[13px] font-medium transition-colors',
                     pid === currentPreset ? 'border-primary bg-primary/10 font-semibold text-foreground' : 'border-border text-muted-foreground hover:border-ring',
                   )}
                 >
@@ -320,16 +324,16 @@ export default function JobProfilePage() {
               </AccordionSection>
             </div>
 
-            <div className="rounded-xl border border-border bg-card shadow-sm p-5 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+            <Card className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
               <JdPreview jd={jdState} />
-            </div>
+            </Card>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
-            <button type="button" onClick={handleSave} className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-primary bg-primary px-4 py-2.5 text-[13px] font-semibold text-primary-foreground transition-colors hover:brightness-95">
+            <Button type="button" onClick={handleSave}>
               <Save className="size-4 shrink-0" aria-hidden="true" />
               Salva JD per &quot;{DEFAULT_ROLE}&quot;
-            </button>
+            </Button>
             {saveMessage && <span className="text-[12.5px] font-medium text-success">{saveMessage}</span>}
             {backendNote && (
               <span className="flex items-center gap-1.5 text-[12.5px] font-medium text-muted-foreground">
@@ -341,9 +345,9 @@ export default function JobProfilePage() {
         </>
       ) : (
         <>
-          <div className="rounded-xl border border-border bg-card shadow-sm p-5 sm:p-8">
+          <Card padding="lg">
             <JdPreview jd={jdState} />
-          </div>
+          </Card>
 
           <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
             <label className="flex items-center gap-2 text-[13px] font-semibold">
@@ -371,15 +375,17 @@ export default function JobProfilePage() {
               <div className="flex min-w-0 items-center gap-1.5 text-[12px] text-muted-foreground">
                 <span>Link di pubblicazione:</span>
                 <code className="truncate rounded bg-secondary px-1.5 py-0.5">{publicationLink}</code>
-                <button
-                  type="button"
-                  onClick={() => navigator.clipboard?.writeText(publicationLink)}
-                  title="Copia link"
-                  aria-label="Copia link"
-                  className="inline-flex shrink-0 items-center justify-center rounded border border-border p-1 text-muted-foreground hover:text-foreground"
-                >
-                  <Copy className="size-3 shrink-0" aria-hidden="true" />
-                </button>
+                <Hint label="Copia link">
+                  <Button
+                    type="button"
+                    onClick={() => navigator.clipboard?.writeText(publicationLink)}
+                    aria-label="Copia link"
+                    variant="outline"
+                    size="icon-sm"
+                  >
+                    <Copy className="size-3 shrink-0" aria-hidden="true" />
+                  </Button>
+                </Hint>
               </div>
             )}
           </div>

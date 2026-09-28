@@ -2,6 +2,7 @@ import { LogOut, Menu, Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
+import { Hint } from '@/components/patterns/Hint'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet'
 import { useTheme } from '@/hooks/use-theme'
@@ -83,15 +84,19 @@ function GlobalControls({ onNavigate, layout = 'row' }: { onNavigate?: () => voi
 
   return (
     <div className={cn('flex items-center gap-2', layout === 'column' && 'flex-col items-stretch')}>
-      <Button variant="outline" size="sm" onClick={toggleLang} aria-label="Italiano / English" title="Italiano / English">
-        {lang.toUpperCase()}
-      </Button>
+      <Hint label="Italiano / English">
+        <Button variant="outline" size="sm" onClick={toggleLang} aria-label="Italiano / English">
+          {lang.toUpperCase()}
+        </Button>
+      </Hint>
       <Button variant="outline" size="icon" onClick={toggleTheme} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}>
         {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
       </Button>
-      <Button variant="outline" size="icon" onClick={signOut} aria-label="Sign out" title="Sign out">
-        <LogOut className="size-4" />
-      </Button>
+      <Hint label="Sign out">
+        <Button variant="outline" size="icon" onClick={signOut} aria-label="Sign out">
+          <LogOut className="size-4" />
+        </Button>
+      </Hint>
     </div>
   )
 }

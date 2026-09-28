@@ -27,7 +27,7 @@ export function Subcard({ icon: Icon, label, value, children }: { icon: LucideIc
   }
 
   return (
-    <div className="overflow-hidden rounded-md border border-border">
+    <div className="overflow-hidden rounded-sm border border-border">
       <div
         role="button"
         tabIndex={0}

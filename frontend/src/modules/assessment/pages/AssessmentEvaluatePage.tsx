@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { Card, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { computeHardSummary } from '@/modules/assessment/lib/calculations'
 import { getApex5dDimensions, getApexSources, getUI } from '@/modules/assessment/lib/legacy-utils'
 import { readSharedLang, readSharedTheme } from '@/modules/assessment/lib/shell-bridge'
 import { readAssessmentState, writeAssessmentState } from '@/modules/assessment/lib/storage'
 import '@/modules/assessment/styles/assessment-scoped.css'
+import '@/modules/assessment/styles/assessment-bridge.css'
 
 // Migrated from enterRestrictedEvaluatorMode()/renderRestrictedEvalScreen()/
 // submitRestrictedEval() (js/assessment.js ~6676-6769). Reached ONLY via
@@ -97,40 +99,40 @@ export default function AssessmentEvaluatePage() {
   let body: React.ReactNode
   if (!assignment || !emp) {
     body = (
-      <div className="card">
-        <div className="card-title">{ui.reInvalidLinkTitle}</div>
+      <Card>
+        <CardTitle>{ui.reInvalidLinkTitle}</CardTitle>
         <p className="small-note" style={{ marginTop: 8 }}>
           {ui.reInvalidLinkDesc}
         </p>
-      </div>
+      </Card>
     )
   } else if (assignment.status === 'completed' && !submitted) {
     body = (
-      <div className="card" style={{ textAlign: 'center', padding: '40px 24px' }}>
-        <div className="card-title" style={{ marginBottom: 8 }}>
+      <Card  style={{ textAlign: 'center', padding: '40px 24px' }}>
+        <CardTitle  style={{ marginBottom: 8 }}>
           {ui.reThankYouTitle}
-        </div>
+        </CardTitle>
         <p className="small-note">{ui.reThankYouDesc(assignment.completedAt ? assignment.completedAt.slice(0, 10) : '')}</p>
-      </div>
+      </Card>
     )
   } else if (submitted) {
     body = (
-      <div className="card" style={{ textAlign: 'center', padding: '40px 24px' }}>
-        <div className="card-title" style={{ marginBottom: 8 }}>
+      <Card  style={{ textAlign: 'center', padding: '40px 24px' }}>
+        <CardTitle  style={{ marginBottom: 8 }}>
           {ui.reThankYouTitle}
-        </div>
+        </CardTitle>
         <p className="small-note">{ui.reThankYouDesc(new Date().toISOString().slice(0, 10))}</p>
-      </div>
+      </Card>
     )
   } else {
     body = (
       <>
-        <div className="card" style={{ marginBottom: 16 }}>
-          <div className="card-title">{ui.reFormTitle}</div>
+        <Card  style={{ marginBottom: 16 }}>
+          <CardTitle>{ui.reFormTitle}</CardTitle>
           <p className="small-note" style={{ marginTop: 6 }}>
             {ui.reFormDesc(`${emp.nome} ${emp.cognome}`, sourceLabel)}
           </p>
-        </div>
+        </Card>
         <div>
           {APEX5D_DIMENSIONS.map((dim) => (
             <div className="cluster-block" key={dim.code}>

@@ -1,0 +1,59 @@
+/* ============================================================
+   Ponte fra il tema parallelo di Assessment e globals.css.
+
+   Assessment definisce le proprie variabili (--bg, --surface,
+   --text-1…) su .sv-assessment-shell, dove globals.css non ha
+   presa. Qui quelle variabili vengono aliasate ai token del
+   sistema: i nomi restano, così il CSS del modulo e i grafici che
+   leggono le variabili a runtime con getComputedStyle seguono il
+   tema nuovo senza ripiegare sui loro esadecimali di riserva.
+
+   Nessun valore: solo riferimenti ai token. Va caricato dopo
+   assessment-scoped.css. Muore in Fase 3, quando quel file si
+   svuota e con esso data-theme.
+
+   [data-theme] alza la specificità a quella del blocco chiaro di
+   assessment-scoped.css (anch'esso !important), e l'ordine di
+   caricamento fa il resto. Entrambe le modalità passano di qui: il
+   chiaro e lo scuro li decide la classe .dark su <html>, che
+   useTheme tiene allineata a data-theme.
+
+   Le tre collisioni di nome con shadcn sono risolte a monte, nel
+   CSS e nel TS di Assessment, e qui non compaiono:
+   - il lime legge var(--primary), non più var(--accent);
+   - il testo attenuato è --text-muted, non più --muted;
+   - i raggi del modulo sono --a-radius-sm/md/lg (8/10/14).
+   Così --muted e --radius-* dentro lo scope sono quelli del sistema.
+   ============================================================ */
+
+.sv-assessment-shell[data-theme] {
+  --bg:            var(--background) !important;
+  --surface:       var(--card) !important;
+  --surface-alt:   var(--secondary) !important;
+  --text-1:        var(--foreground) !important;
+  --text-2:        var(--muted-foreground) !important;
+  --text-3:        var(--muted-foreground) !important;
+  --danger:        var(--destructive) !important;
+
+  /* Stesso nome e stesso significato in shadcn: si eredita il
+     valore del sistema invece di ridefinirlo. */
+  --border:        inherit !important;
+  --border-strong: inherit !important;
+  --link:          inherit !important;
+  --success:       inherit !important;
+  --warning:       inherit !important;
+
+  /* Il sistema non ha ombre. globals.css azzera la scala a monte, ma
+     assessment-scoped.css ridefinisce le sue --shadow-* dentro lo
+     scope, dove quell'azzeramento non arriva: servono qui. */
+  --shadow-sm: 0 0 transparent !important;
+  --shadow-md: 0 0 transparent !important;
+  --shadow-lg: 0 0 transparent !important;
+
+  /* In shadcn --accent è il fondo tenue degli hover, non il lime:
+     senza questa riga ogni primitiva con hover:bg-accent montata qui
+     dentro diventerebbe lime. Il lime di Assessment legge già
+     --primary (stesso valore, accent-400, nelle due modalità). */
+  --accent:            inherit !important;
+  --accent-foreground: inherit !important;
+}

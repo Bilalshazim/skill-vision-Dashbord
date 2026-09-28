@@ -1,14 +1,14 @@
 import { AlertTriangle, Loader2, Trophy } from 'lucide-react'
 import { useState } from 'react'
 
-import { buttonVariants } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { EmptyState } from '@/modules/recruiting/components/EmptyState'
 import { clearPipelineWinner, confirmPipelineWinner, getWinnerCandidates, plDateFmt } from '@/modules/recruiting/lib/pipeline'
 import type { Interview, PipelineWinner } from '@/modules/recruiting/lib/types'
 import { cn } from '@/lib/utils'
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // Legacy gives "Conferma vincitore" its own gold treatment (.btn-gold,
 // modules/recruiting.css ~228-229), distinct from the plain teal .btn-act
 // every other "+ Aggiungi..." button uses — reproduced here as the
@@ -84,7 +84,7 @@ export function WinnerCard({
   return (
     <div className="flex flex-col gap-3">
       {winner ? (
-        <div className="flex items-center gap-3 rounded-md border border-success/30 bg-success/10 px-4 py-3">
+        <div className="flex items-center gap-3 rounded-sm border border-success/30 bg-success/10 px-4 py-3">
           <Trophy className="size-5 shrink-0 text-success" aria-hidden="true" />
           <div>
             <div className="text-[13.5px] font-semibold">{winner.name}</div>
@@ -139,15 +139,16 @@ export function ClearWinnerButton({ companyId, openingId, onMutated }: { company
 
   return (
     <div className="flex flex-col items-end gap-1">
-      <button
+      <Button
         type="button"
         onClick={handleClear}
         disabled={pending}
-        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
+        variant="outline"
+        size="sm"
       >
         {pending && <Loader2 className="size-3 shrink-0 animate-spin" aria-hidden="true" />}
         Annulla decisione
-      </button>
+      </Button>
       {state.kind === 'error' && <ErrorNote message={state.message} />}
     </div>
   )

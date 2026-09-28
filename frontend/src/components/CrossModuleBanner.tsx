@@ -33,7 +33,7 @@ export function CrossModuleBanner({
   onSecondary: () => void
 }) {
   return (
-    <Card className="p-6">
+    <Card>
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <div className="flex flex-1 gap-3">
           <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary">

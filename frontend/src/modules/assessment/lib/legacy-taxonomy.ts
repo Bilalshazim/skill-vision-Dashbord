@@ -280,14 +280,14 @@ export const APEX_SOURCES_IT = [
 export const LEVEL_ANCHORS_EN = [
   {min:1,max:2,label:'Not Adequate', color:'var(--danger)'},
   {min:3,max:4,label:'Developing', color:'var(--warning)'},
-  {min:5,max:6,label:'Adequate', color:'var(--accent)'},
+  {min:5,max:6,label:'Adequate', color:'var(--primary)'},
   {min:7,max:8,label:'Advanced', color:'var(--success)'},
   {min:9,max:10,label:'Excellent', color:'var(--gold)'},
 ];
 export const LEVEL_ANCHORS_IT = [
   {min:1,max:2,label:'Non adeguato', color:'var(--danger)'},
   {min:3,max:4,label:'In sviluppo', color:'var(--warning)'},
-  {min:5,max:6,label:'Adeguato', color:'var(--accent)'},
+  {min:5,max:6,label:'Adeguato', color:'var(--primary)'},
   {min:7,max:8,label:'Avanzato', color:'var(--success)'},
   {min:9,max:10,label:'Eccellente', color:'var(--gold)'},
 ];

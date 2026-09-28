@@ -1,5 +1,8 @@
 import { useMemo, useState } from 'react'
 
+import { Badge } from '@/components/ui/badge'
+import { chipTone } from '@/modules/assessment/lib/chip-tone'
+import { Card, CardHeader, CardLabel, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
@@ -162,7 +165,7 @@ export default function AssessmentCustomerCarePage() {
     <div>
       <div className="section-head">
         <div>
-          <div className="card-eyebrow">{ui.ccEyebrow}</div>
+          <CardLabel>{ui.ccEyebrow}</CardLabel>
           <h2>{ui.ccPageTitle}</h2>
           <p>{ui.ccPageSub}</p>
         </div>
@@ -203,54 +206,54 @@ function CCOverview({ model, onOpenDrawer }: { model: ReturnType<typeof customer
   return (
     <>
       <div className="grid grid-4" style={{ marginBottom: 16 }}>
-        <div className="card">
-          <div className="card-eyebrow">{ui.ccKpiFrt}</div>
+        <Card>
+          <CardLabel>{ui.ccKpiFrt}</CardLabel>
           <div className="kpi-value">
             {fmt1(o.frt)}
             <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-3)' }}>{ui.ccUnitMin}</span>
           </div>
           <div className="kpi-label">{ui.ccKpiFrtSub}</div>
           <DeltaBadge cur={o.frt} prev={o.frtPrev} opts={{ lowerIsBetter: true, unit: ui.ccUnitMin }} />
-        </div>
-        <div className="card">
-          <div className="card-eyebrow">{ui.ccKpiCsat}</div>
+        </Card>
+        <Card>
+          <CardLabel>{ui.ccKpiCsat}</CardLabel>
           <div className="kpi-value">
             {Math.round(o.csat)}
             <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-3)' }}>%</span>
           </div>
           <div className="kpi-label">{ui.ccKpiCsatSub}</div>
           <DeltaBadge cur={o.csat} prev={o.csatPrev} opts={{ unit: '%', dec: 0 }} />
-        </div>
-        <div className="card">
-          <div className="card-eyebrow">{ui.ccKpiVolume}</div>
+        </Card>
+        <Card>
+          <CardLabel>{ui.ccKpiVolume}</CardLabel>
           <div className="kpi-value">{o.volume.toLocaleString('it-IT')}</div>
           <div className="kpi-label">{ui.ccKpiVolumeSub}</div>
           <div className="kpi-delta flat">{model.rows.length} agent</div>
-        </div>
-        <div className="card">
-          <div className="card-eyebrow">{ui.ccKpiMatch}</div>
+        </Card>
+        <Card>
+          <CardLabel>{ui.ccKpiMatch}</CardLabel>
           <div className="kpi-value">
             {Math.round(o.match)}
             <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-3)' }}>%</span>
           </div>
           <div className="kpi-label">{ui.ccKpiMatchSub}</div>
           <DeltaBadge cur={o.match} prev={100} opts={{ unit: '%', dec: 0, label: ui.ccDeltaVsTarget }} />
-        </div>
+        </Card>
       </div>
 
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="card-title-row">
-          <div className="card-title">{ui.ccTrendTitle}</div>
-        </div>
+      <Card  style={{ marginBottom: 16 }}>
+        <CardHeader>
+          <CardTitle>{ui.ccTrendTitle}</CardTitle>
+        </CardHeader>
         <div style={{ position: 'relative', height: 320 }}>
           <CustomerCareTrendChart weeks={model.weeks} csatSeries={model.csatSeries} resolvedSeries={model.resolvedSeries} csatLabel={ui.ccTrendCsat} resolvedLabel={ui.ccTrendResolved} />
         </div>
-      </div>
+      </Card>
 
-      <div className="card" style={{ padding: 0 }}>
-        <div className="card-title-row" style={{ padding: '16px 20px 0 20px' }}>
-          <div className="card-title">{ui.ccAgentTableTitle}</div>
-        </div>
+      <Card  style={{ padding: 0 }}>
+        <CardHeader  style={{ padding: '16px 20px 0 20px' }}>
+          <CardTitle>{ui.ccAgentTableTitle}</CardTitle>
+        </CardHeader>
         <div className="table-wrap">
           <table className="dtable">
             <thead>
@@ -284,10 +287,9 @@ function CCOverview({ model, onOpenDrawer }: { model: ReturnType<typeof customer
                     {ui.ccUnitMin}
                   </td>
                   <td>
-                    <span className={`chip ${r.csat >= 90 ? 'chip-green' : r.csat >= 80 ? 'chip-amber' : 'chip-red'}`}>
-                      <span className="dt" />
+                    <Badge tone={r.csat >= 90 ? 'success' : r.csat >= 80 ? 'warning' : 'destructive'} dot>
                       {Math.round(r.csat)}%
-                    </span>
+                    </Badge>
                   </td>
                   <td>{Math.round(r.resolution)}%</td>
                   <td>
@@ -298,7 +300,7 @@ function CCOverview({ model, onOpenDrawer }: { model: ReturnType<typeof customer
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </>
   )
 }
@@ -309,23 +311,23 @@ function CCAgents({ model, competencyName, onOpenDrawer }: { model: ReturnType<t
   const capsuleColor: Record<string, string> = { 'gap-ok': 'var(--success)', 'gap-warn': 'var(--warning)', 'gap-bad': 'var(--danger)' }
   return (
     <>
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="card-title-row">
-          <div className="card-title">{ui.ccAgentsChartTitle}</div>
-        </div>
+      <Card  style={{ marginBottom: 16 }}>
+        <CardHeader>
+          <CardTitle>{ui.ccAgentsChartTitle}</CardTitle>
+        </CardHeader>
         <CapsuleBarsChart
           items={model.rows.map((r) => ({ label: `${r.emp.cognome} ${(r.emp.nome || ' ')[0]}.`, value: r.compOtt, target: r.compAtt, color: capsuleColor[ccGapTag(r.compOtt, r.compAtt)] }))}
           max={10}
           unit=""
           dec={1}
         />
-      </div>
-      <div className="card" style={{ padding: 0 }}>
-        <div className="card-title-row" style={{ padding: '16px 20px 0 20px' }}>
-          <div className="card-title">
+      </Card>
+      <Card  style={{ padding: 0 }}>
+        <CardHeader  style={{ padding: '16px 20px 0 20px' }}>
+          <CardTitle>
             {ui.ccTabAgents} <span className="muted">{ui.ccMatrixSub}</span>
-          </div>
-        </div>
+          </CardTitle>
+        </CardHeader>
         <div className="table-wrap">
           <table className="dtable">
             <thead>
@@ -356,17 +358,16 @@ function CCAgents({ model, competencyName, onOpenDrawer }: { model: ReturnType<t
                     </td>
                   ))}
                   <td>
-                    <span className={`chip ${r.compOtt >= 7 ? 'chip-green' : r.compOtt >= 5 ? 'chip-amber' : 'chip-red'}`}>
-                      <span className="dt" />
+                    <Badge tone={r.compOtt >= 7 ? 'success' : r.compOtt >= 5 ? 'warning' : 'destructive'} dot>
                       {fmt1(r.compOtt)}
-                    </span>
+                    </Badge>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </>
   )
 }
@@ -375,14 +376,14 @@ function CCMatrix({ model, competencyName, onOpenDrawer }: { model: ReturnType<t
   const { ui } = useAssessment()
   return (
     <>
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="card-title">
+      <Card  style={{ marginBottom: 16 }}>
+        <CardTitle>
           {ui.ccMatrixTitle} <span className="muted">{ui.ccMatrixSub}</span>
-        </div>
+        </CardTitle>
         <div className="small-note" style={{ marginTop: 6 }}>
           {ui.ccMatrixNote}
         </div>
-      </div>
+      </Card>
       <div className="grid grid-2">
         {CC_COMPETENCY_IDS.map((id) => {
           const scored = model.rows
@@ -396,14 +397,13 @@ function CCMatrix({ model, competencyName, onOpenDrawer }: { model: ReturnType<t
           const strong = scored.filter((s) => s.ott >= 8).length
           const weak = scored.filter((s) => s.ott < 6).length
           return (
-            <div className="card" key={id}>
-              <div className="card-title-row">
-                <div className="card-title">{competencyName(id)}</div>
-                <span className={`chip ${ott >= 7 ? 'chip-green' : ott >= 5 ? 'chip-amber' : 'chip-red'}`} style={{ marginLeft: 'auto' }}>
-                  <span className="dt" />
+            <Card  key={id}>
+              <CardHeader>
+                <CardTitle>{competencyName(id)}</CardTitle>
+                <Badge tone={ott >= 7 ? 'success' : ott >= 5 ? 'warning' : 'destructive'} dot style={{ marginLeft: 'auto' }}>
                   {fmt1(ott)}
-                </span>
-              </div>
+                </Badge>
+              </CardHeader>
               <div className="legend-row" style={{ marginBottom: 8 }}>
                 <span className="legend-dot">
                   <i style={{ background: 'var(--success)' }} />
@@ -425,13 +425,12 @@ function CCMatrix({ model, competencyName, onOpenDrawer }: { model: ReturnType<t
                       {s.emp.nome} {s.emp.cognome}
                     </div>
                   </div>
-                  <span className={`chip ${ccChipClass(s.ott, s.att)}`}>
-                    <span className="dt" />
+                  <Badge tone={chipTone(ccChipClass(s.ott, s.att))} dot>
                     {fmt1(s.ott)}
-                  </span>
+                  </Badge>
                 </div>
               ))}
-            </div>
+            </Card>
           )
         })}
       </div>

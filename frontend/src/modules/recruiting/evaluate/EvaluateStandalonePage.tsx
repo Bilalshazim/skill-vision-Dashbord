@@ -1,3 +1,4 @@
+import { Card } from '@/components/ui/card'
 import { AlertTriangle } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 
@@ -37,9 +38,9 @@ export default function EvaluateStandalonePage() {
             </p>
           </div>
         ) : (
-          <div className="rounded-xl border border-border bg-card p-5 sm:p-6">
+          <Card padding="lg">
             <EvaluatorWorkspace evaluatorToken={token} />
-          </div>
+          </Card>
         )}
       </div>
     </div>

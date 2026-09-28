@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { exiRiskTier, exiScoreTier, fmt1 } from '@/modules/assessment/lib/legacy-utils'
@@ -166,7 +167,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
         </div>
         {cancelBtn}
       </div>
-      <div className="card exi-progress">
+      <Card className="exi-progress">
         <div className="exi-progress-track">
           <div className="exi-progress-fill" style={{ width: `${(step / total) * 100}%` }} />
         </div>
@@ -178,11 +179,11 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
       {step === 0 && (
         <div className="exi-wizard-step on">
-          <div className="card">
+          <Card>
             <div className="exi-eyebrow">{ui.exiSetupEyebrow}</div>
             <div className="exi-qtitle">{ui.exiSetupTitle}</div>
             <div className="exi-qsub">{ui.exiSetupSub}</div>
@@ -218,7 +219,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
                 <input className="neu-input" type="text" value={draft.data} onChange={(e) => setDraft((p) => ({ ...p, data: e.target.value }))} />
               </div>
             </div>
-          </div>
+          </Card>
           <div className="exi-nav">
             <span />
             <Button variant="default" onClick={next}>
@@ -233,7 +234,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
 
       {step === 3 && (
         <div className="exi-wizard-step on">
-          <div className="card">
+          <Card>
             <div className="exi-qcount">3/7</div>
             <div className="exi-eyebrow">{ui.exiQ3Eyebrow}</div>
             <div className="exi-qtitle">{ui.exiQ3Title}</div>
@@ -282,7 +283,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
               <label>{ui.exiQ3NotesLabel}</label>
               <textarea className={`neu-input${fieldInvalid(3, 'q3c') ? ' exi-field-invalid' : ''}`} placeholder={ui.exiQ3Ph} value={draft.q3c} onChange={(e) => setDraft((p) => ({ ...p, q3c: e.target.value }))} />
             </div>
-          </div>
+          </Card>
           <div className="exi-nav">
             <Button variant="ghost" onClick={prev}>
               {ui.exiBackBtn}
@@ -298,7 +299,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
 
       {step === 5 && (
         <div className="exi-wizard-step on">
-          <div className="card">
+          <Card>
             <div className="exi-qcount">5/7</div>
             <div className="exi-eyebrow">{ui.exiQ5Eyebrow}</div>
             <div className="exi-qtitle">{ui.exiQ5Title}</div>
@@ -325,7 +326,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
             </div>
             <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: 'var(--text-2)', marginBottom: 7, textTransform: 'uppercase', letterSpacing: '.06em' }}>{ui.exiRiskLevelLabel}</label>
             <SliderBox ticks={ui.exiQ5Ticks} value={draft.q5} inverted pointsOf10Label={ui.exiPointsOf10} onChange={(v) => setDraft((p) => ({ ...p, q5: v }))} />
-          </div>
+          </Card>
           <div className="exi-nav">
             <Button variant="ghost" onClick={prev}>
               {ui.exiBackBtn}
@@ -339,7 +340,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
 
       {step === 6 && (
         <div className="exi-wizard-step on">
-          <div className="card">
+          <Card>
             <div className="exi-qcount">6/7</div>
             <div className="exi-eyebrow">{ui.exiQ6Eyebrow}</div>
             <div className="exi-qtitle">{ui.exiQ6Title}</div>
@@ -366,7 +367,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
             </div>
             <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: 'var(--text-2)', marginBottom: 7, textTransform: 'uppercase', letterSpacing: '.06em' }}>{ui.exiUrgencyLabel}</label>
             <SliderBox ticks={ui.exiQ6Ticks} value={draft.q6} inverted={false} pointsOf10Label={ui.exiPointsOf10} onChange={(v) => setDraft((p) => ({ ...p, q6: v }))} />
-          </div>
+          </Card>
           <div className="exi-nav">
             <Button variant="ghost" onClick={prev}>
               {ui.exiBackBtn}
@@ -380,7 +381,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
 
       {step === 7 && (
         <div className="exi-wizard-step on">
-          <div className="card">
+          <Card>
             <div className="exi-qcount">7/7</div>
             <div className="exi-eyebrow">{ui.exiQ7Eyebrow}</div>
             <div className="exi-qtitle">{ui.exiQ7Title}</div>
@@ -420,7 +421,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
               <label>{ui.exiCommentLabel}</label>
               <textarea className={`neu-input${fieldInvalid(7, 'q7c') ? ' exi-field-invalid' : ''}`} placeholder={ui.exiQ7Ph} value={draft.q7c} onChange={(e) => setDraft((p) => ({ ...p, q7c: e.target.value }))} />
             </div>
-          </div>
+          </Card>
           <div className="exi-nav">
             <Button variant="ghost" onClick={prev}>
               {ui.exiBackBtn}
@@ -497,7 +498,7 @@ function SliderStep({
 }) {
   return (
     <div className="exi-wizard-step on">
-      <div className="card">
+      <Card>
         <div className="exi-qcount">{n}/7</div>
         <div className="exi-eyebrow">{eyebrow}</div>
         <div className="exi-qtitle">{title}</div>
@@ -507,7 +508,7 @@ function SliderStep({
           <label>{commentLabel}</label>
           <textarea className={`neu-input${invalid ? ' exi-field-invalid' : ''}`} placeholder={ph} value={comment} onChange={(e) => onComment(e.target.value)} />
         </div>
-      </div>
+      </Card>
       <div className="exi-nav">
         <Button variant="ghost" onClick={onBack}>
           {backLabel}

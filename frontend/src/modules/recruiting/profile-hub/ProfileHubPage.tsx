@@ -45,7 +45,7 @@ export default function ProfileHubPage() {
               e.stopPropagation()
               navigate('/recruiting/job-profile')
             }}
-            className="flex w-full items-center gap-2.5 rounded-md border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            className="flex w-full items-center gap-2.5 rounded-sm border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span className="flex-1 text-[13px] font-medium text-foreground">Scheda professionale</span>

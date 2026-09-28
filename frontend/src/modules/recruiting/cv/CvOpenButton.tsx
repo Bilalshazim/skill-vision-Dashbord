@@ -2,9 +2,9 @@ import { FileText, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
 import { resolveCandidateCvUrl } from '@/modules/recruiting/lib/backend-sync'
 import type { Candidate } from '@/modules/recruiting/lib/types'
+import { Button } from '@/components/ui/button'
 
 type OpenState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string }
 
@@ -57,18 +57,17 @@ export function CvOpenButton({ candidate, className }: { candidate: Candidate; c
     <div className="flex flex-col items-start gap-1">
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
+          <Button
             type="button"
             onClick={handleClick}
             disabled={pending}
-            className={cn(
-              'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3 py-1.5 text-[11.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60',
-              className,
-            )}
+            variant="outline"
+            size="sm"
+            className={className}
           >
             {pending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <FileText className="size-3.5 shrink-0" aria-hidden="true" />}
             CV
-          </button>
+          </Button>
         </TooltipTrigger>
         <TooltipContent>Apre il CV caricato in una nuova scheda</TooltipContent>
       </Tooltip>

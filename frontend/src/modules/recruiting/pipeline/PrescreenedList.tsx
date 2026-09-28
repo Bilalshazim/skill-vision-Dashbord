@@ -1,8 +1,9 @@
 import { AlertTriangle, CheckCircle2, Clock3, Link2, Loader2, Plus, RefreshCw, Search, SendHorizonal, Star, Trash2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 
-import { Badge } from '@/components/ui/badge'
-import { buttonVariants } from '@/components/ui/button'
+import { Hint } from '@/components/patterns/Hint'
+import { Badge, type BadgeTone } from '@/components/ui/badge'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { EmptyState } from '@/modules/recruiting/components/EmptyState'
 import { CvInlineViewerButton } from '@/modules/recruiting/cv/CvInlineViewerButton'
 import { addPrescreenedEntry, plDateFmt, removePrescreenedCandidate, setPrescreenStatus } from '@/modules/recruiting/lib/pipeline'
@@ -24,18 +25,18 @@ import { cn } from '@/lib/utils'
 // Phase 31 §8 — 'ha_risposto'/'non_ha_risposto' added: real backend
 // ShortlistStatus values (see lib/types.ts's PrescreenStatus comment),
 // only ever reached by refreshing from the server, never set locally.
-const STATUS_STYLE: Record<PrescreenStatus, { icon: typeof Clock3; label: string; tone: 'red' | 'amber' | 'green' }> = {
-  da_inviare: { icon: Clock3, label: 'Da inviare', tone: 'red' },
+const STATUS_STYLE: Record<PrescreenStatus, { icon: typeof Clock3; label: string; tone: BadgeTone }> = {
+  da_inviare: { icon: Clock3, label: 'Da inviare', tone: 'destructive' },
   // Local-only status set by Pagina A's manual-send fallback when no mail
   // provider is configured — see lib/types.ts's PrescreenStatus comment.
   // Reachable here too since both screens read the SAME prescreened
   // records; "Segna inviato" below still works on it like any other
   // pre-send state.
-  link_pronto: { icon: Link2, label: 'Link pronto', tone: 'amber' },
-  inviato: { icon: SendHorizonal, label: 'Test inviato', tone: 'amber' },
-  completato: { icon: CheckCircle2, label: 'Test completato', tone: 'green' },
-  ha_risposto: { icon: CheckCircle2, label: 'Ha risposto', tone: 'green' },
-  non_ha_risposto: { icon: XCircle, label: 'Non ha risposto', tone: 'red' },
+  link_pronto: { icon: Link2, label: 'Link pronto', tone: 'warning' },
+  inviato: { icon: SendHorizonal, label: 'Test inviato', tone: 'warning' },
+  completato: { icon: CheckCircle2, label: 'Test completato', tone: 'success' },
+  ha_risposto: { icon: CheckCircle2, label: 'Ha risposto', tone: 'success' },
+  non_ha_risposto: { icon: XCircle, label: 'Non ha risposto', tone: 'destructive' },
 }
 
 // This can only actually fire if the Pipeline-selected opening is deleted
@@ -48,7 +49,7 @@ const STATUS_STYLE: Record<PrescreenStatus, { icon: typeof Clock3; label: string
 const OPENING_UNAVAILABLE_MESSAGE = "La posizione selezionata non è più disponibile — selezionane un'altra dalla dashboard qui sopra."
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const primaryBtnClass = buttonVariants({ size: 'sm' })
 
 type ActionState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string }
@@ -248,20 +249,21 @@ export function PrescreenedList({
     <div>
       {backendCampaignId && (
         <div className="mb-3 flex items-center justify-end">
-          <button
+          <Button
             type="button"
             onClick={handleRefreshStatuses}
             disabled={refreshState.kind === 'pending'}
-            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
+            variant="outline"
+            size="sm"
           >
             <RefreshCw className={cn('size-3 shrink-0', refreshState.kind === 'pending' && 'animate-spin')} aria-hidden="true" />
             Aggiorna stato dal server
-          </button>
+          </Button>
         </div>
       )}
       {refreshState.kind === 'error' && <ErrorNote message={refreshState.message} />}
 
-      <div className="mb-3 flex flex-col gap-2 rounded-md bg-secondary p-3">
+      <div className="mb-3 flex flex-col gap-2 rounded-sm bg-secondary p-3">
         <div className="flex flex-wrap items-center gap-2">
           <select
             value={poolSelection}
@@ -330,7 +332,7 @@ export function PrescreenedList({
                     <div className="flex items-center gap-1.5 text-[13px] font-semibold">
                       {r.name || '—'}
                       {r.autoSent && (
-                        <Badge tone="green" dot={false}>
+                        <Badge tone="success">
                           auto
                         </Badge>
                       )}
@@ -372,31 +374,34 @@ export function PrescreenedList({
                       Selezionato per approfondimento
                     </label>
                     <CvInlineViewerButton backendCvId={candidate?.backendCvId} candidateName={r.name || '—'} />
-                    <Badge tone={status.tone} dot={false}>
+                    <Badge tone={status.tone}>
                       <status.icon className="size-3 shrink-0" aria-hidden="true" />
                       {status.label}
                     </Badge>
                     {(r.status === 'da_inviare' || r.status === 'link_pronto') && (
-                      <button
+                      <Button
                         type="button"
                         onClick={() => handleMarkSent(r.id)}
                         disabled={pending}
-                        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
+                        variant="outline"
+                        size="sm"
                       >
                         {pending ? <Loader2 className="size-3 shrink-0 animate-spin" aria-hidden="true" /> : null}
                         Segna inviato
-                      </button>
+                      </Button>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => handleRemove(r.id)}
-                      disabled={pending}
-                      title="Rimuovi dal pre-screening"
-                      aria-label="Rimuovi dal pre-screening"
-                      className="inline-flex items-center justify-center rounded-md border border-border p-1.5 text-destructive transition-colors hover:border-destructive/40 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {pending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Trash2 className="size-3.5 shrink-0" aria-hidden="true" />}
-                    </button>
+                    <Hint label="Rimuovi dal pre-screening">
+                      <Button
+                        type="button"
+                        onClick={() => handleRemove(r.id)}
+                        disabled={pending}
+                        aria-label="Rimuovi dal pre-screening"
+                        variant="destructive"
+                        size="icon-sm"
+                      >
+                        {pending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Trash2 className="size-3.5 shrink-0" aria-hidden="true" />}
+                      </Button>
+                    </Hint>
                   </div>
                 </div>
                 {state.kind === 'error' && <ErrorNote message={state.message} />}

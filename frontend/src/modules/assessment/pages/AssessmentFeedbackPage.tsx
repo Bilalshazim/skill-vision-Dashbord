@@ -1,5 +1,8 @@
 import { useState } from 'react'
 
+import { Badge } from '@/components/ui/badge'
+import { chipTone } from '@/modules/assessment/lib/chip-tone'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { primaryScore, tierFor } from '@/modules/assessment/lib/calculations'
@@ -50,7 +53,7 @@ export default function AssessmentFeedbackPage() {
           const d = draftFor(e.id, e.developmentPlan, e.feedbackNeeded)
           const tier = tierFor(primaryScore(e, state, lang), lang)
           return (
-            <div className="card" key={e.id}>
+            <Card  key={e.id}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <div className="avatar" style={{ width: 36, height: 36 }}>
                   {(e.nome[0] || '') + (e.cognome[0] || '')}
@@ -63,10 +66,9 @@ export default function AssessmentFeedbackPage() {
                     {e.ruolo} · {e.area}
                   </div>
                 </div>
-                <span className={`chip ${tier.chip}`}>
-                  <span className="dt" />
+                <Badge tone={chipTone(tier.chip)} dot>
                   {fmt1(primaryScore(e, state, lang))}
-                </span>
+                </Badge>
               </div>
 
               <div className="switch-row" style={{ marginBottom: 12 }}>
@@ -96,7 +98,7 @@ export default function AssessmentFeedbackPage() {
                   {ui.btnSave}
                 </Button>
               )}
-            </div>
+            </Card>
           )
         })}
       </div>

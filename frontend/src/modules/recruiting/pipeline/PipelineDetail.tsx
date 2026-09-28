@@ -35,7 +35,7 @@ export function PipelineDetail({
 
   return (
     <div className="flex flex-col gap-4">
-      <Card className="p-6">
+      <Card>
         {/* The raw source literal here is "Job Profile" (line ~2098), but
             legacy's applyLanguage('it') — which runs by default, on every
             screen navigation — rewrites that exact stray English string back
@@ -51,7 +51,7 @@ export function PipelineDetail({
           <b className="font-semibold text-foreground">{education}</b>
         </p>
         {p.winner && (
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-success/35 bg-success/10 px-4 py-3 text-[13px]">
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-sm border border-success/35 bg-success/10 px-4 py-3 text-[13px]">
             <div className="flex items-center gap-2">
               <Trophy className="size-4 shrink-0 text-success" aria-hidden="true" />
               <span>
@@ -64,9 +64,9 @@ export function PipelineDetail({
         )}
       </Card>
 
-      <Card className="p-6">
-        <CardHeader className="p-0 pb-3">
-          <CardTitle className="flex items-center gap-1.5 text-sm">
+      <Card>
+        <CardHeader>
+          <CardTitle>
             <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             Pre-screened CV — {p.prescreened.length}
           </CardTitle>
@@ -74,7 +74,7 @@ export function PipelineDetail({
             Candidati passati al pre-screening, con link al test/assessment automatizzato.
           </p>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent>
           <PrescreenedList
             entries={p.prescreened}
             candidatePool={opening.candidatePool || []}
@@ -85,9 +85,9 @@ export function PipelineDetail({
         </CardContent>
       </Card>
 
-      <Card className="p-6">
-        <CardHeader className="p-0 pb-3">
-          <CardTitle className="flex items-center gap-1.5 text-sm">
+      <Card>
+        <CardHeader>
+          <CardTitle>
             <FileCheck2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             Ranking post-test — {p.testResults.length}
           </CardTitle>
@@ -95,7 +95,7 @@ export function PipelineDetail({
             Punteggi test dei candidati pre-screened, ordinati per ranking.
           </p>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent>
           <TestResultList
             results={p.testResults}
             prescreened={p.prescreened}
@@ -106,16 +106,16 @@ export function PipelineDetail({
         </CardContent>
       </Card>
 
-      <Card className="p-6">
-        <CardHeader className="p-0 pb-3">
-          <CardTitle className="flex items-center gap-1.5 text-sm">
+      <Card>
+        <CardHeader>
+          <CardTitle>
             <MessageSquare className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             Colloqui — {p.interviews.length}{' '}
             <span className="font-normal text-muted-foreground">({p.interviews.filter((iv) => iv.completed).length} con scorecard)</span>
           </CardTitle>
           <p className="mt-0.5 text-[11.5px] font-normal text-muted-foreground">Elenco candidati in colloquio, con scorecard post-colloquio.</p>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent>
           <InterviewList
             interviews={p.interviews}
             testResults={p.testResults}
@@ -126,14 +126,14 @@ export function PipelineDetail({
         </CardContent>
       </Card>
 
-      <Card className="p-6">
-        <CardHeader className="p-0 pb-3">
-          <CardTitle className="flex items-center gap-1.5 text-sm">
+      <Card>
+        <CardHeader>
+          <CardTitle>
             <Trophy className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             Candidato vincitore
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent>
           <WinnerCard
             winner={p.winner}
             interviews={p.interviews}

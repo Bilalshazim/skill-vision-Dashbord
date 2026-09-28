@@ -105,7 +105,7 @@ export function QualityChart({ buckets, max }: { buckets: QualityBucket[]; max: 
 
       {hovered !== null && (
         <div
-          className="pointer-events-none absolute top-1 -translate-x-1/2 rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs shadow-md"
+          className="pointer-events-none absolute top-1 -translate-x-1/2 rounded-sm border border-border bg-popover px-2.5 py-1.5 text-xs shadow-md"
           style={{ left: `${((PADDING.left + slot * hovered + slot / 2) / WIDTH) * 100}%` }}
         >
           <div className="font-semibold text-popover-foreground">{buckets[hovered].label}</div>

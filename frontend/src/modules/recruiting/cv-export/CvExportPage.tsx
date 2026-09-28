@@ -1,7 +1,9 @@
 import { CheckCircle2, FileCheck2, FileSpreadsheet, FileText, Loader2, Percent, Upload } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { buttonVariants } from '@/components/ui/button'
+import { Hint } from '@/components/patterns/Hint'
+import { Card } from '@/components/ui/card'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { KpiCard } from '@/modules/recruiting/components/KpiCard'
 import { CvArchiveList } from '@/modules/recruiting/cv-export/CvArchiveList'
@@ -13,7 +15,7 @@ import { setCvRetentionChoice, syncRankingFromBackend, uploadCvViaBackend } from
 import { useCvExportData } from '@/modules/recruiting/lib/use-cv-export-data'
 
 const selectClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // See admin/CipAdminPage.tsx's identical comment.
 const primaryBtnClass = buttonVariants({ size: 'sm' })
 const goldBtnClass = buttonVariants({ variant: 'warning', size: 'sm' })
@@ -247,7 +249,7 @@ export default function CvExportPage() {
           it to 6 months, which is why this stays a live control rather than
           a static notice — see setCvRetentionChoice() (lib/backend-sync.ts),
           which persists it against the real backend Candidate record. */}
-      <div className="flex flex-col gap-2 rounded-md border border-border bg-secondary/60 px-4 py-3 text-[12px] text-muted-foreground">
+      <div className="flex flex-col gap-2 rounded-sm border border-border bg-secondary/60 px-4 py-3 text-[12px] text-muted-foreground">
         <p>
           I dati del CV vengono conservati per <b className="font-semibold text-foreground">2 anni</b> dalla candidatura, salvo revoca. Il
           candidato può in qualsiasi momento richiedere di limitare la conservazione a <b className="font-semibold text-foreground">6 mesi</b>.
@@ -267,7 +269,7 @@ export default function CvExportPage() {
       </div>
 
       {showProgress && (
-        <div className="rounded-xl border border-border bg-card shadow-sm p-5">
+        <Card>
           <div className="flex flex-col gap-3">
             {STEP_LABELS.map((label, i) => (
               <div key={label} className={cn('flex items-center gap-3 text-[13.5px] font-semibold', steps[i] === 'done' ? 'text-foreground' : 'text-muted-foreground')}>
@@ -287,10 +289,10 @@ export default function CvExportPage() {
           </div>
           {uploadFeedback.kind === 'error' && <p className="mt-3 text-[12.5px] font-medium text-destructive">{uploadFeedback.message}</p>}
           {uploadFeedback.kind === 'success' && <p className="mt-3 text-[12.5px] font-medium text-success">{uploadFeedback.message}</p>}
-        </div>
+        </Card>
       )}
 
-      <div className="rounded-xl border border-border bg-secondary p-4">
+      <div className="rounded-lg border border-border bg-secondary p-4">
         <div className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Routing &amp; Isolation</div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-muted-foreground">
@@ -330,7 +332,7 @@ export default function CvExportPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-secondary p-4">
+      <div className="rounded-lg border border-border bg-secondary p-4">
         <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Import massivo · archivio storico</div>
         <p className="mb-3 text-[12.5px] leading-relaxed text-muted-foreground">
           Carica in un colpo solo l'intero database di CV esistente (più PDF insieme) nell'archivio della company selezionata sopra. Richiede il
@@ -340,16 +342,18 @@ export default function CvExportPage() {
             implemented — verified against backend/src), and the old bridge
             target (/modules/recruiting.html) no longer exists — so this is
             an honest DISABLED control, never a dead link or a fake upload. */}
-        <button
-          type="button"
-          disabled
-          aria-disabled="true"
-          title="Il servizio di ingestione backend non è disponibile in questa build"
-          className="inline-flex cursor-not-allowed items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-3 py-1.5 text-[11.5px] font-semibold text-muted-foreground opacity-60"
-        >
-          <FileSpreadsheet className="size-3.5 shrink-0" aria-hidden="true" />
-          Seleziona più CV (PDF)…
-        </button>
+        <Hint label="Il servizio di ingestione backend non è disponibile in questa build">
+          <Button
+            type="button"
+            disabled
+            aria-disabled="true"
+            variant="outline"
+            size="sm"
+          >
+            <FileSpreadsheet className="size-3.5 shrink-0" aria-hidden="true" />
+            Seleziona più CV (PDF)…
+          </Button>
+        </Hint>
       </div>
 
       <div>

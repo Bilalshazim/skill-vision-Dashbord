@@ -45,7 +45,7 @@ export function SoftSkillSection() {
         <button
           type="button"
           onClick={(e) => e.stopPropagation()}
-          className="flex w-full flex-col items-start gap-1 rounded-md border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+          className="flex w-full flex-col items-start gap-1 rounded-sm border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         >
           <span className="text-[12px] text-muted-foreground">Scegliere almeno 6 ESSENZIALI - 4 IMPORTANTI e 2 UTILI</span>
           <span className="text-[13px] font-semibold text-foreground">{flaggedCount > 0 ? `${flaggedCount} selezionate (${essentialCount} essenziali)` : '0 selezionate'}</span>
@@ -57,7 +57,7 @@ export function SoftSkillSection() {
           <DialogTitle>Le 35 soft skill APEX 5D</DialogTitle>
         </DialogHeader>
 
-        <p className="flex items-start gap-1.5 rounded-md border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
+        <p className="flex items-start gap-1.5 rounded-sm border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
           <Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
           Sola lettura in questa versione — la modifica richiede il cambio ruolo, non ancora disponibile in questa migrazione.
         </p>
@@ -77,7 +77,7 @@ export function SoftSkillSection() {
                 {col.items.map((sk) => {
                   const lv = DEFAULT_FLAGS[sk]
                   return (
-                    <div key={sk} className="rounded-md border border-border px-2 py-1.5 text-[11.5px] leading-snug text-foreground">
+                    <div key={sk} className="rounded-sm border border-border px-2 py-1.5 text-[11.5px] leading-snug text-foreground">
                       {sk}
                       {lv && <span className={cn('ml-1.5 inline-block rounded-full px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-wide', TAG_CLASS[lv])}>{W[lv].label}</span>}
                     </div>
@@ -88,7 +88,7 @@ export function SoftSkillSection() {
             <div className="flex flex-col gap-1.5">
               <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Sottofattori</div>
               {SUBFACTORS.map((s) => (
-                <div key={s} className="rounded-md px-2 py-1.5 text-[11.5px] italic leading-snug text-muted-foreground">
+                <div key={s} className="rounded-sm px-2 py-1.5 text-[11.5px] italic leading-snug text-muted-foreground">
                   {s}
                 </div>
               ))}

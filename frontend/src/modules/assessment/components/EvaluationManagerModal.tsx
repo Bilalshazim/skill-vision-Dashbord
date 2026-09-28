@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { Badge } from '@/components/ui/badge'
+import { CardLabel, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/modules/assessment/components/Modal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
@@ -131,7 +133,7 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
           readOnly
           value={linkModal}
           onClick={(e) => (e.target as HTMLInputElement).select()}
-          style={{ width: '100%', padding: '9px 11px', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-alt)', fontFamily: 'var(--font-mono)', fontSize: 12 }}
+          style={{ width: '100%', padding: '9px 11px', border: '1px solid var(--border-strong)', borderRadius: 'var(--a-radius-sm)', background: 'var(--surface-alt)', fontFamily: 'var(--font-mono)', fontSize: 12 }}
         />
       </Modal>
     )
@@ -161,13 +163,13 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
           </Button>
         }
       >
-        <div className="card-eyebrow" style={{ marginBottom: 6 }}>
+        <CardLabel  style={{ marginBottom: 6 }}>
           {ui.evalStatusCompleted} ({completed.length})
-        </div>
+        </CardLabel>
         {completed.length ? completed.map(row) : <div className="small-note" style={{ marginBottom: 12 }}>{ui.evalNoAssignments}</div>}
-        <div className="card-eyebrow" style={{ marginTop: 16, marginBottom: 6 }}>
+        <CardLabel  style={{ marginTop: 16, marginBottom: 6 }}>
           {ui.evalStatusPending} ({pending.length})
-        </div>
+        </CardLabel>
         {pending.length ? pending.map(row) : <div className="small-note">{ui.evalNoAssignments}</div>}
       </Modal>
     )
@@ -187,9 +189,9 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="divider" />
-      <div className="card-title" style={{ marginBottom: 10 }}>
+      <CardTitle  style={{ marginBottom: 10 }}>
         {ui.evalAssignTitle}
-      </div>
+      </CardTitle>
       <div className="field-row">
         <div className="field">
           <label>{ui.evalTemplateLabel}</label>
@@ -244,7 +246,7 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
       )}
       <div className="field">
         <label>{ui.evalTargetsLabel}</label>
-        <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '8px 10px' }}>
+        <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--a-radius-sm)', padding: '8px 10px' }}>
           {state.employees
             .filter((e) => !e.archived)
             .map((e) => (
@@ -262,9 +264,9 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
       </Button>
 
       <div className="divider" />
-      <div className="card-title" style={{ marginBottom: 10 }}>
+      <CardTitle  style={{ marginBottom: 10 }}>
         {ui.evalAssignmentsListTitle}
-      </div>
+      </CardTitle>
       <div className="table-wrap">
         <table className="dtable">
           <thead>
@@ -290,10 +292,9 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
                     <td>{a.evaluatorName || '—'}</td>
                     <td>{period ? period.label : '—'}</td>
                     <td>
-                      <span className={`chip ${a.status === 'completed' ? 'chip-green' : 'chip-gray'}`}>
-                        <span className="dt" />
+                      <Badge tone={a.status === 'completed' ? 'success' : 'neutral'} dot>
                         {a.status === 'completed' ? ui.evalStatusCompleted : ui.evalStatusPending}
-                      </span>
+                      </Badge>
                     </td>
                     <td style={{ whiteSpace: 'nowrap' }}>
                       <Button variant="outline" size="sm" onClick={() => copyLink(a.id)}>

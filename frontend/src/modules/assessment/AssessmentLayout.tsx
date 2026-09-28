@@ -11,6 +11,7 @@ import { generateDemoData } from '@/modules/assessment/lib/demo-data'
 import { getNavConfig, getPageMeta } from '@/modules/assessment/lib/legacy-utils'
 import { SHELL_ENTRY_URL, isShellAuthenticated } from '@/modules/assessment/lib/shell-bridge'
 import '@/modules/assessment/styles/assessment-scoped.css'
+import '@/modules/assessment/styles/assessment-bridge.css'
 
 // PHASE 24 GROUP A — Assessment's own shell (sidebar/topbar/nav), reproducing
 // the DOM structure of modules/assessment.html's #app (~54-110) and

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/modules/assessment/components/Modal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
@@ -139,10 +140,9 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
               const n = counts[w as 1 | 2 | 3] || 0
               const ok = n >= lvl.min
               return (
-                <span className={`chip rc-count-item ${ok ? 'chip-green' : 'chip-red'}`} key={w}>
-                  <span className="dt" />
+                <Badge tone={ok ? 'success' : 'destructive'} dot key={w}>
                   {ui[lvl.countKey as keyof typeof ui] as string} {n}/{lvl.min}
-                </span>
+                </Badge>
               )
             })}
           </div>

@@ -2,8 +2,9 @@ import { AlertTriangle, ArrowLeftRight, ChevronDown, Download, FileJson } from '
 import { useState } from 'react'
 
 import { cn } from '@/lib/utils'
-import { ActionButton } from '@/modules/recruiting/components/ActionButton'
 import { EssentialSkillBars } from '@/modules/recruiting/components/EssentialSkillBars'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { LegacyBridgeButton } from '@/modules/recruiting/components/LegacyBridgeButton'
 import { CandidateProfileDialog } from '@/modules/recruiting/cv/CandidateProfileDialog'
 import { CvMatchDialog } from '@/modules/recruiting/cv/CvMatchDialog'
@@ -54,7 +55,7 @@ export function RankingCard({
   const sums = skillTierSums(candidate)
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-sm p-4 transition-colors hover:border-primary/40 sm:p-6">
+    <Card padding="lg">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -63,7 +64,7 @@ export function RankingCard({
       >
         <div
           className={cn(
-            'grid size-[46px] shrink-0 place-items-center rounded-md font-mono text-xl font-black tracking-[-.045em] tabular-nums',
+            'grid size-[46px] shrink-0 place-items-center rounded-sm font-mono text-xl font-black tracking-[-.045em] tabular-nums',
             position === 1 ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground',
           )}
         >
@@ -96,7 +97,10 @@ export function RankingCard({
             <CvMatchDialog candidate={candidate} />
             <CandidateProfileDialog candidate={candidate} />
             <CvOpenButton candidate={candidate} className="shrink-0" />
-            <ActionButton icon={Download} label="Report" onClick={() => downloadCandidateReport(candidate, result, position, totalRanked)} />
+            <Button variant="outline" size="sm" onClick={() => downloadCandidateReport(candidate, result, position, totalRanked)}>
+              <Download aria-hidden="true" />
+              Report
+            </Button>
           </div>
 
           <SubScoreBoxes fc={result.fc} ab={result.ab} icv={result.icv} />
@@ -122,10 +126,13 @@ export function RankingCard({
 
           <div className="mt-4 flex flex-wrap gap-2">
             <LegacyBridgeButton icon={ArrowLeftRight} label="Confronta con i dipendenti interni" />
-            <ActionButton icon={FileJson} label="Esporta profilo" onClick={() => downloadCandidateProfileJson(candidate, result)} />
+            <Button variant="outline" size="sm" onClick={() => downloadCandidateProfileJson(candidate, result)}>
+              <FileJson aria-hidden="true" />
+              Esporta profilo
+            </Button>
           </div>
         </div>
       )}
-    </div>
+    </Card>
   )
 }

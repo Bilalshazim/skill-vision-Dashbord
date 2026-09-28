@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { Badge } from '@/components/ui/badge'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { GroupedBarsChart } from '@/modules/assessment/components/GroupedBarsChart'
@@ -119,10 +121,10 @@ function SoftOrgView() {
   return (
     <>
       <div className="grid grid-2">
-        <div className="card">
-          <div className="card-title-row">
-            <div className="card-title">{ui.softClusterAvgTitle}</div>
-          </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>{ui.softClusterAvgTitle}</CardTitle>
+          </CardHeader>
           <div className="grid grid-2" style={{ gap: 8 }}>
             {clusterAvgs.map((c) => (
               <StatTile key={c.cluster} label={c.cluster} value={c.ott} benchmark={c.att} />
@@ -131,11 +133,11 @@ function SoftOrgView() {
           <div className="small-note" style={{ marginTop: 10 }}>
             {ui.softClusterAvgNote}
           </div>
-        </div>
-        <div className="card">
-          <div className="card-title-row">
-            <div className="card-title">{ui.softBigFiveOrgTitle}</div>
-          </div>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{ui.softBigFiveOrgTitle}</CardTitle>
+          </CardHeader>
           {/* Obtained/Expected is a profile comparison, not a severity signal —
               was lime for Obtained; charts stay off lime, so it uses the
               app's designated multi-series categorical hue instead. */}
@@ -148,18 +150,18 @@ function SoftOrgView() {
               dec={1}
             />
           </div>
-        </div>
+        </Card>
       </div>
-      <div className="card" style={{ marginTop: 16 }}>
-        <div className="card-title-row">
-          <div className="card-title">{ui.softWorstSkillsTitle}</div>
-        </div>
+      <Card  style={{ marginTop: 16 }}>
+        <CardHeader>
+          <CardTitle>{ui.softWorstSkillsTitle}</CardTitle>
+        </CardHeader>
         <div className="grid grid-3" style={{ gap: 8 }}>
           {worst.map((s) => (
             <StatTile key={s.id} label={s.name} value={s.ottenuto} benchmark={s.atteso} />
           ))}
         </div>
-      </div>
+      </Card>
     </>
   )
 }
@@ -173,16 +175,15 @@ function SoftAreaView({ onOpenDrawer }: { onOpenDrawer: (id: string) => void }) 
         const emps = state.employees.filter((e) => e.area === area)
         const ott = round1(avg(emps.map((e) => computeSoftSummary(e, lang).overallOttenuto)))
         return (
-          <div className="card" key={area}>
-            <div className="card-title-row">
-              <div className="card-title">
+          <Card  key={area}>
+            <CardHeader>
+              <CardTitle>
                 {area} <span className="muted">{ui.softAreaEmpCount(emps.length)}</span>
-              </div>
-              <span className={`chip ${ott >= 7 ? 'chip-green' : ott >= 5 ? 'chip-amber' : 'chip-red'}`} style={{ marginLeft: 'auto' }}>
-                <span className="dt" />
+              </CardTitle>
+              <Badge tone={ott >= 7 ? 'success' : ott >= 5 ? 'warning' : 'destructive'} dot style={{ marginLeft: 'auto' }}>
                 {fmt1(ott)}
-              </span>
-            </div>
+              </Badge>
+            </CardHeader>
             {emps.map((e) => {
               const s = computeSoftSummary(e, lang).overallOttenuto
               return (
@@ -194,14 +195,13 @@ function SoftAreaView({ onOpenDrawer }: { onOpenDrawer: (id: string) => void }) 
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--text-3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.ruolo}</div>
                   </div>
-                  <span className={`chip ${s >= 7 ? 'chip-green' : s >= 5 ? 'chip-amber' : 'chip-red'}`}>
-                    <span className="dt" />
+                  <Badge tone={s >= 7 ? 'success' : s >= 5 ? 'warning' : 'destructive'} dot>
                     {fmt1(s)}
-                  </span>
+                  </Badge>
                 </div>
               )
             })}
-          </div>
+          </Card>
         )
       })}
     </div>
@@ -212,7 +212,7 @@ function SoftAlfaView({ onOpenDrawer }: { onOpenDrawer: (id: string) => void }) 
   const { state, lang, ui } = useAssessment()
   const list = [...state.employees].sort((a, b) => a.cognome.localeCompare(b.cognome))
   return (
-    <div className="card" style={{ padding: 0 }}>
+    <Card  style={{ padding: 0 }}>
       <div className="table-wrap">
         <table className="dtable">
           <thead>
@@ -252,20 +252,17 @@ function SoftAlfaView({ onOpenDrawer }: { onOpenDrawer: (id: string) => void }) 
                   <td style={{ color: 'var(--text-2)', whiteSpace: 'nowrap' }}>{e.surveySentAt ? new Date(e.surveySentAt).toLocaleDateString(lang === 'it' ? 'it-IT' : 'en-US') : '—'}</td>
                   <td>
                     {!e.surveySentAt ? (
-                      <span className="chip chip-gray">
-                        <span className="dt" />
+                      <Badge dot>
                         {ui.softStatusNotSent}
-                      </span>
+                      </Badge>
                     ) : testDone ? (
-                      <span className="chip chip-green">
-                        <span className="dt" />
+                      <Badge tone="success" dot>
                         {ui.softColTestDone}
-                      </span>
+                      </Badge>
                     ) : (
-                      <span className="chip chip-amber">
-                        <span className="dt" />
+                      <Badge tone="warning" dot>
                         {ui.softColAwaitingTest}
-                      </span>
+                      </Badge>
                     )}
                   </td>
                 </tr>
@@ -274,7 +271,7 @@ function SoftAlfaView({ onOpenDrawer }: { onOpenDrawer: (id: string) => void }) 
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   )
 }
 
@@ -313,10 +310,10 @@ function SoftIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
         </select>
       </div>
       <div className="grid grid-2" style={{ marginBottom: 16 }}>
-        <div className="card">
-          <div className="card-title-row">
-            <div className="card-title">{ui.softBigFiveProfile}</div>
-          </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>{ui.softBigFiveProfile}</CardTitle>
+          </CardHeader>
           <div style={{ position: 'relative', height: 280 }}>
             <GroupedBarsChart
               groups={BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, values: [bf[d], bfAtteso[d]] }))}
@@ -326,11 +323,11 @@ function SoftIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
               dec={1}
             />
           </div>
-        </div>
-        <div className="card">
-          <div className="card-title-row">
-            <div className="card-title">{ui.softSummaryTitle}</div>
-          </div>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{ui.softSummaryTitle}</CardTitle>
+          </CardHeader>
           <div className="kpi-value">{fmt1(ss.overallOttenuto)}</div>
           <div className="kpi-label">{ui.softOverallScoreLabel(fmt1(ss.overallAtteso))}</div>
           <div className="divider" />
@@ -339,12 +336,12 @@ function SoftIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
               <StatTile key={c.cluster} label={c.cluster} value={c.ottenuto} benchmark={c.atteso} />
             ))}
           </div>
-        </div>
+        </Card>
       </div>
-      <div className="card">
-        <div className="card-title-row">
-          <div className="card-title">{ui.softAllSkillsDetail}</div>
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>{ui.softAllSkillsDetail}</CardTitle>
+        </CardHeader>
         {SOFT_CLUSTERS.map((c) => (
           <div className="cluster-block" key={c}>
             <div className="cluster-title">{c}</div>
@@ -357,7 +354,7 @@ function SoftIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
             </div>
           </div>
         ))}
-      </div>
+      </Card>
     </>
   )
 }
@@ -379,7 +376,7 @@ function SoftRankingView({ sort, onSort, onOpenDrawer }: { sort: 'score' | 'gap'
           {ui.softSortByGap}
         </button>
       </div>
-      <div className="card" style={{ padding: 0 }}>
+      <Card  style={{ padding: 0 }}>
         <div className="table-wrap">
           <table className="dtable">
             <thead>
@@ -407,10 +404,9 @@ function SoftRankingView({ sort, onSort, onOpenDrawer }: { sort: 'score' | 'gap'
                   <td>{r.e.area}</td>
                   <td>{r.e.ruolo}</td>
                   <td>
-                    <span className={`chip ${r.s >= 7 ? 'chip-green' : r.s >= 5 ? 'chip-amber' : 'chip-red'}`}>
-                      <span className="dt" />
+                    <Badge tone={r.s >= 7 ? 'success' : r.s >= 5 ? 'warning' : 'destructive'} dot>
                       {fmt1(r.s)}
-                    </span>
+                    </Badge>
                   </td>
                   <td>
                     <span className={`gap-tag ${gapInterpretation(r.gap, lang).tag}`}>
@@ -423,7 +419,7 @@ function SoftRankingView({ sort, onSort, onOpenDrawer }: { sort: 'score' | 'gap'
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </>
   )
 }
@@ -444,10 +440,10 @@ function SoftMatchView({ match, onChangeMatch }: { match: string[]; onChangeMatc
   const overallCls = matchCellClasses(overallVals)
   return (
     <>
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="card-title-row">
-          <div className="card-title">{ui.softSelectUpTo5}</div>
-        </div>
+      <Card  style={{ marginBottom: 16 }}>
+        <CardHeader>
+          <CardTitle>{ui.softSelectUpTo5}</CardTitle>
+        </CardHeader>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <select
             value=""
@@ -468,14 +464,14 @@ function SoftMatchView({ match, onChangeMatch }: { match: string[]; onChangeMatc
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
           {emps.map((e) => (
-            <span className="chip chip-blue" key={e.id}>
+            <Badge key={e.id}>
               {e.nome} {e.cognome} <span style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => remove(e.id)}>✕</span>
-            </span>
+            </Badge>
           ))}
         </div>
-      </div>
+      </Card>
       {emps.length ? (
-        <div className="card match-col" style={{ padding: 0 }}>
+        <Card className="match-col" style={{ padding: 0 }}>
           <div className="table-wrap">
             <table className="dtable">
               <thead>
@@ -515,11 +511,11 @@ function SoftMatchView({ match, onChangeMatch }: { match: string[]; onChangeMatc
               {ui.legendLowest}
             </span>
             <span className="small-note">
-              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', marginRight: 5 }} />
+              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)', marginRight: 5 }} />
               {ui.legendAligned}
             </span>
           </div>
-        </div>
+        </Card>
       ) : (
         <div className="empty-state">
           <div className="t">{ui.softNoEmpSelectedTitle}</div>

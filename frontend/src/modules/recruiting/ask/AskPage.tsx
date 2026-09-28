@@ -2,6 +2,7 @@ import { ArrowRight, Loader2, Sparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { Card } from '@/components/ui/card'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { AskAnswerView } from '@/modules/recruiting/ask/AskAnswerView'
@@ -11,7 +12,7 @@ import { QUICK_QUESTIONS, composeAnswer, isScreeningPrompt, runLocalScreeningQue
 import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/storage'
 
 const textareaClass =
-  'w-full min-h-[70px] resize-y rounded-md border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'w-full min-h-[70px] resize-y rounded-sm border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // See CipAdminPage.tsx's identical comment.
 const primaryBtnClass = buttonVariants({ size: 'sm' })
 const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
@@ -110,7 +111,7 @@ export default function AskPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+      <Card>
         <h3 className="text-[15px] font-semibold">💬 Chiedi a Skill-Vision AI</h3>
         <p className="mt-1 text-[12.5px] text-muted-foreground">
           Fai una domanda libera sui dati della piattaforma: un candidato specifico, un'analisi comparativa, l'interpretazione di un ranking…
@@ -140,7 +141,7 @@ export default function AskPage() {
             {freeTextState.kind === 'screening' && <ScreeningResultView result={freeTextState.result} />}
           </div>
         )}
-      </div>
+      </Card>
 
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
@@ -152,10 +153,10 @@ export default function AskPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+      <Card>
         <div className="flex flex-col gap-3">
           {askedQuestions.length === 0 ? (
-            <div className="rounded-md bg-secondary px-3.5 py-2.5 text-[13px]">
+            <div className="rounded-sm bg-secondary px-3.5 py-2.5 text-[13px]">
               <div className="font-semibold">Sono l'assistente APEX 5D per la selezione.</div>
               Ho la classifica aggiornata dei candidati per il ruolo che hai configurato. Tocca una domanda — le risposte si basano sui punteggi veri,
               non su frasi preconfezionate.
@@ -163,11 +164,11 @@ export default function AskPage() {
           ) : (
             <>
               {askedQuestions.map((q, i) => (
-                <div key={i} className="ml-auto max-w-[85%] rounded-md bg-primary/10 px-3.5 py-2 text-[13px] font-medium text-foreground">
+                <div key={i} className="ml-auto max-w-[85%] rounded-sm bg-primary/10 px-3.5 py-2 text-[13px] font-medium text-foreground">
                   {q}
                 </div>
               ))}
-              <div className="max-w-[85%] rounded-md bg-secondary px-3.5 py-2.5 text-[13px]">
+              <div className="max-w-[85%] rounded-sm bg-secondary px-3.5 py-2.5 text-[13px]">
                 {chatState.kind === 'pending' && (
                   <span className="inline-flex items-center gap-1.5 text-muted-foreground">
                     <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
@@ -197,7 +198,7 @@ export default function AskPage() {
             ))}
           </div>
         )}
-      </div>
+      </Card>
     </div>
   )
 }

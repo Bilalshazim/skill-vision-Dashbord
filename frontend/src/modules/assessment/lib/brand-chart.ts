@@ -21,7 +21,7 @@ export function token(el: Element, name: string, fallback: string): string {
 
 export function chartPalette(el: Element) {
   return {
-    lime: token(el, '--accent', '#DDEE1C'),
+    lime: token(el, '--primary', '#DDEE1C'),
     limeSoft: token(el, '--accent-soft', 'rgba(221,238,28,0.14)'),
     success: token(el, '--success', '#3FBF7F'),
     successSoft: token(el, '--success-soft', 'rgba(63,191,127,0.14)'),

@@ -79,7 +79,7 @@ function labelRowHtml(labels: (string | number)[], fontSize: number): string {
   })
   const dropH = Math.ceil(maxW * Math.sin(angle) + fontSize * 1.4)
   return `<div style="display:grid;grid-template-columns:repeat(${labels.length},1fr);margin-top:4px;margin-bottom:${dropH}px">
-    ${labels.map((l) => `<div style="text-align:right;overflow:visible"><span style="display:inline-block;transform-origin:100% 0;transform:rotate(-32deg);white-space:nowrap;font-size:${fontSize}px;font-weight:600;color:var(--muted,#767369);padding-right:3px">${escXml(l)}</span></div>`).join('')}
+    ${labels.map((l) => `<div style="text-align:right;overflow:visible"><span style="display:inline-block;transform-origin:100% 0;transform:rotate(-32deg);white-space:nowrap;font-size:${fontSize}px;font-weight:600;color:var(--text-muted,#767369);padding-right:3px">${escXml(l)}</span></div>`).join('')}
   </div>`
 }
 
@@ -150,7 +150,7 @@ export function renderIsometricBars(el: HTMLElement | null, opts: { groups: Isom
 
   const legend =
     seriesNames.length > 1
-      ? `<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:8px;font-size:11px;font-weight:600;color:var(--muted,#767369)">
+      ? `<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:8px;font-size:11px;font-weight:600;color:var(--text-muted,#767369)">
     ${seriesNames.map((n, i) => `<span style="display:inline-flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:3px;background:${seriesColors[i] || seriesColors[0]};display:inline-block"></i>${escXml(n)}</span>`).join('')}
   </div>`
       : ''
@@ -214,7 +214,7 @@ export function renderCapsuleBars(el: HTMLElement | null, opts: { items: Capsule
   el.innerHTML = `<div style="max-width:${totalW}px">
     <svg viewBox="0 0 ${totalW} ${svgH}" preserveAspectRatio="none" style="width:100%;height:${svgH}px;display:block"><defs>${defs}</defs>${body}</svg>
     ${labelRowHtml(items.map((it) => it.label), 10.5)}
-    ${items.some((it) => it.sub) ? `<div style="display:grid;grid-template-columns:repeat(${items.length},1fr)">${items.map((it) => `<div style="text-align:center;font-size:9px;color:var(--muted,#767369)">${it.sub ? escXml(it.sub) : ''}</div>`).join('')}</div>` : ''}
+    ${items.some((it) => it.sub) ? `<div style="display:grid;grid-template-columns:repeat(${items.length},1fr)">${items.map((it) => `<div style="text-align:center;font-size:9px;color:var(--text-muted,#767369)">${it.sub ? escXml(it.sub) : ''}</div>`).join('')}</div>` : ''}
   </div>`
 }
 
@@ -247,11 +247,11 @@ export function renderBarRow(el: HTMLElement | null, opts: { series: BarRowSerie
       '' +
       (label ? `<div style="font-weight:600;margin-bottom:3px">${escXml(label)}</div>` : '') +
       `<div>${escXml(name)}: <b>${escXml(fmtVal(v, unit, dec))}</b></div>` +
-      (opts.target != null ? `<div style="color:var(--muted,#767369)">${escXml(targetLabel)}: ${escXml(fmtVal(opts.target, unit, dec))} (${delta! >= 0 ? '+' : ''}${escXml(fmtVal(delta!, unit, dec))})</div>` : '')
+      (opts.target != null ? `<div style="color:var(--text-muted,#767369)">${escXml(targetLabel)}: ${escXml(fmtVal(opts.target, unit, dec))} (${delta! >= 0 ? '+' : ''}${escXml(fmtVal(delta!, unit, dec))})</div>` : '')
     const ariaLabel = escXml((label ? label + ' — ' : '') + name + ': ' + fmtVal(v, unit, dec) + (opts.target != null ? `, ${targetLabel} ${fmtVal(opts.target, unit, dec)}` : ''))
     body += `<g role="img" aria-label="${ariaLabel}" data-tip="${escAttr(tipHtml)}" style="cursor:default">
       <rect x="0" y="${y}" width="100" height="${barH}" rx="${barH / 2}" fill="var(--panel-2, rgba(120,120,120,.12))"/>
-      ${w > 0 ? `<rect x="0" y="${y}" width="${w}" height="${barH}" rx="${barH / 2}" fill="${s.color || 'var(--muted)'}" opacity="${s.opacity != null ? s.opacity : 1}"/>` : ''}
+      ${w > 0 ? `<rect x="0" y="${y}" width="${w}" height="${barH}" rx="${barH / 2}" fill="${s.color || 'var(--text-muted)'}" opacity="${s.opacity != null ? s.opacity : 1}"/>` : ''}
     </g>`
   })
   if (opts.target != null && max > 0) {

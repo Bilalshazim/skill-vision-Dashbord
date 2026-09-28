@@ -1,0 +1,412 @@
+/* ============================================================
+   Skill Vision — tema applicazione
+   Tailwind v4 + shadcn/ui. Sostituisce interamente app/globals.css.
+
+   Tre livelli, in quest'ordine:
+   1. @theme          palette e scale primitive (i valori)
+   2. :root / .dark   ruoli semantici (chi usa cosa)
+   3. @theme inline   esposizione dei ruoli come utility Tailwind
+
+   Nessun valore esadecimale va scritto altrove nel progetto.
+   ============================================================ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------
+   1. PRIMITIVE
+   ------------------------------------------------------------ */
+
+@theme {
+  /* --- Neutri caldi -------------------------------------------
+     Sovrascrivono di proposito la scala `neutral` di Tailwind:
+     qualunque `text-neutral-500` nel progetto diventa caldo.
+     Le lightness sono allineate a quelle originali, cambia solo
+     la temperatura. ------------------------------------------- */
+  --color-neutral-0:   #FFFEF5;
+  --color-neutral-50:  #FDFCF2;
+  --color-neutral-100: #F7F5EA;
+  --color-neutral-200: #EEEADA;
+  --color-neutral-300: #DBD7C7;
+  --color-neutral-400: #ABA79A;
+  --color-neutral-500: #767369;
+  --color-neutral-600: #55534B;
+  --color-neutral-700: #45433C;
+  --color-neutral-800: #2B2926;
+  --color-neutral-900: #1B1A17;
+  --color-neutral-950: #0D0C0A;
+
+  /* Cream del marchio. NON è un fondo di interfaccia: vale per
+     materiali di comunicazione, copertine, il manuale. In app si
+     usa solo dove il brand parla in prima persona. */
+  --color-cream: #FFFCE0;
+
+  /* --- Accento lime -------------------------------------------
+     Cinque valori, non undici: è un accento, non una scala.
+     300 hover-dark · 400 primario · 500 hover-light
+     600 bordi e focus · 800 testo su chiaro ------------------- */
+  --color-accent-300: #E6FB2D;
+  --color-accent-400: #DDEE1C;
+  --color-accent-500: #B4C614;
+  --color-accent-600: #8C980B;
+  --color-accent-800: #565D05;
+
+  /* --- Stati — un valore per modalità ------------------------- */
+  /* Le primitive della modalità chiara di stati e grafici portano il
+     suffisso -light, come le scure portano -dark. Senza suffisso
+     avrebbero lo stesso nome delle utility esposte in fondo al file
+     (--color-warning: var(--warning)), e --warning: var(--color-warning)
+     diventerebbe un riferimento circolare: in chiaro la variabile resta
+     vuota e text-warning, bg-success, chart-1… non colorano niente. */
+  --color-danger:       #BF3022;
+  --color-danger-dark:  #EF6B54;
+  --color-warning-light: #8A5107;
+  --color-warning-dark: #E08A0B;
+  --color-success-light: #1C7A4D;
+  --color-success-dark: #3FBF7F;
+
+  /* --- Famiglia categorica per i grafici ----------------------
+     L'ordine è funzionale: tonalità consecutive distano più di
+     ottanta gradi, così due o tre serie sono sempre lontane.
+     Non riordinare. ------------------------------------------- */
+  --color-chart-1-light: #0F7A85;  /* petrolio */
+  --color-chart-1-dark: #2AA5B0;
+  --color-chart-2-light: #B0208C;  /* magenta  */
+  --color-chart-2-dark: #D65FB8;
+  --color-chart-3-light: #8A5107;  /* ambra    */
+  --color-chart-3-dark: #E08A0B;
+  --color-chart-4-light: #6A4FA3;  /* viola    */
+  --color-chart-4-dark: #9070C0;
+  --color-chart-5-light: #BF3022;  /* rosso    */
+  --color-chart-5-dark: #EF6B54;
+  --color-chart-6-light: #1C7A4D;  /* verde    */
+  --color-chart-6-dark: #3FBF7F;
+
+  /* --- Caratteri ---------------------------------------------- */
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system,
+               "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular,
+               Menlo, Consolas, monospace;
+
+  /* --- Scala tipografica dell'interfaccia ---------------------
+     Base 14px, non 16: un'interfaccia si legge per ore.
+     Ogni ruolo porta con sé interlinea e tracking, quindi
+     `text-app-label` basta da solo. ---------------------------- */
+  --text-app-title: 1.5rem;                       /* 24 */
+  --text-app-title--line-height: 1.25;
+  --text-app-title--letter-spacing: -0.015em;
+  --text-app-title--font-weight: 600;
+
+  --text-app-section: 1.125rem;                   /* 18 */
+  --text-app-section--line-height: 1.3;
+  --text-app-section--letter-spacing: -0.01em;
+  --text-app-section--font-weight: 600;
+
+  --text-app-subtitle: 1rem;                      /* 16 */
+  --text-app-subtitle--line-height: 1.4;
+  --text-app-subtitle--font-weight: 500;
+
+  --text-app-body: 0.875rem;                      /* 14 */
+  --text-app-body--line-height: 1.45;
+
+  --text-app-small: 0.8125rem;                    /* 13 */
+  --text-app-small--line-height: 1.4;
+
+  --text-app-caption: 0.75rem;                    /* 12 */
+  --text-app-caption--line-height: 1.35;
+
+  /* Lo stile label: mono maiuscolo. È l'elemento più
+     caratterizzante del sistema. Tre o quattro parole al massimo,
+     mai testo che va a capo. */
+  --text-app-label: 0.6875rem;                    /* 11 */
+  --text-app-label--line-height: 1.2;
+  --text-app-label--letter-spacing: 0.07em;
+  --text-app-label--font-weight: 500;
+
+  --text-metric-lg: 2rem;                         /* 32 */
+  --text-metric-lg--line-height: 1.1;
+  --text-metric-lg--letter-spacing: -0.01em;
+  --text-metric-lg--font-weight: 500;
+
+  --text-metric: 1.25rem;                         /* 20 */
+  --text-metric--line-height: 1.2;
+  --text-metric--font-weight: 500;
+
+  /* --- Raggi ---------------------------------------------------
+     xs checkbox e tag · sm input e controlli piccoli
+     md bottoni · lg card e pannelli · xl sezioni e immagini
+     Regola del raggio annidato: interno = esterno − padding.
+     Una card 24 con padding 16 contiene elementi da 8. -------- */
+  --radius-xs:   6px;
+  --radius-sm:   10px;
+  --radius-md:   16px;
+  --radius-lg:   24px;
+  --radius-xl:   32px;
+  --radius-full: 9999px;
+
+  /* --- Ombre: azzerate ------------------------------------------
+     Il sistema separa le superfici per colore e perimetro. Senza
+     questo blocco la scala di Tailwind resta attiva e ogni
+     `shadow-md` che una libreria porta con sé torna a schermo.
+
+     `0 0 transparent` e non `none`: dentro un elenco di box-shadow
+     `none` annulla l'intera dichiarazione e spegne anche gli anelli
+     di focus.
+
+     Le classi `shadow-*` nel codice vanno tolte comunque — l'audit
+     le conta — ma qui smettono di produrre effetto. ------------- */
+  --shadow-2xs: 0 0 transparent;
+  --shadow-xs:  0 0 transparent;
+  --shadow-sm:  0 0 transparent;
+  --shadow:     0 0 transparent;
+  --shadow-md:  0 0 transparent;
+  --shadow-lg:  0 0 transparent;
+  --shadow-xl:  0 0 transparent;
+  --shadow-2xl: 0 0 transparent;
+  --inset-shadow-2xs: 0 0 transparent;
+  --inset-shadow-xs:  0 0 transparent;
+  --inset-shadow-sm:  0 0 transparent;
+}
+
+/* ------------------------------------------------------------
+   2. RUOLI SEMANTICI
+
+   ATTENZIONE AL NOME `--accent`.
+   In shadcn `--accent` NON è il colore del marchio: è il fondo
+   tenue degli stati hover e delle voci selezionate. Il lime va
+   in `--primary`. Mappare il lime su `--accent` colorerebbe ogni
+   hover dell'applicazione e distruggerebbe il sistema.
+   ------------------------------------------------------------ */
+
+:root {
+  --background:            var(--color-neutral-50);
+  --foreground:            var(--color-neutral-800);
+
+  --card:                  var(--color-neutral-100);
+  --card-foreground:       var(--color-neutral-800);
+  --popover:               var(--color-neutral-100);
+  --popover-foreground:    var(--color-neutral-800);
+
+  /* Il marchio. Testo scuro sopra, mai bianco: 1,3:1. */
+  --primary:               var(--color-accent-400);
+  --primary-foreground:    var(--color-neutral-950);
+  --primary-hover:         var(--color-accent-500);
+
+  --secondary:             var(--color-neutral-200);
+  --secondary-foreground:  var(--color-neutral-800);
+
+  /* `muted` è la superficie di servizio: intestazioni di tabella, scheletri,
+     pannelli sommessi. Deve restare distinguibile sia dal fondo pagina sia
+     dalla card, altrimenti sparisce dentro una card. */
+  --muted:                 var(--color-neutral-200);
+  --muted-foreground:      var(--color-neutral-600);
+
+  /* Fondo tenue di hover e selezione — neutro, non lime. */
+  --accent:                var(--color-neutral-200);
+  --accent-foreground:     var(--color-neutral-800);
+
+  --destructive:           var(--color-danger);
+  --destructive-foreground:var(--color-neutral-0);
+  --warning:               var(--color-warning-light);
+  --success:               var(--color-success-light);
+
+  --border:                var(--color-neutral-200);
+  --border-strong:         var(--color-neutral-300);
+  --input:                 var(--color-neutral-300);
+  --ring:                  var(--color-accent-600);
+  --link:                  var(--color-accent-800);
+
+  /* Serie singola nei grafici. Su fondo chiaro NON si usa il 400:
+     su cream dà 1,25:1 ed è invisibile. */
+  --chart-mono: var(--color-accent-600);
+  --chart-1: var(--color-chart-1-light);
+  --chart-2: var(--color-chart-2-light);
+  --chart-3: var(--color-chart-3-light);
+  --chart-4: var(--color-chart-4-light);
+  --chart-5: var(--color-chart-5-light);
+  --chart-6: var(--color-chart-6-light);
+
+  /* Navigazione. Una voce non attiva non è testo secondario: è un
+     bersaglio cliccabile. Quello che distingue la voce aperta è il
+     riempimento lime, non lo sbiadimento del testo. */
+  --sidebar:                    var(--color-neutral-100);
+  --sidebar-foreground:         var(--color-neutral-700);
+  --sidebar-primary:            var(--color-accent-400);
+  --sidebar-primary-foreground: var(--color-neutral-950);
+  --sidebar-accent:             var(--color-neutral-200);
+  --sidebar-accent-foreground:  var(--color-neutral-800);
+  --sidebar-border:             var(--color-neutral-200);
+  --sidebar-ring:               var(--color-accent-600);
+}
+
+.dark {
+  --background:            var(--color-neutral-900);
+  --foreground:            var(--color-neutral-100);
+
+  --card:                  var(--color-neutral-800);
+  --card-foreground:       var(--color-neutral-100);
+  --popover:               var(--color-neutral-800);
+  --popover-foreground:    var(--color-neutral-100);
+
+  --primary:               var(--color-accent-400);
+  --primary-foreground:    var(--color-neutral-950);
+  --primary-hover:         var(--color-accent-300);
+
+  --secondary:             var(--color-neutral-700);
+  --secondary-foreground:  var(--color-neutral-100);
+
+  /* In scuro `muted` va più scuro della card, non più chiaro: una superficie
+     incassata invece che rialzata. Andando verso il 700 il secondario
+     scenderebbe a 4,11:1 e servirebbe un altro token. Così resta il 400. */
+  --muted:                 var(--color-neutral-950);
+  --muted-foreground:      var(--color-neutral-400);
+
+  --accent:                var(--color-neutral-700);
+  --accent-foreground:     var(--color-neutral-100);
+
+  --destructive:           var(--color-danger-dark);
+  --destructive-foreground:var(--color-neutral-950);
+  --warning:               var(--color-warning-dark);
+  --success:               var(--color-success-dark);
+
+  --border:                var(--color-neutral-700);
+  --border-strong:         var(--color-neutral-600);
+  --input:                 var(--color-neutral-600);
+  --ring:                  var(--color-accent-600);
+  --link:                  var(--color-accent-400);
+
+
+  --chart-mono: var(--color-accent-400);
+  --chart-1: var(--color-chart-1-dark);
+  --chart-2: var(--color-chart-2-dark);
+  --chart-3: var(--color-chart-3-dark);
+  --chart-4: var(--color-chart-4-dark);
+  --chart-5: var(--color-chart-5-dark);
+  --chart-6: var(--color-chart-6-dark);
+
+  --sidebar:                    var(--color-neutral-900);
+  --sidebar-foreground:         var(--color-neutral-100);
+  --sidebar-primary:            var(--color-accent-400);
+  --sidebar-primary-foreground: var(--color-neutral-950);
+  --sidebar-accent:             var(--color-neutral-800);
+  --sidebar-accent-foreground:  var(--color-neutral-100);
+  --sidebar-border:             var(--color-neutral-700);
+  --sidebar-ring:               var(--color-accent-600);
+}
+
+/* ------------------------------------------------------------
+   3. ESPOSIZIONE COME UTILITY
+   ------------------------------------------------------------ */
+
+@theme inline {
+  --color-background:            var(--background);
+  --color-foreground:            var(--foreground);
+  --color-card:                  var(--card);
+  --color-card-foreground:       var(--card-foreground);
+  --color-popover:               var(--popover);
+  --color-popover-foreground:    var(--popover-foreground);
+  --color-primary:               var(--primary);
+  --color-primary-foreground:    var(--primary-foreground);
+  --color-primary-hover:         var(--primary-hover);
+  --color-secondary:             var(--secondary);
+  --color-secondary-foreground:  var(--secondary-foreground);
+  --color-muted:                 var(--muted);
+  --color-muted-foreground:      var(--muted-foreground);
+  --color-accent:                var(--accent);
+  --color-accent-foreground:     var(--accent-foreground);
+  --color-destructive:           var(--destructive);
+  --color-destructive-foreground:var(--destructive-foreground);
+  --color-warning:               var(--warning);
+  --color-success:               var(--success);
+  --color-border:                var(--border);
+  --color-border-strong:         var(--border-strong);
+  --color-input:                 var(--input);
+  --color-ring:                  var(--ring);
+  --color-link:                  var(--link);
+
+  --color-chart-mono: var(--chart-mono);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+
+  --color-sidebar:                    var(--sidebar);
+  --color-sidebar-foreground:         var(--sidebar-foreground);
+  --color-sidebar-primary:            var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:             var(--sidebar-accent);
+  --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
+  --color-sidebar-border:             var(--sidebar-border);
+  --color-sidebar-ring:               var(--sidebar-ring);
+}
+
+/* ------------------------------------------------------------
+   4. BASE
+   ------------------------------------------------------------ */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-size: var(--text-app-body);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Le colonne numeriche si allineano. Senza cifre tabulari le
+     colonne di punteggi si disallineano e non si confrontano. */
+  table, [data-slot="table"] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Focus visibile ovunque, in entrambe le modalità. */
+  :focus-visible {
+    outline: var(--border-width-strong, 2px) solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+/* ------------------------------------------------------------
+   5. UTILITY DEL SISTEMA
+
+   Fondi tenui: non esistono token dedicati. Un fondo di alert è
+   il suo stesso colore al 12%, il bordo al 20%. Una trasparenza
+   si adatta a entrambe le modalità, due token no.
+   ------------------------------------------------------------ */
+
+@utility surface-accent {
+  background-color: color-mix(in oklab, var(--color-accent-400) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-accent-400) 20%, transparent);
+}
+
+@utility surface-danger {
+  background-color: color-mix(in oklab, var(--destructive) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--destructive) 20%, transparent);
+}
+
+@utility surface-warning {
+  background-color: color-mix(in oklab, var(--warning) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--warning) 20%, transparent);
+}
+
+@utility surface-success {
+  background-color: color-mix(in oklab, var(--success) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--success) 20%, transparent);
+}
+
+/* Lo stile label in una sola classe. */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-app-label);
+  line-height: 1.2;
+  letter-spacing: 0.07em;
+  font-weight: 500;
+  text-transform: uppercase;
+}

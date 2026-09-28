@@ -5,7 +5,7 @@ import { getBackendUser } from '@/lib/api/client'
 import { RECRUITING_NAV_ITEMS } from '@/modules/recruiting/nav-config'
 
 const itemClass =
-  'flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2 text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 lg:whitespace-normal'
+  'flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-sm px-3 py-2 text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 lg:whitespace-normal'
 
 // This is the Recruiting module's OWN navigation — distinct from, and
 // nested inside, the global AppShell Sidebar (which only switches between

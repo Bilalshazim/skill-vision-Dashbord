@@ -11,7 +11,7 @@ import type { BackendCampaign, BackendCip, BackendCompany, BackendPlatform, Back
 import { EmptyState } from '@/modules/recruiting/components/EmptyState'
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // Was a locally hand-rolled className string (11+ near-duplicate copies of
 // this same recipe existed across Recruiting, each drifted slightly in
 // padding/font-size) — now the same buttonVariants() the shared <Button>
@@ -159,7 +159,7 @@ export default function CipAdminPage() {
     return (
       <div className="flex flex-col gap-4">
         <PageHeader />
-        <Card className="p-6">
+        <Card>
           <EmptyState icon={ShieldAlert} text="Amministrazione CIP riservata ai platform admin. Il backend rifiuta comunque ogni richiesta da un account senza questo ruolo, indipendentemente da questa schermata." />
         </Card>
       </div>
@@ -172,14 +172,14 @@ export default function CipAdminPage() {
 
       {loadError && <ErrorBanner message={loadError} />}
 
-      <Card className="p-6">
-        <CardHeader className="p-0 pb-3">
-          <CardTitle className="flex items-center gap-1.5 text-sm">
+      <Card>
+        <CardHeader>
+          <CardTitle>
             <Building2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             Codici venditore (Seller Code)
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent>
           <div className="flex flex-wrap gap-2">
             {sellerCodes.map((s) => (
               <span key={s.id} className="rounded-full border border-border px-2.5 py-1 text-[11.5px] font-semibold text-muted-foreground">
@@ -199,9 +199,9 @@ export default function CipAdminPage() {
         </CardContent>
       </Card>
 
-      <Card className="p-6">
-        <CardHeader className="p-0 pb-3">
-          <CardTitle className="flex items-center gap-1.5 text-sm">
+      <Card>
+        <CardHeader>
+          <CardTitle>
             <IdCard className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             Genera nuovo CIP
           </CardTitle>
@@ -210,7 +210,7 @@ export default function CipAdminPage() {
             confermare, OD-1).
           </p>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent>
           <div className="flex flex-wrap items-center gap-2">
             <select
               value={ownerType}
@@ -254,11 +254,11 @@ export default function CipAdminPage() {
         </CardContent>
       </Card>
 
-      <Card className="p-6">
-        <CardHeader className="p-0 pb-3">
-          <CardTitle className="text-sm">CIP esistenti — {cips.length}</CardTitle>
+      <Card>
+        <CardHeader>
+          <CardTitle>CIP esistenti — {cips.length}</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent>
           {!cips.length ? (
             <EmptyState icon={IdCard} text="Nessun CIP generato ancora." />
           ) : (
@@ -328,7 +328,7 @@ function PageHeader() {
 
 function ErrorBanner({ message }: { message: string }) {
   return (
-    <p className="flex items-start gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-[12.5px] font-medium text-destructive">
+    <p className="flex items-start gap-1.5 rounded-sm border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-[12.5px] font-medium text-destructive">
       <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
       {message}
     </p>

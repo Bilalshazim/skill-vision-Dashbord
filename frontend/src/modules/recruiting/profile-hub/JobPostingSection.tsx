@@ -8,7 +8,7 @@ import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { generateJobPostingPreview, isValidUrl, loadJobPostingSummary, saveJobPostingSummary } from '@/modules/recruiting/lib/profile-hub'
 
 const inputClass =
-  'w-full rounded-md border border-border bg-background px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
+  'w-full rounded-sm border border-border bg-background px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
 const textareaClass = cn(inputClass, 'min-h-[120px] resize-y')
 const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
 const dangerBtnClass = buttonVariants({ variant: 'destructive', size: 'sm' })
@@ -99,7 +99,7 @@ export function JobPostingSection() {
           <button
             type="button"
             onClick={(e) => e.stopPropagation()}
-            className="flex w-full items-center gap-2.5 rounded-md border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            className="flex w-full items-center gap-2.5 rounded-sm border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <span className={cn('flex-1 truncate text-[13px]', hasUrl || summary ? 'font-medium text-foreground' : 'text-muted-foreground')}>{teaserValue}</span>
             <span className="shrink-0 text-[12px] font-medium text-foreground dark:text-primary">Configura link →</span>
