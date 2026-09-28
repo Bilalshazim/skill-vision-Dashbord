@@ -664,6 +664,15 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
    three equal tiles, stacked. */
 .sv-panel-stack{ display:flex; flex-direction:column; gap:12px; }
 .sv-panel-stack .folder-tiles-3, .sv-panel-stack .folder-dist{ margin-top:0; }
+/* Il Valore panel: Punteggio Complessivo as the hero tile (2x2 cells),
+   Copertura + Gap stacked beside it, the three levels below. */
+.valore-grid{ display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; }
+.valore-hero{ grid-column: 1 / span 2; grid-row: 1 / span 2; border-width:2px; border-color: var(--tt-fill); padding:24px; }
+.valore-hero .tone-tile-icon{ width:40px; height:40px; border-radius:12px; }
+.valore-hero .tone-tile-icon svg{ width:20px; height:20px; }
+.valore-hero .tone-tile-label{ font-size:16px; font-weight:700; }
+.valore-hero .tone-tile-value{ font-size:72px; letter-spacing:-.03em; }
+.valore-hero .tone-tile-bar{ height:10px; }
 .sv-panel-box{ background: var(--fc-bg); border:1.5px solid var(--fc-border); border-radius:16px; padding:16px; }
 @keyframes sv-panel-in{ from{ opacity:0; transform: translateX(-12px); } to{ opacity:1; transform:none; } }
 
@@ -702,7 +711,8 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .decision-count{ flex-shrink:0; font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; background: var(--tt-icon-bg); color: var(--tt-ink); }
 
 @media (max-width: 560px){
-  .folder-tiles-3{ grid-template-columns: 1fr; }
+  .folder-tiles-3, .valore-grid{ grid-template-columns: 1fr; }
+  .valore-hero{ grid-column:auto; grid-row:auto; }
 }
 @media (prefers-reduced-motion: reduce){ .sv-panel{ animation:none; } .tone-tile, .tone-tile-bar i, .folder-pill{ transition:none; } .tone-tile:hover{ transform:none; } }
 .quad{

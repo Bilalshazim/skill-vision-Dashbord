@@ -46,8 +46,10 @@ export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgG
       actions={actions}
       panel={
         <>
-          <div className="folder-tiles-3">
-            <ToneTile tone="peach" Icon={Gauge} label={ui.homeQ1Score} value={`${overallPct}%`} den="/100" pct={overallPct} />
+          {/* Punteggio Complessivo is the headline number: a hero tile
+              spanning two columns and two rows, the other five around it. */}
+          <div className="valore-grid">
+            <ToneTile tone="peach" size="lg" className="valore-hero" Icon={Gauge} label={ui.homeQ1Score} value={`${overallPct}%`} den="/100" pct={overallPct} />
             <ToneTile tone="gold" Icon={Target} label={ui.homeQ1Coverage} value={`${roleCovPct}%`} den="/100" pct={roleCovPct} />
             <ToneTile
               tone="gold"
@@ -56,8 +58,6 @@ export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgG
               value={`${signed(avgGap)} punti`}
               sub={`${signed(avgGapPct)}% · Benchmark ${fmt1it(benchmark)}/10`}
             />
-          </div>
-          <div className="folder-tiles-3">
             <ToneTile tone="green" Icon={CheckCircle2} label={ui.homeQ1GreenSub} value={`${breakdown.ottimale}%`} sub={ui.homeQ1Green} pct={breakdown.ottimale} />
             <ToneTile tone="yellow" Icon={CircleMinus} label={ui.homeQ1YellowSub} value={`${breakdown.moderato}%`} sub={ui.homeQ1Yellow} pct={breakdown.moderato} />
             <ToneTile tone="red" Icon={AlertTriangle} label={ui.homeQ1RedSub} value={`${breakdown.critico}%`} sub={ui.homeQ1Red} pct={breakdown.critico} />
