@@ -1,15 +1,15 @@
 import { Megaphone } from 'lucide-react'
 import { useState } from 'react'
 
+import { useDirty } from '@/hooks/use-dirty'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { buttonVariants } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { generateJobPostingPreview, isValidUrl, loadJobPostingSummary, saveJobPostingSummary } from '@/modules/recruiting/lib/profile-hub'
 
-const inputClass =
-  'w-full rounded-sm border border-border bg-background px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
-const textareaClass = cn(inputClass, 'min-h-[120px] resize-y')
 const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
 const dangerBtnClass = buttonVariants({ variant: 'destructive', size: 'sm' })
 const primaryBtnClass = buttonVariants({ size: 'sm' })
@@ -43,6 +43,7 @@ export function JobPostingSection() {
   const [urlError, setUrlError] = useState('')
   const [publishError, setPublishError] = useState('')
   const [message, setMessage] = useState('')
+  const dirty = useDirty({ urlDraft, summaryDraft }, open)
 
   function handleOpenChange(next: boolean) {
     setOpen(next)
@@ -69,12 +70,12 @@ export function JobPostingSection() {
       return
     }
     if (!isValidUrl(v)) {
-      setUrlError('⚠ URL non valido — deve iniziare con http:// o https://')
+      setUrlError('URL non valido: deve iniziare con http:// o https://')
       return
     }
     setUrl(v)
     setOpen(false)
-    setMessage('Job Posting salvato ✓')
+    setMessage('Job Posting salvato')
     window.open(v, '_blank', 'noopener')
   }
 
@@ -86,7 +87,7 @@ export function JobPostingSection() {
     }
     setSummary(summaryDraft.trim())
     setOpen(false)
-    setMessage('Riepilogo pubblicato ✓')
+    setMessage('Riepilogo pubblicato')
   }
 
   const hasUrl = !!url && isValidUrl(url)
@@ -98,25 +99,24 @@ export function JobPostingSection() {
         <DialogTrigger asChild>
           <button
             type="button"
-            onClick={(e) => e.stopPropagation()}
             className="flex w-full items-center gap-2.5 rounded-sm border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           >
-            <span className={cn('flex-1 truncate text-[13px]', hasUrl || summary ? 'font-medium text-foreground' : 'text-muted-foreground')}>{teaserValue}</span>
-            <span className="shrink-0 text-[12px] font-medium text-foreground dark:text-primary">Configura link →</span>
+            <span className={cn('flex-1 truncate text-app-small', hasUrl || summary ? 'font-medium text-foreground' : 'text-muted-foreground')}>{teaserValue}</span>
+            <span className="shrink-0 text-app-caption font-medium text-foreground dark:text-primary">Configura link →</span>
           </button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent dirty={dirty}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Megaphone className="size-4 shrink-0" aria-hidden="true" />
               Job Posting
             </DialogTitle>
             <DialogDescription>
-              Ruolo: <b className="font-semibold text-foreground">&quot;{DEFAULT_ROLE}&quot;</b> — incolla il link dell&apos;annuncio (LinkedIn, Indeed, sito aziendale)
+              Posizione: <b className="font-semibold text-foreground">&quot;{DEFAULT_ROLE}&quot;</b> — incolla il link dell&apos;annuncio (LinkedIn, Indeed, sito aziendale)
             </DialogDescription>
           </DialogHeader>
 
-          <input
+          <Input
             type="url"
             value={urlDraft}
             onChange={(e) => {
@@ -124,20 +124,20 @@ export function JobPostingSection() {
               setUrlError('')
             }}
             placeholder="https://www.linkedin.com/jobs/view/..."
-            className={inputClass}
-          />
-          <p className="min-h-[18px] text-[11.5px] font-medium text-destructive">{urlError}</p>
+            size="sm"
+ />
+          <p className="min-h-4.5 text-app-caption font-medium text-destructive">{urlError}</p>
 
-          <textarea
+          <Textarea
             value={summaryDraft}
             onChange={(e) => {
               setSummaryDraft(e.target.value)
               setPublishError('')
             }}
             placeholder="Riepilogo automatico generato dal JD (modifica se necessario)"
-            className={textareaClass}
-          />
-          {publishError && <p className="text-[11.5px] font-medium text-destructive">{publishError}</p>}
+            size="sm"
+ />
+          {publishError && <p className="text-app-caption font-medium text-destructive">{publishError}</p>}
 
           <DialogFooter className="flex-wrap">
             <button type="button" onClick={() => setOpen(false)} className={ghostBtnClass}>
@@ -155,7 +155,7 @@ export function JobPostingSection() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {message && <span className="pl-1 text-[11.5px] font-medium text-success">{message}</span>}
+      {message && <span className="pl-1 text-app-caption font-medium text-success">{message}</span>}
     </div>
   )
 }

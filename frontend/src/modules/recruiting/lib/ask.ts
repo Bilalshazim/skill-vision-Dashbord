@@ -358,7 +358,7 @@ export type QuickQuestion = { id: string; question: string; actionTarget: 'ranki
 export const QUICK_QUESTIONS: QuickQuestion[] = [
   {
     id: 'chi-assumere',
-    question: 'Chi devo assumere per questo ruolo?',
+    question: 'Chi devo assumere per questa posizione?',
     actionTarget: 'ranking',
     build: (candidates) => {
       const rk = ranking(candidates)
@@ -366,7 +366,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
       const s = rk[1]
       return {
         blocks: [
-          title(`Per il ruolo ${DEFAULT_ROLE}: `, b(t.c.name), '.'),
+          title(`Per la posizione ${DEFAULT_ROLE}: `, b(t.c.name), '.'),
           p(
             'AHI ',
             b(`${t.r.v}/100`),
@@ -408,7 +408,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
             '.',
           ),
           list([
-            [`Se ${bench.name} è promuovibile/spostabile → costo inferiore e rischio minimo, ma lascia scoperto il ruolo attuale.`],
+            [`Se ${bench.name} è promuovibile/spostabile → costo inferiore e rischio minimo, ma lascia scoperta la sua posizione attuale.`],
             [`Se serve capacità aggiuntiva (crescita) → l'esterno ${t.c.name} porta un profilo ${civ >= 85 ? 'equivalente ai vostri migliori' : 'complementare a quello interno'}.`],
           ]),
           source('Fonte: Compatibilità Interna CI calcolata sulle skill flaggate'),
@@ -450,7 +450,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
         blocks: [
           title('Perché la media inganna.'),
           p(
-            "Un candidato brillante su tutto ma carente su una skill essenziale fallirà proprio dove il ruolo non perdona. Per questo, se un'essenziale è sotto il 60% del target, l'AHI viene bloccato a 59 a prescindere dal resto.",
+            "Un candidato brillante su tutto ma carente su una skill essenziale fallirà proprio dove la posizione non perdona. Per questo, se un'essenziale è sotto il 60% del target, l'AHI viene bloccato a 59 a prescindere dal resto.",
           ),
           flagged
             ? list([
@@ -479,7 +479,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
         p(
           'Ogni flag modifica i pesi wᵢ e i target Tᵢ della formula del Fit Competenze. Prova: vai su «Profilo», sposta una skill da Utile a Essenziale, torna al ranking. Vedrai i punteggi ricalcolati e, spesso, l\'ordine cambiato.',
         ),
-        list([['È anche il modo giusto di usarlo in riunione: chi decide discute ', b('sul profilo'), ' (cosa serve davvero al ruolo), non sulle simpatie.']]),
+        list([['È anche il modo giusto di usarlo in riunione: chi decide discute ', b('sul profilo'), ' (cosa serve davvero alla posizione), non sulle simpatie.']]),
         source('FC = Σ wᵢ·min(Sᵢ/Tᵢ,1) / Σ wᵢ × 100 — ricalcolata a ogni modifica'),
       ],
     }),
@@ -505,7 +505,7 @@ export function composeAnswer(q: string, candidates: Candidate[]): AskAnswer {
     .map(([s]) => s)
 
   const ctxSummary = (): TextPart[] => [
-    `Ruolo: ${DEFAULT_ROLE}. Candidati: ${candidates.length}. Skill essenziali (${essentials.length}): ${essentials.join(', ') || '—'}. Top 5: ${rank
+    `Posizione: ${DEFAULT_ROLE}. Candidati: ${candidates.length}. Skill essenziali (${essentials.length}): ${essentials.join(', ') || '—'}. Top 5: ${rank
       .slice(0, 5)
       .map((r, i) => `#${i + 1} ${r.c.name} (${r.r.v.toFixed(1)}pt)`)
       .join('; ')}.`,
@@ -523,7 +523,7 @@ export function composeAnswer(q: string, candidates: Candidate[]): AskAnswer {
       blocks: [
         title('Protocollo di Intervista SKILL-VISION®'),
         p(...ctxSummary()),
-        ...sections.map((title2) => p(b(title2), `: non ancora compilata per il ruolo «${DEFAULT_ROLE}»`)),
+        ...sections.map((title2) => p(b(title2), `: non ancora compilata per la posizione «${DEFAULT_ROLE}»`)),
       ],
     }
   }
@@ -545,7 +545,7 @@ export function composeAnswer(q: string, candidates: Candidate[]): AskAnswer {
       blocks: [
         title(`${c.name} — analisi`),
         p(...ctxSummary()),
-        p('Ruolo: ', b(c.role || '—'), ' · Rank: ', b(`#${pos}/${candidates.length}`), ' · Score: ', b(total.toFixed(1))),
+        p('Posizione: ', b(c.role || '—'), ' · Rank: ', b(`#${pos}/${candidates.length}`), ' · Score: ', b(total.toFixed(1))),
         ...(compatPct !== null ? [p('Compatibilità: ', b(`${compatPct}%`), ` — ${essCov.length}/${essentials.length} skill essenziali`)] : []),
         p('Punti di forza: ', top3.join(', ') || '—'),
         p('Aree di miglioramento: ', weak3.join(', ') || '—'),

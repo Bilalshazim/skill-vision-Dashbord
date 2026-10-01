@@ -1,15 +1,15 @@
-import { AlertTriangle, FileCheck2, Loader2, Plus, Trash2 } from 'lucide-react'
+import { FileCheck2, Loader2, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
+import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Input } from '@/components/ui/input'
 import { buttonVariants } from '@/components/ui/button'
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 import { addTestResult, removeTestResult } from '@/modules/recruiting/lib/pipeline'
 import { recordManualResponseViaBackend, deleteManualResponseViaBackend } from '@/modules/recruiting/lib/backend-sync'
 import type { PrescreenedEntry, TestResult } from '@/modules/recruiting/lib/types'
-import { cn } from '@/lib/utils'
 
-const inputClass =
-  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const primaryBtnClass = buttonVariants({ size: 'sm' })
 
 type ActionState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string }
@@ -20,15 +20,6 @@ const IDLE: ActionState = { kind: 'idle' }
 // equivalent message, reused verbatim for consistency between the two
 // sections.
 const OPENING_UNAVAILABLE_MESSAGE = "La posizione selezionata non è più disponibile — selezionane un'altra dalla dashboard qui sopra."
-
-function ErrorNote({ message }: { message: string }) {
-  return (
-    <p className="mt-1.5 flex items-start gap-1.5 text-[11.5px] font-medium text-destructive">
-      <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      {message}
-    </p>
-  )
-}
 
 // Migrated from renderPipelineDetail()'s "📝 Ranking post-test" section
 // (modules/recruiting.html ~2126-2136, addTestResult()/removeTestResult()
@@ -151,15 +142,15 @@ export function TestResultList({
     <div>
       <div className="mb-3 flex flex-col gap-2 rounded-sm bg-secondary p-3">
         <div className="flex flex-wrap items-center gap-2">
-          <select value={candidateId} onChange={(e) => setCandidateId(e.target.value)} disabled={addPending} className={cn(inputClass, 'max-w-[220px]')}>
+          <SelectField value={candidateId} onValueChange={(v) => setCandidateId(v)} disabled={addPending} size="sm" className="max-w-56">
             <option value="">{prescreened.length ? 'Seleziona candidato…' : '(nessun candidato in pre-screening)'}</option>
             {prescreened.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name || '—'}
               </option>
             ))}
-          </select>
-          <input
+          </SelectField>
+          <Input
             type="number"
             min={0}
             max={100}
@@ -167,26 +158,26 @@ export function TestResultList({
             onChange={(e) => setScoreInput(e.target.value)}
             disabled={addPending}
             placeholder="Punteggio 0-100"
-            className={cn(inputClass, 'w-[130px]')}
-          />
-          <input
+            size="sm" className="w-32"
+ />
+          <Input
             type="text"
             value={noteInput}
             onChange={(e) => setNoteInput(e.target.value)}
             disabled={addPending}
             placeholder="Nota (opz.)"
-            className={cn(inputClass, 'w-[160px]')}
-          />
+            size="sm" className="w-40"
+ />
           <button type="button" onClick={handleAdd} disabled={addPending} className={primaryBtnClass}>
             {addPending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Plus className="size-3.5 shrink-0" aria-hidden="true" />}
             Aggiungi risultato
           </button>
         </div>
-        {addState.kind === 'error' && <ErrorNote message={addState.message} />}
+        {addState.kind === 'error' && <InlineAlert layout="text" className="mt-2">{addState.message}</InlineAlert>}
       </div>
 
       {!ranked.length ? (
-        <EmptyState icon={FileCheck2} text="Nessun risultato di test ancora registrato." />
+        <EmptyState size="sm" icon={FileCheck2} description="Nessun risultato di test ancora registrato." />
       ) : (
         <div>
           {ranked.map((r, i) => {
@@ -196,16 +187,16 @@ export function TestResultList({
               <div key={r.id} className="border-b border-border py-2.5 last:border-0">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className={i === 0 ? 'w-6 shrink-0 font-mono text-[15px] font-semibold text-warning' : 'w-6 shrink-0 font-mono text-[15px] font-semibold text-muted-foreground'}>
+                    <div className={i === 0 ? 'w-6 shrink-0 font-mono text-app-body font-semibold text-warning' : 'w-6 shrink-0 font-mono text-app-body font-semibold text-muted-foreground'}>
                       #{i + 1}
                     </div>
                     <div className="min-w-0">
-                      <div className="truncate text-[13px] font-semibold">{r.name || '—'}</div>
-                      {r.note && <div className="truncate text-[11px] text-muted-foreground">{r.note}</div>}
+                      <div className="truncate text-app-small font-semibold">{r.name || '—'}</div>
+                      {r.note && <div className="truncate text-app-caption text-muted-foreground">{r.note}</div>}
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className="font-mono text-[14px] font-semibold text-foreground tabular-nums dark:text-primary">{r.score}/100</span>
+                    <span className="font-mono text-app-small font-semibold text-foreground tabular-nums dark:text-primary">{r.score}/100</span>
                     <button
                       type="button"
                       onClick={() => handleRemove(r.id)}
@@ -218,7 +209,7 @@ export function TestResultList({
                     </button>
                   </div>
                 </div>
-                {state.kind === 'error' && <ErrorNote message={state.message} />}
+                {state.kind === 'error' && <InlineAlert layout="text" className="mt-2">{state.message}</InlineAlert>}
               </div>
             )
           })}

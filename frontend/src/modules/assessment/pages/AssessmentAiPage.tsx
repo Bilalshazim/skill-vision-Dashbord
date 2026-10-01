@@ -1,5 +1,8 @@
 import { useState } from 'react'
 
+import { Card, CardLabel } from '@/components/ui/card'
+import { ChatMessage } from '@/components/patterns/ChatMessage'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { featuredQuestions, formatAIBlocks, localIntentMatch, splitEmphasis, suggestedQuestions, type AiTextBlock } from '@/modules/assessment/lib/ai-answers'
@@ -68,34 +71,34 @@ export default function AssessmentAiPage() {
 
   return (
     <div>
-      {/* Legacy renderAI() has no in-page title/section-head of its own —
+      {/* Legacy renderAI() has no in-page title/header of its own —
           the Topbar's h1/sub (from PAGE_META_TEXT_EN/IT.ai, already wired
           in AssessmentLayout) is the only heading for this screen. */}
-      <div className="ai-shell">
-        <div className="ai-suggested">
-          <div className="ai-quick-row">
-            <div className="ai-suggested-label">{ui.aiQuickQuestions}</div>
+      <div className="grid min-h-[28rem] grid-cols-1 gap-4 lg:h-[calc(100vh-12rem)] lg:grid-cols-[18rem_minmax(0,1fr)]">
+        <div className="flex flex-col gap-2 overflow-y-auto">
+          <div className="mb-2 flex flex-col gap-2 border-b border-border pb-4">
+            <CardLabel>{ui.aiQuickQuestions}</CardLabel>
             {featured.map((q, i) => (
-              <button key={i} onClick={() => ask(q.label, q.handler)}>
+              <Button key={i} variant="outline" className="h-auto justify-start py-2 text-left whitespace-normal" onClick={() => ask(q.label, q.handler)}>
                 {q.label}
-              </button>
+              </Button>
             ))}
           </div>
-          <div className="ai-suggested-label">{ui.aiMoreQuestions}</div>
+          <CardLabel>{ui.aiMoreQuestions}</CardLabel>
           {suggested.map((q, i) => (
-            <button key={i} onClick={() => ask(q.label, q.handler)}>
+            <Button key={i} variant="outline" size="sm" className="h-auto justify-start py-2 text-left whitespace-normal" onClick={() => ask(q.label, q.handler)}>
               {q.label}
-            </button>
+            </Button>
           ))}
         </div>
-        <div className="ai-chat">
-          <div className="ai-log">
+        <Card padding="none" className="min-h-0">
+          <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-6" aria-live="polite">
             {log.map((m, i) => (
-              <div className={`ai-msg ${m.role}`} key={i}>
+              <ChatMessage from={m.role === 'user' ? 'user' : 'assistant'} key={i}>
                 {m.role === 'bot'
                   ? groupBlocks(formatAIBlocks(m.text)).map((b, j) =>
                       b.type === 'ul' ? (
-                        <ul className="ai-list" key={j}>
+                        <ul key={j}>
                           {b.items.map((item, k) => (
                             <li key={k}>{renderEmphasized(item)}</li>
                           ))}
@@ -105,12 +108,13 @@ export default function AssessmentAiPage() {
                       ),
                     )
                   : m.text}
-              </div>
+              </ChatMessage>
             ))}
           </div>
-          <div className="ai-input-row">
-            <input
+          <div className="flex gap-3 border-t border-border p-4">
+            <Input
               type="text"
+              aria-label={ui.aiInputPh}
               placeholder={ui.aiInputPh}
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -122,7 +126,7 @@ export default function AssessmentAiPage() {
               {ui.aiSendBtn}
             </Button>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   )

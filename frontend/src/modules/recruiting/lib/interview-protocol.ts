@@ -28,7 +28,7 @@ export const IV_SOFT_SKILLS = [
   'Problem solving',
   'Lavoro in team / collaborazione',
   'Autonomia e proattività',
-  'Motivazione e allineamento al ruolo',
+  'Motivazione e allineamento alla posizione',
 ] as const
 
 // Ported verbatim (line 4491) — used ONLY by Scheda Intervista Strutturata
@@ -38,7 +38,7 @@ export const IVN_SOFT_SKILLS = [
   'Problem solving',
   'Lavoro in team / collaborazione',
   'Autonomia e proattività',
-  'Motivazione e interesse per il ruolo',
+  'Motivazione e interesse per la posizione',
   'Adattabilità al contesto aziendale',
 ] as const
 

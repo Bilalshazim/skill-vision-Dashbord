@@ -165,9 +165,9 @@ export function getInternalTalents(candidates: Candidate[]): Candidate[] {
 }
 
 export function fasce(v: number, capped: boolean): Fascia {
-  if (capped) return { key: 'not-recommended', txt: 'Sconsigliato per questo ruolo' }
+  if (capped) return { key: 'not-recommended', txt: 'Sconsigliato per questa posizione' }
   if (v >= 85) return { key: 'excellent', txt: 'Assumibile subito' }
   if (v >= 70) return { key: 'developable', txt: 'Assumibile con piano di sviluppo' }
   if (v >= 60) return { key: 'gap', txt: 'Gap strutturali: valutare' }
-  return { key: 'not-recommended', txt: 'Sconsigliato per questo ruolo' }
+  return { key: 'not-recommended', txt: 'Sconsigliato per questa posizione' }
 }

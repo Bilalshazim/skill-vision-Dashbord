@@ -2,7 +2,8 @@ import { ArrowUpRight, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { CrossModuleBanner } from '@/components/CrossModuleBanner'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { CrossModuleBanner } from '@/components/patterns/CrossModuleBanner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { OpeningsList } from '@/modules/recruiting/components/OpeningsList'
@@ -31,13 +32,13 @@ function exportHomeSummary(data: RecruitingHomeData): void {
 
 // Client-requested nav rename: this route (index, now labeled "Inizia" —
 // see nav-config.ts) is asked to be "the 'From Search to Talent' landing
-// page". The KPI dashboard below is real, working functionality that isn't
+// page" (Fase 6: claim inglese e alone tolti, CLAUDE.md §7). The KPI dashboard below is real, working functionality that isn't
 // named anywhere else in the client's 10-item index, so rather than discard
 // it, this hero is added ON TOP of it — "Inizia" becomes a real landing
 // moment for the module without losing the dashboard.
 function StartHero() {
   return (
-    <div className="rounded-lg border border-border bg-gradient-to-br from-primary/10 via-card to-card px-6 py-8 sm:px-8 sm:py-10">
+    <div className="rounded-lg border border-border bg-card px-6 py-8 sm:px-8">
       <div className="flex items-center gap-2">
         {/* The official Recruiting module icon — the exact same glyph as
             the legacy landing page's "Cruscotto Recruiting" card and the
@@ -46,16 +47,10 @@ function StartHero() {
             is a dark near-black in light mode and a light cream in dark
             mode, so this never needs a separate light/dark SVG asset. */}
         <Users className="size-4 shrink-0 text-foreground" aria-hidden="true" />
-        {/* text-primary (the lime brand color) reads fine as text in dark
-            mode but fails contrast as bare text on the light background —
-            index.css's own token comment says as much ("--primary only
-            for fills... lime is a fill color, not a body-text color, in
-            light mode"). Dark near-black in light mode, lime in dark
-            mode, matching every other heading's contrast in light mode. */}
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground dark:text-primary">Skill Vision · Recruiting</p>
+<p className="label-mono text-muted-foreground">Skill Vision · Recruiting</p>
       </div>
-      <h1 className="mt-1.5 text-2xl font-bold tracking-tight sm:text-3xl">From Search to Talent</h1>
-      <p className="mt-2 max-w-2xl text-[13.5px] text-muted-foreground">
+      <h1 className="mt-2 text-app-title font-semibold tracking-tight">Dalla ricerca alla selezione</h1>
+      <p className="mt-2 max-w-2xl text-app-small text-muted-foreground">
         Dalla definizione del profilo alla selezione finale: un unico percorso guidato per trasformare una ricerca aperta nel talento giusto.
       </p>
     </div>
@@ -90,17 +85,17 @@ export default function RecruitingHome() {
           mini-stat), plus 3 real actions. The concept's "+7 questa
           settimana" delta chip has no real source anywhere — Candidate
           has no creation timestamp in lib/types.ts — so it's honestly
-          omitted rather than fabricated. KpiCard.tsx is left in place,
+          omitted rather than fabricated. KpiCard.tsx (now StatCard) was left in place,
           unused. */}
       <Card>
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">Panoramica Candidati</div>
+            <div className="label-mono text-muted-foreground">Panoramica Candidati</div>
             <div className="mt-1 flex items-center gap-3">
               <Users className="size-8 shrink-0 text-muted-foreground" aria-hidden="true" />
               <div>
-                <div className="font-mono text-3xl font-black leading-none tracking-[-.045em] tabular-nums text-foreground">{data.kpis[0].value}</div>
-                <div className="mt-1 text-xs text-muted-foreground">
+                <div className="font-mono text-app-title font-semibold leading-none tabular-nums text-foreground">{data.kpis[0].value}</div>
+                <div className="mt-1 text-app-caption text-muted-foreground">
                   {data.kpis[0].label} · {data.kpis[1].value} {data.kpis[1].label.toLowerCase()}
                 </div>
               </div>
@@ -109,8 +104,8 @@ export default function RecruitingHome() {
           <div className="flex gap-6">
             {[data.kpis[2], data.kpis[3]].map((k) => (
               <div key={k.key}>
-                <div className="font-mono text-xl font-black tabular-nums text-foreground">{k.value}</div>
-                <div className="mt-1 font-mono text-[10.5px] uppercase tracking-wider text-muted-foreground">{k.label}</div>
+                <div className="font-mono text-app-section font-semibold tabular-nums text-foreground">{k.value}</div>
+                <div className="label-mono mt-1 text-muted-foreground">{k.label}</div>
               </div>
             ))}
           </div>
@@ -141,11 +136,11 @@ export default function RecruitingHome() {
           <CardHeader>
             <div>
               <CardTitle>Candidati per fascia di idoneità</CardTitle>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                {data.rankedCount} candidati · ruolo attivo: <b className="font-semibold text-foreground">{data.roleLabel}</b>
+              <p className="mt-0.5 text-app-caption text-muted-foreground">
+                {data.rankedCount} candidati · posizione attiva: <b className="font-semibold text-foreground">{data.roleLabel}</b>
               </p>
             </div>
-            <Link to="/recruiting/ranking" className="flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:underline">
+            <Link to="/recruiting/ranking" className="flex shrink-0 items-center gap-1 text-app-caption font-medium text-foreground hover:underline">
               Vedi ranking <ArrowUpRight className="size-3.5" />
             </Link>
           </CardHeader>
@@ -158,15 +153,15 @@ export default function RecruitingHome() {
                 <div className="mb-4 grid grid-cols-3 gap-3">
                   {[data.buckets[0], data.buckets[1], data.buckets[3]].map((b) => (
                     <div key={b.label} className="rounded-lg border border-border bg-secondary/40 p-3">
-                      <div className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">{b.label}</div>
-                      <div className="mt-1 font-mono text-xl font-black tabular-nums text-foreground">{b.count}</div>
+                      <div className="label-mono text-muted-foreground">{b.label}</div>
+                      <div className="mt-1 font-mono text-app-section font-semibold tabular-nums text-foreground">{b.count}</div>
                     </div>
                   ))}
                 </div>
                 <QualityStackedBar buckets={data.buckets} total={data.rankedCount} />
               </>
             ) : (
-              <p className="py-1 text-[13px] text-muted-foreground">
+              <p className="py-1 text-app-small text-muted-foreground">
                 Nessun candidato ancora in classifica per questo ruolo. Carica i primi CV dalla pagina CV &amp;
                 Export.
               </p>
@@ -195,22 +190,18 @@ export default function RecruitingHome() {
         <Card>
           <CardHeader>
             <CardTitle>Prossimi colloqui</CardTitle>
-            <p className="mt-0.5 text-xs text-muted-foreground">Ordinati per data</p>
+            <p className="mt-0.5 text-app-caption text-muted-foreground">Ordinati per data</p>
           </CardHeader>
-          <div className="flex gap-1 rounded-sm bg-secondary p-0.5">
-            <button
-              className={`flex-1 rounded-[5px] px-2 py-1.5 text-[11.5px] font-semibold ${interviewsTab === 'arrivo' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
-              onClick={() => setInterviewsTab('arrivo')}
-            >
-              In arrivo
-            </button>
-            <button
-              className={`flex-1 rounded-[5px] px-2 py-1.5 text-[11.5px] font-semibold ${interviewsTab === 'completati' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
-              onClick={() => setInterviewsTab('completati')}
-            >
-              Completati
-            </button>
-          </div>
+          <Tabs value={interviewsTab} onValueChange={(v) => setInterviewsTab(v as typeof interviewsTab)}>
+            <TabsList className="w-full">
+              <TabsTrigger value="arrivo" className="flex-1">
+                In arrivo
+              </TabsTrigger>
+              <TabsTrigger value="completati" className="flex-1">
+                Completati
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
           <CardContent className="pt-3">
             {interviewsTab === 'arrivo' ? (
               <UpcomingList upcoming={data.upcoming} />
@@ -219,7 +210,7 @@ export default function RecruitingHome() {
             )}
             <Link
               to="/recruiting/pipeline"
-              className="mt-3 flex w-full items-center justify-center gap-1 rounded-sm border border-border py-2 text-[12.5px] font-semibold text-foreground hover:bg-secondary"
+              className="mt-3 flex w-full items-center justify-center gap-1 rounded-sm border border-border py-2 text-app-small font-semibold text-foreground hover:bg-secondary"
             >
               Vedi tutti i colloqui <ArrowUpRight className="size-3.5" />
             </Link>

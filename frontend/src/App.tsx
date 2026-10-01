@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
-import { AppShell } from '@/layouts/AppShell'
+import { Toaster } from '@/components/ui/sonner'
 import AssessmentLayout from '@/modules/assessment/AssessmentLayout'
 import RecruitingLayout from '@/modules/recruiting/RecruitingLayout'
 
@@ -12,6 +12,7 @@ import RecruitingLayout from '@/modules/recruiting/RecruitingLayout'
 // statically imported all of these. Applied uniformly to every page here
 // rather than hand-picking "heavy" ones, since that's a moving target and
 // lazy() has no real downside for a route-level component.
+const ModuleChooserPage = lazy(() => import('@/pages/ModuleChooserPage'))
 const RecruitingHome = lazy(() => import('@/modules/recruiting/RecruitingHome'))
 const CipAdminPage = lazy(() => import('@/modules/recruiting/admin/CipAdminPage'))
 const EmailConfigAdminPage = lazy(() => import('@/modules/recruiting/admin/EmailConfigAdminPage'))
@@ -43,20 +44,26 @@ const AssessmentSoftPage = lazy(() => import('@/modules/assessment/pages/Assessm
 const AssessmentSoftRisultatiPage = lazy(() => import('@/modules/assessment/pages/AssessmentSoftRisultatiPage'))
 const AssessmentValorePage = lazy(() => import('@/modules/assessment/pages/AssessmentValorePage'))
 
-// Catalogo dei componenti: solo in sviluppo. In produzione la condizione è
-// falsa già in compilazione e il modulo non entra nella build.
-const ComponentCatalog = import.meta.env.DEV ? lazy(() => import('@/dev/ComponentCatalog')) : null
+// Catalogo dei componenti: in sviluppo sempre; in una build solo con
+// l'impostazione esplicita VITE_ENABLE_COMPONENT_CATALOG=true (l'anteprima su
+// Railway, finché la produzione è solo interna — CLAUDE.md, Fase 3). Senza,
+// la condizione è falsa già in compilazione e il modulo non entra nella build.
+// Va tolta prima del primo cliente reale (Fase 8).
+const ComponentCatalog = import.meta.env.DEV || import.meta.env.VITE_ENABLE_COMPONENT_CATALOG === 'true' ? lazy(() => import('@/dev/ComponentCatalog')) : null
 
 function App() {
   return (
     <BrowserRouter>
+      <Toaster />
       <Suspense fallback={null}>
         <Routes>
           {ComponentCatalog && <Route path="dev/components" element={<ComponentCatalog />} />}
-          {/* "Home" has no React route: the legacy shell's own landing page
-              (index.html's #sv-landing) is the single source of truth for it
-              — see nav-config.ts / Topbar.tsx. AppShell wraps Recruiting alone. */}
-          <Route element={<AppShell />}>
+          {/* La radice: la scelta del modulo dopo l'accesso (era la landing del
+              guscio legacy, che ora dopo il login rimanda qui). Recruiting e
+              Assessment rendono ciascuno lo stesso AppShell dal proprio
+              layout, dentro i propri provider — vedi AppShell.tsx. */}
+          <Route path="/" element={<ModuleChooserPage />} />
+          <Route>
             <Route path="recruiting" element={<RecruitingLayout />}>
               <Route index element={<RecruitingHome />} />
               <Route path="ranking" element={<RankingPage />} />
@@ -82,11 +89,9 @@ function App() {
               top-level route, no shell/topbar chrome, same reasoning as
               assessment/evaluate below. See EvaluateStandalonePage.tsx. */}
           <Route path="evaluate" element={<EvaluateStandalonePage />} />
-          {/* Assessment deliberately sits OUTSIDE the global AppShell (Home/
-              Recruiting/Assessment outer chrome) — it keeps its own complete
-              shell (sidebar/topbar/branding), matching legacy's iframe-loaded
-              standalone document exactly, instead of a second nested sidebar
-              stacked under AppShell's. See AssessmentLayout.tsx. */}
+          {/* Assessment renders the same AppShell as Recruiting, from
+              AssessmentLayout (inside AssessmentProvider, where its nav data
+              lives). */}
           <Route path="assessment" element={<AssessmentLayout />}>
             <Route index element={<AssessmentHomePage />} />
             <Route path="home" element={<AssessmentHomePage />} />

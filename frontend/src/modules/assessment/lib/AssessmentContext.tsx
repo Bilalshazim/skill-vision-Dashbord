@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { toast as sonnerToast } from 'sonner'
 
 import { useSharedLang } from '@/hooks/use-shared-lang'
 import { useTheme } from '@/hooks/use-theme'
@@ -33,7 +34,6 @@ type Ctx = {
   topbarActions: ReactNode
   setTopbarActions: (node: ReactNode) => void
   toast: (msg: string, type?: '' | 'ok' | 'err') => void
-  toastState: { msg: string; type: '' | 'ok' | 'err'; visible: boolean }
 }
 
 const AssessmentCtx = createContext<Ctx | null>(null)
@@ -74,21 +74,22 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
   // content on navigation.
   const [topbarActions, setTopbarActions] = useState<ReactNode>(null)
 
-  // Ported from toast() (js/assessment.js ~2477-2483) — one global toast
-  // singleton, bottom-center, auto-hides after 3.2s, 'ok'/'err' color
-  // variants. Legacy clears any pending hide timeout on a new toast() call
-  // before scheduling a fresh one; reproduced the same way with a ref.
-  const [toastState, setToastState] = useState<{ msg: string; type: '' | 'ok' | 'err'; visible: boolean }>({ msg: '', type: '', visible: false })
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Ported from toast() (js/assessment.js ~2477-2483): una notifica alla
+  // volta, in basso al centro, 3,2 s, varianti 'ok' / 'err'. Stessa firma di
+  // prima, così le chiamate del modulo non cambiano; ora la mostra Sonner
+  // (components/ui/sonner.tsx, montato una volta in App). La nuova sostituisce
+  // quella ancora visibile, come nel legacy.
   const toast = useCallback((msg: string, type: '' | 'ok' | 'err' = '') => {
-    if (toastTimer.current) clearTimeout(toastTimer.current)
-    setToastState({ msg, type, visible: true })
-    toastTimer.current = setTimeout(() => setToastState((prev) => ({ ...prev, visible: false })), 3200)
+    sonnerToast.dismiss()
+    const opts = { duration: 3200 }
+    if (type === 'ok') sonnerToast.success(msg, opts)
+    else if (type === 'err') sonnerToast.error(msg, opts)
+    else sonnerToast(msg, opts)
   }, [])
 
   const value = useMemo<Ctx>(
-    () => ({ state, setState, persist, lang, setLang, theme, setTheme, ui, canEdit: true, topbarActions, setTopbarActions, toast, toastState }),
-    [state, setState, persist, lang, setLang, theme, setTheme, ui, topbarActions, toast, toastState],
+    () => ({ state, setState, persist, lang, setLang, theme, setTheme, ui, canEdit: true, topbarActions, setTopbarActions, toast }),
+    [state, setState, persist, lang, setLang, theme, setTheme, ui, topbarActions, toast],
   )
 
   return <AssessmentCtx.Provider value={value}>{children}</AssessmentCtx.Provider>

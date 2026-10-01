@@ -67,7 +67,8 @@ export function ansFormazione(state: AssessmentState, lang: AssessmentLang): str
     ui.aiFormazioneIntro +
     '\n' +
     actions
-      .map((a) => `${a.icon} ${a.parts.map((p) => (typeof p === 'string' ? p : p.bold)).join('')}`)
+      // Punto elenco al posto dell'emoji di priorityActions() (CLAUDE.md cap. 7).
+      .map((a) => `• ${a.parts.map((p) => (typeof p === 'string' ? p : p.bold)).join('')}`)
       .join('\n')
   )
 }

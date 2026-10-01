@@ -343,7 +343,7 @@ export const PAGE_META_TEXT_IT: Record<string, { title: string; sub: string }> =
   'soft-overview': { title: 'Competenze Trasversali', sub: 'Cosa sono e come si misurano — Soft Skills & Big Five' },
   'hard-overview': { title: 'Competenze Professionali', sub: 'Cosa sono e come si misurano — protocollo APEX 5D multi-source' },
   company: { title: 'Profilo Azienda', sub: 'Sedi, contatti, organico per tipologia e ruoli chiave aziendali' },
-  anagrafica: { title: 'Anagrafica Risorse', sub: 'Elenco dipendenti, ruoli, mansioni e requisiti di ruolo' },
+  anagrafica: { title: 'Anagrafica Risorse', sub: 'Elenco dipendenti, mansioni, attività e requisiti di mansione' },
   analisi: { title: 'Intervista', sub: 'Executive Human Capital Interview — la percezione della Direzione prima della misurazione oggettiva' },
   soft: { title: 'Area Valutazioni Trasversali', sub: 'Soft Skills & Big Five — inserimento dati' },
   hard: { title: 'Area Valutazioni Professionali', sub: 'Protocollo APEX 5D multi-source — inserimento dati' },

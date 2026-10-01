@@ -52,7 +52,7 @@ export function renderAssessmentReportPrintHtml(payload: ReturnType<typeof build
     <div class="rpt-note"><b>${t('reportTitle')}</b> — ${t('reportProvisionalNote')}</div>
     <div class="rpt-h1">${e.nome} ${e.cognome}</div>
     <div>${e.ruolo} · ${e.area}</div>
-    <div style="font-size:11px; color:#555; margin-top:2px;">${reportGeneratedOn(payload.generatedAt.slice(0, 10))}</div>
+    <div style="font-size:12px; color:var(--color-neutral-600); margin-top:2px;">${reportGeneratedOn(payload.generatedAt.slice(0, 10))}</div>
 
     <div class="rpt-h2">${t('profileModuleATitle')} — ${t('profileLastAssessmentLabel')}</div>
     <div>${payload.softLastAssessmentDate ? payload.softLastAssessmentDate.slice(0, 10) : t('profileNoAssessmentYet')}</div>

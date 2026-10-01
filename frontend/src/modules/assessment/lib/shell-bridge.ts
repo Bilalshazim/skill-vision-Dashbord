@@ -87,12 +87,13 @@ export function writeSharedTheme(theme: 'light' | 'dark'): void {
   }
 }
 
+// Solo italiano per ora (CLAUDE.md cap. 7, "Lingua", deciso dal cliente):
+// lo switch IT/EN è tolto dal guscio e l'interfaccia parte in italiano anche
+// se nel browser è rimasto `sv_language=en` da prima (o dal guscio legacy).
+// I testi inglesi e la struttura che li sceglie restano: per riaccendere
+// l'inglese basta tornare a leggere la chiave qui sotto.
 export function readSharedLang(): 'it' | 'en' {
-  try {
-    return localStorage.getItem(LANG_KEY) === 'en' ? 'en' : 'it'
-  } catch {
-    return 'it'
-  }
+  return 'it'
 }
 export function writeSharedLang(lang: 'it' | 'en'): void {
   try {

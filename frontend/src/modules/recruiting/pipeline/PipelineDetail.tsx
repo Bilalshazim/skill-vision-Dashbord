@@ -42,16 +42,16 @@ export function PipelineDetail({
             to "Profilo di Lavoro" via IT_EN_PAIRS' reverse map (~1214,
             ~1258-1262). What a default user actually sees is Italian; ported
             verbatim here rather than the pre-translation literal. */}
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{company.name} · Profilo di Lavoro</div>
-        <h3 className="text-[17px] font-semibold">{opening.title}</h3>
-        <p className="text-[12.5px] leading-relaxed text-muted-foreground">
+        <div className="label-mono text-muted-foreground">{company.name} · Profilo di Lavoro</div>
+        <h3 className="text-app-section font-semibold">{opening.title}</h3>
+        <p className="text-app-small leading-relaxed text-muted-foreground">
           Skill richieste: <b className="font-semibold text-foreground">{skills}</b>
           <br />
           Esperienza target: <b className="font-semibold text-foreground">{experienceYears} anni</b> · Titolo:{' '}
           <b className="font-semibold text-foreground">{education}</b>
         </p>
         {p.winner && (
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-sm border border-success/35 bg-success/10 px-4 py-3 text-[13px]">
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-sm border border-success/35 bg-success/10 px-4 py-3 text-app-small">
             <div className="flex items-center gap-2">
               <Trophy className="size-4 shrink-0 text-success" aria-hidden="true" />
               <span>
@@ -70,7 +70,7 @@ export function PipelineDetail({
             <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             Pre-screened CV — {p.prescreened.length}
           </CardTitle>
-          <p className="mt-0.5 text-[11.5px] font-normal text-muted-foreground">
+          <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">
             Candidati passati al pre-screening, con link al test/assessment automatizzato.
           </p>
         </CardHeader>
@@ -91,7 +91,7 @@ export function PipelineDetail({
             <FileCheck2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             Ranking post-test — {p.testResults.length}
           </CardTitle>
-          <p className="mt-0.5 text-[11.5px] font-normal text-muted-foreground">
+          <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">
             Punteggi test dei candidati pre-screened, ordinati per ranking.
           </p>
         </CardHeader>
@@ -113,7 +113,7 @@ export function PipelineDetail({
             Colloqui — {p.interviews.length}{' '}
             <span className="font-normal text-muted-foreground">({p.interviews.filter((iv) => iv.completed).length} con scorecard)</span>
           </CardTitle>
-          <p className="mt-0.5 text-[11.5px] font-normal text-muted-foreground">Elenco candidati in colloquio, con scorecard post-colloquio.</p>
+          <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">Elenco candidati in colloquio, con scorecard post-colloquio.</p>
         </CardHeader>
         <CardContent>
           <InterviewList

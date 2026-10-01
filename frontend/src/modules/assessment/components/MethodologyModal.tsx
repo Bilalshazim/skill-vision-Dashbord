@@ -1,5 +1,6 @@
+import { Note } from '@/components/patterns/Note'
 import { Button } from '@/components/ui/button'
-import { Modal } from '@/modules/assessment/components/Modal'
+import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 
 // Migrated from openMethodologyModal() (js/assessment.js ~4220-4229) — static
@@ -7,7 +8,7 @@ import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 export function MethodologyModal({ onClose }: { onClose: () => void }) {
   const { ui } = useAssessment()
   return (
-    <Modal
+    <ModalDialog
       title={ui.methodologyModalTitle}
       sub={ui.methodologyModalSub}
       onClose={onClose}
@@ -18,11 +19,11 @@ export function MethodologyModal({ onClose }: { onClose: () => void }) {
       }
     >
       {/* These strings carry literal <b> tags (legacy renders them via innerHTML). */}
-      <div className="small-note" style={{ marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: ui.methodologyDataShown }} />
-      <div className="small-note" style={{ marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: ui.methodologyModuleA }} />
-      <div className="small-note" style={{ marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: ui.methodologyModuleB }} />
-      <div className="small-note" style={{ marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: ui.methodologyOverall }} />
-      <div className="small-note" dangerouslySetInnerHTML={{ __html: ui.methodologyStorage }} />
-    </Modal>
+      <Note as="div" className="mb-3" dangerouslySetInnerHTML={{ __html: ui.methodologyDataShown }} />
+      <Note as="div" className="mb-3" dangerouslySetInnerHTML={{ __html: ui.methodologyModuleA }} />
+      <Note as="div" className="mb-3" dangerouslySetInnerHTML={{ __html: ui.methodologyModuleB }} />
+      <Note as="div" className="mb-3" dangerouslySetInnerHTML={{ __html: ui.methodologyOverall }} />
+      <Note as="div" dangerouslySetInnerHTML={{ __html: ui.methodologyStorage }} />
+    </ModalDialog>
   )
 }

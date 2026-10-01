@@ -1,31 +1,44 @@
 import { Minus, TrendingDown, TrendingUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { Note } from '@/components/patterns/Note'
+import { PersonRow } from '@/components/patterns/PersonRow'
+import { PageHeader } from '@/components/patterns/PageHeader'
+import { Initials } from '@/components/ui/avatar'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { chipTone } from '@/modules/assessment/lib/chip-tone'
-import { Card, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { AndamentoChart } from '@/modules/assessment/components/AndamentoChart'
+import { ScatterMatrix } from '@/components/patterns/ScatterMatrix'
+import { TrendChart } from '@/components/patterns/TrendChart'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { bothActive, classifyPopulation, computeHardSummary, computeSoftSummary, primaryScore, primaryScoreLabel, tierFor } from '@/modules/assessment/lib/calculations'
 import { fmt1, getTierDefs, round1 } from '@/modules/assessment/lib/legacy-utils'
 
-// PHASE 25 fix: legacy's data-theme dark-mode tiers use different hex values
-// than what this file originally used ('#B0208C' etc were the LIGHT-mode
-// values only) — ported both from tierColors() (js/assessment.js
-// ~7462-7465) so the matrix/chart/table colors track the theme exactly like
-// legacy's tierColors() (which re-reads document.documentElement's
-// data-theme on every call).
-function tierColors(isDark: boolean): Record<string, string> {
-  return {
-    top: isDark ? '#D65FB8' : '#B0208C',
-    valorizzare: 'var(--success)',
-    adeguata: isDark ? '#2AA5B0' : '#0F7A85',
-    sviluppo: 'var(--warning)',
-    critica: 'var(--danger)',
-  }
+// I colori delle cinque fasce di performance, sui token (CLAUDE.md cap. 7,
+// "Colore di severità"): la fascia più alta non è uno stato ed è neutra
+// piena (`foreground`), "adeguata" (nella norma) neutra tenue; le altre sui
+// toni di stato. Il nome della fascia sta sempre accanto al colore. Prima:
+// magenta e ottanio scritti a mano, diversi per modalità.
+// Le stesse fasce come tono di Badge (la parola c'è sempre).
+const TIER_TONE: Record<string, 'strong' | 'success' | 'neutral' | 'warning' | 'destructive'> = {
+  top: 'strong',
+  valorizzare: 'success',
+  adeguata: 'neutral',
+  sviluppo: 'warning',
+  critica: 'destructive',
+}
+
+const TIER_COLORS: Record<string, string> = {
+  top: 'var(--foreground)',
+  valorizzare: 'var(--success)',
+  adeguata: 'var(--muted-foreground)',
+  sviluppo: 'var(--warning)',
+  critica: 'var(--destructive)',
 }
 
 // Client-supplied reference (skillvision-chart.html) hardcodes these exact
@@ -58,7 +71,7 @@ function exportValoreCsv(rows: { e: { cognome: string; nome: string; area: strin
 // (Phase 24 had a leftover placeholder card instead of the chart, and
 // neither the matrix rows nor the table rows opened the employee drawer).
 export default function AssessmentValorePage() {
-  const { state, lang, ui, theme } = useAssessment()
+  const { state, lang, ui } = useAssessment()
   const [drawerId, setDrawerId] = useState<string | null>(null)
   const both = bothActive(state)
   const TIER_DEFS = getTierDefs(lang)
@@ -75,7 +88,7 @@ export default function AssessmentValorePage() {
         .sort((a, b) => b.combined - a.combined),
     [state, lang],
   )
-  const colors = tierColors(theme === 'dark')
+  const colors = TIER_COLORS
 
   // "Score medio" for the trend footer blends both series equally at each
   // point, same as the reference's own single trend line/label — compares
@@ -96,110 +109,99 @@ export default function AssessmentValorePage() {
 
   return (
     <div>
-      <div className="section-head">
-        <div>
-          <h2>{primaryScoreLabel(state, lang)}</h2>
-          <p>{both ? ui.valoreSubBoth : state.settings.modulo === 'A' ? ui.valoreSubAOnly : ui.valoreSubBOnly}</p>
-        </div>
-      </div>
+      <PageHeader title={primaryScoreLabel(state, lang)} description={both ? ui.valoreSubBoth : state.settings.modulo === 'A' ? ui.valoreSubAOnly : ui.valoreSubBOnly} />
 
       {!both && (
-        <div className="small-note" style={{ marginBottom: 14, padding: '10px 12px', background: 'var(--warning-soft)', border: '1px solid #F0D6A6', borderRadius: 'var(--a-radius-sm)' }}>
+        <InlineAlert tone="warning" className="mb-4">
           {ui.valoreOnlyModuleNote(state.settings.modulo === 'A' ? ui.valoreModuleALabel : ui.valoreModuleBLabel)}
-        </div>
+        </InlineAlert>
       )}
 
-      <div className="valore-top-grid" style={{ marginBottom: 16 }}>
+      <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle  style={{ fontSize: 13 }}>
-              {ui.valoreClassificationTitle}
-            </CardTitle>
+            <CardTitle>{ui.valoreClassificationTitle}</CardTitle>
           </CardHeader>
-          <div className="tier-list">
+          <ul className="flex flex-col">
             {TIER_DEFS.map((t) => (
-              <div className="tier-row" key={t.key} style={{ padding: '8px 10px' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: colors[t.key], display: 'inline-block' }} />
-                <div className="tname" style={{ fontSize: 11.5 }}>
+              <li className="flex items-center justify-between gap-3 border-b border-border py-2 last:border-b-0" key={t.key}>
+                <Badge tone={TIER_TONE[t.key]} dot>
                   {t.label}
-                </div>
-                <div className="tcount" style={{ fontSize: 13, color: colors[t.key] }}>
-                  {tiers[t.key].length}
-                </div>
-              </div>
+                </Badge>
+                <span className="text-app-subtitle tabular-nums">{tiers[t.key].length}</span>
+              </li>
             ))}
-          </div>
-          <div className="small-note" style={{ marginTop: 12 }}>
+          </ul>
+          <Note className="mt-3">
             {ui.valoreIndexNote(both ? ui.valoreIndexBoth : state.settings.modulo === 'A' ? ui.valoreIndexAOnly : ui.valoreIndexBOnly)}
-          </div>
+          </Note>
         </Card>
-        <Card>
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>{ui.homeAndamentoTitle}</CardTitle>
           </CardHeader>
-          <div className="small-note" style={{ marginBottom: 14 }}>
+          <Note className="mb-4">
             {ui.homeAndamentoSub(state.employees.length)}
-          </div>
-          <div style={{ position: 'relative', height: 320 }}>
-            <AndamentoChart months={ui.homeAndamentoMonths} softSeries={ANDAMENTO_SOFT} hardSeries={ANDAMENTO_HARD} softLabel={ui.moduleASoft} hardLabel={ui.moduleBHard} />
-          </div>
-          <div className="legend-row" style={{ marginTop: 12 }}>
-            <span className="legend-dot">
-              <i style={{ background: 'var(--chart-2)' }} />
-              {ui.moduleASoft}
-            </span>
-            <span className="legend-dot">
-              <i style={{ background: 'var(--success)' }} />
-              {ui.moduleBHard}
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 14, fontSize: 13, fontWeight: 600, color: 'var(--text-1)' }}>
-            {andamentoTrend === 'up' ? <TrendingUp size={14} color="var(--success)" /> : andamentoTrend === 'down' ? <TrendingDown size={14} color="var(--danger)" /> : <Minus size={14} color="var(--text-3)" />}
+          </Note>
+          {/* G3 — andamento delle due competenze nel tempo: due linee, la
+              principale in chart-mono e l'altra in muted-foreground (DECISIONI). */}
+          <TrendChart
+            title={ui.homeAndamentoTitle}
+            scale={{ left: [0, 10] }}
+            height="lg"
+            series={[
+              { key: 'soft', label: ui.moduleASoft },
+              { key: 'hard', label: ui.moduleBHard },
+            ]}
+            points={ui.homeAndamentoMonths.map((m: string, i: number) => ({ date: new Date(2026, i, 1), label: m, values: { soft: ANDAMENTO_SOFT[i], hard: ANDAMENTO_HARD[i] } }))}
+          />
+          <p className="mt-4 flex items-center gap-2 text-app-small font-medium text-foreground">
+            {andamentoTrend === 'up' ? <TrendingUp className="size-4 text-success" aria-hidden="true" /> : andamentoTrend === 'down' ? <TrendingDown className="size-4 text-destructive" aria-hidden="true" /> : <Minus className="size-4 text-muted-foreground" aria-hidden="true" />}
             {andamentoTrend === 'up' ? ui.homeAndamentoRising : andamentoTrend === 'down' ? ui.homeAndamentoFalling : ui.homeAndamentoStable}
-            <span className="small-note">· {ui.homeAndamentoPeriod}</span>
-          </div>
+            <span className="font-normal text-muted-foreground">· {ui.homeAndamentoPeriod}</span>
+          </p>
         </Card>
       </div>
 
-      <Card  style={{ marginBottom: 16 }}>
-        <CardTitle>
-          {ui.valoreMatrixTitle} <span className="muted">{ui.valoreMatrixSub}</span>
-        </CardTitle>
-        <div className="grid grid-5" style={{ gap: 10, marginTop: 14, alignItems: 'start' }}>
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>{ui.valoreMatrixTitle}</CardTitle>
+          <CardDescription className="w-full">{ui.valoreMatrixSub}</CardDescription>
+        </CardHeader>
+        {/* G4 (DECISIONI): la matrice come dispersione soft × hard, un punto
+            per persona nel colore della sua fascia; il clic apre la scheda.
+            Solo con i due moduli: con uno solo non c'è il secondo asse. Gli
+            elenchi per fascia sotto restano. */}
+        {both ? (
+          <ScatterMatrix
+            className="mt-4"
+            title={ui.valoreMatrixTitle}
+            xLabel={ui.moduleASoft}
+            yLabel={ui.moduleBHard}
+            groups={TIER_DEFS.map((t) => ({ key: t.key, label: t.label, color: colors[t.key] }))}
+            points={rows.map((r) => ({ id: r.e.id, label: `${r.e.nome} ${r.e.cognome}`, x: r.soft, y: r.hard, group: r.tier.key }))}
+            onPointClick={setDrawerId}
+          />
+        ) : null}
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-3 mt-4 items-start">
           {TIER_DEFS.map((t) => (
-            <div key={t.key} style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: 'var(--a-radius-md)', padding: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                <span style={{ width: 9, height: 9, borderRadius: '50%', background: colors[t.key], display: 'inline-block', flexShrink: 0 }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: colors[t.key] }}>{t.label}</span>
-                <span className="small-note" style={{ marginLeft: 'auto' }}>
-                  {tiers[t.key].length}
-                </span>
+            <div key={t.key} className="rounded-md border border-border bg-background p-3">
+              <div className="mb-2 flex items-center gap-2">
+                <Badge tone={TIER_TONE[t.key]} dot>
+                  {t.label}
+                </Badge>
+                <span className="ml-auto text-app-small text-muted-foreground tabular-nums">{tiers[t.key].length}</span>
               </div>
-              <div style={{ maxHeight: 260, overflowY: 'auto' }}>
+              <div className="max-h-64 overflow-y-auto">
                 {tiers[t.key].length ? (
                   tiers[t.key].map((e) => {
                     const score = primaryScore(e, state, lang)
                     return (
-                      <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 4px', borderBottom: '1px dashed var(--border)', cursor: 'pointer' }} onClick={() => setDrawerId(e.id)}>
-                        <div className="avatar" style={{ width: 30, height: 30 }}>
-                          {(e.nome[0] || '') + (e.cognome[0] || '')}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: 12.6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {e.nome} {e.cognome}
-                          </div>
-                          <div style={{ fontSize: 11, color: 'var(--text-3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.ruolo}</div>
-                        </div>
-                        <Badge tone={score >= 7 ? 'success' : score >= 5 ? 'warning' : 'destructive'} dot>
-                          {fmt1(score)}
-                        </Badge>
-                      </div>
+                      <PersonRow key={e.id} first={e.nome} last={e.cognome} meta={e.ruolo} onClick={() => setDrawerId(e.id)} trailing={<Badge tone={score >= 7 ? 'success' : score >= 5 ? 'warning' : 'destructive'} dot>{fmt1(score)}</Badge>} />
                     )
                   })
                 ) : (
-                  <div className="small-note" style={{ textAlign: 'center', padding: '14px 0' }}>
-                    {ui.noEmployeesTitle}
-                  </div>
+                  <Note className="py-4 text-center">{ui.noEmployeesTitle}</Note>
                 )}
               </div>
             </div>
@@ -207,69 +209,65 @@ export default function AssessmentValorePage() {
         </div>
       </Card>
 
-      <Card  style={{ padding: 0 }}>
-        <CardHeader  style={{ padding: '16px 20px 0 20px' }}>
+      <Card padding="none">
+        <CardHeader className="px-4 pt-4">
           <CardTitle>{ui.valoreByEmployeeTitle}</CardTitle>
         </CardHeader>
-        <div className="table-wrap">
-          <table className="dtable">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>{ui.colEmployee}</th>
-                <th>{ui.colArea}</th>
-                <th>{ui.colRole}</th>
+        <Table frame>
+            <TableHeader>
+              <TableRow>
+                <TableHead>#</TableHead>
+                <TableHead>{ui.colEmployee}</TableHead>
+                <TableHead>{ui.colArea}</TableHead>
+                <TableHead>{ui.colRole}</TableHead>
                 {both ? (
                   <>
-                    <th>{ui.colSoftA}</th>
-                    <th>{ui.colHardB}</th>
-                    <th>{ui.colCombined}</th>
+                    <TableHead>{ui.colSoftA}</TableHead>
+                    <TableHead>{ui.colHardB}</TableHead>
+                    <TableHead>{ui.colCombined}</TableHead>
                   </>
                 ) : (
-                  <th>{primaryScoreLabel(state, lang)}</th>
+                  <TableHead>{primaryScoreLabel(state, lang)}</TableHead>
                 )}
-                <th>{ui.colClassification}</th>
-              </tr>
-            </thead>
-            <tbody>
+                <TableHead>{ui.colClassification}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {rows.map((r, i) => (
-                <tr key={r.e.id} onClick={() => setDrawerId(r.e.id)}>
-                  <td>{i + 1}</td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div className="avatar" style={{ width: 24, height: 24, fontSize: 10 }}>
-                        {(r.e.nome[0] || '') + (r.e.cognome[0] || '')}
-                      </div>
+                <TableRow key={r.e.id} onClick={() => setDrawerId(r.e.id)}>
+                  <TableCell>{i + 1}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Initials first={r.e.nome} last={r.e.cognome} size="sm" />
                       <b>
                         {r.e.nome} {r.e.cognome}
                       </b>
                     </div>
-                  </td>
-                  <td>{r.e.area}</td>
-                  <td>{r.e.ruolo}</td>
+                  </TableCell>
+                  <TableCell>{r.e.area}</TableCell>
+                  <TableCell>{r.e.ruolo}</TableCell>
                   {both ? (
                     <>
-                      <td>{fmt1(r.soft)}</td>
-                      <td>{fmt1(r.hard)}</td>
-                      <td>
+                      <TableCell>{fmt1(r.soft)}</TableCell>
+                      <TableCell>{fmt1(r.hard)}</TableCell>
+                      <TableCell>
                         <b>{fmt1(r.combined)}</b>
-                      </td>
+                      </TableCell>
                     </>
                   ) : (
-                    <td>
+                    <TableCell>
                       <b>{fmt1(r.combined)}</b>
-                    </td>
+                    </TableCell>
                   )}
-                  <td>
+                  <TableCell>
                     <Badge tone={chipTone(r.tier.chip)} dot>
                       {r.tier.label}
                     </Badge>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
       </Card>
 
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}

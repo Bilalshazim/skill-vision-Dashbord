@@ -1,9 +1,20 @@
+import { Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { ModalDialog } from '@/components/patterns/ModalDialog'
+import { Checkbox } from '@/components/ui/checkbox'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Field } from '@/components/patterns/Field'
+import { Input } from '@/components/ui/input'
 import { Hint } from '@/components/patterns/Hint'
 import { Badge } from '@/components/ui/badge'
 import { chipTone } from '@/modules/assessment/lib/chip-tone'
-import { Card } from '@/components/ui/card'
+import { Initials } from '@/components/ui/avatar'
+import { PageHeader } from '@/components/patterns/PageHeader'
+import { DataTable } from '@/components/patterns/DataTable'
+import { EmptyState } from '@/components/patterns/EmptyState'
+import { FilterBar } from '@/components/patterns/FilterBar'
+import { FilterToggle } from '@/components/patterns/FilterToggle'
 import { Button } from '@/components/ui/button'
 import { AddEmployeeModal } from '@/modules/assessment/components/AddEmployeeModal'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
@@ -62,12 +73,6 @@ export default function AssessmentAnagraficaPage() {
     return l
   }, [state, lang, showArchived, areaFilter, search, sort])
 
-  const total = list.length
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
-  const currentPage = Math.min(Math.max(page, 1), totalPages)
-  const start = (currentPage - 1) * PAGE_SIZE
-  const pageList = list.slice(start, start + PAGE_SIZE)
-
   function softAssignedLabel(empId: string) {
     const e = state.employees.find((x) => x.id === empId)!
     const totalSkills = SOFT_SKILLS.length
@@ -83,203 +88,177 @@ export default function AssessmentAnagraficaPage() {
 
   return (
     <div>
-      <div className="section-head">
-        <div>
-          <h2>{ui.anagListTitle}</h2>
-          <p>{ui.anagListSub}</p>
-        </div>
-        <div className="toolbar">
-          {/* Was two full-width header cards ("Competenze trasversali
-              richieste per ruolo" / "Link Survey") — declutter per client
-              feedback: same actions, as compact icon buttons in the
-              toolbar instead of standalone cards. Nothing removed
-              functionally, both still open the same modals. */}
-          <Hint label={ui.anagRoleSkillsTitle}>
-            <Button type="button" variant="outline" size="icon" aria-label={ui.anagRoleSkillsTitle} onClick={() => setShowRoleCensus(true)}>
-              <Icon name="users" />
-            </Button>
-          </Hint>
-          <Hint label={ui.linkSurveyBtn}>
-            <Button type="button" variant="outline" size="icon" aria-label={ui.linkSurveyBtn} onClick={() => setShowSurveyLink(true)}>
-              <Icon name="notes" />
-            </Button>
-          </Hint>
-          <div className="search-box">
-            <Icon name="search" />
-            <input
-              type="text"
-              className="neu-input"
-              placeholder={ui.anagSearchPh}
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value)
-                setPage(1)
+      <PageHeader
+        title={ui.anagListTitle}
+        description={ui.anagListSub}
+        actions={
+          <>
+            {/* Was two full-width header cards ("Competenze trasversali
+                richieste per ruolo" / "Link Survey") — declutter per client
+                feedback: same actions, as compact icon buttons in the
+                toolbar instead of standalone cards. Nothing removed
+                functionally, both still open the same modals. */}
+            <Hint label={ui.anagRoleSkillsTitle}>
+              <Button type="button" variant="outline" size="icon" aria-label={ui.anagRoleSkillsTitle} onClick={() => setShowRoleCensus(true)}>
+                <Icon name="users" />
+              </Button>
+            </Hint>
+            <Hint label={ui.linkSurveyBtn}>
+              <Button type="button" variant="outline" size="icon" aria-label={ui.linkSurveyBtn} onClick={() => setShowSurveyLink(true)}>
+                <Icon name="notes" />
+              </Button>
+            </Hint>
+            <FilterBar
+              search={{
+                value: search,
+                onChange: (v) => {
+                  setSearch(v)
+                  setPage(1)
+                },
+                placeholder: ui.anagSearchPh,
               }}
-            />
-          </div>
-          <select
-            style={{ padding: '8px 12px', border: '1px solid var(--border-strong)', borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}
-            value={areaFilter}
-            onChange={(e) => {
-              setAreaFilter(e.target.value)
-              setPage(1)
-            }}
-          >
-            <option value="all">{ui.anagAllAreas}</option>
-            {areasList(state).map((a) => (
-              <option key={a} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
-          <select
-            style={{ padding: '8px 12px', border: '1px solid var(--border-strong)', borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}
-            value={sort}
-            onChange={(e) => {
-              setSort(e.target.value as typeof sort)
-              setPage(1)
-            }}
-          >
-            <option value="cognome">{ui.anagSortLastName}</option>
-            <option value="area">{ui.anagSortArea}</option>
-            <option value="score">{ui.anagSortScore}</option>
-          </select>
-          <label className="checkbox-row" style={{ gap: 7, fontSize: 12.5, fontWeight: 600, color: 'var(--text-2)' }}>
-            <input
-              type="checkbox"
-              checked={showArchived}
-              onChange={(e) => {
-                setShowArchived(e.target.checked)
-                setPage(1)
-              }}
-            />
-            {ui.anagShowArchived}
-          </label>
-        </div>
-      </div>
+            >
+              <SelectField
+                size="sm"
+                value={areaFilter}
+                onValueChange={(v) => {
+                  setAreaFilter(v)
+                  setPage(1)
+                }}
+              >
+                <option value="all">{ui.anagAllAreas}</option>
+                {areasList(state).map((a) => (
+                  <option key={a} value={a}>
+                    {a}
+                  </option>
+                ))}
+              </SelectField>
+              <SelectField
+                size="sm"
+                value={sort}
+                onValueChange={(v) => {
+                  setSort(v as typeof sort)
+                  setPage(1)
+                }}
+              >
+                <option value="cognome">{ui.anagSortLastName}</option>
+                <option value="area">{ui.anagSortArea}</option>
+                <option value="score">{ui.anagSortScore}</option>
+              </SelectField>
+              <FilterToggle>
+                <Checkbox
+                  checked={showArchived}
+                  onCheckedChange={(c) => {
+                    setShowArchived(c === true)
+                    setPage(1)
+                  }}
+                />
+                {ui.anagShowArchived}
+              </FilterToggle>
+            </FilterBar>
+          </>
+        }
+      />
 
-      <Card  style={{ padding: 0 }}>
-        {!list.length ? (
-          <div className="empty-state">
-            <Icon name="users" />
-            <div className="t">{showArchived ? ui.anagNoArchivedFound : ui.anagNoEmployeesFound}</div>
-            <div className="d">{ui.anagAdjustFilters}</div>
-          </div>
-        ) : (
-          <div className="table-wrap">
-            <table className="dtable">
-              <thead>
-                <tr>
-                  <th>{ui.anagColEmployee}</th>
-                  <th>{ui.anagColEmail}</th>
-                  <th>{ui.anagColArea}</th>
-                  <th>{ui.anagColDepartment}</th>
-                  <th>{ui.anagColRole}</th>
-                  <th>{ui.anagColDuties}</th>
-                  <th>{ui.anagColGender}</th>
-                  <th>{ui.anagColLevel}</th>
-                  <th>{ui.anagColRal}</th>
-                  <th>{ui.anagColBenefit}</th>
-                  <th>{ui.anagColSoftAssigned}</th>
-                  <th>{primaryScoreLabel(state, lang)}</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {pageList.map((e) => {
-                  const soft = softAssignedLabel(e.id)
-                  return (
-                    <tr key={e.id} onClick={() => setDrawerId(e.id)}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                          <div className="avatar">
-                            {(e.nome[0] || '') + (e.cognome[0] || '')}
-                          </div>
-                          <b>
-                            {e.nome} {e.cognome}
-                          </b>
-                          {e.archived && (
-                            <Badge style={{ flexShrink: 0 }}>
-                              {e.archived.reason}
-                            </Badge>
-                          )}
-                        </div>
-                      </td>
-                      <td style={{ color: 'var(--text-2)' }}>{e.email}</td>
-                      <td>{e.area}</td>
-                      <td style={{ color: 'var(--text-2)' }}>{e.reparto || '—'}</td>
-                      <td>{e.ruolo}</td>
-                      <td style={{ maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-2)' }}>{e.mansione}</td>
-                      <td style={{ color: 'var(--text-2)' }}>{genderDisplayLabel(e.sesso, lang) || '—'}</td>
-                      <td style={{ color: 'var(--text-2)' }}>{e.livelloCcnl || '—'}</td>
-                      <td style={{ color: 'var(--text-2)', whiteSpace: 'nowrap' }}>{e.ral ? fmtCurrency(e.ral) : '—'}</td>
-                      <td style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-2)' }}>{e.benefit || '—'}</td>
-                      <td>
-                        <span
-                          className={`chip ${soft.cls}`}
-                          style={{ cursor: 'pointer' }}
-                          title={ui.anagColSoftAssigned}
-                          onClick={(ev) => {
-                            ev.stopPropagation()
-                            setSoftSkillModalId(e.id)
-                          }}
-                        >
-                          <span className="dt" />
-                          {soft.text}
-                        </span>
-                      </td>
-                      <td>
-                        <Badge tone={chipTone(semanticChip(primaryScore(e, state, lang)))} dot>
-                          {fmt1(primaryScore(e, state, lang))}
-                        </Badge>
-                      </td>
-                      <td>
-                        {e.archived ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(ev) => {
-                              ev.stopPropagation()
-                              restoreEmployee(e.id)
-                            }}
-                          >
-                            {ui.anagRestore}
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={(ev) => {
-                              ev.stopPropagation()
-                              setArchiveModalId(e.id)
-                            }}
-                          >
-                            {ui.anagArchive}
-                          </Button>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderTop: '1px solid var(--border)', flexWrap: 'wrap', gap: 10 }}>
-              <div className="small-note">{ui.anagShowing(start + 1, Math.min(start + PAGE_SIZE, total), total)}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Button variant="outline" size="sm" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
-                  <Icon name="chevronLeft" />
-                </Button>
-                <span className="small-note" style={{ fontWeight: 700, color: 'var(--text-1)' }}>
-                  {ui.anagPageOf(currentPage, totalPages)}
+      <DataTable
+        rows={list}
+        getRowId={(e) => e.id}
+        onRowClick={(e) => setDrawerId(e.id)}
+        rowLabel={(e) => ui.anagOpenEmployee(`${e.nome} ${e.cognome}`)}
+        pagination={{
+          page,
+          pageSize: PAGE_SIZE,
+          onPageChange: setPage,
+          labels: { showing: ui.anagShowing, pageOf: ui.anagPageOf, prev: ui.anagPrevPage, next: ui.anagNextPage },
+        }}
+        empty={<EmptyState icon={Users} title={showArchived ? ui.anagNoArchivedFound : ui.anagNoEmployeesFound} description={ui.anagAdjustFilters} />}
+        columns={[
+          {
+            key: 'name',
+            header: ui.anagColEmployee,
+            nowrap: true,
+            cell: (e) => (
+              <div className="flex items-center gap-2">
+                <Initials first={e.nome} last={e.cognome} />
+                <span className="font-medium">
+                  {e.nome} {e.cognome}
                 </span>
-                <Button variant="outline" size="sm" disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)}>
-                  <Icon name="chevronRight" />
-                </Button>
+                {e.archived && <Badge>{e.archived.reason}</Badge>}
               </div>
-            </div>
-          </div>
-        )}
-      </Card>
+            ),
+          },
+          { key: 'email', header: ui.anagColEmail, emphasis: 'muted', cell: (e) => e.email },
+          { key: 'area', header: ui.anagColArea, nowrap: true, cell: (e) => e.area },
+          { key: 'reparto', header: ui.anagColDepartment, nowrap: true, emphasis: 'muted', cell: (e) => e.reparto || '—' },
+          { key: 'ruolo', header: ui.anagColRole, nowrap: true, cell: (e) => e.ruolo },
+          { key: 'mansione', header: ui.anagColDuties, emphasis: 'muted', truncate: 'md', cell: (e) => e.mansione },
+          { key: 'sesso', header: ui.anagColGender, nowrap: true, emphasis: 'muted', cell: (e) => genderDisplayLabel(e.sesso, lang) || '—' },
+          { key: 'livello', header: ui.anagColLevel, nowrap: true, emphasis: 'muted', cell: (e) => e.livelloCcnl || '—' },
+          { key: 'ral', header: ui.anagColRal, emphasis: 'muted', nowrap: true, align: 'end', cell: (e) => (e.ral ? fmtCurrency(e.ral) : '—') },
+          { key: 'benefit', header: ui.anagColBenefit, emphasis: 'muted', truncate: 'sm', cell: (e) => e.benefit || '—' },
+          {
+            key: 'soft',
+            header: ui.anagColSoftAssigned,
+            cell: (e) => {
+              const soft = softAssignedLabel(e.id)
+              return (
+                <Hint label={ui.anagColSoftAssigned}>
+                  <button
+                    type="button"
+                    className="rounded-full"
+                    onClick={(ev) => {
+                      ev.stopPropagation()
+                      setSoftSkillModalId(e.id)
+                    }}
+                  >
+                    <Badge tone={chipTone(soft.cls)} dot>
+                      {soft.text}
+                    </Badge>
+                  </button>
+                </Hint>
+              )
+            },
+          },
+          {
+            key: 'score',
+            header: primaryScoreLabel(state, lang),
+            cell: (e) => (
+              <Badge tone={chipTone(semanticChip(primaryScore(e, state, lang)))} dot>
+                {fmt1(primaryScore(e, state, lang))}
+              </Badge>
+            ),
+          },
+          {
+            key: 'actions',
+            header: '',
+            align: 'end',
+            cell: (e) =>
+              e.archived ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(ev) => {
+                    ev.stopPropagation()
+                    restoreEmployee(e.id)
+                  }}
+                >
+                  {ui.anagRestore}
+                </Button>
+              ) : (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={(ev) => {
+                    ev.stopPropagation()
+                    setArchiveModalId(e.id)
+                  }}
+                >
+                  {ui.anagArchive}
+                </Button>
+              ),
+          },
+        ]}
+      />
 
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
       {softSkillModalId && <EmployeeSoftSkillModal employeeId={softSkillModalId} onClose={() => setSoftSkillModalId(null)} />}
@@ -309,36 +288,12 @@ function ArchiveModal({ employeeId, onClose, onConfirm }: { employeeId: string; 
   if (!emp) return null
   const reasonLabel = (key: string) => ({ pensione: ui.archiveReasonPensione, licenziamento: ui.archiveReasonLicenziamento, probation: ui.archiveReasonProbation, altro: ui.archiveReasonAltro })[key] || key
   return (
-    <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal">
-        <div className="modal-head">
-          <div>
-            <h3>{ui.archiveModalTitle}</h3>
-            <div className="sub">{ui.archiveModalSub(`${emp.nome} ${emp.cognome}`)}</div>
-          </div>
-          <button className="modal-close" onClick={onClose}>
-            ✕
-          </button>
-        </div>
-        <div className="modal-body">
-          <div className="field">
-            <label>{ui.archiveReasonFieldLabel}</label>
-            <select value={reason} onChange={(e) => setReason(e.target.value)}>
-              {['pensione', 'licenziamento', 'probation', 'altro'].map((r) => (
-                <option key={r} value={r}>
-                  {reasonLabel(r)}
-                </option>
-              ))}
-            </select>
-          </div>
-          {reason === 'altro' && (
-            <div className="field">
-              <label>{ui.archiveOtherLabel}</label>
-              <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder={ui.archiveOtherPh} />
-            </div>
-          )}
-        </div>
-        <div className="modal-foot">
+    <ModalDialog
+      title={ui.archiveModalTitle}
+      sub={ui.archiveModalSub(`${emp.nome} ${emp.cognome}`)}
+      onClose={onClose}
+      footer={
+        <>
           <Button variant="outline" onClick={onClose}>
             {ui.importCancel}
           </Button>
@@ -351,8 +306,23 @@ function ArchiveModal({ employeeId, onClose, onConfirm }: { employeeId: string; 
           >
             {ui.archiveConfirmBtn}
           </Button>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    >
+      <Field label={ui.archiveReasonFieldLabel}>
+        <SelectField value={reason} onValueChange={(v) => setReason(v)}>
+          {['pensione', 'licenziamento', 'probation', 'altro'].map((r) => (
+            <option key={r} value={r}>
+              {reasonLabel(r)}
+            </option>
+          ))}
+        </SelectField>
+      </Field>
+      {reason === 'altro' && (
+        <Field label={ui.archiveOtherLabel}>
+          <Input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder={ui.archiveOtherPh} />
+        </Field>
+      )}
+    </ModalDialog>
   )
 }

@@ -1,18 +1,12 @@
 import { fmtIT100 } from '@/modules/recruiting/lib/format'
 
-// Ported from legacy .sub3 (three fixed sub-scores that make up AHI: Fit
-// competenze 55%, Affinità Big Five 30%, Indice CV — ML 15%). These are
-// three distinct metric IDENTITIES always shown together, not a severity
-// grading of one value — legacy colored them teal-link/gold/green, which
-// reuses the reserved severity green for a box that has nothing to do with
-// candidate quality. Modernized here to the established categorical tokens
-// (--chart-2/3/4) instead, consistent with how Home's chart avoids the same
-// mistake in the other direction (see QualityChart.tsx) — severity tokens
-// stay reserved for severity, categorical tokens for category identity.
+// Ported from legacy .sub3 (three fixed sub-scores that make up AHI).
+// Fase 6: i colori categorici erano decorazione su metriche già etichettate
+// e sono stati tolti — superfici neutre, il valore porta la gerarchia.
 const BOXES = [
-  { key: 'fc', label: 'Fit competenze (55%)', color: 'var(--chart-2)' },
-  { key: 'ab', label: 'Affinità Big Five (30%)', color: 'var(--chart-3)' },
-  { key: 'icv', label: 'Indice CV — ML (15%)', color: 'var(--chart-4)' },
+  { key: 'fc', label: 'Fit competenze (55%)' },
+  { key: 'ab', label: 'Affinità Big Five (30%)' },
+  { key: 'icv', label: 'Indice CV — ML (15%)' },
 ] as const
 
 export function SubScoreBoxes({ fc, ab, icv }: { fc: number; ab: number; icv: number }) {
@@ -25,8 +19,8 @@ export function SubScoreBoxes({ fc, ab, icv }: { fc: number; ab: number; icv: nu
           key={b.key}
           className="flex flex-col items-center justify-center rounded-sm border border-border bg-secondary px-3 py-3 text-center"
         >
-          <div className="text-[11px] font-semibold uppercase tracking-wide">{b.label}</div>
-          <div className="mt-1 text-lg font-bold" style={{ color: b.color }}>
+          <div className="label-mono">{b.label}</div>
+          <div className="mt-1 text-app-section font-semibold tabular-nums">
             {fmtIT100(values[b.key])}
           </div>
         </div>

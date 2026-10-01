@@ -1,8 +1,16 @@
 import { useState } from 'react'
 
+import { Note } from '@/components/patterns/Note'
+import { Separator } from '@/components/ui/separator'
+import { useDirty } from '@/hooks/use-dirty'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Field } from '@/components/patterns/Field'
+import { FieldGrid } from '@/components/patterns/FieldGrid'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { AbsencesEditor } from '@/modules/assessment/components/AbsencesEditor'
-import { Modal } from '@/modules/assessment/components/Modal'
+import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { areasList, censusRolesList, repartiList } from '@/modules/assessment/lib/calculations'
 import { getApex5dDimensions, getApexSources, getSoftSkills, uid } from '@/modules/assessment/lib/legacy-utils'
@@ -37,6 +45,7 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
   const [benefit, setBenefit] = useState('')
   const [tipoContratto, setTipoContratto] = useState<Employee['tipoContratto']>('dipendente')
   const [absences, setAbsences] = useState<Absence[]>([])
+  const dirty = useDirty({ nome, cognome, email, area, reparto, ruolo, mansione, sesso, ccnl, ral, benefit, tipoContratto, absences })
 
   function submit() {
     const n = nome.trim()
@@ -94,7 +103,7 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Modal
+    <ModalDialog dirty={dirty}
       title={ui.addEmpModalTitle}
       sub={ui.addEmpModalSub}
       onClose={onClose}
@@ -109,93 +118,80 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
         </>
       }
     >
-      <div className="field-row">
-        <div className="field">
-          <label>{ui.addEmpFirstName}</label>
-          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} />
-        </div>
-        <div className="field">
-          <label>{ui.addEmpLastName}</label>
-          <input type="text" value={cognome} onChange={(e) => setCognome(e.target.value)} />
-        </div>
-      </div>
-      <div className="field">
-        <label>{ui.addEmpEmail}</label>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      </div>
-      <div className="field-row">
-        <div className="field">
-          <label>{ui.addEmpArea}</label>
-          <input type="text" list="dl-aree" placeholder={ui.addEmpAreaPh} value={area} onChange={(e) => setArea(e.target.value)} />
+      <FieldGrid>
+        <Field label={ui.addEmpFirstName}>
+          <Input type="text" value={nome} onChange={(e) => setNome(e.target.value)} />
+        </Field>
+        <Field label={ui.addEmpLastName}>
+          <Input type="text" value={cognome} onChange={(e) => setCognome(e.target.value)} />
+        </Field>
+      </FieldGrid>
+      <Field label={ui.addEmpEmail}>
+        <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      </Field>
+      <FieldGrid>
+        <Field label={ui.addEmpArea}>
+          <Input type="text" list="dl-aree" placeholder={ui.addEmpAreaPh} value={area} onChange={(e) => setArea(e.target.value)} />
           <datalist id="dl-aree">
             {areas.map((a) => (
               <option key={a} value={a} />
             ))}
           </datalist>
-        </div>
-        <div className="field">
-          <label>{ui.addEmpDept}</label>
-          <input type="text" list="dl-reparti" placeholder={ui.addEmpDeptPh} value={reparto} onChange={(e) => setReparto(e.target.value)} />
+        </Field>
+        <Field label={ui.addEmpDept}>
+          <Input type="text" list="dl-reparti" placeholder={ui.addEmpDeptPh} value={reparto} onChange={(e) => setReparto(e.target.value)} />
           <datalist id="dl-reparti">
             {reparti.map((r) => (
               <option key={r} value={r} />
             ))}
           </datalist>
-        </div>
-      </div>
-      <div className="field">
-        <label>{ui.addEmpRole}</label>
-        <select disabled={!censusRoles.length} value={ruolo} onChange={(e) => setRuolo(e.target.value)}>
+        </Field>
+      </FieldGrid>
+      <Field label={ui.addEmpRole} hint={!censusRoles.length ? ui.addEmpNoRolesHint : undefined}>
+        <SelectField disabled={!censusRoles.length} value={ruolo} onValueChange={(v) => setRuolo(v)}>
           <option value="">{ui.addEmpRoleEmptyOption}</option>
           {censusRoles.map((r) => (
             <option key={r} value={r}>
               {r}
             </option>
           ))}
-        </select>
-        {!censusRoles.length && <div className="hint">{ui.addEmpNoRolesHint}</div>}
-      </div>
-      <div className="field">
-        <label>{ui.addEmpDuties}</label>
-        <textarea placeholder={ui.addEmpDutiesPh} value={mansione} onChange={(e) => setMansione(e.target.value)} />
-      </div>
-      <div className="divider" />
-      <div className="field-row">
-        <div className="field">
-          <label>{ui.genderLabel}</label>
-          <select value={sesso} onChange={(e) => setSesso(e.target.value)}>
+        </SelectField>
+      </Field>
+      <Field label={ui.addEmpDuties}>
+        <Textarea placeholder={ui.addEmpDutiesPh} value={mansione} onChange={(e) => setMansione(e.target.value)} />
+      </Field>
+      <Separator className="my-4" />
+      <FieldGrid>
+        <Field label={ui.genderLabel}>
+          <SelectField value={sesso} onValueChange={(v) => setSesso(v)}>
             <option value="">{ui.genderUnspecified}</option>
             <option value="F">{ui.genderFemale}</option>
             <option value="M">{ui.genderMale}</option>
             <option value="Altro">{ui.genderOther}</option>
-          </select>
-        </div>
-        <div className="field">
-          <label>{ui.ccnlLevelLabel}</label>
-          <input type="text" placeholder={ui.ccnlLevelPh} value={ccnl} onChange={(e) => setCcnl(e.target.value)} />
-        </div>
-      </div>
-      <div className="field-row">
-        <div className="field">
-          <label>{ui.ralLabel}</label>
-          <input type="number" min={0} step={500} placeholder={ui.ralPh} value={ral} onChange={(e) => setRal(e.target.value)} />
-        </div>
-        <div className="field">
-          <label>{ui.benefitLabel}</label>
-          <input type="text" placeholder={ui.benefitPh} value={benefit} onChange={(e) => setBenefit(e.target.value)} />
-        </div>
-      </div>
-      <div className="field">
-        <label>{ui.contractTypeLabel}</label>
-        <select value={tipoContratto} onChange={(e) => setTipoContratto(e.target.value as Employee['tipoContratto'])}>
+          </SelectField>
+        </Field>
+        <Field label={ui.ccnlLevelLabel}>
+          <Input type="text" placeholder={ui.ccnlLevelPh} value={ccnl} onChange={(e) => setCcnl(e.target.value)} />
+        </Field>
+      </FieldGrid>
+      <FieldGrid>
+        <Field label={ui.ralLabel}>
+          <Input type="number" min={0} step={500} placeholder={ui.ralPh} value={ral} onChange={(e) => setRal(e.target.value)} />
+        </Field>
+        <Field label={ui.benefitLabel}>
+          <Input type="text" placeholder={ui.benefitPh} value={benefit} onChange={(e) => setBenefit(e.target.value)} />
+        </Field>
+      </FieldGrid>
+      <Field label={ui.contractTypeLabel}>
+        <SelectField value={tipoContratto} onValueChange={(v) => setTipoContratto(v as Employee['tipoContratto'])}>
           <option value="dipendente">{ui.contractTypeDipendente}</option>
           <option value="cocopro">{ui.contractTypeCocopro}</option>
           <option value="partitaIva">{ui.contractTypePartitaIva}</option>
           <option value="esterno">{ui.contractTypeEsterno}</option>
-        </select>
-      </div>
+        </SelectField>
+      </Field>
       <AbsencesEditor rows={absences} onChange={setAbsences} />
-      <div className="small-note">{ui.addEmpNote}</div>
-    </Modal>
+      <Note>{ui.addEmpNote}</Note>
+    </ModalDialog>
   )
 }

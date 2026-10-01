@@ -289,6 +289,10 @@
 
   /* ---------------- SCREEN ROUTER ---------------- */
   function showScreen(name) {
+    // Fase 4 (Skill Vision React): la scelta del modulo dopo l'accesso è la
+    // radice `/` dell'app React. Questo guscio resta il login; la "landing"
+    // diventa un rinvio. Il controllo delle credenziali non cambia.
+    if (name === 'landing') { window.location.replace('/'); return; }
     ['sv-login', 'sv-landing', 'sv-dashboard'].forEach(function (id) {
       $(id).classList.toggle('on', id === 'sv-' + name);
     });

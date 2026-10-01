@@ -1,6 +1,8 @@
 import { AlertTriangle, CheckCircle2, ClipboardList, Loader2, Send } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+import { useDirty } from '@/hooks/use-dirty'
+import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { candidateProfilesApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
@@ -34,6 +36,8 @@ export function CandidateProfileDialog({ candidate }: { candidate: Candidate }) 
   const [notes, setNotes] = useState('')
   const [actionError, setActionError] = useState('')
   const [actionPending, setActionPending] = useState(false)
+  // La partenza si rifà all'apertura e quando le note arrivano dal server.
+  const dirty = useDirty(notes, `${open}:${state.kind}`)
 
   const campaignCandidateId = candidate.backendCampaignCandidateId
 
@@ -97,7 +101,7 @@ export function CandidateProfileDialog({ candidate }: { candidate: Candidate }) 
           Profilo candidatura
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent dirty={dirty}>
         <DialogHeader>
           <DialogTitle>Profilo candidatura — {candidate.name}</DialogTitle>
           <DialogDescription>Bozza → Salvato → Approvato → Pronto per pubblicazione → Pubblicato</DialogDescription>
@@ -105,7 +109,7 @@ export function CandidateProfileDialog({ candidate }: { candidate: Candidate }) 
 
         {state.kind === 'loading' && <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />}
         {state.kind === 'error' && (
-          <p className="flex items-start gap-1.5 text-[12.5px] font-medium text-destructive">
+          <p className="flex items-start gap-1.5 text-app-small font-medium text-destructive">
             <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
             {state.message}
           </p>
@@ -113,19 +117,19 @@ export function CandidateProfileDialog({ candidate }: { candidate: Candidate }) 
 
         {state.kind === 'ready' && (
           <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-1.5 text-[12.5px] font-medium text-foreground">
+            <div className="flex items-center gap-1.5 text-app-small font-medium text-foreground">
               <CheckCircle2 className="size-3.5 shrink-0 text-success" aria-hidden="true" />
               Stato attuale: {STATUS_LABEL[state.profile.status]}
             </div>
-            <textarea
+            <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
               placeholder="Note sul profilo candidatura (contenuto salvato sul server)…"
-              className="rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-            />
+              size="sm"
+ />
             {state.profile.publicationLink && (
-              <p className="text-[11.5px] text-muted-foreground">
+              <p className="text-app-caption text-muted-foreground">
                 Link pubblicazione: <code className="break-all rounded bg-secondary px-1 py-0.5">{state.profile.publicationLink}</code>
               </p>
             )}
@@ -170,7 +174,7 @@ export function CandidateProfileDialog({ candidate }: { candidate: Candidate }) 
             </>
           )}
           {actionError && (
-            <p className="flex items-start gap-1.5 text-[12px] font-medium text-destructive">
+            <p className="flex items-start gap-1.5 text-app-caption font-medium text-destructive">
               <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
               {actionError}
             </p>

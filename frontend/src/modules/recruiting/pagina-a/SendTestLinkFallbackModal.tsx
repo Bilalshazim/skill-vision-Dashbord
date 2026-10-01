@@ -85,15 +85,15 @@ export function SendTestLinkFallbackModal({
         </DialogHeader>
 
         <div className="flex min-w-0 flex-col gap-1.5">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Link test</div>
+          <div className="label-mono text-muted-foreground">Link test</div>
           <div className="min-w-0 rounded-sm border border-border bg-secondary px-3 py-2">
-            <code className="block min-w-0 truncate text-[12px]">{entry.testLink}</code>
+            <code className="block min-w-0 truncate text-app-caption">{entry.testLink}</code>
           </div>
-          {copied && <p className="text-[11px] font-medium text-success">Link copiato negli appunti.</p>}
+          {copied && <p className="text-app-caption font-medium text-success">Link copiato negli appunti.</p>}
         </div>
 
         {error && (
-          <p role="alert" className="text-[12px] font-medium text-destructive">
+          <p role="alert" className="text-app-caption font-medium text-destructive">
             {error}
           </p>
         )}
@@ -111,13 +111,13 @@ export function SendTestLinkFallbackModal({
           {mailto ? (
             <a
               href={mailto}
-              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-[11.5px] font-medium text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-app-caption font-medium text-muted-foreground transition-colors hover:border-ring hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             >
               <Mail className="size-3.5 shrink-0" aria-hidden="true" />
               Apri client email (mailto)
             </a>
           ) : (
-            <p className="text-[11px] text-muted-foreground">Nessuna email per questo candidato — copia il link e invialo tramite un altro canale.</p>
+            <p className="text-app-caption text-muted-foreground">Nessuna email per questo candidato — copia il link e invialo tramite un altro canale.</p>
           )}
           <Button
             type="button"

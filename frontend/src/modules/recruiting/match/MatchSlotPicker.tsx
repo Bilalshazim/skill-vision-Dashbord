@@ -1,8 +1,6 @@
+import { SelectField } from '@/components/patterns/SelectField'
 import { cn } from '@/lib/utils'
 import type { Candidate } from '@/modules/recruiting/lib/types'
-
-const selectClass =
-  'w-full rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 // Migrated from _buildMatchSlots()/_pickMatchSlot()/_renderSlotPreview()
 // (modules/recruiting.html ~4911-4951) — one dropdown + small preview per
@@ -36,8 +34,8 @@ export function MatchSlotPicker({
         selectedId && (filled === 'it' ? 'border-warning/40 bg-warning/5' : 'border-primary/40 bg-primary/5'),
       )}
     >
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
-      <select id={`match-slot-${slotKey}`} value={selectedId} onChange={(e) => onSelect(e.target.value)} className={selectClass}>
+      <div className="label-mono text-muted-foreground">{label}</div>
+      <SelectField id={`match-slot-${slotKey}`} value={selectedId} onValueChange={(v) => onSelect(v)} size="sm">
         <option value="">— seleziona —</option>
         {pool.map((c) => (
           <option key={c.id} value={c.id}>
@@ -45,20 +43,20 @@ export function MatchSlotPicker({
             {c.role ? ` — ${c.role}` : ''}
           </option>
         ))}
-      </select>
+      </SelectField>
       {picked && (
-        <div className="text-[11.5px]">
+        <div className="text-app-caption">
           <div className="font-semibold text-foreground">{picked.name}</div>
           <div className="text-muted-foreground">
             {picked.role || '—'}
             {picked.isInternalTalent && (
-              <span className="ml-1.5 rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary">INT</span>
+              <span className="label-mono ml-1.5 rounded-full bg-primary/10 px-2 py-0.5 text-primary">INT</span>
             )}
           </div>
           {topScores.length > 0 && (
             <div className="mt-1 flex flex-wrap gap-1">
               {topScores.map(([n, v]) => (
-                <span key={n} className="rounded-full border border-border bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">
+                <span key={n} className="rounded-full border border-border bg-secondary px-2 py-0.5 text-app-caption text-muted-foreground">
                   {n} {v.toFixed(1)}
                 </span>
               ))}

@@ -100,17 +100,17 @@ export default function PipelinePage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <Workflow className="size-[22px] text-muted-foreground" aria-hidden="true" />
+          <Workflow className="size-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Pipeline di selezione</h2>
-          <p className="text-[13px] text-muted-foreground">
+          <h2 className="text-app-section font-semibold tracking-tight">Pipeline di selezione</h2>
+          <p className="text-app-small text-muted-foreground">
             Stato di avanzamento e tracciamento per ogni posizione aperta — pre-screening, test, colloqui, vincitore.
           </p>
         </div>
       </div>
 
-      <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
+      <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground">
         "Segna completato" resta disponibile solo nell'app corrente.
       </p>
 

@@ -27,19 +27,19 @@ export function AskAnswerView({ answer }: { answer: AskAnswer }) {
       {answer.blocks.map((block, i) => {
         if (block.type === 'title')
           return (
-            <div key={i} className="text-[13.5px] font-semibold text-foreground">
+            <div key={i} className="text-app-small font-semibold text-foreground">
               <Parts parts={block.parts} />
             </div>
           )
         if (block.type === 'paragraph')
           return (
-            <p key={i} className="text-[13px] leading-relaxed text-muted-foreground">
+            <p key={i} className="text-app-small leading-relaxed text-muted-foreground">
               <Parts parts={block.parts} />
             </p>
           )
         if (block.type === 'list')
           return (
-            <ul key={i} className="list-disc space-y-1 pl-5 text-[13px] leading-relaxed text-muted-foreground">
+            <ul key={i} className="list-disc space-y-1 pl-5 text-app-small leading-relaxed text-muted-foreground">
               {block.items.map((item, j) => (
                 <li key={j}>
                   <Parts parts={item} />
@@ -48,7 +48,7 @@ export function AskAnswerView({ answer }: { answer: AskAnswer }) {
             </ul>
           )
         return (
-          <div key={i} className="mt-1 text-[11px] text-muted-foreground/80">
+          <div key={i} className="mt-1 text-app-caption text-muted-foreground/80">
             {block.text}
           </div>
         )

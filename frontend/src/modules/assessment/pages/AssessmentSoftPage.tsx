@@ -1,18 +1,33 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { Note } from '@/components/patterns/Note'
+import { chipTone } from '@/modules/assessment/lib/chip-tone'
+import { PersonRow } from '@/components/patterns/PersonRow'
+import { EmptyState } from '@/components/patterns/EmptyState'
+import { Initials } from '@/components/ui/avatar'
+import { StatCard } from '@/components/patterns/StatCard'
+import { Separator } from '@/components/ui/separator'
+import { MatchLegend } from '@/modules/assessment/components/MatchLegend'
+import { MatchCell } from '@/modules/assessment/components/MatchCell'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Field } from '@/components/patterns/Field'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle, CardLabel } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
-import { GroupedBarsChart } from '@/modules/assessment/components/GroupedBarsChart'
+import { CategoryBars } from '@/components/patterns/CategoryBars'
+import { ProfileRadar } from '@/components/patterns/ProfileRadar'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { SoftEvalModal } from '@/modules/assessment/components/SoftEvalModal'
 import { StatTile } from '@/modules/assessment/components/StatTile'
 import { SurveyLinkModal } from '@/modules/assessment/components/SurveyLinkModal'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { computeSoftSummary, gapInterpretation, matchCellClasses, orgWorstSoftSkills } from '@/modules/assessment/lib/calculations'
-import { avg, fmt1, getBigFiveDims, getSoftClusters, getSoftSkills, initials, round1 } from '@/modules/assessment/lib/legacy-utils'
+import { avg, fmt1, getBigFiveDims, getSoftClusters, getSoftSkills, round1 } from '@/modules/assessment/lib/legacy-utils'
 
 type SoftView = 'org' | 'area' | 'alfa' | 'individuale' | 'ranking' | 'match'
 const BF_ORDER = ['O', 'C', 'E', 'A', 'S'] as const
@@ -77,13 +92,15 @@ export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultVie
 
   return (
     <div>
-      <div className="view-tabs">
-        {tabs.map((t) => (
-          <div key={t.id} className={`view-tab ${view === t.id ? 'active' : ''}`} onClick={() => setView(t.id)}>
-            {t.label}
-          </div>
-        ))}
-      </div>
+      <Tabs value={view} onValueChange={(v) => setView(v as typeof view)} className="mb-6">
+        <TabsList>
+          {tabs.map((t) => (
+            <TabsTrigger key={t.id} value={t.id}>
+              {t.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       {view === 'org' && <SoftOrgView />}
       {view === 'area' && <SoftAreaView onOpenDrawer={setDrawerId} />}
@@ -120,43 +137,47 @@ function SoftOrgView() {
   const worst = orgWorstSoftSkills(state, lang, 8)
   return (
     <>
-      <div className="grid grid-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
             <CardTitle>{ui.softClusterAvgTitle}</CardTitle>
           </CardHeader>
-          <div className="grid grid-2" style={{ gap: 8 }}>
-            {clusterAvgs.map((c) => (
-              <StatTile key={c.cluster} label={c.cluster} value={c.ott} benchmark={c.att} />
-            ))}
-          </div>
-          <div className="small-note" style={{ marginTop: 10 }}>
+          {/* G2 — cluster aziendali, ottenuto contro atteso (DECISIONI). */}
+          <CategoryBars
+            title={ui.softClusterAvgTitle}
+            valueMax={10}
+            orientation="horizontal"
+            series={[
+              { key: 'ott', label: ui.chartObtained },
+              { key: 'att', label: ui.chartExpected, reference: true },
+            ]}
+            rows={clusterAvgs.map((c) => ({ label: c.cluster, values: { ott: c.ott, att: c.att } }))}
+          />
+          <Note className="mt-3">
             {ui.softClusterAvgNote}
-          </div>
+          </Note>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>{ui.softBigFiveOrgTitle}</CardTitle>
           </CardHeader>
-          {/* Obtained/Expected is a profile comparison, not a severity signal —
-              was lime for Obtained; charts stay off lime, so it uses the
-              app's designated multi-series categorical hue instead. */}
-          <div style={{ position: 'relative', height: 280 }}>
-            <GroupedBarsChart
-              groups={BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, values: [bfOrg[d], bfOrgAtteso[d]] }))}
-              seriesNames={[ui.chartObtained, ui.chartExpected]}
-              seriesColors={['var(--chart-2)', 'var(--text-3)']}
-              max={10}
-              dec={1}
-            />
-          </div>
+          {/* G1 — Big Five aziendale, ottenuto contro atteso (DECISIONI). */}
+          <CategoryBars
+            title={ui.softBigFiveOrgTitle}
+            valueMax={10}
+            series={[
+              { key: 'ott', label: ui.chartObtained },
+              { key: 'att', label: ui.chartExpected, reference: true },
+            ]}
+            rows={BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, values: { ott: bfOrg[d], att: bfOrgAtteso[d] } }))}
+          />
         </Card>
       </div>
-      <Card  style={{ marginTop: 16 }}>
+      <Card className="mt-4">
         <CardHeader>
           <CardTitle>{ui.softWorstSkillsTitle}</CardTitle>
         </CardHeader>
-        <div className="grid grid-3" style={{ gap: 8 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {worst.map((s) => (
             <StatTile key={s.id} label={s.name} value={s.ottenuto} benchmark={s.atteso} />
           ))}
@@ -170,35 +191,24 @@ function SoftAreaView({ onOpenDrawer }: { onOpenDrawer: (id: string) => void }) 
   const { state, lang, ui } = useAssessment()
   const areas = [...new Set(state.employees.map((e) => e.area))]
   return (
-    <div className="grid grid-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {areas.map((area) => {
         const emps = state.employees.filter((e) => e.area === area)
         const ott = round1(avg(emps.map((e) => computeSoftSummary(e, lang).overallOttenuto)))
         return (
-          <Card  key={area}>
+          <Card key={area}>
             <CardHeader>
               <CardTitle>
-                {area} <span className="muted">{ui.softAreaEmpCount(emps.length)}</span>
+                {area} <span className="text-app-small font-normal text-muted-foreground">{ui.softAreaEmpCount(emps.length)}</span>
               </CardTitle>
-              <Badge tone={ott >= 7 ? 'success' : ott >= 5 ? 'warning' : 'destructive'} dot style={{ marginLeft: 'auto' }}>
+              <Badge className="ml-auto" tone={ott >= 7 ? 'success' : ott >= 5 ? 'warning' : 'destructive'} dot>
                 {fmt1(ott)}
               </Badge>
             </CardHeader>
             {emps.map((e) => {
               const s = computeSoftSummary(e, lang).overallOttenuto
               return (
-                <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px', borderBottom: '1px dashed var(--border)', cursor: 'pointer' }} onClick={() => onOpenDrawer(e.id)}>
-                  <div className="avatar">{initials(e.nome, e.cognome)}</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 12.6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {e.nome} {e.cognome}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--text-3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.ruolo}</div>
-                  </div>
-                  <Badge tone={s >= 7 ? 'success' : s >= 5 ? 'warning' : 'destructive'} dot>
-                    {fmt1(s)}
-                  </Badge>
-                </div>
+                <PersonRow key={e.id} first={e.nome} last={e.cognome} meta={e.ruolo} onClick={() => onOpenDrawer(e.id)} trailing={<Badge tone={s >= 7 ? 'success' : s >= 5 ? 'warning' : 'destructive'} dot>{fmt1(s)}</Badge>} />
               )
             })}
           </Card>
@@ -212,23 +222,22 @@ function SoftAlfaView({ onOpenDrawer }: { onOpenDrawer: (id: string) => void }) 
   const { state, lang, ui } = useAssessment()
   const list = [...state.employees].sort((a, b) => a.cognome.localeCompare(b.cognome))
   return (
-    <Card  style={{ padding: 0 }}>
-      <div className="table-wrap">
-        <table className="dtable">
-          <thead>
-            <tr>
-              <th>{ui.softColLastName}</th>
-              <th>{ui.softColFirstName}</th>
-              <th>{ui.colArea}</th>
-              <th>{ui.colRole}</th>
-              <th>{ui.colObtained}</th>
-              <th>{ui.colExpected}</th>
-              <th>{ui.colGap}</th>
-              <th>{ui.softColDispatchDate}</th>
-              <th>{ui.softColAwaitingTest} / {ui.softColTestDone}</th>
-            </tr>
-          </thead>
-          <tbody>
+    <Card padding="none">
+      <Table frame>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{ui.softColLastName}</TableHead>
+              <TableHead>{ui.softColFirstName}</TableHead>
+              <TableHead>{ui.colArea}</TableHead>
+              <TableHead>{ui.colRole}</TableHead>
+              <TableHead>{ui.colObtained}</TableHead>
+              <TableHead>{ui.colExpected}</TableHead>
+              <TableHead>{ui.colGap}</TableHead>
+              <TableHead>{ui.softColDispatchDate}</TableHead>
+              <TableHead>{ui.softColAwaitingTest} / {ui.softColTestDone}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {list.map((e) => {
               const s = computeSoftSummary(e, lang)
               const gi = gapInterpretation(s.gapOverall, lang)
@@ -237,20 +246,20 @@ function SoftAlfaView({ onOpenDrawer }: { onOpenDrawer: (id: string) => void }) 
               // still pending. No dispatch at all shows neither status badge.
               const testDone = !!e.surveySentAt && e.softHistory.some((h) => new Date(h.date).getTime() >= new Date(e.surveySentAt!).getTime())
               return (
-                <tr key={e.id} onClick={() => onOpenDrawer(e.id)}>
-                  <td>
+                <TableRow key={e.id} onClick={() => onOpenDrawer(e.id)}>
+                  <TableCell>
                     <b>{e.cognome}</b>
-                  </td>
-                  <td>{e.nome}</td>
-                  <td>{e.area}</td>
-                  <td>{e.ruolo}</td>
-                  <td>{fmt1(s.overallOttenuto)}</td>
-                  <td>{fmt1(s.overallAtteso)}</td>
-                  <td>
-                    <span className={`gap-tag ${gi.tag}`}>{fmt1(s.gapOverall)}</span>
-                  </td>
-                  <td style={{ color: 'var(--text-2)', whiteSpace: 'nowrap' }}>{e.surveySentAt ? new Date(e.surveySentAt).toLocaleDateString(lang === 'it' ? 'it-IT' : 'en-US') : '—'}</td>
-                  <td>
+                  </TableCell>
+                  <TableCell>{e.nome}</TableCell>
+                  <TableCell>{e.area}</TableCell>
+                  <TableCell>{e.ruolo}</TableCell>
+                  <TableCell>{fmt1(s.overallOttenuto)}</TableCell>
+                  <TableCell>{fmt1(s.overallAtteso)}</TableCell>
+                  <TableCell>
+                    <Badge tone={chipTone(gi.tag)}>{fmt1(s.gapOverall)}</Badge>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{e.surveySentAt ? new Date(e.surveySentAt).toLocaleDateString(lang === 'it' ? 'it-IT' : 'en-US') : '—'}</TableCell>
+                  <TableCell>
                     {!e.surveySentAt ? (
                       <Badge dot>
                         {ui.softStatusNotSent}
@@ -264,13 +273,12 @@ function SoftAlfaView({ onOpenDrawer }: { onOpenDrawer: (id: string) => void }) 
                         {ui.softColAwaitingTest}
                       </Badge>
                     )}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )
             })}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
     </Card>
   )
 }
@@ -283,10 +291,7 @@ function SoftIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
   const emp = state.employees.find((e) => e.id === selectedEmp) || state.employees[0]
   if (!emp) {
     return (
-      <div className="empty-state">
-        <div className="t">{ui.noEmployeesTitle}</div>
-        <div className="d">{ui.noEmployeesDesc}</div>
-      </div>
+      <EmptyState title={ui.noEmployeesTitle} description={ui.noEmployeesDesc} />
     )
   }
   const ss = computeSoftSummary(emp, lang)
@@ -299,43 +304,46 @@ function SoftIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
   })
   return (
     <>
-      <div className="field" style={{ maxWidth: 360, marginBottom: 16 }}>
-        <label>{ui.softSelectEmployee}</label>
-        <select value={emp.id} onChange={(e) => onSelectEmp(e.target.value)}>
+      <Field label={ui.softSelectEmployee} className="max-w-90">
+        <SelectField value={emp.id} onValueChange={(v) => onSelectEmp(v)}>
           {state.employees.map((e) => (
             <option key={e.id} value={e.id}>
               {e.cognome} {e.nome} — {e.ruolo}
             </option>
           ))}
-        </select>
-      </div>
-      <div className="grid grid-2" style={{ marginBottom: 16 }}>
+        </SelectField>
+      </Field>
+      <div className="grid grid-cols-1 md:grid-cols-2 mb-4 gap-4">
         <Card>
           <CardHeader>
             <CardTitle>{ui.softBigFiveProfile}</CardTitle>
           </CardHeader>
-          <div style={{ position: 'relative', height: 280 }}>
-            <GroupedBarsChart
-              groups={BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, values: [bf[d], bfAtteso[d]] }))}
-              seriesNames={[`${emp.nome} (${ui.chartObtained})`, ui.chartExpected]}
-              seriesColors={['var(--chart-2)', 'var(--text-3)']}
-              max={10}
-              dec={1}
-            />
-          </div>
+          {/* R4 — profilo Big Five della persona contro il profilo atteso del ruolo. */}
+          <ProfileRadar
+            title={ui.softBigFiveProfile}
+            axes={BF_ORDER.map((d) => ({ key: d, label: BIGFIVE_DIMS[d].label }))}
+            series={[
+              { label: ui.chartExpected, values: bfAtteso, reference: true },
+              { label: `${emp.nome} ${emp.cognome}`, values: bf },
+            ]}
+          />
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>{ui.softSummaryTitle}</CardTitle>
           </CardHeader>
-          <div className="kpi-value">{fmt1(ss.overallOttenuto)}</div>
-          <div className="kpi-label">{ui.softOverallScoreLabel(fmt1(ss.overallAtteso))}</div>
-          <div className="divider" />
-          <div className="grid grid-2" style={{ gap: 8 }}>
-            {ss.perCluster.map((c) => (
-              <StatTile key={c.cluster} label={c.cluster} value={c.ottenuto} benchmark={c.atteso} />
-            ))}
-          </div>
+          <StatCard surface="none" size="lg" value={fmt1(ss.overallOttenuto)} note={ui.softOverallScoreLabel(fmt1(ss.overallAtteso))} />
+          <Separator className="my-4" />
+          {/* R3 — i cinque cluster soft della persona contro l'atteso del ruolo. */}
+          <ProfileRadar
+            title={ui.softSummaryTitle}
+            size="sm"
+            axes={ss.perCluster.map((c) => ({ key: c.cluster, label: c.cluster }))}
+            series={[
+              { label: ui.chartExpected, values: Object.fromEntries(ss.perCluster.map((c) => [c.cluster, c.atteso])), reference: true },
+              { label: `${emp.nome} ${emp.cognome}`, values: Object.fromEntries(ss.perCluster.map((c) => [c.cluster, c.ottenuto])) },
+            ]}
+          />
         </Card>
       </div>
       <Card>
@@ -343,16 +351,16 @@ function SoftIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
           <CardTitle>{ui.softAllSkillsDetail}</CardTitle>
         </CardHeader>
         {SOFT_CLUSTERS.map((c) => (
-          <div className="cluster-block" key={c}>
-            <div className="cluster-title">{c}</div>
-            <div className="grid grid-3" style={{ gap: 8 }}>
+          <section className="mb-4" key={c}>
+            <CardLabel className="mb-2 border-b border-border pb-2">{c}</CardLabel>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               {ss.perSkill
                 .filter((s) => s.cluster === c)
                 .map((s) => (
                   <StatTile key={s.id} label={s.name} value={s.ottenuto} benchmark={s.atteso} />
                 ))}
             </div>
-          </div>
+          </section>
         ))}
       </Card>
     </>
@@ -368,57 +376,51 @@ function SoftRankingView({ sort, onSort, onOpenDrawer }: { sort: 'score' | 'gap'
   list.sort((a, b) => (sort === 'gap' ? b.gap - a.gap : b.s - a.s))
   return (
     <>
-      <div className="segmented" style={{ marginBottom: 14 }}>
-        <button className={sort === 'score' ? 'active' : ''} onClick={() => onSort('score')}>
-          {ui.softSortByScore}
-        </button>
-        <button className={sort === 'gap' ? 'active' : ''} onClick={() => onSort('gap')}>
-          {ui.softSortByGap}
-        </button>
-      </div>
-      <Card  style={{ padding: 0 }}>
-        <div className="table-wrap">
-          <table className="dtable">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>{ui.colEmployee}</th>
-                <th>{ui.colArea}</th>
-                <th>{ui.colRole}</th>
-                <th>{ui.colScore}</th>
-                <th>{ui.colGapVsExpected}</th>
-              </tr>
-            </thead>
-            <tbody>
+      <ToggleGroup type="single" value={sort} onValueChange={(v) => v && onSort(v as typeof sort)} className="mb-4">
+        <ToggleGroupItem value="score">{ui.softSortByScore}</ToggleGroupItem>
+        <ToggleGroupItem value="gap">{ui.softSortByGap}</ToggleGroupItem>
+      </ToggleGroup>
+      <Card padding="none">
+        <Table frame>
+            <TableHeader>
+              <TableRow>
+                <TableHead>#</TableHead>
+                <TableHead>{ui.colEmployee}</TableHead>
+                <TableHead>{ui.colArea}</TableHead>
+                <TableHead>{ui.colRole}</TableHead>
+                <TableHead>{ui.colScore}</TableHead>
+                <TableHead>{ui.colGapVsExpected}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {list.map((r, i) => (
-                <tr key={r.e.id} onClick={() => onOpenDrawer(r.e.id)}>
-                  <td>{i + 1}</td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div className="avatar">{initials(r.e.nome, r.e.cognome)}</div>
+                <TableRow key={r.e.id} onClick={() => onOpenDrawer(r.e.id)}>
+                  <TableCell>{i + 1}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Initials first={r.e.nome} last={r.e.cognome} />
                       <b>
                         {r.e.nome} {r.e.cognome}
                       </b>
                     </div>
-                  </td>
-                  <td>{r.e.area}</td>
-                  <td>{r.e.ruolo}</td>
-                  <td>
+                  </TableCell>
+                  <TableCell>{r.e.area}</TableCell>
+                  <TableCell>{r.e.ruolo}</TableCell>
+                  <TableCell>
                     <Badge tone={r.s >= 7 ? 'success' : r.s >= 5 ? 'warning' : 'destructive'} dot>
                       {fmt1(r.s)}
                     </Badge>
-                  </td>
-                  <td>
-                    <span className={`gap-tag ${gapInterpretation(r.gap, lang).tag}`}>
+                  </TableCell>
+                  <TableCell>
+                    <Badge tone={chipTone(gapInterpretation(r.gap, lang).tag)}>
                       {r.gap > 0 ? '+' : ''}
                       {fmt1(r.gap)}
-                    </span>
-                  </td>
-                </tr>
+                    </Badge>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
       </Card>
     </>
   )
@@ -440,17 +442,17 @@ function SoftMatchView({ match, onChangeMatch }: { match: string[]; onChangeMatc
   const overallCls = matchCellClasses(overallVals)
   return (
     <>
-      <Card  style={{ marginBottom: 16 }}>
+      <Card className="mb-4">
         <CardHeader>
           <CardTitle>{ui.softSelectUpTo5}</CardTitle>
         </CardHeader>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <select
+        <div className="flex gap-2 flex-wrap">
+          <SelectField
+            size="sm"
             value=""
-            onChange={(e) => {
-              if (e.target.value) add(e.target.value)
+            onValueChange={(v) => {
+              if (v) add(v)
             }}
-            style={{ padding: '8px 12px', border: '1px solid var(--border-strong)', borderRadius: 8 }}
           >
             <option value="">{ui.softAddToComparison}</option>
             {state.employees
@@ -460,67 +462,47 @@ function SoftMatchView({ match, onChangeMatch }: { match: string[]; onChangeMatc
                   {e.cognome} {e.nome}
                 </option>
               ))}
-          </select>
+          </SelectField>
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+        <div className="mt-3 flex flex-wrap gap-2">
           {emps.map((e) => (
-            <Badge key={e.id}>
-              {e.nome} {e.cognome} <span style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => remove(e.id)}>✕</span>
+            <Badge key={e.id} onRemove={() => remove(e.id)} removeLabel={ui.matchRemove(`${e.nome} ${e.cognome}`)}>
+              {e.nome} {e.cognome}
             </Badge>
           ))}
         </div>
       </Card>
       {emps.length ? (
-        <Card className="match-col" style={{ padding: 0 }}>
-          <div className="table-wrap">
-            <table className="dtable">
-              <thead>
-                <tr>
-                  <th>{ui.colCompetency}</th>
+        <Card padding="none" className="match-col">
+          <Table frame>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{ui.colCompetency}</TableHead>
                   {emps.map((e) => (
-                    <th key={e.id}>
+                    <TableHead key={e.id}>
                       {e.nome} {e.cognome[0]}.
-                    </th>
+                    </TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr style={{ background: 'var(--accent-soft)' }}>
-                  <td>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow className="bg-muted font-medium">
+                  <TableCell>
                     <b>{ui.colOverallScore}</b>
-                  </td>
+                  </TableCell>
                   {overallVals.map((v, i) => (
-                    <td className={overallCls[i]} key={i}>
-                      <b>{fmt1(v)}</b>
-                    </td>
+                    <MatchCell key={i} value={v} match={overallCls[i]} strong />
                   ))}
-                </tr>
+                </TableRow>
                 {SOFT_CLUSTERS.map((c) => (
                   <SoftMatchClusterRows key={c} cluster={c} skills={SOFT_SKILLS.filter((s) => s.cluster === c)} emps={emps} />
                 ))}
-              </tbody>
-            </table>
-          </div>
-          <div style={{ padding: '10px 16px', display: 'flex', gap: 16, flexWrap: 'wrap', borderTop: '1px solid var(--border)' }}>
-            <span className="small-note">
-              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--success)', marginRight: 5 }} />
-              {ui.legendHighest}
-            </span>
-            <span className="small-note">
-              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--danger)', marginRight: 5 }} />
-              {ui.legendLowest}
-            </span>
-            <span className="small-note">
-              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)', marginRight: 5 }} />
-              {ui.legendAligned}
-            </span>
-          </div>
+              </TableBody>
+            </Table>
+          <MatchLegend />
         </Card>
       ) : (
-        <div className="empty-state">
-          <div className="t">{ui.softNoEmpSelectedTitle}</div>
-          <div className="d">{ui.softNoEmpSelectedDesc}</div>
-        </div>
+        <EmptyState title={ui.softNoEmpSelectedTitle} description={ui.softNoEmpSelectedDesc} />
       )}
     </>
   )
@@ -529,23 +511,21 @@ function SoftMatchView({ match, onChangeMatch }: { match: string[]; onChangeMatc
 function SoftMatchClusterRows({ cluster, skills, emps }: { cluster: string; skills: { id: string; name: string }[]; emps: { id: string; soft: Record<string, { ottenuto: number }> }[] }) {
   return (
     <>
-      <tr>
-        <td colSpan={emps.length + 1} style={{ background: 'var(--surface-alt)', fontWeight: 800, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.4, color: 'var(--accent-dark)' }}>
+      <TableRow>
+        <TableCell colSpan={emps.length + 1} className="label-mono bg-muted text-muted-foreground">
           {cluster}
-        </td>
-      </tr>
+        </TableCell>
+      </TableRow>
       {skills.map((s) => {
         const vals = emps.map((e) => (e.soft[s.id] || { ottenuto: 0 }).ottenuto)
         const cls = matchCellClasses(vals)
         return (
-          <tr key={s.id}>
-            <td>{s.name}</td>
+          <TableRow key={s.id}>
+            <TableCell>{s.name}</TableCell>
             {vals.map((v, i) => (
-              <td className={cls[i]} key={i}>
-                {fmt1(v)}
-              </td>
+              <MatchCell key={i} value={v} match={cls[i]} />
             ))}
-          </tr>
+          </TableRow>
         )
       })}
     </>

@@ -36,7 +36,7 @@ const PALETTE = new Set([
 
 const SPAZI  = new Set([0, 1, 2, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128]);
 const RAGGI  = new Set([0, 6, 10, 16, 24, 32, 9999]);
-const CORPI  = new Set([11, 12, 13, 14, 16, 18, 20, 24, 32]);
+const CORPI  = new Set([12, 13, 14, 15, 16, 18, 20, 24, 32]);
 
 const difetti = [];
 const segna = (file, riga, testo, regola, nota) =>
@@ -101,7 +101,7 @@ for (const percorso of file(ROOT)) {
       else if (raggio && !RAGGI.has(px))
         segna(rel, n, riga, "raggio fuori scala", `${tutto} — ammessi 6 10 16 24 32 full`);
       else if (corpo && !CORPI.has(px))
-        segna(rel, n, riga, "corpo fuori scala", `${tutto} — ammessi 11 12 13 14 16 18 20 24 32`);
+        segna(rel, n, riga, "corpo fuori scala", `${tutto} — ammessi 12 13 14 15 16 18 20 24 32`);
       else if (!spazio && !raggio && !corpo)
         segna(rel, n, riga, "valore arbitrario", tutto);
     }
@@ -126,7 +126,7 @@ for (const percorso of file(ROOT)) {
     // 7 — maiuscolo fuori dallo stile label
     if (/\buppercase\b/.test(pulita) && !/font-mono|label-mono|text-app-label/.test(pulita)) {
       segna(rel, n, riga, "maiuscolo fuori label",
-            "il maiuscolo esiste solo nello stile label: mono, 11px, tracking positivo");
+            "il maiuscolo esiste solo nello stile label: mono, 12px, tracking positivo");
     }
   });
 }

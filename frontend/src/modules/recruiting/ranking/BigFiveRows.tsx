@@ -1,42 +1,49 @@
+import { IdoneitaBadge } from '@/components/patterns/IdoneitaBadge'
+import { ProfileRadar } from '@/components/patterns/ProfileRadar'
+import type { Idoneita } from '@/lib/idoneita'
 import { BF, BF_SUB } from '@/modules/recruiting/lib/constants'
 import type { Candidate, RoleProfile } from '@/modules/recruiting/lib/types'
 
-function toneClass(diff: number) {
-  if (diff <= 10) return 'bg-success'
-  if (diff <= 25) return 'bg-warning'
-  return 'bg-destructive'
+// Distanza dal profilo ideale del ruolo, per dimensione: stessa soglia del
+// vecchio Recruiting (≤10 punti / ≤25 / oltre), ora con il nome della fascia.
+function fasciaFor(diff: number): Idoneita {
+  if (diff <= 10) return 'idoneo'
+  if (diff <= 25) return 'da-valutare'
+  return 'non-idoneo'
 }
 
-// Ported from legacy's Big Five ApexCharts3D.renderBarRow calls
-// (renderRanking(), modules/recruiting.html ~2944-2962) — same five
-// dimensions, same "distance from role ideal" severity grading (<=10 pts
-// green / <=25 amber / else red), same target-ideal marker. Same
-// reimplementation decision as EssentialSkillBars.tsx (plain Tailwind bars,
-// not the vanilla-JS chart helper).
+// R6 (DECISIONI, "Grafici approvati"): il Big Five del candidato contro il
+// profilo ideale del ruolo, come radar — lo stesso confronto atteso/reale
+// del profilo individuale di Assessment. Sotto, per ogni dimensione, la
+// fascia di idoneità con la sua parola. Stessi dati e stesse soglie delle
+// barre di prima (renderBarRow del vecchio Recruiting). Scala 0–100.
 export function BigFiveRows({ candidate, role }: { candidate: Candidate; role: RoleProfile }) {
+  const axes = BF.map((k) => ({ key: k, label: k }))
+  const person = Object.fromEntries(BF.map((k) => [k, candidate.bf[k] ?? 50]))
+  const ideal = Object.fromEntries(BF.map((k) => [k, role.bf[k] ?? 50]))
   return (
-    <div className="flex flex-col gap-2.5">
-      {BF.map((k) => {
-        const p = candidate.bf[k] ?? 50
-        const ideal = role.bf[k] ?? 50
-        const diff = Math.abs(p - ideal)
-        return (
-          <div key={k} className="grid grid-cols-[minmax(0,152px)_1fr_34px] items-center gap-3 text-[12.5px]">
-            <span className="truncate font-semibold text-muted-foreground" title={`${k} (${BF_SUB[k].join(', ')})`}>
+    <div className="flex flex-col gap-3">
+      <ProfileRadar
+        size="sm"
+        max={100}
+        format={(n) => String(Math.round(n))}
+        title={`Big Five di ${candidate.name} rispetto al profilo ideale`}
+        axes={axes}
+        series={[
+          { label: 'Profilo ideale', values: ideal, reference: true },
+          { label: candidate.name, values: person },
+        ]}
+      />
+      <ul className="flex flex-col gap-1">
+        {BF.map((k) => (
+          <li key={k} className="flex items-center justify-between gap-3 text-app-small">
+            <span className="truncate text-muted-foreground" title={BF_SUB[k].join(', ')}>
               {k}
             </span>
-            <div className="relative h-3.5 rounded-full border border-border bg-secondary">
-              <div className={`h-full rounded-full ${toneClass(diff)}`} style={{ width: `${Math.max(Math.min(p, 100), 2)}%` }} />
-              <div
-                className="absolute top-1/2 size-2.5 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 border-foreground bg-card"
-                style={{ left: `${Math.min(ideal, 100)}%` }}
-                title={`Ideale per il ruolo: ${ideal}`}
-              />
-            </div>
-            <span className="text-right font-mono font-semibold tabular-nums">{p}</span>
-          </div>
-        )
-      })}
+            <IdoneitaBadge fascia={fasciaFor(Math.abs((candidate.bf[k] ?? 50) - (role.bf[k] ?? 50)))} />
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

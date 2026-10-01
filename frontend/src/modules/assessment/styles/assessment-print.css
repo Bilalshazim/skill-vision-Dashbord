@@ -1,0 +1,28 @@
+/* Assessment — quello che resta del vecchio CSS del modulo (Fase 6).
+   Il tema parallelo (.sv-assessment-shell, data-theme, il ponte) è stato
+   tolto: le pagine sono sui componenti e sui token del sistema.
+
+   1. Stampa dei report (Intervista, report del dipendente). L'HTML del
+      report è generato come stringa e messo in #report-print-container
+      (lib/print.ts): le regole stanno qui, con le primitive neutre del
+      sistema — su carta si stampa sempre in chiaro, quindi niente ruoli
+      che cambiano con la modalità. */
+.report-print-only{ display:none; }
+@media print{
+  body *{ visibility:hidden; }
+  #report-print-container, #report-print-container *{ visibility:visible; }
+  #report-print-container{ display:block; position:absolute; top:0; left:0; width:100%; padding:24px; font-family: var(--font-sans); color: var(--color-neutral-950); background: var(--color-neutral-0); }
+  .rpt-note{ font-size:12px; color: var(--color-neutral-600); border:1px solid var(--color-neutral-400); padding:8px 12px; margin-bottom:16px; }
+  .rpt-h1{ font-size:20px; font-weight:600; margin-bottom:4px; }
+  .rpt-h2{ font-size:14px; font-weight:600; margin:16px 0 8px; border-bottom:1px solid var(--color-neutral-400); padding-bottom:4px; }
+  .rpt-table{ width:100%; border-collapse:collapse; font-size:12px; }
+  .rpt-table th, .rpt-table td{ border:1px solid var(--color-neutral-400); padding:4px 8px; text-align:left; }
+  .rpt-table th{ background: var(--color-neutral-100); }
+}
+
+/* 2. Spazio fra un campo e il successivo nei moduli di Assessment (prima lo
+      dava la classe .field del vecchio CSS). Field non ha margine proprio
+      — in Recruiting i campi stanno in griglie con gap — quindi qui resta
+      una regola sola, limitata al contenitore del modulo. DECISIONI,
+      "Assessment senza tema parallelo". */
+[data-module="assessment"] [data-slot="field"]{ margin-bottom:16px; }

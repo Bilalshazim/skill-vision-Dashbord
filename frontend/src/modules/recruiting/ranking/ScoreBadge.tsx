@@ -13,5 +13,5 @@ const TONE_TEXT: Record<Fascia['key'], string> = {
 }
 
 export function ScoreBadge({ fascia, className }: { fascia: Fascia; className?: string }) {
-  return <span className={cn('text-[11px] font-semibold', TONE_TEXT[fascia.key], className)}>{fascia.txt}</span>
+  return <span className={cn('text-app-caption font-semibold', TONE_TEXT[fascia.key], className)}>{fascia.txt}</span>
 }

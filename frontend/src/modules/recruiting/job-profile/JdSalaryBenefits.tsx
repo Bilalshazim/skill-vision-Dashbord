@@ -1,11 +1,12 @@
 import { useState } from 'react'
 
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
 import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 import { SALARY_LEVELS, WELFARE_ITEMS } from '@/modules/recruiting/lib/jd-presets'
 import { clearSalaryBenefits, loadSalaryBenefits, saveSalaryBenefits } from '@/modules/recruiting/lib/jd'
 import type { SalaryLevelRecord } from '@/modules/recruiting/lib/jd-types'
-import { inputClass } from '@/modules/recruiting/job-profile/JdSection'
 
 const EMPTY_LEVEL: SalaryLevelRecord = { min: '', max: '', variableChoice: '', variablePct: '' }
 // See admin/CipAdminPage.tsx's identical comment.
@@ -48,90 +49,88 @@ export function JdSalaryBenefits({ role }: { role: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-[12px] text-muted-foreground">
-        Ruolo: <b className="font-semibold text-foreground">&quot;{role}&quot;</b> ·{' '}
-        {savedAt ? `Configurato ✓ · ${new Date(savedAt).toLocaleDateString('it-IT')}` : 'Non configurato'}
+      <p className="text-app-caption text-muted-foreground">
+        Posizione: <b className="font-semibold text-foreground">&quot;{role}&quot;</b> ·{' '}
+        {savedAt ? `Configurato · ${new Date(savedAt).toLocaleDateString('it-IT')}` : 'Non configurato'}
       </p>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[520px] border-collapse text-[12.5px]">
-          <thead>
-            <tr className="border-b border-border text-left text-muted-foreground">
-              <th className="py-2 pr-3 font-semibold">Livello di inquadramento</th>
-              <th className="py-2 pr-3 font-semibold">RAL minima</th>
-              <th className="py-2 pr-3 font-semibold">RAL massima</th>
-              <th className="py-2 font-semibold">Componente variabile</th>
-            </tr>
-          </thead>
-          <tbody>
+      <Table size="sm" minWidth="lg">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Livello di inquadramento</TableHead>
+              <TableHead>RAL minima</TableHead>
+              <TableHead>RAL massima</TableHead>
+              <TableHead>Componente variabile</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {SALARY_LEVELS.map((lv) => {
               const row = levelOf(lv.key)
               const isSi = row.variableChoice === 'si'
               const isNo = row.variableChoice === 'no'
               return (
-                <tr key={lv.key} className="border-b border-border">
-                  <td className="py-2 pr-3 font-semibold text-foreground">{lv.label}</td>
-                  <td className="py-2 pr-3">
+                <TableRow key={lv.key}>
+                  <TableCell className="font-semibold text-foreground">{lv.label}</TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-1">
                       <span className="text-muted-foreground">€</span>
-                      <input type="number" value={row.min} onChange={(e) => updateLevel(lv.key, { min: e.target.value })} placeholder="0" className={cn(inputClass, 'w-[100px]')} />
+                      <Input type="number" value={row.min} onChange={(e) => updateLevel(lv.key, { min: e.target.value })} placeholder="0" size="sm" className="w-24" />
                     </div>
-                  </td>
-                  <td className="py-2 pr-3">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-1">
                       <span className="text-muted-foreground">€</span>
-                      <input type="number" value={row.max} onChange={(e) => updateLevel(lv.key, { max: e.target.value })} placeholder="0" className={cn(inputClass, 'w-[100px]')} />
+                      <Input type="number" value={row.max} onChange={(e) => updateLevel(lv.key, { max: e.target.value })} placeholder="0" size="sm" className="w-24" />
                     </div>
-                  </td>
-                  <td className="py-2">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex flex-wrap items-center gap-3">
                       <label className="flex items-center gap-1.5">
-                        <input type="checkbox" checked={isSi} onChange={() => updateLevel(lv.key, { variableChoice: isSi ? '' : 'si' })} className="accent-ring" />
+                        <Checkbox checked={isSi} onCheckedChange={() => updateLevel(lv.key, { variableChoice: isSi ? '' : 'si' })} />
                         Sì
                       </label>
                       <label className="flex items-center gap-1.5">
-                        <input type="checkbox" checked={isNo} onChange={() => updateLevel(lv.key, { variableChoice: isNo ? '' : 'no' })} className="accent-ring" />
+                        <Checkbox checked={isNo} onCheckedChange={() => updateLevel(lv.key, { variableChoice: isNo ? '' : 'no' })} />
                         No
                       </label>
                       <span className="text-muted-foreground">—</span>
                       <div className="flex items-center gap-1">
                         %
-                        <input
+                        <Input
                           type="number"
                           value={row.variablePct}
                           onChange={(e) => updateLevel(lv.key, { variablePct: e.target.value })}
                           placeholder="%"
                           disabled={!isSi}
-                          className={cn(inputClass, 'w-[60px]')}
-                        />
+                          size="sm" className="w-16"
+ />
                       </div>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )
             })}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
 
       <div>
-        <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Welfare &amp; Benefit</div>
+        <div className="label-mono mb-2 text-muted-foreground">Welfare &amp; Benefit</div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {WELFARE_ITEMS.map((w) => {
             const checked = !!welfare[w.key]
             return (
-              <label key={w.key} className="flex items-center gap-2 text-[12.5px] text-foreground">
-                <input type="checkbox" checked={checked} onChange={(e) => setWelfare((prev) => ({ ...prev, [w.key]: e.target.checked }))} className="accent-ring" />
+              <label key={w.key} className="flex items-center gap-2 text-app-small text-foreground">
+                <Checkbox checked={checked} onCheckedChange={(c) => setWelfare((prev) => ({ ...prev, [w.key]: c === true }))} />
                 {w.label}
                 {w.hasInput && w.inputKey && (
-                  <input
+                  <Input
                     type="text"
                     value={(welfare[w.inputKey] as string) || ''}
                     onChange={(e) => setWelfare((prev) => ({ ...prev, [w.inputKey as string]: e.target.value }))}
                     placeholder={w.inputLabel}
                     disabled={!checked}
-                    className={cn(inputClass, 'w-[110px]')}
-                  />
+                    size="sm" className="w-28"
+ />
                 )}
               </label>
             )
@@ -144,7 +143,7 @@ export function JdSalaryBenefits({ role }: { role: string }) {
           Svuota
         </button>
         <button type="button" onClick={handleSave} className={primaryBtnClass}>
-          Salva ✓
+          Salva
         </button>
       </div>
     </div>

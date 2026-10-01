@@ -1,14 +1,20 @@
 import { FileBarChart2 } from 'lucide-react'
 import { useState } from 'react'
 
-import { cn } from '@/lib/utils'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { useDirty } from '@/hooks/use-dirty'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Field } from '@/components/patterns/Field'
+import { FieldGrid } from '@/components/patterns/FieldGrid'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { calcIvReportTotal, clearIvReport, loadIvReportDraft, loadIvReportRecord, saveIvReport } from '@/modules/recruiting/lib/interview-protocol'
 import type { IvReportDraft } from '@/modules/recruiting/lib/interview-protocol'
 import type { IvReportStep } from '@/modules/recruiting/lib/interview-protocol-types'
 import { CompareRowsTable } from '@/modules/recruiting/profile-hub/protocol/CompareRowsTable'
-import { CheckRow, Field, Grid2, Grid3, ModalEyebrow, SectionLabel } from '@/modules/recruiting/profile-hub/protocol/protocol-ui'
-import { dangerBtnClass, ghostBtnClass, inputClass, primaryBtnClass, selectClass, tableClass, tableWrapClass, tdClass, textareaClass, thClass, totalRowClass } from '@/modules/recruiting/profile-hub/protocol/protocol-styles'
+import { CheckRow, ModalEyebrow, SectionLabel } from '@/modules/recruiting/profile-hub/protocol/protocol-ui'
+import { dangerBtnClass, ghostBtnClass, primaryBtnClass } from '@/modules/recruiting/profile-hub/protocol/protocol-styles'
 
 const RECO_KEYS = ['reco_offerta', 'reco_riserva', 'reco_ulteriore', 'reco_nonProcedere'] as const
 type RecoKey = (typeof RECO_KEYS)[number]
@@ -35,6 +41,7 @@ const AGG_ROWS: { key: 'tec' | 'soft' | 'motiv' | 'culture'; noteKey: 'tecNote' 
 export function IvReportDialog({ role, savedAt, onSavedAtChange }: { role: string; savedAt: number | null; onSavedAtChange: (savedAt: number | null) => void }) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<IvReportDraft>(() => loadIvReportDraft(role))
+  const dirty = useDirty(draft, open)
 
   function handleOpenChange(next: boolean) {
     setOpen(next)
@@ -75,11 +82,11 @@ export function IvReportDialog({ role, savedAt, onSavedAtChange }: { role: strin
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <button type="button" onClick={(e) => e.stopPropagation()} className={primaryBtnClass}>
+        <button type="button" className={primaryBtnClass}>
           {savedAt != null ? 'Modifica report →' : 'Compila report →'}
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-3xl">
+      <DialogContent size="lg" dirty={dirty}>
         <DialogHeader>
           <ModalEyebrow>Documento riservato — Processo di selezione</ModalEyebrow>
           <DialogTitle className="flex items-center gap-2">
@@ -87,134 +94,130 @@ export function IvReportDialog({ role, savedAt, onSavedAtChange }: { role: strin
             Report Finale di Valutazione
           </DialogTitle>
           <DialogDescription>
-            Ruolo: <b className="font-semibold text-foreground">&quot;{role}&quot;</b>
+            Posizione: <b className="font-semibold text-foreground">&quot;{role}&quot;</b>
           </DialogDescription>
         </DialogHeader>
 
-        <Grid2>
+        <FieldGrid>
           <Field label="Posizione ricercata">
-            <input type="text" value={draft.posizione} onChange={(e) => set('posizione', e.target.value)} className={inputClass} />
+            <Input type="text" value={draft.posizione} onChange={(e) => set('posizione', e.target.value)} />
           </Field>
           <Field label="Rif. candidatura">
-            <input type="text" value={draft.rifCandidatura} onChange={(e) => set('rifCandidatura', e.target.value)} placeholder="Es. REF-2026-014" className={inputClass} />
+            <Input type="text" value={draft.rifCandidatura} onChange={(e) => set('rifCandidatura', e.target.value)} placeholder="Es. REF-2026-014" />
           </Field>
-        </Grid2>
-        <Grid2>
-          <Field label="Nominativo candidato [cod./data]">
-            <input type="text" value={draft.nominativo} onChange={(e) => set('nominativo', e.target.value)} placeholder="Es. CAND-014" className={inputClass} />
+        </FieldGrid>
+        <FieldGrid>
+          <Field label="Candidato" hint="Nome, codice e data.">
+            <Input type="text" value={draft.nominativo} onChange={(e) => set('nominativo', e.target.value)} placeholder="Es. CAND-014" />
           </Field>
           <Field label="Data report">
-            <input type="date" value={draft.dataReport} onChange={(e) => set('dataReport', e.target.value)} className={inputClass} />
+            <Input type="date" value={draft.dataReport} onChange={(e) => set('dataReport', e.target.value)} />
           </Field>
-        </Grid2>
-        <Grid2>
+        </FieldGrid>
+        <FieldGrid>
           <Field label="A cura di">
-            <input type="text" value={draft.aCuraDi} onChange={(e) => set('aCuraDi', e.target.value)} placeholder="Nome e ruolo" className={inputClass} />
+            <Input type="text" value={draft.aCuraDi} onChange={(e) => set('aCuraDi', e.target.value)} placeholder="Nome e ruolo" />
           </Field>
-          <Field label="Fasi svolte [n. step]">
-            <input type="text" value={draft.fasiSvolte} onChange={(e) => set('fasiSvolte', e.target.value)} placeholder="Es. screening CV, colloquio HR, colloquio tecnico" className={inputClass} />
+          <Field label="Fasi svolte" hint="Numero di step.">
+            <Input type="text" value={draft.fasiSvolte} onChange={(e) => set('fasiSvolte', e.target.value)} placeholder="Es. screening CV, colloquio HR, colloquio tecnico" />
           </Field>
-        </Grid2>
+        </FieldGrid>
 
         <SectionLabel>1. Executive summary</SectionLabel>
-        <Field label="Giudizio complessivo in sintesi (3–5 righe)">
-          <textarea
+        <Field label="Giudizio complessivo" hint="3–5 righe.">
+          <Textarea
             value={draft.summary}
             onChange={(e) => set('summary', e.target.value)}
-            placeholder="Idoneità del candidato rispetto al ruolo, elementi distintivi, eventuale raccomandazione anticipata…"
-            className={textareaClass}
-          />
+            placeholder="Idoneità del candidato rispetto alla posizione, elementi distintivi, eventuale raccomandazione anticipata…"
+            
+ />
         </Field>
 
         <SectionLabel>2. Percorso di selezione svolto</SectionLabel>
-        <p className="text-[11.5px] text-muted-foreground">Riepilogo delle fasi effettuate, con date e responsabili.</p>
-        <div className={tableWrapClass}>
-          <table className={tableClass}>
-            <thead>
-              <tr>
-                <th className={thClass}>Fase</th>
-                <th className={thClass}>Data</th>
-                <th className={thClass}>Interlocutore</th>
-                <th className={thClass}>Esito</th>
-              </tr>
-            </thead>
-            <tbody>
+        <p className="text-app-caption text-muted-foreground">Riepilogo delle fasi effettuate, con date e responsabili.</p>
+        <Table frame size="sm" minWidth="lg">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Fase</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead>Interlocutore</TableHead>
+                <TableHead>Esito</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {STEP_ROWS.map(({ key, label }) => (
-                <tr key={key}>
-                  <td className={tdClass}>{label}</td>
-                  <td className={tdClass}>
-                    <input type="date" value={draft.steps[key].date} onChange={(e) => setStep(key, { date: e.target.value })} className={inputClass} />
-                  </td>
-                  <td className={tdClass}>
-                    <input type="text" value={draft.steps[key].interlocutore} onChange={(e) => setStep(key, { interlocutore: e.target.value })} className={inputClass} />
-                  </td>
-                  <td className={tdClass}>
-                    <select value={draft.steps[key].esito} onChange={(e) => setStep(key, { esito: e.target.value })} className={selectClass}>
+                <TableRow key={key}>
+                  <TableCell>{label}</TableCell>
+                  <TableCell>
+                    <Input type="date" value={draft.steps[key].date} onChange={(e) => setStep(key, { date: e.target.value })} size="sm" />
+                  </TableCell>
+                  <TableCell>
+                    <Input type="text" value={draft.steps[key].interlocutore} onChange={(e) => setStep(key, { interlocutore: e.target.value })} size="sm" />
+                  </TableCell>
+                  <TableCell>
+                    <SelectField value={draft.steps[key].esito} onValueChange={(v) => setStep(key, { esito: v })} size="sm">
                       <option value="">—</option>
                       <option>Superato</option>
                       <option>Non superato</option>
                       <option>In corso</option>
-                    </select>
-                  </td>
-                </tr>
+                    </SelectField>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
 
         <SectionLabel>3. Profilo del candidato</SectionLabel>
-        <Field label="Sintesi del percorso professionale e formativo rilevante rispetto al ruolo">
-          <textarea value={draft.profiloCandidato} onChange={(e) => set('profiloCandidato', e.target.value)} className={textareaClass} />
+        <Field label="Percorso rilevante" hint="Esperienze e formazione rilevanti per la posizione.">
+          <Textarea value={draft.profiloCandidato} onChange={(e) => set('profiloCandidato', e.target.value)} />
         </Field>
 
         <SectionLabel>4. Valutazione complessiva per area</SectionLabel>
-        <p className="text-[11.5px] text-muted-foreground">Sintesi qualitativa aggregata da tutti i colloqui e strumenti di valutazione utilizzati (verbali, schede di scoring, eventuali assessment/test).</p>
-        <div className={tableWrapClass}>
-          <table className={tableClass}>
-            <thead>
-              <tr>
-                <th className={thClass}>Area</th>
-                <th className={thClass}>Esito sintetico (1–5)</th>
-                <th className={thClass}>Note</th>
-              </tr>
-            </thead>
-            <tbody>
+        <p className="text-app-caption text-muted-foreground">Sintesi qualitativa aggregata da tutti i colloqui e strumenti di valutazione utilizzati (verbali, schede di scoring, eventuali assessment/test).</p>
+        <Table frame size="sm" minWidth="lg">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Area</TableHead>
+                <TableHead>Esito sintetico (1–5)</TableHead>
+                <TableHead>Note</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {AGG_ROWS.map(({ key, noteKey, label }) => (
-                <tr key={key}>
-                  <td className={tdClass}>{label}</td>
-                  <td className={tdClass}>
-                    <select value={draft.aggregate[key]} onChange={(e) => setAgg({ [key]: e.target.value } as Partial<IvReportDraft['aggregate']>)} className={selectClass}>
+                <TableRow key={key}>
+                  <TableCell>{label}</TableCell>
+                  <TableCell>
+                    <SelectField value={draft.aggregate[key]} onValueChange={(v) => setAgg({ [key]: v } as Partial<IvReportDraft['aggregate']>)} size="sm">
                       <option value="">—</option>
                       {SCORE_1_5.map((n) => (
                         <option key={n} value={n}>
                           {n}
                         </option>
                       ))}
-                    </select>
-                  </td>
-                  <td className={tdClass}>
-                    <input type="text" value={draft.aggregate[noteKey]} onChange={(e) => setAgg({ [noteKey]: e.target.value } as Partial<IvReportDraft['aggregate']>)} className={inputClass} />
-                  </td>
-                </tr>
+                    </SelectField>
+                  </TableCell>
+                  <TableCell>
+                    <Input type="text" value={draft.aggregate[noteKey]} onChange={(e) => setAgg({ [noteKey]: e.target.value } as Partial<IvReportDraft['aggregate']>)} size="sm" />
+                  </TableCell>
+                </TableRow>
               ))}
-              <tr className={totalRowClass}>
-                <td className={tdClass}>Media complessiva</td>
-                <td className={cn(tdClass, 'text-right font-mono tabular-nums')}>{total.toFixed(2)}</td>
-                <td className={tdClass} />
-              </tr>
-            </tbody>
-          </table>
-        </div>
+              <TableRow className="font-medium">
+                <TableCell>Media complessiva</TableCell>
+                <TableCell className="text-right font-mono tabular-nums">{total.toFixed(2)}</TableCell>
+                <TableCell />
+              </TableRow>
+            </TableBody>
+          </Table>
 
         <SectionLabel>5. Punti di forza chiave</SectionLabel>
-        <textarea value={draft.strengths} onChange={(e) => set('strengths', e.target.value)} placeholder={'• Punto di forza 1\n• Punto di forza 2\n• Punto di forza 3'} className={textareaClass} />
+        <Textarea value={draft.strengths} onChange={(e) => set('strengths', e.target.value)} placeholder={'• Punto di forza 1\n• Punto di forza 2\n• Punto di forza 3'} size="sm" />
 
         <SectionLabel>6. Aree di sviluppo e possibili rischi</SectionLabel>
-        <textarea value={draft.risks} onChange={(e) => set('risks', e.target.value)} placeholder={'• Area di sviluppo / rischio 1\n• Area di sviluppo / rischio 2'} className={textareaClass} />
+        <Textarea value={draft.risks} onChange={(e) => set('risks', e.target.value)} placeholder={'• Area di sviluppo / rischio 1\n• Area di sviluppo / rischio 2'} size="sm" />
 
-        <SectionLabel>7. Fit con il ruolo e con l&apos;organizzazione</SectionLabel>
-        <Field label="Coerenza tra il profilo, le responsabilità del ruolo, il team di inserimento e la cultura aziendale">
-          <textarea value={draft.fitOrganizzativo} onChange={(e) => set('fitOrganizzativo', e.target.value)} className={textareaClass} />
+        <SectionLabel>7. Fit con la posizione e con l&apos;organizzazione</SectionLabel>
+        <Field label="Coerenza con la posizione" hint="Con le responsabilità, il team di inserimento e la cultura aziendale.">
+          <Textarea value={draft.fitOrganizzativo} onChange={(e) => set('fitOrganizzativo', e.target.value)} />
         </Field>
 
         <SectionLabel>8. Confronto con altri candidati finalisti (se applicabile)</SectionLabel>
@@ -235,35 +238,35 @@ export function IvReportDialog({ role, savedAt, onSavedAtChange }: { role: strin
             Non procedere
           </CheckRow>
         </div>
-        <Field label="Condizioni economiche proposte / note per la negoziazione">
-          <textarea value={draft.condizioniEconomiche} onChange={(e) => set('condizioniEconomiche', e.target.value)} className={textareaClass} />
+        <Field label="Condizioni economiche" hint="Proposta e note per la negoziazione.">
+          <Textarea value={draft.condizioniEconomiche} onChange={(e) => set('condizioniEconomiche', e.target.value)} />
         </Field>
-        <Field label="Prossimi passi operativi (es. data offerta, onboarding, referenze da verificare)">
-          <textarea value={draft.nextSteps} onChange={(e) => set('nextSteps', e.target.value)} className={textareaClass} />
+        <Field label="Prossimi passi" hint="Per esempio data dell'offerta, onboarding, referenze da verificare.">
+          <Textarea value={draft.nextSteps} onChange={(e) => set('nextSteps', e.target.value)} />
         </Field>
 
         <SectionLabel>10. Riferimenti e allegati</SectionLabel>
-        <Grid3>
+        <FieldGrid columns={3}>
           <Field label="Verbale/i di colloquio">
-            <input type="text" value={draft.refVerbale} onChange={(e) => set('refVerbale', e.target.value)} placeholder="Riferimento" className={inputClass} />
+            <Input type="text" value={draft.refVerbale} onChange={(e) => set('refVerbale', e.target.value)} placeholder="Riferimento" />
           </Field>
           <Field label="Scheda/e di valutazione">
-            <input type="text" value={draft.refScheda} onChange={(e) => set('refScheda', e.target.value)} placeholder="Riferimento" className={inputClass} />
+            <Input type="text" value={draft.refScheda} onChange={(e) => set('refScheda', e.target.value)} placeholder="Riferimento" />
           </Field>
-          <Field label="Referenze / test / assessment">
-            <input type="text" value={draft.refAltro} onChange={(e) => set('refAltro', e.target.value)} placeholder="Riferimento" className={inputClass} />
+          <Field label="Referenze e test">
+            <Input type="text" value={draft.refAltro} onChange={(e) => set('refAltro', e.target.value)} placeholder="Riferimento" />
           </Field>
-        </Grid3>
+        </FieldGrid>
 
         <SectionLabel>11. Approvazione</SectionLabel>
-        <Grid2>
-          <Field label="Responsabile HR — Data e firma">
-            <input type="text" value={draft.signHr} onChange={(e) => set('signHr', e.target.value)} placeholder="Nome, data e firma" className={inputClass} />
+        <FieldGrid>
+          <Field label="Firma HR" hint="Data e firma.">
+            <Input type="text" value={draft.signHr} onChange={(e) => set('signHr', e.target.value)} placeholder="Nome, data e firma" />
           </Field>
-          <Field label="Hiring Manager / Direzione — Data e firma">
-            <input type="text" value={draft.signHm} onChange={(e) => set('signHm', e.target.value)} placeholder="Nome, data e firma" className={inputClass} />
+          <Field label="Firma direzione" hint="Hiring manager o direzione: data e firma.">
+            <Input type="text" value={draft.signHm} onChange={(e) => set('signHm', e.target.value)} placeholder="Nome, data e firma" />
           </Field>
-        </Grid2>
+        </FieldGrid>
 
         <DialogFooter>
           <button type="button" onClick={() => setOpen(false)} className={ghostBtnClass}>
@@ -273,7 +276,7 @@ export function IvReportDialog({ role, savedAt, onSavedAtChange }: { role: strin
             Svuota report
           </button>
           <button type="button" onClick={handleSave} className={primaryBtnClass}>
-            Salva report ✓
+            Salva report
           </button>
         </DialogFooter>
       </DialogContent>

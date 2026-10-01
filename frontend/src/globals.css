@@ -108,21 +108,19 @@
   --text-app-subtitle--line-height: 1.4;
   --text-app-subtitle--font-weight: 500;
 
-  --text-app-body: 0.875rem;                      /* 14 */
-  --text-app-body--line-height: 1.45;
+  --text-app-body: 0.9375rem;                  /* 15 */
+  --text-app-body--line-height: 1.5;
 
-  --text-app-small: 0.8125rem;                    /* 13 */
-  --text-app-small--line-height: 1.4;
+  --text-app-small: 0.875rem;                  /* 14 */
+  --text-app-small--line-height: 1.45;
 
-  --text-app-caption: 0.75rem;                    /* 12 */
-  --text-app-caption--line-height: 1.35;
+  --text-app-caption: 0.8125rem;               /* 13 */
+  --text-app-caption--line-height: 1.4;
 
-  /* Lo stile label: mono maiuscolo. È l'elemento più
-     caratterizzante del sistema. Tre o quattro parole al massimo,
-     mai testo che va a capo. */
-  --text-app-label: 0.6875rem;                    /* 11 */
+  /* Lo stile label: mono maiuscolo... */
+  --text-app-label: 0.75rem;                   /* 12 */
   --text-app-label--line-height: 1.2;
-  --text-app-label--letter-spacing: 0.07em;
+  --text-app-label--letter-spacing: 0.06em;
   --text-app-label--font-weight: 500;
 
   --text-metric-lg: 2rem;                         /* 32 */
@@ -239,6 +237,33 @@
   --sidebar-accent-foreground:  var(--color-neutral-800);
   --sidebar-border:             var(--color-neutral-200);
   --sidebar-ring:               var(--color-accent-600);
+
+  /* Bklit UI (grafici): i nomi che i suoi componenti leggono, collegati ai
+     ruoli del tema. Nessun valore nuovo. Ripetuti in `.dark` perché un
+     alias si risolve dove è dichiarato. La scala sequenziale di Bklit
+     (--chart-scale-*) NON è definita: il sistema non ce l'ha (CLAUDE.md,
+     Fase 5). */
+  --chart-background:          var(--card);
+  --chart-foreground:          var(--foreground);
+  --chart-foreground-muted:    var(--muted-foreground);
+  --chart-label:               var(--muted-foreground);
+  --chart-line-primary:        var(--chart-mono);
+  --chart-line-secondary:      var(--muted-foreground);
+  --chart-grid:                var(--border);
+  --chart-crosshair:           var(--border-strong);
+  --chart-brush-border:        var(--border);
+  --chart-tooltip-background:  var(--popover);
+  --chart-tooltip-foreground:  var(--popover-foreground);
+  --chart-tooltip-muted:       var(--muted-foreground);
+  --chart-marker-background:   var(--popover);
+  --chart-marker-border:       var(--border-strong);
+  --chart-marker-foreground:   var(--foreground);
+  --chart-marker-badge-background: var(--secondary);
+  --chart-marker-badge-foreground: var(--secondary-foreground);
+  --chart-indicator-color:     var(--foreground);
+  --chart-indicator-secondary-color: var(--muted-foreground);
+  --chart-segment-background:  var(--muted);
+  --chart-segment-line:        var(--border-strong);
 }
 
 .dark {
@@ -294,6 +319,50 @@
   --sidebar-accent-foreground:  var(--color-neutral-100);
   --sidebar-border:             var(--color-neutral-700);
   --sidebar-ring:               var(--color-accent-600);
+
+  /* Bklit UI (grafici): i nomi che i suoi componenti leggono, collegati ai
+     ruoli del tema. Nessun valore nuovo. Ripetuti in `.dark` perché un
+     alias si risolve dove è dichiarato. La scala sequenziale di Bklit
+     (--chart-scale-*) NON è definita: il sistema non ce l'ha (CLAUDE.md,
+     Fase 5). */
+  --chart-background:          var(--card);
+  --chart-foreground:          var(--foreground);
+  --chart-foreground-muted:    var(--muted-foreground);
+  --chart-label:               var(--muted-foreground);
+  --chart-line-primary:        var(--chart-mono);
+  --chart-line-secondary:      var(--muted-foreground);
+  --chart-grid:                var(--border);
+  --chart-crosshair:           var(--border-strong);
+  --chart-brush-border:        var(--border);
+  --chart-tooltip-background:  var(--popover);
+  --chart-tooltip-foreground:  var(--popover-foreground);
+  --chart-tooltip-muted:       var(--muted-foreground);
+  --chart-marker-background:   var(--popover);
+  --chart-marker-border:       var(--border-strong);
+  --chart-marker-foreground:   var(--foreground);
+  --chart-marker-badge-background: var(--secondary);
+  --chart-marker-badge-foreground: var(--secondary-foreground);
+  --chart-indicator-color:     var(--foreground);
+  --chart-indicator-secondary-color: var(--muted-foreground);
+  --chart-segment-background:  var(--muted);
+  --chart-segment-line:        var(--border-strong);
+}
+
+/* ------------------------------------------------------------
+   LIVELLI — la scala dello z-index, una sola per tutta l'app.
+   Uguale nelle due modalità. Si usa con z-(--z-modal) e simili, mai
+   con un numero scritto a mano. Un menu, una tendina o un tooltip
+   stanno sempre sopra un dialog: si aprono da dentro di esso.
+   ------------------------------------------------------------ */
+
+:root {
+  --z-sticky:   10;  /* intestazioni e colonne che restano ferme */
+  --z-header:   20;  /* barra superiore */
+  --z-drawer:   30;  /* pannelli laterali (Sheet) e il loro scrim */
+  --z-modal:    40;  /* dialog e il loro scrim */
+  --z-popover:  50;  /* menu, tendine, tooltip */
+  --z-toast:    60;  /* notifiche */
+  --z-takeover: 70;  /* schermate a tutta pagina: valutatore esterno */
 }
 
 /* ------------------------------------------------------------
@@ -333,6 +402,10 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
   --color-chart-6: var(--chart-6);
+  --color-chart-label:              var(--chart-label);
+  --color-chart-tooltip-background: var(--chart-tooltip-background);
+  --color-chart-tooltip-foreground: var(--chart-tooltip-foreground);
+  --color-chart-tooltip-muted:      var(--chart-tooltip-muted);
 
   --color-sidebar:                    var(--sidebar);
   --color-sidebar-foreground:         var(--sidebar-foreground);

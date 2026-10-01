@@ -55,16 +55,16 @@ export default function MatchPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <ArrowLeftRight className="size-[22px] text-muted-foreground" aria-hidden="true" />
+          <ArrowLeftRight className="size-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Confronto candidati &amp; talenti interni</h2>
-          <p className="text-[13px] text-muted-foreground">Seleziona fino a 2 candidati e 5 talenti interni per confrontarli sullo stesso schermo.</p>
+          <h2 className="text-app-section font-semibold tracking-tight">Confronto candidati &amp; talenti interni</h2>
+          <p className="text-app-small text-muted-foreground">Seleziona fino a 2 candidati e 5 talenti interni per confrontarli sullo stesso schermo.</p>
         </div>
       </div>
 
       {noCandidates ? (
-        <p className="py-6 text-[13.5px] text-muted-foreground">
+        <p className="py-6 text-app-small text-muted-foreground">
           Nessun candidato in archivio. Carica i primi CV dalla pagina <b className="font-semibold text-foreground">CV & Export</b> per confrontarli
           con i vostri talenti interni.
         </p>
@@ -72,8 +72,8 @@ export default function MatchPage() {
         <>
           <div>
             <div className="mb-3 flex items-center gap-3">
-              <div className="h-[22px] w-[3px] rounded-sm bg-primary" />
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-foreground dark:text-primary">Candidati (max 2)</span>
+              <div className="h-6 w-0.75 rounded-sm bg-primary" />
+              <span className="label-mono text-foreground dark:text-primary">Candidati (max 2)</span>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {CAND_SLOTS.map((s) => (
@@ -84,8 +84,8 @@ export default function MatchPage() {
 
           <div>
             <div className="mb-3 flex flex-wrap items-center gap-3">
-              <div className="h-[22px] w-[3px] rounded-sm bg-primary" />
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-foreground dark:text-primary">Talenti Interni — dipendenti (max 5)</span>
+              <div className="h-6 w-0.75 rounded-sm bg-primary" />
+              <span className="label-mono text-foreground dark:text-primary">Talenti Interni — dipendenti (max 5)</span>
               {/* "Carica Excel dipendenti →" (modules/recruiting.html line
                   384) opens an admin-only panel (openAdmin(), gated on
                   isAdmin) this migration has no equivalent for — bridged,

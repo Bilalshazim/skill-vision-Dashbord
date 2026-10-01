@@ -1,8 +1,16 @@
 import { useState } from 'react'
 
+import { CardLabel } from '@/components/ui/card'
+import { Note } from '@/components/patterns/Note'
+import { useDirty } from '@/hooks/use-dirty'
+import { Slider } from '@/components/ui/slider'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Field } from '@/components/patterns/Field'
+import { FieldGrid } from '@/components/patterns/FieldGrid'
+import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Modal } from '@/modules/assessment/components/Modal'
+import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { computeHardSummary } from '@/modules/assessment/lib/calculations'
 import { getApex5dDimensions, getApexSources } from '@/modules/assessment/lib/legacy-utils'
@@ -42,6 +50,7 @@ export function HardEvalModal({ onClose }: { onClose: () => void }) {
     if (emp) APEX5D_DIMENSIONS.forEach((dim) => dim.items.forEach((it) => (init[it.cod] = (emp.hard[source] || {})[it.cod] || 6)))
     return init
   })
+  const dirty = useDirty({ empId, source, periodId, evaluatorName, values })
 
   function reloadValues(nextEmpId: string, nextSource: ApexSourceKey) {
     const e = state.employees.find((x) => x.id === nextEmpId)
@@ -80,8 +89,9 @@ export function HardEvalModal({ onClose }: { onClose: () => void }) {
 
   if (!emp) return null
 
+
   return (
-    <Modal
+    <ModalDialog dirty={dirty}
       title={ui.hardEvalModalTitle}
       sub={ui.hardEvalModalSub}
       wide
@@ -97,14 +107,13 @@ export function HardEvalModal({ onClose }: { onClose: () => void }) {
         </>
       }
     >
-      <div className="field-row">
-        <div className="field">
-          <label>{ui.hardEvaluateeLabel}</label>
-          <select
+      <FieldGrid>
+        <Field label={ui.hardEvaluateeLabel}>
+          <SelectField
             value={empId}
-            onChange={(e) => {
-              selectEmpOrSource(e.target.value, source)
-              reloadValues(e.target.value, source)
+            onValueChange={(v) => {
+              selectEmpOrSource(v, source)
+              reloadValues(v, source)
             }}
           >
             {state.employees.map((e) => (
@@ -112,15 +121,14 @@ export function HardEvalModal({ onClose }: { onClose: () => void }) {
                 {e.cognome} {e.nome} — {e.ruolo}
               </option>
             ))}
-          </select>
-        </div>
-        <div className="field">
-          <label>{ui.hardEvaluatorSourceLabel}</label>
-          <select
+          </SelectField>
+        </Field>
+        <Field label={ui.hardEvaluatorSourceLabel}>
+          <SelectField
             value={source}
-            onChange={(e) => {
-              selectEmpOrSource(empId, e.target.value as ApexSourceKey)
-              reloadValues(empId, e.target.value as ApexSourceKey)
+            onValueChange={(v) => {
+              selectEmpOrSource(empId, v as ApexSourceKey)
+              reloadValues(empId, v as ApexSourceKey)
             }}
           >
             {APEX_SOURCES.map((s) => (
@@ -128,54 +136,52 @@ export function HardEvalModal({ onClose }: { onClose: () => void }) {
                 {s.label}
               </option>
             ))}
-          </select>
-        </div>
-      </div>
-      <div className="field">
-        <label>{ui.evalPeriodLabel}</label>
-        <select value={periodId} onChange={(e) => setPeriodId(e.target.value)}>
+          </SelectField>
+        </Field>
+      </FieldGrid>
+      <Field label={ui.evalPeriodLabel}>
+        <SelectField value={periodId} onValueChange={(v) => setPeriodId(v)}>
           {periods.map((p) => (
             <option key={p.id} value={p.id}>
               {p.label}
             </option>
           ))}
-        </select>
-      </div>
+        </SelectField>
+      </Field>
       {source !== 'auto' ? (
-        <div className="field">
-          <label>{ui.evaluatorNameLabel}</label>
-          <input type="text" list="dl-evaluators" placeholder={ui.evaluatorNamePh} value={evaluatorName} onChange={(e) => setEvaluatorName(e.target.value)} />
+        <Field label={ui.evaluatorNameLabel}>
+          <Input type="text" list="dl-evaluators" placeholder={ui.evaluatorNamePh} value={evaluatorName} onChange={(e) => setEvaluatorName(e.target.value)} />
           <datalist id="dl-evaluators">
             {state.evaluators.map((n) => (
               <option key={n} value={n} />
             ))}
           </datalist>
-        </div>
+        </Field>
       ) : (
-        <div className="small-note" style={{ marginBottom: 10 }}>
+        <Note className="mb-3">
           {ui.evaluatorSelfNote}
-        </div>
+        </Note>
       )}
-      <div className="small-note" style={{ marginBottom: 10 }} dangerouslySetInnerHTML={{ __html: ui.hardItemsNote }} />
+      <Note as="div" className="mb-3" dangerouslySetInnerHTML={{ __html: ui.hardItemsNote }} />
       {APEX5D_DIMENSIONS.map((dim) => (
-        <div className="cluster-block" key={dim.code}>
-          <div className="cluster-title">
-            {ui.hardDimensionPrefix} {dim.code} — {dim.name} <span style={{ textTransform: 'none', fontWeight: 500, color: 'var(--text-3)' }}>· {dim.desc}</span>
-          </div>
+        <section className="mb-4" key={dim.code}>
+          <CardLabel className="mb-2 border-b border-border pb-2">
+            {ui.hardDimensionPrefix} {dim.code} — {dim.name} <span className="font-sans tracking-normal normal-case">· {dim.desc}</span>
+          </CardLabel>
           {dim.items.map((it) => (
-            <div className="score-row" title={it.q} key={it.cod}>
-              <div className="sname">
+            <div className="flex items-center gap-3 border-b border-border py-2 last:border-b-0" title={it.q} key={it.cod}>
+              <div className="w-72 shrink-0 text-app-small font-medium">
                 {it.cod} · {it.area}
               </div>
-              <input className="sslider" type="range" min={1} max={10} step={1} value={values[it.cod] ?? 6} onChange={(e) => setValues((prev) => ({ ...prev, [it.cod]: Number(e.target.value) }))} />
-              <div className="sval">{values[it.cod] ?? 6}</div>
-              <Badge style={{ flexShrink: 0 }}>
+              <Slider className="flex-1" min={1} max={10} step={1} value={[values[it.cod] ?? 6]} onValueChange={([n]) => setValues((prev) => ({ ...prev, [it.cod]: n }))} aria-label={it.q} />
+              <div className="w-8 text-right font-medium tabular-nums">{values[it.cod] ?? 6}</div>
+              <Badge className="shrink-0">
                 {ui.hardExpChip}
               </Badge>
             </div>
           ))}
-        </div>
+        </section>
       ))}
-    </Modal>
+    </ModalDialog>
   )
 }

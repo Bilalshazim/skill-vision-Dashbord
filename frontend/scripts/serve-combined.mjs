@@ -23,8 +23,17 @@ const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/jav
 function send(res, filePath) {
   const ext = path.extname(filePath)
   const body = fs.readFileSync(filePath)
-  res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' })
+  res.writeHead(200, { 'Content-Type': (MIME[ext] || 'application/octet-stream') + (ext === '.html' || ext === '.js' || ext === '.css' ? '; charset=utf-8' : '') })
   res.end(body)
+}
+
+const CATALOG_ENABLED = process.env.VITE_ENABLE_COMPONENT_CATALOG === 'true'
+const REACT_PREFIXES = ['/recruiting', '/assessment', '/evaluate', ...(CATALOG_ENABLED ? ['/dev/components'] : [])]
+
+function isReactRoute(urlPath) {
+  const p = urlPath.length > 1 ? urlPath.replace(/\/+$/, '') : urlPath
+  if (p === '/' || p === '') return true
+  return REACT_PREFIXES.some((prefix) => p === prefix || p.startsWith(prefix + '/'))
 }
 
 const server = http.createServer((req, res) => {
@@ -38,7 +47,13 @@ const server = http.createServer((req, res) => {
       if (fs.existsSync(distAsset) && fs.statSync(distAsset).isFile()) return send(res, distAsset)
     }
 
-    if (urlPath === '/assessment' || urlPath.startsWith('/assessment/') || urlPath === '/recruiting' || urlPath.startsWith('/recruiting/')) {
+    // Rotte dell'app React: si serve sempre index.html della build e
+    // l'instradamento lo fa React Router. Barra finale ammessa
+    // (/dev/components/ = /dev/components). La radice è l'app React (scelta
+    // del modulo); il login legacy resta su /index.html e dopo l'accesso
+    // rimanda qui. Il catalogo è servito solo se l'ambiente lo accende in
+    // modo esplicito, con la stessa variabile che lo compila nel bundle.
+    if (isReactRoute(urlPath)) {
       return send(res, path.join(DIST, 'index.html'))
     }
 
@@ -57,10 +72,10 @@ const server = http.createServer((req, res) => {
       if (fs.existsSync(distFallback) && fs.statSync(distFallback).isFile()) return send(res, distFallback)
     }
 
-    res.writeHead(404)
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' })
     res.end('Not found: ' + urlPath)
   } catch (err) {
-    res.writeHead(500)
+    res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' })
     res.end(String(err))
   }
 })

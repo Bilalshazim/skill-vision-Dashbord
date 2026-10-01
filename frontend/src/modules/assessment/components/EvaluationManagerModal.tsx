@@ -1,9 +1,21 @@
+import { Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
+import { Note } from '@/components/patterns/Note'
+import { StatCard } from '@/components/patterns/StatCard'
+import { Separator } from '@/components/ui/separator'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { useDirty } from '@/hooks/use-dirty'
+import { useConfirm } from '@/hooks/use-confirm'
+import { Checkbox } from '@/components/ui/checkbox'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Field } from '@/components/patterns/Field'
+import { FieldGrid } from '@/components/patterns/FieldGrid'
+import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { CardLabel, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Modal } from '@/modules/assessment/components/Modal'
+import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { buildAssignmentLink } from '@/modules/assessment/lib/shell-bridge'
 import { getApexSources, uid } from '@/modules/assessment/lib/legacy-utils'
@@ -18,6 +30,7 @@ import type { ApexSourceKey } from '@/modules/assessment/lib/types'
 // list/copy/email/complete/delete them, and manage evaluation periods.
 export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
   const { state, setState, lang, ui, toast } = useAssessment()
+  const [confirm, confirmDialog] = useConfirm()
   const APEX_SOURCES = getApexSources(lang)
   const periods = state.evalPeriods
 
@@ -29,6 +42,7 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
   const [targets, setTargets] = useState<Record<string, boolean>>({})
   const [linkModal, setLinkModal] = useState<string | null>(null)
   const [breakdownOpen, setBreakdownOpen] = useState(false)
+  const dirty = useDirty({ template, periodId, newPeriodLabel, evaluatorName, evaluatorEmail, targets })
 
   const assignments = state.evalAssignments
   const sentCount = assignments.length
@@ -109,14 +123,14 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
     toast(ui.toastAssignmentMarkedDone, 'ok')
   }
 
-  function deleteAssignment(id: string) {
-    if (!window.confirm(ui.confirmDeleteAssignment)) return
+  async function deleteAssignment(id: string) {
+    if (!(await confirm({ title: ui.confirmDeleteAssignment, confirmLabel: ui.deleteAssignmentConfirmBtn, cancelLabel: ui.confirmCancel, destructive: true }))) return
     setState((prev) => ({ ...prev, evalAssignments: prev.evalAssignments.filter((a) => a.id !== id) }))
   }
 
   if (linkModal) {
     return (
-      <Modal
+      <ModalDialog
         title={ui.evalLinkModalTitle}
         onClose={() => setLinkModal(null)}
         footer={
@@ -125,17 +139,18 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
           </Button>
         }
       >
-        <p className="small-note" style={{ marginBottom: 10 }}>
+        <Note className="mb-3">
           {ui.evalLinkTrustNote}
-        </p>
-        <input
+        </Note>
+        <Input
           type="text"
+          size="sm"
           readOnly
           value={linkModal}
           onClick={(e) => (e.target as HTMLInputElement).select()}
-          style={{ width: '100%', padding: '9px 11px', border: '1px solid var(--border-strong)', borderRadius: 'var(--a-radius-sm)', background: 'var(--surface-alt)', fontFamily: 'var(--font-mono)', fontSize: 12 }}
+          className="font-mono"
         />
-      </Modal>
+      </ModalDialog>
     )
   }
 
@@ -146,15 +161,15 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
       const targetEmp = state.employees.find((e) => e.id === a.targetEmployeeId)
       const src = APEX_SOURCES.find((s) => s.key === a.templateType)
       return (
-        <div key={a.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed var(--border)' }}>
+        <div key={a.id} className="flex items-center justify-between gap-3 border-b border-border py-2 last:border-b-0">
           <span>
-            {targetEmp ? `${targetEmp.nome} ${targetEmp.cognome}` : '—'} <span className="small-note">— {src?.label || ''}</span>
+            {targetEmp ? `${targetEmp.nome} ${targetEmp.cognome}` : '—'} <span className="text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">— {src?.label || ''}</span>
           </span>
         </div>
       )
     }
     return (
-      <Modal
+      <ModalDialog
         title={ui.evalManagerTitle}
         onClose={() => setBreakdownOpen(false)}
         footer={
@@ -163,140 +178,127 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
           </Button>
         }
       >
-        <CardLabel  style={{ marginBottom: 6 }}>
+        <CardLabel className="mb-2">
           {ui.evalStatusCompleted} ({completed.length})
         </CardLabel>
-        {completed.length ? completed.map(row) : <div className="small-note" style={{ marginBottom: 12 }}>{ui.evalNoAssignments}</div>}
-        <CardLabel  style={{ marginTop: 16, marginBottom: 6 }}>
+        {completed.length ? completed.map(row) : <Note className="mb-3">{ui.evalNoAssignments}</Note>}
+        <CardLabel className="mt-4 mb-2">
           {ui.evalStatusPending} ({pending.length})
         </CardLabel>
-        {pending.length ? pending.map(row) : <div className="small-note">{ui.evalNoAssignments}</div>}
-      </Modal>
+        {pending.length ? pending.map(row) : <Note>{ui.evalNoAssignments}</Note>}
+      </ModalDialog>
     )
   }
 
   return (
-    <Modal title={ui.evalManagerTitle} sub={ui.evalManagerSub} wide onClose={onClose} footer={<Button variant="outline" onClick={onClose}>{ui.btnClose}</Button>}>
-      <div className="grid grid-2" style={{ gap: 10, marginBottom: 16 }}>
-        <div className="tinted-tile clickable accent" onClick={() => setBreakdownOpen(true)}>
-          <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--accent-dark)' }}>{ui.evalSentLabel}</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-1)' }}>{sentCount}</div>
-        </div>
-        <div className="tinted-tile clickable success" onClick={() => setBreakdownOpen(true)}>
-          <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--success)' }}>{ui.evalReceivedLabel}</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-1)' }}>{receivedCount}</div>
-        </div>
+    <ModalDialog dirty={dirty} title={ui.evalManagerTitle} sub={ui.evalManagerSub} wide onClose={onClose} footer={<Button variant="outline" onClick={onClose}>{ui.btnClose}</Button>}>
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        <StatCard label={ui.evalSentLabel} value={sentCount} onClick={() => setBreakdownOpen(true)} />
+        <StatCard label={ui.evalReceivedLabel} value={receivedCount} onClick={() => setBreakdownOpen(true)} />
       </div>
 
-      <div className="divider" />
-      <CardTitle  style={{ marginBottom: 10 }}>
+      <Separator className="my-4" />
+      <CardTitle className="mb-3">
         {ui.evalAssignTitle}
       </CardTitle>
-      <div className="field-row">
-        <div className="field">
-          <label>{ui.evalTemplateLabel}</label>
-          <select value={template} onChange={(e) => setTemplate(e.target.value as ApexSourceKey)}>
+      <FieldGrid>
+        <Field label={ui.evalTemplateLabel}>
+          <SelectField value={template} onValueChange={(v) => setTemplate(v as ApexSourceKey)}>
             {APEX_SOURCES.map((s) => (
               <option key={s.key} value={s.key}>
                 {s.label}
               </option>
             ))}
-          </select>
-        </div>
-        <div className="field">
-          <label>{ui.evalPeriodLabel}</label>
-          <select value={periodId} onChange={(e) => setPeriodId(e.target.value)}>
+          </SelectField>
+        </Field>
+        <Field label={ui.evalPeriodLabel}>
+          <SelectField value={periodId} onValueChange={(v) => setPeriodId(v)}>
             {periods.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.label}
               </option>
             ))}
-          </select>
-        </div>
-      </div>
-      <div className="field-row" style={{ alignItems: 'flex-end' }}>
-        <div className="field" style={{ flex: 1 }}>
-          <label>{ui.evalNewPeriodLabel}</label>
-          <input type="text" placeholder={ui.evalNewPeriodPh} value={newPeriodLabel} onChange={(e) => setNewPeriodLabel(e.target.value)} />
-        </div>
+          </SelectField>
+        </Field>
+      </FieldGrid>
+      <div className="flex flex-wrap items-end gap-4">
+        <Field label={ui.evalNewPeriodLabel} className="min-w-40 flex-1">
+          <Input type="text" placeholder={ui.evalNewPeriodPh} value={newPeriodLabel} onChange={(e) => setNewPeriodLabel(e.target.value)} />
+        </Field>
         <Button type="button" variant="outline" size="sm" onClick={addPeriod}>
           {ui.evalAddPeriodBtn}
         </Button>
       </div>
       {template !== 'auto' ? (
-        <div className="field-row" style={{ alignItems: 'flex-end' }}>
-          <div className="field">
-            <label>{ui.evaluatorNameLabel}</label>
-            <input type="text" list="dl-evaluators-ea" placeholder={ui.evaluatorNamePh} value={evaluatorName} onChange={(e) => setEvaluatorName(e.target.value)} />
+        <div className="flex flex-wrap items-end gap-4">
+          <Field label={ui.evaluatorNameLabel} className="min-w-40 flex-1">
+            <Input type="text" list="dl-evaluators-ea" placeholder={ui.evaluatorNamePh} value={evaluatorName} onChange={(e) => setEvaluatorName(e.target.value)} />
             <datalist id="dl-evaluators-ea">
               {state.evaluators.map((n) => (
                 <option key={n} value={n} />
               ))}
             </datalist>
-          </div>
-          <div className="field">
-            <label>{ui.evaluatorEmailLabel}</label>
-            <input type="email" placeholder={ui.evaluatorEmailPh} value={evaluatorEmail} onChange={(e) => setEvaluatorEmail(e.target.value)} />
-          </div>
+          </Field>
+          <Field label={ui.evaluatorEmailLabel} className="min-w-40 flex-1">
+            <Input type="email" placeholder={ui.evaluatorEmailPh} value={evaluatorEmail} onChange={(e) => setEvaluatorEmail(e.target.value)} />
+          </Field>
         </div>
       ) : (
-        <div className="small-note" style={{ marginBottom: 10 }}>
+        <Note className="mb-3">
           {ui.evaluatorSelfNote}
-        </div>
+        </Note>
       )}
-      <div className="field">
-        <label>{ui.evalTargetsLabel}</label>
-        <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--a-radius-sm)', padding: '8px 10px' }}>
+      <Field label={ui.evalTargetsLabel}>
+        <div className="max-h-44 overflow-y-auto rounded-sm border border-border px-3 py-2">
           {state.employees
             .filter((e) => !e.archived)
             .map((e) => (
-              <div className="checkbox-row" style={{ gap: 8, padding: '3px 0' }} key={e.id}>
-                <input type="checkbox" id={`ea-target-${e.id}`} checked={!!targets[e.id]} onChange={(ev) => setTargets((prev) => ({ ...prev, [e.id]: ev.target.checked }))} />
-                <label htmlFor={`ea-target-${e.id}`} style={{ cursor: 'pointer' }}>
+              <div className="flex items-center gap-2 py-1 text-app-small" key={e.id}>
+                <Checkbox id={`ea-target-${e.id}`} checked={!!targets[e.id]} onCheckedChange={(c) => setTargets((prev) => ({ ...prev, [e.id]: c === true }))} />
+                <label className="cursor-pointer" htmlFor={`ea-target-${e.id}`}>
                   {e.nome} {e.cognome} — {e.ruolo}
                 </label>
               </div>
             ))}
         </div>
-      </div>
+      </Field>
       <Button variant="default" size="sm" onClick={createAssignments}>
         {ui.evalCreateBtn}
       </Button>
 
-      <div className="divider" />
-      <CardTitle  style={{ marginBottom: 10 }}>
+      <Separator className="my-4" />
+      <CardTitle className="mb-3">
         {ui.evalAssignmentsListTitle}
       </CardTitle>
-      <div className="table-wrap">
-        <table className="dtable">
-          <thead>
-            <tr>
-              <th>{ui.evalColTarget}</th>
-              <th>{ui.evalColTemplate}</th>
-              <th>{ui.evalColEvaluator}</th>
-              <th>{ui.evalColPeriod}</th>
-              <th>{ui.evalColStatus}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
+      <Table frame>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{ui.evalColTarget}</TableHead>
+              <TableHead>{ui.evalColTemplate}</TableHead>
+              <TableHead>{ui.evalColEvaluator}</TableHead>
+              <TableHead>{ui.evalColPeriod}</TableHead>
+              <TableHead>{ui.evalColStatus}</TableHead>
+              <TableHead></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {assignments.length ? (
               [...assignments].reverse().map((a) => {
                 const targetEmp = state.employees.find((e) => e.id === a.targetEmployeeId)
                 const src = APEX_SOURCES.find((s) => s.key === a.templateType)
                 const period = periods.find((p) => p.id === a.periodId)
                 return (
-                  <tr key={a.id}>
-                    <td>{targetEmp ? `${targetEmp.nome} ${targetEmp.cognome}` : '—'}</td>
-                    <td>{src ? src.label : a.templateType}</td>
-                    <td>{a.evaluatorName || '—'}</td>
-                    <td>{period ? period.label : '—'}</td>
-                    <td>
+                  <TableRow key={a.id}>
+                    <TableCell>{targetEmp ? `${targetEmp.nome} ${targetEmp.cognome}` : '—'}</TableCell>
+                    <TableCell>{src ? src.label : a.templateType}</TableCell>
+                    <TableCell>{a.evaluatorName || '—'}</TableCell>
+                    <TableCell>{period ? period.label : '—'}</TableCell>
+                    <TableCell>
                       <Badge tone={a.status === 'completed' ? 'success' : 'neutral'} dot>
                         {a.status === 'completed' ? ui.evalStatusCompleted : ui.evalStatusPending}
                       </Badge>
-                    </td>
-                    <td style={{ whiteSpace: 'nowrap' }}>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
                       <Button variant="outline" size="sm" onClick={() => copyLink(a.id)}>
                         {ui.evalCopyLinkBtn}
                       </Button>
@@ -308,25 +310,23 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
                           {ui.evalMarkDoneBtn}
                         </Button>
                       )}
-                      <Button variant="destructive" size="sm" onClick={() => deleteAssignment(a.id)}>
-                        ✕
+                      <Button variant="destructive" size="icon-sm" aria-label={ui.deleteAssignmentConfirmBtn} onClick={() => deleteAssignment(a.id)}>
+                        <Trash2 />
                       </Button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )
               })
             ) : (
-              <tr>
-                <td colSpan={6}>
-                  <div className="small-note" style={{ textAlign: 'center', padding: '14px 0' }}>
-                    {ui.evalNoAssignments}
-                  </div>
-                </td>
-              </tr>
+              <TableRow>
+                <TableCell colSpan={6}>
+                  <Note className="py-4 text-center">{ui.evalNoAssignments}</Note>
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
-      </div>
-    </Modal>
+          </TableBody>
+        </Table>
+      {confirmDialog}
+    </ModalDialog>
   )
 }

@@ -49,7 +49,7 @@ export function CvInlineViewerButton({ backendCvId, candidateName, className }: 
         <Eye className="size-3.5 shrink-0" aria-hidden="true" />
         Visualizza CV
       </Button>
-      <DialogContent className="max-w-3xl">
+      <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>CV — {candidateName}</DialogTitle>
         </DialogHeader>
@@ -59,7 +59,7 @@ export function CvInlineViewerButton({ backendCvId, candidateName, className }: 
               <Loader2 className="size-6 animate-spin text-muted-foreground" aria-hidden="true" />
             </div>
           )}
-          {state.kind === 'error' && <p className="flex h-full items-center justify-center px-6 text-center text-[13px] font-medium text-destructive">{state.message}</p>}
+          {state.kind === 'error' && <p className="flex h-full items-center justify-center px-6 text-center text-app-small font-medium text-destructive">{state.message}</p>}
           {state.kind === 'ready' && <iframe src={state.url} title={`CV di ${candidateName}`} className="size-full border-0" />}
         </div>
       </DialogContent>

@@ -24,15 +24,15 @@ export default function ProfileHubPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <LayoutGrid className="size-[22px] text-muted-foreground" aria-hidden="true" />
+          <LayoutGrid className="size-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Profilo della ricerca</h2>
-          <p className="max-w-[70ch] text-[13px] text-muted-foreground">Configura ruolo, mansione e soft skill. Il ranking si aggiorna in tempo reale.</p>
+          <h2 className="text-app-section font-semibold tracking-tight">Profilo della ricerca</h2>
+          <p className="max-w-[70ch] text-app-small text-muted-foreground">Configura ruolo, mansione e soft skill. Il ranking si aggiorna in tempo reale.</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="label-mono flex items-center gap-1.5 text-muted-foreground">
         <Compass className="size-3.5 shrink-0" aria-hidden="true" />
         Area Operativa
       </div>
@@ -41,15 +41,12 @@ export default function ProfileHubPage() {
         <MasterCard icon={User} title="Profilo Candidato">
           <button
             type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              navigate('/recruiting/job-profile')
-            }}
+            onClick={() => navigate('/recruiting/job-profile')}
             className="flex w-full items-center gap-2.5 rounded-sm border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <span className="flex-1 text-[13px] font-medium text-foreground">Scheda professionale</span>
-            <span className="text-[12px] font-medium text-foreground dark:text-primary">Apri scheda →</span>
+            <span className="flex-1 text-app-small font-medium text-foreground">Scheda professionale</span>
+            <span className="text-app-caption font-medium text-foreground dark:text-primary">Apri scheda →</span>
           </button>
         </MasterCard>
 

@@ -204,17 +204,17 @@ Base 16px.
 
 ## Scala tipografica — interfaccia
 
-Base 14px. È una scala diversa perché il compito è diverso: il sito deve convincere in venti secondi, un'interfaccia si legge per ore.
+Base 15px. Sotto i 14px scendono solo la caption, riservata all'informazione di contorno (date, contatori, note, legende), e la label, che essendo maiuscola si legge più grande del suo corpo. È una scala diversa perché il compito è diverso: il sito deve convincere in venti secondi, un'interfaccia si legge per ore.
 
 | Ruolo | Dimensione | Peso | Line-height | Tracking |
 |---|---|---|---|---|
 | Titolo pagina | 1.5rem / 24px | 600 | 1.25 | −0.015em |
 | Titolo sezione | 1.125rem / 18px | 600 | 1.3 | −0.01em |
 | Sottotitolo | 1rem / 16px | 500 | 1.4 | 0 |
-| Body | 0.875rem / 14px | 400 | 1.45 | 0 |
-| Small | 0.8125rem / 13px | 400 | 1.4 | 0 |
-| Caption | 0.75rem / 12px | 400 | 1.35 | 0 |
-| Label | 0.6875rem / 11px | 500 mono | 1.2 | +0.07em |
+| Body | 0.9375rem / 15px | 400 | 1.5 | 0 |
+| Small | 0.875rem / 14px | 400 | 1.45 | 0 |
+| Caption | 0.8125rem / 13px | 400 | 1.4 | 0 |
+| Label | 0.75rem / 12px | 500 mono | 1.2 | +0.06em |
 | Metrica grande | 2rem / 32px | 500 mono | 1.1 | −0.01em |
 | Metrica | 1.25rem / 20px | 500 mono | 1.2 | 0 |
 
@@ -223,7 +223,7 @@ Base 14px. È una scala diversa perché il compito è diverso: il sito deve conv
 ## Regole tipografiche
 
 - Il tracking negativo sui titoli è una correzione ottica, non uno stile: alle dimensioni display la spaziatura di Geist si allarga e le parole si sfilacciano. Sotto i 20px va lasciato a zero.
-- Il testo corrente non scende mai sotto 16px sul sito e 13px sulla dashboard.
+- Il testo corrente non scende mai sotto 16px sul sito e 14px sulla dashboard.
 - Misura del rigo fra 60 e 75 caratteri sul testo lungo; meno dentro le card della dashboard.
 - Label: massimo tre o quattro parole, mai testo che va a capo. Se deve andare a capo non è una label, è un titolo.
 - Numeri in colonna sempre in Geist Mono, oppure in Geist con `font-variant-numeric: tabular-nums`. Le cifre proporzionali disallineano le colonne di punteggi.
@@ -494,23 +494,23 @@ Le lightness della scala neutra sono allineate a quelle della scala `neutral` di
   /* stati — valore light / valore dark */
   --color-danger:       #BF3022;
   --color-danger-dark:  #EF6B54;
-  --color-warning:      #8A5107;
+  --color-warning-light: #8A5107;
   --color-warning-dark: #E08A0B;
-  --color-success:      #1C7A4D;
+  --color-success-light: #1C7A4D;
   --color-success-dark: #3FBF7F;
 
   /* grafici — famiglia categorica */
-  --color-chart-1:      #0F7A85;
+  --color-chart-1-light: #0F7A85;
   --color-chart-1-dark: #2AA5B0;
-  --color-chart-2:      #B0208C;
+  --color-chart-2-light: #B0208C;
   --color-chart-2-dark: #D65FB8;
-  --color-chart-3:      #8A5107;
+  --color-chart-3-light: #8A5107;
   --color-chart-3-dark: #E08A0B;
-  --color-chart-4:      #6A4FA3;
+  --color-chart-4-light: #6A4FA3;
   --color-chart-4-dark: #9070C0;
-  --color-chart-5:      #BF3022;
+  --color-chart-5-light: #BF3022;
   --color-chart-5-dark: #EF6B54;
-  --color-chart-6:      #1C7A4D;
+  --color-chart-6-light: #1C7A4D;
   --color-chart-6-dark: #3FBF7F;
 
   --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -535,9 +535,9 @@ Le lightness della scala neutra sono allineate a quelle della scala `neutral` di
   /* dashboard */
   --text-app-title:   1.5rem;
   --text-app-section: 1.125rem;
-  --text-app-body:    0.875rem;
-  --text-app-small:   0.8125rem;
-  --text-app-label:   0.6875rem;
+  --text-app-body:    0.9375rem;
+  --text-app-small:   0.875rem;
+  --text-app-label:   0.75rem;
   --text-metric-lg:   2rem;
   --text-metric:      1.25rem;
 
@@ -577,8 +577,8 @@ Le lightness della scala neutra sono allineate a quelle della scala `neutral` di
   --foreground:        var(--color-neutral-800);
   --card:              var(--color-neutral-100);
   --card-foreground:   var(--color-neutral-800);
-  --muted:             var(--color-neutral-100);
-  --muted-foreground:  var(--color-neutral-500);
+  --muted:             var(--color-neutral-200);
+  --muted-foreground:  var(--color-neutral-600);
   --primary:           var(--color-accent-400);
   --primary-foreground:var(--color-neutral-950);
   --primary-hover:     var(--color-accent-500);
@@ -588,16 +588,16 @@ Le lightness della scala neutra sono allineate a quelle della scala `neutral` di
   --link:              var(--color-accent-800);
 
   --destructive:       var(--color-danger);
-  --warning:           var(--color-warning);
-  --success:           var(--color-success);
+  --warning:           var(--color-warning-light);
+  --success:           var(--color-success-light);
 
   --chart-mono:        var(--color-accent-600);
-  --chart-1:           var(--color-chart-1);
-  --chart-2:           var(--color-chart-2);
-  --chart-3:           var(--color-chart-3);
-  --chart-4:           var(--color-chart-4);
-  --chart-5:           var(--color-chart-5);
-  --chart-6:           var(--color-chart-6);
+  --chart-1:           var(--color-chart-1-light);
+  --chart-2:           var(--color-chart-2-light);
+  --chart-3:           var(--color-chart-3-light);
+  --chart-4:           var(--color-chart-4-light);
+  --chart-5:           var(--color-chart-5-light);
+  --chart-6:           var(--color-chart-6-light);
 }
 
 .dark {
@@ -605,7 +605,7 @@ Le lightness della scala neutra sono allineate a quelle della scala `neutral` di
   --foreground:        var(--color-neutral-100);
   --card:              var(--color-neutral-800);
   --card-foreground:   var(--color-neutral-100);
-  --muted:             var(--color-neutral-800);
+  --muted:             var(--color-neutral-950);
   --muted-foreground:  var(--color-neutral-400);
   --primary:           var(--color-accent-400);
   --primary-foreground:var(--color-neutral-950);

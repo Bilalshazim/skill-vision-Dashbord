@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { Card, CardTitle } from '@/components/ui/card'
+import { Logo } from '@/layouts/Logo'
+import { Note } from '@/components/patterns/Note'
+import { Slider } from '@/components/ui/slider'
+import { Card, CardTitle, CardLabel } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { computeHardSummary } from '@/modules/assessment/lib/calculations'
 import { getApex5dDimensions, getApexSources, getUI } from '@/modules/assessment/lib/legacy-utils'
-import { readSharedLang, readSharedTheme } from '@/modules/assessment/lib/shell-bridge'
+import { readSharedLang } from '@/modules/assessment/lib/shell-bridge'
 import { readAssessmentState, writeAssessmentState } from '@/modules/assessment/lib/storage'
-import '@/modules/assessment/styles/assessment-scoped.css'
-import '@/modules/assessment/styles/assessment-bridge.css'
+import '@/modules/assessment/styles/assessment-print.css'
 
 // Migrated from enterRestrictedEvaluatorMode()/renderRestrictedEvalScreen()/
 // submitRestrictedEval() (js/assessment.js ~6676-6769). Reached ONLY via
@@ -28,7 +30,6 @@ export default function AssessmentEvaluatePage() {
   const [params] = useSearchParams()
   const token = params.get('evalToken')
   const lang = readSharedLang()
-  const theme = readSharedTheme()
   const ui = getUI(lang)
   const [state, setState] = useState(() => readAssessmentState())
   const [submitted, setSubmitted] = useState(false)
@@ -89,10 +90,9 @@ export default function AssessmentEvaluatePage() {
   }
 
   const brand = (
-    <div className="login-brand" style={{ marginBottom: 28 }}>
-      <img className="brand-logo theme-logo-light" src="/brand/logo_black.svg" alt="SkillVision" />
-      <img className="brand-logo theme-logo-dark" src="/brand/logo_white.svg" alt="SkillVision" />
-      <div className="t2">{ui.brandTagline}</div>
+    <div className="mb-8 flex flex-col items-center gap-2">
+      <Logo size="lg" />
+      <div className="label-mono text-muted-foreground">{ui.brandTagline}</div>
     </div>
   )
 
@@ -101,65 +101,65 @@ export default function AssessmentEvaluatePage() {
     body = (
       <Card>
         <CardTitle>{ui.reInvalidLinkTitle}</CardTitle>
-        <p className="small-note" style={{ marginTop: 8 }}>
+        <Note className="mt-2">
           {ui.reInvalidLinkDesc}
-        </p>
+        </Note>
       </Card>
     )
   } else if (assignment.status === 'completed' && !submitted) {
     body = (
-      <Card  style={{ textAlign: 'center', padding: '40px 24px' }}>
-        <CardTitle  style={{ marginBottom: 8 }}>
+      <Card className="text-center px-6 py-12">
+        <CardTitle className="mb-2">
           {ui.reThankYouTitle}
         </CardTitle>
-        <p className="small-note">{ui.reThankYouDesc(assignment.completedAt ? assignment.completedAt.slice(0, 10) : '')}</p>
+        <Note>{ui.reThankYouDesc(assignment.completedAt ? assignment.completedAt.slice(0, 10) : '')}</Note>
       </Card>
     )
   } else if (submitted) {
     body = (
-      <Card  style={{ textAlign: 'center', padding: '40px 24px' }}>
-        <CardTitle  style={{ marginBottom: 8 }}>
+      <Card className="text-center px-6 py-12">
+        <CardTitle className="mb-2">
           {ui.reThankYouTitle}
         </CardTitle>
-        <p className="small-note">{ui.reThankYouDesc(new Date().toISOString().slice(0, 10))}</p>
+        <Note>{ui.reThankYouDesc(new Date().toISOString().slice(0, 10))}</Note>
       </Card>
     )
   } else {
     body = (
       <>
-        <Card  style={{ marginBottom: 16 }}>
+        <Card className="mb-4">
           <CardTitle>{ui.reFormTitle}</CardTitle>
-          <p className="small-note" style={{ marginTop: 6 }}>
+          <Note className="mt-2">
             {ui.reFormDesc(`${emp.nome} ${emp.cognome}`, sourceLabel)}
-          </p>
+          </Note>
         </Card>
         <div>
           {APEX5D_DIMENSIONS.map((dim) => (
-            <div className="cluster-block" key={dim.code}>
-              <div className="cluster-title">
-                {ui.hardDimensionPrefix} {dim.code} — {dim.name} <span style={{ textTransform: 'none', fontWeight: 500, color: 'var(--text-3)' }}>· {dim.desc}</span>
-              </div>
+            <section className="mb-4" key={dim.code}>
+              <CardLabel className="mb-2 border-b border-border pb-2">
+                {ui.hardDimensionPrefix} {dim.code} — {dim.name} <span className="font-sans tracking-normal normal-case">· {dim.desc}</span>
+              </CardLabel>
               {dim.items.map((it) => (
-                <div className="score-row" title={it.q} key={it.cod}>
-                  <div className="sname">
+                <div className="flex items-center gap-3 border-b border-border py-2 last:border-b-0" title={it.q} key={it.cod}>
+                  <div className="w-72 shrink-0 text-app-small font-medium">
                     {it.cod} · {it.area}
                   </div>
-                  <input
-                    className="sslider"
-                    type="range"
+                  <Slider
+                    className="flex-1"
                     min={1}
                     max={10}
                     step={1}
-                    value={values[it.cod] ?? 6}
-                    onChange={(e) => setValues((prev) => ({ ...(prev || {}), [it.cod]: Number(e.target.value) }))}
+                    value={[values[it.cod] ?? 6]}
+                    onValueChange={([n]) => setValues((prev) => ({ ...(prev || {}), [it.cod]: n }))}
+                    aria-label={it.q}
                   />
-                  <div className="sval">{values[it.cod] ?? 6}</div>
+                  <div className="w-8 text-right font-medium tabular-nums">{values[it.cod] ?? 6}</div>
                 </div>
               ))}
-            </div>
+            </section>
           ))}
         </div>
-        <div style={{ marginTop: 16, textAlign: 'right' }}>
+        <div className="mt-4 text-right">
           <Button variant="default" onClick={submit}>
             {ui.reSubmitBtn}
           </Button>
@@ -169,9 +169,9 @@ export default function AssessmentEvaluatePage() {
   }
 
   return (
-    <div className="sv-assessment-shell" data-theme={theme}>
-      <div id="eval-restricted-screen" className="open">
-        <div className="eval-restricted-inner">
+    <div data-module="assessment" data-portal-scope>
+      <div id="eval-restricted-screen" className="fixed inset-0 z-(--z-takeover) overflow-y-auto bg-background">
+        <div className="mx-auto max-w-3xl px-4 pt-12 pb-16">
           {brand}
           {body}
         </div>

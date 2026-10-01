@@ -1,3 +1,6 @@
+import { Note } from '@/components/patterns/Note'
+import { Field } from '@/components/patterns/Field'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { Icon } from '@/modules/assessment/components/Icon'
@@ -22,39 +25,35 @@ export function AbsencesEditor({ rows, onChange }: { rows: Absence[]; onChange: 
   }
 
   return (
-    <div className="field">
-      <label>{ui.scheduledAbsencesLabel}</label>
+    <Field label={ui.scheduledAbsencesLabel}>
       <div>
         {rows.length ? (
           rows.map((a, i) => (
-            <div className="field-row" style={{ alignItems: 'flex-end' }} key={i}>
-              <div className="field">
-                <label>{ui.absenceFromLabel}</label>
-                <input type="date" value={a.dal} onChange={(e) => update(i, 'dal', e.target.value)} />
-              </div>
-              <div className="field">
-                <label>{ui.absenceToLabel}</label>
-                <input type="date" value={a.al} onChange={(e) => update(i, 'al', e.target.value)} />
-              </div>
-              <div className="field" style={{ flex: 1.6 }}>
-                <label>{ui.absenceReasonLabel}</label>
-                <input type="text" value={a.motivo} placeholder={ui.absenceReasonPh} onChange={(e) => update(i, 'motivo', e.target.value)} />
-              </div>
+            <div className="flex flex-wrap items-end gap-4" key={i}>
+              <Field label={ui.absenceFromLabel} className="min-w-36 flex-1">
+                <Input type="date" value={a.dal} onChange={(e) => update(i, 'dal', e.target.value)} />
+              </Field>
+              <Field label={ui.absenceToLabel} className="min-w-36 flex-1">
+                <Input type="date" value={a.al} onChange={(e) => update(i, 'al', e.target.value)} />
+              </Field>
+              <Field label={ui.absenceReasonLabel} className="min-w-48 flex-2">
+                <Input type="text" value={a.motivo} placeholder={ui.absenceReasonPh} onChange={(e) => update(i, 'motivo', e.target.value)} />
+              </Field>
               <Button type="button" variant="destructive" size="sm" onClick={() => remove(i)} aria-label={ui.removeAbsenceBtn}>
                 <Icon name="trash" />
               </Button>
             </div>
           ))
         ) : (
-          <div className="small-note" style={{ marginBottom: 8 }}>
+          <Note className="mb-2">
             {ui.noScheduledAbsences}
-          </div>
+          </Note>
         )}
       </div>
-      <Button type="button" variant="outline" size="sm" style={{ marginTop: 6 }} onClick={add}>
+      <Button className="mt-2" type="button" variant="outline" size="sm"  onClick={add}>
         <Icon name="plus" />
         {ui.addAbsenceBtn}
       </Button>
-    </div>
+    </Field>
   )
 }

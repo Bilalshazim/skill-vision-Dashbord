@@ -1,6 +1,6 @@
 import { CalendarCheck, CalendarDays } from 'lucide-react'
 
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 import type { UpcomingRow } from '@/modules/recruiting/lib/use-recruiting-home-data'
 
 // Row layout matches the concept: a calendar-icon square, then name/meta,
@@ -8,7 +8,7 @@ import type { UpcomingRow } from '@/modules/recruiting/lib/use-recruiting-home-d
 // "Completati" tabs on Home (RecruitingHome.tsx).
 export function UpcomingList({ upcoming, emptyText }: { upcoming: UpcomingRow[]; emptyText?: string }) {
   if (!upcoming.length) {
-    return <EmptyState icon={CalendarCheck} text={emptyText ?? 'Nessun colloquio programmato al momento.'} />
+    return <EmptyState size="sm" icon={CalendarCheck} description={emptyText ?? 'Nessun colloquio programmato al momento.'} />
   }
 
   return (
@@ -19,10 +19,10 @@ export function UpcomingList({ upcoming, emptyText }: { upcoming: UpcomingRow[];
             <CalendarDays className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[13px] font-semibold">{iv.name}</div>
-            <div className="mt-0.5 truncate text-[11px] text-muted-foreground">{iv.meta}</div>
+            <div className="truncate text-app-small font-semibold">{iv.name}</div>
+            <div className="mt-0.5 truncate text-app-caption text-muted-foreground">{iv.meta}</div>
           </div>
-          <div className="shrink-0 font-mono text-[11.5px] text-muted-foreground">{iv.date}</div>
+          <div className="shrink-0 font-mono text-app-caption text-muted-foreground">{iv.date}</div>
         </div>
       ))}
     </div>

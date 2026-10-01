@@ -1,8 +1,9 @@
 import { CheckCircle2, Clock3, Link2, Loader2, Send, SendHorizonal, XCircle } from 'lucide-react'
 import { useState } from 'react'
 
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
 import { Badge, type BadgeTone } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
 import { CvMatchDialog } from '@/modules/recruiting/cv/CvMatchDialog'
 import { CvOpenButton } from '@/modules/recruiting/cv/CvOpenButton'
 import { sendTestLinkForCandidate, setCandidateEmailWithBackendSync } from '@/modules/recruiting/lib/backend-sync'
@@ -13,9 +14,6 @@ import type { Candidate, PrescreenedEntry, PrescreenStatus } from '@/modules/rec
 import { Button } from '@/components/ui/button'
 
 const NO_ACTIVE_OPENING_MESSAGE = 'Seleziona prima una company/opening nella pagina CV & Esportazione'
-
-const inputClass =
-  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 type SaveState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string } | { kind: 'warning'; message: string }
 const IDLE: SaveState = { kind: 'idle' }
@@ -174,40 +172,40 @@ export function PaginaACandidateRow({
   return (
     <div className="flex flex-wrap items-center gap-3 border-b border-border py-3 last:border-0">
       <label
-        className="flex shrink-0 items-center gap-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground"
+        className="label-mono flex shrink-0 items-center gap-2 text-muted-foreground"
         title="Promosso al test"
       >
-        <input type="checkbox" checked={selected} onChange={(e) => onToggleSelect(e.target.checked)} className="size-4 shrink-0 cursor-pointer accent-ring" />
+        <Checkbox checked={selected} onCheckedChange={(c) => onToggleSelect(c === true)} />
         Promosso al test
       </label>
 
-      <div className="min-w-[160px] flex-1">
-        <div className="text-[13px] font-semibold">{candidate.name}</div>
-        <div className="text-[11px] text-muted-foreground">{candidate.src || ''}</div>
+      <div className="min-w-40 flex-1">
+        <div className="text-app-small font-semibold">{candidate.name}</div>
+        <div className="text-app-caption text-muted-foreground">{candidate.src || ''}</div>
         <div className="mt-1">
           <CvMatchDialog candidate={candidate} />
         </div>
       </div>
 
-      <div className="shrink-0 font-mono text-[15px] font-semibold text-foreground dark:text-primary" title="Match CV/Profilo di Lavoro (solo CV)">
+      <div className="shrink-0 font-mono text-app-body font-semibold text-foreground dark:text-primary" title="Match CV/Profilo di Lavoro (solo CV)">
         {candidate.icv}%
       </div>
 
       <div className="flex shrink-0 flex-col gap-1">
         <div className="flex items-center gap-1.5">
-          <input
+          <Input
             type="email"
             value={emailInput}
             onChange={(e) => setEmailInput(e.target.value)}
             onBlur={handleBlur}
             disabled={pending}
             placeholder="email@dominio.it"
-            className={cn(inputClass, 'w-[190px]')}
-          />
+            size="sm" className="w-48"
+ />
           {pending && <Loader2 className="size-3.5 shrink-0 animate-spin text-muted-foreground" aria-hidden="true" />}
         </div>
-        {state.kind === 'error' && <p className="max-w-[190px] text-[10.5px] font-medium text-destructive">{state.message}</p>}
-        {state.kind === 'warning' && <p className="max-w-[190px] text-[10.5px] font-medium text-warning">{state.message}</p>}
+        {state.kind === 'error' && <p className="max-w-48 text-app-caption font-medium text-destructive">{state.message}</p>}
+        {state.kind === 'warning' && <p className="max-w-48 text-app-caption font-medium text-warning">{state.message}</p>}
       </div>
 
       <div className="flex shrink-0 flex-col items-end gap-1">
@@ -242,13 +240,13 @@ export function PaginaACandidateRow({
           </Button>
         )}
         {sendState.kind === 'error' && (
-          <div className="max-w-[190px] text-right">
-            <p className="text-[10.5px] font-medium text-destructive">{sendState.message}</p>
+          <div className="max-w-48 text-right">
+            <p className="text-app-caption font-medium text-destructive">{sendState.message}</p>
             {sendState.rawMessage && (
               <button
                 type="button"
                 onClick={() => openFallback(sendState.rawMessage!)}
-                className="mt-0.5 text-[10.5px] font-semibold text-primary underline-offset-2 hover:underline"
+                className="mt-0.5 text-app-caption font-semibold text-primary underline-offset-2 hover:underline"
               >
                 Invia manualmente
               </button>
@@ -271,7 +269,7 @@ export function PaginaACandidateRow({
             setSendState({ kind: 'idle' })
             onMutated()
           }}
-        />
+ />
       )}
     </div>
   )

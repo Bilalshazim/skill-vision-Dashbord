@@ -1,30 +1,51 @@
+import { Check, CircleHelp, Search, TriangleAlert, X } from 'lucide-react'
+
+import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { criteriaSummary } from '@/modules/recruiting/lib/ask'
 import type { CriterionCheck, ScreeningMatch, ScreeningResult } from '@/modules/recruiting/lib/ask'
 
-const STATUS_CLASS: Record<CriterionCheck['status'], string> = {
-  pass: 'bg-success/12 text-success',
-  fail: 'bg-destructive/10 text-destructive',
-  unknown: 'bg-warning/12 text-warning',
+const STATUS_TONE: Record<CriterionCheck['status'], 'success' | 'destructive' | 'warning'> = {
+  pass: 'success',
+  fail: 'destructive',
+  unknown: 'warning',
 }
-const STATUS_SYMBOL: Record<CriterionCheck['status'], string> = { pass: '✓ ', fail: '✗ ', unknown: '? ' }
+const STATUS_ICON: Record<CriterionCheck['status'], typeof Check> = { pass: Check, fail: X, unknown: CircleHelp }
 
 function CheckBadge({ check }: { check: CriterionCheck }) {
+  const Icon = STATUS_ICON[check.status]
   return (
-    <span className={cn('rounded-full px-2 py-0.5 text-[10.5px] font-semibold', STATUS_CLASS[check.status])}>
-      {STATUS_SYMBOL[check.status]}
+    <Badge tone={STATUS_TONE[check.status]}>
+      <Icon aria-hidden="true" />
       {check.label}
       {check.detail ? ` — ${check.detail}` : ''}
-    </span>
+    </Badge>
   )
 }
 
 function ContactBadge({ m }: { m: ScreeningMatch }) {
   if (m.contactable && (m.consent === 'explicit' || m.consent === 'implicit')) {
-    return <span className={cn('rounded-full px-2 py-0.5 text-[10.5px] font-semibold', STATUS_CLASS.pass)}>✓ Contattabile{m.contactChannels.length ? ` (${m.contactChannels.join(', ')})` : ''}</span>
+    return (
+      <Badge tone="success">
+        <Check aria-hidden="true" />
+        Contattabile{m.contactChannels.length ? ` (${m.contactChannels.join(', ')})` : ''}
+      </Badge>
+    )
   }
-  if (m.contactable) return <span className={cn('rounded-full px-2 py-0.5 text-[10.5px] font-semibold', STATUS_CLASS.unknown)}>⚠ Contatti presenti — consenso da verificare</span>
-  return <span className={cn('rounded-full px-2 py-0.5 text-[10.5px] font-semibold', STATUS_CLASS.fail)}>✗ Non contattabile</span>
+  if (m.contactable) {
+    return (
+      <Badge tone="warning">
+        <TriangleAlert aria-hidden="true" />
+        Contatti presenti — consenso da verificare
+      </Badge>
+    )
+  }
+  return (
+    <Badge tone="destructive">
+      <X aria-hidden="true" />
+      Non contattabile
+    </Badge>
+  )
 }
 
 // Migrated from _psRender() (modules/recruiting.html ~5355-5370) — the
@@ -34,24 +55,25 @@ export function ScreeningResultView({ result }: { result: ScreeningResult }) {
   return (
     <div className="flex flex-col gap-2">
       <div>
-        <div className="text-[13.5px] font-semibold text-foreground">
-          🔎 Pre-screening CV — {result.total} candidati su {result.evaluated}
+        <div className="flex items-center gap-2 text-app-small font-semibold text-foreground">
+          <Search className="size-4" aria-hidden="true" />
+          Pre-screening CV — {result.total} candidati su {result.evaluated}
         </div>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-app-caption text-muted-foreground">
           Criteri: {criteriaSummary(result.criteria)} · origine: {result.source}
         </p>
       </div>
       {!result.matches.length ? (
-        <p className="text-[12.5px] text-muted-foreground">Nessun candidato soddisfa i criteri indicati.</p>
+        <p className="text-app-small text-muted-foreground">Nessun candidato soddisfa i criteri indicati.</p>
       ) : (
         <div>
           {result.matches.map((m, i) => (
             <div key={i} className="border-b border-border py-2 last:border-0">
-              <div className="text-[13px]">
+              <div className="text-app-small">
                 <b className="font-semibold text-foreground">{m.name}</b>
                 <span
                   className={cn(
-                    'ml-2 rounded-full px-2 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide',
+                    'label-mono ml-2 rounded-full px-2 py-0.5',
                     m.sourceTag === 'NEW_APPLICANT' ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground',
                   )}
                 >
@@ -71,7 +93,7 @@ export function ScreeningResultView({ result }: { result: ScreeningResult }) {
                 ))}
                 <ContactBadge m={m} />
               </div>
-              {m.email || m.phone ? <div className="mt-0.5 text-[11px] text-muted-foreground">{[m.email, m.phone].filter(Boolean).join(' · ')}</div> : null}
+              {m.email || m.phone ? <div className="mt-0.5 text-app-caption text-muted-foreground">{[m.email, m.phone].filter(Boolean).join(' · ')}</div> : null}
             </div>
           ))}
         </div>

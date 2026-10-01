@@ -1,7 +1,8 @@
-import { ArrowRight, Loader2, Sparkles } from 'lucide-react'
+import { ArrowRight, Loader2, MessageSquare, Sparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -11,13 +12,11 @@ import type { AskAnswer, QuickQuestion, ScreeningResult } from '@/modules/recrui
 import { QUICK_QUESTIONS, composeAnswer, isScreeningPrompt, runLocalScreeningQuery } from '@/modules/recruiting/lib/ask'
 import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/storage'
 
-const textareaClass =
-  'w-full min-h-[70px] resize-y rounded-sm border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // See CipAdminPage.tsx's identical comment.
 const primaryBtnClass = buttonVariants({ size: 'sm' })
 const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
 const chipClass =
-  'rounded-full border border-border bg-secondary px-3 py-1.5 text-[12px] font-medium text-foreground transition-colors hover:border-ring hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+  'rounded-full border border-border bg-secondary px-3 py-1.5 text-app-caption font-medium text-foreground transition-colors hover:border-ring hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 type FreeTextState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'answer'; answer: AskAnswer } | { kind: 'screening'; result: ScreeningResult }
 
@@ -112,17 +111,20 @@ export default function AskPage() {
   return (
     <div className="flex flex-col gap-4">
       <Card>
-        <h3 className="text-[15px] font-semibold">💬 Chiedi a Skill-Vision AI</h3>
-        <p className="mt-1 text-[12.5px] text-muted-foreground">
+        <h3 className="flex items-center gap-2 text-app-section">
+          <MessageSquare className="size-4 text-muted-foreground" aria-hidden="true" />
+          Chiedi a Skill-Vision AI
+        </h3>
+        <p className="mt-1 text-app-small text-muted-foreground">
           Fai una domanda libera sui dati della piattaforma: un candidato specifico, un'analisi comparativa, l'interpretazione di un ranking…
         </p>
-        <textarea
+        <Textarea
           value={freeText}
           onChange={(e) => setFreeText(e.target.value)}
           rows={3}
-          placeholder="Es. Quali sono i punti di forza principali di Angeloni Nicola? Chi è il candidato più adatto al ruolo di ASSISTENZA CLIENTI e perché?"
-          className={cn(textareaClass, 'mt-3')}
-        />
+          placeholder="Es. Quali sono i punti di forza principali di Angeloni Nicola? Chi è il candidato più adatto alla posizione di ASSISTENZA CLIENTI e perché?"
+          size="sm" className="mt-3"
+ />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button type="button" onClick={handleAnalyze} disabled={freeTextState.kind === 'pending'} className={primaryBtnClass}>
             {freeTextState.kind === 'pending' ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Sparkles className="size-3.5 shrink-0" aria-hidden="true" />}
@@ -131,12 +133,12 @@ export default function AskPage() {
           <button type="button" onClick={handleClearFreeText} className={ghostBtnClass}>
             Pulisci
           </button>
-          <span className="text-[11px] text-muted-foreground">Le risposte usano dati locali della piattaforma</span>
+          <span className="text-app-caption text-muted-foreground">Le risposte usano dati locali della piattaforma</span>
         </div>
 
         {freeTextState.kind !== 'idle' && (
           <div className="mt-4 border-t border-border pt-4">
-            {freeTextState.kind === 'pending' && <p className="text-[12.5px] text-muted-foreground">⏳ Analisi in corso…</p>}
+            {freeTextState.kind === 'pending' && <p className="text-app-small text-muted-foreground">⏳ Analisi in corso…</p>}
             {freeTextState.kind === 'answer' && <AskAnswerView answer={freeTextState.answer} />}
             {freeTextState.kind === 'screening' && <ScreeningResultView result={freeTextState.result} />}
           </div>
@@ -145,18 +147,18 @@ export default function AskPage() {
 
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <Sparkles className="size-[22px] text-muted-foreground" aria-hidden="true" />
+          <Sparkles className="size-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Chiedi al Recruiting Lab</h2>
-          <p className="text-[13px] text-muted-foreground">Le risposte sono calcolate sui dati reali della classifica attuale</p>
+          <h2 className="text-app-section font-semibold tracking-tight">Chiedi al Recruiting Lab</h2>
+          <p className="text-app-small text-muted-foreground">Le risposte sono calcolate sui dati reali della classifica attuale</p>
         </div>
       </div>
 
       <Card>
         <div className="flex flex-col gap-3">
           {askedQuestions.length === 0 ? (
-            <div className="rounded-sm bg-secondary px-3.5 py-2.5 text-[13px]">
+            <div className="rounded-sm bg-secondary px-3.5 py-2.5 text-app-small">
               <div className="font-semibold">Sono l'assistente APEX 5D per la selezione.</div>
               Ho la classifica aggiornata dei candidati per il ruolo che hai configurato. Tocca una domanda — le risposte si basano sui punteggi veri,
               non su frasi preconfezionate.
@@ -164,11 +166,11 @@ export default function AskPage() {
           ) : (
             <>
               {askedQuestions.map((q, i) => (
-                <div key={i} className="ml-auto max-w-[85%] rounded-sm bg-primary/10 px-3.5 py-2 text-[13px] font-medium text-foreground">
+                <div key={i} className="ml-auto max-w-[85%] rounded-sm bg-primary/10 px-3.5 py-2 text-app-small font-medium text-foreground">
                   {q}
                 </div>
               ))}
-              <div className="max-w-[85%] rounded-sm bg-secondary px-3.5 py-2.5 text-[13px]">
+              <div className="max-w-[85%] rounded-sm bg-secondary px-3.5 py-2.5 text-app-small">
                 {chatState.kind === 'pending' && (
                   <span className="inline-flex items-center gap-1.5 text-muted-foreground">
                     <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />

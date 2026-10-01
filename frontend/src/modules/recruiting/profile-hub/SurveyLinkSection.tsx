@@ -1,14 +1,14 @@
 import { Link2 } from 'lucide-react'
 import { useState } from 'react'
 
+import { useDirty } from '@/hooks/use-dirty'
+import { Input } from '@/components/ui/input'
 import { buttonVariants } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { clearSurveyLink, isValidUrl, loadSurveyLink, saveSurveyLink } from '@/modules/recruiting/lib/profile-hub'
 
-const inputClass =
-  'w-full rounded-sm border border-border bg-background px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
 const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
 const dangerBtnClass = buttonVariants({ variant: 'destructive', size: 'sm' })
 const primaryBtnClass = buttonVariants({ size: 'sm' })
@@ -30,6 +30,7 @@ export function SurveyLinkSection() {
   const [open, setOpen] = useState(false)
   const [link, setLink] = useState(() => loadSurveyLink(DEFAULT_ROLE))
   const [draft, setDraft] = useState(link)
+  const dirty = useDirty(draft, open)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
 
@@ -77,16 +78,15 @@ export function SurveyLinkSection() {
         <DialogTrigger asChild>
           <button
             type="button"
-            onClick={(e) => e.stopPropagation()}
             className="flex w-full items-center gap-2.5 rounded-sm border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <Link2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <span className="flex-1 text-[13px] font-medium text-foreground">Survey Link</span>
-            <span className={cn('truncate text-[12px]', has ? 'text-foreground' : 'text-muted-foreground')}>{has ? link.replace(/^https?:\/\//, '').slice(0, 32) + '…' : 'Non configurato'}</span>
-            <span className="shrink-0 text-[12px] font-medium text-foreground dark:text-primary">Configura link →</span>
+            <span className="flex-1 text-app-small font-medium text-foreground">Survey Link</span>
+            <span className={cn('truncate text-app-caption', has ? 'text-foreground' : 'text-muted-foreground')}>{has ? link.replace(/^https?:\/\//, '').slice(0, 32) + '…' : 'Non configurato'}</span>
+            <span className="shrink-0 text-app-caption font-medium text-foreground dark:text-primary">Configura link →</span>
           </button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent dirty={dirty}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Link2 className="size-4 shrink-0" aria-hidden="true" />
@@ -97,7 +97,7 @@ export function SurveyLinkSection() {
             </DialogDescription>
           </DialogHeader>
 
-          <input
+          <Input
             type="url"
             value={draft}
             onChange={(e) => {
@@ -105,9 +105,9 @@ export function SurveyLinkSection() {
               setError('')
             }}
             placeholder="https://forms.gle/..."
-            className={inputClass}
-          />
-          <p className="min-h-[18px] text-[11.5px] font-medium text-destructive">{error}</p>
+            size="sm"
+ />
+          <p className="min-h-4.5 text-app-caption font-medium text-destructive">{error}</p>
 
           <DialogFooter>
             <button type="button" onClick={() => setOpen(false)} className={ghostBtnClass}>
@@ -122,7 +122,7 @@ export function SurveyLinkSection() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {message && <span className="pl-1 text-[11.5px] font-medium text-success">{message}</span>}
+      {message && <span className="pl-1 text-app-caption font-medium text-success">{message}</span>}
     </div>
   )
 }

@@ -1,13 +1,18 @@
+import { IdoneitaBadge } from '@/components/patterns/IdoneitaBadge'
+import type { Idoneita } from '@/lib/idoneita'
 import { W } from '@/modules/recruiting/lib/constants'
 import type { Candidate } from '@/modules/recruiting/lib/types'
 
 const MAX = 31
 
-function toneClass(s: number, t: number) {
-  if (s >= t) return 'bg-success'
-  if (s >= 0.75 * t) return 'bg-warning'
-  return 'bg-destructive'
+// Fascia di idoneità della skill rispetto al target (stessa soglia di prima:
+// raggiunto / oltre il 75% / sotto), con il suo nome accanto alla barra.
+function fasciaFor(s: number, t: number): Idoneita {
+  if (s >= t) return 'idoneo'
+  if (s >= 0.75 * t) return 'da-valutare'
+  return 'non-idoneo'
 }
+const FILL: Record<Idoneita, string> = { idoneo: 'bg-success', 'da-valutare': 'bg-warning', 'non-idoneo': 'bg-destructive' }
 
 // Ported from legacy's essential-skills ApexCharts3D.renderCapsuleBars call
 // (renderRanking(), modules/recruiting.html ~2934-2942) — same values, same
@@ -27,7 +32,7 @@ export function EssentialSkillBars({ candidate, essentialSkills }: { candidate: 
   const t = W[3].t
 
   if (!essentialSkills.length) {
-    return <div className="py-2 text-xs text-muted-foreground">Nessuna skill essenziale flaggata per questo ruolo.</div>
+    return <div className="py-2 text-app-small text-muted-foreground">Nessuna skill essenziale flaggata per questa posizione.</div>
   }
 
   return (
@@ -40,19 +45,20 @@ export function EssentialSkillBars({ candidate, essentialSkills }: { candidate: 
         const pct = Math.max(Math.min((s / MAX) * 100, 100), 2)
         const targetPct = Math.min((t / MAX) * 100, 100)
         return (
-          <div key={sk} className="grid grid-cols-[minmax(0,152px)_1fr_44px] items-center gap-3 text-[12.5px]">
-            <span className="truncate font-semibold text-muted-foreground" title={sk}>
+          <div key={sk} className="grid grid-cols-[minmax(0,9.5rem)_1fr_auto_auto] items-center gap-3 text-app-small">
+            <span className="truncate font-medium text-muted-foreground" title={sk}>
               {sk}
             </span>
             <div className="relative h-3.5 rounded-full border border-border bg-secondary">
-              <div className={`h-full rounded-full ${toneClass(s, t)}`} style={{ width: `${pct}%` }} />
+              <div className={`h-full rounded-full ${FILL[fasciaFor(s, t)]}`} style={{ width: `${pct}%` }} />
               <div
                 className="absolute top-1/2 size-2.5 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 border-foreground bg-card"
                 style={{ left: `${targetPct}%` }}
                 title={`Target: ${t}`}
               />
             </div>
-            <span className="text-right font-mono font-semibold tabular-nums">{s.toFixed(1)}</span>
+            <span className="text-right font-mono font-medium tabular-nums">{s.toFixed(1)}</span>
+            <IdoneitaBadge fascia={fasciaFor(s, t)} />
           </div>
         )
       })}

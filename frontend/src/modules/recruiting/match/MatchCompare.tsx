@@ -38,7 +38,7 @@ const TONE_BAR_CLASS: Record<string, string> = {
 export function MatchCompare({ picks }: { picks: MatchPick[] }) {
   if (picks.length < 2) {
     return (
-      <div className="rounded-sm border border-border bg-card p-6 text-center text-[13px] text-muted-foreground">
+      <div className="rounded-sm border border-border bg-card p-6 text-center text-app-small text-muted-foreground">
         {picks.length === 1 ? 'Seleziona almeno un altro profilo per avviare il confronto' : 'Seleziona 2 o più profili per confrontarli'}
       </div>
     )
@@ -72,14 +72,14 @@ export function MatchCompare({ picks }: { picks: MatchPick[] }) {
 
   return (
     <div className="rounded-sm border border-border bg-card p-5">
-      <div className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Gap Analysis — soft skill</div>
+      <div className="label-mono mb-3 text-muted-foreground">Gap Analysis — soft skill</div>
 
-      <div className="mb-2 flex flex-wrap items-center gap-2 text-[12px] font-semibold">
+      <div className="mb-2 flex flex-wrap items-center gap-2 text-app-caption font-semibold">
         {picks.map((p, i) => (
           <span key={p.c.id} className="inline-flex items-center gap-1.5">
             {p.c.name}
             {p.c.isInternalTalent && (
-              <span className="rounded-full border border-border bg-secondary px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <span className="label-mono rounded-full border border-border bg-secondary px-1.5 py-0.5 text-muted-foreground">
                 INT
               </span>
             )}
@@ -88,7 +88,7 @@ export function MatchCompare({ picks }: { picks: MatchPick[] }) {
         ))}
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
+      <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1.5 text-app-caption text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
           <i className="size-2 rounded-full bg-success" />
           In linea col riferimento
@@ -108,11 +108,11 @@ export function MatchCompare({ picks }: { picks: MatchPick[] }) {
       </div>
 
       {rows.length === 0 ? (
-        <div className="text-[12.5px] text-muted-foreground">Nessuna soft skill in comune trovata.</div>
+        <div className="text-app-small text-muted-foreground">Nessuna soft skill in comune trovata.</div>
       ) : (
         <div className="flex flex-col gap-2.5">
           {rows.map((row) => (
-            <div key={row.sk} className="grid grid-cols-[minmax(0,150px)_1fr] items-center gap-3 text-[12px]">
+            <div key={row.sk} className="grid grid-cols-[minmax(0,150px)_1fr] items-center gap-3 text-app-caption">
               <span className="truncate font-semibold text-muted-foreground" title={row.sk}>
                 {row.sk}
               </span>

@@ -40,7 +40,9 @@ function legacyShellDevServer(): Plugin {
         if (req.method !== 'GET' || !req.url) return next()
         const urlPath = req.url.split('?')[0]
 
-        const isShellDocument = urlPath === '/' || urlPath === '/index.html'
+        // Fase 4: la radice `/` è l'app React (scelta del modulo); il guscio
+        // legacy (login) risponde solo su /index.html, come in produzione.
+        const isShellDocument = urlPath === '/index.html'
         const isShellAsset = /^\/(?:css|js|assets)\//.test(urlPath)
         if (!isShellDocument && !isShellAsset) return next()
 

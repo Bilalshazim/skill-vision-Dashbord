@@ -64,7 +64,7 @@ export function RankingCard({
       >
         <div
           className={cn(
-            'grid size-[46px] shrink-0 place-items-center rounded-sm font-mono text-xl font-black tracking-[-.045em] tabular-nums',
+            'grid size-12 shrink-0 place-items-center rounded-sm font-mono text-app-section font-semibold tabular-nums',
             position === 1 ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground',
           )}
         >
@@ -72,12 +72,12 @@ export function RankingCard({
         </div>
 
         <div className="min-w-0">
-          <div className="truncate text-[15px] font-semibold">{candidate.name}</div>
-          <div className="text-[12.5px] font-semibold text-muted-foreground">{candidate.src}</div>
+          <div className="truncate text-app-body font-semibold">{candidate.name}</div>
+          <div className="text-app-small font-semibold text-muted-foreground">{candidate.src}</div>
         </div>
 
         <div className="hidden text-right sm:block">
-          <div className="font-mono text-[28px] font-black leading-none tracking-[-.045em] tabular-nums text-foreground">{result.v}</div>
+          <div className="font-mono text-metric-lg font-semibold leading-none tabular-nums text-foreground">{result.v}</div>
           <ScoreBadge fascia={f} className="mt-1 block" />
         </div>
 
@@ -87,7 +87,7 @@ export function RankingCard({
       {/* Score repeats on its own row on narrow screens — the header grid
           hides it above md to keep the header from wrapping awkwardly. */}
       <div className="mt-3 flex items-center justify-between sm:hidden">
-        <div className="font-mono text-2xl font-black tracking-[-.045em] tabular-nums">{result.v}</div>
+        <div className="font-mono text-app-title font-semibold tabular-nums">{result.v}</div>
         <ScoreBadge fascia={f} />
       </div>
 
@@ -106,18 +106,18 @@ export function RankingCard({
           <SubScoreBoxes fc={result.fc} ab={result.ab} icv={result.icv} />
           <SkillTierSums sums={sums} />
 
-          <div className="mt-4 text-[13px] font-semibold">Skill essenziali vs target (linea = target)</div>
+          <div className="mt-4 text-app-small font-semibold">Skill essenziali vs target (linea = target)</div>
           <div className="mt-2">
             <EssentialSkillBars candidate={candidate} essentialSkills={ESSENTIAL_SKILLS} />
           </div>
 
-          <div className="mt-4 text-[13px] font-semibold">Big Five (percentili) vs profilo ideale del ruolo</div>
+          <div className="mt-4 text-app-small font-semibold">Big Five (percentili) vs profilo ideale della posizione</div>
           <div className="mt-2">
             <BigFiveRows candidate={candidate} role={role} />
           </div>
 
           {hardFlags.length > 0 && (
-            <p className="mt-4 flex items-start gap-2 text-[13.5px] font-semibold text-destructive">
+            <p className="mt-4 flex items-start gap-2 text-app-small font-semibold text-destructive">
               <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               Sbarramento attivo: {hardFlags.map((x) => `${x.sk} (${x.s.toFixed(1)} vs target ${x.t})`).join(' · ')} — AHI
               bloccato a 59.

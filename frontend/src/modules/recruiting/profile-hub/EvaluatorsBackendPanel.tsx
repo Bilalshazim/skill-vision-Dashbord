@@ -2,6 +2,8 @@ import { AlertTriangle, CheckCircle2, ChevronDown, Copy, Loader2, UserPlus, User
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import { SelectField } from '@/components/patterns/SelectField'
+import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { candidatesApi, campaignsApi, evaluatorsApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
@@ -10,7 +12,7 @@ import type { BackendCampaignCandidate, BackendEvaluation, BackendEvaluatorRole 
 import { getCachedBackendLink } from '@/modules/recruiting/lib/backend-link'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 
 const ROLES: { value: BackendEvaluatorRole; label: string }[] = [
   { value: 'HR', label: 'HR' },
@@ -20,10 +22,8 @@ const ROLES: { value: BackendEvaluatorRole; label: string }[] = [
 ]
 const ROLE_LABEL = new Map(ROLES.map((r) => [r.value, r.label]))
 
-const inputClass =
-  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const btnClass =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11.5px] font-bold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
+  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-app-caption font-semibold text-foreground transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60'
 
 function apiErrorMessage(err: unknown): string {
   return err instanceof ApiError ? err.message : 'Errore sconosciuto'
@@ -111,10 +111,10 @@ export function EvaluatorsBackendPanel() {
     }
   }
 
-  if (!opening) return <p className="text-[12px] text-muted-foreground">Seleziona prima una company/opening nella pagina CV & Esportazione.</p>
+  if (!opening) return <p className="text-app-caption text-muted-foreground">Seleziona prima una company/opening nella pagina CV & Esportazione.</p>
   if (!backendCampaignId)
     return (
-      <p className="text-[12px] text-muted-foreground">
+      <p className="text-app-caption text-muted-foreground">
         Nessuna campagna collegata al backend per <b className="font-semibold text-foreground">{opening.title}</b> — carica almeno un CV da CV &amp;
         Esportazione per collegarla, poi torna qui.
       </p>
@@ -129,36 +129,36 @@ export function EvaluatorsBackendPanel() {
           (see evaluate/EvaluateStandalonePage.tsx). */}
       <Link
         to="/recruiting/evaluate"
-        className="inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-sm border border-border px-3 py-1.5 text-[11.5px] font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground"
+        className="inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-sm border border-border px-3 py-1.5 text-app-caption font-semibold text-muted-foreground transition-colors hover:border-ring hover:text-foreground"
       >
         <Users className="size-3.5 shrink-0" aria-hidden="true" />
         Apri la mia area valutatore
       </Link>
 
       {readiness && (
-        <div className={cn('flex items-center gap-1.5 text-[12px] font-medium', readiness.meetsMinimum ? 'text-success' : 'text-warning')}>
+        <div className={cn('flex items-center gap-1.5 text-app-caption font-medium', readiness.meetsMinimum ? 'text-success' : 'text-warning')}>
           <Users className="size-3.5 shrink-0" aria-hidden="true" />
           {readiness.assignedEvaluators} valutatori assegnati {readiness.meetsMinimum ? '— minimo raggiunto (3) ✓' : '— minimo richiesto: 3'}
         </div>
       )}
       {loadError && (
-        <p className="flex items-start gap-1.5 text-[11.5px] font-medium text-destructive">
+        <p className="flex items-start gap-1.5 text-app-caption font-medium text-destructive">
           <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
           {loadError}
         </p>
       )}
 
       <div className="flex flex-wrap items-center gap-2 rounded-sm bg-secondary p-3">
-        <input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Nome valutatore" disabled={pending} className={inputClass} />
-        <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" disabled={pending} className={inputClass} />
-        <select value={role} onChange={(e) => setRole(e.target.value as BackendEvaluatorRole)} disabled={pending} className={inputClass}>
+        <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Nome valutatore" disabled={pending} size="sm" />
+        <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" disabled={pending} size="sm" />
+        <SelectField value={role} onValueChange={(v) => setRole(v as BackendEvaluatorRole)} disabled={pending} size="sm">
           {ROLES.map((r) => (
             <option key={r.value} value={r.value}>
               {r.label}
             </option>
           ))}
-        </select>
-        {role === 'ALTRO' && <input value={altroLabel} onChange={(e) => setAltroLabel(e.target.value)} placeholder="Specifica ruolo" disabled={pending} className={inputClass} />}
+        </SelectField>
+        {role === 'ALTRO' && <Input value={altroLabel} onChange={(e) => setAltroLabel(e.target.value)} placeholder="Specifica ruolo" disabled={pending} size="sm" />}
         <button type="button" onClick={handleCreate} disabled={pending} className={btnClass}>
           {pending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <UserPlus className="size-3.5 shrink-0" aria-hidden="true" />}
           Aggiungi e assegna
@@ -166,7 +166,7 @@ export function EvaluatorsBackendPanel() {
       </div>
 
       {error && (
-        <p className="flex items-start gap-1.5 text-[11.5px] font-medium text-destructive">
+        <p className="flex items-start gap-1.5 text-app-caption font-medium text-destructive">
           <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
           {error}
         </p>
@@ -181,7 +181,7 @@ export function EvaluatorsBackendPanel() {
           {roster.map((r, i) => {
             const token = issuedTokens[r.id]
             return (
-              <div key={r.id} className="flex flex-col gap-1 rounded-sm border border-border p-2.5 text-[12px]">
+              <div key={r.id} className="flex flex-col gap-1 rounded-sm border border-border p-2.5 text-app-caption">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span>
                     <b className="font-semibold text-foreground">
@@ -195,10 +195,10 @@ export function EvaluatorsBackendPanel() {
                       Genera token di accesso
                     </button>
                   )}
-                  {!r.hasLogin && r.hasAccessToken && !token && <span className="text-[11px] text-muted-foreground">Token già generato</span>}
+                  {!r.hasLogin && r.hasAccessToken && !token && <span className="text-app-caption text-muted-foreground">Token già generato</span>}
                 </div>
                 {token && (
-                  <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-1.5 text-app-caption text-muted-foreground">
                     <CheckCircle2 className="size-3.5 shrink-0 text-success" aria-hidden="true" />
                     <span>Token (14 giorni) — consegnalo tu al valutatore:</span>
                     <code className="break-all rounded bg-secondary px-1 py-0.5">{token}</code>
@@ -266,25 +266,25 @@ function EvaluatorResultsSection({ campaignId, roster }: { campaignId: string; r
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-[12.5px] font-semibold text-foreground"
+        className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-app-small font-semibold text-foreground"
       >
         <ChevronDown className={cn('size-4 shrink-0 text-muted-foreground transition-transform', !open && '-rotate-90')} aria-hidden="true" />
         Risultati per candidato
       </button>
       {open && (
         <div className="border-t border-border p-3">
-          <select value={selectedId} onChange={(e) => setSelectedId(e.target.value)} className={cn(inputClass, 'max-w-[280px]')}>
+          <SelectField value={selectedId} onValueChange={(v) => setSelectedId(v)} size="sm" className="max-w-72">
             <option value="">{candidates.length ? 'Seleziona un candidato…' : '(nessun candidato in questa campagna)'}</option>
             {candidates.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.candidate?.fullName || c.id}
               </option>
             ))}
-          </select>
+          </SelectField>
 
           {loading && <Loader2 className="mt-3 size-4 animate-spin text-muted-foreground" aria-hidden="true" />}
           {error && (
-            <p className="mt-2 flex items-start gap-1.5 text-[11.5px] font-medium text-destructive">
+            <p className="mt-2 flex items-start gap-1.5 text-app-caption font-medium text-destructive">
               <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
               {error}
             </p>
@@ -293,12 +293,12 @@ function EvaluatorResultsSection({ campaignId, roster }: { campaignId: string; r
           {evaluations && !loading && (
             <div className="mt-3 flex flex-col gap-2">
               {!evaluations.length ? (
-                <EmptyState icon={Users} text="Nessuna valutazione ancora inserita per questo candidato." />
+                <EmptyState size="sm" icon={Users} description="Nessuna valutazione ancora inserita per questo candidato." />
               ) : (
                 roster.map((r, i) => {
                   const evalu = evaluations.find((e) => e.evaluatorId === r.id)
                   return (
-                    <div key={r.id} className="flex items-center justify-between gap-3 rounded-sm border border-border px-3 py-2 text-[12px]">
+                    <div key={r.id} className="flex items-center justify-between gap-3 rounded-sm border border-border px-3 py-2 text-app-caption">
                       <span>
                         <b className="font-semibold text-foreground">
                           Valutatore {i + 1} — {ROLE_LABEL.get(r.role) || r.role}
@@ -308,14 +308,14 @@ function EvaluatorResultsSection({ campaignId, roster }: { campaignId: string; r
                       {evalu ? (
                         <span
                           className={cn(
-                            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
+                            'label-mono inline-flex items-center gap-1 rounded-full px-2 py-0.5',
                             evalu.status === 'SUBMITTED' ? 'bg-success/12 text-success' : 'bg-warning/12 text-warning',
                           )}
                         >
                           {evalu.status === 'SUBMITTED' ? `Inviata${evalu.finalScore != null ? ` · ${evalu.finalScore}` : ''}` : 'Bozza'}
                         </span>
                       ) : (
-                        <span className="text-[11px] text-muted-foreground">Non ancora compilata</span>
+                        <span className="text-app-caption text-muted-foreground">Non ancora compilata</span>
                       )}
                     </div>
                   )

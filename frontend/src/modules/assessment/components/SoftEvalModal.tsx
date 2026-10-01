@@ -1,7 +1,13 @@
 import { useState } from 'react'
 
+import { CardLabel } from '@/components/ui/card'
+import { useDirty } from '@/hooks/use-dirty'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Field } from '@/components/patterns/Field'
 import { Button } from '@/components/ui/button'
-import { Modal } from '@/modules/assessment/components/Modal'
+import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { computeSoftSummary } from '@/modules/assessment/lib/calculations'
 import { getSoftClusters, getSoftSkills } from '@/modules/assessment/lib/legacy-utils'
@@ -50,8 +56,10 @@ export function SoftEvalModal({ onClose }: { onClose: () => void }) {
     onClose()
   }
 
+  const dirty = useDirty({ empId, drafts })
+
   return (
-    <Modal
+    <ModalDialog dirty={dirty}
       title={ui.softEvalModalTitle}
       sub={ui.softEvalModalSub}
       wide
@@ -67,58 +75,55 @@ export function SoftEvalModal({ onClose }: { onClose: () => void }) {
         </>
       }
     >
-      <div className="field">
-        <label>{ui.softEvalEmployeeLabel}</label>
-        <select value={empId} onChange={(e) => selectEmployee(e.target.value)}>
+      <Field label={ui.softEvalEmployeeLabel}>
+        <SelectField value={empId} onValueChange={(v) => selectEmployee(v)}>
           {state.employees.map((e) => (
             <option key={e.id} value={e.id}>
               {e.cognome} {e.nome} — {e.ruolo}
             </option>
           ))}
-        </select>
-      </div>
+        </SelectField>
+      </Field>
       {SOFT_CLUSTERS.map((c) => (
-        <div className="cluster-block" key={c}>
-          <div className="cluster-title">{c}</div>
+        <section className="mb-4" key={c}>
+          <CardLabel className="mb-2 border-b border-border pb-2">{c}</CardLabel>
           {SOFT_SKILLS.filter((s) => s.cluster === c).map((s) => (
-            <div className="score-row" key={s.id}>
-              <div className="sname" style={{ flex: 1 }}>
+            <div className="flex items-center gap-3 border-b border-border py-2 last:border-b-0" key={s.id}>
+              <div className="min-w-0 flex-1 text-app-small font-medium">
                 {s.name}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <label className="small-note" style={{ fontSize: 10.5 }}>
-                  {ui.colObtained}
-                </label>
-                <input
-                  className="neu-input"
+              <div className="flex items-center gap-1">
+                <Label htmlFor={`soft-eval-${s.id}-ottenuto`}>{ui.colObtained}</Label>
+                <Input
+                  id={`soft-eval-${s.id}-ottenuto`}
+                  size="sm"
+                  className="w-16 text-right tabular-nums"
                   type="number"
                   min={1}
                   max={10}
                   step={0.1}
                   value={drafts[s.id]?.ottenuto ?? 6}
                   onChange={(e) => setDrafts((prev) => ({ ...prev, [s.id]: { ...prev[s.id], ottenuto: Number(e.target.value) } }))}
-                  style={{ width: 66, padding: '6px 8px' }}
                 />
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <label className="small-note" style={{ fontSize: 10.5 }}>
-                  {ui.colExpected}
-                </label>
-                <input
-                  className="neu-input"
+              <div className="flex items-center gap-1">
+                <Label htmlFor={`soft-eval-${s.id}-atteso`}>{ui.colExpected}</Label>
+                <Input
+                  id={`soft-eval-${s.id}-atteso`}
+                  size="sm"
+                  className="w-16 text-right tabular-nums"
                   type="number"
                   min={1}
                   max={10}
                   step={0.1}
                   value={drafts[s.id]?.atteso ?? 6}
                   onChange={(e) => setDrafts((prev) => ({ ...prev, [s.id]: { ...prev[s.id], atteso: Number(e.target.value) } }))}
-                  style={{ width: 66, padding: '6px 8px' }}
                 />
               </div>
             </div>
           ))}
-        </div>
+        </section>
       ))}
-    </Modal>
+    </ModalDialog>
   )
 }

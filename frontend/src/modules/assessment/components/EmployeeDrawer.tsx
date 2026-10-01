@@ -1,18 +1,27 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
+import { Initials } from '@/components/ui/avatar'
+import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { InlineAlert } from '@/components/patterns/InlineAlert'
+
+import { Switch } from '@/components/ui/switch'
+import { Field } from '@/components/patterns/Field'
+import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { chipTone } from '@/modules/assessment/lib/chip-tone'
 import { CardLabel } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { EmployeeEditForm } from '@/modules/assessment/components/EmployeeEditForm'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { StatTile } from '@/modules/assessment/components/StatTile'
+import { ProfileRadar } from '@/components/patterns/ProfileRadar'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { computeBigFive, computeHardSummary, computeSoftSummary, gapInterpretation, getEmployeePeriodSnapshots, getEmployeeSoftHistorySorted, primaryScore, tierFor } from '@/modules/assessment/lib/calculations'
 import { buildAssessmentReportPayload, renderAssessmentReportPrintHtml } from '@/modules/assessment/lib/employee-report'
 import { archiveReasonLabel, assessmentSourceLabel, contractTypeDisplayLabel, fmt1, fmtCurrency, genderDisplayLabel, getBigFiveDims } from '@/modules/assessment/lib/legacy-utils'
 import { printReportHtml } from '@/modules/assessment/lib/print'
-import { getEmployeeExpectedSkillIds, getEmployeeSkillWeight, SKILL_WEIGHT_LEVELS, weightLabel } from '@/modules/assessment/lib/role-census'
+import { getEmployeeExpectedSkillIds, getEmployeeSkillWeight, weightLabel } from '@/modules/assessment/lib/role-census'
 import type { Employee } from '@/modules/assessment/lib/types'
 
 const BF_ORDER = ['O', 'C', 'E', 'A', 'S'] as const
@@ -34,6 +43,13 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
   const [editMode, setEditMode] = useState(false)
   const [feedbackNeeded, setFeedbackNeeded] = useState<boolean | null>(null)
   const [devPlan, setDevPlan] = useState<Employee['developmentPlan'] | null>(null)
+  const [editDirty, setEditDirty] = useState(false)
+  // Il pannello si apre nel guscio di Assessment (data-portal-scope), come
+  // ModalDialog: così tiene le variabili del modulo.
+  const [container, setContainer] = useState<HTMLElement | null | undefined>(undefined)
+  const anchor = useCallback((el: HTMLSpanElement | null) => {
+    setContainer((el?.closest('[data-portal-scope]') as HTMLElement | null) ?? null)
+  }, [])
 
   const emp = state.employees.find((e) => e.id === employeeId)
   if (!emp) return null
@@ -49,6 +65,7 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
     if (!canEdit) return
     patchEmployee(patch)
     setEditMode(false)
+    setEditDirty(false)
     toast(ui.toastProfileUpdated, 'ok')
   }
   const restore = () => {
@@ -58,6 +75,8 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
   const saveFeedback = () => {
     if (!canEdit) return
     patchEmployee({ feedbackNeeded: feedbackNeeded ?? emp.feedbackNeeded, developmentPlan: devPlan ?? emp.developmentPlan })
+    setFeedbackNeeded(null)
+    setDevPlan(null)
     toast(ui.toastFeedbackUpdated, 'ok')
   }
   const downloadReport = () => {
@@ -74,54 +93,57 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
 
   return (
     <>
-      <div className="drawer-overlay open" onClick={onClose} />
-      <div className="drawer open">
-        <div className="drawer-head">
-          <div className="avatar" style={{ width: 42, height: 42, fontSize: 14 }}>
-            {(emp.nome[0] || '') + (emp.cognome[0] || '')}
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 800, fontSize: 15 }}>
+      <span ref={anchor} hidden />
+      <Sheet open={container !== undefined} onOpenChange={(open) => !open && onClose()}>
+        <SheetContent
+          side="right"
+          size="md"
+          container={container ?? null}
+          closeLabel={ui.closeBtn}
+          dirty={(editMode && editDirty) || feedbackNeeded !== null || devPlan !== null}
+        >
+        <SheetHeader>
+          <Initials first={emp.nome} last={emp.cognome} size="lg" />
+          <div className="min-w-0 flex-1">
+            <SheetTitle>
               {emp.nome} {emp.cognome}
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--text-3)' }}>
+            </SheetTitle>
+            <SheetDescription>
               {emp.ruolo} · {emp.area}
               {emp.reparto ? ` · ${emp.reparto}` : ''}
-            </div>
+            </SheetDescription>
           </div>
-          <button className="modal-close" onClick={onClose}>
-            ✕
-          </button>
-        </div>
-        <div className="drawer-body">
+        </SheetHeader>
+        <SheetBody>
           {editMode ? (
-            <EmployeeEditForm emp={emp} onSave={saveEdit} onCancel={() => setEditMode(false)} />
+            <EmployeeEditForm
+              emp={emp}
+              onSave={saveEdit}
+              onDirtyChange={setEditDirty}
+              onCancel={() => {
+                setEditMode(false)
+                setEditDirty(false)
+              }}
+            />
           ) : (
             <>
               {emp.archived ? (
-                <div className="tinted-tile warning" style={{ marginBottom: 16 }}>
-                  <div style={{ fontWeight: 700, fontSize: 12.8, color: 'var(--warning)' }}>
-                    {ui.profileArchivedBanner(archiveReasonLabel(emp.archived.reason, lang), emp.archived.date)}
-                  </div>
-                  {emp.archived.note && (
-                    <div className="small-note" style={{ marginTop: 4 }}>
-                      {emp.archived.note}
-                    </div>
-                  )}
+                <InlineAlert tone="warning" title={ui.profileArchivedBanner(archiveReasonLabel(emp.archived.reason, lang), emp.archived.date)} className="mb-4">
+                  {emp.archived.note && <p>{emp.archived.note}</p>}
                   {canEdit && (
-                    <Button variant="outline" size="sm" style={{ marginTop: 10 }} onClick={restore}>
+                    <Button variant="outline" size="sm" className="mt-2" onClick={restore}>
                       {ui.anagRestore}
                     </Button>
                   )}
-                </div>
+                </InlineAlert>
               ) : (
                 canEdit && (
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                  <div className="mb-4 flex gap-2">
                     <Button variant="outline" size="sm" onClick={() => setEditMode(true)}>
                       <Icon name="edit" />
                       {ui.editProfileBtn}
                     </Button>
-                    <Button variant="destructive" size="sm" onClick={downloadReport}>
+                    <Button variant="outline" size="sm" onClick={downloadReport}>
                       <Icon name="download" />
                       {ui.reportBtn}
                     </Button>
@@ -129,7 +151,7 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
                 )
               )}
 
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+              <div className="mb-4 flex flex-wrap gap-2">
                 <Badge tone={chipTone(tier.chip)} dot>
                   {tier.label}
                 </Badge>
@@ -141,73 +163,65 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
                 )}
               </div>
 
-              <div className="small-note" style={{ marginBottom: 10 }}>
+              <div className="mb-3 text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
                 <b>{ui.profileEmailLabel}</b> {emp.email || '—'} {' · '} <b>{ui.profileDeptLabel}</b> {emp.reparto || '—'} {' · '} <b>{ui.profileDutiesLabel}</b> {emp.mansione || '—'}
               </div>
-              <div className="small-note" style={{ marginBottom: 16 }}>
+              <div className="mb-4 text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
                 <b>{ui.genderLabel}</b> {genderDisplayLabel(emp.sesso, lang) || '—'} {' · '} <b>{ui.contractTypeLabel}</b> {contractTypeDisplayLabel(emp.tipoContratto, lang)} {' · '} <b>{ui.ccnlLevelLabel}</b>{' '}
                 {emp.livelloCcnl || '—'} {' · '} <b>{ui.ralLabel}</b> {emp.ral ? fmtCurrency(emp.ral) : '—'} {' · '} <b>{ui.benefitLabel}</b> {emp.benefit || '—'}
               </div>
               {emp.assenzeProgrammate?.length > 0 && (
-                <div className="small-note" style={{ marginBottom: 16 }}>
+                <div className="mb-4 text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
                   <b>{ui.scheduledAbsencesLabel}</b> {emp.assenzeProgrammate.map((a) => `${a.dal || '—'} → ${a.al || '—'}${a.motivo ? ` (${a.motivo})` : ''}`).join('; ')}
                 </div>
               )}
 
               {weightedIds.length > 0 && (
                 <>
-                  <CardLabel  style={{ marginTop: 6 }}>
+                  <CardLabel className="mt-2 mb-2">
                     {ui.profileRoleExpectedTitle}
                   </CardLabel>
-                  <div className="small-note" style={{ marginBottom: 8 }}>
+                  <div className="mb-2 text-app-small text-muted-foreground">
                     {ui.profileRoleExpectedSub(emp.ruolo)}
                   </div>
                   {computeSoftSummary(emp, lang)
                     .perSkill.filter((s) => weightedIds.includes(s.id))
                     .map((s) => {
                       const { weight: w, expected } = getEmployeeSkillWeight(state, emp, s.id)
-                      const lvl = SKILL_WEIGHT_LEVELS[w]
                       return (
-                        <div className="rc-skill-row" key={s.id}>
-                          <span className="rc-skill-name">{s.name}</span>
-                          <Badge tone={chipTone(lvl?.chip)} dot>
+                        <div className="flex items-center gap-3 border-b border-border py-2 last:border-b-0" key={s.id}>
+                          <span className="flex-1 text-app-small">{s.name}</span>
+                          <Badge>
                             {weightLabel(w, lang)}
                           </Badge>
-                          <span className="small-note" style={{ minWidth: 104, textAlign: 'right', flexShrink: 0 }}>
+                          <span className="min-w-24 shrink-0 text-right text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
                             {ui.rcExpectedLabel}: <b>{fmt1(expected)}</b>
                           </span>
                         </div>
                       )
                     })}
-                  <div className="divider" />
+                  <Separator className="my-4" />
                 </>
               )}
 
               {f.A && <ModuleADetail emp={emp} />}
               {f.B && <ModuleBDetail emp={emp} />}
 
-              <CardLabel  style={{ marginBottom: 8 }}>
+              <CardLabel className="mb-2">
                 {ui.profileFeedbackDevPlanTitle}
               </CardLabel>
-              <div className="switch-row" style={{ marginBottom: 12 }}>
-                <label className="switch">
-                  <input type="checkbox" checked={feedbackNeeded ?? emp.feedbackNeeded} onChange={(e) => setFeedbackNeeded(e.target.checked)} />
-                  <span className="slider" />
-                </label>
-                <div className="lbl">
-                  <div className="l1">{ui.feedbackSwitchLabel}</div>
-                </div>
-              </div>
+              <label className="mb-3 flex items-center gap-3 text-app-small font-medium">
+                <Switch checked={feedbackNeeded ?? emp.feedbackNeeded} onCheckedChange={(c) => setFeedbackNeeded(c)} />
+                {ui.feedbackSwitchLabel}
+              </label>
               {(['azioni', 'formazione', 'coaching', 'obiettivi'] as const).map((k) => (
-                <div className="field" key={k} style={{ marginBottom: 10 }}>
-                  <label style={{ fontSize: 11 }}>{ui[`devPlan${k[0].toUpperCase()}${k.slice(1)}Label` as keyof typeof ui] as string}</label>
-                  <textarea
-                    className="neu-input"
-                    style={{ width: '100%', minHeight: 50, lineHeight: 1.5, resize: 'vertical' }}
+                <Field label={ui[`devPlan${k[0].toUpperCase()}${k.slice(1)}Label` as keyof typeof ui] as string} key={k}>
+                  <Textarea
+                    rows={2}
                     value={(devPlan ?? emp.developmentPlan)[k]}
                     onChange={(e) => setDevPlan((prev) => ({ ...(prev ?? emp.developmentPlan), [k]: e.target.value }))}
                   />
-                </div>
+                </Field>
               ))}
               {canEdit && (
                 <Button variant="default" size="sm" onClick={saveFeedback}>
@@ -216,8 +230,9 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
               )}
             </>
           )}
-        </div>
-      </div>
+        </SheetBody>
+        </SheetContent>
+      </Sheet>
     </>
   )
 }
@@ -233,38 +248,43 @@ function ModuleADetail({ emp }: { emp: Employee }) {
   const devAreas = [...ss.perSkill].sort((a, b) => a.gap - b.gap).slice(0, 3)
   return (
     <>
-      <CardLabel  style={{ marginTop: 6 }}>
+      <CardLabel className="mt-2 mb-2">
         {ui.profileModuleATitle}
       </CardLabel>
-      <div className="small-note" style={{ marginBottom: 6 }}>
+      <div className="mb-2 text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
         <b>{ui.profileLastAssessmentLabel}:</b> {lastSoftSnap ? lastSoftSnap.date.slice(0, 10) : ui.profileNoAssessmentYet}
       </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
-        <div style={{ fontSize: 22, fontWeight: 800 }}>{fmt1(ss.overallOttenuto)}</div>
-        <div className="small-note">{ui.profileObtainedExpected(fmt1(ss.overallAtteso))}</div>
+      <div className="mb-3 flex items-baseline gap-2">
+        <div className="text-app-title">{fmt1(ss.overallOttenuto)}</div>
+        <div className="text-app-small text-muted-foreground">{ui.profileObtainedExpected(fmt1(ss.overallAtteso))}</div>
       </div>
-      <div className="grid grid-2" style={{ gap: 8 }}>
-        {BF_ORDER.map((d) => (
-          <StatTile key={d} label={BIGFIVE_DIMS[d].label} value={bf[d]} benchmark={6.5} />
-        ))}
-      </div>
-      <CardLabel  style={{ marginTop: 14 }}>
+      {/* R1 — il profilo Big Five contro il benchmark 6,5 (DECISIONI). */}
+      <ProfileRadar
+        size="sm"
+        title={ui.profileModuleATitle}
+        axes={BF_ORDER.map((d) => ({ key: d, label: BIGFIVE_DIMS[d].label }))}
+        series={[
+          { label: 'Benchmark', values: Object.fromEntries(BF_ORDER.map((d) => [d, 6.5])), reference: true },
+          { label: `${emp.nome} ${emp.cognome}`, values: bf },
+        ]}
+      />
+      <CardLabel className="mt-4 mb-2">
         {ui.profileTop3Strengths}
       </CardLabel>
-      <div className="grid grid-2" style={{ gap: 8 }}>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {strengths.map((s) => (
           <StatTile key={s.id} label={s.name} value={s.ottenuto} benchmark={s.atteso} />
         ))}
       </div>
-      <CardLabel  style={{ marginTop: 14 }}>
+      <CardLabel className="mt-4 mb-2">
         {ui.profileDevAreas}
       </CardLabel>
-      <div className="grid grid-2" style={{ gap: 8 }}>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {devAreas.map((s) => (
           <StatTile key={s.id} label={s.name} value={s.ottenuto} benchmark={s.atteso} />
         ))}
       </div>
-      <div className="divider" />
+      <Separator className="my-4" />
     </>
   )
 }
@@ -277,30 +297,40 @@ function ModuleBDetail({ emp }: { emp: Employee }) {
   return (
     <>
       <CardLabel>{ui.profileModuleBTitle}</CardLabel>
-      <div className="small-note" style={{ marginBottom: 6 }}>
+      <div className="mb-2 text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
         <b>{ui.profileLastAssessmentLabel}:</b> {lastAssessSnap ? lastAssessSnap.date.slice(0, 10) : ui.profileNoAssessmentYet}
         {lastAssessSnap?.periodLabel ? ` · ${lastAssessSnap.periodLabel}` : ''}
         {lastAssessSnap ? ` · ${assessmentSourceLabel(lastAssessSnap.source, lang)}` : ''}
       </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
-        <div style={{ fontSize: 22, fontWeight: 800 }}>{fmt1(lastAssessSnap ? lastAssessSnap.apexScore : hsm.apexScore)}</div>
-        <div className="small-note">{ui.profileOverallApexScoreLine}</div>
+      <div className="mb-3 flex items-baseline gap-2">
+        <div className="text-app-title">{fmt1(lastAssessSnap ? lastAssessSnap.apexScore : hsm.apexScore)}</div>
+        <div className="text-app-small text-muted-foreground">{ui.profileOverallApexScoreLine}</div>
       </div>
-      <div className="grid grid-2" style={{ gap: 8 }}>
+      {/* R2 — le cinque dimensioni APEX 5D contro il benchmark 6,5 (DECISIONI). */}
+      <ProfileRadar
+        size="sm"
+        title={ui.profileModuleBTitle}
+        axes={hsm.dims.map((d) => ({ key: d.code, label: `${d.code} · ${d.name}` }))}
+        series={[
+          { label: 'Benchmark', values: Object.fromEntries(hsm.dims.map((d) => [d.code, 6.5])), reference: true },
+          { label: `${emp.nome} ${emp.cognome}`, values: Object.fromEntries(hsm.dims.map((d) => [d.code, d.mediaTotale])) },
+        ]}
+      />
+      <ul className="mt-3 flex flex-col gap-2">
         {hsm.dims.map((d) => {
           const gi = gapInterpretation(d.gapRespAuto, lang)
           return (
-            <StatTile key={d.code} label={`${d.code} · ${d.name}`} value={d.mediaTotale} benchmark={6.5}>
-              <div style={{ marginTop: 8 }}>
-                <span className={`gap-tag ${gi.tag}`}>
-                  {ui.tagMgr} {fmt1(d.perSource.resp)} · {ui.tagPeer} {fmt1(d.perSource.peer)} · {ui.tagSelf} {fmt1(d.perSource.auto)} — {gi.label}
-                </span>
-              </div>
-            </StatTile>
+            <li key={d.code} className="flex flex-wrap items-center gap-2 text-app-small">
+              <span className="font-medium">{d.code}</span>
+              <span className="text-muted-foreground tabular-nums">
+                {ui.tagMgr} {fmt1(d.perSource.resp)} · {ui.tagPeer} {fmt1(d.perSource.peer)} · {ui.tagSelf} {fmt1(d.perSource.auto)}
+              </span>
+              <Badge tone={chipTone(gi.tag)}>{gi.label}</Badge>
+            </li>
           )
         })}
-      </div>
-      <div className="divider" />
+      </ul>
+      <Separator className="my-4" />
     </>
   )
 }

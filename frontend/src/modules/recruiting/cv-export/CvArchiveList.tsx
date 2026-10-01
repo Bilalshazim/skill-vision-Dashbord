@@ -1,23 +1,12 @@
+import { Initials } from '@/components/ui/avatar'
+import { FilterBar } from '@/components/patterns/FilterBar'
 import { Card } from '@/components/ui/card'
 import { Search } from 'lucide-react'
 import { useState } from 'react'
 
-import { cn } from '@/lib/utils'
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 import { CvMatchDialog } from '@/modules/recruiting/cv/CvMatchDialog'
 import type { Candidate } from '@/modules/recruiting/lib/types'
-
-const inputClass =
-  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-
-function initialsOf(name: string): string {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((w) => w[0] || '')
-    .join('')
-    .toUpperCase()
-}
 
 // Migrated from renderUploadedCVs() (modules/recruiting.html ~4279-4301) —
 // the "CV caricati" search list at the top of CV & Export.
@@ -45,33 +34,22 @@ export function CvArchiveList({ candidates }: { candidates: Candidate[] }) {
   return (
     <Card>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-[15px] font-semibold">
-          CV caricati <span className="ml-2 text-[12px] font-medium text-muted-foreground">({filtered.length} di {candidates.length})</span>
+        <h3 className="text-app-body font-semibold">
+          CV caricati <span className="ml-2 text-app-caption font-medium text-muted-foreground">({filtered.length} di {candidates.length})</span>
         </h3>
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cerca per nome…"
-            className={cn(inputClass, 'w-[220px] pl-8')}
-          />
-        </div>
+        <FilterBar search={{ value: query, onChange: setQuery, placeholder: 'Cerca per nome…' }} />
       </div>
 
       {!filtered.length ? (
-        <EmptyState icon={Search} text={`Nessun risultato per "${q}"`} />
+        <EmptyState size="sm" icon={Search} description={`Nessun risultato per "${q}"`} />
       ) : (
         <div className="flex flex-col gap-2">
           {filtered.map((c) => (
             <div key={c.id} className="flex items-center gap-3 rounded-sm border border-border bg-secondary px-3 py-2">
-              <div className="grid size-7 shrink-0 place-items-center rounded-sm bg-primary text-[11px] font-semibold text-primary-foreground">
-                {initialsOf(c.name)}
-              </div>
+              <Initials first={c.name.split(' ')[0] ?? ''} last={c.name.split(' ')[1] ?? ''} />
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] font-semibold">{c.name}</div>
-                <div className="text-[11px] text-muted-foreground">
+                <div className="truncate text-app-small font-semibold">{c.name}</div>
+                <div className="text-app-caption text-muted-foreground">
                   {c.role || '—'} · ICV {c.icv ?? '—'}
                 </div>
               </div>

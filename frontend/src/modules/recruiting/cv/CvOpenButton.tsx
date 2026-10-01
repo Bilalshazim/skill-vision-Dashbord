@@ -71,7 +71,7 @@ export function CvOpenButton({ candidate, className }: { candidate: Candidate; c
         </TooltipTrigger>
         <TooltipContent>Apre il CV caricato in una nuova scheda</TooltipContent>
       </Tooltip>
-      {state.kind === 'error' && <p className="max-w-[160px] text-[10.5px] font-medium text-destructive">{state.message}</p>}
+      {state.kind === 'error' && <p className="max-w-40 text-app-caption font-medium text-destructive">{state.message}</p>}
     </div>
   )
 }

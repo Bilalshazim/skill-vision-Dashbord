@@ -1,6 +1,8 @@
 import { type FormEvent, type ReactNode, useState } from 'react'
 import { Lock } from 'lucide-react'
 
+import { Field } from '@/components/patterns/Field'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { companiesApi } from '@/lib/api/endpoints'
@@ -41,18 +43,9 @@ function LockedScreen({ module, companyId, onUnlocked }: { module: PlatformModul
         </CardHeader>
         <CardContent>
           <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-            <input
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="Codice di attivazione"
-              required
-              className="h-9 rounded-sm border border-border bg-card px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-            />
-            {error && (
-              <p role="alert" className="text-sm text-destructive">
-                {error}
-              </p>
-            )}
+            <Field label="Codice di attivazione" error={error || undefined}>
+              <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Codice di attivazione" required />
+            </Field>
             <Button type="submit" disabled={submitting} className="w-full">
               {submitting ? 'Verifica…' : 'Sblocca modulo'}
             </Button>
@@ -79,7 +72,7 @@ function ModuleLockGateInner({ module, entitlement, children }: { module: Platfo
   if (entitlement.status === 'checking') return null
   if (entitlement.status === 'error') {
     return (
-      <div className="p-6 text-sm text-destructive" role="alert">
+      <div className="p-6 text-app-small text-destructive" role="alert">
         {entitlement.message}
       </div>
     )

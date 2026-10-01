@@ -1,6 +1,21 @@
+import { ArrowLeft, Coins, Crown, GraduationCap, RefreshCw, Star, Target, TrendingUp, Zap } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 
-import { Card } from '@/components/ui/card'
+import { Note } from '@/components/patterns/Note'
+import { Badge } from '@/components/ui/badge'
+import { ChoiceCard } from '@/components/patterns/ChoiceCard'
+import { PrefixedInput } from '@/components/patterns/PrefixedInput'
+import { StepNav } from '@/components/patterns/StepNav'
+import { PageHeader } from '@/components/patterns/PageHeader'
+import { Progress } from '@/components/ui/progress'
+import { Label } from '@/components/ui/label'
+import { Slider } from '@/components/ui/slider'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Field } from '@/components/patterns/Field'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardLabel } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { exiRiskTier, exiScoreTier, fmt1 } from '@/modules/assessment/lib/legacy-utils'
@@ -29,6 +44,19 @@ function toDraft(a: ExiData): Draft {
 // (Q7), and 3-slot risk/objective text lists (Q5/Q6). Same per-step
 // required-field validation as legacy (comment/list fields required,
 // sliders always valid), same skip-ahead guard on the step pills.
+// Le otto decisioni avevano un'emoji come icona (dizionario IT/EN): qui
+// l'icona Lucide corrispondente, per carattere (CLAUDE.md cap. 7).
+const DECISION_ICON: Record<string, LucideIcon> = {
+  '📈': TrendingUp,
+  '⭐': Star,
+  '🔄': RefreshCw,
+  '⚡': Zap,
+  '🎯': Target,
+  '👑': Crown,
+  '💰': Coins,
+  '🎓': GraduationCap,
+}
+
 export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { initial: ExiData; startStep: number; onCancel: (() => void) | null; onGenerate: (data: ExiData) => void }) {
   const { ui, toast } = useAssessment()
   const [draft, setDraft] = useState<Draft>(() => toDraft(initial))
@@ -158,69 +186,44 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
 
   return (
     <div>
-      <div className="section-head">
-        <div>
-          <h2>{ui.analisiPageTitle}</h2>
-          <p>
-            {ui.exiBadge} · {ui.exiEstimatedTime}
-          </p>
-        </div>
-        {cancelBtn}
-      </div>
-      <Card className="exi-progress">
-        <div className="exi-progress-track">
-          <div className="exi-progress-fill" style={{ width: `${(step / total) * 100}%` }} />
-        </div>
-        <div className="exi-steps">
-          {steps.map((s, i) => (
-            <div key={i} className={`exi-step-pill${i === step ? ' on' : i < step ? ' done' : ''}`} onClick={() => goStepGuarded(i)}>
-              <span className="exi-step-dot" />
-              {s}
-            </div>
-          ))}
-        </div>
+      <PageHeader title={ui.analisiPageTitle} description={<>{ui.exiBadge} · {ui.exiEstimatedTime}</>} actions={cancelBtn} />
+      <Card className="mb-6">
+        <Progress value={(step / total) * 100} className="mb-3" aria-label={`${step} / ${total}`} />
+        <StepNav steps={steps} current={step} onSelect={goStepGuarded} label={ui.analisiPageTitle} />
       </Card>
 
       {step === 0 && (
-        <div className="exi-wizard-step on">
+        <div className="flex flex-col gap-4">
           <Card>
-            <div className="exi-eyebrow">{ui.exiSetupEyebrow}</div>
-            <div className="exi-qtitle">{ui.exiSetupTitle}</div>
-            <div className="exi-qsub">{ui.exiSetupSub}</div>
-            <div className="grid grid-2">
-              <div className="field">
-                <label>{ui.exiFieldCompany}</label>
-                <input className="neu-input" type="text" placeholder={ui.exiFieldCompanyPh} value={draft.azienda} onChange={(e) => setDraft((p) => ({ ...p, azienda: e.target.value }))} />
-              </div>
-              <div className="field">
-                <label>{ui.exiFieldSector}</label>
-                <input className="neu-input" type="text" placeholder={ui.exiFieldSectorPh} value={draft.settore} onChange={(e) => setDraft((p) => ({ ...p, settore: e.target.value }))} />
-              </div>
-              <div className="field">
-                <label>{ui.exiFieldInterviewee}</label>
-                <input className="neu-input" type="text" placeholder={ui.exiFieldIntervieweePh} value={draft.intervistato} onChange={(e) => setDraft((p) => ({ ...p, intervistato: e.target.value }))} />
-              </div>
-              <div className="field">
-                <label>{ui.exiFieldRole}</label>
-                <select className="neu-input" value={draft.ruolo} onChange={(e) => setDraft((p) => ({ ...p, ruolo: Number(e.target.value) }))}>
+            <QuestionHeader eyebrow={ui.exiSetupEyebrow} title={ui.exiSetupTitle} sub={ui.exiSetupSub} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Field label={ui.exiFieldCompany}>
+                <Input type="text" placeholder={ui.exiFieldCompanyPh} value={draft.azienda} onChange={(e) => setDraft((p) => ({ ...p, azienda: e.target.value }))} />
+              </Field>
+              <Field label={ui.exiFieldSector}>
+                <Input type="text" placeholder={ui.exiFieldSectorPh} value={draft.settore} onChange={(e) => setDraft((p) => ({ ...p, settore: e.target.value }))} />
+              </Field>
+              <Field label={ui.exiFieldInterviewee}>
+                <Input type="text" placeholder={ui.exiFieldIntervieweePh} value={draft.intervistato} onChange={(e) => setDraft((p) => ({ ...p, intervistato: e.target.value }))} />
+              </Field>
+              <Field label={ui.exiFieldRole}>
+                <SelectField value={draft.ruolo} onValueChange={(v) => setDraft((p) => ({ ...p, ruolo: Number(v) }))}>
                   {roles.map((r, i) => (
                     <option key={i} value={i}>
                       {r}
                     </option>
                   ))}
-                </select>
-              </div>
-              <div className="field">
-                <label>{ui.exiFieldEmployees}</label>
-                <input className="neu-input" type="text" placeholder={ui.exiFieldEmployeesPh} value={draft.dipendenti} onChange={(e) => setDraft((p) => ({ ...p, dipendenti: e.target.value }))} />
-              </div>
-              <div className="field">
-                <label>{ui.exiFieldDate}</label>
-                <input className="neu-input" type="text" value={draft.data} onChange={(e) => setDraft((p) => ({ ...p, data: e.target.value }))} />
-              </div>
+                </SelectField>
+              </Field>
+              <Field label={ui.exiFieldEmployees} hint={ui.exiFieldEmployeesHint}>
+                <Input type="text" placeholder={ui.exiFieldEmployeesPh} value={draft.dipendenti} onChange={(e) => setDraft((p) => ({ ...p, dipendenti: e.target.value }))} />
+              </Field>
+              <Field label={ui.exiFieldDate}>
+                <Input type="text" value={draft.data} onChange={(e) => setDraft((p) => ({ ...p, data: e.target.value }))} />
+              </Field>
             </div>
           </Card>
-          <div className="exi-nav">
+          <div className="flex items-center justify-between gap-3">
             <span />
             <Button variant="default" onClick={next}>
               {ui.exiStartBtn}
@@ -233,59 +236,49 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
       {step === 2 && <SliderStep n={2} eyebrow={ui.exiQ2Eyebrow} title={ui.exiQ2Title} sub={ui.exiQ2Sub} ticks={ui.exiQ2Ticks} value={draft.q2} ph={ui.exiQ2Ph} comment={draft.q2c} invalid={fieldInvalid(2, 'q2c')} commentLabel={ui.exiCommentLabel} pointsOf10Label={ui.exiPointsOf10} backLabel={ui.exiBackBtn} nextLabel={ui.exiNextBtn} onValue={(v) => setDraft((p) => ({ ...p, q2: v }))} onComment={(v) => setDraft((p) => ({ ...p, q2c: v }))} onBack={prev} onNext={next} />}
 
       {step === 3 && (
-        <div className="exi-wizard-step on">
+        <div className="flex flex-col gap-4">
           <Card>
-            <div className="exi-qcount">3/7</div>
-            <div className="exi-eyebrow">{ui.exiQ3Eyebrow}</div>
-            <div className="exi-qtitle">{ui.exiQ3Title}</div>
-            <div className="exi-qsub" dangerouslySetInnerHTML={{ __html: ui.exiQ3Sub }} />
-            <div className="exi-areas-grid">
+            <QuestionHeader count="3/7" eyebrow={ui.exiQ3Eyebrow} title={ui.exiQ3Title} subHtml={ui.exiQ3Sub} />
+            <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {areas.map((name, i) => {
                 const on = draft.areaSel[i] !== undefined
                 const v = on ? draft.areaSel[i] : 5
                 return (
-                  <div className={`exi-area${on ? ' on' : ''}`} key={i} onClick={() => toggleArea(i)}>
-                    <div className="exi-area-top">
-                      <div className="exi-area-chk">✓</div>
-                      <div className="exi-area-nm">{name}</div>
+                  <ChoiceCard key={i} selected={on} onSelectedChange={() => toggleArea(i)} title={name}>
+                    <div className="flex items-center gap-2 text-app-caption text-muted-foreground">
+                      <span>{ui.exiAreaCriticalityLabel}</span>
+                      <Slider min={1} max={10} step={1} value={[v]} onValueChange={([n]) => setAreaCrit(i, n)} aria-label={`${ui.exiAreaCriticalityLabel} — ${name}`} className="flex-1" />
+                      <span className="min-w-5 text-right text-app-small font-medium text-foreground tabular-nums">{v}</span>
                     </div>
-                    <div className="exi-area-slider" onClick={(e) => e.stopPropagation()}>
-                      <div className="exi-area-slider-row">
-                        <span>{ui.exiAreaCriticalityLabel}</span>
-                        <input type="range" min={1} max={10} step={1} value={v} onChange={(e) => setAreaCrit(i, Number(e.target.value))} style={{ flex: 1 }} />
-                        <span className="exi-area-slider-v">{v}</span>
-                      </div>
-                    </div>
-                  </div>
+                  </ChoiceCard>
                 )
               })}
             </div>
-            <div className="exi-pri-list">
+            <div className="mb-4 flex flex-col gap-2">
               {[0, 1, 2].map((i) => (
-                <div className="exi-pri-row" key={i}>
-                  <div className="exi-pri-num">{ui.exiAltroLabel}</div>
-                  <input
-                    type="text"
-                    placeholder={ui.exiAltroPh}
-                    value={draft.q3Altro[i]}
-                    onChange={(e) =>
-                      setDraft((p) => {
-                        const q3Altro = [...p.q3Altro]
-                        q3Altro[i] = e.target.value
-                        return { ...p, q3Altro }
-                      })
-                    }
-                  />
-                </div>
+                <PrefixedInput
+                  key={i}
+                  lead={ui.exiAltroLabel}
+                  aria-label={ui.exiAltroPh}
+                  placeholder={ui.exiAltroPh}
+                  value={draft.q3Altro[i]}
+                  onChange={(e) =>
+                    setDraft((p) => {
+                      const q3Altro = [...p.q3Altro]
+                      q3Altro[i] = e.target.value
+                      return { ...p, q3Altro }
+                    })
+                  }
+                />
               ))}
             </div>
-            <div className="field">
-              <label>{ui.exiQ3NotesLabel}</label>
-              <textarea className={`neu-input${fieldInvalid(3, 'q3c') ? ' exi-field-invalid' : ''}`} placeholder={ui.exiQ3Ph} value={draft.q3c} onChange={(e) => setDraft((p) => ({ ...p, q3c: e.target.value }))} />
-            </div>
+            <Field label={ui.exiQ3NotesLabel}>
+              <Textarea aria-invalid={fieldInvalid(3, 'q3c')} placeholder={ui.exiQ3Ph} value={draft.q3c} onChange={(e) => setDraft((p) => ({ ...p, q3c: e.target.value }))} />
+            </Field>
           </Card>
-          <div className="exi-nav">
+          <div className="flex items-center justify-between gap-3">
             <Button variant="ghost" onClick={prev}>
+              <ArrowLeft />
               {ui.exiBackBtn}
             </Button>
             <Button variant="default" onClick={next}>
@@ -298,37 +291,34 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
       {step === 4 && <SliderStep n={4} eyebrow={ui.exiQ4Eyebrow} title={ui.exiQ4Title} sub={ui.exiQ4Sub} ticks={ui.exiQ4Ticks} value={draft.q4} ph={ui.exiQ4Ph} comment={draft.q4c} invalid={fieldInvalid(4, 'q4c')} commentLabel={ui.exiCommentLabel} pointsOf10Label={ui.exiPointsOf10} backLabel={ui.exiBackBtn} nextLabel={ui.exiNextBtn} onValue={(v) => setDraft((p) => ({ ...p, q4: v }))} onComment={(v) => setDraft((p) => ({ ...p, q4c: v }))} onBack={prev} onNext={next} />}
 
       {step === 5 && (
-        <div className="exi-wizard-step on">
+        <div className="flex flex-col gap-4">
           <Card>
-            <div className="exi-qcount">5/7</div>
-            <div className="exi-eyebrow">{ui.exiQ5Eyebrow}</div>
-            <div className="exi-qtitle">{ui.exiQ5Title}</div>
-            <div className="exi-qsub" dangerouslySetInnerHTML={{ __html: ui.exiQ5Sub }} />
-            <div className="exi-pri-list">
+            <QuestionHeader count="5/7" eyebrow={ui.exiQ5Eyebrow} title={ui.exiQ5Title} subHtml={ui.exiQ5Sub} />
+            <div className="mb-4 flex flex-col gap-2">
               {[0, 1, 2].map((i) => (
-                <div className="exi-pri-row" key={i}>
-                  <div className="exi-pri-num">{i + 1}</div>
-                  <input
-                    type="text"
-                    className={fieldInvalid(5, 'riskDraft') ? 'exi-field-invalid' : ''}
-                    placeholder={ui.exiRiskPh[i]}
-                    value={draft.riskDraft[i]}
-                    onChange={(e) =>
-                      setDraft((p) => {
-                        const riskDraft = [...p.riskDraft]
-                        riskDraft[i] = e.target.value
-                        return { ...p, riskDraft }
-                      })
-                    }
-                  />
-                </div>
+                <PrefixedInput
+                  key={i}
+                  lead={i + 1}
+                  aria-label={ui.exiRiskPh[i]}
+                  aria-invalid={fieldInvalid(5, 'riskDraft')}
+                  placeholder={ui.exiRiskPh[i]}
+                  value={draft.riskDraft[i]}
+                  onChange={(e) =>
+                    setDraft((p) => {
+                      const riskDraft = [...p.riskDraft]
+                      riskDraft[i] = e.target.value
+                      return { ...p, riskDraft }
+                    })
+                  }
+                />
               ))}
             </div>
-            <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: 'var(--text-2)', marginBottom: 7, textTransform: 'uppercase', letterSpacing: '.06em' }}>{ui.exiRiskLevelLabel}</label>
-            <SliderBox ticks={ui.exiQ5Ticks} value={draft.q5} inverted pointsOf10Label={ui.exiPointsOf10} onChange={(v) => setDraft((p) => ({ ...p, q5: v }))} />
+            <Label className="mb-2">{ui.exiRiskLevelLabel}</Label>
+            <SliderBox label={ui.exiRiskLevelLabel} ticks={ui.exiQ5Ticks} value={draft.q5} inverted pointsOf10Label={ui.exiPointsOf10} onChange={(v) => setDraft((p) => ({ ...p, q5: v }))} />
           </Card>
-          <div className="exi-nav">
+          <div className="flex items-center justify-between gap-3">
             <Button variant="ghost" onClick={prev}>
+              <ArrowLeft />
               {ui.exiBackBtn}
             </Button>
             <Button variant="default" onClick={next}>
@@ -339,37 +329,34 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
       )}
 
       {step === 6 && (
-        <div className="exi-wizard-step on">
+        <div className="flex flex-col gap-4">
           <Card>
-            <div className="exi-qcount">6/7</div>
-            <div className="exi-eyebrow">{ui.exiQ6Eyebrow}</div>
-            <div className="exi-qtitle">{ui.exiQ6Title}</div>
-            <div className="exi-qsub" dangerouslySetInnerHTML={{ __html: ui.exiQ6Sub }} />
-            <div className="exi-pri-list">
+            <QuestionHeader count="6/7" eyebrow={ui.exiQ6Eyebrow} title={ui.exiQ6Title} subHtml={ui.exiQ6Sub} />
+            <div className="mb-4 flex flex-col gap-2">
               {[0, 1, 2].map((i) => (
-                <div className="exi-pri-row" key={i}>
-                  <div className="exi-pri-num">{i + 1}</div>
-                  <input
-                    type="text"
-                    className={fieldInvalid(6, 'objDraft') ? 'exi-field-invalid' : ''}
-                    placeholder={ui.exiObjPh[i]}
-                    value={draft.objDraft[i]}
-                    onChange={(e) =>
-                      setDraft((p) => {
-                        const objDraft = [...p.objDraft]
-                        objDraft[i] = e.target.value
-                        return { ...p, objDraft }
-                      })
-                    }
-                  />
-                </div>
+                <PrefixedInput
+                  key={i}
+                  lead={i + 1}
+                  aria-label={ui.exiObjPh[i]}
+                  aria-invalid={fieldInvalid(6, 'objDraft')}
+                  placeholder={ui.exiObjPh[i]}
+                  value={draft.objDraft[i]}
+                  onChange={(e) =>
+                    setDraft((p) => {
+                      const objDraft = [...p.objDraft]
+                      objDraft[i] = e.target.value
+                      return { ...p, objDraft }
+                    })
+                  }
+                />
               ))}
             </div>
-            <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: 'var(--text-2)', marginBottom: 7, textTransform: 'uppercase', letterSpacing: '.06em' }}>{ui.exiUrgencyLabel}</label>
-            <SliderBox ticks={ui.exiQ6Ticks} value={draft.q6} inverted={false} pointsOf10Label={ui.exiPointsOf10} onChange={(v) => setDraft((p) => ({ ...p, q6: v }))} />
+            <Label className="mb-2">{ui.exiUrgencyLabel}</Label>
+            <SliderBox label={ui.exiUrgencyLabel} ticks={ui.exiQ6Ticks} value={draft.q6} inverted={false} pointsOf10Label={ui.exiPointsOf10} onChange={(v) => setDraft((p) => ({ ...p, q6: v }))} />
           </Card>
-          <div className="exi-nav">
+          <div className="flex items-center justify-between gap-3">
             <Button variant="ghost" onClick={prev}>
+              <ArrowLeft />
               {ui.exiBackBtn}
             </Button>
             <Button variant="default" onClick={next}>
@@ -380,50 +367,39 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
       )}
 
       {step === 7 && (
-        <div className="exi-wizard-step on">
+        <div className="flex flex-col gap-4">
           <Card>
-            <div className="exi-qcount">7/7</div>
-            <div className="exi-eyebrow">{ui.exiQ7Eyebrow}</div>
-            <div className="exi-qtitle">{ui.exiQ7Title}</div>
-            <div className="exi-qsub" dangerouslySetInnerHTML={{ __html: ui.exiQ7Sub }} />
-            <div className="exi-dec-grid">
-              {decisions.map((d, i) => {
-                const on = draft.decSel.includes(i)
-                return (
-                  <div className={`exi-dec${on ? ' on' : ''}`} key={i} onClick={() => toggleDecision(i)}>
-                    <div className="exi-dec-ic">{d.ic}</div>
-                    <div className="exi-dec-nm">{d.nm}</div>
-                    <div className="exi-dec-ds">{d.ds}</div>
-                  </div>
-                )
-              })}
-            </div>
-            <div className="exi-pri-list">
-              {[0, 1].map((i) => (
-                <div className="exi-pri-row" key={i}>
-                  <div className="exi-pri-num">{ui.exiAltroLabel}</div>
-                  <input
-                    type="text"
-                    placeholder={ui.exiAltroPh}
-                    value={draft.q7Altro[i]}
-                    onChange={(e) =>
-                      setDraft((p) => {
-                        const q7Altro = [...p.q7Altro]
-                        q7Altro[i] = e.target.value
-                        return { ...p, q7Altro }
-                      })
-                    }
-                  />
-                </div>
+            <QuestionHeader count="7/7" eyebrow={ui.exiQ7Eyebrow} title={ui.exiQ7Title} subHtml={ui.exiQ7Sub} />
+            <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {decisions.map((d, i) => (
+                <ChoiceCard key={i} align="center" icon={DECISION_ICON[d.ic] ?? Target} selected={draft.decSel.includes(i)} onSelectedChange={() => toggleDecision(i)} title={d.nm} description={d.ds} />
               ))}
             </div>
-            <div className="field">
-              <label>{ui.exiCommentLabel}</label>
-              <textarea className={`neu-input${fieldInvalid(7, 'q7c') ? ' exi-field-invalid' : ''}`} placeholder={ui.exiQ7Ph} value={draft.q7c} onChange={(e) => setDraft((p) => ({ ...p, q7c: e.target.value }))} />
+            <div className="mb-4 flex flex-col gap-2">
+              {[0, 1].map((i) => (
+                <PrefixedInput
+                  key={i}
+                  lead={ui.exiAltroLabel}
+                  aria-label={ui.exiAltroPh}
+                  placeholder={ui.exiAltroPh}
+                  value={draft.q7Altro[i]}
+                  onChange={(e) =>
+                    setDraft((p) => {
+                      const q7Altro = [...p.q7Altro]
+                      q7Altro[i] = e.target.value
+                      return { ...p, q7Altro }
+                    })
+                  }
+                />
+              ))}
             </div>
+            <Field label={ui.exiCommentLabel}>
+              <Textarea aria-invalid={fieldInvalid(7, 'q7c')} placeholder={ui.exiQ7Ph} value={draft.q7c} onChange={(e) => setDraft((p) => ({ ...p, q7c: e.target.value }))} />
+            </Field>
           </Card>
-          <div className="exi-nav">
+          <div className="flex items-center justify-between gap-3">
             <Button variant="ghost" onClick={prev}>
+              <ArrowLeft />
               {ui.exiBackBtn}
             </Button>
             <Button variant="default" onClick={generate}>
@@ -436,25 +412,40 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
   )
 }
 
-function SliderBox({ ticks, value, inverted, pointsOf10Label, onChange }: { ticks: string[]; value: number; inverted: boolean; pointsOf10Label: string; onChange: (v: number) => void }) {
+function SliderBox({ ticks, value, inverted, pointsOf10Label, label, onChange }: { ticks: string[]; value: number; inverted: boolean; pointsOf10Label: string; label: string; onChange: (v: number) => void }) {
   const tier = inverted ? exiRiskTier(value, 'it') : exiScoreTier(value, 'it')
   return (
-    <div className="exi-slider-box">
-      <div className="exi-slider-value">
-        <div className="exi-slider-num" style={{ color: tier.color }}>
-          {fmt1(value)}
-        </div>
-        <div className="exi-slider-scale">{pointsOf10Label}</div>
-        <div className="exi-slider-label" style={{ color: tier.color }}>
+    <div className="mb-4 flex flex-col gap-4 rounded-md border border-border bg-background p-6">
+      <div className="flex flex-col items-center gap-1 text-center">
+        <span className="text-metric-lg tabular-nums">{fmt1(value)}</span>
+        <span className="text-app-small text-muted-foreground">{pointsOf10Label}</span>
+        <Badge tone={tier.tone} dot>
           {tier.label}
-        </div>
+        </Badge>
       </div>
-      <input type="range" min={1} max={10} step={0.5} value={value} onChange={(e) => onChange(Number(e.target.value))} />
-      <div className="exi-slider-ticks">
+      <Slider min={1} max={10} step={0.5} value={[value]} onValueChange={([n]) => onChange(n)} aria-label={label} />
+      <div className="flex justify-between text-app-caption text-muted-foreground">
         {ticks.map((t, i) => (
           <span key={i}>{t}</span>
         ))}
       </div>
+    </div>
+  )
+}
+
+// Testata di una domanda dell'Intervista: numero della domanda, sovratitolo,
+// domanda (18/600), spiegazione (dal dizionario, con eventuale HTML).
+function QuestionHeader({ count, eyebrow, title, sub, subHtml }: { count?: string; eyebrow: string; title: string; sub?: string; subHtml?: string }) {
+  return (
+    <div className="mb-6 flex flex-col gap-2">
+      {count ? (
+        <Badge className="self-start" tone="neutral">
+          {count}
+        </Badge>
+      ) : null}
+      <CardLabel>{eyebrow}</CardLabel>
+      <h3 className="text-app-section text-foreground">{title}</h3>
+      {subHtml ? <Note as="div" dangerouslySetInnerHTML={{ __html: subHtml }} /> : sub ? <Note>{sub}</Note> : null}
     </div>
   )
 }
@@ -497,20 +488,17 @@ function SliderStep({
   onNext: () => void
 }) {
   return (
-    <div className="exi-wizard-step on">
+    <div className="flex flex-col gap-4">
       <Card>
-        <div className="exi-qcount">{n}/7</div>
-        <div className="exi-eyebrow">{eyebrow}</div>
-        <div className="exi-qtitle">{title}</div>
-        <div className="exi-qsub" dangerouslySetInnerHTML={{ __html: sub }} />
-        <SliderBox ticks={ticks} value={value} inverted={false} pointsOf10Label={pointsOf10Label} onChange={onValue} />
-        <div className="field">
-          <label>{commentLabel}</label>
-          <textarea className={`neu-input${invalid ? ' exi-field-invalid' : ''}`} placeholder={ph} value={comment} onChange={(e) => onComment(e.target.value)} />
-        </div>
+        <QuestionHeader count={`${n}/7`} eyebrow={eyebrow} title={title} subHtml={sub} />
+        <SliderBox label={title} ticks={ticks} value={value} inverted={false} pointsOf10Label={pointsOf10Label} onChange={onValue} />
+        <Field label={commentLabel}>
+          <Textarea aria-invalid={invalid} placeholder={ph} value={comment} onChange={(e) => onComment(e.target.value)} />
+        </Field>
       </Card>
-      <div className="exi-nav">
+      <div className="flex items-center justify-between gap-3">
         <Button variant="ghost" onClick={onBack}>
+          <ArrowLeft />
           {backLabel}
         </Button>
         <Button variant="default" onClick={onNext}>

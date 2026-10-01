@@ -1,10 +1,11 @@
 import { Plus, X } from 'lucide-react'
 
-import { buttonVariants } from '@/components/ui/button'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Input } from '@/components/ui/input'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { JD_LEVELS } from '@/modules/recruiting/lib/jd-presets'
 import type { JdExtraRow } from '@/modules/recruiting/lib/jd-types'
-import { inputClass } from '@/modules/recruiting/job-profile/JdSection'
 
 // See admin/CipAdminPage.tsx's identical comment — the dashed border/center
 // justify is this "add a free row" affordance's own distinguishing touch,
@@ -30,18 +31,18 @@ export function JdExtraRequirements({ rows, onChange }: { rows: JdExtraRow[]; on
     <div className="flex flex-col gap-2.5">
       {rows.map((r) => (
         <div key={r.id} className="grid grid-cols-1 gap-2 border-t border-border pt-2.5 first:border-0 first:pt-0 sm:grid-cols-[1fr_140px_1fr_auto] sm:items-center">
-          <input type="text" value={r.label} onChange={(e) => update(r.id, 'label', e.target.value)} placeholder="Nome competenza / requisito" className={inputClass} />
-          <select value={r.level} onChange={(e) => update(r.id, 'level', e.target.value)} className={inputClass}>
+          <Input type="text" value={r.label} onChange={(e) => update(r.id, 'label', e.target.value)} placeholder="Nome competenza / requisito" size="sm" />
+          <SelectField value={r.level} onValueChange={(v) => update(r.id, 'level', v)} size="sm">
             {JD_LEVELS.map((lv) => (
               <option key={lv} value={lv}>
                 {lv}
               </option>
             ))}
-          </select>
-          <input type="text" value={r.note} onChange={(e) => update(r.id, 'note', e.target.value)} placeholder="Nota (opzionale)" className={inputClass} />
-          <button type="button" onClick={() => remove(r.id)} aria-label="Rimuovi riga" className="inline-flex size-8 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-destructive">
-            <X className="size-4" aria-hidden="true" />
-          </button>
+          </SelectField>
+          <Input type="text" value={r.note} onChange={(e) => update(r.id, 'note', e.target.value)} placeholder="Nota (opzionale)" size="sm" />
+          <Button type="button" variant="ghost" size="icon-sm" onClick={() => remove(r.id)} aria-label="Rimuovi riga">
+            <X aria-hidden="true" />
+          </Button>
         </div>
       ))}
       <button type="button" onClick={addRow} className={cn(ghostBtnClass, 'mt-1')}>

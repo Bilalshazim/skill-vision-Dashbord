@@ -46,8 +46,8 @@ Ne discendono due lavori, che si tengono:
 
 1. **La libreria di componenti**, su tre livelli (Fase 3), vincolata ai token
    del sistema, con shadcn/ui per le primitive e Bklit UI per i grafici.
-2. **Un guscio unico** — login in React, navigazione, intestazione, contesto
-   attivo, instradamento.
+2. **Un guscio unico** — navigazione, intestazione, contesto attivo,
+   instradamento. Il login rifatto sul backend chiude il lavoro (Fase 8).
 
 **Le schermate non si riprogettano.** Tengono impianto e contenuti di oggi —
 compresa la nuova Home di Assessment, che segue un concept del cliente e resta
@@ -73,14 +73,15 @@ stati completi. È lo standard di qualità: se un nostro schermo sta sotto
 questo, non è finito.
 
 **`uiverse.io/design/systems/voltura`** — l'impostazione cromatica, che è
-quasi la nostra. Superfici scure e mute, bordi a filo invece che ombre, e **un
-solo pannello lime per schermata** che fa da segnale. Le card si comportano
-come strumenti spenti attorno a un'unica cosa accesa.
+quasi la nostra. Superfici scure e mute, bordi a filo invece che ombre, e il
+lime che fa da segnale. Le card si comportano come strumenti spenti attorno a
+ciò che è acceso.
 
-Quel principio è la traduzione operativa della regola per cui il lime segnala e
-non decora: **su ogni schermata il lime sta in un posto solo**, quello che
-indica l'azione o il dato che conta. Se compare in tre punti, non ne segnala
-più nessuno.
+Il tema decide com'è il lime; le primitive lo applicano da sole dove shadcn e
+Bklit mettono il colore primario. L'unica scelta che resta a chi compone è
+**quale elemento è primario**: in un gruppo di azioni un solo bottone
+`default`, gli altri `outline` o `ghost`; `tone="accent"` solo sul valore in
+evidenza, non su ogni card di una griglia.
 
 Quello che **non** si prende da Voltura: è un'interfaccia da trading, densissima
 e pensata per essere guardata di sfuggita. Skill Vision si legge, e le sue
@@ -110,7 +111,7 @@ che ne viola una è sbagliata anche se sembra migliore.
    entrambe. Un token non si riusa fra le due modalità senza controllare il
    contrasto: è l'errore più frequente.
 8. **Il maiuscolo esiste solo nello stile label** — `label-mono`, Geist Mono,
-   11px, tracking positivo, tre o quattro parole. Non si applica a titoli,
+   12px, tracking positivo, tre o quattro parole. Non si applica a titoli,
    bottoni o testo corrente. Un titolo di card è Geist minuscolo 18px/600.
 9. **Le spaziature vengono dalla scala**: 4, 8, 12, 16, 24, 32, 48, 64, 96,
    128. Dieci valori. Niente `p-[15px]`, niente `gap-[10px]`.
@@ -135,8 +136,9 @@ Il tema in `globals.css` è già corretto: non modificarlo su questo punto.
 | | |
 |---|---|
 | Componenti | **shadcn/ui**, Tailwind v4, variabili CSS |
-| Grafici | **Bklit UI** — `@bklitui/ui`, import da `@bklitui/ui/charts` |
-| Ripiego, se Bklit non ha il grafico | **shadcn Chart** (Recharts) — caso raro |
+| Grafici | **Bklit UI**, installato dal registro shadcn (`bklit.com/r/<nome>.json`) in `components/charts/`, import da `@/components/charts` |
+| Grafici che Bklit non copre | **visx**, già usato da Bklit — come per la matrice G4 |
+| Ripiego estremo | **shadcn Chart** (Recharts) — rimosso in Fase 5: reinstallarlo va motivato in `DECISIONI.md` |
 | Icone | Lucide, che shadcn usa già |
 | Caratteri | Geist e Geist Mono, Google Fonts, pesi 400/500/600 soltanto |
 
@@ -409,7 +411,8 @@ Regole di ogni componente dei livelli pattern e dominio:
 
 **Il catalogo si crea per primo**, insieme al primo blocco di primitive, e ogni
 componente vi entra nel momento in cui è pronto. Crea una rotta di sviluppo — `/dev/components`, esclusa dalla
-build di produzione — che mostra ogni primitiva e ogni pattern in tutte le
+build di produzione, salvo `VITE_ENABLE_COMPONENT_CATALOG=true` che la accende
+finché la produzione è solo interna — che mostra ogni primitiva e ogni pattern in tutte le
 varianti e tutti gli stati, in chiaro e in scuro. È il posto dove si verifica un
 componente prima di usarlo, e dove chi sviluppa dopo di noi guarda cosa esiste
 prima di scriverne uno nuovo. Senza catalogo, la libreria non la usa nessuno e
@@ -437,7 +440,8 @@ Lavora a blocchi di tre o quattro componenti, non tutti insieme.
 
 ### Fase 4 — Guscio unico
 
-Il guscio legacy va in pensione e il suo lavoro passa a React. È la fase che
+Navigazione, intestazione e instradamento passano a un guscio React unico; il
+login e il ritiro del guscio legacy restano per la Fase 8. È la fase che
 tocca l'architettura, quindi è anche quella in cui si rompono le cose: procedi
 per passi piccoli e tieni `PROGRESS.md` aggiornato a ogni passo.
 
@@ -447,14 +451,10 @@ una cartella, niente monorepo. Rotte `/login`, `/` (scelta del modulo),
 invariate. Un solo `AppShell`; la `Sidebar` cambia elenco secondo la sezione; il
 commutatore compare solo se `purchasedModules` contiene entrambi i moduli.
 
-**Il login viene per primo, isolato.** Dietro la stessa chiave di sessione, così
-i moduli non se ne accorgono. Vedi sotto: non è solo una riscrittura.
-
-Quando il guscio React è in piedi, la landing legacy va in pensione **insieme
-alla sua copia** in `frontend/legacy-shell/`, che serve la produzione su
-Railway. Le due copie vanno ritirate nello stesso passaggio e la configurazione
-di deploy va aggiornata di conseguenza: una copia sola ritirata lascia la
-produzione sul guscio vecchio.
+**Il guscio si costruisce sopra l'accesso di oggi, senza toccarlo**: stessa
+chiave di sessione, stesso ponte verso il backend. Il login legacy resta in
+servizio e, dopo l'accesso, porta alla `/` in React. Il rifacimento del login e
+il ritiro del guscio legacy sono l'ultimo passo del lavoro (Fase 8).
 
 Cosa diventa unico:
 
@@ -462,9 +462,6 @@ Cosa diventa unico:
   non come applicazioni.
 - **Guscio di pagina** — barra superiore, barra laterale, contesto attivo,
   piede. Una `Sidebar` sola, che cambia contenuto in base alla sezione.
-- **Autenticazione e sessione.** Non ci sono due accessi da fondere: ce n'è uno
-  solo, statico, da portare in React. Vedi il riquadro qui sotto — non è solo
-  una riscrittura.
 - **Stato condiviso** — azienda selezionata, ruolo attivo, preferenze,
   modalità chiara o scura.
 - **Chiamate al server e modelli di dato**, dove le due parlano dello stesso
@@ -479,36 +476,6 @@ comparire.
 dopo l'unificazione deve esistere ancora, raggiungibile dalla sua sezione.
 Quando l'unificazione richiede di rimuovere o fondere qualcosa: fermati.
 
-#### L'autenticazione non è solo da riscrivere
-
-La Fase 0 ha trovato che il guscio confronta utente e password con **quattro
-coppie scritte in chiaro in `js/app.js`**, poi scrive
-`sessionStorage.sv_shell_auth`; i moduli leggono solo quella chiave. Recruiting
-si procura poi un JWT reale con **credenziali seed mappate nel frontend**
-(`authBridge.ts`).
-
-Ne discendono tre cose, in ordine di gravità:
-
-1. Le credenziali sono nel bundle servito al browser: chiunque apra gli
-   strumenti di sviluppo le legge.
-2. Lo stato di accesso è una chiave di `sessionStorage`: si scrive dalla
-   console senza passare dal login.
-3. Il backend ha un'autenticazione vera, ma le credenziali che la aprono stanno
-   nel frontend — quindi di fatto è aggirabile.
-
-Il prodotto contiene valutazioni su dipendenti con nome e cognome, cioè dati
-personali. **Portare il login in React senza toccare questo schema replicherebbe
-il problema in una tecnologia più moderna.**
-
-Quindi: la Fase 4 non riscrive il login, lo **rifà** — autenticazione sul
-backend, nessuna credenziale nel frontend, sessione su token verificato lato
-server, e i permessi presi dal ruolo backend invece che da `canEdit: true`
-fisso come fa Assessment oggi.
-
-È lavoro che non era nel preventivo di questa migrazione. **Fermati e
-segnalalo** prima di iniziare la Fase 4: va concordato con il cliente, non
-deciso qui.
-
 Chiudi la fase con il conto: cosa era duplicato e ora è unico, cosa è rimasto
 separato e perché.
 
@@ -518,17 +485,17 @@ separato e perché.
 candlestick, choropleth, composed, funnel, gauge, heatmap, linea, live line,
 torta, profit/loss, radar, ring, sankey, scatter e sunburst.
 
-shadcn Chart resta disponibile solo come ripiego, per il caso raro in cui
-Bklit non abbia il grafico che serve. Se capita, annota in `DECISIONI.md` quale
-grafico e perché: entrambi leggono i token `--chart-*`, quindi la palette resta
-una sola, ma due librerie per la stessa cosa sono un costo e vanno giustificate.
+Quando Bklit non ha il grafico che serve, si costruisce con visx, che Bklit
+usa già (nessuna dipendenza in più). shadcn Chart è stato rimosso: reinstallarlo
+è un'eccezione da annotare in `DECISIONI.md` con grafico e motivo, perché due
+librerie per la stessa cosa sono un costo.
 
 **Corrispondenze già chiare**, da verificare sui dati reali:
 
 | Concetto | Grafico |
 |---|---|
 | Profilo di competenza di una persona | Radar |
-| Persona contro benchmark | Composed — `SeriesBar` per la persona, `Line` per il benchmark |
+| Persona contro benchmark | Barre raggruppate (persona e atteso affiancati) |
 | Confronto fra competenze o fra candidati | Bar |
 | Punteggio singolo, completamento | Gauge o Ring |
 | Andamento nel tempo | Line o Area |
@@ -543,17 +510,27 @@ Prima di migrare, elimina il codice morto già individuato: `QualityChart.tsx`,
 `ValoreScatterChart` e `ValoreTierDistChart` in `ValoreChart.tsx`,
 `ValoreAreaChart.tsx`. Nessun import.
 
-**Il radar non esiste nel prodotto.** È il grafico più importante di una
-piattaforma di assessment e non c'è: quindi non è una migrazione, è un grafico
-nuovo. Vale un giro in più, e va concordato — quali dimensioni, da quali dati.
+**Il radar oggi non esiste nel prodotto**, ma è il candidato naturale per
+il profilo di competenze di una persona e per il confronto fra due persone, o
+fra una persona e il profilo atteso. Dove i dati lo giustificano, proponilo
+con la regola qui sotto: schermata, dimensioni, dati, serie.
 
-Il **Composed** è l'altro che manca: barre della persona e linea del benchmark
-sullo stesso asse. Oggi quel confronto è approssimato in due punti —
-`GroupedBarsChart` (ottenuto contro atteso) e `BigFiveRows` (con marcatore del
-profilo ideale). È l'argomento centrale di Skill Vision e merita il grafico
-giusto.
+**Persona contro benchmark** è l'argomento centrale di Skill Vision. Il
+Composed e lo Scatter di Bklit lavorano solo sull'asse del tempo, quindi non
+servono qui: il confronto si fa con barre raggruppate (G1, G2) e la matrice con
+visx (G4). Decisione presa in Fase 5, motivata in `DECISIONI.md`.
 
 Nessuna heatmap nel prodotto: il buco della scala sequenziale non si apre.
+
+**Grafici mancanti o migliorabili — in ogni fase, non solo in questa.** Quando
+un dato sarebbe letto meglio con un grafico diverso da quello di oggi, o
+quando un dato che andrebbe visualizzato è mostrato solo come numero o
+tabella, **proponilo e chiedi prima di applicarlo**: dato, schermata, grafico
+di oggi, grafico proposto e perché. Prima di proporre, controlla l'elenco dei
+grafici di Bklit UI nella documentazione ufficiale: si propone solo quello che
+Bklit ha, o, in mancanza, un grafico visx con il motivo. Le proposte approvate
+vanno in `DECISIONI.md`; quelle non ancora approvate restano in un elenco in
+coda a `MAPPATURA.md`.
 
 **Regole di colore**
 
@@ -596,13 +573,46 @@ modulo, `/` porta direttamente lì. Nessuna dashboard nuova.
 **La voce `Menu`** prende il nome della sua destinazione, "Profilo della
 ricerca".
 
-Densità e impostazione: bordi sottili, superfici neutre, un solo elemento lime
-per schermata — quello che indica l'azione o il dato che conta.
+Densità e impostazione: bordi sottili, superfici neutre, lime solo dove
+indica l'azione, il valore unico o lo stato attivo (paragrafo 1).
 
 ### Fase 7 — Verifica
 
 Esegui `scripts/audit-identita.mjs` (paragrafo 9) e correggi quello che trova.
 Poi la verifica a occhio, in entrambe le modalità, su ogni schermata.
+
+### Fase 8 — Autenticazione e ritiro del guscio legacy
+
+Ultimo passo, a migrazione chiusa. Fino ad allora **non si tocca
+l'autenticazione** e nessuna credenziale si sposta in React.
+
+Oggi la produzione su Railway serve solo al gruppo di lavoro: non ci sono
+clienti. **Prima che entri il primo cliente reale, questa fase deve essere
+chiusa** e su Railway vanno tolte `VITE_ENABLE_COMPONENT_CATALOG` (catalogo) e
+`VITE_DEMO_MODE` (il "Reset demo" cancella tutti i dati di Assessment del
+browser). Finché c'è un solo ambiente, quell'ambiente è la produzione: se
+serve una demo per il cliente, si apre un ambiente separato su Railway invece
+di lasciare la modalità demo accesa.
+
+La Fase 0 ha trovato credenziali scritte nel codice servito al browser
+(`js/app.js`, `authBridge.ts` con `admin123`, `VITE_OPERATORE_BRIDGE_PASSWORD`)
+e uno stato di accesso che è una chiave di `sessionStorage`, scrivibile dalla
+console. Portare quel login in React così com'è replicherebbe il problema.
+
+Il rifacimento segue `PROPOSTA-AUTENTICAZIONE.md`: autenticazione sul backend,
+nessuna credenziale nel frontend, sessione verificata dal server, tentativi di
+accesso limitati, permessi dal ruolo backend invece che da `canEdit: true`.
+La schermata di login nasce nella libreria come pattern nel catalogo.
+
+Procedi a passi piccoli, con un modo per tornare indietro a ogni passo: è
+l'unico punto dove si può chiudere fuori tutti. Gli account reali di
+produzione e le loro password si creano e si consegnano d'accordo con il
+cliente, non si inventano.
+
+Quando il login React è in piedi, il guscio legacy va in pensione **insieme
+alla sua copia** in `frontend/legacy-shell/`, che serve la produzione su
+Railway, nello stesso passaggio e con la configurazione di deploy aggiornata:
+una copia sola ritirata lascia la produzione sul guscio vecchio.
 
 ---
 
@@ -646,7 +656,7 @@ del guscio, radice e `frontend/legacy-shell/`.
 - Nel Profilo della ricerca, in modalità scura, link e azioni sono lime come
   testo ("Apri scheda →", "Configura link →"). Su fondo scuro il lime come testo
   è ammesso, ma solo per l'azione che conta: se ogni link è lime, non ne segnala
-  più nessuno. Uno per schermata.
+  più nessuno. I link ordinari restano nel colore del testo.
 - Arancio e ambra nelle barre dei cluster Soft. L'arancio non è in palette: se
   indica una fascia, usa il token di stato; se decora, sparisce.
 
@@ -659,7 +669,7 @@ il colore che usano: una fascia è uno **stato**, non una serie, quindi i token
 categorica dei grafici.
 
 Violano la regola perché **il colore è solo**. Serve l'etichetta accanto:
-"Idoneo", "Da valutare", "Non idoneo", o come le chiama il cliente. Il colore
+"Idoneo", "Da valutare", "Non idoneo" (nomi confermati). Il colore
 accompagna la parola, non la sostituisce.
 
 È una modifica piccola ma di prodotto: i nomi delle fasce li conferma il
@@ -672,7 +682,8 @@ cliente.
   Il maiuscolo è dello stile label.
 - Etichette dei campi maiuscole ma in Geist (Company, Campagna, CIP, fasce di
   idoneità, campi della scheda professionale): forma di label, carattere di
-  testo. O diventano label mono, o minuscole in Geist. Non la via di mezzo.
+  testo. **Deciso:** le etichette dei campi di form sono nello stile label
+  (`label-mono`), come sovratitoli, intestazioni di tabella, metriche e tag.
 - Tipografia e misure arbitrarie in tutto Recruiting: 187 corpi fuori scala,
   70 valori arbitrari (`text-[13px]`, `text-[10.5px]`…). Il colore lì è già sui
   token, la tipografia no.
@@ -716,16 +727,53 @@ dove veniva.
   contenuto è stato modificato chiedono conferma prima (`ConfirmDialog`,
   "Chiudere senza salvare?"). Vale per i dialog di valutazione e per ogni form in
   un Dialog o in uno Sheet: è una prop del pattern, non codice di pagina.
-- **Permessi**: si usa il ruolo backend. `canEdit: true` fisso di Assessment è
-  un buco, non una scelta.
-- **Colore di severità**: token di stato con l'etichetta accanto.
+- **Permessi**: dal ruolo backend, con il rifacimento dell'autenticazione in
+  Fase 8. `canEdit: true` fisso di Assessment è un buco, non una scelta.
+- **Colore di severità**: token di stato con l'etichetta accanto. Fasce di
+  idoneità: "Idoneo", "Da valutare", "Non idoneo". Le cinque fasce di
+  performance di Assessment tengono i nomi che hanno già. La fascia più alta
+  non è uno stato: è **neutra**, ovunque (badge, barre, grafici), distinta dalla
+  parola; in una barra a segmenti, neutro pieno contro il neutro tenue della
+  fascia "nella norma".
+- **"Ruolo"**: in Recruiting diventa "Posizione", in Assessment "Mansione".
+  Si cambia l'etichetta a schermo, non i nomi nel codice né i dati salvati.
+- **Lingua**: solo italiano per ora. Lo switch IT/EN sparisce dal guscio e
+  l'interfaccia parte in italiano. I testi inglesi già presenti in Assessment
+  e la struttura che li gestisce **restano**: serviranno se un giorno si
+  tradurrà tutta la piattaforma. I testi nuovi si scrivono passando dalla
+  stessa struttura, non scritti a mano nei componenti.
+- **Home di Assessment**: le quattro card restano neutre, come deciso in Fase 2.
 
 **Di prodotto — non decidere da solo**
 
-- I nomi delle fasce di idoneità.
-- Le divergenze ancora aperte: invio del link test, azienda attiva, il termine
-  "ruolo" (posizione in Recruiting, mansione in Assessment), lingua, reset demo.
-  Bloccano solo i componenti che le toccano, non la fase.
+- Nessuna divergenza aperta: le ultime tre le ha decise il cliente (sotto).
+
+**Decise dal cliente il 2026-09-30**
+
+- **Reset demo**: solo nella versione demo. Serve un modo per sapere se si è in
+  demo (ambiente o account): se non esiste, proponilo; fuori dalla demo la voce
+  non compare.
+- **Invio del link al test**: un solo meccanismo per i due moduli, quello di
+  Recruiting. L'HR spunta i nominativi — accanto al nome, nella classifica di
+  corrispondenza CV / profilo in Recruiting, nell'elenco dei collaboratori in
+  Assessment — e invia il link solo a quelli. A chi non è spuntato non parte
+  niente. Deve essere il sistema più semplice possibile per chi lo usa: una
+  colonna di selezione, un'azione "Invia link test" con il numero dei
+  selezionati e una conferma. È un pattern della libreria, uguale nei due moduli.
+- **Azienda attiva**: due casi. Una società singola gestisce sé stessa, con più
+  selezioni e più assessment. Una holding gestisce più società del gruppo, ognuna
+  con i suoi dipendenti, le sue selezioni e i suoi assessment ripetuti nel
+  tempo, e deve poter confrontare dipendenti di società diverse con ruolo uguale
+  o di pari valore. Il guscio va costruito per la struttura gruppo → società
+  anche quando la società è una sola.
+
+**Queste ultime due non sono solo migrazione.** Le valutazioni e i dipendenti di
+Assessment oggi vivono nel browser: inviare il link dal server, gestire più
+società e confrontare dipendenti fra società richiede che Assessment salvi i
+suoi dati sul backend — la stessa condizione del valutatore esterno. Non
+implementarlo dentro la migrazione: analizza, stima e proponi, poi fermati.
+Nella migrazione entrano solo la parte d'interfaccia (selezione + invio,
+selettore di società) e quello che funziona già con i dati di oggi.
 
 ---
 
@@ -747,7 +795,8 @@ Si verifica guardando il componente, non chiedendo a chi lo ha portato.
 **Tipografia**
 - [ ] Solo Geist e Geist Mono, solo 400/500/600.
 - [ ] Corpi dalla scala interfaccia: `text-app-*`. Mai la scala del sito.
-- [ ] Etichette e intestazioni di tabella con `label-mono`.
+- [ ] Etichette dei campi, sovratitoli, intestazioni di tabella, nomi delle
+      metriche e tag con `label-mono`.
 - [ ] Colonne numeriche in Geist Mono o con cifre tabulari.
 - [ ] Nessun maiuscolo fuori dallo stile label.
 

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { sendTestLinkForCandidate, syncRankingFromBackend } from '@/modules/recruiting/lib/backend-sync'
 import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/storage'
@@ -176,11 +176,11 @@ export default function PaginaAPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <ClipboardCheck className="size-[22px] text-muted-foreground" aria-hidden="true" />
+          <ClipboardCheck className="size-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Migliori Candidati</h2>
-          <p className="text-[13px] text-muted-foreground">
+          <h2 className="text-app-section font-semibold tracking-tight">Migliori Candidati</h2>
+          <p className="text-app-small text-muted-foreground">
             Candidati con CV caricato ma non ancora sottoposti al test soft skill, ordinati per Match CV/Profilo. Spunta
             "Promosso al test", aggiungi l'email e invia il link in blocco, oppure invia singolarmente da ogni riga.
           </p>
@@ -188,20 +188,20 @@ export default function PaginaAPage() {
       </div>
 
       {opening && company ? (
-        <p className="text-[12px] text-muted-foreground">
+        <p className="text-app-caption text-muted-foreground">
           Invio nel contesto attivo: <b className="font-semibold text-foreground">{company.name}</b> ·{' '}
           <b className="font-semibold text-foreground">{opening.title}</b> — cambialo dalla pagina{' '}
           <b className="font-semibold text-foreground">CV & Esportazione</b>.
         </p>
       ) : (
-        <p className="text-[12px] text-muted-foreground">
+        <p className="text-app-caption text-muted-foreground">
           Nessun contesto CV/opening attivo — selezionane uno dalla pagina <b className="font-semibold text-foreground">CV & Esportazione</b> prima
           di inviare i test.
         </p>
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h4 className="text-[13.5px] font-semibold">
+        <h4 className="text-app-small font-semibold">
           In attesa di test — <span className="font-mono">{pending.length}</span>
         </h4>
         <button type="button" onClick={handleBulkSend} disabled={sendPending || selCount === 0} className={goldBtnClass}>
@@ -212,15 +212,16 @@ export default function PaginaAPage() {
         </button>
       </div>
 
-      {sendState.kind === 'blocked' && <p className="text-[12px] font-medium text-destructive">{sendState.message}</p>}
+      {sendState.kind === 'blocked' && <p className="text-app-caption font-medium text-destructive">{sendState.message}</p>}
       {sendState.kind === 'result' && (
-        <p className={cn('text-[12px] font-medium', sendState.tone === 'success' ? 'text-success' : 'text-warning')}>{sendState.message}</p>
+        <p className={cn('text-app-caption font-medium', sendState.tone === 'success' ? 'text-success' : 'text-warning')}>{sendState.message}</p>
       )}
 
       {!pending.length ? (
         <EmptyState
+          size="sm"
           icon={ClipboardCheck}
-          text='Nessun candidato in attesa di test. I candidati compaiono qui appena viene caricato un CV, fino al completamento del test soft skill (segnato dalla Pipeline → "Segna completato").'
+          description='Nessun candidato in attesa di test. I candidati compaiono qui appena viene caricato un CV, fino al completamento del test soft skill (segnato dalla Pipeline → "Segna completato").'
         />
       ) : (
         <div>

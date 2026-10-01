@@ -1,15 +1,16 @@
-import { AlertTriangle, CheckCircle2, Clock3, Loader2, MessageSquare, Plus, Save, Trash2 } from 'lucide-react'
+import { CheckCircle2, Clock3, Loader2, MessageSquare, Plus, Save, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
+import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Input } from '@/components/ui/input'
 import { Hint } from '@/components/patterns/Hint'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 import { addInterview, plDateFmt, removeInterview, saveInterviewScorecard } from '@/modules/recruiting/lib/pipeline'
 import type { Interview, TestResult } from '@/modules/recruiting/lib/types'
 import { cn } from '@/lib/utils'
 
-const inputClass =
-  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // See admin/CipAdminPage.tsx's identical comment.
 const primaryBtnClass = buttonVariants({ size: 'sm' })
 
@@ -20,15 +21,6 @@ const IDLE: ActionState = { kind: 'idle' }
 // defensive, effectively-unreachable-in-normal-use case (the Pipeline
 // selected opening deleted elsewhere between render and click).
 const OPENING_UNAVAILABLE_MESSAGE = "La posizione selezionata non è più disponibile — selezionane un'altra dalla dashboard qui sopra."
-
-function ErrorNote({ message }: { message: string }) {
-  return (
-    <p className="mt-1.5 flex items-start gap-1.5 text-[11.5px] font-medium text-destructive">
-      <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      {message}
-    </p>
-  )
-}
 
 // One row = one interview's display + its always-editable scorecard form —
 // legacy renders the same select/input/save button for every interview
@@ -95,33 +87,33 @@ function InterviewRow({
     <div className="border-b border-border py-3 last:border-0">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <div className="text-[13px] font-semibold">{interview.name || '—'}</div>
-          <div className="text-[11px] text-muted-foreground">Colloquio: {plDateFmt(interview.scheduledAt)}</div>
+          <div className="text-app-small font-semibold">{interview.name || '—'}</div>
+          <div className="text-app-caption text-muted-foreground">Colloquio: {plDateFmt(interview.scheduledAt)}</div>
         </div>
-        <div className={cn('inline-flex items-center gap-1.5 text-[12px] font-medium', interview.completed ? 'text-success' : 'text-warning')}>
+        <div className={cn('inline-flex items-center gap-1.5 text-app-caption font-medium', interview.completed ? 'text-success' : 'text-warning')}>
           {interview.completed ? <CheckCircle2 className="size-3.5 shrink-0" aria-hidden="true" /> : <Clock3 className="size-3.5 shrink-0" aria-hidden="true" />}
           {interview.completed ? 'Scorecard compilata' : 'In attesa di scorecard'}
         </div>
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+        <label className="flex items-center gap-1.5 text-app-caption text-muted-foreground">
           Valutazione
-          <select value={overallInput} onChange={(e) => setOverallInput(e.target.value)} disabled={pending} className={inputClass}>
+          <SelectField value={overallInput} onValueChange={(v) => setOverallInput(v)} disabled={pending} size="sm">
             {[1, 2, 3, 4, 5].map((n) => (
               <option key={n} value={n}>
-                {'★'.repeat(n) + '☆'.repeat(5 - n)}
+                {n} / 5
               </option>
             ))}
-          </select>
+          </SelectField>
         </label>
-        <input
+        <Input
           type="text"
           value={notesInput}
           onChange={(e) => setNotesInput(e.target.value)}
           disabled={pending}
           placeholder="Note del colloquio…"
-          className={cn(inputClass, 'min-w-[160px] flex-1')}
-        />
+          size="sm" className="min-w-40 flex-1"
+ />
         <Button
           type="button"
           onClick={handleSave}
@@ -145,7 +137,7 @@ function InterviewRow({
           </Button>
         </Hint>
       </div>
-      {state.kind === 'error' && <ErrorNote message={state.message} />}
+      {state.kind === 'error' && <InlineAlert layout="text" className="mt-2">{state.message}</InlineAlert>}
     </div>
   )
 }
@@ -204,25 +196,25 @@ export function InterviewList({
     <div>
       <div className="mb-3 flex flex-col gap-2 rounded-sm bg-secondary p-3">
         <div className="flex flex-wrap items-center gap-2">
-          <select value={candidateId} onChange={(e) => setCandidateId(e.target.value)} disabled={addPending} className={cn(inputClass, 'max-w-[220px]')}>
+          <SelectField value={candidateId} onValueChange={(v) => setCandidateId(v)} disabled={addPending} size="sm" className="max-w-56">
             <option value="">{testResults.length ? 'Seleziona candidato testato…' : '(nessun candidato testato)'}</option>
             {testResults.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name || '—'} — {r.score}/100
               </option>
             ))}
-          </select>
-          <input type="date" value={dateInput} onChange={(e) => setDateInput(e.target.value)} disabled={addPending} className={inputClass} />
+          </SelectField>
+          <Input type="date" value={dateInput} onChange={(e) => setDateInput(e.target.value)} disabled={addPending} size="sm" />
           <button type="button" onClick={handleAdd} disabled={addPending} className={primaryBtnClass}>
             {addPending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Plus className="size-3.5 shrink-0" aria-hidden="true" />}
             Aggiungi colloquio
           </button>
         </div>
-        {addState.kind === 'error' && <ErrorNote message={addState.message} />}
+        {addState.kind === 'error' && <InlineAlert layout="text" className="mt-2">{addState.message}</InlineAlert>}
       </div>
 
       {!interviews.length ? (
-        <EmptyState icon={MessageSquare} text="Nessun colloquio ancora programmato." />
+        <EmptyState size="sm" icon={MessageSquare} description="Nessun colloquio ancora programmato." />
       ) : (
         <div>
           {interviews.map((r) => (

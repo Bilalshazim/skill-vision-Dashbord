@@ -116,11 +116,13 @@ export function semanticChip(score: number, thresholds = { good: 7, mid: 5 }): '
 // runs on an inverted scale (high = bad), so exiRiskTier flips it.
 export function exiScoreTier(v: number, lang: AssessmentLang) {
   const UI = getUI(lang)
-  if (v < 3) return { label: UI.exiTierCritico, color: 'var(--danger)' }
-  if (v < 5) return { label: UI.exiTierInsufficiente, color: 'var(--warning)' }
-  if (v < 6.5) return { label: UI.exiTierDiscreto, color: 'var(--text-2)' }
-  if (v < 8) return { label: UI.exiTierBuono, color: 'var(--accent-dark)' }
-  return { label: UI.exiTierEccellente, color: 'var(--success)' }
+  // `tone`: il tono di stato della fascia (la parola è `label`). `color`
+  // resta per il report stampato (HTML a parte).
+  if (v < 3) return { label: UI.exiTierCritico, color: 'var(--danger)', tone: 'destructive' as const }
+  if (v < 5) return { label: UI.exiTierInsufficiente, color: 'var(--warning)', tone: 'warning' as const }
+  if (v < 6.5) return { label: UI.exiTierDiscreto, color: 'var(--text-2)', tone: 'neutral' as const }
+  if (v < 8) return { label: UI.exiTierBuono, color: 'var(--accent-dark)', tone: 'neutral' as const }
+  return { label: UI.exiTierEccellente, color: 'var(--success)', tone: 'success' as const }
 }
 export function exiRiskTier(v: number, lang: AssessmentLang) {
   return exiScoreTier(10 - v, lang)

@@ -1,10 +1,12 @@
-import { AlertTriangle, CheckCircle2, ChevronDown, Copy, FileText, Pencil, Save } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Copy, FileText, Pencil, Save } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useConfirm } from '@/hooks/use-confirm'
+import { Checkbox } from '@/components/ui/checkbox'
 import { jobProfilesApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
-import { cn } from '@/lib/utils'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { buildJdStateFromPreset, loadJdTemplate, saveJdTemplate } from '@/modules/recruiting/lib/jd'
 import { loadJobProfileFromBackend, saveJobProfileToBackend } from '@/modules/recruiting/lib/backend-sync'
@@ -20,6 +22,7 @@ import { JdPreview } from '@/modules/recruiting/job-profile/JdPreview'
 import { JdSalaryBenefits } from '@/modules/recruiting/job-profile/JdSalaryBenefits'
 import { JdSection } from '@/modules/recruiting/job-profile/JdSection'
 import { Hint } from '@/components/patterns/Hint'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -39,7 +42,7 @@ const SECTION_TITLES: Record<JdSectionKey, string> = {
   valutazione: 'Cosa valuterà SKILL-VISION',
 }
 const SECTION_SUB: Partial<Record<JdSectionKey, string>> = {
-  softSkills: 'Le 35 soft skill APEX 5D. Le voci con peso sono derivate dalle skill flaggate per il ruolo — imposta per ciascuna il VALORE ATTESO (scala APEX /31, decimali ammessi, es. 6.3).',
+  softSkills: 'Le 35 soft skill APEX 5D. Le voci con peso sono derivate dalle skill flaggate per la posizione — imposta per ciascuna il VALORE ATTESO (scala APEX /31, decimali ammessi, es. 6.3).',
 }
 
 // Ported literal groups order from jd_buildEditor() (modules/recruiting.html
@@ -48,22 +51,28 @@ const SECTION_SUB: Partial<Record<JdSectionKey, string>> = {
 // extra requirements last.
 const SECTION_ORDER: JdSectionKey[] = ['responsabilita', 'attivita']
 const SECTION_ORDER_REST: JdSectionKey[] = ['competenzeTecniche', 'titoliStudio', 'certificazioni', 'esperienza', 'settori', 'lingue', 'disponibilita', 'personalita', 'kpi', 'valutazione']
+// Tutte le sezioni aperte all'inizio, come prima.
+const ALL_SECTIONS = ['header', 'salary', ...SECTION_ORDER, 'hard', 'softSkills', ...SECTION_ORDER_REST, 'extra']
 
-function AccordionSection({ index, title, sub, collapsed, onToggle, children }: { index: number; title: string; sub?: string; collapsed: boolean; onToggle: () => void; children: ReactNode }) {
+// Una sezione della scheda: voce di un Accordion a scelta multipla, dentro
+// una card. Solo l'intestazione apre e chiude; le frecce passano da una
+// intestazione all'altra.
+function AccordionSection({ value, index, title, sub, children }: { value: string; index: number; title: string; sub?: string; children: ReactNode }) {
   return (
-    <Card padding="none">
-      <button type="button" onClick={onToggle} className="flex w-full items-center gap-3 border-b border-border bg-secondary px-4 py-3.5 text-left">
-        <span className="rounded-sm border border-border bg-card px-2 py-0.5 font-mono text-[11px] font-semibold text-muted-foreground">{String(index).padStart(2, '0')}</span>
-        <h2 className="flex-1 text-[14px] font-semibold">{title}</h2>
-        <ChevronDown className={cn('size-4 shrink-0 text-muted-foreground transition-transform', collapsed && '-rotate-90')} aria-hidden="true" />
-      </button>
-      {!collapsed && (
-        <div className="p-4">
-          {sub && <p className="mb-3 text-[12px] text-muted-foreground">{sub}</p>}
+    <AccordionItem value={value} asChild>
+      <Card padding="none">
+        <AccordionTrigger className="gap-3 bg-muted px-4 py-3 hover:no-underline data-[state=open]:border-b data-[state=open]:border-border">
+          <span className="flex flex-1 items-center gap-3">
+            <span className="rounded-xs border border-border bg-card px-2 py-0.5 font-mono text-app-caption text-muted-foreground tabular-nums">{String(index).padStart(2, '0')}</span>
+            <span className="text-app-section">{title}</span>
+          </span>
+        </AccordionTrigger>
+        <AccordionContent className="p-4">
+          {sub && <p className="mb-3 text-app-small text-muted-foreground">{sub}</p>}
           {children}
-        </div>
-      )}
-    </Card>
+        </AccordionContent>
+      </Card>
+    </AccordionItem>
   )
 }
 
@@ -100,8 +109,8 @@ function buildInitialState(): JdState {
 // by a role-switch event that doesn't exist in this architecture.
 export default function JobProfilePage() {
   const [jdState, setJdState] = useState<JdState>(buildInitialState)
+  const [confirm, confirmDialog] = useConfirm()
   const [currentPreset, setCurrentPreset] = useState<JdPresetId>('sam')
-  const [collapsed, setCollapsed] = useState<Partial<Record<string, boolean>>>({})
   const [saveMessage, setSaveMessage] = useState('')
   const [backendNote, setBackendNote] = useState('')
 
@@ -135,7 +144,7 @@ export default function JobProfilePage() {
       if (cancelled) return
       if (result.ok) {
         setJdState(result.jdState)
-        setBackendNote('Scheda caricata dal server ✓')
+        setBackendNote('Scheda caricata dal server')
         setBackendProfileId(result.profileId)
         setApproved(result.approved)
         setPublicationLink(result.publicationLink)
@@ -154,17 +163,13 @@ export default function JobProfilePage() {
     }
   }, [])
 
-  function toggleSection(key: string) {
-    setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }))
-  }
-
   // Ported from jd_loadProfile()/jd_confirmSwitch() (modules/recruiting.html
   // ~3843-3856) — switching a preset never touches global role/scoring
   // state (only "Crea scheda vuota" does that, and it stays deferred), so
   // it's safe to reproduce directly. Does NOT auto-persist — matches
   // legacy exactly; only the explicit "Salva JD" button writes storage.
-  function handleSelectPreset(pid: JdPresetId) {
-    if (!window.confirm('Cambiare profilo di partenza sovrascriverà le selezioni correnti. Continuare?')) return
+  async function handleSelectPreset(pid: JdPresetId) {
+    if (!(await confirm({ title: 'Cambiare profilo di partenza?', description: 'Le selezioni correnti della scheda verranno sovrascritte.', confirmLabel: 'Cambia profilo', destructive: true }))) return
     setCurrentPreset(pid)
     setJdState(buildJdStateFromPreset(pid))
     setSaveMessage('')
@@ -197,7 +202,7 @@ export default function JobProfilePage() {
       // exactly like every other feature gated on a backend link.
     }
     saveJdTemplate(DEFAULT_ROLE, jdState)
-    setSaveMessage(`JD salvata per il ruolo "${DEFAULT_ROLE}" ✓`)
+    setSaveMessage(`JD salvata per la posizione "${DEFAULT_ROLE}"`)
     setMode('preview')
   }
 
@@ -233,11 +238,11 @@ export default function JobProfilePage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <FileText className="size-[22px] text-muted-foreground" aria-hidden="true" />
+          <FileText className="size-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <div className="flex-1">
-          <h2 className="text-lg font-semibold tracking-tight">Configura la Scheda Professionale per la ricerca in corso</h2>
-          <p className="max-w-[70ch] text-[13px] text-muted-foreground">
+          <h2 className="text-app-section font-semibold tracking-tight">Configura la Scheda Professionale per la ricerca in corso</h2>
+          <p className="max-w-[70ch] text-app-small text-muted-foreground">
             {mode === 'edit'
               ? "Parti da un profilo precompilato, poi seleziona, deseleziona, cambia livelli e aggiungi righe libere per adattarlo alla ricerca specifica. L'anteprima a destra si aggiorna in tempo reale ed è pronta per essere stampata o condivisa."
               : 'Anteprima pulita della scheda salvata — pronta per essere approvata e condivisa. Usa "Modifica" per tornare all\'editor.'}
@@ -265,66 +270,58 @@ export default function JobProfilePage() {
 
       {mode === 'edit' ? (
         <>
-          <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
-            Ricerca/cambio ruolo, "Crea scheda vuota" e l'importazione CSV/XLSX restano disponibili solo nell'app corrente — questa scheda resta sul ruolo
+          <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground">
+            Ricerca/cambio posizione, "Crea scheda vuota" e l'importazione CSV/XLSX restano disponibili solo nell'app corrente — questa scheda resta sul ruolo
             attivo (<b className="font-semibold text-foreground">{DEFAULT_ROLE}</b>).
           </p>
 
           <div>
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Profilo di partenza</div>
-            <div className="flex flex-wrap gap-2">
+            <div className="label-mono mb-2 text-muted-foreground">Profilo di partenza</div>
+            <ToggleGroup type="single" value={currentPreset} onValueChange={(pid) => pid && handleSelectPreset(pid as JdPresetId)} aria-label="Profilo di partenza">
               {(Object.keys(JD_PROFILES) as JdPresetId[]).map((pid) => (
-                <button
-                  key={pid}
-                  type="button"
-                  onClick={() => handleSelectPreset(pid)}
-                  className={cn(
-                    'rounded-sm border px-3.5 py-2 text-[13px] font-medium transition-colors',
-                    pid === currentPreset ? 'border-primary bg-primary/10 font-semibold text-foreground' : 'border-border text-muted-foreground hover:border-ring',
-                  )}
-                >
+                <ToggleGroupItem key={pid} value={pid}>
                   {JD_PROFILES[pid].label}
-                </button>
+                </ToggleGroupItem>
               ))}
-            </div>
+            </ToggleGroup>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
-            <div className="flex flex-col gap-4">
-              <AccordionSection index={nextIdx()} title="Intestazione posizione" collapsed={!!collapsed.header} onToggle={() => toggleSection('header')}>
+            <Accordion type="multiple" defaultValue={ALL_SECTIONS} className="flex flex-col gap-4">
+              <AccordionSection index={nextIdx()} title="Intestazione posizione" value="header">
                 <JdHeaderFields header={jdState.header} scopo={jdState.scopo} onHeaderChange={(patch) => setJdState((prev) => ({ ...prev, header: { ...prev.header, ...patch } }))} onScopoChange={(scopo) => setJdState((prev) => ({ ...prev, scopo }))} />
               </AccordionSection>
 
-              <AccordionSection index={nextIdx()} title="Fasce Retributive e Benefit" collapsed={!!collapsed.salary} onToggle={() => toggleSection('salary')}>
+              <AccordionSection index={nextIdx()} title="Fasce Retributive e Benefit" value="salary">
                 <JdSalaryBenefits role={DEFAULT_ROLE} />
               </AccordionSection>
 
               {SECTION_ORDER.map((key) => (
-                <AccordionSection key={key} index={nextIdx()} title={SECTION_TITLES[key]} sub={SECTION_SUB[key]} collapsed={!!collapsed[key]} onToggle={() => toggleSection(key)}>
+                <AccordionSection key={key} index={nextIdx()} title={SECTION_TITLES[key]} sub={SECTION_SUB[key]} value={key}>
                   <JdSection section={jdState.sections[key]} onChange={(next) => updateSection(key, next)} />
                 </AccordionSection>
               ))}
 
-              <AccordionSection index={nextIdx()} title="Hard skills" sub="Livello richiesto: seleziona una voce, poi Base / Intermedio / Avanzato / Esperto." collapsed={!!collapsed.hard} onToggle={() => toggleSection('hard')}>
+              <AccordionSection index={nextIdx()} title="Hard skills" sub="Livello richiesto: seleziona una voce, poi Base / Intermedio / Avanzato / Esperto." value="hard">
                 <JdHardSkills groups={jdState.hardSkillGroups} onChange={updateHardSkillGroups} />
               </AccordionSection>
 
-              <AccordionSection index={nextIdx()} title="Soft skills" sub={SECTION_SUB.softSkills} collapsed={!!collapsed.softSkills} onToggle={() => toggleSection('softSkills')}>
+              <AccordionSection index={nextIdx()} title="Soft skills" sub={SECTION_SUB.softSkills} value="softSkills">
                 <JdSection section={jdState.sections.softSkills} onChange={(next) => updateSection('softSkills', next)} />
               </AccordionSection>
 
               {SECTION_ORDER_REST.map((key) => (
-                <AccordionSection key={key} index={nextIdx()} title={SECTION_TITLES[key]} sub={SECTION_SUB[key]} collapsed={!!collapsed[key]} onToggle={() => toggleSection(key)}>
+                <AccordionSection key={key} index={nextIdx()} title={SECTION_TITLES[key]} sub={SECTION_SUB[key]} value={key}>
                   <JdSection section={jdState.sections[key]} onChange={(next) => updateSection(key, next)} />
                 </AccordionSection>
               ))}
 
-              <AccordionSection index={nextIdx()} title="Richieste specifiche aggiuntive" sub="Spazi liberi per competenze o requisiti non coperti sopra — cambia ad ogni ricerca." collapsed={!!collapsed.extra} onToggle={() => toggleSection('extra')}>
+              <AccordionSection index={nextIdx()} title="Richieste specifiche aggiuntive" sub="Spazi liberi per competenze o requisiti non coperti sopra — cambia ad ogni ricerca." value="extra">
                 <JdExtraRequirements rows={jdState.extra} onChange={updateExtra} />
               </AccordionSection>
-            </div>
+            </Accordion>
 
-            <Card className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+            <Card className="self-start">
               <JdPreview jd={jdState} />
             </Card>
           </div>
@@ -334,9 +331,9 @@ export default function JobProfilePage() {
               <Save className="size-4 shrink-0" aria-hidden="true" />
               Salva JD per &quot;{DEFAULT_ROLE}&quot;
             </Button>
-            {saveMessage && <span className="text-[12.5px] font-medium text-success">{saveMessage}</span>}
+            {saveMessage && <span className="text-app-small font-medium text-success">{saveMessage}</span>}
             {backendNote && (
-              <span className="flex items-center gap-1.5 text-[12.5px] font-medium text-muted-foreground">
+              <span className="flex items-center gap-1.5 text-app-small font-medium text-muted-foreground">
                 <AlertTriangle className="size-3.5 shrink-0" aria-hidden="true" />
                 {backendNote}
               </span>
@@ -350,14 +347,8 @@ export default function JobProfilePage() {
           </Card>
 
           <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
-            <label className="flex items-center gap-2 text-[13px] font-semibold">
-              <input
-                type="checkbox"
-                checked={approved}
-                disabled={!backendProfileId || approvalPending}
-                onChange={handleToggleApproval}
-                className="size-4 shrink-0 cursor-pointer accent-ring disabled:cursor-not-allowed"
-              />
+            <label className="flex items-center gap-2 text-app-small font-semibold">
+              <Checkbox checked={approved} disabled={!backendProfileId || approvalPending} onCheckedChange={() => handleToggleApproval()} />
               {approved ? (
                 <span className="flex items-center gap-1.5 text-success">
                   <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
@@ -368,11 +359,11 @@ export default function JobProfilePage() {
               )}
             </label>
             {!backendProfileId && (
-              <span className="text-[12px] text-muted-foreground">Salva sul server (carica un CV per collegare la posizione) prima di approvare.</span>
+              <span className="text-app-caption text-muted-foreground">Salva sul server (carica un CV per collegare la posizione) prima di approvare.</span>
             )}
-            {approvalError && <span className="text-[12px] font-medium text-destructive">{approvalError}</span>}
+            {approvalError && <span className="text-app-caption font-medium text-destructive">{approvalError}</span>}
             {approved && publicationLink && (
-              <div className="flex min-w-0 items-center gap-1.5 text-[12px] text-muted-foreground">
+              <div className="flex min-w-0 items-center gap-1.5 text-app-caption text-muted-foreground">
                 <span>Link di pubblicazione:</span>
                 <code className="truncate rounded bg-secondary px-1.5 py-0.5">{publicationLink}</code>
                 <Hint label="Copia link">
@@ -391,6 +382,7 @@ export default function JobProfilePage() {
           </div>
         </>
       )}
+      {confirmDialog}
     </div>
   )
 }

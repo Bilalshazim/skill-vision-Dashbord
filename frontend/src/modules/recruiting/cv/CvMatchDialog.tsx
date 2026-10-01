@@ -221,18 +221,18 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
         </DialogHeader>
 
         <div className="flex items-center gap-4 rounded-sm border border-border bg-secondary p-4">
-          <div className={cn('font-mono text-4xl font-black tracking-[-.045em] tabular-nums', above ? 'text-success' : 'text-warning')}>{candidate.icv}%</div>
-          <p className="text-[12.5px] text-muted-foreground">
+          <div className={cn('text-metric-lg font-mono font-semibold tabular-nums', above ? 'text-success' : 'text-warning')}>{candidate.icv}%</div>
+          <p className="text-app-small text-muted-foreground">
             {above
-              ? `✓ Sopra soglia (${DEFAULT_MATCH_THRESHOLD}%) — link test idoneo all'invio automatico`
+              ? `Sopra soglia (${DEFAULT_MATCH_THRESHOLD}%) — link test idoneo all'invio automatico`
               : `Sotto soglia (${DEFAULT_MATCH_THRESHOLD}%) — invio manuale`}
           </p>
         </div>
 
         <div>
-          <div className="mb-2 text-[13px] font-semibold">Skill essenziali vs target</div>
+          <div className="mb-2 text-app-small font-semibold">Skill essenziali vs target</div>
           {pending ? (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-app-caption text-muted-foreground">
               Test soft skill non ancora completato — il dettaglio per skill sarà disponibile dopo il test (vedi Pagina
               A).
             </p>
@@ -269,7 +269,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
 
             {already?.status === 'da_inviare' && (
               <>
-                <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-warning">
+                <span className="inline-flex items-center gap-1.5 text-app-small font-medium text-warning">
                   <Clock3 className="size-3.5 shrink-0" aria-hidden="true" />
                   Da inviare
                 </span>
@@ -290,14 +290,14 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
             )}
 
             {already?.status === 'inviato' && (
-              <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-success">
+              <span className="inline-flex items-center gap-1.5 text-app-small font-medium text-success">
                 <CheckCircle2 className="size-3.5 shrink-0" aria-hidden="true" />
                 Candidato in pre-screening — link generato
               </span>
             )}
 
             {already?.status === 'completato' && (
-              <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-success">
+              <span className="inline-flex items-center gap-1.5 text-app-small font-medium text-success">
                 <CheckCircle2 className="size-3.5 shrink-0" aria-hidden="true" />
                 Test completato
               </span>
@@ -307,13 +307,13 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
                 backend state (see handleRefreshStatus above); never set by
                 any local/optimistic write. */}
             {already?.status === 'ha_risposto' && (
-              <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-success">
+              <span className="inline-flex items-center gap-1.5 text-app-small font-medium text-success">
                 <CheckCircle2 className="size-3.5 shrink-0" aria-hidden="true" />
                 Ha risposto
               </span>
             )}
             {already?.status === 'non_ha_risposto' && (
-              <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-destructive">
+              <span className="inline-flex items-center gap-1.5 text-app-small font-medium text-destructive">
                 <XCircle className="size-3.5 shrink-0" aria-hidden="true" />
                 Non ha risposto
               </span>
@@ -364,7 +364,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
           </div>
 
           {writeState.kind === 'error' && (
-            <p className="flex items-start gap-1.5 text-[12px] font-medium text-destructive sm:justify-end">
+            <p className="flex items-start gap-1.5 text-app-caption font-medium text-destructive sm:justify-end">
               <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
               {writeState.message}
             </p>

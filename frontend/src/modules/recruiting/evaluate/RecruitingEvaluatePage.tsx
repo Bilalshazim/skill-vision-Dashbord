@@ -15,11 +15,11 @@ export default function RecruitingEvaluatePage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <ClipboardList className="size-[22px] text-muted-foreground" aria-hidden="true" />
+          <ClipboardList className="size-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Le mie valutazioni</h2>
-          <p className="max-w-[70ch] text-[13px] text-muted-foreground">Candidature che ti sono state assegnate come valutatore.</p>
+          <h2 className="text-app-section font-semibold tracking-tight">Le mie valutazioni</h2>
+          <p className="max-w-[70ch] text-app-small text-muted-foreground">Candidature che ti sono state assegnate come valutatore.</p>
         </div>
       </div>
       <EvaluatorWorkspace />

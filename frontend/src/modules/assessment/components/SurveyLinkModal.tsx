@@ -1,12 +1,19 @@
 import { useState } from 'react'
 
+import { cn } from '@/lib/utils'
+import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { Note } from '@/components/patterns/Note'
+import { Initials } from '@/components/ui/avatar'
+import { Checkbox } from '@/components/ui/checkbox'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Input } from '@/components/ui/input'
+import { Field } from '@/components/patterns/Field'
 import { Hint } from '@/components/patterns/Hint'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Modal } from '@/modules/assessment/components/Modal'
+import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { COLLABORATOR_LETTER_TEMPLATE } from '@/modules/assessment/lib/demo-data'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
-import { initials } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentState, Employee } from '@/modules/assessment/lib/types'
 
 function resolveSurveySender(state: AssessmentState, ui: Record<string, unknown>) {
@@ -194,21 +201,21 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
     const okCount = results.results.filter((r) => r.success).length
     const failCount = results.results.length - okCount
     return (
-      <Modal title={ui.surveySendResultsTitle} wide onClose={onClose} footer={<Button variant="default" onClick={() => setResults(null)}>{ui.btnClose}</Button>}>
-        <div className="small-note" style={{ marginBottom: 12 }}>
+      <ModalDialog title={ui.surveySendResultsTitle} wide onClose={onClose} footer={<Button variant="default" onClick={() => setResults(null)}>{ui.btnClose}</Button>}>
+        <Note className="mb-3">
           {ui.surveySendResultsSub(okCount, failCount)}
-        </div>
-        <div className="survey-emp-list">
+        </Note>
+        <div className="max-h-80 overflow-y-auto rounded-sm border border-border">
           {results.results.map((r) => {
             const rec = byId.get(r.id)
             return (
-              <div className="survey-emp-row" key={r.id}>
+              <div className="flex items-center gap-3 border-b border-border px-3 py-2 last:border-b-0" key={r.id}>
                 <Badge tone={r.success ? 'success' : 'destructive'} dot>
                   {r.success ? ui.surveySendResultsOkLabel : ui.surveySendResultsFailLabel}
                 </Badge>
-                <div style={{ flex: 1 }}>
-                  <div className="survey-emp-name">{rec?.name || r.email}</div>
-                  <div className="survey-emp-email">
+                <div className="flex-1">
+                  <div className="text-app-small font-medium">{rec?.name || r.email}</div>
+                  <div className="text-app-caption text-muted-foreground">
                     {r.email}
                     {!r.success && r.error ? ` — ${r.error}` : ''}
                   </div>
@@ -217,47 +224,46 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
             )
           })}
         </div>
-      </Modal>
+      </ModalDialog>
     )
   }
 
   return (
-    <Modal title={ui.surveyLinkModalTitle} sub={ui.surveyLinkModalSub} wide onClose={onClose} footer={<Button variant="outline" onClick={onClose}>{ui.btnClose}</Button>}>
+    <ModalDialog title={ui.surveyLinkModalTitle} sub={ui.surveyLinkModalSub} wide onClose={onClose} footer={<Button variant="outline" onClick={onClose}>{ui.btnClose}</Button>}>
       {!link && (
-        <div className="survey-warning-box">
-          <div>
-            <b>{ui.surveyNoLinkConfiguredTitle}</b>
-            {ui.surveyNoLinkConfiguredBody}
-          </div>
-        </div>
+        <InlineAlert tone="warning" title={ui.surveyNoLinkConfiguredTitle} className="mb-4">
+          {ui.surveyNoLinkConfiguredBody}
+        </InlineAlert>
       )}
-      <label className="small-note" style={{ display: 'block', marginBottom: 16 }}>
-        <div style={{ marginBottom: 4, fontWeight: 600 }}>{ui.surveyLinkInputLabel}</div>
-        <input
+      <Field label={ui.surveyLinkInputLabel}>
+        <Input
           type="text"
           value={state.settings.surveyLink || ''}
           onChange={(e) => setSurveyLink(e.target.value)}
           placeholder={ui.surveyLinkInputPlaceholder as string}
           disabled={!canEdit}
-          style={{ width: '100%' }}
         />
-      </label>
-      <div className="survey-sender-box">
+      </Field>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-border bg-muted px-3 py-2 text-app-small [&_b]:font-medium">
         <div>
           <b>{ui.surveySenderLabel}:</b> {sender.mode === 'admin' ? ui.surveySenderAdminOption(sender.email) : ui.surveySenderReferenteOption(sender.name, sender.email)}
         </div>
-        <select value={sender.mode} onChange={(e) => setSenderMode(e.target.value)}>
+        <SelectField size="sm" value={sender.mode} onValueChange={(v) => setSenderMode(v)}>
           <option value="referente">{ui.surveySenderModeReferente}</option>
           <option value="admin">{ui.surveySenderModeAdmin}</option>
-        </select>
+        </SelectField>
       </div>
-      {!sender.email && <div className="survey-warning-box">{ui.surveySenderMissingWarning}</div>}
+      {!sender.email && (
+        <InlineAlert tone="warning" className="mb-4">
+          {ui.surveySenderMissingWarning}
+        </InlineAlert>
+      )}
 
-      <div className="survey-emp-list">
+      <div className="max-h-80 overflow-y-auto rounded-sm border border-border">
         {employees.length > 0 && (
-          <div className="survey-emp-selectall">
-            <input type="checkbox" id="survey-select-all" checked={allSelected} onChange={(e) => toggleAll(e.target.checked)} />
-            <label htmlFor="survey-select-all" style={{ cursor: 'pointer' }}>
+          <div className="flex items-center gap-3 border-b border-border bg-muted px-3 py-2 text-app-small font-medium">
+            <Checkbox id="survey-select-all" checked={allSelected} onCheckedChange={(c) => toggleAll(c === true)} />
+            <label className="cursor-pointer" htmlFor="survey-select-all" >
               {ui.surveySelectAllLabel} ({employees.length})
             </label>
           </div>
@@ -267,40 +273,44 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
             const checked = selected.has(e.id)
             const hasEmail = !!(e.email && e.email.trim())
             return (
-              <div className={`survey-emp-row${checked ? ' selected' : ''}`} key={e.id}>
-                <input type="checkbox" checked={checked} onChange={(ev) => toggle(e.id, ev.target.checked)} />
-                <div className="avatar">{initials(e.nome, e.cognome)}</div>
-                <div style={{ flex: 1 }}>
-                  <div className="survey-emp-name">
+              <div className={cn('flex items-center gap-3 border-b border-border px-3 py-2 last:border-b-0', checked && 'bg-accent')} key={e.id}>
+                <Checkbox checked={checked} onCheckedChange={(c) => toggle(e.id, c === true)} />
+                <Initials first={e.nome} last={e.cognome} />
+                <div className="flex-1">
+                  <div className="text-app-small font-medium">
                     {e.nome} {e.cognome}
                   </div>
-                  <div className="survey-emp-email">{hasEmail ? e.email : <Badge>{ui.surveyNoEmailBadge}</Badge>}</div>
+                  <div className="text-app-caption text-muted-foreground">{hasEmail ? e.email : <Badge>{ui.surveyNoEmailBadge}</Badge>}</div>
                 </div>
               </div>
             )
           })
         ) : (
-          <div className="small-note" style={{ padding: 14 }}>
+          <Note className="p-4">
             {ui.anagNoEmployeesFound}
-          </div>
+          </Note>
         )}
       </div>
 
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontWeight: 600 }}>{ui.surveyLetterPreviewTitle}</div>
-        <div className="small-note" style={{ marginBottom: 6 }}>
+      <div className="mt-4">
+        <div className="text-app-small font-medium">{ui.surveyLetterPreviewTitle}</div>
+        <Note className="mb-2">
           {ui.surveyLetterPreviewHint}
-        </div>
-        <div style={{ border: '1px solid var(--border, #ddd)', borderRadius: 8, padding: 12 }}>
-          <div style={{ marginBottom: 8 }}>
+        </Note>
+        <div className="rounded-sm border border-border p-3 text-app-small [&_b]:font-medium">
+          <div className="mb-2">
             <b>{ui.surveyLetterPreviewSubjectLabel}:</b> {preview.subject}
           </div>
-          <div style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>{preview.body}</div>
+          <div className="whitespace-pre-wrap">{preview.body}</div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
-        {!apiConfigured && <span className="small-note" style={{ color: 'var(--warning)' }}>{ui.toastSurveyApiNotConfigured}</span>}
+      <div className="flex justify-end items-center gap-3 mt-4 flex-wrap">
+        {!apiConfigured && (
+          <InlineAlert tone="warning" layout="text">
+            {ui.toastSurveyApiNotConfigured}
+          </InlineAlert>
+        )}
         {!apiConfigured && (
           <Hint label={ui.surveyMailtoFallbackHint}>
             <Button variant="outline" size="sm" onClick={mailtoFallback}>
@@ -312,6 +322,6 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
           {sending ? ui.toastSurveySending(selected.size) : ui.surveyInviaBtn}
         </Button>
       </div>
-    </Modal>
+    </ModalDialog>
   )
 }

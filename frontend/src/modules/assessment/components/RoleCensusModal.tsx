@@ -1,8 +1,14 @@
 import { useState } from 'react'
 
+import { CardLabel } from '@/components/ui/card'
+import { Note } from '@/components/patterns/Note'
+import { useDirty } from '@/hooks/use-dirty'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Field } from '@/components/patterns/Field'
+import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Modal } from '@/modules/assessment/components/Modal'
+import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { allRolesKnown } from '@/modules/assessment/lib/calculations'
 import { getSoftClusters, getSoftSkills } from '@/modules/assessment/lib/legacy-utils'
@@ -21,6 +27,7 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
   const [selected, setSelected] = useState<string | null>(roles[0] || null)
   const [creating, setCreating] = useState(false)
   const [newRoleName, setNewRoleName] = useState('')
+  const dirty = useDirty({ newRoleName })
 
   function cycleWeight(role: string, skillId: string) {
     if (!canEdit) return
@@ -81,22 +88,21 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
   if (rp?.skillWeights) Object.values(rp.skillWeights).forEach((w) => (counts[w as 1 | 2 | 3] = (counts[w as 1 | 2 | 3] || 0) + 1))
 
   return (
-    <Modal title={ui.roleCensusTitle} sub={ui.roleCensusSub} wide onClose={onClose} footer={<Button variant="outline" onClick={onClose}>{ui.settingsClose}</Button>}>
-      <div className="rc-role-bar">
-        <div className="field" style={{ flex: 1, minWidth: 220, maxWidth: 320 }}>
-          <label>{ui.anagSelectRole}</label>
-          <select
+    <ModalDialog dirty={dirty} title={ui.roleCensusTitle} sub={ui.roleCensusSub} wide onClose={onClose} footer={<Button variant="outline" onClick={onClose}>{ui.settingsClose}</Button>}>
+      <div className="mb-4 flex flex-wrap items-end gap-3">
+        <Field label={ui.anagSelectRole} className="min-w-56 max-w-80 flex-1">
+          <SelectField
             disabled={!roles.length && !canEdit}
             value={creating ? '__altro__' : selected || ''}
-            onChange={(e) => {
+            onValueChange={(v) => {
               // "Altro ruolo" replaces the separate green "+Crea Ruolo"
               // button — picking it opens the same inline name input this
               // modal already had, just reached from the dropdown itself.
-              if (e.target.value === '__altro__') {
+              if (v === '__altro__') {
                 setCreating(true)
                 return
               }
-              setSelected(e.target.value)
+              setSelected(v)
               setCreating(false)
             }}
           >
@@ -106,14 +112,13 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
               </option>
             ))}
             {canEdit && <option value="__altro__">{ui.altroRuoloOption}</option>}
-          </select>
-        </div>
+          </SelectField>
+        </Field>
         {canEdit && creating && (
           <>
-            <div className="field" style={{ flex: 1, minWidth: 200, maxWidth: 280 }}>
-              <label>{ui.newRoleTitleLabel}</label>
-              <input className="neu-input" type="text" placeholder={ui.newRoleTitlePh} value={newRoleName} onChange={(e) => setNewRoleName(e.target.value)} />
-            </div>
+            <Field label={ui.newRoleTitleLabel} className="min-w-52 max-w-72 flex-1">
+              <Input type="text" placeholder={ui.newRoleTitlePh} value={newRoleName} onChange={(e) => setNewRoleName(e.target.value)} />
+            </Field>
             <Button variant="default" onClick={confirmCreateRole}>
               {ui.newRoleSaveBtn}
             </Button>
@@ -131,10 +136,10 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
       </div>
 
       {!selected ? (
-        <div className="small-note">{ui.rcNoRoleSelected}</div>
+        <Note>{ui.rcNoRoleSelected}</Note>
       ) : (
         <>
-          <div className="rc-counts">
+          <div className="mb-4 flex flex-wrap gap-2">
             {[3, 2, 1].map((w) => {
               const lvl = SKILL_WEIGHT_LEVELS[w]
               const n = counts[w as 1 | 2 | 3] || 0
@@ -147,42 +152,41 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
             })}
           </div>
           {SOFT_CLUSTERS.map((cluster) => (
-            <div className="cluster-block" key={cluster}>
-              <div className="cluster-title">{cluster}</div>
+            <section className="mb-4" key={cluster}>
+              <CardLabel className="mb-2 border-b border-border pb-2">{cluster}</CardLabel>
               {SOFT_SKILLS.filter((s) => s.cluster === cluster).map((s) => {
                 const w = rp?.skillWeights?.[s.id] || 0
-                const chipClass = w ? SKILL_WEIGHT_LEVELS[w].chip : 'chip-gray'
                 const label = weightLabel(w, lang)
                 return (
-                  <div className="rc-skill-row" key={s.id}>
-                    <span className="rc-skill-name">{s.name}</span>
-                    <span className={`chip ${chipClass} rc-weight-badge`} onClick={() => canEdit && cycleWeight(selected, s.id)}>
-                      <span className="dt" />
-                      {label}
-                    </span>
+                  <div className="flex items-center gap-3 border-b border-border py-2 last:border-b-0" key={s.id}>
+                    <span className="min-w-0 flex-1 text-app-small">{s.name}</span>
+                    <button type="button" className="inline-flex min-w-24 justify-center rounded-full outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-default" disabled={!canEdit} onClick={() => cycleWeight(selected, s.id)}>
+                      <Badge>{label}</Badge>
+                    </button>
                     {w ? (
-                      <input
+                      <Input
                         type="number"
-                        className="neu-input rc-atteso-input"
+                        size="sm"
+                        className="w-16 text-center tabular-nums"
                         min={1}
                         max={10}
                         step={0.1}
                         value={rp?.skillExpected?.[s.id] ?? 8}
                         disabled={!canEdit}
-                        title={ui.rcExpectedLabel}
+                        aria-label={ui.rcExpectedLabel}
                         onChange={(e) => setExpected(selected, s.id, e.target.value)}
                       />
                     ) : (
-                      <span className="rc-atteso-placeholder">—</span>
+                      <span className="w-16 shrink-0 text-center text-app-caption text-muted-foreground">—</span>
                     )}
                   </div>
                 )
               })}
-            </div>
+            </section>
           ))}
         </>
       )}
-    </Modal>
+    </ModalDialog>
   )
 }
 

@@ -1,8 +1,9 @@
 import { X } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Input } from '@/components/ui/input'
 import type { IvCompareRow } from '@/modules/recruiting/lib/interview-protocol-types'
-import { dashedBtnClass, inputClass, tableClass, tableWrapClass, tdClass, thClass } from '@/modules/recruiting/profile-hub/protocol/protocol-styles'
+import { dashedBtnClass } from '@/modules/recruiting/profile-hub/protocol/protocol-styles'
 
 // Ported from ivEvalRenderCompareRows()/ivReportRenderCompareRows() (modules/
 // recruiting.html ~4626-4636, ~4716-4726) — shared by both Scheda
@@ -38,54 +39,52 @@ export function CompareRowsTable({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className={tableWrapClass}>
-        <table className={tableClass}>
-          <thead>
-            <tr>
-              <th className={thClass}>Rank</th>
-              <th className={thClass}>Candidato</th>
-              <th className={thClass}>{scoreLabel}</th>
-              <th className={thClass}>Note</th>
-              <th className={thClass} />
-            </tr>
-          </thead>
-          <tbody>
+      <Table frame size="sm" minWidth="lg">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Rank</TableHead>
+              <TableHead>Candidato</TableHead>
+              <TableHead>{scoreLabel}</TableHead>
+              <TableHead>Note</TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {rows.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-2 py-3 text-center text-muted-foreground">
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
                   Nessun candidato in confronto
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
             {rows.map((row, idx) => (
               // eslint-disable-next-line react/no-array-index-key -- rows have no stable id in legacy either (plain array, spliced by index)
-              <tr key={idx}>
-                <td className={tdClass}>
-                  <input type="text" value={row.rank} placeholder={String(idx + 1)} onChange={(e) => updateRow(idx, { rank: e.target.value })} className={cn(inputClass, 'w-14')} />
-                </td>
-                <td className={tdClass}>
-                  <input type="text" value={row.code} placeholder="Es. CAND-014" onChange={(e) => updateRow(idx, { code: e.target.value })} className={inputClass} />
-                </td>
-                <td className={tdClass}>
+              <TableRow key={idx}>
+                <TableCell>
+                  <Input type="text" value={row.rank} placeholder={String(idx + 1)} onChange={(e) => updateRow(idx, { rank: e.target.value })} size="sm" className="w-14" />
+                </TableCell>
+                <TableCell>
+                  <Input type="text" value={row.code} placeholder="Es. CAND-014" onChange={(e) => updateRow(idx, { code: e.target.value })} size="sm" />
+                </TableCell>
+                <TableCell>
                   {scoreKind === 'number' ? (
-                    <input type="number" min={0} max={5} step={0.1} value={row.score} onChange={(e) => updateRow(idx, { score: e.target.value })} className={cn(inputClass, 'w-20')} />
+                    <Input type="number" min={0} max={5} step={0.1} value={row.score} onChange={(e) => updateRow(idx, { score: e.target.value })} size="sm" className="w-20" />
                   ) : (
-                    <input type="text" value={row.score} onChange={(e) => updateRow(idx, { score: e.target.value })} className={inputClass} />
+                    <Input type="text" value={row.score} onChange={(e) => updateRow(idx, { score: e.target.value })} size="sm" />
                   )}
-                </td>
-                <td className={tdClass}>
-                  <input type="text" value={row.note} onChange={(e) => updateRow(idx, { note: e.target.value })} className={inputClass} />
-                </td>
-                <td className={tdClass}>
+                </TableCell>
+                <TableCell>
+                  <Input type="text" value={row.note} onChange={(e) => updateRow(idx, { note: e.target.value })} size="sm" />
+                </TableCell>
+                <TableCell>
                   <button type="button" onClick={() => removeRow(idx)} aria-label="Rimuovi dal confronto" className="text-destructive hover:text-destructive/80">
                     <X className="size-3.5" aria-hidden="true" />
                   </button>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
       <button type="button" onClick={addRow} className={dashedBtnClass}>
         + Aggiungi candidato al confronto
       </button>

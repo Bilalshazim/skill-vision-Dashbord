@@ -2,6 +2,7 @@ import { Check, IdCard, Pencil } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import { Input } from '@/components/ui/input'
 import { cipApi } from '@/lib/api/endpoints'
 import { getBackendUser } from '@/lib/api/client'
 import { cn } from '@/lib/utils'
@@ -27,10 +28,10 @@ function EditableField({ label, value, onSave }: { label: string; value: string;
 
   return (
     <div className="min-w-0">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="label-mono text-muted-foreground">{label}</div>
       {editing ? (
         <div className="mt-0.5 flex items-center gap-1">
-          <input
+          <Input
             autoFocus
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -41,8 +42,8 @@ function EditableField({ label, value, onSave }: { label: string; value: string;
                 setEditing(false)
               }
             }}
-            className="w-full rounded-sm border border-border bg-background px-2 py-1 text-[14px] font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-          />
+            size="sm"
+ />
           <Hint label="Salva">
             <Button
               type="button"
@@ -59,7 +60,7 @@ function EditableField({ label, value, onSave }: { label: string; value: string;
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="group mt-0.5 flex w-full items-center gap-1.5 text-left text-[14px] font-semibold text-foreground"
+          className="group mt-0.5 flex w-full items-center gap-1.5 text-left text-app-small font-semibold text-foreground"
           title={`Modifica ${label.toLowerCase()}`}
         >
           <span className="truncate">{value || '—'}</span>
@@ -126,7 +127,7 @@ export function RecruitingHeader() {
 
   return (
     <Card className="flex-row flex-wrap items-center gap-x-8 gap-y-3">
-      <EditableField label="Company" value={company.name} onSave={(next) => {
+      <EditableField label="Società" value={company.name} onSave={(next) => {
         renameCompany(company.id, next)
         forceRerender((n) => n + 1)
       }} />
@@ -135,8 +136,8 @@ export function RecruitingHeader() {
         forceRerender((n) => n + 1)
       }} />
       <div className="min-w-0">
-        <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">CIP</div>
-        <div className="mt-0.5 flex items-center gap-1.5 text-[14px] font-semibold">
+        <div className="label-mono text-muted-foreground">CIP</div>
+        <div className="mt-0.5 flex items-center gap-1.5 text-app-small font-semibold">
           <IdCard className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
           {!isPlatformAdmin ? (
             <span className="text-muted-foreground">Non disponibile — richiedilo a un platform admin</span>
@@ -147,7 +148,7 @@ export function RecruitingHeader() {
           ) : (
             <>
               <span className="text-muted-foreground">Non generato</span>
-              <Link to="/recruiting/admin/cip" className="text-[12px] font-semibold text-foreground hover:underline dark:text-primary">
+              <Link to="/recruiting/admin/cip" className="text-app-caption font-semibold text-foreground hover:underline dark:text-primary">
                 Genera →
               </Link>
             </>

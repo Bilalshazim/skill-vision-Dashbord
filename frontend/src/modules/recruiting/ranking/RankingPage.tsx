@@ -43,19 +43,19 @@ export default function RankingPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <Trophy className="size-[22px] text-muted-foreground" aria-hidden="true" />
+          <Trophy className="size-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Chi è il candidato migliore?</h2>
-          <p className="text-[13px] text-muted-foreground">
-            Ruolo: <b className="font-semibold text-foreground">{DEFAULT_ROLE}</b> · <b className="font-semibold text-foreground">{rk.length}</b>{' '}
+          <h2 className="text-app-section font-semibold tracking-tight">Chi è il candidato migliore?</h2>
+          <p className="text-app-small text-muted-foreground">
+            Posizione: <b className="font-semibold text-foreground">{DEFAULT_ROLE}</b> · <b className="font-semibold text-foreground">{rk.length}</b>{' '}
             candidati · <b className="font-semibold text-foreground">{flaggedCount}</b> skill flaggate
           </p>
         </div>
       </div>
 
       {rk.length === 0 ? (
-        <p className="py-6 text-[13.5px] text-muted-foreground">
+        <p className="py-6 text-app-small text-muted-foreground">
           Nessun candidato ancora in archivio. Carica i primi CV dalla pagina <b className="font-semibold text-foreground">CV & Export</b>, oppure
           importa in blocco un archivio storico, per vedere qui la classifica.
         </p>

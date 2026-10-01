@@ -1,6 +1,6 @@
 import { FileCheck2, MessageSquare, Search, Trophy, Workflow } from 'lucide-react'
 
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 import type { PipelineOpeningCard } from '@/modules/recruiting/lib/use-pipeline-data'
 import { cn } from '@/lib/utils'
 
@@ -21,8 +21,9 @@ export function PipelineDashboard({
   if (!cards.length) {
     return (
       <EmptyState
+        size="sm"
         icon={Workflow}
-        text="Nessuna posizione aperta. Configura un job opening dalla pagina CV & Export (Routing & Isolation)."
+        description="Nessuna posizione aperta. Configura un job opening dalla pagina CV & Export (Routing & Isolation)."
       />
     )
   }
@@ -39,17 +40,17 @@ export function PipelineDashboard({
             onClick={() => onSelect(card.companyId, card.openingId)}
             aria-pressed={isSelected}
             className={cn(
-              'flex flex-col gap-2.5 rounded-lg border bg-card p-4 text-left shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
+              'flex flex-col gap-2.5 rounded-lg border bg-card p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
               isSelected ? 'border-primary ring-1 ring-primary' : 'border-border hover:border-ring',
             )}
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <div className="truncate text-[10.5px] uppercase tracking-wide text-muted-foreground">{card.companyName}</div>
-                <div className="truncate text-[14px] font-semibold">{card.openingTitle}</div>
+                <div className="label-mono truncate text-muted-foreground">{card.companyName}</div>
+                <div className="truncate text-app-small font-semibold">{card.openingTitle}</div>
               </div>
               {card.won && (
-                <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-success/12 px-2 py-0.5 text-[10px] font-semibold text-success">
+                <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-success/12 px-2 py-0.5 text-app-caption font-semibold text-success">
                   <Trophy className="size-3 shrink-0" aria-hidden="true" />
                   CHIUSA
                 </span>
@@ -62,9 +63,9 @@ export function PipelineDashboard({
                 style={{ width: `${card.stagePct}%` }}
               />
             </div>
-            <div className="text-[11.5px] text-muted-foreground">{card.stageLabel}</div>
+            <div className="text-app-caption text-muted-foreground">{card.stageLabel}</div>
 
-            <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+            <div className="flex flex-wrap gap-x-3 gap-y-1 text-app-caption text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <Search className="size-3" aria-hidden="true" />
                 {card.prescreenedCount} prescreened

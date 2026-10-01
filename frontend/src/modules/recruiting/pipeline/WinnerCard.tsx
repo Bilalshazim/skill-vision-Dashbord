@@ -1,14 +1,13 @@
-import { AlertTriangle, Loader2, Trophy } from 'lucide-react'
+import { Loader2, Trophy } from 'lucide-react'
 import { useState } from 'react'
 
+import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { SelectField } from '@/components/patterns/SelectField'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 import { clearPipelineWinner, confirmPipelineWinner, getWinnerCandidates, plDateFmt } from '@/modules/recruiting/lib/pipeline'
 import type { Interview, PipelineWinner } from '@/modules/recruiting/lib/types'
-import { cn } from '@/lib/utils'
 
-const inputClass =
-  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // Legacy gives "Conferma vincitore" its own gold treatment (.btn-gold,
 // modules/recruiting.css ~228-229), distinct from the plain teal .btn-act
 // every other "+ Aggiungi..." button uses — reproduced here as the
@@ -19,15 +18,6 @@ type ActionState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; mes
 const IDLE: ActionState = { kind: 'idle' }
 
 const OPENING_UNAVAILABLE_MESSAGE = "La posizione selezionata non è più disponibile — selezionane un'altra dalla dashboard qui sopra."
-
-function ErrorNote({ message }: { message: string }) {
-  return (
-    <p className="mt-1.5 flex items-start gap-1.5 text-[11.5px] font-medium text-destructive">
-      <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      {message}
-    </p>
-  )
-}
 
 // Migrated from renderPipelineDetail()'s "🏆 Candidato vincitore" section
 // (modules/recruiting.html ~2149-2155, confirmPipelineWinner() ~2441-2453).
@@ -87,29 +77,29 @@ export function WinnerCard({
         <div className="flex items-center gap-3 rounded-sm border border-success/30 bg-success/10 px-4 py-3">
           <Trophy className="size-5 shrink-0 text-success" aria-hidden="true" />
           <div>
-            <div className="text-[13.5px] font-semibold">{winner.name}</div>
-            <div className="text-[11.5px] text-muted-foreground">deciso il {plDateFmt(winner.decidedAt)}</div>
+            <div className="text-app-small font-semibold">{winner.name}</div>
+            <div className="text-app-caption text-muted-foreground">deciso il {plDateFmt(winner.decidedAt)}</div>
           </div>
         </div>
       ) : (
-        <EmptyState icon={Trophy} text="Nessun vincitore selezionato." />
+        <EmptyState size="sm" icon={Trophy} description="Nessun vincitore selezionato." />
       )}
 
       <div className="flex flex-wrap items-center gap-2">
-        <select value={selected} onChange={(e) => setSelected(e.target.value)} disabled={pending} className={cn(inputClass, 'max-w-[240px]')}>
+        <SelectField value={selected} onValueChange={(v) => setSelected(v)} disabled={pending} size="sm" className="max-w-60">
           <option value="">{candidates.length ? 'Seleziona candidato intervistato…' : '(nessun candidato intervistato)'}</option>
           {candidates.map((r) => (
             <option key={r.id} value={r.candidateId || r.id}>
               {r.name || '—'}
             </option>
           ))}
-        </select>
+        </SelectField>
         <button type="button" onClick={handleConfirm} disabled={pending} className={goldBtnClass}>
           {pending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Trophy className="size-3.5 shrink-0" aria-hidden="true" />}
           Conferma vincitore
         </button>
       </div>
-      {state.kind === 'error' && <ErrorNote message={state.message} />}
+      {state.kind === 'error' && <InlineAlert layout="text" className="mt-2">{state.message}</InlineAlert>}
     </div>
   )
 }
@@ -149,7 +139,7 @@ export function ClearWinnerButton({ companyId, openingId, onMutated }: { company
         {pending && <Loader2 className="size-3 shrink-0 animate-spin" aria-hidden="true" />}
         Annulla decisione
       </Button>
-      {state.kind === 'error' && <ErrorNote message={state.message} />}
+      {state.kind === 'error' && <InlineAlert layout="text" className="mt-2">{state.message}</InlineAlert>}
     </div>
   )
 }

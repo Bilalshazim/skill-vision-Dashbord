@@ -1,5 +1,8 @@
+import { Check } from 'lucide-react'
+import { Note } from '@/components/patterns/Note'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Button } from '@/components/ui/button'
-import { Modal } from '@/modules/assessment/components/Modal'
+import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { getSoftClusters, getSoftSkills } from '@/modules/assessment/lib/legacy-utils'
 import { getEmployeeExpectedSkillIds } from '@/modules/assessment/lib/role-census'
@@ -38,13 +41,13 @@ export function EmployeeSoftSkillModal({ employeeId, onClose }: { employeeId: st
   }
 
   return (
-    <Modal
+    <ModalDialog
       title={ui.empSoftModalTitle}
       sub={`${employee.nome} ${employee.cognome} · ${employee.ruolo} · ${employee.mansione || '—'}`}
       wide
       onClose={onClose}
       footer={
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="flex gap-2">
           {canEdit && isOverridden && (
             <Button variant="outline" onClick={resetToRoleDefault}>
               {ui.empSoftModalResetBtn}
@@ -56,30 +59,32 @@ export function EmployeeSoftSkillModal({ employeeId, onClose }: { employeeId: st
         </div>
       }
     >
-      {isOverridden && <p className="small-note" style={{ marginBottom: 12 }}>{ui.empSoftModalOverrideNote}</p>}
+      {isOverridden && <Note className="mb-3">{ui.empSoftModalOverrideNote}</Note>}
       {SOFT_CLUSTERS.map((cluster) => (
-        <div key={cluster} style={{ marginBottom: 16 }}>
-          <div style={{ fontWeight: 700, fontSize: 12.5, marginBottom: 8, color: 'var(--text-2)' }}>{cluster}</div>
-          <div className="flex flex-wrap gap-2">
-            {SOFT_SKILLS.filter((s) => s.cluster === cluster).map((skill) => {
-              const on = assigned.includes(skill.id)
-              return (
-                <button
-                  key={skill.id}
-                  type="button"
-                  disabled={!canEdit}
-                  className={`chip ${on ? 'chip-green' : 'chip-gray'}`}
-                  style={{ cursor: canEdit ? 'pointer' : 'default' }}
-                  onClick={() => toggleSkill(skill.id)}
-                >
-                  <span className="dt" />
-                  {skill.name}
-                </button>
-              )
-            })}
-          </div>
+        <div className="mb-4" key={cluster}>
+          <div className="font-semibold text-app-small mb-2 text-muted-foreground">{cluster}</div>
+          <ToggleGroup
+            type="multiple"
+            disabled={!canEdit}
+            aria-label={cluster}
+            className="border-0 bg-transparent p-0"
+            value={SOFT_SKILLS.filter((s) => s.cluster === cluster && assigned.includes(s.id)).map((s) => s.id)}
+            onValueChange={(next) => {
+              // Una voce per volta: quella che cambia è la differenza fra prima e dopo.
+              const before = SOFT_SKILLS.filter((s) => s.cluster === cluster && assigned.includes(s.id)).map((s) => s.id)
+              const changed = next.find((id) => !before.includes(id)) ?? before.find((id) => !next.includes(id))
+              if (changed) toggleSkill(changed)
+            }}
+          >
+            {SOFT_SKILLS.filter((s) => s.cluster === cluster).map((skill) => (
+              <ToggleGroupItem key={skill.id} value={skill.id} className="border border-border">
+                {assigned.includes(skill.id) && <Check aria-hidden="true" />}
+                {skill.name}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
         </div>
       ))}
-    </Modal>
+    </ModalDialog>
   )
 }

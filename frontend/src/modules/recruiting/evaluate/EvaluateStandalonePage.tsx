@@ -1,3 +1,4 @@
+import { Logo } from '@/layouts/Logo'
 import { Card } from '@/components/ui/card'
 import { AlertTriangle } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
@@ -25,14 +26,13 @@ export default function EvaluateStandalonePage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10" data-theme={theme}>
       <div className="w-full max-w-2xl">
         <div className="mb-8 flex flex-col items-center gap-3">
-          <img src="/brand/logo_black.svg" alt="Skill Vision" className="h-8 dark:hidden" />
-          <img src="/brand/logo_white.svg" alt="Skill Vision" className="hidden h-8 dark:block" />
-          <p className="text-[12.5px] text-muted-foreground">Area valutatore</p>
+          <Logo size="lg" />
+          <p className="text-app-small text-muted-foreground">Area valutatore</p>
         </div>
 
         {!token ? (
           <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-5">
-            <p className="flex items-start gap-2 text-[13.5px] font-medium text-destructive">
+            <p className="flex items-start gap-2 text-app-small font-medium text-destructive">
               <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               Link non valido — manca il token di accesso.
             </p>

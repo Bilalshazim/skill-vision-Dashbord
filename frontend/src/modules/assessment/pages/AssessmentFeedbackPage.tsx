@@ -1,5 +1,10 @@
 import { useState } from 'react'
 
+import { PageHeader } from '@/components/patterns/PageHeader'
+import { Initials } from '@/components/ui/avatar'
+import { Switch } from '@/components/ui/switch'
+import { Field } from '@/components/patterns/Field'
+import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { chipTone } from '@/modules/assessment/lib/chip-tone'
 import { Card } from '@/components/ui/card'
@@ -42,27 +47,20 @@ export default function AssessmentFeedbackPage() {
 
   return (
     <div>
-      <div className="section-head">
-        <div>
-          <h2>{ui.feedbackPageTitle}</h2>
-          <p>{ui.feedbackPageSub}</p>
-        </div>
-      </div>
-      <div className="grid grid-2">
+      <PageHeader title={ui.feedbackPageTitle} description={ui.feedbackPageSub} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {list.map((e) => {
           const d = draftFor(e.id, e.developmentPlan, e.feedbackNeeded)
           const tier = tierFor(primaryScore(e, state, lang), lang)
           return (
-            <Card  key={e.id}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                <div className="avatar" style={{ width: 36, height: 36 }}>
-                  {(e.nome[0] || '') + (e.cognome[0] || '')}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, fontSize: 13.5 }}>
+            <Card key={e.id}>
+              <div className="flex items-center gap-3 mb-3">
+                <Initials first={e.nome} last={e.cognome} size="lg" />
+                <div className="flex-1">
+                  <div className="font-semibold text-app-small">
                     {e.nome} {e.cognome}
                   </div>
-                  <div style={{ fontSize: 11.5, color: 'var(--text-3)' }}>
+                  <div className="text-app-caption text-muted-foreground">
                     {e.ruolo} · {e.area}
                   </div>
                 </div>
@@ -71,27 +69,19 @@ export default function AssessmentFeedbackPage() {
                 </Badge>
               </div>
 
-              <div className="switch-row" style={{ marginBottom: 12 }}>
-                <label className="switch">
-                  <input type="checkbox" checked={d.feedbackNeeded} onChange={(ev) => setDrafts((prev) => ({ ...prev, [e.id]: { ...d, feedbackNeeded: ev.target.checked } }))} />
-                  <span className="slider" />
-                </label>
-                <div className="lbl">
-                  <div className="l1">{ui.feedbackSwitchLabel}</div>
-                </div>
-              </div>
+              <label className="mb-3 flex items-center gap-3 text-app-small font-medium">
+                <Switch checked={d.feedbackNeeded} onCheckedChange={(c) => setDrafts((prev) => ({ ...prev, [e.id]: { ...d, feedbackNeeded: c } }))} />
+                {ui.feedbackSwitchLabel}
+              </label>
 
               {DEV_PLAN_FIELDS.map((f) => (
-                <div className="field" key={f.key} style={{ marginBottom: 10 }}>
-                  <label style={{ fontSize: 11 }}>{ui[f.labelKey as keyof typeof ui] as string}</label>
-                  <textarea
-                    className="neu-input"
-                    style={{ width: '100%', minHeight: 60, lineHeight: 1.5, resize: 'vertical' }}
+                <Field label={ui[f.labelKey as keyof typeof ui] as string} key={f.key}>
+                  <Textarea
+                    className="min-h-16"
                     placeholder={ui[f.phKey as keyof typeof ui] as string}
                     value={d[f.key]}
                     onChange={(ev) => setDrafts((prev) => ({ ...prev, [e.id]: { ...d, [f.key]: ev.target.value } }))}
-                  />
-                </div>
+                  />                </Field>
               ))}
               {canEdit && (
                 <Button variant="default" size="sm" onClick={() => save(e.id)}>

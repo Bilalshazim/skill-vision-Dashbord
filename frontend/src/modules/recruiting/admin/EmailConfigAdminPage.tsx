@@ -1,18 +1,20 @@
-import { AlertTriangle, CheckCircle2, Loader2, Mail, Plus, Save, ShieldAlert, XCircle } from 'lucide-react'
+import { CheckCircle2, Loader2, Mail, Plus, Save, ShieldAlert, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+import { LoadingState } from '@/components/patterns/LoadingState'
+import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Field } from '@/components/patterns/Field'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
 import { ApiError, getBackendUser } from '@/lib/api/client'
 import { campaignsApi, companiesApi, emailConfigApi } from '@/lib/api/endpoints'
 import { useBackendSession } from '@/lib/api/useBackendSession'
 import type { BackendCampaign, BackendCompany, BackendEmailServiceConfig, BackendEmailTemplate, BackendSenderConfig } from '@/lib/api/types'
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 
-const inputClass =
-  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-const textareaClass = cn(inputClass, 'w-full min-h-[100px]')
 // See CipAdminPage.tsx's identical comment — same duplicated-className
 // cleanup, now the shared buttonVariants() instead of a local copy.
 const primaryBtnClass = buttonVariants({ size: 'sm' })
@@ -21,15 +23,6 @@ const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
 function apiErrorMessage(err: unknown): string {
   if (err instanceof ApiError) return err.network ? 'Impossibile contattare il server.' : err.message
   return err instanceof Error ? err.message : 'Errore sconosciuto'
-}
-
-function ErrorNote({ message }: { message: string }) {
-  return (
-    <p className="mt-2 flex items-start gap-1.5 text-[12px] font-medium text-destructive">
-      <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      {message}
-    </p>
-  )
 }
 
 // Phase 33 §3 — the missing admin UI for Phase 30's email-config module.
@@ -182,10 +175,7 @@ export default function EmailConfigAdminPage() {
 
   if (backend.status === 'checking') {
     return (
-      <div className="flex items-center gap-2 py-8 text-[13px] text-muted-foreground">
-        <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden="true" />
-        Verifica sessione…
-      </div>
+      <LoadingState label="Verifica sessione…" />
     )
   }
 
@@ -193,20 +183,20 @@ export default function EmailConfigAdminPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <Mail className="size-[22px] text-muted-foreground" aria-hidden="true" />
+          <Mail className="size-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Configurazione email</h2>
-          <p className="max-w-[70ch] text-[13px] text-muted-foreground">
+          <h2 className="text-app-section font-semibold tracking-tight">Configurazione email</h2>
+          <p className="max-w-[70ch] text-app-small text-muted-foreground">
             Mittente e modello per il team di recruiting, servizio di invio per l&apos;amministrazione piattaforma — sezioni separate, permessi separati.
-            Non modifica il flusso <b className="font-semibold text-foreground">INVIA LINK TEST</b>.
+            Non modifica il flusso <b className="font-semibold text-foreground">Invia link test</b>.
           </p>
         </div>
       </div>
 
       {!canSeeCompanyConfig ? (
         <Card>
-          <EmptyState icon={ShieldAlert} text="Il tuo ruolo non ha accesso a questa configurazione." />
+          <EmptyState size="sm" icon={ShieldAlert} description="Il tuo ruolo non ha accesso a questa configurazione." />
         </Card>
       ) : (
         <>
@@ -216,17 +206,16 @@ export default function EmailConfigAdminPage() {
             </CardHeader>
             <CardContent>
               {isPlatformAdmin && (
-                <label className="mb-3 flex flex-col gap-1.5 text-[12px] font-semibold text-muted-foreground">
-                  Company
-                  <select value={companyId} onChange={(e) => setCompanyId(e.target.value)} className={cn(inputClass, 'max-w-[280px]')}>
+                <Field label="Company" className="mb-4">
+                  <SelectField value={companyId} onValueChange={(v) => setCompanyId(v)} className="max-w-72">
                     <option value="">Seleziona…</option>
                     {companies.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.name}
                       </option>
                     ))}
-                  </select>
-                </label>
+                  </SelectField>
+                </Field>
               )}
 
               {companyId ? (
@@ -234,23 +223,23 @@ export default function EmailConfigAdminPage() {
                   <div className="mb-3 flex flex-col gap-1.5">
                     {senderConfigs.length ? (
                       senderConfigs.map((s) => (
-                        <div key={s.id} className="rounded-sm border border-border px-3 py-2 text-[12.5px]">
+                        <div key={s.id} className="rounded-sm border border-border px-3 py-2 text-app-small">
                           <b className="font-semibold text-foreground">{s.displayName}</b> · {s.senderType === 'COMPANY_HR' ? 'Company/HR' : 'Skill Vision admin'} ·{' '}
                           {s.replyToEmail}
                         </div>
                       ))
                     ) : (
-                      <span className="text-[12px] text-muted-foreground">Nessun mittente configurato per questa company.</span>
+                      <span className="text-app-caption text-muted-foreground">Nessun mittente configurato per questa company.</span>
                     )}
                   </div>
                   {canEditCompanyConfig && (
                     <div className="flex flex-wrap items-center gap-2">
-                      <select value={senderType} onChange={(e) => setSenderType(e.target.value as 'COMPANY_HR' | 'SKILLVISION_ADMIN')} className={inputClass}>
+                      <SelectField value={senderType} onValueChange={(v) => setSenderType(v as 'COMPANY_HR' | 'SKILLVISION_ADMIN')} size="sm">
                         <option value="COMPANY_HR">Company/HR</option>
                         <option value="SKILLVISION_ADMIN">Skill Vision admin</option>
-                      </select>
-                      <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Nome visualizzato" className={cn(inputClass, 'w-[200px]')} />
-                      <input value={replyToEmail} onChange={(e) => setReplyToEmail(e.target.value)} placeholder="Email risposta" className={cn(inputClass, 'w-[220px]')} />
+                      </SelectField>
+                      <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Nome visualizzato" size="sm" className="w-48" />
+                      <Input value={replyToEmail} onChange={(e) => setReplyToEmail(e.target.value)} placeholder="Email risposta" size="sm" className="w-56" />
                       <button type="button" onClick={handleSaveSender} disabled={senderPending} className={primaryBtnClass}>
                         {senderPending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Plus className="size-3.5 shrink-0" aria-hidden="true" />}
                         Aggiungi
@@ -258,15 +247,15 @@ export default function EmailConfigAdminPage() {
                     </div>
                   )}
                   {senderSaved && (
-                    <p className="mt-2 flex items-center gap-1.5 text-[12px] font-medium text-success">
+                    <p className="mt-2 flex items-center gap-1.5 text-app-caption font-medium text-success">
                       <CheckCircle2 className="size-3.5 shrink-0" aria-hidden="true" />
-                      Mittente salvato ✓
+                      Mittente salvato
                     </p>
                   )}
-                  {senderError && <ErrorNote message={senderError} />}
+                  {senderError && <InlineAlert layout="text" className="mt-2">{senderError}</InlineAlert>}
                 </>
               ) : (
-                <span className="text-[12px] text-muted-foreground">Seleziona una company per vedere/configurare il mittente.</span>
+                <span className="text-app-caption text-muted-foreground">Seleziona una company per vedere/configurare il mittente.</span>
               )}
             </CardContent>
           </Card>
@@ -277,25 +266,24 @@ export default function EmailConfigAdminPage() {
             </CardHeader>
             <CardContent>
               {companyId ? (
-                <label className="mb-3 flex flex-col gap-1.5 text-[12px] font-semibold text-muted-foreground">
-                  Campagna
-                  <select value={campaignId} onChange={(e) => setCampaignId(e.target.value)} className={cn(inputClass, 'max-w-[280px]')}>
+                <Field label="Campagna" className="mb-4">
+                  <SelectField value={campaignId} onValueChange={(v) => setCampaignId(v)} className="max-w-72">
                     <option value="">Seleziona…</option>
                     {campaigns.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.name}
                       </option>
                     ))}
-                  </select>
-                </label>
+                  </SelectField>
+                </Field>
               ) : (
-                <span className="text-[12px] text-muted-foreground">Seleziona prima una company.</span>
+                <span className="text-app-caption text-muted-foreground">Seleziona prima una company.</span>
               )}
 
               {campaignId && (
                 <div className="flex flex-col gap-2">
-                  <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Soggetto" className={inputClass} />
-                  <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Messaggio" className={textareaClass} />
+                  <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Soggetto" size="sm" />
+                  <Textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Messaggio" size="sm" />
                   {canEditCompanyConfig && (
                     <div>
                       <button type="button" onClick={handleSaveTemplate} disabled={templatePending} className={primaryBtnClass}>
@@ -305,13 +293,13 @@ export default function EmailConfigAdminPage() {
                     </div>
                   )}
                   {templateSaved && (
-                    <p className="flex items-center gap-1.5 text-[12px] font-medium text-success">
+                    <p className="flex items-center gap-1.5 text-app-caption font-medium text-success">
                       <CheckCircle2 className="size-3.5 shrink-0" aria-hidden="true" />
-                      Modello salvato ✓
+                      Modello salvato
                     </p>
                   )}
-                  {template && <p className="text-[11px] text-muted-foreground">Ultimo salvato — {template.id}</p>}
-                  {templateError && <ErrorNote message={templateError} />}
+                  {template && <p className="text-app-caption text-muted-foreground">Ultimo salvato — {template.id}</p>}
+                  {templateError && <InlineAlert layout="text" className="mt-2">{templateError}</InlineAlert>}
                 </div>
               )}
             </CardContent>
@@ -322,19 +310,19 @@ export default function EmailConfigAdminPage() {
       <Card>
         <CardHeader>
           <CardTitle>C. Servizio di invio email (solo platform admin)</CardTitle>
-          <p className="mt-0.5 text-[11.5px] font-normal text-muted-foreground">
+          <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">
             La credenziale reale non viene mai mostrata qui né restituita dal server — solo se è configurata o meno.
           </p>
         </CardHeader>
         <CardContent>
           {!isPlatformAdmin ? (
-            <EmptyState icon={ShieldAlert} text="Sezione riservata ai platform admin — le credenziali del servizio non sono visibili né modificabili da questo account." />
+            <EmptyState size="sm" icon={ShieldAlert} description="Sezione riservata ai platform admin — le credenziali del servizio non sono visibili né modificabili da questo account." />
           ) : (
             <>
               <div className="mb-3 flex flex-col gap-1.5">
                 {serviceConfigs.length ? (
                   serviceConfigs.map((s) => (
-                    <div key={s.id} className="flex items-center justify-between gap-3 rounded-sm border border-border px-3 py-2 text-[12.5px]">
+                    <div key={s.id} className="flex items-center justify-between gap-3 rounded-sm border border-border px-3 py-2 text-app-small">
                       <span>
                         <b className="font-semibold text-foreground">{s.providerName}</b> · {s.apiEndpointUrl} · {s.scope}
                         {' · '}
@@ -349,7 +337,7 @@ export default function EmailConfigAdminPage() {
                             nessuna credenziale
                           </span>
                         )}
-                        {s.active && <span className="ml-2 rounded-full bg-success/12 px-2 py-0.5 text-[10px] font-semibold uppercase text-success">attivo</span>}
+                        {s.active && <span className="label-mono ml-2 rounded-full bg-success/12 px-2 py-0.5 text-success">attivo</span>}
                       </span>
                       {!s.active && (
                         <button type="button" onClick={() => handleActivateService(s.id)} className={ghostBtnClass}>
@@ -359,19 +347,19 @@ export default function EmailConfigAdminPage() {
                     </div>
                   ))
                 ) : (
-                  <span className="text-[12px] text-muted-foreground">Nessun servizio email configurato — nessun provider reale è collegato in questa build.</span>
+                  <span className="text-app-caption text-muted-foreground">Nessun servizio email configurato — nessun provider reale è collegato in questa build.</span>
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <input value={providerName} onChange={(e) => setProviderName(e.target.value)} placeholder="Provider (es. SendGrid)" className={cn(inputClass, 'w-[180px]')} />
-                <input value={apiEndpointUrl} onChange={(e) => setApiEndpointUrl(e.target.value)} placeholder="https://api.provider.com" className={cn(inputClass, 'w-[220px]')} />
-                <input value={apiKeySecretRef} onChange={(e) => setApiKeySecretRef(e.target.value)} placeholder="Riferimento credenziale (secrets manager)" type="password" className={cn(inputClass, 'w-[240px]')} />
+                <Input value={providerName} onChange={(e) => setProviderName(e.target.value)} placeholder="Provider (es. SendGrid)" size="sm" className="w-44" />
+                <Input value={apiEndpointUrl} onChange={(e) => setApiEndpointUrl(e.target.value)} placeholder="https://api.provider.com" size="sm" className="w-56" />
+                <Input value={apiKeySecretRef} onChange={(e) => setApiKeySecretRef(e.target.value)} placeholder="Riferimento credenziale (secrets manager)" type="password" size="sm" className="w-60" />
                 <button type="button" onClick={handleSaveService} disabled={servicePending} className={primaryBtnClass}>
                   {servicePending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Plus className="size-3.5 shrink-0" aria-hidden="true" />}
                   Salva
                 </button>
               </div>
-              {serviceError && <ErrorNote message={serviceError} />}
+              {serviceError && <InlineAlert layout="text" className="mt-2">{serviceError}</InlineAlert>}
             </>
           )}
         </CardContent>

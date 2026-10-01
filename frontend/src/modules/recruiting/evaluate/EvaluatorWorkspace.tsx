@@ -1,6 +1,11 @@
 import { AlertTriangle, CheckCircle2, ClipboardList, Loader2, Send, UserCircle2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+import { LoadingState } from '@/components/patterns/LoadingState'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Field } from '@/components/patterns/Field'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -9,12 +14,10 @@ import { evaluatorsApi } from '@/lib/api/endpoints'
 import { useBackendSession } from '@/lib/api/useBackendSession'
 import type { BackendMyAssignment } from '@/lib/api/endpoints'
 import type { BackendEvaluator } from '@/lib/api/types'
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 
 const ROLE_LABEL: Record<string, string> = { HR: 'HR', MANAGER: 'Manager', DIRETTORE_HR: 'Direttore HR', ALTRO: 'Altro' }
 
-const inputClass =
-  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // See admin/CipAdminPage.tsx's identical comment — 'default' size (not
 // 'sm') since this was already the page's main Save/Submit action, at the
 // larger px-4/py-2 scale.
@@ -75,17 +78,14 @@ export function EvaluatorWorkspace({ evaluatorToken }: { evaluatorToken?: string
 
   if (state.kind === 'loading') {
     return (
-      <div className="flex items-center gap-2 py-8 text-[13px] text-muted-foreground">
-        <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden="true" />
-        Caricamento…
-      </div>
+      <LoadingState label="Caricamento…" />
     )
   }
 
   if (state.kind === 'error') {
     return (
       <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-5">
-        <p className="flex items-start gap-2 text-[13.5px] font-medium text-destructive">
+        <p className="flex items-start gap-2 text-app-small font-medium text-destructive">
           <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           {state.message}
         </p>
@@ -101,8 +101,8 @@ export function EvaluatorWorkspace({ evaluatorToken }: { evaluatorToken?: string
       <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary px-4 py-3">
         <UserCircle2 className="size-8 shrink-0 text-muted-foreground" aria-hidden="true" />
         <div className="min-w-0">
-          <div className="text-[13.5px] font-semibold">{evaluator.fullName}</div>
-          <div className="text-[11.5px] text-muted-foreground">
+          <div className="text-app-small font-semibold">{evaluator.fullName}</div>
+          <div className="text-app-caption text-muted-foreground">
             Ruolo: <b className="font-semibold text-foreground">{ROLE_LABEL[evaluator.role] || evaluator.role}</b>
             {evaluator.altroLabel ? ` (${evaluator.altroLabel})` : ''}
           </div>
@@ -110,7 +110,7 @@ export function EvaluatorWorkspace({ evaluatorToken }: { evaluatorToken?: string
       </div>
 
       {!assignments.length ? (
-        <EmptyState icon={ClipboardList} text="Nessuna valutazione assegnata al momento." />
+        <EmptyState size="sm" icon={ClipboardList} description="Nessuna valutazione assegnata al momento." />
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[260px_1fr]">
           <div className="flex flex-col gap-1.5">
@@ -120,17 +120,17 @@ export function EvaluatorWorkspace({ evaluatorToken }: { evaluatorToken?: string
                 type="button"
                 onClick={() => setSelectedId(a.campaignCandidateId)}
                 className={cn(
-                  'flex flex-col items-start gap-0.5 rounded-sm border px-3 py-2.5 text-left text-[12.5px] transition-colors',
+                  'flex flex-col items-start gap-0.5 rounded-sm border px-3 py-2.5 text-left text-app-small transition-colors',
                   a.campaignCandidateId === selectedId ? 'border-primary/30 bg-primary/10' : 'border-border hover:border-ring',
                 )}
               >
                 <span className="font-semibold text-foreground">{a.candidate.fullName}</span>
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-app-caption text-muted-foreground">
                   {a.companyName} · {a.campaignName}
                 </span>
                 <span
                   className={cn(
-                    'mt-1 rounded-full px-2 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide',
+                    'label-mono mt-1 rounded-full px-2 py-0.5',
                     a.myEvaluation?.status === 'SUBMITTED' ? 'bg-success/12 text-success' : a.myEvaluation ? 'bg-warning/12 text-warning' : 'bg-secondary text-muted-foreground',
                   )}
                 >
@@ -181,7 +181,7 @@ function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignmen
         },
         evaluatorToken,
       )
-      setSavedMessage('Bozza salvata ✓')
+      setSavedMessage('Bozza salvata')
     } catch (err) {
       setError(apiErrorMessage(err))
     } finally {
@@ -217,14 +217,14 @@ function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignmen
   return (
     <Card>
       <div className="mb-3">
-        <div className="text-[15px] font-semibold">{assignment.candidate.fullName}</div>
-        <div className="text-[12px] text-muted-foreground">
+        <div className="text-app-body font-semibold">{assignment.candidate.fullName}</div>
+        <div className="text-app-caption text-muted-foreground">
           {assignment.companyName} · {assignment.campaignName}
         </div>
       </div>
 
       {isSubmitted ? (
-        <div className="flex items-start gap-2 rounded-sm border border-success/30 bg-success/10 px-3.5 py-3 text-[13px] text-success">
+        <div className="flex items-start gap-2 rounded-sm border border-success/30 bg-success/10 px-3.5 py-3 text-app-small text-success">
           <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <div>
             <div className="font-semibold">Valutazione già inviata — non modificabile.</div>
@@ -235,25 +235,22 @@ function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignmen
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-muted-foreground">
-            Punteggio finale
-            <input type="number" step="0.1" value={finalScore} onChange={(e) => setFinalScore(e.target.value)} placeholder="es. 4.5" className={cn(inputClass, 'w-[140px]')} />
-          </label>
-          <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-muted-foreground">
-            Raccomandazione
-            <select value={recommendation} onChange={(e) => setRecommendation(e.target.value)} className={cn(inputClass, 'w-[200px]')}>
+          <Field label="Punteggio finale">
+            <Input type="number" step="0.1" value={finalScore} onChange={(e) => setFinalScore(e.target.value)} placeholder="es. 4.5" className="w-36" />
+          </Field>
+          <Field label="Raccomandazione">
+            <SelectField value={recommendation} onValueChange={(v) => setRecommendation(v)} className="w-48">
               <option value="">—</option>
               {RECOMMENDATIONS.map((r) => (
                 <option key={r.value} value={r.value}>
                   {r.label}
                 </option>
               ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-muted-foreground">
-            Note
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} className={inputClass} />
-          </label>
+            </SelectField>
+          </Field>
+          <Field label="Note">
+            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} />
+          </Field>
 
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <button type="button" onClick={handleSave} disabled={saving || submitting} className={ghostBtnClass}>
@@ -264,10 +261,10 @@ function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignmen
               {submitting ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Send className="size-3.5 shrink-0" aria-hidden="true" />}
               Invia valutazione
             </button>
-            {savedMessage && <span className="text-[12px] font-medium text-success">{savedMessage}</span>}
+            {savedMessage && <span className="text-app-caption font-medium text-success">{savedMessage}</span>}
           </div>
           {error && (
-            <p className="flex items-start gap-1.5 text-[12px] font-medium text-destructive">
+            <p className="flex items-start gap-1.5 text-app-caption font-medium text-destructive">
               <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
               {error}
             </p>

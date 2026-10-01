@@ -59,7 +59,8 @@ export type RecruitingNavItem = {
 // mapping (Profilo di Lavoro -> Profilo Candidatura).
 export const RECRUITING_NAV_ITEMS: RecruitingNavItem[] = [
   { screen: 'home', label: 'Inizia', icon: LayoutDashboard, to: '/recruiting', end: true },
-  { screen: 'profilo', label: 'Menu', icon: FileBarChart, to: '/recruiting/profile' },
+  // Era "Menu": la voce prende il nome della sua destinazione (CLAUDE.md, Fase 6).
+  { screen: 'profilo', label: 'Profilo della ricerca', icon: FileBarChart, to: '/recruiting/profile' },
   { screen: 'jd', label: 'Profilo Candidatura', icon: FileText, to: '/recruiting/job-profile' },
   { screen: 'cv', label: 'CV & Esportazione', icon: FileText, to: '/recruiting/cv' },
   { screen: 'pipeline', label: 'CV Elaborati', icon: Workflow, to: '/recruiting/pipeline' },

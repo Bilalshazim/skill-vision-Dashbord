@@ -1,11 +1,14 @@
 import { CheckCircle2, FileCheck2, FileSpreadsheet, FileText, Loader2, Percent, Upload } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { SelectField } from '@/components/patterns/SelectField'
+import { Field } from '@/components/patterns/Field'
+import { FieldGrid } from '@/components/patterns/FieldGrid'
 import { Hint } from '@/components/patterns/Hint'
 import { Card } from '@/components/ui/card'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { KpiCard } from '@/modules/recruiting/components/KpiCard'
+import { StatCard } from '@/components/patterns/StatCard'
 import { CvArchiveList } from '@/modules/recruiting/cv-export/CvArchiveList'
 import { downloadRankingCsv, downloadRankingJson } from '@/modules/recruiting/lib/candidateExport'
 import { setActiveContext } from '@/modules/recruiting/lib/pipeline'
@@ -14,8 +17,6 @@ import { uploadCvToActiveOpening } from '@/modules/recruiting/lib/cv-upload'
 import { setCvRetentionChoice, syncRankingFromBackend, uploadCvViaBackend } from '@/modules/recruiting/lib/backend-sync'
 import { useCvExportData } from '@/modules/recruiting/lib/use-cv-export-data'
 
-const selectClass =
-  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // See admin/CipAdminPage.tsx's identical comment.
 const primaryBtnClass = buttonVariants({ size: 'sm' })
 const goldBtnClass = buttonVariants({ variant: 'warning', size: 'sm' })
@@ -168,8 +169,8 @@ export default function CvExportPage() {
           : {
               kind: 'success',
               message: backendResult.autoSent
-                ? `${backendResult.candidateName} salvato sul server e link test inviato automaticamente (match ${backendResult.icv}%) ✓`
-                : `${backendResult.candidateName} salvato sul server · match CV/Profilo: ${backendResult.icv}% · in Pagina A ✓`,
+                ? `${backendResult.candidateName} salvato sul server e link test inviato automaticamente (match ${backendResult.icv}%)`
+                : `${backendResult.candidateName} salvato sul server · match CV/Profilo: ${backendResult.icv}% · in Pagina A`,
             },
       )
       void setCvRetentionChoice(backendResult.backendCandidateId, retentionChoice)
@@ -197,8 +198,8 @@ export default function CvExportPage() {
     setUploadFeedback({
       kind: 'success',
       message: (result.autoSent
-        ? `${result.candidateName} aggiunto e link test inviato automaticamente (match ${result.icv}%) ✓`
-        : `Profilo creato · match CV/Profilo: ${result.icv}% · in Pagina A ✓`) + localNote,
+        ? `${result.candidateName} aggiunto e link test inviato automaticamente (match ${result.icv}%)`
+        : `Profilo creato · match CV/Profilo: ${result.icv}% · in Pagina A`) + localNote,
     })
     handleMutated()
   }
@@ -213,20 +214,20 @@ export default function CvExportPage() {
           any control below. */}
       <div className="flex items-center gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <FileText className="size-[22px] text-muted-foreground" aria-hidden="true" />
+          <FileText className="size-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Carica CV, esporta dati</h2>
-          <p className="text-[13px] text-muted-foreground">
+          <h2 className="text-app-section font-semibold tracking-tight">Carica CV, esporta dati</h2>
+          <p className="text-app-small text-muted-foreground">
             Il parsing ML legge il CV e crea il profilo candidato pre-APEX. I dati escono in formati standard per qualsiasi ATS.
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-        <KpiCard icon={FileText} value={candidates.length} label="CV caricati" />
-        <KpiCard icon={Percent} value={avgIcv} label="Match medio (ICV %)" />
-        <KpiCard icon={FileCheck2} value={rk.length} label="Pronti per il ranking" />
+        <StatCard icon={FileText} value={candidates.length} label="CV caricati" />
+        <StatCard icon={Percent} value={avgIcv} label="Match medio (ICV %)" />
+        <StatCard icon={FileCheck2} value={rk.length} label="Pronti per il ranking" />
       </div>
 
       {/* MIDDLE — action area: upload, GDPR retention consent, routing,
@@ -238,8 +239,8 @@ export default function CvExportPage() {
         )}
       >
         {uploading ? <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden="true" /> : <Upload className="size-8 text-muted-foreground" aria-hidden="true" />}
-        <h3 className="text-[17px] font-semibold">{uploading ? 'Analisi in corso…' : 'Tocca per caricare un CV'}</h3>
-        <p className="text-[13.5px] font-semibold text-muted-foreground">PDF o Word · il sistema estrae dati anagrafici, esperienza e segnali di competenza</p>
+        <h3 className="text-app-section font-semibold">{uploading ? 'Analisi in corso…' : 'Tocca per caricare un CV'}</h3>
+        <p className="text-app-small font-semibold text-muted-foreground">PDF o Word · il sistema estrae dati anagrafici, esperienza e segnali di competenza</p>
         <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFileChange} disabled={uploading} />
       </label>
 
@@ -249,22 +250,22 @@ export default function CvExportPage() {
           it to 6 months, which is why this stays a live control rather than
           a static notice — see setCvRetentionChoice() (lib/backend-sync.ts),
           which persists it against the real backend Candidate record. */}
-      <div className="flex flex-col gap-2 rounded-sm border border-border bg-secondary/60 px-4 py-3 text-[12px] text-muted-foreground">
+      <div className="flex flex-col gap-2 rounded-sm border border-border bg-secondary/60 px-4 py-3 text-app-caption text-muted-foreground">
         <p>
           I dati del CV vengono conservati per <b className="font-semibold text-foreground">2 anni</b> dalla candidatura, salvo revoca. Il
           candidato può in qualsiasi momento richiedere di limitare la conservazione a <b className="font-semibold text-foreground">6 mesi</b>.
         </p>
-        <label className="flex w-fit items-center gap-2 text-[11.5px] font-semibold text-foreground">
+        <label className="flex w-fit items-center gap-2 text-app-caption font-semibold text-foreground">
           <span>Conservazione dati:</span>
-          <select
+          <SelectField
             value={retentionChoice}
-            onChange={(e) => setRetentionChoice(e.target.value as 'TWO_YEARS' | 'SIX_MONTHS')}
+            onValueChange={(v) => setRetentionChoice(v as 'TWO_YEARS' | 'SIX_MONTHS')}
             disabled={uploading}
-            className={selectClass}
+            size="sm"
           >
             <option value="TWO_YEARS">2 anni (default)</option>
             <option value="SIX_MONTHS">6 mesi (su richiesta del candidato)</option>
-          </select>
+          </SelectField>
         </label>
       </div>
 
@@ -272,10 +273,10 @@ export default function CvExportPage() {
         <Card>
           <div className="flex flex-col gap-3">
             {STEP_LABELS.map((label, i) => (
-              <div key={label} className={cn('flex items-center gap-3 text-[13.5px] font-semibold', steps[i] === 'done' ? 'text-foreground' : 'text-muted-foreground')}>
+              <div key={label} className={cn('flex items-center gap-3 text-app-small font-semibold', steps[i] === 'done' ? 'text-foreground' : 'text-muted-foreground')}>
                 <span
                   className={cn(
-                    'grid size-6 shrink-0 place-items-center rounded-full border-2 text-[11px]',
+                    'grid size-6 shrink-0 place-items-center rounded-full border-2 text-app-caption',
                     steps[i] === 'done' && 'border-success bg-success/15 text-success',
                     steps[i] === 'run' && 'border-primary',
                     steps[i] === 'pending' && 'border-border',
@@ -287,42 +288,40 @@ export default function CvExportPage() {
               </div>
             ))}
           </div>
-          {uploadFeedback.kind === 'error' && <p className="mt-3 text-[12.5px] font-medium text-destructive">{uploadFeedback.message}</p>}
-          {uploadFeedback.kind === 'success' && <p className="mt-3 text-[12.5px] font-medium text-success">{uploadFeedback.message}</p>}
+          {uploadFeedback.kind === 'error' && <p className="mt-3 text-app-small font-medium text-destructive">{uploadFeedback.message}</p>}
+          {uploadFeedback.kind === 'success' && <p className="mt-3 text-app-small font-medium text-success">{uploadFeedback.message}</p>}
         </Card>
       )}
 
       <div className="rounded-lg border border-border bg-secondary p-4">
-        <div className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Routing &amp; Isolation</div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-muted-foreground">
-            Company
-            <select value={company?.id || ''} onChange={(e) => handleCompanyChange(e.target.value)} className={selectClass}>
+        <div className="label-mono mb-3 text-muted-foreground">Routing &amp; Isolation</div>
+        <FieldGrid>
+          <Field label="Company">
+            <SelectField value={company?.id || ''} onValueChange={(v) => handleCompanyChange(v)}>
               {companies.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>
               ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-muted-foreground">
-            Job Opening
-            <select value={opening?.id || ''} onChange={(e) => handleOpeningChange(e.target.value)} className={selectClass}>
+            </SelectField>
+          </Field>
+          <Field label="Job Opening">
+            <SelectField value={opening?.id || ''} onValueChange={(v) => handleOpeningChange(v)}>
               {(company?.jobOpenings || []).map((o) => (
                 <option key={o.id} value={o.id}>
                   {o.title}
                 </option>
               ))}
-            </select>
-          </label>
-        </div>
+            </SelectField>
+          </Field>
+        </FieldGrid>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           {/* "Parse CV & Match" removed — its legacy implementation was dead
               code (see this file's header comment) and its bridge target
               (/modules/recruiting.html) no longer exists; the real
               parse+match+backend flow is the drop zone above. */}
           {company && opening && (
-            <span className="text-[12px] text-muted-foreground">
+            <span className="text-app-caption text-muted-foreground">
               <b className="font-semibold text-foreground">{company.name}</b> · {opening.title}
               <br />
               Profile: <b className="font-semibold text-foreground">{opening.jobProfile?.title || '—'}</b> · Candidate pool:{' '}
@@ -333,8 +332,8 @@ export default function CvExportPage() {
       </div>
 
       <div className="rounded-lg border border-border bg-secondary p-4">
-        <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Import massivo · archivio storico</div>
-        <p className="mb-3 text-[12.5px] leading-relaxed text-muted-foreground">
+        <div className="label-mono mb-2 text-muted-foreground">Import massivo · archivio storico</div>
+        <p className="mb-3 text-app-small leading-relaxed text-muted-foreground">
           Carica in un colpo solo l'intero database di CV esistente (più PDF insieme) nell'archivio della company selezionata sopra. Richiede il
           servizio di ingestione backend — non disponibile in questa build, resta nell'app corrente.
         </p>
@@ -357,7 +356,7 @@ export default function CvExportPage() {
       </div>
 
       <div>
-        <div className="mb-2 text-[13px] font-semibold">Esporta o trasferisci</div>
+        <div className="mb-2 text-app-small font-semibold">Esporta o trasferisci</div>
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" onClick={() => downloadRankingCsv(rk)} className={primaryBtnClass}>
             Scarica ranking (CSV)
@@ -369,10 +368,10 @@ export default function CvExportPage() {
             Trasferisci ad altro sistema
           </button>
         </div>
-        {transferMessage && <p className="mt-2 text-[12px] text-muted-foreground">{transferMessage}</p>}
+        {transferMessage && <p className="mt-2 text-app-caption text-muted-foreground">{transferMessage}</p>}
       </div>
 
-      <p className="text-[13px] leading-relaxed text-muted-foreground">
+      <p className="text-app-small leading-relaxed text-muted-foreground">
         Nota demo: il parsing è simulato con dati realistici. In produzione il modello ML legge il documento reale; nessun dato lascia l'ambiente del
         cliente senza autorizzazione.
       </p>

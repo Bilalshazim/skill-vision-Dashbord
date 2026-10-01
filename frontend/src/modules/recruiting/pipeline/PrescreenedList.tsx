@@ -1,10 +1,14 @@
-import { AlertTriangle, CheckCircle2, Clock3, Link2, Loader2, Plus, RefreshCw, Search, SendHorizonal, Star, Trash2, XCircle } from 'lucide-react'
+import { CheckCircle2, Clock3, Link2, Loader2, Plus, RefreshCw, Search, SendHorizonal, Star, Trash2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 
+import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { Checkbox } from '@/components/ui/checkbox'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Input } from '@/components/ui/input'
 import { Hint } from '@/components/patterns/Hint'
 import { Badge, type BadgeTone } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 import { CvInlineViewerButton } from '@/modules/recruiting/cv/CvInlineViewerButton'
 import { addPrescreenedEntry, plDateFmt, removePrescreenedCandidate, setPrescreenStatus } from '@/modules/recruiting/lib/pipeline'
 import { addToShortlistViaBackend, markSentViaBackend, patchPrescreenedBackendId, refreshShortlistStatuses } from '@/modules/recruiting/lib/backend-sync'
@@ -48,21 +52,10 @@ const STATUS_STYLE: Record<PrescreenStatus, { icon: typeof Clock3; label: string
 // not to a different screen.
 const OPENING_UNAVAILABLE_MESSAGE = "La posizione selezionata non è più disponibile — selezionane un'altra dalla dashboard qui sopra."
 
-const inputClass =
-  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 const primaryBtnClass = buttonVariants({ size: 'sm' })
 
 type ActionState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string }
 const IDLE: ActionState = { kind: 'idle' }
-
-function ErrorNote({ message }: { message: string }) {
-  return (
-    <p className="mt-1.5 flex items-start gap-1.5 text-[11.5px] font-medium text-destructive">
-      <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      {message}
-    </p>
-  )
-}
 
 // Migrated from renderPipelineDetail()'s "🔎 Pre-screened CV" section
 // (modules/recruiting.html ~2035-2051) plus its two "add" controls
@@ -261,15 +254,15 @@ export function PrescreenedList({
           </Button>
         </div>
       )}
-      {refreshState.kind === 'error' && <ErrorNote message={refreshState.message} />}
+      {refreshState.kind === 'error' && <InlineAlert layout="text" className="mt-2">{refreshState.message}</InlineAlert>}
 
       <div className="mb-3 flex flex-col gap-2 rounded-sm bg-secondary p-3">
         <div className="flex flex-wrap items-center gap-2">
-          <select
+          <SelectField
             value={poolSelection}
-            onChange={(e) => setPoolSelection(e.target.value)}
+            onValueChange={(v) => setPoolSelection(v)}
             disabled={poolPending || !candidatePool.length}
-            className={cn(inputClass, 'max-w-[220px]')}
+            size="sm" className="max-w-56"
           >
             <option value="">{candidatePool.length ? 'Seleziona dal pool CV…' : '(nessun candidato nel pool CV per questa posizione)'}</option>
             {candidatePool.map((rec) => (
@@ -277,39 +270,39 @@ export function PrescreenedList({
                 {rec.name || rec.id}
               </option>
             ))}
-          </select>
+          </SelectField>
           <button type="button" onClick={handlePoolAdd} disabled={poolPending || !candidatePool.length} className={primaryBtnClass}>
             {poolPending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Plus className="size-3.5 shrink-0" aria-hidden="true" />}
             Dal pool CV
           </button>
-          <span className="text-[11px] text-muted-foreground">oppure</span>
-          <input
+          <span className="text-app-caption text-muted-foreground">oppure</span>
+          <Input
             type="text"
             value={manualName}
             onChange={(e) => setManualName(e.target.value)}
             disabled={manualPending}
             placeholder="Nome candidato"
-            className={cn(inputClass, 'w-[140px]')}
-          />
-          <input
+            size="sm" className="w-36"
+ />
+          <Input
             type="text"
             value={manualEmail}
             onChange={(e) => setManualEmail(e.target.value)}
             disabled={manualPending}
             placeholder="Email (opz.)"
-            className={cn(inputClass, 'w-[160px]')}
-          />
+            size="sm" className="w-40"
+ />
           <button type="button" onClick={handleManualAdd} disabled={manualPending} className={primaryBtnClass}>
             {manualPending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Plus className="size-3.5 shrink-0" aria-hidden="true" />}
             Aggiungi
           </button>
         </div>
-        {poolState.kind === 'error' && <ErrorNote message={poolState.message} />}
-        {manualState.kind === 'error' && <ErrorNote message={manualState.message} />}
+        {poolState.kind === 'error' && <InlineAlert layout="text" className="mt-2">{poolState.message}</InlineAlert>}
+        {manualState.kind === 'error' && <InlineAlert layout="text" className="mt-2">{manualState.message}</InlineAlert>}
       </div>
 
       {!entries.length ? (
-        <EmptyState icon={Search} text="Nessun candidato ancora in pre-screening per questa posizione." />
+        <EmptyState size="sm" icon={Search} description="Nessun candidato ancora in pre-screening per questa posizione." />
       ) : (
         <div>
           {/* Client §4 — "sorted by ranking match percentage (including low
@@ -329,7 +322,7 @@ export function PrescreenedList({
               <div key={r.id} className="border-b border-border py-3 last:border-0">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 text-[13px] font-semibold">
+                    <div className="flex items-center gap-1.5 text-app-small font-semibold">
                       {r.name || '—'}
                       {r.autoSent && (
                         <Badge tone="success">
@@ -337,7 +330,7 @@ export function PrescreenedList({
                         </Badge>
                       )}
                     </div>
-                    <div className="mt-0.5 text-[11px] text-muted-foreground">
+                    <div className="mt-0.5 text-app-caption text-muted-foreground">
                       {r.email || '—'} · aggiunto {plDateFmt(r.addedAt)}
                       {Number.isFinite(r.matchScore) ? (
                         <>
@@ -350,7 +343,7 @@ export function PrescreenedList({
                       href={r.testLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-0.5 inline-block break-all text-[11px] text-foreground hover:underline dark:text-primary"
+                      className="mt-0.5 inline-block break-all text-app-caption text-foreground hover:underline dark:text-primary"
                     >
                       {r.testLink}
                     </a>
@@ -358,18 +351,16 @@ export function PrescreenedList({
                   <div className="flex shrink-0 items-center gap-2">
                     <label
                       className={cn(
-                        'flex items-center gap-1.5 whitespace-nowrap text-[10.5px] font-semibold uppercase tracking-wide',
+                        'label-mono flex items-center gap-1.5 whitespace-nowrap',
                         r.backendShortlistId ? 'text-success' : 'text-muted-foreground',
                       )}
                       title="Aggiunge il candidato a Migliori Candidati, senza inviare ancora il test"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={!!r.backendShortlistId}
                         disabled={pending || !!r.backendShortlistId}
-                        onChange={() => handleFlagForReview(r.id, r.candidateId)}
-                        className="size-4 shrink-0 cursor-pointer accent-ring disabled:cursor-not-allowed"
-                      />
+                        onCheckedChange={() => handleFlagForReview(r.id, r.candidateId)}
+ />
                       <Star className="size-3 shrink-0" aria-hidden="true" />
                       Selezionato per approfondimento
                     </label>
@@ -404,7 +395,7 @@ export function PrescreenedList({
                     </Hint>
                   </div>
                 </div>
-                {state.kind === 'error' && <ErrorNote message={state.message} />}
+                {state.kind === 'error' && <InlineAlert layout="text" className="mt-2">{state.message}</InlineAlert>}
               </div>
             )
               })

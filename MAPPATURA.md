@@ -1,7 +1,17 @@
 # Mappatura dei componenti — Fase 2
 
 > **Avanzamento Fase 3** — fatti: Button, Card, Badge, Tooltip + `Hint`
-> (blocco 1, 2026-09-28). Il resto in `PROGRESS.md`.
+> (blocco 1, 2026-09-28); Input, Textarea, Label + `Field`, `FieldGrid`
+> (blocco 2, 2026-09-29); Select + `SelectField`, Checkbox, Switch, Slider
+> (blocco 3, 2026-09-29); Dialog + `ModalDialog`, AlertDialog + `ConfirmDialog`,
+> Sonner, Alert + `InlineAlert` (blocco 4, 2026-09-29); Tabs, ToggleGroup, Progress,
+> Accordion, Collapsible (blocco 5, 2026-09-29); Table + `DataTable`, Sheet,
+> Skeleton + `LoadingState`, `FilterBar`, `EmptyState`, Avatar, Separator
+> (blocco 6); `StatCard`, `FolderCard`, `SkillVisionCard`, `DistributionBar`,
+> `ChartCard`, `PageHeader`, `CrossModuleBanner` nei pattern, Home di
+> Assessment ricomposta, Phosphor e ApexCharts tolti (blocco 7, 2026-09-30).
+> Fase 4 (guscio unico) e Fase 5 (Bklit) avviate il 2026-09-30.
+> Il resto in `PROGRESS.md`.
 
 Data: 2026-09-28. Base: `main` a `404f498` più le modifiche della Fase 1.
 Il ramo `assessment-home-valore-panel` è già tutto contenuto in `main`
@@ -217,3 +227,10 @@ A blocchi di tre o quattro, prima quello da cui dipende il resto.
 8. Catalogo `/dev/components`, poi i componenti di dominio.
 
 La **Sidebar** e il **guscio** vengono dopo, in Fase 4.
+
+---
+
+## 10. Proposte di grafici
+
+Approvate il 2026-09-30 e spostate in `DECISIONI.md` ("Grafici approvati per
+la Fase 5"). Nessuna proposta in attesa.

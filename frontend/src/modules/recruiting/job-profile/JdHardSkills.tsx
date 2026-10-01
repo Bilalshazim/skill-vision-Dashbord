@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 import { JD_LEVELS } from '@/modules/recruiting/lib/jd-presets'
 import type { JdHardSkillGroup } from '@/modules/recruiting/lib/jd-types'
@@ -37,29 +38,26 @@ function HardSkillGroupRow({ group, onChange }: { group: JdHardSkillGroup; onCha
 
   return (
     <div>
-      <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{group.label}</div>
+      <div className="label-mono mb-2 text-muted-foreground">{group.label}</div>
       <div className="flex flex-col gap-2">
         {group.items.map((it) => (
           <div key={it.id} className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <CheckDot checked={it.checked} onClick={() => onChange({ ...group, items: group.items.map((x) => (x.id === it.id ? { ...x, checked: !x.checked } : x)) })} />
-              <span className={cn('text-[13.5px]', it.checked ? 'text-foreground' : 'text-muted-foreground')}>{it.label}</span>
+              <CheckDot checked={it.checked} label={it.label} onClick={() => onChange({ ...group, items: group.items.map((x) => (x.id === it.id ? { ...x, checked: !x.checked } : x)) })} />
+              <span className={cn('text-app-small', it.checked ? 'text-foreground' : 'text-muted-foreground')}>{it.label}</span>
             </div>
-            <div className="flex gap-1">
+            <ToggleGroup
+              type="single"
+              value={it.level}
+              onValueChange={(lv) => lv && onChange({ ...group, items: group.items.map((x) => (x.id === it.id ? { ...x, level: lv, checked: true } : x)) })}
+              aria-label={`Livello richiesto per ${it.label}`}
+            >
               {JD_LEVELS.map((lv) => (
-                <button
-                  key={lv}
-                  type="button"
-                  onClick={() => onChange({ ...group, items: group.items.map((x) => (x.id === it.id ? { ...x, level: lv, checked: true } : x)) })}
-                  className={cn(
-                    'rounded-sm border px-2 py-1 text-[10px] font-semibold uppercase',
-                    it.level === lv ? 'border-primary bg-primary/10 text-foreground' : 'border-border text-muted-foreground',
-                  )}
-                >
+                <ToggleGroupItem key={lv} value={lv} aria-label={lv} className="label-mono">
                   {lv.slice(0, 4)}
-                </button>
+                </ToggleGroupItem>
               ))}
-            </div>
+            </ToggleGroup>
           </div>
         ))}
         <AddRow value={addValue} onChange={setAddValue} onAdd={handleAdd} />

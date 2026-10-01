@@ -1,17 +1,19 @@
 import { AlertTriangle, Building2, CheckCircle2, IdCard, Loader2, Plus, ShieldAlert, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+import { LoadingState } from '@/components/patterns/LoadingState'
+import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { SelectField } from '@/components/patterns/SelectField'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
 import { ApiError, getBackendUser } from '@/lib/api/client'
 import { campaignsApi, cipApi, companiesApi, platformsApi } from '@/lib/api/endpoints'
 import { useBackendSession } from '@/lib/api/useBackendSession'
 import type { BackendCampaign, BackendCip, BackendCompany, BackendPlatform, BackendSellerCode } from '@/lib/api/types'
-import { EmptyState } from '@/modules/recruiting/components/EmptyState'
+import { EmptyState } from '@/components/patterns/EmptyState'
 
-const inputClass =
-  'rounded-sm border border-border bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 // Was a locally hand-rolled className string (11+ near-duplicate copies of
 // this same recipe existed across Recruiting, each drifted slightly in
 // padding/font-size) — now the same buttonVariants() the shared <Button>
@@ -147,10 +149,7 @@ export default function CipAdminPage() {
     return (
       <div className="flex flex-col gap-4">
         <PageHeader />
-        <div className="flex items-center gap-2 py-6 text-[13px] text-muted-foreground">
-          <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden="true" />
-          Verifica sessione…
-        </div>
+        <LoadingState label="Verifica sessione…" />
       </div>
     )
   }
@@ -160,7 +159,7 @@ export default function CipAdminPage() {
       <div className="flex flex-col gap-4">
         <PageHeader />
         <Card>
-          <EmptyState icon={ShieldAlert} text="Amministrazione CIP riservata ai platform admin. Il backend rifiuta comunque ogni richiesta da un account senza questo ruolo, indipendentemente da questa schermata." />
+          <EmptyState size="sm" icon={ShieldAlert} description="Amministrazione CIP riservata ai platform admin. Il backend rifiuta comunque ogni richiesta da un account senza questo ruolo, indipendentemente da questa schermata." />
         </Card>
       </div>
     )
@@ -170,7 +169,7 @@ export default function CipAdminPage() {
     <div className="flex flex-col gap-4">
       <PageHeader />
 
-      {loadError && <ErrorBanner message={loadError} />}
+      {loadError && <InlineAlert>{loadError}</InlineAlert>}
 
       <Card>
         <CardHeader>
@@ -182,15 +181,15 @@ export default function CipAdminPage() {
         <CardContent>
           <div className="flex flex-wrap gap-2">
             {sellerCodes.map((s) => (
-              <span key={s.id} className="rounded-full border border-border px-2.5 py-1 text-[11.5px] font-semibold text-muted-foreground">
+              <span key={s.id} className="rounded-full border border-border px-2.5 py-1 text-app-caption font-semibold text-muted-foreground">
                 {s.code} — {s.label}
               </span>
             ))}
-            {!sellerCodes.length && <span className="text-[12px] text-muted-foreground">Nessun codice venditore ancora configurato.</span>}
+            {!sellerCodes.length && <span className="text-app-caption text-muted-foreground">Nessun codice venditore ancora configurato.</span>}
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <input value={newSellerCode} onChange={(e) => setNewSellerCode(e.target.value)} placeholder="Codice (es. VR)" maxLength={8} className={cn(inputClass, 'w-[110px]')} />
-            <input value={newSellerLabel} onChange={(e) => setNewSellerLabel(e.target.value)} placeholder="Etichetta" className={cn(inputClass, 'w-[220px]')} />
+            <Input value={newSellerCode} onChange={(e) => setNewSellerCode(e.target.value)} placeholder="Codice (es. VR)" maxLength={8} size="sm" className="w-28" />
+            <Input value={newSellerLabel} onChange={(e) => setNewSellerLabel(e.target.value)} placeholder="Etichetta" size="sm" className="w-56" />
             <button type="button" onClick={handleCreateSellerCode} disabled={!newSellerCode.trim() || !newSellerLabel.trim()} className={primaryBtnClass}>
               <Plus className="size-3.5 shrink-0" aria-hidden="true" />
               Aggiungi
@@ -205,48 +204,48 @@ export default function CipAdminPage() {
             <IdCard className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             Genera nuovo CIP
           </CardTitle>
-          <p className="mt-0.5 text-[11.5px] font-normal text-muted-foreground">
+          <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">
             Azione esplicita — nessuna generazione automatica esiste in questa build (il trigger automatico è una decisione di Roberto ancora da
             confermare, OD-1).
           </p>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap items-center gap-2">
-            <select
+            <SelectField
               value={ownerType}
-              onChange={(e) => {
-                setOwnerType(e.target.value as OwnerType)
+              onValueChange={(v) => {
+                setOwnerType(v as OwnerType)
                 setOwnerId('')
               }}
-              className={inputClass}
+              size="sm"
             >
               <option value="PLATFORM">Platform</option>
               <option value="COMPANY">Company</option>
               <option value="CAMPAIGN">Campaign</option>
-            </select>
-            <select value={ownerId} onChange={(e) => setOwnerId(e.target.value)} className={cn(inputClass, 'min-w-[200px]')}>
+            </SelectField>
+            <SelectField value={ownerId} onValueChange={(v) => setOwnerId(v)} size="sm" className="min-w-52">
               <option value="">{ownerOptions.length ? 'Seleziona…' : '(nessuno disponibile)'}</option>
               {ownerOptions.map((o) => (
                 <option key={o.id} value={o.id}>
                   {o.label}
                 </option>
               ))}
-            </select>
-            <select value={sellerCodeId} onChange={(e) => setSellerCodeId(e.target.value)} className={inputClass}>
+            </SelectField>
+            <SelectField value={sellerCodeId} onValueChange={(v) => setSellerCodeId(v)} size="sm">
               <option value="">Codice venditore…</option>
               {sellerCodes.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.code}
                 </option>
               ))}
-            </select>
+            </SelectField>
             <button type="button" onClick={handleGenerate} disabled={generating || !ownerId || !sellerCodeId} className={primaryBtnClass}>
               {generating ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Plus className="size-3.5 shrink-0" aria-hidden="true" />}
               Genera CIP
             </button>
           </div>
           {actionError && (
-            <p className="mt-2 flex items-start gap-1.5 text-[12px] font-medium text-destructive">
+            <p className="mt-2 flex items-start gap-1.5 text-app-caption font-medium text-destructive">
               <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
               {actionError}
             </p>
@@ -260,27 +259,27 @@ export default function CipAdminPage() {
         </CardHeader>
         <CardContent>
           {!cips.length ? (
-            <EmptyState icon={IdCard} text="Nessun CIP generato ancora." />
+            <EmptyState size="sm" icon={IdCard} description="Nessun CIP generato ancora." />
           ) : (
             <div className="flex flex-col">
               {cips.map((c) => (
                 <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 border-b border-border py-3 last:border-0">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2 font-mono text-[13.5px] font-semibold">
+                    <div className="flex items-center gap-2 font-mono text-app-small font-semibold">
                       {c.code}
                       {c.status === 'ACTIVE' ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-success/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-success">
+                        <Badge tone="success">
                           <CheckCircle2 className="size-3 shrink-0" aria-hidden="true" />
                           Attivo
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-destructive/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-destructive">
+                        <Badge tone="destructive">
                           <XCircle className="size-3 shrink-0" aria-hidden="true" />
                           Annullato
-                        </span>
+                        </Badge>
                       )}
                     </div>
-                    <div className="mt-0.5 text-[11px] text-muted-foreground">
+                    <div className="mt-0.5 text-app-caption text-muted-foreground">
                       {c.ownerType} · anno 20{c.year2} · mese {String(c.month2).padStart(2, '0')} · sequenza {c.sequence} · venditore{' '}
                       {c.sellerCode?.code || '—'}
                       {c.status === 'VOIDED' && c.voidReason && <> · motivo: {c.voidReason}</>}
@@ -288,12 +287,12 @@ export default function CipAdminPage() {
                   </div>
                   {c.status === 'ACTIVE' && (
                     <div className="flex shrink-0 items-center gap-2">
-                      <input
+                      <Input
                         value={voidReason[c.id] || ''}
                         onChange={(e) => setVoidReason((prev) => ({ ...prev, [c.id]: e.target.value }))}
                         placeholder="Motivo annullamento"
-                        className={cn(inputClass, 'w-[180px]')}
-                      />
+                        size="sm" className="w-44"
+ />
                       <button type="button" onClick={() => handleVoid(c.id)} disabled={voidingId === c.id} className={ghostBtnClass}>
                         {voidingId === c.id ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : null}
                         Annulla
@@ -314,11 +313,11 @@ function PageHeader() {
   return (
     <div className="flex items-center gap-4">
       <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-        <IdCard className="size-[22px] text-muted-foreground" aria-hidden="true" />
+        <IdCard className="size-6 text-muted-foreground" aria-hidden="true" />
       </div>
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">Amministrazione CIP</h2>
-        <p className="max-w-[70ch] text-[13px] text-muted-foreground">
+        <h2 className="text-app-section font-semibold tracking-tight">Amministrazione CIP</h2>
+        <p className="max-w-[70ch] text-app-small text-muted-foreground">
           Codice Identificativo Piattaforma — generazione esplicita, annullamento/riemissione. Nessun trigger automatico (OD-1 non risolto).
         </p>
       </div>
@@ -326,11 +325,3 @@ function PageHeader() {
   )
 }
 
-function ErrorBanner({ message }: { message: string }) {
-  return (
-    <p className="flex items-start gap-1.5 rounded-sm border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-[12.5px] font-medium text-destructive">
-      <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      {message}
-    </p>
-  )
-}
