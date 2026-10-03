@@ -537,13 +537,39 @@ coda a `MAPPATURA.md`.
 | Serie | Colore |
 |---|---|
 | Una | `chart-mono` — cambia da solo fra le modalità |
-| Due | `chart-mono` per il dato principale, `muted-foreground` per il confronto |
+| Due | `chart-mono` per il dato principale, `chart-compare` per il confronto |
 | Tre o più | famiglia categorica `chart-1`…`chart-6`, **nell'ordine dato** |
+
+`chart-compare` è `neutral-400` in chiaro e `neutral-500` in scuro, come dicono
+le fondamenta ("neutro per il termine di confronto"). Non `muted-foreground`:
+è un colore di testo, e come riempimento di una barra pesa quanto il dato
+principale. La serie di confronto deve arretrare.
 
 Il lime resta fuori dalla famiglia categorica: indica la serie che conta, non è
 una serie fra le altre. E nessun grafico affida il significato al solo colore:
 etichette dirette sulle serie, non una legenda a lato che costringe a
 confrontare due punti dello schermo.
+
+**Regole dei pattern dei grafici** — verificate in produzione il 2026-10-01:
+
+- **Il numero si scrive una volta.** Dentro uno StatCard, Gauge e Ring non
+  ripetono il valore del riquadro. Il valore ha un'unità sola: "93%" oppure
+  "6,0 /10", mai "93% /100".
+- **Barre con il valore.** Ogni barra porta il suo valore come etichetta
+  diretta, con un decimale. Senza valori e senza asse una barra non si legge.
+- **Fasce su un grafico.** Le soglie si disegnano come linee di riferimento con
+  il nome della fascia, calcolate con la stessa formula che assegna la fascia
+  nel codice (per la matrice soft × hard l'indice è la media dei due assi:
+  le soglie sono diagonali, non una griglia a nove caselle). I punti si
+  distinguono anche senza colore: forma diversa per fascia e nome al passaggio
+  del mouse.
+- **Distribuzione per fascia.** Segmenti in ordine di fascia, dalla più alta
+  alla più bassa. La più alta è neutra piena (`strong`), "nella norma" neutra
+  tenue (`chart-compare`), le altre sui toni di stato. La legenda dice il nome,
+  mai il colore: "Verde", "Giallo", "Rosso" non sono etichette.
+- **Radar.** Abbastanza grande da leggere le etichette degli assi senza
+  sovrapposizioni. Se il riquadro è piccolo, si accorciano le etichette o si
+  allarga il riquadro, non si rimpicciolisce il radar.
 
 **Un buco del sistema, da non improvvisare.** La famiglia categorica serve a
 distinguere serie diverse, non a rappresentare un'intensità. Heatmap, choropleth
@@ -576,6 +602,23 @@ ricerca".
 Densità e impostazione: bordi sottili, superfici neutre, lime solo dove
 indica l'azione, il valore unico o lo stato attivo (paragrafo 1).
 
+**Impaginazione** — eccezione voluta a "le schermate non si riprogettano",
+decisa il 2026-10-01 dopo la verifica in produzione. Cambia la disposizione,
+non il contenuto:
+
+- **Larghezza massima** del contenuto nell'AppShell, `max-w-screen-2xl`,
+  centrata. Senza, su uno schermo largo ogni blocco si allunga quanto lo
+  schermo.
+- **Le card di una riga finiscono alla stessa altezza.** Le griglie di card
+  non usano `items-start`; in una colonna di card impilate l'ultima riempie lo
+  spazio. `items-start` resta dove allinea un'icona alla prima riga di un testo.
+- **Niente card a tutta riga per poco contenuto.** StatCard in griglia, 3 o 4
+  per riga. Card di testo, moduli e riepiloghi brevi su 2 o 3 colonne, oppure
+  con una larghezza massima. A tutta riga solo tabelle, grafici nel tempo e
+  contenuti che ne hanno bisogno. Testo lungo e messaggi di chat entro la
+  colonna di lettura (720px, fondamenta).
+- **Un'intestazione di pagina sola**: `PageHeader`, nei due moduli.
+
 ### Fase 7 — Verifica
 
 Esegui `scripts/audit-identita.mjs` (paragrafo 9) e correggi quello che trova.
@@ -605,9 +648,17 @@ accesso limitati, permessi dal ruolo backend invece che da `canEdit: true`.
 La schermata di login nasce nella libreria come pattern nel catalogo.
 
 Procedi a passi piccoli, con un modo per tornare indietro a ogni passo: è
-l'unico punto dove si può chiudere fuori tutti. Gli account reali di
-produzione e le loro password si creano e si consegnano d'accordo con il
-cliente, non si inventano.
+l'unico punto dove si può chiudere fuori tutti. Gli account del cliente e
+le loro password si creano e si consegnano d'accordo con il cliente, non si
+inventano. Gli account del gruppo di lavoro (studio e sviluppo) invece si
+creano subito: servono per passare la produzione al login vero prima che ci
+arrivino dati reali.
+
+**Dati reali prima del login vero: no.** Finché il ponte usa credenziali
+scritte nel bundle, `requireAuth` non protegge niente: chiunque legga il
+JavaScript può fare il login con quelle. Nessuna rotta che restituisce dati
+di persone reali (Original Skills compreso) si attiva in produzione con
+`VITE_AUTH_MODE=legacy`.
 
 Quando il login React è in piedi, il guscio legacy va in pensione **insieme
 alla sua copia** in `frontend/legacy-shell/`, che serve la produzione su
@@ -846,7 +897,7 @@ console del browser su ogni schermata e in entrambe le modalità.
 
 | File | Cosa contiene |
 |---|---|
-| `globals.css` | Il tema. Unico posto dove stanno i valori. |
+| `globals.css` | Il tema. Unico posto dove stanno i valori. Dopo la Fase 1 fa fede la copia nel repository, che ha in più gli alias di Bklit e la scala dei livelli: le modifiche dallo studio arrivano come elenco di valori da applicare, non come file da sostituire. |
 | `skill-vision-fondamenta.md` | Il sistema completo: regole, contrasti verificati, motivazioni. |
 | `assets/logo-*.svg` | Il marchio nelle due versioni. Non ricomporlo mai. |
 | `scripts/audit-identita.mjs` | La verifica del sorgente. Si lancia a ogni fase. |

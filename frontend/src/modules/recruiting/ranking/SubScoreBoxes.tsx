@@ -4,7 +4,7 @@ import { fmtIT100 } from '@/modules/recruiting/lib/format'
 // Fase 6: i colori categorici erano decorazione su metriche già etichettate
 // e sono stati tolti — superfici neutre, il valore porta la gerarchia.
 const BOXES = [
-  { key: 'fc', label: 'Fit competenze (55%)' },
+  { key: 'fc', label: 'Aderenza alle competenze (55%)' },
   { key: 'ab', label: 'Affinità Big Five (30%)' },
   { key: 'icv', label: 'Indice CV — ML (15%)' },
 ] as const

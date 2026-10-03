@@ -74,7 +74,7 @@ export function ScreeningResultView({ result }: { result: ScreeningResult }) {
                 <span
                   className={cn(
                     'label-mono ml-2 rounded-full px-2 py-0.5',
-                    m.sourceTag === 'NEW_APPLICANT' ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground',
+                    m.sourceTag === 'NEW_APPLICANT' ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground dark:text-secondary-foreground',
                   )}
                 >
                   {m.sourceTag}

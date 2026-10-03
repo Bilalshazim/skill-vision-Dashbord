@@ -31,7 +31,7 @@ import {
   roleCoveragePct,
   worstCompetenza,
 } from '@/modules/assessment/lib/calculations'
-import { fmt1, fmt1it, round1 } from '@/modules/assessment/lib/legacy-utils'
+import { fmt1, fmt1csv, fmt1it, round1 } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import type { getUI } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentState } from '@/modules/assessment/lib/types'
@@ -221,7 +221,7 @@ export default function AssessmentHomePage() {
               <div className="rounded-md border border-border bg-card p-4">
                 <DistributionBar
                   label={ui.homeQ3DistributionLabel}
-                  segments={quadDefs(ui).map((q) => ({
+                  segments={[...quadDefs(ui)].sort((x, y) => TIER_ORDER.indexOf(x.key) - TIER_ORDER.indexOf(y.key)).map((q) => ({
                     key: q.key,
                     label: q.label,
                     pct: totalEmp ? (tiers[q.key].length / totalEmp) * 100 : 0,
@@ -303,7 +303,7 @@ export default function AssessmentHomePage() {
                   scale={{ left: [0, 10] }}
                   series={[
                     { key: 'v', label: ui.homeOrgTrendModeAvg, kind: 'area' },
-                    { key: 'b', label: `Benchmark ${fmt1it(hs.benchmark)}`, reference: true },
+                    { key: 'b', label: `${ui.homeOrgTrendModeBenchmark} ${fmt1it(hs.benchmark)}`, reference: true },
                   ]}
                   points={trendMonths.map((m, i) => ({ date: new Date(new Date().getFullYear(), new Date().getMonth() - (trendMonths.length - 1 - i), 1), label: m, values: { v: orgTrendSeries[i], b: hs.benchmark } }))}
                 />
@@ -404,6 +404,8 @@ const TIER_TILE: Record<'valorizzare' | 'top' | 'critica', { tone: StatTone; Ico
   top: { tone: 'strong', Icon: Award },
   critica: { tone: 'destructive', Icon: UserX },
 }
+// Distribuzione per fascia: dalla più alta alla più bassa (CLAUDE.md).
+const TIER_ORDER = ['top', 'valorizzare', 'adeguata', 'sviluppo', 'critica'] as const
 const TIER_DIST: Record<'top' | 'valorizzare' | 'adeguata' | 'sviluppo' | 'critica', DistributionTone> = {
   top: 'neutral',
   valorizzare: 'success',
@@ -485,7 +487,7 @@ function exportValoreReport(state: AssessmentState, lang: AssessmentLang, ui: Re
   csv += [overallPct + '%', fmt1it(hs.benchmark), roleCovPct + '%', state.employees.length].join(';') + '\n\n'
   csv += ui.exportValoreCsvEmployeeHeader + '\n'
   state.employees.forEach((e) => {
-    csv += [e.cognome, e.nome, e.ruolo, e.area, fmt1(primaryScore(e, state, lang))].join(';') + '\n'
+    csv += [e.cognome, e.nome, e.ruolo, e.area, fmt1csv(primaryScore(e, state, lang))].join(';') + '\n'
   })
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)

@@ -35,7 +35,7 @@ export function PipelineDetail({
 
   return (
     <div className="flex flex-col gap-4">
-      <Card>
+      <Card className="max-w-3xl">
         {/* The raw source literal here is "Job Profile" (line ~2098), but
             legacy's applyLanguage('it') — which runs by default, on every
             screen navigation — rewrites that exact stray English string back
@@ -45,7 +45,7 @@ export function PipelineDetail({
         <div className="label-mono text-muted-foreground">{company.name} · Profilo di Lavoro</div>
         <h3 className="text-app-section font-semibold">{opening.title}</h3>
         <p className="text-app-small leading-relaxed text-muted-foreground">
-          Skill richieste: <b className="font-semibold text-foreground">{skills}</b>
+          Competenze richieste: <b className="font-semibold text-foreground">{skills}</b>
           <br />
           Esperienza target: <b className="font-semibold text-foreground">{experienceYears} anni</b> · Titolo:{' '}
           <b className="font-semibold text-foreground">{education}</b>
@@ -64,85 +64,88 @@ export function PipelineDetail({
         )}
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            Pre-screened CV — {p.prescreened.length}
-          </CardTitle>
-          <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">
-            Candidati passati al pre-screening, con link al test/assessment automatizzato.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <PrescreenedList
-            entries={p.prescreened}
-            candidatePool={opening.candidatePool || []}
-            companyId={company.id}
-            openingId={opening.id}
-            onMutated={onMutated}
-          />
-        </CardContent>
-      </Card>
+      {/* Le quattro fasi su due colonne, nell'ordine del flusso (CLAUDE.md, Fase 6). */}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              CV preselezionati — {p.prescreened.length}
+            </CardTitle>
+            <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">
+              Candidati passati alla preselezione, con il link al test automatizzato.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <PrescreenedList
+              entries={p.prescreened}
+              candidatePool={opening.candidatePool || []}
+              companyId={company.id}
+              openingId={opening.id}
+              onMutated={onMutated}
+            />
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <FileCheck2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            Ranking post-test — {p.testResults.length}
-          </CardTitle>
-          <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">
-            Punteggi test dei candidati pre-screened, ordinati per ranking.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <TestResultList
-            results={p.testResults}
-            prescreened={p.prescreened}
-            companyId={company.id}
-            openingId={opening.id}
-            onMutated={onMutated}
-          />
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <FileCheck2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              Classifica dopo il test — {p.testResults.length}
+            </CardTitle>
+            <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">
+              Punteggi del test dei candidati preselezionati, in ordine di classifica.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <TestResultList
+              results={p.testResults}
+              prescreened={p.prescreened}
+              companyId={company.id}
+              openingId={opening.id}
+              onMutated={onMutated}
+            />
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <MessageSquare className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            Colloqui — {p.interviews.length}{' '}
-            <span className="font-normal text-muted-foreground">({p.interviews.filter((iv) => iv.completed).length} con scorecard)</span>
-          </CardTitle>
-          <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">Elenco candidati in colloquio, con scorecard post-colloquio.</p>
-        </CardHeader>
-        <CardContent>
-          <InterviewList
-            interviews={p.interviews}
-            testResults={p.testResults}
-            companyId={company.id}
-            openingId={opening.id}
-            onMutated={onMutated}
-          />
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <MessageSquare className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              Colloqui — {p.interviews.length}{' '}
+              <span className="font-normal text-muted-foreground">({p.interviews.filter((iv) => iv.completed).length} con scheda)</span>
+            </CardTitle>
+            <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">Elenco dei candidati in colloquio, con la scheda di valutazione.</p>
+          </CardHeader>
+          <CardContent>
+            <InterviewList
+              interviews={p.interviews}
+              testResults={p.testResults}
+              companyId={company.id}
+              openingId={opening.id}
+              onMutated={onMutated}
+            />
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Trophy className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            Candidato vincitore
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <WinnerCard
-            winner={p.winner}
-            interviews={p.interviews}
-            companyId={company.id}
-            openingId={opening.id}
-            onMutated={onMutated}
-          />
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Trophy className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              Candidato vincitore
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <WinnerCard
+              winner={p.winner}
+              interviews={p.interviews}
+              companyId={company.id}
+              openingId={opening.id}
+              onMutated={onMutated}
+            />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

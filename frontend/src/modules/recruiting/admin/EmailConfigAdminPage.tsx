@@ -1,4 +1,5 @@
-import { CheckCircle2, Loader2, Mail, Plus, Save, ShieldAlert, XCircle } from 'lucide-react'
+import { PageHeader } from '@/components/patterns/PageHeader'
+import { CheckCircle2, Loader2, Plus, Save, ShieldAlert, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { LoadingState } from '@/components/patterns/LoadingState'
@@ -181,18 +182,7 @@ export default function EmailConfigAdminPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <Mail className="size-6 text-muted-foreground" aria-hidden="true" />
-        </div>
-        <div>
-          <h2 className="text-app-section font-semibold tracking-tight">Configurazione email</h2>
-          <p className="max-w-[70ch] text-app-small text-muted-foreground">
-            Mittente e modello per il team di recruiting, servizio di invio per l&apos;amministrazione piattaforma — sezioni separate, permessi separati.
-            Non modifica il flusso <b className="font-semibold text-foreground">Invia link test</b>.
-          </p>
-        </div>
-      </div>
+      <PageHeader level="page" className="mb-0" title="Configurazione email" description={<>Mittente e modello per il team di recruiting, servizio di invio per l&apos;amministrazione piattaforma — sezioni separate, permessi separati. Non modifica il flusso <b className="font-semibold text-foreground">Invia link test</b>.</>} />
 
       {!canSeeCompanyConfig ? (
         <Card>
@@ -202,11 +192,11 @@ export default function EmailConfigAdminPage() {
         <>
           <Card>
             <CardHeader>
-              <CardTitle>A. Configurazione mittente (Company/HR o Skill Vision admin)</CardTitle>
+              <CardTitle>A. Configurazione mittente (Società/HR o amministratore Skill Vision)</CardTitle>
             </CardHeader>
             <CardContent>
               {isPlatformAdmin && (
-                <Field label="Company" className="mb-4">
+                <Field label="Società" className="mb-4">
                   <SelectField value={companyId} onValueChange={(v) => setCompanyId(v)} className="max-w-72">
                     <option value="">Seleziona…</option>
                     {companies.map((c) => (
@@ -309,14 +299,14 @@ export default function EmailConfigAdminPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>C. Servizio di invio email (solo platform admin)</CardTitle>
+          <CardTitle>C. Servizio di invio email (solo amministratori della piattaforma)</CardTitle>
           <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">
-            La credenziale reale non viene mai mostrata qui né restituita dal server — solo se è configurata o meno.
+            La credenziale non viene mai mostrata: qui si vede solo se è configurata.
           </p>
         </CardHeader>
         <CardContent>
           {!isPlatformAdmin ? (
-            <EmptyState size="sm" icon={ShieldAlert} description="Sezione riservata ai platform admin — le credenziali del servizio non sono visibili né modificabili da questo account." />
+            <EmptyState size="sm" icon={ShieldAlert} description="Sezione riservata agli amministratori della piattaforma: le credenziali del servizio non sono visibili né modificabili da questo account." />
           ) : (
             <>
               <div className="mb-3 flex flex-col gap-1.5">

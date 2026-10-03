@@ -64,7 +64,9 @@ export function getTierDefs(lang: AssessmentLang) {
 export const uid = (p = 'id') => p + '_' + Math.random().toString(36).slice(2, 9)
 export const avg = (arr: number[]) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0)
 export const round1 = (n: number) => Math.round(n * 10) / 10
-export const fmt1 = (n: number) => (isFinite(n) ? round1(n).toFixed(1) : '–')
+// A schermo: virgola italiana e un decimale fisso. Per i CSV, `fmt1csv` (punto).
+export const fmt1 = (n: number) => (isFinite(n) ? round1(n).toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1, useGrouping: false }) : '–')
+export const fmt1csv = (n: number) => (isFinite(n) ? round1(n).toFixed(1) : '–')
 // Same one-decimal rounding as fmt1, but with an Italian decimal comma — used where the display
 // is explicitly meant to read "-0,8" rather than "-0.8" (e.g. the Benchmark Gap card).
 export const fmt1it = (n: number) => (isFinite(n) ? round1(n).toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '–')

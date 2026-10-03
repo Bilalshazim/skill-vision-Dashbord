@@ -140,7 +140,7 @@ export function RecruitingHeader() {
         <div className="mt-0.5 flex items-center gap-1.5 text-app-small font-semibold">
           <IdCard className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
           {!isPlatformAdmin ? (
-            <span className="text-muted-foreground">Non disponibile — richiedilo a un platform admin</span>
+            <span className="text-muted-foreground">Non disponibile — chiedilo all'amministratore della piattaforma</span>
           ) : cipLoading ? (
             <span className="text-muted-foreground">Verifica…</span>
           ) : cipCode ? (

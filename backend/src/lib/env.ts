@@ -48,6 +48,11 @@ export const env = {
   // never returned in any response. Not required(): the button shows a
   // clear "not configured" error rather than the server failing to boot.
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
+  // Fase 8 — origini ammesse per le richieste autenticate col cookie di
+  // refresh, oltre alla stessa origine (lib/authCookie.ts). Elenco separato
+  // da virgole, es. https://app.esempio.it. Vuoto: solo la stessa origine.
+  trustProxyHops: Number(process.env.TRUST_PROXY_HOPS || 1),
+  authCookieOrigins: (process.env.AUTH_COOKIE_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean),
 }
 
 // Name kept as `smtpConfigured` — shortlist/routes.ts and emailConfig/routes.ts

@@ -17,7 +17,7 @@ import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { bothActive, classifyPopulation, computeHardSummary, computeSoftSummary, primaryScore, primaryScoreLabel, tierFor } from '@/modules/assessment/lib/calculations'
-import { fmt1, getTierDefs, round1 } from '@/modules/assessment/lib/legacy-utils'
+import { fmt1, fmt1csv, getTierDefs, round1 } from '@/modules/assessment/lib/legacy-utils'
 
 // I colori delle cinque fasce di performance, sui token (CLAUDE.md cap. 7,
 // "Colore di severità"): la fascia più alta non è uno stato ed è neutra
@@ -36,7 +36,7 @@ const TIER_TONE: Record<string, 'strong' | 'success' | 'neutral' | 'warning' | '
 const TIER_COLORS: Record<string, string> = {
   top: 'var(--foreground)',
   valorizzare: 'var(--success)',
-  adeguata: 'var(--muted-foreground)',
+  adeguata: 'var(--chart-compare)',
   sviluppo: 'var(--warning)',
   critica: 'var(--destructive)',
 }
@@ -53,7 +53,7 @@ const ANDAMENTO_HARD = [6.0, 6.1, 6.3, 6.2, 6.4, 6.5]
 function exportValoreCsv(rows: { e: { cognome: string; nome: string; area: string; ruolo: string }; soft: number; hard: number; combined: number; tier: { label: string } }[], csvHeader: string) {
   let csv = csvHeader + '\n'
   rows.forEach((r) => {
-    csv += [r.e.cognome, r.e.nome, r.e.area, r.e.ruolo, fmt1(r.soft), fmt1(r.hard), fmt1(r.combined), r.tier.label].join(';') + '\n'
+    csv += [r.e.cognome, r.e.nome, r.e.area, r.e.ruolo, fmt1csv(r.soft), fmt1csv(r.hard), fmt1csv(r.combined), r.tier.label].join(';') + '\n'
   })
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
@@ -180,10 +180,11 @@ export default function AssessmentValorePage() {
             yLabel={ui.moduleBHard}
             groups={TIER_DEFS.map((t) => ({ key: t.key, label: t.label, color: colors[t.key] }))}
             points={rows.map((r) => ({ id: r.e.id, label: `${r.e.nome} ${r.e.cognome}`, x: r.soft, y: r.hard, group: r.tier.key }))}
+            thresholds={TIER_DEFS.filter((t) => t.min > 0).map((t) => ({ value: t.min, label: t.label }))}
             onPointClick={setDrawerId}
           />
         ) : null}
-        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-3 mt-4 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-3 mt-4">
           {TIER_DEFS.map((t) => (
             <div key={t.key} className="rounded-md border border-border bg-background p-3">
               <div className="mb-2 flex items-center gap-2">

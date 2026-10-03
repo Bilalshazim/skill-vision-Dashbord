@@ -158,7 +158,7 @@ export function getInternalTalents(candidates: Candidate[]): Candidate[] {
     ...c,
     id: `it${i + 1}`,
     name: `${c.name} [INTERNAL]`,
-    src: 'Internal Talent · dipendente in ruolo',
+    src: 'Talento interno · dipendente in ruolo',
     role: c.role,
     isInternalTalent: true,
   }))

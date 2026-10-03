@@ -1,3 +1,4 @@
+import { fmtDec } from '@/lib/format'
 import { SelectField } from '@/components/patterns/SelectField'
 import { cn } from '@/lib/utils'
 import type { Candidate } from '@/modules/recruiting/lib/types'
@@ -56,8 +57,8 @@ export function MatchSlotPicker({
           {topScores.length > 0 && (
             <div className="mt-1 flex flex-wrap gap-1">
               {topScores.map(([n, v]) => (
-                <span key={n} className="rounded-full border border-border bg-secondary px-2 py-0.5 text-app-caption text-muted-foreground">
-                  {n} {v.toFixed(1)}
+                <span key={n} className="rounded-full border border-border bg-secondary px-2 py-0.5 text-app-caption text-muted-foreground dark:text-secondary-foreground">
+                  {n} {fmtDec(v)}
                 </span>
               ))}
             </div>

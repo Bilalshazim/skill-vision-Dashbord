@@ -378,7 +378,7 @@ export function removePrescreenedCandidate(recordId: string, target?: PipelineTa
 export type AddTestResultResult =
   | { ok: true; result: TestResult }
   | { ok: false; reason: 'no-active-opening' }
-  | { ok: false; reason: 'candidate-not-found' } // legacy: no prescreened record has this id ("Seleziona un candidato pre-screened")
+  | { ok: false; reason: 'candidate-not-found' } // legacy: no prescreened record has this id ("Seleziona un candidato preselezionato")
   | { ok: false; reason: 'invalid-score' } // legacy: Number(scoreRaw) is NaN ("Inserisci un punteggio valido (0-100)")
   | { ok: false; reason: 'storage-unavailable'; message: string }
 
@@ -567,7 +567,7 @@ export type SaveScorecardResult =
 
 // PHASE 11C-3 — ported verbatim from saveInterviewScorecard()
 // (modules/recruiting.html ~2418-2431), the function behind each
-// interview row's "💾 Salva scorecard" button (~2085).
+// interview row's "💾 Salva scheda" button (~2085).
 //
 //  - Targets by the interview's own `id` (not candidateId).
 //  - Changes EXACTLY: rec.scorecard = {overall, notes}, rec.completed=true.
@@ -741,8 +741,8 @@ export function pipelineStage(opening: JobOpening): PipelineStage {
   const p = ensurePipeline(opening)
   if (p.winner) return { key: 'decision', label: '🏆 Vincitore selezionato', pct: 100 }
   if (p.interviews.length) return { key: 'interviews', label: 'Colloqui in corso', pct: 75 }
-  if (p.testResults.length) return { key: 'testing', label: 'Test completati — ranking pronto', pct: 55 }
-  if (p.prescreened.length) return { key: 'prescreening', label: 'Pre-screening in corso', pct: 30 }
+  if (p.testResults.length) return { key: 'testing', label: 'Test completati — classifica pronta', pct: 55 }
+  if (p.prescreened.length) return { key: 'prescreening', label: 'Preselezione in corso', pct: 30 }
   return { key: 'sourcing', label: 'Sourcing candidati', pct: 8 }
 }
 
@@ -801,7 +801,7 @@ export function buildDefaultJobProfile(title: string): JobProfile {
   const seedSkills = Object.keys(DEFAULT_FLAGS).slice(0, 6)
   return {
     id: `profile-${(title || 'role').toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-    title: title || 'Dynamic Job Profile',
+    title: title || 'Profilo dinamico della posizione',
     criteria: {
       skills: seedSkills.length ? seedSkills : ['Communication', 'Leadership', 'Problem Solving'],
       experienceYears: 3,

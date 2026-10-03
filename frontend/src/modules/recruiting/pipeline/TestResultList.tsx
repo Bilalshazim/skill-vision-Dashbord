@@ -98,7 +98,7 @@ export function TestResultList({
         result.reason === 'no-active-opening'
           ? OPENING_UNAVAILABLE_MESSAGE
           : result.reason === 'candidate-not-found'
-            ? 'Seleziona un candidato pre-screened.'
+            ? 'Seleziona un candidato preselezionato.'
             : result.reason === 'invalid-score'
               ? 'Inserisci un punteggio valido (0-100).'
               : `Impossibile salvare: ${result.message}`
@@ -143,7 +143,7 @@ export function TestResultList({
       <div className="mb-3 flex flex-col gap-2 rounded-sm bg-secondary p-3">
         <div className="flex flex-wrap items-center gap-2">
           <SelectField value={candidateId} onValueChange={(v) => setCandidateId(v)} disabled={addPending} size="sm" className="max-w-56">
-            <option value="">{prescreened.length ? 'Seleziona candidato…' : '(nessun candidato in pre-screening)'}</option>
+            <option value="">{prescreened.length ? 'Seleziona candidato…' : '(nessun candidato in preselezione)'}</option>
             {prescreened.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name || '—'}

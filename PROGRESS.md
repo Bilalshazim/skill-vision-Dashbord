@@ -105,15 +105,246 @@ Il login resta quello di oggi: rifacimento e ritiro del guscio legacy in Fase 8.
 - [x] Catalogo verificato in chiaro e in scuro
 - [ ] Contrasto reale con lo snippet dell'audit: da fare a mano nel browser
 ### Fase 8 — Autenticazione e ritiro del guscio legacy
-Spostata qui ufficialmente il 2026-09-30. Segue PROPOSTA-AUTENTICAZIONE.md:
-6–9 giornate, **+1–2 con il refresh token in cookie `httpOnly`** (opzione da
-scegliere). Va chiusa prima del primo cliente reale, insieme allo
-spegnimento del catalogo in produzione.
+Segue PROPOSTA-AUTENTICAZIONE.md. Va chiusa prima del primo cliente reale,
+insieme allo spegnimento del catalogo in produzione.
+- [x] Struttura non dipendente dal cliente (2026-10-02), dietro
+      `VITE_AUTH_MODE` (default `legacy`, invariato): limite ai tentativi,
+      refresh in cookie httpOnly, login React `/login`, guardia unica,
+      logout, permessi dal ruolo, proxy `/api` per la stessa origine
+- [x] Script per gli account del gruppo di lavoro (`create-team-admin`) e per
+      chiudere gli account con password pubbliche (`secure-demo-accounts`),
+      2026-10-02. Da lanciare in produzione nell'ordine di
+      PROPOSTA-AUTENTICAZIONE.md
+- [ ] Account del cliente, d'accordo con il cliente
+- [ ] Passaggio su un ambiente di prova, poi in produzione (variabili in
+      PROPOSTA-AUTENTICAZIONE.md, «Cosa resta»)
+- [ ] Ritiro del guscio legacy e della sua copia, del ponte e delle coppie
+      di `js/app.js`, nello stesso passaggio
 ### Progetto separato — Assessment sul server
 Analisi e stima in PROGETTO-ASSESSMENT-SERVER.md (20–30 giornate, dopo la
 Fase 8): valutatore esterno, invio link test in Assessment, holding → società.
 
 ## Registro
+
+## 2026-10-03 — Script di prova Original Skills
+- [x] `backend/scripts/test-original-skills-fetch.ts` (compilato in
+      `dist/scripts/`): chiamata di prova con le variabili di Railway
+      (`railway run --service Backend node dist/scripts/test-original-skills-fetch.js`).
+      Stampa solo la struttura e le verifiche fra campi, mai dati di persone
+      né codici. Codici da `ORIGINAL_SKILLS_COMPANY_MAP`; ripiego temporaneo
+      `ORIGINAL_SKILLS_TEST_CODES` solo sulla riga di comando. Senza codici si
+      ferma e spiega.
+- [x] **Due scoperte** (PROPOSTA-ORIGINAL-SKILLS.md, §3.2 e §8):
+      - l'API restituisce **sempre** le righe dell'account API
+        (`codAzienda` = `authCompany`), anche per un codice inesistente: il
+        server dovrà scartarle;
+      - una versione nuova del questionario a **42 voci** (5 competenze
+        nuove, «Innovazione» ripetuta), vista sull'account API il
+        2026-10-02. Le società 1 e 2 usano ancora le 36.
+- [ ] `ORIGINAL_SKILLS_COMPANY_MAP` ancora da impostare sul servizio Backend.
+
+## 2026-10-02 (5) — Account, rotte protette, competenze, istruzioni Railway
+- [x] **`scripts/create-team-admin.ts`**: PLATFORM_ADMIN per il gruppo di
+      lavoro, senza password in codice o Git. La password si digita nascosta,
+      o con `--generate` si crea e si mostra una volta. Anteprima di default,
+      `--reset-password` revoca le sessioni, `AuditLog`. Provato sul
+      database di test: anteprima, rifiuto senza terminale, creazione, rifiuto
+      del doppione.
+- [x] **`scripts/secure-demo-accounts.ts`**: disattiva admin@skill-vision.it,
+      hr@acme.example, recruiter@acme.example, operatore@skill-vision.it,
+      revoca le sessioni, `AuditLog`; `--restore` per tornare indietro. Si
+      rifiuta senza un altro PLATFORM_ADMIN attivo e senza
+      `--frontend-is-backend-mode` (in `legacy` il ponte usa quegli account).
+      Provati tutti e due i rifiuti. **Non lanciato in produzione**: va dopo
+      il passaggio a `backend`.
+- [x] **Buco chiuso**: `/auth/refresh` e `/auth/me` non controllavano lo
+      stato dell'account, quindi un account disattivato continuava a
+      rinnovare la sessione per 30 giorni. Ora 401.
+- [x] **Seed bloccato in produzione** (ricrea le password pubbliche).
+- [x] **Test delle rotte protette** (`tests/protected-routes.test.ts`):
+      l'elenco si legge dai router. 62 rotte con `requireAuth`, ognuna 401
+      senza token e con token di altra chiave, scaduto, `alg none` o
+      malformato; 4 rotte dei valutatori, 401/403; 7 pubbliche dichiarate. Un
+      token del login passa; un account disattivato no. Suite 108/108.
+- [x] **Due difetti trovati provando il server di produzione**:
+      - `/login` dava 404 in `serve-combined` (mancava fra le rotte React);
+      - il proxy inoltrava tutta la catena `X-Forwarded-For`, che col dominio
+        pubblico del Backend permetteva di falsificare l'IP. Ora inoltra solo
+        l'IP aggiunto dal bordo e `TRUST_PROXY_HOPS` resta 1.
+
+      Riprovati: 8 controlli nel browser attraverso `serve-combined` e
+      proxy; IP finto ignorato dal limite dei tentativi.
+- [x] **Mappatura delle competenze** in PROPOSTA-ORIGINAL-SKILLS.md: tabella
+      a tre colonne (Original Skills, Assessment, Recruiting) e proposta di
+      adottare le diciture ufficiali. Tre punti per il cliente:
+      «Sensibilità alla formazione» (senso diverso), quattro diciture
+      inglesi, `ps6` contro Engagement/Impegno. Interruttore
+      `ORIGINAL_SKILLS_ENABLED` previsto, spento finché il login vero non è
+      attivo (CLAUDE.md).
+- [x] **Istruzioni esatte** per il passaggio su Railway
+      (PROPOSTA-AUTENTICAZIONE.md, ultima sezione), con i dati veri del
+      progetto: Backend su 8080, rete privata, Postgres non esposto, quindi
+      script via `railway ssh`; comandi della CLI 5.57.7 verificati.
+- [x] tsc frontend e backend, build, oxlint, audit `frontend/src` 0.
+
+## 2026-10-02 (4) — Gruppo B ripristinato, preset tradotti, Original Skills, Fase 8
+- [x] **Gruppo B ripristinato** (report, gap, benchmark, feedback, team) nel
+      codice e in TRADUZIONI.md; resta solo ranking → classifica. Il
+      dizionario di Assessment è ripartito dall'ultimo commit con le sole
+      traduzioni A: corretto anche un errore mio (`ccColAgent` era finito in
+      «Operatore» pure nel dizionario inglese).
+- [x] **Preset di Recruiting tradotti** con la tabella di conversione
+      (`jd-preset-translations.ts`, 139 voci + 2 scopi; tabella generata in
+      TRADUZIONI.md). Le schede salvate si convertono all'apertura (browser
+      e server), idempotente, voci scritte a mano intatte: verificato.
+- [x] **Original Skills**: codici reali tolti dal documento (società 1 /
+      2). Chiamata di prova con le credenziali di Railway via `railway run`
+      (mai lette né stampate), script che stampa solo la struttura: 200 con
+      32 persone su 88 giorni, `[]` su 14, 400 sopra i 90 giorni, 500 su data
+      non valida. Struttura, tipi, scale, 36 competenze e mappa sulle nostre
+      35 in PROPOSTA-ORIGINAL-SKILLS.md §3.2; stima dell'integrazione
+      completa §9.2 (16–22,5 giornate). `ORIGINAL_SKILLS_COMPANY_MAP` non è
+      ancora impostata su Railway.
+- [x] **Fase 8 — struttura** (PROPOSTA-AUTENTICAZIONE.md, ultima sezione):
+      backend con limite ai tentativi, cookie httpOnly, refresh/logout da
+      corpo o cookie con controllo d'origine, `trust proxy` a numero di
+      passaggi; 5 test nuovi, suite 101/101. Frontend con `/login`
+      (`LoginForm` nel catalogo), `AuthGuard` unica, sessione in memoria,
+      logout, `canEdit` dal ruolo, proxy `/api`. Provato in locale in
+      modalità `backend` (8 controlli) e `legacy` (invariata).
+- [x] tsc, build, oxlint, audit `frontend/src` 0.
+
+## 2026-10-02 (3) — Specifiche dell'API Original Skills
+- [x] `PROPOSTA-ORIGINAL-SKILLS.md` aggiornata con le specifiche di Alessio:
+      `POST https://hrapp.originalskills.com/Api/Data/ExportData`, corpo
+      `{dataDa, dataA, lingua: "IT", codAzienda: [...]}`, intestazioni
+      `authKey` e `authCompany`. Variabili Railway del servizio Backend
+      `ORIGINAL_SKILLS_API_URL`, `ORIGINAL_SKILLS_AUTH_KEY`,
+      `ORIGINAL_SKILLS_AUTH_COMPANY`; rotta protetta da `requireAuth`. I
+      valori delle credenziali non sono scritti nel documento (sta su Git).
+- [x] Gruppo → Società: i due codici (qui «società 1» e «società 2») sono due società dello stesso
+      gruppo; il server costruisce l'elenco `codAzienda` dai permessi (una
+      società, o tutto il gruppo con un ruolo di gruppo che oggi non esiste).
+      Proposta: mappa in variabile Railway per partire, gruppo nel database
+      quando arriva il ruolo.
+- [ ] Aperte: esempio reale di risposta, `codAzienda` in ogni riga, quale
+      società è quale codice, durata di `authKey` (§8). Niente codice, niente
+      salvataggio.
+
+## 2026-10-02 (2) — Regole dei grafici, impaginazione, traduzioni, invio link test
+- [x] **`--chart-compare`** nel tema (neutral-400 chiaro / neutral-500 scuro),
+      più l'utility `chart-compare`. `seriesColors` lo usa per ogni serie di
+      confronto (atteso, riferimento, profilo ideale); anche
+      `--chart-line-secondary` di Bklit e «nella norma» della distribuzione.
+- [x] **CompletionRing / Gauge**: il numero non si ripete al centro
+      dell'anello, unità singola («93%», non «93% /100»), via le note
+      «Verde / Giallo / Rosso» dalle card di livello (Home Assessment e
+      catalogo).
+- [x] **CategoryBars**: ogni barra porta il suo valore (un decimale) —
+      nuova prop `valueLabel` di `Bar` (Bklit), margini per le etichette.
+- [x] **ScatterMatrix**: soglie diagonali `x + y = 2t` (l'indice è la media
+      dei due assi) col nome della fascia; una forma per fascia (rombo,
+      cerchio, quadrato, triangolo, triangolo giù) nel grafico e nella
+      legenda; nome al passaggio. Valori Complessivi passa le soglie vere
+      (8,3 / 7,0 / 5,5 / 4,0).
+- [x] **DistributionBar**: segmenti dalla fascia più alta alla più bassa (Home
+      Assessment), «nella norma» su `chart-compare`.
+- [x] **Radar** più grande (448 / 384 px, margine 64) ed etichetta breve per
+      asse (`short`): i cluster soft in Area Valutazioni Trasversali
+      («Realizzazione», non «Competenze di Realizzazione»); la tabella tiene
+      il nome intero. Verificato: nessuna sovrapposizione.
+- [x] **Impaginazione** (IMPAGINAZIONE.md, con l'elenco delle pagine):
+      `max-w-screen-2xl` nell'AppShell; `items-start` tolto dalle griglie di
+      card; Competenze Trasversali/Professionali, Dati Aziendali, Intervista,
+      CV & Esportazione, CV Elaborati, Home Recruiting, Piani di Sviluppo (3
+      colonne), Assistente IA nei due moduli (colonna di lettura 720 px).
+- [x] **PageHeader in tutte le pagine di Recruiting** (12): via le
+      intestazioni fatte a mano; Ask aveva l'intestazione a metà pagina. Via
+      maiuscoli scritti nel testo («VALORE ATTESO», «COME», «COSA», badge
+      maiuscoli delle risposte dell'Intervista) e il titolo ripetuto della
+      domanda centrale.
+- [x] **Traduzioni A, B, D** applicate con i correttivi (TRADUZIONI.md).
+      Preset delle schede di Recruiting non tradotti: valori salvati (vedi
+      DECISIONI). Dati demo di Assessment tradotti nel seed; il filtro di
+      Customer Care accetta il nome vecchio e il nuovo.
+- [x] **Invia link test in Recruiting** (Migliori Candidati):
+      `SendTestLinkBar` con conferma dei nomi; invio uno alla volta con
+      «Invio in corso: n di N»; esito per riga («Link inviato» / «Non
+      inviato: motivo») e riepilogo con chi ha ricevuto e chi no; chi ha già
+      ricevuto il link (voce inviato/completato/ha risposto/non ha risposto,
+      o invio automatico) non si può spuntare e non viene contato. Provato
+      senza backend: due «email mancante», riepilogo e righe corretti.
+- [x] **Contrasto in scuro su `secondary`** (e righe di tabella
+      selezionate, stesso fondo): dentro quelle superfici `muted-foreground`
+      → neutral-300, testo di stato → `secondary-foreground`, fondi tenui di
+      stato calcolati sulla card. Controllo di contrasto a runtime (fondo
+      effettivo, trasparenze comprese) su 26 rotte in scuro e 5 in chiaro:
+      nessun testo sotto soglia (prima: 4,11:1 in CV & Esportazione, CV
+      Elaborati e catalogo).
+- [x] **Prestazioni di Migliori Candidati** con 56 candidati in attesa
+      (build di produzione, CPU ×4): caricamento ~1 s (0,25 s reali); lo
+      spunto di una casella costava 175 ms di script perché ogni riga
+      rileggeva e decodificava lo stato da localStorage e tutte le 56 righe
+      si ridisegnavano → lettura unica nella pagina, righe `memo`, callback
+      stabili: 14–31 ms.
+- [x] **PROPOSTA-ORIGINAL-SKILLS.md**: rotta nel backend con `requireAuth`,
+      ruolo e società; variabili Railway sul servizio Backend senza `VITE_`;
+      `codAzienda` ricavato sul server; date validate; traduzione della
+      risposta; collegamento per email; schermate in sola lettura; stima.
+      Nessun salvataggio. **Formato dell'API non disponibile**: domande al §8.
+- [x] Audit `frontend/src` 0; tsc, build, oxlint puliti; giro di controllo su
+      31 rotte in chiaro e scuro (solo maiuscoli nei dati importati).
+- [ ] Da fare: preset di Recruiting in italiano (migrazione dei dati salvati);
+      documentazione dell'API Original Skills; «Segna completato» e le altre
+      funzioni del vecchio Recruiting non ancora portate.
+
+## 2026-10-02 — Richieste di Alessio: contrasto, grafici, testi, impaginazione
+- [x] **globals.css.** Il file del pacchetto di Alessio era stato copiato sopra
+      il nostro e toglieva gli alias Bklit (`--chart-*`), la scala dei livelli
+      (`--z-*`) e la nota sul riferimento circolare: grafici e livelli si
+      sarebbero rotti. Rimesso il nostro, con sopra i quattro valori nuovi
+      (`--color-danger` #AC2B1F, `--color-danger-dark` #F1826F,
+      `--color-warning-dark` #E48D0B, `--color-success-light` #186A43) e i
+      commenti tipografici. Verificati: tutti ≥ 4,5:1 su sfondo, card e fondo
+      tenue, nelle due modalità (prima 4,0–4,4 sul tenue). Il pulsante
+      distruttivo passa da 5,7 a 6,7 (chiaro) e da 6,4 a 7,6 (scuro). Limite: in
+      scuro il testo di stato su `secondary` resta 3,3–3,9.
+- [x] **Badge neutri e iniziali in scuro.** `muted-foreground` su `secondary`
+      dava 4,11:1 → `dark:text-secondary-foreground` (9:1) nel badge neutro e in
+      altri 15 punti con la stessa coppia. L'Avatar usava già
+      `secondary-foreground`.
+- [x] **Tabella `sr-only` sotto i grafici.** `w-full` batteva la larghezza di
+      1px di `sr-only` e allargava la pagina → `w-full` solo quando è visibile.
+- [ ] **CompletionRing, CategoryBars, ScatterMatrix, DistributionBar**: in
+      attesa delle regole del punto 4 della mail di Alessio, che non sono nel
+      pacchetto né nei documenti.
+- [x] **Testi.** `TRADUZIONI.md`: elenco dei testi in inglese in quattro gruppi
+      (da tradurre, anglicismi, nomi del metodo, dati) con le proposte, più
+      «Confronto interno» al posto di «Partita interna». Niente applicato.
+- [x] **Note da sviluppatore riscritte** (Recruiting): avviso di server non
+      raggiungibile, «platform admin» → amministratore della piattaforma,
+      «parsing ML» → analisi del CV, «resta nell'app corrente» → «non ancora
+      disponibile in questa schermata/versione», «Routing & Isolation» →
+      «Posizione e archivio», «token di accesso», «Valutatori (backend)»,
+      «3 per fattore nella demo». «CV & Export» → «CV & Esportazione».
+- [x] **Assistente IA**: un solo nome (menu e titolo di Assessment).
+- [x] **Decimali it-IT.** `lib/format.ts` (`fmtDec`): virgola e decimali fissi.
+      `fmt1` di Assessment passa alla virgola (`fmt1csv` tiene il punto nei CSV);
+      Recruiting: classifica AHI, Metodo (valori e formule), barre delle skill,
+      protocollo colloquio (2 decimali: punteggi /5), confronti; Customer Care;
+      `ChartDataTable` con un decimale fisso se la tabella ha decimali.
+- [x] **«Archivia»**: nelle righe di Anagrafica `ghost` (era `destructive`); nel
+      dialog di conferma `default`, accanto ad «Annulla» outline.
+- [x] **Pre-analisi d'impaginazione** in `IMPAGINAZIONE-PREANALISI.md`.
+- [x] **Invio del link test in Recruiting**: l'API basta già, nessuna modifica
+      al backend (vedi resoconto).
+- [x] **Audit nuovo** (sfumature, sfocature, drop-shadow): 15 difetti nei
+      grafici Bklit (sfocatura nelle animazioni di entrata e al passaggio,
+      alone al passaggio su radar e anello) → tolti. `frontend/src` 0; il
+      repository 239 (guscio legacy ed email del backend, come prima).
+- [x] **Prestazioni** misurate sulla build di produzione (CPU ×4, secondo
+      caricamento): vedi resoconto.
+- [x] tsc e oxlint puliti (solo avvisi preesistenti nel guscio legacy).
 
 ## 2026-10-01 — Instradamento del server di produzione
 - [x] **`/dev/components` in produzione rispondeva "Not found"** (testo senza

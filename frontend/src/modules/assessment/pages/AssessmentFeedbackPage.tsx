@@ -48,7 +48,7 @@ export default function AssessmentFeedbackPage() {
   return (
     <div>
       <PageHeader title={ui.feedbackPageTitle} description={ui.feedbackPageSub} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {list.map((e) => {
           const d = draftFor(e.id, e.developmentPlan, e.feedbackNeeded)
           const tier = tierFor(primaryScore(e, state, lang), lang)

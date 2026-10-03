@@ -92,7 +92,7 @@ export async function resolveBackendLink(companyName: string, openingId: string,
       return {
         ok: false,
         reason: 'company-not-found',
-        message: `Nessuna azienda backend chiamata "${companyName}" — un platform admin deve crearla prima di poter collegare questa posizione.`,
+        message: `Nessuna azienda backend chiamata "${companyName}" — l'amministratore della piattaforma deve crearla prima di poter collegare questa posizione.`,
       }
     }
 

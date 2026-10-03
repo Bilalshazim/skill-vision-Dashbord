@@ -1,5 +1,6 @@
+import { sourceLabel } from '@/modules/recruiting/lib/format'
 import { CheckCircle2, Clock3, Link2, Loader2, Send, SendHorizonal, XCircle } from 'lucide-react'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -7,8 +8,7 @@ import { Badge, type BadgeTone } from '@/components/ui/badge'
 import { CvMatchDialog } from '@/modules/recruiting/cv/CvMatchDialog'
 import { CvOpenButton } from '@/modules/recruiting/cv/CvOpenButton'
 import { sendTestLinkForCandidate, setCandidateEmailWithBackendSync } from '@/modules/recruiting/lib/backend-sync'
-import { addPrescreenedEntry, getActiveOpening } from '@/modules/recruiting/lib/pipeline'
-import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
+import { addPrescreenedEntry } from '@/modules/recruiting/lib/pipeline'
 import { SendTestLinkFallbackModal } from '@/modules/recruiting/pagina-a/SendTestLinkFallbackModal'
 import type { Candidate, PrescreenedEntry, PrescreenStatus } from '@/modules/recruiting/lib/types'
 import { Button } from '@/components/ui/button'
@@ -55,15 +55,25 @@ const STATUS_STYLE: Record<PrescreenStatus, { icon: typeof Clock3; label: string
 // CvMatchDialog's own trigger button also happens to mention the match
 // percentage — that repetition is an honest byproduct of reusing an
 // existing, unmodified component rather than something invented here.
-export function PaginaACandidateRow({
+export const PaginaACandidateRow = memo(function PaginaACandidateRow({
   candidate,
   selected,
+  prescreened,
+  alreadySent = false,
+  outcome,
   onToggleSelect,
   onMutated,
 }: {
   candidate: Candidate
   selected: boolean
-  onToggleSelect: (checked: boolean) => void
+  /** La voce di preselezione del candidato nella posizione attiva, letta una
+   *  volta sola dalla pagina (non da ogni riga a ogni disegno). */
+  prescreened?: PrescreenedEntry
+  /** Ha già ricevuto il link nella posizione attiva: non si spunta. */
+  alreadySent?: boolean
+  /** L'esito dell'ultimo invio multiplo per questo candidato. */
+  outcome?: { ok: boolean; message: string }
+  onToggleSelect: (id: string, checked: boolean) => void
   onMutated: () => void
 }) {
   const [emailInput, setEmailInput] = useState(candidate.email || '')
@@ -78,8 +88,6 @@ export function PaginaACandidateRow({
   // exactly like Pipeline's own PrescreenedList and CvMatchDialog's
   // `already` already do — otherwise a real local "Segna come inviato"
   // would leave the badge stuck on "Da inviare".
-  const { opening: activeOpening } = getActiveOpening(readCvMatchingState())
-  const prescreened = activeOpening?.pipeline?.prescreened.find((p) => p.candidateId === candidate.id)
   const status = prescreened?.status ?? 'da_inviare'
   const [sendState, setSendState] = useState<
     { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; message: string; rawMessage?: string }
@@ -173,21 +181,21 @@ export function PaginaACandidateRow({
     <div className="flex flex-wrap items-center gap-3 border-b border-border py-3 last:border-0">
       <label
         className="label-mono flex shrink-0 items-center gap-2 text-muted-foreground"
-        title="Promosso al test"
+        title={alreadySent ? 'Link già inviato' : 'Promosso al test'}
       >
-        <Checkbox checked={selected} onCheckedChange={(c) => onToggleSelect(c === true)} />
-        Promosso al test
+        <Checkbox checked={selected} disabled={alreadySent} onCheckedChange={(c) => onToggleSelect(candidate.id, c === true)} />
+        {alreadySent ? 'Link già inviato' : 'Promosso al test'}
       </label>
 
       <div className="min-w-40 flex-1">
         <div className="text-app-small font-semibold">{candidate.name}</div>
-        <div className="text-app-caption text-muted-foreground">{candidate.src || ''}</div>
+        <div className="text-app-caption text-muted-foreground">{sourceLabel(candidate.src)}</div>
         <div className="mt-1">
           <CvMatchDialog candidate={candidate} />
         </div>
       </div>
 
-      <div className="shrink-0 font-mono text-app-body font-semibold text-foreground dark:text-primary" title="Match CV/Profilo di Lavoro (solo CV)">
+      <div className="shrink-0 font-mono text-app-body font-semibold text-foreground dark:text-primary" title="Corrispondenza CV/profilo (solo CV)">
         {candidate.icv}%
       </div>
 
@@ -216,6 +224,11 @@ export function PaginaACandidateRow({
           })()}
           {STATUS_STYLE[status].label}
         </Badge>
+        {outcome ? (
+          <p className={outcome.ok ? 'text-app-caption font-medium text-success' : 'text-app-caption font-medium text-destructive'} role="status">
+            {outcome.message}
+          </p>
+        ) : null}
         {status === 'da_inviare' && (
           <Button
             type="button"
@@ -273,4 +286,4 @@ export function PaginaACandidateRow({
       )}
     </div>
   )
-}
+})

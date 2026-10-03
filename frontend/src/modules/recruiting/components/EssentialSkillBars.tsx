@@ -1,3 +1,4 @@
+import { fmtDec } from '@/lib/format'
 import { IdoneitaBadge } from '@/components/patterns/IdoneitaBadge'
 import type { Idoneita } from '@/lib/idoneita'
 import { W } from '@/modules/recruiting/lib/constants'
@@ -32,7 +33,7 @@ export function EssentialSkillBars({ candidate, essentialSkills }: { candidate: 
   const t = W[3].t
 
   if (!essentialSkills.length) {
-    return <div className="py-2 text-app-small text-muted-foreground">Nessuna skill essenziale flaggata per questa posizione.</div>
+    return <div className="py-2 text-app-small text-muted-foreground">Nessuna competenza essenziale selezionata per questa posizione.</div>
   }
 
   return (
@@ -57,7 +58,7 @@ export function EssentialSkillBars({ candidate, essentialSkills }: { candidate: 
                 title={`Target: ${t}`}
               />
             </div>
-            <span className="text-right font-mono font-medium tabular-nums">{s.toFixed(1)}</span>
+            <span className="text-right font-mono font-medium tabular-nums">{fmtDec(s)}</span>
             <IdoneitaBadge fascia={fasciaFor(s, t)} />
           </div>
         )

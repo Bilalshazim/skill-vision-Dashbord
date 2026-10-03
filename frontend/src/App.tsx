@@ -13,6 +13,7 @@ import RecruitingLayout from '@/modules/recruiting/RecruitingLayout'
 // rather than hand-picking "heavy" ones, since that's a moving target and
 // lazy() has no real downside for a route-level component.
 const ModuleChooserPage = lazy(() => import('@/pages/ModuleChooserPage'))
+const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RecruitingHome = lazy(() => import('@/modules/recruiting/RecruitingHome'))
 const CipAdminPage = lazy(() => import('@/modules/recruiting/admin/CipAdminPage'))
 const EmailConfigAdminPage = lazy(() => import('@/modules/recruiting/admin/EmailConfigAdminPage'))
@@ -62,6 +63,7 @@ function App() {
               guscio legacy, che ora dopo il login rimanda qui). Recruiting e
               Assessment rendono ciascuno lo stesso AppShell dal proprio
               layout, dentro i propri provider — vedi AppShell.tsx. */}
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<ModuleChooserPage />} />
           <Route>
             <Route path="recruiting" element={<RecruitingLayout />}>

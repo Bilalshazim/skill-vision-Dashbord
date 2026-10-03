@@ -370,7 +370,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
           p(
             'AHI ',
             b(`${t.r.v}/100`),
-            ` (Fit competenze ${t.r.fc} · Big Five ${t.r.ab} · CV ${t.r.icv}). Distacco sul secondo, ${s.c.name}: `,
+            ` (Aderenza alle competenze ${t.r.fc} · Big Five ${t.r.ab} · CV ${t.r.icv}). Distacco sul secondo, ${s.c.name}: `,
             b(`${(t.r.v - s.r.v).toFixed(1)} punti`),
             '.',
           ),
@@ -381,7 +381,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
               : ['Nessuna skill essenziale sotto soglia: profilo pulito.'],
           ]),
           p('La decisione finale resta a chi assume: il sistema motiva, non delibera.'),
-          source('Calcolato ora: AHI = 0.55·FC + 0.30·AB + 0.15·ICV sui flag correnti'),
+          source('Calcolato ora: AHI = 0,55·FC + 0,30·AB + 0,15·ICV sulle competenze selezionate'),
         ],
       }
     },
@@ -411,7 +411,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
             [`Se ${bench.name} è promuovibile/spostabile → costo inferiore e rischio minimo, ma lascia scoperta la sua posizione attuale.`],
             [`Se serve capacità aggiuntiva (crescita) → l'esterno ${t.c.name} porta un profilo ${civ >= 85 ? 'equivalente ai vostri migliori' : 'complementare a quello interno'}.`],
           ]),
-          source('Fonte: Compatibilità Interna CI calcolata sulle skill flaggate'),
+          source('Fonte: Compatibilità Interna CI calcolata sulle competenze selezionate'),
         ],
       }
     },
@@ -432,9 +432,9 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
           title(`I punti deboli di ${t.c.name} rispetto al profilo:`),
           gaps.length
             ? list(gaps.map((g) => [b(g.sk), ` (${W[g.lv].label.toLowerCase()}): ${t.c.scores[g.sk].toFixed(1)} vs target ${W[g.lv].t} → gap ${g.gap.toFixed(1)} punti`]))
-            : p('Nessun gap rispetto ai target: tutte le skill flaggate sono coperte. I rischi residui sono di contesto (integrazione nel team), non di competenza.'),
+            : p('Nessun gap rispetto ai target: tutte le competenze selezionate sono coperte. I rischi residui sono di contesto (integrazione nel team), non di competenza.'),
           ...(gaps.length ? [p('Da indagare nel colloquio finale e da coprire nel piano dei primi 90 giorni.')] : []),
-          source('Gap = target − punteggio APEX, sulle skill flaggate'),
+          source('Gap = target − punteggio APEX, sulle competenze selezionate'),
         ],
       }
     },
@@ -477,7 +477,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
       blocks: [
         title('In tempo reale — è il cuore del sistema.'),
         p(
-          'Ogni flag modifica i pesi wᵢ e i target Tᵢ della formula del Fit Competenze. Prova: vai su «Profilo», sposta una skill da Utile a Essenziale, torna al ranking. Vedrai i punteggi ricalcolati e, spesso, l\'ordine cambiato.',
+          'Ogni flag modifica i pesi wᵢ e i target Tᵢ della formula dell’aderenza alle competenze. Prova: vai su «Profilo», sposta una skill da Utile a Essenziale, torna al ranking. Vedrai i punteggi ricalcolati e, spesso, l\'ordine cambiato.',
         ),
         list([['È anche il modo giusto di usarlo in riunione: chi decide discute ', b('sul profilo'), ' (cosa serve davvero alla posizione), non sulle simpatie.']]),
         source('FC = Σ wᵢ·min(Sᵢ/Tᵢ,1) / Σ wᵢ × 100 — ricalcolata a ogni modifica'),

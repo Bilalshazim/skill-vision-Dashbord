@@ -152,7 +152,7 @@ export function useRecruitingHomeData(): RecruitingHomeData {
 
     const funnel: FunnelStage[] = [
       { key: 'candidature', label: 'Candidature', count: candidates.length },
-      { key: 'screening', label: 'Screening', count: openings.reduce((sum, { opening }) => sum + ensurePipeline(opening).prescreened.length, 0) },
+      { key: 'screening', label: 'Preselezione', count: openings.reduce((sum, { opening }) => sum + ensurePipeline(opening).prescreened.length, 0) },
       { key: 'test', label: 'Test Tecnico', count: openings.reduce((sum, { opening }) => sum + ensurePipeline(opening).testResults.length, 0) },
       { key: 'colloqui', label: 'Colloqui', count: openings.reduce((sum, { opening }) => sum + ensurePipeline(opening).interviews.length, 0) },
       { key: 'assunti', label: 'Assunti', count: openings.filter(({ opening }) => ensurePipeline(opening).winner).length, note: 'Posizioni con un vincitore selezionato — non un conteggio storico delle assunzioni' },

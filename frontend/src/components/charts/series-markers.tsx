@@ -226,14 +226,13 @@ interface SeriesMarkersDimWrapperProps {
 }
 
 /**
- * Wraps the stable point grid with hover-driven opacity + blur. Subscribes to
+ * Wraps the stable point grid with hover-driven opacity (Skill Vision, rule 4). Subscribes to
  * hover internally so the grid (passed as `children`) keeps a stable reference
  * and React skips reconciling it when this wrapper re-renders.
  */
 function SeriesMarkersDimWrapper({
   enabled,
   inactiveOpacity,
-  inactiveBlur,
   seriesIndex,
   children,
 }: SeriesMarkersDimWrapperProps) {
@@ -246,9 +245,7 @@ function SeriesMarkersDimWrapper({
     <g
       opacity={dimBase ? inactiveOpacity : 1}
       style={{
-        transition: "opacity 0.15s ease-in-out, filter 0.15s ease-in-out",
-        filter:
-          dimBase && inactiveBlur > 0 ? `blur(${inactiveBlur}px)` : "none",
+        transition: "opacity 0.15s ease-in-out",
       }}
     >
       {children}

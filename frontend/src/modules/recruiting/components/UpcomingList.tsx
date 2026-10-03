@@ -15,7 +15,7 @@ export function UpcomingList({ upcoming, emptyText }: { upcoming: UpcomingRow[];
     <div>
       {upcoming.map((iv) => (
         <div key={iv.id} className="flex items-center gap-3 border-b border-border py-2.5 last:border-0">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground dark:text-secondary-foreground">
             <CalendarDays className="size-4" />
           </span>
           <div className="min-w-0 flex-1">

@@ -50,13 +50,11 @@ export default function AssessmentCompanyPage() {
     <div>
 
       <PageHeader title={ui.companyHeadcountTitle} description={ui.companyHeadcountSub} level="subsection" />
-      <Card>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {CONTRACT_TYPES.map((type) => (
-            <StatCard key={type} label={contractLabel(type)} value={counts[type]} onClick={() => setHeadcountModal(type)} />
-          ))}
-        </div>
-      </Card>
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {CONTRACT_TYPES.map((type) => (
+          <StatCard key={type} label={contractLabel(type)} value={counts[type]} onClick={() => setHeadcountModal(type)} />
+        ))}
+      </div>
 
       {headcountModal && (
         <ModalDialog
@@ -74,7 +72,7 @@ export default function AssessmentCompanyPage() {
             state.employees
               .filter((e) => !e.archived && (e.tipoContratto || 'dipendente') === headcountModal)
               .map((e) => (
-                <div key={e.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed var(--border)' }}>
+                <div key={e.id} className="flex items-center justify-between border-b border-border py-2 last:border-b-0">
                   <span>
                     {e.nome} {e.cognome} <span className="text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">— {e.ruolo}{e.area ? ` · ${e.area}` : ''}</span>
                   </span>
@@ -84,78 +82,86 @@ export default function AssessmentCompanyPage() {
         </ModalDialog>
       )}
 
-      <Separator className="my-4" />
-      <PageHeader title={ui.companyLocationsTitle} description={ui.companyLocationsSub} level="subsection" />
-      <Card>
-        {draft.locations.length === 0 && (
-          <Note className="mb-2">
-            {ui.companyNoLocations}
-          </Note>
-        )}
-        {draft.locations.map((l, i) => (
-          <div className="flex flex-wrap items-end gap-4" key={i}>
-            <Field label={ui.companyLocationNameLabel} className="min-w-40 flex-1">
-              <Input type="text" value={l.name} onChange={(e) => updateLocation(i, { name: e.target.value })} />
-            </Field>
-            <Field label={ui.companyLocationAddressLabel} className="min-w-40 flex-1">
-              <Input type="text" value={l.address} onChange={(e) => updateLocation(i, { address: e.target.value })} />
-            </Field>
-            <Field label={ui.companyLocationCityLabel} className="min-w-40 flex-1">
-              <Input type="text" value={l.city} onChange={(e) => updateLocation(i, { city: e.target.value })} />
-            </Field>
+      <Separator className="my-6" />
+      {/* Sedi e contatti affiancati sugli schermi larghi: pochi campi per riga,
+          non serve la riga intera (CLAUDE.md, Fase 6 — impaginazione). */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <section className="flex flex-col">
+          <PageHeader title={ui.companyLocationsTitle} description={ui.companyLocationsSub} level="subsection" />
+          <Card className="flex-1">
+            {draft.locations.length === 0 && (
+              <Note className="mb-2">
+                {ui.companyNoLocations}
+              </Note>
+            )}
+            {draft.locations.map((l, i) => (
+              <div className="flex flex-wrap items-end gap-4" key={i}>
+                <Field label={ui.companyLocationNameLabel} className="min-w-40 flex-1">
+                  <Input type="text" value={l.name} onChange={(e) => updateLocation(i, { name: e.target.value })} />
+                </Field>
+                <Field label={ui.companyLocationAddressLabel} className="min-w-40 flex-1">
+                  <Input type="text" value={l.address} onChange={(e) => updateLocation(i, { address: e.target.value })} />
+                </Field>
+                <Field label={ui.companyLocationCityLabel} className="min-w-40 flex-1">
+                  <Input type="text" value={l.city} onChange={(e) => updateLocation(i, { city: e.target.value })} />
+                </Field>
+                {canEdit && (
+                  <Button type="button" variant="destructive" size="sm" onClick={() => setDraft((prev) => ({ ...prev, locations: prev.locations.filter((_, idx) => idx !== i) }))}>
+                    <Icon name="trash" />
+                  </Button>
+                )}
+              </div>
+            ))}
             {canEdit && (
-              <Button type="button" variant="destructive" size="sm" onClick={() => setDraft((prev) => ({ ...prev, locations: prev.locations.filter((_, idx) => idx !== i) }))}>
-                <Icon name="trash" />
+              <Button className="mt-2" type="button" variant="outline" size="sm"  onClick={() => setDraft((prev) => ({ ...prev, locations: [...prev.locations, { name: '', address: '', city: '' }] }))}>
+                <Icon name="plus" />
+                {ui.companyAddLocationBtn}
               </Button>
             )}
-          </div>
-        ))}
-        {canEdit && (
-          <Button className="mt-2" type="button" variant="outline" size="sm"  onClick={() => setDraft((prev) => ({ ...prev, locations: [...prev.locations, { name: '', address: '', city: '' }] }))}>
-            <Icon name="plus" />
-            {ui.companyAddLocationBtn}
-          </Button>
-        )}
-      </Card>
+          </Card>
 
-      <Separator className="my-4" />
-      <PageHeader title={ui.companyContactsTitle} description={ui.companyContactsSub} level="subsection" />
-      <Card>
-        {draft.contacts.length === 0 && (
-          <Note className="mb-2">
-            {ui.companyNoContacts}
-          </Note>
-        )}
-        {draft.contacts.map((ct, i) => (
-          <div className="flex flex-wrap items-end gap-4" key={i}>
-            <Field label={ui.companyContactLabelLabel} className="min-w-40 flex-1">
-              <Input type="text" value={ct.label} onChange={(e) => updateContact(i, { label: e.target.value })} />
-            </Field>
-            <Field label={ui.companyContactNameLabel} className="min-w-40 flex-1">
-              <Input type="text" value={ct.name} onChange={(e) => updateContact(i, { name: e.target.value })} />
-            </Field>
-            <Field label={ui.companyContactEmailLabel} className="min-w-40 flex-1">
-              <Input type="email" value={ct.email} onChange={(e) => updateContact(i, { email: e.target.value })} />
-            </Field>
-            <Field label={ui.companyContactPhoneLabel} className="min-w-40 flex-1">
-              <Input type="text" value={ct.phone} onChange={(e) => updateContact(i, { phone: e.target.value })} />
-            </Field>
+        </section>
+        <section className="flex flex-col">
+          <PageHeader title={ui.companyContactsTitle} description={ui.companyContactsSub} level="subsection" />
+          <Card className="flex-1">
+            {draft.contacts.length === 0 && (
+              <Note className="mb-2">
+                {ui.companyNoContacts}
+              </Note>
+            )}
+            {draft.contacts.map((ct, i) => (
+              <div className="flex flex-wrap items-end gap-4" key={i}>
+                <Field label={ui.companyContactLabelLabel} className="min-w-40 flex-1">
+                  <Input type="text" value={ct.label} onChange={(e) => updateContact(i, { label: e.target.value })} />
+                </Field>
+                <Field label={ui.companyContactNameLabel} className="min-w-40 flex-1">
+                  <Input type="text" value={ct.name} onChange={(e) => updateContact(i, { name: e.target.value })} />
+                </Field>
+                <Field label={ui.companyContactEmailLabel} className="min-w-40 flex-1">
+                  <Input type="email" value={ct.email} onChange={(e) => updateContact(i, { email: e.target.value })} />
+                </Field>
+                <Field label={ui.companyContactPhoneLabel} className="min-w-40 flex-1">
+                  <Input type="text" value={ct.phone} onChange={(e) => updateContact(i, { phone: e.target.value })} />
+                </Field>
+                {canEdit && (
+                  <Button type="button" variant="destructive" size="sm" onClick={() => setDraft((prev) => ({ ...prev, contacts: prev.contacts.filter((_, idx) => idx !== i) }))}>
+                    <Icon name="trash" />
+                  </Button>
+                )}
+              </div>
+            ))}
             {canEdit && (
-              <Button type="button" variant="destructive" size="sm" onClick={() => setDraft((prev) => ({ ...prev, contacts: prev.contacts.filter((_, idx) => idx !== i) }))}>
-                <Icon name="trash" />
+              <Button className="mt-2" type="button" variant="outline" size="sm"  onClick={() => setDraft((prev) => ({ ...prev, contacts: [...prev.contacts, { label: '', name: '', email: '', phone: '' }] }))}>
+                <Icon name="plus" />
+                {ui.companyAddContactBtn}
               </Button>
             )}
-          </div>
-        ))}
-        {canEdit && (
-          <Button className="mt-2" type="button" variant="outline" size="sm"  onClick={() => setDraft((prev) => ({ ...prev, contacts: [...prev.contacts, { label: '', name: '', email: '', phone: '' }] }))}>
-            <Icon name="plus" />
-            {ui.companyAddContactBtn}
-          </Button>
-        )}
-      </Card>
+          </Card>
 
-      <Separator className="my-4" />
+        </section>
+      </div>
+
+      <Separator className="my-6" />
       <PageHeader title={ui.companyKeyRolesTitle} description={ui.companyKeyRolesSub} level="subsection" />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>

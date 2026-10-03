@@ -74,7 +74,7 @@ export default function AssessmentAiPage() {
       {/* Legacy renderAI() has no in-page title/header of its own —
           the Topbar's h1/sub (from PAGE_META_TEXT_EN/IT.ai, already wired
           in AssessmentLayout) is the only heading for this screen. */}
-      <div className="grid min-h-[28rem] grid-cols-1 gap-4 lg:h-[calc(100vh-12rem)] lg:grid-cols-[18rem_minmax(0,1fr)]">
+      <div className="grid min-h-[28rem] grid-cols-1 gap-4 lg:h-[calc(100vh-12rem)] lg:grid-cols-[18rem_minmax(0,45rem)]">
         <div className="flex flex-col gap-2 overflow-y-auto">
           <div className="mb-2 flex flex-col gap-2 border-b border-border pb-4">
             <CardLabel>{ui.aiQuickQuestions}</CardLabel>

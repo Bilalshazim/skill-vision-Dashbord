@@ -1,3 +1,6 @@
+import { isBackendAuth } from '@/lib/auth/auth-mode'
+import { canEditAssessment } from '@/lib/auth/roles'
+import { useSession } from '@/lib/auth/session'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { toast as sonnerToast } from 'sonner'
 
@@ -87,9 +90,16 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
     else sonnerToast(msg, opts)
   }, [])
 
+  // Fase 8: in modalità `backend` chi può modificare lo decide il ruolo del
+  // backend (lib/auth/roles.ts); EVALUATOR e READONLY leggono soltanto. In
+  // `legacy` resta `true` come prima: il guscio non conosce ruoli. I 62 punti
+  // del modulo leggono `canEdit` da qui.
+  const { user } = useSession()
+  const canEdit = isBackendAuth() ? canEditAssessment(user?.role) : true
+
   const value = useMemo<Ctx>(
-    () => ({ state, setState, persist, lang, setLang, theme, setTheme, ui, canEdit: true, topbarActions, setTopbarActions, toast }),
-    [state, setState, persist, lang, setLang, theme, setTheme, ui, topbarActions, toast],
+    () => ({ state, setState, persist, lang, setLang, theme, setTheme, ui, canEdit, topbarActions, setTopbarActions, toast }),
+    [state, setState, persist, lang, setLang, theme, setTheme, ui, canEdit, topbarActions, toast],
   )
 
   return <AssessmentCtx.Provider value={value}>{children}</AssessmentCtx.Provider>

@@ -63,7 +63,7 @@ export type CreateCandidateFromCvResult = { ok: true; candidate: Candidate } | {
 //    if a candidate is ever removed (never "fixed" into a UUID — this is
 //    legacy's actual current id scheme, re-verified from source this phase).
 //  - name/src: FIXED literals — "Nuovo candidato (da CV)" and "CV caricato
-//    ora · parsing ML · in attesa del test soft skill" — never derived from
+//    ora · parsing ML · in attesa del test delle competenze trasversali" — never derived from
 //    the uploaded file's name (legacy doesn't do this either; see
 //    lib/cv-upload.ts for why the file name is only ever used for
 //    fileName/fileUrl, never the candidate's display name).
@@ -87,7 +87,7 @@ export function createCandidateFromCv(input: CreateCandidateFromCvInput): Create
   const candidate: Candidate = {
     id: `c${candidates.length + 1}`,
     name: 'Nuovo candidato (da CV)',
-    src: 'CV caricato ora · parsing ML · in attesa del test soft skill',
+    src: 'CV caricato ora · analisi del CV · in attesa del test delle competenze trasversali',
     icv: input.icv,
     testCompleted: false,
     email: '',

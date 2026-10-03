@@ -29,7 +29,7 @@ export interface SeriesPointMarkerStyle {
    * Applied once on the dimmed layer (not per dot) for performance. Default: 2
    */
   inactiveBlur?: number;
-  /** Initial blur in px during enter animation. Default: 2 */
+  /** Unused in Skill Vision (rule 4: no soft-focus effects); kept for API compatibility. */
   enterBlur?: number;
   /** Enlarge the active point while hovering. Default: true */
   showActiveHighlight?: boolean;
@@ -135,7 +135,6 @@ export function SeriesPointMarker({
   index,
   cx,
   cy,
-  enterBlur = 2,
   revealDelay,
   revealEpoch,
   enterDuration,
@@ -150,12 +149,10 @@ export function SeriesPointMarker({
   const variants: Variants = {
     hidden: {
       opacity: 0,
-      filter: `blur(${enterBlur}px)`,
       scale: 1,
     },
     visible: {
       opacity: 1,
-      filter: "blur(0px)",
       scale: 1,
       transition: {
         delay: revealDelay,

@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/patterns/PageHeader'
 import { AlertTriangle, Building2, CheckCircle2, IdCard, Loader2, Plus, ShieldAlert, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -148,7 +149,7 @@ export default function CipAdminPage() {
   if (backend.status === 'checking') {
     return (
       <div className="flex flex-col gap-4">
-        <PageHeader />
+        <CipHeader />
         <LoadingState label="Verifica sessione…" />
       </div>
     )
@@ -157,9 +158,9 @@ export default function CipAdminPage() {
   if (!isPlatformAdmin) {
     return (
       <div className="flex flex-col gap-4">
-        <PageHeader />
+        <CipHeader />
         <Card>
-          <EmptyState size="sm" icon={ShieldAlert} description="Amministrazione CIP riservata ai platform admin. Il backend rifiuta comunque ogni richiesta da un account senza questo ruolo, indipendentemente da questa schermata." />
+          <EmptyState size="sm" icon={ShieldAlert} description="Amministrazione CIP riservata agli amministratori della piattaforma." />
         </Card>
       </div>
     )
@@ -167,7 +168,7 @@ export default function CipAdminPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader />
+      <CipHeader />
 
       {loadError && <InlineAlert>{loadError}</InlineAlert>}
 
@@ -220,7 +221,7 @@ export default function CipAdminPage() {
               size="sm"
             >
               <option value="PLATFORM">Platform</option>
-              <option value="COMPANY">Company</option>
+              <option value="COMPANY">Società</option>
               <option value="CAMPAIGN">Campaign</option>
             </SelectField>
             <SelectField value={ownerId} onValueChange={(v) => setOwnerId(v)} size="sm" className="min-w-52">
@@ -309,19 +310,14 @@ export default function CipAdminPage() {
   )
 }
 
-function PageHeader() {
+function CipHeader() {
   return (
-    <div className="flex items-center gap-4">
-      <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-        <IdCard className="size-6 text-muted-foreground" aria-hidden="true" />
-      </div>
-      <div>
-        <h2 className="text-app-section font-semibold tracking-tight">Amministrazione CIP</h2>
-        <p className="max-w-[70ch] text-app-small text-muted-foreground">
-          Codice Identificativo Piattaforma — generazione esplicita, annullamento/riemissione. Nessun trigger automatico (OD-1 non risolto).
-        </p>
-      </div>
-    </div>
+    <PageHeader
+      level="page"
+      className="mb-0"
+      title="Amministrazione CIP"
+      description="Codice Identificativo Piattaforma: si genera, si annulla e si riemette solo a mano, mai in automatico."
+    />
   )
 }
 

@@ -49,22 +49,23 @@ export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgG
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {/* G5 / G6 (DECISIONI): il punteggio complessivo come indicatore ad
               arco e la copertura delle mansioni come anello, al posto delle
-              barre. Il numero resta scritto. */}
-          <StatCard tone="accent" size="lg" className="sm:col-span-2 sm:row-span-2" icon={Gauge} label={ui.homeQ1Score} value={`${overallPct}%`} unit="/100">
+              barre. Il numero si scrive una volta, nella card; la legenda dice il
+              nome della fascia, mai il colore (CLAUDE.md). */}
+          <StatCard tone="accent" size="lg" className="sm:col-span-2 sm:row-span-2" icon={Gauge} label={ui.homeQ1Score} value={`${overallPct}%`}>
             <ScoreGauge value={overallPct} label={ui.homeQ1Score} />
           </StatCard>
-          <StatCard icon={Target} label={ui.homeQ1Coverage} value={`${roleCovPct}%`} unit="/100">
+          <StatCard icon={Target} label={ui.homeQ1Coverage} value={`${roleCovPct}%`}>
             <CompletionRing value={roleCovPct} label={ui.homeQ1Coverage} />
           </StatCard>
           <StatCard
             icon={avgGap < 0 ? TrendingDown : TrendingUp}
             label={ui.homeQ1Gap}
             value={`${signed(avgGap)} punti`}
-            note={`${signed(avgGapPct)}% · Benchmark ${fmt1it(benchmark)}/10`}
+            note={`${signed(avgGapPct)}% · ${ui.homeOrgTrendModeBenchmark} ${fmt1it(benchmark)}/10`}
           />
-          <StatCard tone="success" icon={CheckCircle2} label={ui.homeQ1GreenSub} value={`${breakdown.ottimale}%`} note={ui.homeQ1Green} progress={breakdown.ottimale} />
-          <StatCard tone="warning" icon={CircleMinus} label={ui.homeQ1YellowSub} value={`${breakdown.moderato}%`} note={ui.homeQ1Yellow} progress={breakdown.moderato} />
-          <StatCard tone="destructive" icon={AlertTriangle} label={ui.homeQ1RedSub} value={`${breakdown.critico}%`} note={ui.homeQ1Red} progress={breakdown.critico} />
+          <StatCard tone="success" icon={CheckCircle2} label={ui.homeQ1GreenSub} value={`${breakdown.ottimale}%`} progress={breakdown.ottimale} />
+          <StatCard tone="warning" icon={CircleMinus} label={ui.homeQ1YellowSub} value={`${breakdown.moderato}%`} progress={breakdown.moderato} />
+          <StatCard tone="destructive" icon={AlertTriangle} label={ui.homeQ1RedSub} value={`${breakdown.critico}%`} progress={breakdown.critico} />
         </div>
       }
     />

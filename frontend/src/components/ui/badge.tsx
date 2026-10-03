@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 const badgeVariants = cva('label-mono inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1', {
   variants: {
     tone: {
-      neutral: 'border border-border bg-secondary text-muted-foreground',
+      neutral: 'border border-border bg-secondary text-muted-foreground dark:text-secondary-foreground',
       // Neutro pieno: la fascia più alta di performance, che non è uno stato
       // (CLAUDE.md cap. 7). Si distingue dal neutro tenue per il riempimento.
       strong: 'border border-foreground bg-foreground text-background',

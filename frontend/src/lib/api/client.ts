@@ -12,6 +12,8 @@
 // backend knows about, bridged from the shell session by lib/api/authBridge.ts,
 // not a replacement for it. See authBridge.ts for exactly how the two co-exist.
 
+import { isBackendAuth } from '@/lib/auth/auth-mode'
+
 const DEFAULT_BASE_URL = 'http://localhost:4000/api/v1'
 
 export function apiBaseUrl(): string {
@@ -25,7 +27,16 @@ const USER_KEY = 'sv_backend_user'
 
 export type BackendUser = { id: string; email: string; fullName: string; role: string; companyId: string | null }
 
+// Fase 8, modalità `backend` (lib/auth/auth-mode.ts): il token di accesso e
+// l'utente stanno solo in memoria — niente localStorage, che uno script può
+// leggere — e il refresh token non passa mai da JavaScript: è un cookie
+// httpOnly che il server imposta e legge. In modalità `legacy` tutto resta
+// in localStorage come prima (ponte del guscio).
+let memoryAccessToken: string | null = null
+let memoryUser: BackendUser | null = null
+
 export function getAccessToken(): string | null {
+  if (isBackendAuth()) return memoryAccessToken
   try {
     return localStorage.getItem(ACCESS_TOKEN_KEY)
   } catch {
@@ -33,6 +44,7 @@ export function getAccessToken(): string | null {
   }
 }
 export function getRefreshToken(): string | null {
+  if (isBackendAuth()) return null
   try {
     return localStorage.getItem(REFRESH_TOKEN_KEY)
   } catch {
@@ -40,6 +52,7 @@ export function getRefreshToken(): string | null {
   }
 }
 export function getBackendUser(): BackendUser | null {
+  if (isBackendAuth()) return memoryUser
   try {
     const raw = localStorage.getItem(USER_KEY)
     return raw ? (JSON.parse(raw) as BackendUser) : null
@@ -48,6 +61,11 @@ export function getBackendUser(): BackendUser | null {
   }
 }
 export function setBackendSession(accessToken: string, refreshToken: string, user: BackendUser): void {
+  if (isBackendAuth()) {
+    memoryAccessToken = accessToken
+    memoryUser = user
+    return
+  }
   try {
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
@@ -57,13 +75,22 @@ export function setBackendSession(accessToken: string, refreshToken: string, use
   }
 }
 export function setBackendAccessToken(accessToken: string): void {
+  if (isBackendAuth()) {
+    memoryAccessToken = accessToken
+    return
+  }
   try {
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
   } catch {
     /* ignore */
   }
 }
+export function setBackendUser(user: BackendUser | null): void {
+  memoryUser = user
+}
 export function clearBackendSession(): void {
+  memoryAccessToken = null
+  memoryUser = null
   try {
     localStorage.removeItem(ACCESS_TOKEN_KEY)
     localStorage.removeItem(REFRESH_TOKEN_KEY)
@@ -102,7 +129,9 @@ type RequestOptions = {
 }
 
 function buildUrl(path: string, query?: RequestOptions['query']): string {
-  const url = new URL(apiBaseUrl().replace(/\/$/, '') + path)
+  // La base può essere relativa (`/api/v1`, modalità `backend`: l'API passa
+  // dal server del frontend, stessa origine del cookie).
+  const url = new URL(apiBaseUrl().replace(/\/$/, '') + path, window.location.origin)
   if (query) {
     for (const [k, v] of Object.entries(query)) {
       if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, String(v))
@@ -118,14 +147,17 @@ let refreshInFlight: Promise<boolean> | null = null
 // POST /auth/refresh (which would race to rotate/revoke tokens).
 async function tryRefresh(): Promise<boolean> {
   const refreshToken = getRefreshToken()
-  if (!refreshToken) return false
+  if (!refreshToken && !isBackendAuth()) return false
   if (!refreshInFlight) {
     refreshInFlight = (async () => {
       try {
+        // In modalità `backend` il refresh token è il cookie httpOnly: il
+        // corpo è vuoto e il browser manda il cookie da solo.
         const res = await fetch(buildUrl('/auth/refresh'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refreshToken }),
+          credentials: 'include',
+          body: JSON.stringify(refreshToken ? { refreshToken } : {}),
         })
         if (!res.ok) return false
         const data = (await res.json()) as { accessToken: string }
@@ -256,3 +288,11 @@ export function apiUpload<T>(path: string, form: FormData): Promise<T> {
 export function apiPostAnonymous<T>(path: string, body?: unknown): Promise<T> {
   return apiRequest<T>(path, { method: 'POST', body, anonymous: true })
 }
+
+// Fase 8 — usato dalla sessione in modalità `backend` all'avvio: rinnova il
+// token di accesso col cookie httpOnly (nessun token in JavaScript).
+export function refreshAccessToken(): Promise<boolean> {
+  return tryRefresh()
+}
+
+export { buildUrl as buildApiUrl }

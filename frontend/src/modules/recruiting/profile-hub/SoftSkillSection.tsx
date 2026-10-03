@@ -6,7 +6,7 @@ import { DEFAULT_FLAGS, SKILL_MATRIX, SUBFACTORS, W } from '@/modules/recruiting
 
 // Ported from renderSkillsInto()/updateProfCnt()/updateProfileCardsSS()
 // (modules/recruiting.html ~5529-5581) — the "Soft skill" master card's
-// teaser row + the full "Le 35 soft skill APEX 5D" picker modal
+// teaser row + the full "Le 35 competenze trasversali APEX 5D" picker modal
 // (ssModalOv/skillGridModal, ~1018-1035).
 //
 // READ-ONLY BY DESIGN (Phase 19/20 scope): the picker's click handler
@@ -37,10 +37,10 @@ export function SoftSkillSection() {
       </DialogTrigger>
       <DialogContent size="full">
         <DialogHeader>
-          <DialogTitle>Le 35 soft skill APEX 5D</DialogTitle>
+          <DialogTitle>Le 35 competenze trasversali APEX 5D</DialogTitle>
         </DialogHeader>
 
-        <p className="flex items-start gap-1.5 rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground">
+        <p className="flex items-start gap-1.5 rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground dark:text-secondary-foreground">
           <Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
           Sola lettura in questa versione — la modifica richiede il cambio ruolo, non ancora disponibile in questa migrazione.
         </p>

@@ -82,7 +82,7 @@ export interface ChartTooltipProps {
   indicatorFadeLength?: number;
   /** Per-chart override for the floating-panel spring. */
   boxSpringConfig?: SpringConfig;
-  /** Inline styles for the tooltip panel (background, blur, etc.). */
+  /** Inline styles for the tooltip panel (background, etc.). */
   panelStyle?: React.CSSProperties;
   /**
    * Tooltip panel background color (CSS variable or color value).

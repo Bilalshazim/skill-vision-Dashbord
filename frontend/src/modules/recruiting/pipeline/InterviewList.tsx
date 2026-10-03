@@ -45,7 +45,7 @@ function InterviewRow({
   // Legacy's star <select> marks NO <option> as `selected` when
   // overall===null (Number(null)===0 matches none of 1-5, ~2081), so the
   // browser silently defaults to the first option — value 1 — both visually
-  // AND as what gets submitted if "Salva scorecard" is clicked without
+  // AND as what gets submitted if "Salva scheda" is clicked without
   // touching the select. Reproduced exactly: the initial value here is "1"
   // for a fresh interview, not left blank/unset.
   const [overallInput, setOverallInput] = useState(String(interview.scorecard?.overall ?? 1))
@@ -92,7 +92,7 @@ function InterviewRow({
         </div>
         <div className={cn('inline-flex items-center gap-1.5 text-app-caption font-medium', interview.completed ? 'text-success' : 'text-warning')}>
           {interview.completed ? <CheckCircle2 className="size-3.5 shrink-0" aria-hidden="true" /> : <Clock3 className="size-3.5 shrink-0" aria-hidden="true" />}
-          {interview.completed ? 'Scorecard compilata' : 'In attesa di scorecard'}
+          {interview.completed ? 'Scheda di valutazione compilata' : 'In attesa della scheda di valutazione'}
         </div>
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -122,7 +122,7 @@ function InterviewRow({
           size="sm"
         >
           {pending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Save className="size-3.5 shrink-0" aria-hidden="true" />}
-          Salva scorecard
+          Salva scheda
         </Button>
         <Hint label="Rimuovi">
           <Button

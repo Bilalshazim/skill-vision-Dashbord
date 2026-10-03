@@ -1,3 +1,4 @@
+import { fmtDec } from '@/lib/format'
 import { FileBarChart2 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -19,7 +20,7 @@ import { dangerBtnClass, ghostBtnClass, primaryBtnClass } from '@/modules/recrui
 const RECO_KEYS = ['reco_offerta', 'reco_riserva', 'reco_ulteriore', 'reco_nonProcedere'] as const
 type RecoKey = (typeof RECO_KEYS)[number]
 const STEP_ROWS: { key: 'step1' | 'step2' | 'step3' | 'step4'; label: string }[] = [
-  { key: 'step1', label: 'Screening CV' },
+  { key: 'step1', label: 'Preselezione CV' },
   { key: 'step2', label: '1° colloquio HR' },
   { key: 'step3', label: 'Colloquio tecnico' },
   { key: 'step4', label: 'Colloquio finale' },
@@ -27,9 +28,9 @@ const STEP_ROWS: { key: 'step1' | 'step2' | 'step3' | 'step4'; label: string }[]
 const SCORE_1_5 = ['1', '2', '3', '4', '5']
 const AGG_ROWS: { key: 'tec' | 'soft' | 'motiv' | 'culture'; noteKey: 'tecNote' | 'softNote' | 'motivNote' | 'cultureNote'; label: string }[] = [
   { key: 'tec', noteKey: 'tecNote', label: 'Competenze tecniche' },
-  { key: 'soft', noteKey: 'softNote', label: 'Soft skills' },
+  { key: 'soft', noteKey: 'softNote', label: 'Competenze trasversali' },
   { key: 'motiv', noteKey: 'motivNote', label: 'Motivazione' },
-  { key: 'culture', noteKey: 'cultureNote', label: 'Fit organizzativo' },
+  { key: 'culture', noteKey: 'cultureNote', label: 'Adeguatezza all’organizzazione' },
 ]
 
 // Migrated from the "Report Finale di Valutazione" modal (ivReportModalOv,
@@ -119,7 +120,7 @@ export function IvReportDialog({ role, savedAt, onSavedAtChange }: { role: strin
             <Input type="text" value={draft.aCuraDi} onChange={(e) => set('aCuraDi', e.target.value)} placeholder="Nome e ruolo" />
           </Field>
           <Field label="Fasi svolte" hint="Numero di step.">
-            <Input type="text" value={draft.fasiSvolte} onChange={(e) => set('fasiSvolte', e.target.value)} placeholder="Es. screening CV, colloquio HR, colloquio tecnico" />
+            <Input type="text" value={draft.fasiSvolte} onChange={(e) => set('fasiSvolte', e.target.value)} placeholder="Es. preselezione CV, colloquio HR, colloquio tecnico" />
           </Field>
         </FieldGrid>
 
@@ -203,7 +204,7 @@ export function IvReportDialog({ role, savedAt, onSavedAtChange }: { role: strin
               ))}
               <TableRow className="font-medium">
                 <TableCell>Media complessiva</TableCell>
-                <TableCell className="text-right font-mono tabular-nums">{total.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-mono tabular-nums">{fmtDec(total, 2)}</TableCell>
                 <TableCell />
               </TableRow>
             </TableBody>
@@ -215,7 +216,7 @@ export function IvReportDialog({ role, savedAt, onSavedAtChange }: { role: strin
         <SectionLabel>6. Aree di sviluppo e possibili rischi</SectionLabel>
         <Textarea value={draft.risks} onChange={(e) => set('risks', e.target.value)} placeholder={'• Area di sviluppo / rischio 1\n• Area di sviluppo / rischio 2'} size="sm" />
 
-        <SectionLabel>7. Fit con la posizione e con l&apos;organizzazione</SectionLabel>
+        <SectionLabel>7. Adeguatezza alla posizione e all&apos;organizzazione</SectionLabel>
         <Field label="Coerenza con la posizione" hint="Con le responsabilità, il team di inserimento e la cultura aziendale.">
           <Textarea value={draft.fitOrganizzativo} onChange={(e) => set('fitOrganizzativo', e.target.value)} />
         </Field>
@@ -263,7 +264,7 @@ export function IvReportDialog({ role, savedAt, onSavedAtChange }: { role: strin
           <Field label="Firma HR" hint="Data e firma.">
             <Input type="text" value={draft.signHr} onChange={(e) => set('signHr', e.target.value)} placeholder="Nome, data e firma" />
           </Field>
-          <Field label="Firma direzione" hint="Hiring manager o direzione: data e firma.">
+          <Field label="Firma direzione" hint="Responsabile dell’assunzione o direzione: data e firma.">
             <Input type="text" value={draft.signHm} onChange={(e) => set('signHm', e.target.value)} placeholder="Nome, data e firma" />
           </Field>
         </FieldGrid>

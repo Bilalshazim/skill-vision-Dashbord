@@ -45,7 +45,7 @@ export function SendTestLinkFallbackModal({
 
   const email = candidate.email?.trim()
   const subject = `Link al test — ${candidate.name}`
-  const body = `Gentile ${candidate.name},\n\nla ringraziamo per l'interesse. Può completare il test soft skill al link seguente:\n${entry.testLink}\n\nCordiali saluti`
+  const body = `Gentile ${candidate.name},\n\nla ringraziamo per l'interesse. Può completare il test delle competenze trasversali al link seguente:\n${entry.testLink}\n\nCordiali saluti`
   const mailto = email ? `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}` : undefined
 
   async function handleCopy() {
@@ -65,7 +65,7 @@ export function SendTestLinkFallbackModal({
         result.reason === 'no-active-opening'
           ? 'Seleziona prima una company/opening nella pagina CV & Esportazione'
           : result.reason === 'entry-not-found'
-            ? 'Voce di pre-screening non trovata — potrebbe essere stata rimossa altrove.'
+            ? 'Voce di preselezione non trovata — potrebbe essere stata rimossa altrove.'
             : `Impossibile salvare: ${result.message}`
       setError(message)
       return

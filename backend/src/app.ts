@@ -18,10 +18,18 @@ import { jobProfilesRouter } from './modules/jobProfiles/routes.js'
 import { platformsRouter } from './modules/platforms/routes.js'
 import { shortlistRouter } from './modules/shortlist/routes.js'
 import { webhooksRouter } from './modules/webhooks/routes.js'
+import { env } from './lib/env.js'
 import { logger } from './lib/logger.js'
 
 export function createApp() {
   const app = express()
+  // Fase 8 — req.ip deve essere l'indirizzo del client, non del proxy: serve
+  // al limite dei tentativi di login. Si fida di un numero preciso di proxy
+  // (TRUST_PROXY_HOPS, default 1: il bordo di Railway), mai di tutti: con
+  // `true` un client potrebbe scriversi da solo X-Forwarded-For e cambiare
+  // IP a ogni tentativo. Resta 1 anche dietro il server del frontend: il
+  // proxy inoltra solo l'indirizzo aggiunto dal bordo (serve-combined.mjs).
+  app.set('trust proxy', env.trustProxyHops)
 
   // CORS is mounted before anything else in the stack (including request
   // logging) so a preflight OPTIONS never has to pass through any other

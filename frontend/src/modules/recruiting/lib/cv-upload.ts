@@ -149,7 +149,7 @@ export function matchCandidateToProfile(cvData: CvParseData, dynamicJobProfile: 
     matchedSkills,
     candidateSignals: signals,
     profileId: profile.id || null,
-    profileName: profile.title || 'Job Profile',
+    profileName: profile.title || 'Profilo della posizione',
   }
 }
 

@@ -1,3 +1,4 @@
+import { fmtDec } from '@/lib/format'
 import { ArrowDown, ArrowUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -16,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
-import { avg, fmt1, getSoftSkills, round1 } from '@/modules/assessment/lib/legacy-utils'
+import { avg, fmt1, fmt1csv, getSoftSkills, round1 } from '@/modules/assessment/lib/legacy-utils'
 import type { Employee } from '@/modules/assessment/lib/types'
 import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { TrendChart } from '@/components/patterns/TrendChart'
@@ -62,12 +63,13 @@ function ccChipClass(obtained: number, expected: number): string {
 function ccDeltaBadge(cur: number, prev: number, opts: { eps?: number; lowerIsBetter?: boolean; dec?: number; unit?: string; label?: string } = {}) {
   const d = round1(cur - prev)
   const cls = Math.abs(d) < (opts.eps ?? 0.05) ? 'flat' : (opts.lowerIsBetter ? d < 0 : d > 0) ? 'up' : 'down'
-  const mag = Math.abs(d).toFixed(opts.dec == null ? 1 : opts.dec) + (opts.unit || '')
+  const mag = fmtDec(Math.abs(d), opts.dec == null ? 1 : opts.dec) + (opts.unit || '')
   return { cls, mag }
 }
 
 function customerCareModel(employees: Employee[], ui: { ccWeekPrefix: string }) {
-  let agents = employees.filter((e) => e.area === 'Customer Service')
+  // «Customer Service» resta per i dati demo salvati prima della traduzione.
+  let agents = employees.filter((e) => e.area === 'Assistenza clienti' || e.area === 'Customer Service')
   if (agents.length < 2) agents = [...employees].slice(0, 6)
   agents = [...agents].sort((a, b) => a.cognome.localeCompare(b.cognome))
 
@@ -118,7 +120,7 @@ function exportCustomerCareCsv(model: ReturnType<typeof customerCareModel>, comp
   const head = ['Agent', 'Ruolo', 'Ticket', 'FRT_min', 'CSAT_%', 'Resolution_%', 'Match_%', ...CC_COMPETENCY_IDS.map(competencyName)]
   let csv = head.join(';') + '\n'
   model.rows.forEach((r) => {
-    csv += [`${r.emp.cognome} ${r.emp.nome}`, r.emp.ruolo, r.tickets, fmt1(r.frt), Math.round(r.csat), Math.round(r.resolution), r.matchPct, ...r.comps.map((c) => fmt1(c.ottenuto))].join(';') + '\n'
+    csv += [`${r.emp.cognome} ${r.emp.nome}`, r.emp.ruolo, r.tickets, fmt1csv(r.frt), Math.round(r.csat), Math.round(r.resolution), r.matchPct, ...r.comps.map((c) => fmt1csv(c.ottenuto))].join(';') + '\n'
   })
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)

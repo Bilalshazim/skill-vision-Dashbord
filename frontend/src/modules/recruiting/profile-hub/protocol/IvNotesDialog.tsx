@@ -157,7 +157,7 @@ export function IvNotesDialog({ role, savedAt, onSavedAtChange }: { role: string
           <Textarea value={draft.percorso} onChange={(e) => set('percorso', e.target.value)} />
         </Field>
 
-        <SectionLabel>3. Valutazione competenze tecniche / hard skills</SectionLabel>
+        <SectionLabel>3. Valutazione delle competenze professionali</SectionLabel>
         <Table frame size="sm" minWidth="lg">
             <TableHeader>
               <TableRow>
@@ -190,7 +190,7 @@ export function IvNotesDialog({ role, savedAt, onSavedAtChange }: { role: string
             </TableBody>
           </Table>
 
-        <SectionLabel>4. Valutazione soft skills / attitudinali</SectionLabel>
+        <SectionLabel>4. Valutazione delle competenze trasversali e attitudinali</SectionLabel>
         <Table frame size="sm" minWidth="lg">
             <TableHeader>
               <TableRow>

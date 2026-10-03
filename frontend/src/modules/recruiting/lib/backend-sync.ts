@@ -23,6 +23,7 @@ import { getAllCachedBackendLinks, getCachedBackendLink, resolveBackendLink } fr
 import { readCandidates, readCvMatchingState, writeCandidates, writeCvMatchingState } from '@/modules/recruiting/lib/storage'
 import type { Candidate, PrescreenedEntry, PrescreenStatus } from '@/modules/recruiting/lib/types'
 import type { JdState } from '@/modules/recruiting/lib/jd-types'
+import { convertJdState } from '@/modules/recruiting/lib/jd-preset-translations'
 import { candidatesApi, cvApi, jobProfilesApi, shortlistApi } from '@/lib/api/endpoints'
 import { apiBaseUrl, ApiError } from '@/lib/api/client'
 import type { BackendShortlistStatus } from '@/lib/api/types'
@@ -112,7 +113,7 @@ export async function uploadCvViaBackend(file: File): Promise<UploadCvViaBackend
   const candidate: Candidate = {
     id: backendCandidate.id,
     name: candidateName,
-    src: 'CV caricato ora · parsing ML · in attesa del test soft skill',
+    src: 'CV caricato ora · analisi del CV · in attesa del test delle competenze trasversali',
     icv: matchResult.scorePercent,
     testCompleted: false,
     email: '',
@@ -420,7 +421,7 @@ async function recoverShortlistIdOnConflict(
   candidateId: string,
   campaignCandidateId: string,
 ): Promise<{ ok: true; shortlistId: string } | { ok: false; message: string }> {
-  const stillUnrecoverable = 'Candidato già in shortlist sul server, ma non è stato possibile recuperarne il riferimento — ricarica la pagina.'
+  const stillUnrecoverable = 'Candidato già nella rosa sul server, ma non è stato possibile recuperarne il riferimento — ricarica la pagina.'
   const campaignId = readCandidates().find((c) => c.id === candidateId)?.backendCampaignId
   if (!campaignId) return { ok: false, message: stillUnrecoverable }
   try {
@@ -635,8 +636,10 @@ export async function loadJobProfileFromBackend(openingId: string): Promise<Load
   try {
     const profile = await jobProfilesApi.getForCampaign(link.campaignId)
     if (!profile) return { ok: false, reason: 'not-found' }
-    const jdState = backendProfileToJdState(profile)
-    if (!jdState) return { ok: false, reason: 'incompatible-shape' }
+    const raw = backendProfileToJdState(profile)
+    if (!raw) return { ok: false, reason: 'incompatible-shape' }
+    // Voci dei preset salvate prima della traduzione → italiano (jd-preset-translations.ts).
+    const jdState = convertJdState(raw)
     return { ok: true, jdState, profileId: profile.id, approved: profile.approved, publicationLink: profile.publicationLink }
   } catch (err) {
     return { ok: false, reason: 'error', message: apiErrorMessage(err) }

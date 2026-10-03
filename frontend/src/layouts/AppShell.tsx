@@ -8,7 +8,9 @@ import { Topbar } from '@/layouts/Topbar'
 // Recruiting e per Assessment. La barra laterale è sempre la stessa
 // primitiva; cambia il contenuto, che ogni sezione passa come `sidebar`
 // (dentro i propri provider, dove ha i suoi dati). Su mobile la barra
-// laterale è un pannello che si apre dal bottone in testa.
+// laterale è un pannello che si apre dal bottone in testa. Il contenuto si
+// ferma a `max-w-screen-2xl` (1536px), centrato: su uno schermo largo i
+// blocchi non si allungano quanto lo schermo (CLAUDE.md, Fase 6).
 export function AppShell({ section, sidebarLabel, sidebar, children }: { section: 'recruiting' | 'assessment'; sidebarLabel: string; sidebar: ReactNode; children: ReactNode }) {
   return (
     <TooltipProvider>
@@ -17,7 +19,9 @@ export function AppShell({ section, sidebarLabel, sidebar, children }: { section
           <Topbar menuTrigger={<SidebarTrigger label={`Apri il menu di ${sidebarLabel}`} />} />
           <div className="flex min-h-0 flex-1">
             <Sidebar label={sidebarLabel}>{sidebar}</Sidebar>
-            <main className="min-w-0 flex-1 p-4 sm:p-6">{children}</main>
+            <main className="min-w-0 flex-1 p-4 sm:p-6">
+              <div className="mx-auto w-full max-w-screen-2xl">{children}</div>
+            </main>
           </div>
         </div>
       </SidebarProvider>

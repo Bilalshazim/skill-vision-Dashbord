@@ -50,7 +50,7 @@ export function SurveyLinkSection() {
     clearSurveyLink(DEFAULT_ROLE)
     setLink('')
     setOpen(false)
-    setMessage(`Survey link rimosso per "${DEFAULT_ROLE}"`)
+    setMessage(`Link al questionario rimosso per "${DEFAULT_ROLE}"`)
   }
 
   function handleSave() {
@@ -66,7 +66,7 @@ export function SurveyLinkSection() {
     saveSurveyLink(DEFAULT_ROLE, v)
     setLink(v)
     setOpen(false)
-    setMessage('Survey link salvato ✓')
+    setMessage('Link al questionario salvato')
     window.open(v, '_blank', 'noopener')
   }
 
@@ -81,7 +81,7 @@ export function SurveyLinkSection() {
             className="flex w-full items-center gap-2.5 rounded-sm border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <Link2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <span className="flex-1 text-app-small font-medium text-foreground">Survey Link</span>
+            <span className="flex-1 text-app-small font-medium text-foreground">Link al questionario</span>
             <span className={cn('truncate text-app-caption', has ? 'text-foreground' : 'text-muted-foreground')}>{has ? link.replace(/^https?:\/\//, '').slice(0, 32) + '…' : 'Non configurato'}</span>
             <span className="shrink-0 text-app-caption font-medium text-foreground dark:text-primary">Configura link →</span>
           </button>
@@ -90,7 +90,7 @@ export function SurveyLinkSection() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Link2 className="size-4 shrink-0" aria-hidden="true" />
-              Survey Link
+              Link al questionario
             </DialogTitle>
             <DialogDescription>
               Ruolo: <b className="font-semibold text-foreground">&quot;{DEFAULT_ROLE}&quot;</b> — incolla il link del survey/questionario

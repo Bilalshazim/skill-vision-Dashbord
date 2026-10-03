@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/patterns/PageHeader'
 import { AlertTriangle, CheckCircle2, Copy, FileText, Pencil, Save } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
@@ -29,7 +30,7 @@ import { Button } from '@/components/ui/button'
 const SECTION_TITLES: Record<JdSectionKey, string> = {
   responsabilita: 'Responsabilità',
   attivita: 'Attività principali',
-  softSkills: 'Soft skills',
+  softSkills: 'Competenze trasversali',
   competenzeTecniche: 'Competenze tecniche (tool)',
   titoliStudio: 'Titoli di studio',
   certificazioni: 'Certificazioni',
@@ -42,7 +43,7 @@ const SECTION_TITLES: Record<JdSectionKey, string> = {
   valutazione: 'Cosa valuterà SKILL-VISION',
 }
 const SECTION_SUB: Partial<Record<JdSectionKey, string>> = {
-  softSkills: 'Le 35 soft skill APEX 5D. Le voci con peso sono derivate dalle skill flaggate per la posizione — imposta per ciascuna il VALORE ATTESO (scala APEX /31, decimali ammessi, es. 6.3).',
+  softSkills: 'Le 35 competenze trasversali APEX 5D. Le voci con peso sono derivate dalle competenze selezionate per la posizione — imposta per ciascuna il valore atteso (scala APEX /31, decimali ammessi, es. 6.3).',
 }
 
 // Ported literal groups order from jd_buildEditor() (modules/recruiting.html
@@ -236,43 +237,42 @@ export default function JobProfilePage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <FileText className="size-6 text-muted-foreground" aria-hidden="true" />
-        </div>
-        <div className="flex-1">
-          <h2 className="text-app-section font-semibold tracking-tight">Configura la Scheda Professionale per la ricerca in corso</h2>
-          <p className="max-w-[70ch] text-app-small text-muted-foreground">
-            {mode === 'edit'
-              ? "Parti da un profilo precompilato, poi seleziona, deseleziona, cambia livelli e aggiungi righe libere per adattarlo alla ricerca specifica. L'anteprima a destra si aggiorna in tempo reale ed è pronta per essere stampata o condivisa."
-              : 'Anteprima pulita della scheda salvata — pronta per essere approvata e condivisa. Usa "Modifica" per tornare all\'editor.'}
-          </p>
-        </div>
-        <Button
-          type="button"
-          onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')}
-          variant="outline"
-          size="sm"
-        >
-          {mode === 'edit' ? (
-            <>
-              <FileText className="size-4 shrink-0" aria-hidden="true" />
-              Vedi anteprima
-            </>
-          ) : (
-            <>
-              <Pencil className="size-4 shrink-0" aria-hidden="true" />
-              Modifica
-            </>
-          )}
-        </Button>
-      </div>
+      <PageHeader
+        level="page"
+        className="mb-0"
+        title="Configura la Scheda Professionale per la ricerca in corso"
+        description={
+          mode === 'edit'
+            ? "Parti da un profilo precompilato, poi seleziona, deseleziona, cambia livelli e aggiungi righe libere per adattarlo alla ricerca specifica. L'anteprima a destra si aggiorna in tempo reale ed è pronta per essere stampata o condivisa."
+            : 'Anteprima pulita della scheda salvata — pronta per essere approvata e condivisa. Usa "Modifica" per tornare all\'editor.'
+        }
+        actions={
+          <Button
+            type="button"
+            onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')}
+            variant="outline"
+            size="sm"
+          >
+            {mode === 'edit' ? (
+              <>
+                <FileText className="size-4 shrink-0" aria-hidden="true" />
+                Vedi anteprima
+              </>
+            ) : (
+              <>
+                <Pencil className="size-4 shrink-0" aria-hidden="true" />
+                Modifica
+              </>
+            )}
+          </Button>
+        }
+      />
 
       {mode === 'edit' ? (
         <>
-          <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground">
-            Ricerca/cambio posizione, "Crea scheda vuota" e l'importazione CSV/XLSX restano disponibili solo nell'app corrente — questa scheda resta sul ruolo
-            attivo (<b className="font-semibold text-foreground">{DEFAULT_ROLE}</b>).
+          <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground dark:text-secondary-foreground">
+            Questa scheda si riferisce alla posizione attiva (<b className="font-semibold text-foreground">{DEFAULT_ROLE}</b>). Cambio di posizione,
+            scheda vuota e importazione CSV/XLSX non sono ancora disponibili in questa schermata.
           </p>
 
           <div>
@@ -286,7 +286,7 @@ export default function JobProfilePage() {
             </ToggleGroup>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_420px]">
             <Accordion type="multiple" defaultValue={ALL_SECTIONS} className="flex flex-col gap-4">
               <AccordionSection index={nextIdx()} title="Intestazione posizione" value="header">
                 <JdHeaderFields header={jdState.header} scopo={jdState.scopo} onHeaderChange={(patch) => setJdState((prev) => ({ ...prev, header: { ...prev.header, ...patch } }))} onScopoChange={(scopo) => setJdState((prev) => ({ ...prev, scopo }))} />
@@ -302,11 +302,11 @@ export default function JobProfilePage() {
                 </AccordionSection>
               ))}
 
-              <AccordionSection index={nextIdx()} title="Hard skills" sub="Livello richiesto: seleziona una voce, poi Base / Intermedio / Avanzato / Esperto." value="hard">
+              <AccordionSection index={nextIdx()} title="Competenze professionali" sub="Livello richiesto: seleziona una voce, poi Base / Intermedio / Avanzato / Esperto." value="hard">
                 <JdHardSkills groups={jdState.hardSkillGroups} onChange={updateHardSkillGroups} />
               </AccordionSection>
 
-              <AccordionSection index={nextIdx()} title="Soft skills" sub={SECTION_SUB.softSkills} value="softSkills">
+              <AccordionSection index={nextIdx()} title="Competenze trasversali" sub={SECTION_SUB.softSkills} value="softSkills">
                 <JdSection section={jdState.sections.softSkills} onChange={(next) => updateSection('softSkills', next)} />
               </AccordionSection>
 

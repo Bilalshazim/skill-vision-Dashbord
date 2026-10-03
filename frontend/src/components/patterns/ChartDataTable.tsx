@@ -1,3 +1,4 @@
+import { fmtDec } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 // I valori di un grafico in tabella: le righe sono le categorie (o i
@@ -9,7 +10,7 @@ export function ChartDataTable({
   rowHeader = 'Voce',
   rows,
   columns,
-  format = (n) => n.toLocaleString('it-IT', { maximumFractionDigits: 1 }),
+  format,
   visible = false,
 }: {
   title: string
@@ -19,8 +20,12 @@ export function ChartDataTable({
   format?: (n: number) => string
   visible?: boolean
 }) {
+  // Senza `format`: un decimale fisso in tutta la tabella se c'è almeno un
+  // valore non intero, così le colonne si allineano; interi altrimenti.
+  const anyDecimal = rows.some((r) => r.values.some((v) => v != null && !Number.isInteger(v)))
+  const fmt = format ?? ((n: number) => fmtDec(n, anyDecimal ? 1 : 0))
   return (
-    <table className={cn('w-full border-collapse text-app-caption tabular-nums', !visible && 'sr-only')}>
+    <table className={cn('border-collapse text-app-caption tabular-nums', visible ? 'w-full' : 'sr-only')}>
       <caption className="sr-only">{title}</caption>
       <thead>
         <tr className="border-b border-border">
@@ -42,7 +47,7 @@ export function ChartDataTable({
             </th>
             {r.values.map((v, i) => (
               <td key={columns[i]?.label ?? i} className={cn('py-1 pl-2 text-right', columns[i]?.reference ? 'text-muted-foreground' : 'text-foreground')}>
-                {v == null ? '—' : format(v)}
+                {v == null ? '—' : fmt(v)}
               </td>
             ))}
           </tr>

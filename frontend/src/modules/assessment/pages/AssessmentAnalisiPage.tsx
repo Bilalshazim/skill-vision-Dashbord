@@ -1,3 +1,4 @@
+import { fmtDec } from '@/lib/format'
 import { ArrowRight, Download, Printer, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 
@@ -99,7 +100,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
     { v: v6, color: 'var(--warning)', label: ui.exiK6Label, sub: ui.exiK6Sub, inverted: false },
   ]
 
-  const gapText = gap < 0 ? ui.exiGapTextNegative(fmt1(Math.abs(gap)), Math.abs(gapPc).toFixed(1)) : gap === 0 ? ui.exiGapTextZero : ui.exiGapTextPositive
+  const gapText = gap < 0 ? ui.exiGapTextNegative(fmt1(Math.abs(gap)), fmtDec(Math.abs(gapPc))) : gap === 0 ? ui.exiGapTextZero : ui.exiGapTextPositive
 
   const areaKeys = Object.keys(a.aree || {}).sort((x, y) => a.aree[y] - a.aree[x])
   const risk = (a.rischi || []).filter(Boolean)
@@ -244,42 +245,46 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
         })}
       </div>
 
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>{ui.exiGapTitle}</CardTitle>
-        </CardHeader>
-        <div className="flex flex-col gap-3">
-          <ScoreRow label={ui.exiGapLabel1} value={v1} />
-          <ScoreRow label={ui.exiGapLabel2} value={v2} />
-        </div>
-        <StatCard
-          className="mt-4"
-          surface="none"
-          label={ui.exiGapTitle}
-          value={`${gap >= 0 ? '+' : ''}${fmt1(gap)}`}
-        >
-          {/* gapText (exiGapText*) porta tag <strong>: viene dal dizionario. */}
-          <Note as="div" dangerouslySetInnerHTML={{ __html: gapText }} />
-        </StatCard>
-      </Card>
-
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>{ui.exiAreasTitle}</CardTitle>
-        </CardHeader>
-        {areaKeys.length ? (
+      {/* Domanda centrale e aree critiche affiancate: due riepiloghi brevi
+          (CLAUDE.md, Fase 6 — impaginazione). */}
+      <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>{ui.exiGapTitle}</CardTitle>
+          </CardHeader>
           <div className="flex flex-col gap-3">
-            {areaKeys.map((i) => {
-              const v = a.aree[i]
-              return <ScoreRow key={i} label={ui.exiAreas[Number(i)] || ''} value={v} tone={v >= 8 ? 'destructive' : v >= 6 ? 'warning' : undefined} format={(n) => String(n)} />
-            })}
+            <ScoreRow label={ui.exiGapLabel1} value={v1} />
+            <ScoreRow label={ui.exiGapLabel2} value={v2} />
           </div>
-        ) : (
-          <Note>{ui.exiAreasEmpty}</Note>
-        )}
-      </Card>
+          <StatCard
+            className="mt-4"
+            surface="none"
+            label={ui.exiGapDeltaLabel}
+            value={`${gap >= 0 ? '+' : ''}${fmt1(gap)}`}
+          >
+            {/* gapText (exiGapText*) porta tag <strong>: viene dal dizionario. */}
+            <Note as="div" dangerouslySetInnerHTML={{ __html: gapText }} />
+          </StatCard>
+        </Card>
 
-      <div className="flex flex-col gap-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>{ui.exiAreasTitle}</CardTitle>
+          </CardHeader>
+          {areaKeys.length ? (
+            <div className="flex flex-col gap-3">
+              {areaKeys.map((i) => {
+                const v = a.aree[i]
+                return <ScoreRow key={i} label={ui.exiAreas[Number(i)] || ''} value={v} tone={v >= 8 ? 'destructive' : v >= 6 ? 'warning' : undefined} format={(n) => String(n)} />
+              })}
+            </div>
+          ) : (
+            <Note>{ui.exiAreasEmpty}</Note>
+          )}
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <AnswerCard eyebrow={ui.exiQ1Eyebrow} title={ui.exiAns1Title} quote={a.q1c}>
           <TierValue value={v1} tier={exiScoreTier(v1, lang)} unit={ui.exiPointsOf10} />
         </AnswerCard>
@@ -292,25 +297,21 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
         <AnswerCard eyebrow={ui.exiQ5Eyebrow} title={ui.exiAns5Title}>
           <TierValue prefix={ui.exiRiskInlineLabel} value={v5} tier={exiRiskTier(v5, lang)} unit={ui.exiPointsOf10} />
           {risk.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
+            <ol className="mt-3 list-decimal pl-5 text-app-small">
               {risk.map((r, i) => (
-                <Badge tone="destructive" key={i}>
-                  {i + 1}. {r}
-                </Badge>
+                <li key={i}>{r}</li>
               ))}
-            </div>
+            </ol>
           )}
         </AnswerCard>
         <AnswerCard eyebrow={ui.exiQ6Eyebrow} title={ui.exiAns6Title}>
           <TierValue prefix={ui.exiUrgencyInlineLabel} value={v6} tier={exiScoreTier(v6, lang)} unit={ui.exiPointsOf10} />
           {obj.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
+            <ol className="mt-3 list-decimal pl-5 text-app-small">
               {obj.map((o, i) => (
-                <Badge key={i}>
-                  {i + 1}. {o}
-                </Badge>
+                <li key={i}>{o}</li>
               ))}
-            </div>
+            </ol>
           )}
         </AnswerCard>
         <AnswerCard eyebrow={ui.exiQ7Eyebrow} title={ui.exiAns7Title} quote={a.q7c}>
@@ -347,12 +348,12 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
           can be slow/fail (network, quota), unlike that page's instant
           local answers. */}
       <Card className="mt-4">
-        <Button variant="default" onClick={requestExpertReview} disabled={expertReview.status === 'loading'}>
+        <Button variant="outline" className="self-start" onClick={requestExpertReview} disabled={expertReview.status === 'loading'}>
           <Icon name="sparkles" />
           {expertReview.status === 'loading' ? ui.exiExpertReviewLoading : ui.exiExpertReviewBtn}
         </Button>
         {expertReview.status === 'done' && (
-          <p className="mt-3 whitespace-pre-wrap text-app-body">{expertReview.text}</p>
+          <p className="mt-3 max-w-prose whitespace-pre-wrap text-app-body">{expertReview.text}</p>
         )}
         {expertReview.status === 'error' && (
           <p className="mt-3 text-destructive" role="alert" >

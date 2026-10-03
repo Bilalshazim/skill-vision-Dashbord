@@ -7,7 +7,7 @@ import { dashedBtnClass } from '@/modules/recruiting/profile-hub/protocol/protoc
 
 // Ported from ivEvalRenderCompareRows()/ivReportRenderCompareRows() (modules/
 // recruiting.html ~4626-4636, ~4716-4726) — shared by both Scheda
-// Valutazione Candidato and Report Finale Valutativo. `code` is a manually
+// Valutazione Candidato and Resoconto finale di valutazione. `code` is a manually
 // typed free-text string (e.g. "CAND-014") — confirmed (Phase 19, and
 // again per this phase's explicit Step 8) NOT a reference to any real
 // CANDIDATES/Pipeline record. Never turn this into a candidate selector.

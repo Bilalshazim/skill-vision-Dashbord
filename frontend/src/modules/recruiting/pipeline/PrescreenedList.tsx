@@ -60,7 +60,7 @@ const IDLE: ActionState = { kind: 'idle' }
 // Migrated from renderPipelineDetail()'s "🔎 Pre-screened CV" section
 // (modules/recruiting.html ~2035-2051) plus its two "add" controls
 // (addPrescreenedFromPool()/addPrescreenedManual(), ~2159-2177). PHASE
-// 11C-1 wires up: + Dal pool CV, + Aggiungi manual, "Segna inviato", "✕"
+// 11C-1 wires up: + Dall&apos;archivio CV, + Aggiungi manual, "Segna inviato", "✕"
 // remove — each calling the same lib/pipeline.ts functions Phase 7-9
 // already proved, with an explicit `target: {companyId, openingId}` so
 // they operate on THIS Pipeline-selected opening rather than activeContext
@@ -114,18 +114,18 @@ export function PrescreenedList({
   }
   function opErrorMessage(result: { ok: false; reason: string; message?: string }): string {
     if (result.reason === 'no-active-opening') return OPENING_UNAVAILABLE_MESSAGE
-    if (result.reason === 'entry-not-found') return 'Voce di pre-screening non trovata — potrebbe essere stata rimossa altrove.'
+    if (result.reason === 'entry-not-found') return 'Voce di preselezione non trovata — potrebbe essere stata rimossa altrove.'
     return `Impossibile salvare: ${result.message ?? 'errore sconosciuto'}`
   }
 
-  // "+ Dal pool CV" — same call shape as addPrescreenedFromPool()
+  // "+ Dall&apos;archivio CV" — same call shape as addPrescreenedFromPool()
   // (modules/recruiting.html ~2159-2167): candidateId/name/email from the
   // pool record, auto/matchScore both omitted (status stays 'da_inviare').
   function handlePoolAdd() {
     if (poolPending) return
     const rec = candidatePool.find((r) => r.id === poolSelection)
     if (!rec) {
-      setPoolState({ kind: 'error', message: 'Seleziona un candidato dal pool.' })
+      setPoolState({ kind: 'error', message: 'Seleziona un candidato dall’archivio.' })
       return
     }
     setPoolState({ kind: 'pending' })
@@ -264,7 +264,7 @@ export function PrescreenedList({
             disabled={poolPending || !candidatePool.length}
             size="sm" className="max-w-56"
           >
-            <option value="">{candidatePool.length ? 'Seleziona dal pool CV…' : '(nessun candidato nel pool CV per questa posizione)'}</option>
+            <option value="">{candidatePool.length ? 'Seleziona dall’archivio CV…' : '(nessun candidato in archivio per questa posizione)'}</option>
             {candidatePool.map((rec) => (
               <option key={rec.id} value={rec.id}>
                 {rec.name || rec.id}
@@ -273,7 +273,7 @@ export function PrescreenedList({
           </SelectField>
           <button type="button" onClick={handlePoolAdd} disabled={poolPending || !candidatePool.length} className={primaryBtnClass}>
             {poolPending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Plus className="size-3.5 shrink-0" aria-hidden="true" />}
-            Dal pool CV
+            Dall&apos;archivio CV
           </button>
           <span className="text-app-caption text-muted-foreground">oppure</span>
           <Input
@@ -302,7 +302,7 @@ export function PrescreenedList({
       </div>
 
       {!entries.length ? (
-        <EmptyState size="sm" icon={Search} description="Nessun candidato ancora in pre-screening per questa posizione." />
+        <EmptyState size="sm" icon={Search} description="Nessun candidato ancora in preselezione per questa posizione." />
       ) : (
         <div>
           {/* Client §4 — "sorted by ranking match percentage (including low
@@ -381,12 +381,12 @@ export function PrescreenedList({
                         Segna inviato
                       </Button>
                     )}
-                    <Hint label="Rimuovi dal pre-screening">
+                    <Hint label="Rimuovi dalla preselezione">
                       <Button
                         type="button"
                         onClick={() => handleRemove(r.id)}
                         disabled={pending}
-                        aria-label="Rimuovi dal pre-screening"
+                        aria-label="Rimuovi dalla preselezione"
                         variant="destructive"
                         size="icon-sm"
                       >

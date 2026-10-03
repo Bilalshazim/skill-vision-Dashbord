@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom'
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CrossModuleBanner } from '@/components/patterns/CrossModuleBanner'
+import { PageHeader } from '@/components/patterns/PageHeader'
+import { StatCard } from '@/components/patterns/StatCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { OpeningsList } from '@/modules/recruiting/components/OpeningsList'
@@ -30,33 +32,6 @@ function exportHomeSummary(data: RecruitingHomeData): void {
   downloadFile('report_recruiting.csv', csv, 'text/csv;charset=utf-8;')
 }
 
-// Client-requested nav rename: this route (index, now labeled "Inizia" —
-// see nav-config.ts) is asked to be "the 'From Search to Talent' landing
-// page" (Fase 6: claim inglese e alone tolti, CLAUDE.md §7). The KPI dashboard below is real, working functionality that isn't
-// named anywhere else in the client's 10-item index, so rather than discard
-// it, this hero is added ON TOP of it — "Inizia" becomes a real landing
-// moment for the module without losing the dashboard.
-function StartHero() {
-  return (
-    <div className="rounded-lg border border-border bg-card px-6 py-8 sm:px-8">
-      <div className="flex items-center gap-2">
-        {/* The official Recruiting module icon — the exact same glyph as
-            the legacy landing page's "Cruscotto Recruiting" card and the
-            top-bar module switcher (see nav-config.ts). currentColor +
-            text-foreground makes it theme-adaptive for free: --foreground
-            is a dark near-black in light mode and a light cream in dark
-            mode, so this never needs a separate light/dark SVG asset. */}
-        <Users className="size-4 shrink-0 text-foreground" aria-hidden="true" />
-<p className="label-mono text-muted-foreground">Skill Vision · Recruiting</p>
-      </div>
-      <h1 className="mt-2 text-app-title font-semibold tracking-tight">Dalla ricerca alla selezione</h1>
-      <p className="mt-2 max-w-2xl text-app-small text-muted-foreground">
-        Dalla definizione del profilo alla selezione finale: un unico percorso guidato per trasformare una ricerca aperta nel talento giusto.
-      </p>
-    </div>
-  )
-}
-
 // Migrated from modules/recruiting.html #scr-home (renderHomeDashboard()).
 // Same KPI values, same quality-distribution buckets/thresholds, same
 // open-positions list, same upcoming-interviews list — see
@@ -76,52 +51,35 @@ export default function RecruitingHome() {
 
   return (
     <div className="flex flex-col gap-4">
-      <StartHero />
-
-      {/* "Il Talento in Pipeline" hero (correction pass matches the
-          concept exactly): candidate count as the headline, exactly 2
-          mini-stats (Posizioni aperte/Colloqui programmati — "in attesa
-          di test" folds into the caption line instead of a 3rd
-          mini-stat), plus 3 real actions. The concept's "+7 questa
-          settimana" delta chip has no real source anywhere — Candidate
-          has no creation timestamp in lib/types.ts — so it's honestly
-          omitted rather than fabricated. KpiCard.tsx (now StatCard) was left in place,
-          unused. */}
-      <Card>
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="label-mono text-muted-foreground">Panoramica Candidati</div>
-            <div className="mt-1 flex items-center gap-3">
-              <Users className="size-8 shrink-0 text-muted-foreground" aria-hidden="true" />
-              <div>
-                <div className="font-mono text-app-title font-semibold leading-none tabular-nums text-foreground">{data.kpis[0].value}</div>
-                <div className="mt-1 text-app-caption text-muted-foreground">
-                  {data.kpis[0].label} · {data.kpis[1].value} {data.kpis[1].label.toLowerCase()}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-6">
-            {[data.kpis[2], data.kpis[3]].map((k) => (
-              <div key={k.key}>
-                <div className="font-mono text-app-section font-semibold tabular-nums text-foreground">{k.value}</div>
-                <div className="label-mono mt-1 text-muted-foreground">{k.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <Button asChild size="sm">
-            <Link to="/recruiting/pipeline">Vedi Pipeline</Link>
-          </Button>
-          <Button asChild size="sm" variant="outline">
-            <Link to="/recruiting/job-profile">Nuova Ricerca</Link>
-          </Button>
-          <Button asChild size="sm" variant="outline">
-            <Link to="/recruiting/cv">Esporta Elenco</Link>
-          </Button>
-        </div>
-      </Card>
+      {/* Intestazione della pagina e, sotto, i tre numeri della panoramica
+          come StatCard in griglia (CLAUDE.md, Fase 6: un'intestazione sola,
+          niente card a tutta riga per poco contenuto). Le azioni stanno
+          nell'intestazione. */}
+      <PageHeader
+        level="page"
+        className="mb-0"
+        eyebrow="Skill Vision · Recruiting"
+        title="Dalla ricerca alla selezione"
+        description="Dalla definizione del profilo alla selezione finale: un unico percorso guidato per trasformare una ricerca aperta nel talento giusto."
+        actions={
+          <>
+            <Button asChild size="sm">
+              <Link to="/recruiting/pipeline">Vedi l&apos;avanzamento</Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/recruiting/job-profile">Nuova ricerca</Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/recruiting/cv">Esporta elenco</Link>
+            </Button>
+          </>
+        }
+      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard icon={Users} label={data.kpis[0].label} value={data.kpis[0].value} note={`${data.kpis[1].value} ${data.kpis[1].label.toLowerCase()}`} />
+        <StatCard label={data.kpis[2].label} value={data.kpis[2].value} />
+        <StatCard label={data.kpis[3].label} value={data.kpis[3].value} />
+      </div>
 
       {/* 4 direct grid children instead of 2 flex-col column stacks — each
           ROW's height is now independent (Candidati/Imbuto vs Posizioni/
@@ -131,7 +89,7 @@ export default function RecruitingHome() {
           column-stack gap severe enough to look broken). Visual position
           is identical to before — grid auto-placement fills row-major,
           same as the two stacks did. */}
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[2fr_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
         <Card>
           <CardHeader>
             <div>
@@ -141,7 +99,7 @@ export default function RecruitingHome() {
               </p>
             </div>
             <Link to="/recruiting/ranking" className="flex shrink-0 items-center gap-1 text-app-caption font-medium text-foreground hover:underline">
-              Vedi ranking <ArrowUpRight className="size-3.5" />
+              Vedi classifica <ArrowUpRight className="size-3.5" />
             </Link>
           </CardHeader>
           <CardContent className="overflow-x-auto">

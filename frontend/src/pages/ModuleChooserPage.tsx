@@ -1,5 +1,4 @@
 import { ArrowRight, BarChart3, Users } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 
 import { LoadingState } from '@/components/patterns/LoadingState'
@@ -9,7 +8,7 @@ import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { usePurchasedModules } from '@/hooks/use-purchased-modules'
 import { Topbar } from '@/layouts/Topbar'
-import { SHELL_ENTRY_URL, isShellAuthenticated } from '@/modules/assessment/lib/shell-bridge'
+import { AuthGuard } from '@/layouts/AuthGuard'
 
 const MODULES = [
   {
@@ -33,18 +32,19 @@ const MODULES = [
 // La radice `/` (CLAUDE.md, Fasi 4 e 6): la scelta del modulo dopo
 // l'accesso, la stessa della landing del guscio legacy (stessi testi), ora in
 // React. Con un solo modulo acquistato porta direttamente lì. Nessuna
-// dashboard nuova. L'accesso resta quello di oggi: senza la sessione del
-// guscio si torna al login legacy (`/index.html`), che dopo l'accesso
-// rimanda qui.
+// dashboard nuova. L'accesso passa dalla guardia unica (layouts/AuthGuard):
+// in modalità `legacy` senza la sessione del guscio si torna al login di
+// `/index.html`, che dopo l'accesso rimanda qui.
 export default function ModuleChooserPage() {
-  const [authed] = useState(() => isShellAuthenticated())
+  return (
+    <AuthGuard>
+      <ModuleChooser />
+    </AuthGuard>
+  )
+}
+
+function ModuleChooser() {
   const modules = usePurchasedModules()
-
-  useEffect(() => {
-    if (!authed) window.location.replace(SHELL_ENTRY_URL)
-  }, [authed])
-  if (!authed) return null
-
   const available = modules ? MODULES.filter((m) => modules.includes(m.key)) : []
   if (modules && available.length === 1) return <Navigate to={available[0].to} replace />
 

@@ -92,7 +92,6 @@ export const RadarArea = memo(function RadarArea({
   color: colorProp,
   showPoints = true,
   showStroke = true,
-  showGlow = false,
   fillOpacity: restOpacity = 0.15,
   strokeDasharray,
   className = "",
@@ -180,10 +179,6 @@ export const RadarArea = memo(function RadarArea({
           stroke={showStroke ? color : "none"}
           strokeLinejoin="round"
           strokeWidth={showStroke ? getStrokeWidth(isHovered) : 0}
-          style={{
-            filter:
-              showGlow && isHovered ? `drop-shadow(0 0 12px ${color})` : "none",
-          }}
         />
       ) : (
         <motion.path
@@ -196,10 +191,6 @@ export const RadarArea = memo(function RadarArea({
           stroke={showStroke ? color : "none"}
           strokeDasharray={strokeDasharray}
           strokeLinejoin="round"
-          style={{
-            filter:
-              showGlow && isHovered ? `drop-shadow(0 0 12px ${color})` : "none",
-          }}
           transition={{
             fillOpacity: { duration: 0.2 },
             strokeWidth: { duration: 0.2 },

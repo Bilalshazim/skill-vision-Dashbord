@@ -1,4 +1,5 @@
-import { Brain, ClipboardList, Compass, FileText, LayoutGrid, Megaphone, User } from 'lucide-react'
+import { PageHeader } from '@/components/patterns/PageHeader'
+import { Brain, ClipboardList, Compass, FileText, Megaphone, User } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 import { EvaluatorAreaCard } from '@/modules/recruiting/profile-hub/EvaluatorAreaCard'
@@ -22,15 +23,7 @@ export default function ProfileHubPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <LayoutGrid className="size-6 text-muted-foreground" aria-hidden="true" />
-        </div>
-        <div>
-          <h2 className="text-app-section font-semibold tracking-tight">Profilo della ricerca</h2>
-          <p className="max-w-[70ch] text-app-small text-muted-foreground">Configura ruolo, mansione e soft skill. Il ranking si aggiorna in tempo reale.</p>
-        </div>
-      </div>
+      <PageHeader level="page" className="mb-0" title="Profilo della ricerca" description={<>Configura posizione, mansione e competenze trasversali. La classifica si aggiorna in tempo reale.</>} />
 
       <div className="label-mono flex items-center gap-1.5 text-muted-foreground">
         <Compass className="size-3.5 shrink-0" aria-hidden="true" />
@@ -50,7 +43,7 @@ export default function ProfileHubPage() {
           </button>
         </MasterCard>
 
-        <MasterCard icon={Brain} title="Soft skill">
+        <MasterCard icon={Brain} title="Competenze trasversali">
           <SoftSkillSection />
           <SurveyLinkSection />
         </MasterCard>

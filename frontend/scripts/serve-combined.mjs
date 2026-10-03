@@ -1,4 +1,5 @@
 import http from 'node:http'
+import https from 'node:https'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -28,7 +29,7 @@ function send(res, filePath) {
 }
 
 const CATALOG_ENABLED = process.env.VITE_ENABLE_COMPONENT_CATALOG === 'true'
-const REACT_PREFIXES = ['/recruiting', '/assessment', '/evaluate', ...(CATALOG_ENABLED ? ['/dev/components'] : [])]
+const REACT_PREFIXES = ['/login', '/recruiting', '/assessment', '/evaluate', ...(CATALOG_ENABLED ? ['/dev/components'] : [])]
 
 function isReactRoute(urlPath) {
   const p = urlPath.length > 1 ? urlPath.replace(/\/+$/, '') : urlPath
@@ -36,8 +37,51 @@ function isReactRoute(urlPath) {
   return REACT_PREFIXES.some((prefix) => p === prefix || p.startsWith(prefix + '/'))
 }
 
+// Fase 8, modalità `backend`: l'API passa da qui (/api/* → backend), così
+// browser e API hanno la stessa origine e il cookie httpOnly del refresh è
+// di prima parte (SameSite=Strict). Acceso solo con BACKEND_INTERNAL_URL
+// (es. l'indirizzo privato del servizio Backend su Railway); senza, /api
+// non viene toccato e tutto resta come prima.
+const BACKEND_INTERNAL_URL = process.env.BACKEND_INTERNAL_URL ? new URL(process.env.BACKEND_INTERNAL_URL) : null
+
+function proxyToBackend(req, res) {
+  const target = new URL(req.url.replace(/^\/api/, '/api'), BACKEND_INTERNAL_URL)
+  const lib = target.protocol === 'https:' ? https : http
+  // L'IP del client per il limite dei tentativi di login: l'ultimo indirizzo
+  // di X-Forwarded-For è quello aggiunto dal bordo di Railway (il client vero);
+  // quelli prima li può scrivere chiunque. Si inoltra solo quello, così il
+  // backend resta a TRUST_PROXY_HOPS=1 sia dietro questo proxy sia sul suo
+  // dominio pubblico.
+  const xff = String(req.headers['x-forwarded-for'] || '').split(',').map((x) => x.trim()).filter(Boolean)
+  const forwardedFor = xff[xff.length - 1] || req.socket.remoteAddress || ''
+  const upstream = lib.request(
+    target,
+    {
+      method: req.method,
+      headers: {
+        ...req.headers,
+        host: target.host,
+        'x-forwarded-host': req.headers['x-forwarded-host'] || req.headers.host,
+        'x-forwarded-proto': req.headers['x-forwarded-proto'] || 'http',
+        'x-forwarded-for': forwardedFor,
+      },
+    },
+    (up) => {
+      res.writeHead(up.statusCode || 502, up.headers)
+      up.pipe(res)
+    },
+  )
+  upstream.on('error', () => {
+    if (!res.headersSent) res.writeHead(502, { 'Content-Type': 'application/json; charset=utf-8' })
+    res.end(JSON.stringify({ error: { code: 'bad_gateway', message: 'Backend unreachable' } }))
+  })
+  req.pipe(upstream)
+}
+
 const server = http.createServer((req, res) => {
   try {
+    if (BACKEND_INTERNAL_URL && (req.url === '/api' || req.url.startsWith('/api/'))) return proxyToBackend(req, res)
+
     const urlPath = decodeURIComponent(req.url.split('?')[0])
 
     if (urlPath.startsWith('/assets/') || urlPath.startsWith('/brand/')) {

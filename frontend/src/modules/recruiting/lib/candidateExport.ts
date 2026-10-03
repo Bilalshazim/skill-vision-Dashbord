@@ -24,7 +24,7 @@ export function downloadCandidateReport(c: Candidate, r: AhiResult, position: nu
     ['Fonte', c.src || ''],
     ['AHI /100', r.v],
     ['Fascia', f.txt],
-    ['Fit competenze (55%)', r.fc],
+    ['Aderenza alle competenze (55%)', r.fc],
     ['Affinità Big Five (30%)', r.ab],
     ['Indice CV — ML (15%)', r.icv],
     ['Skill essenziali (tot.)', sums.essential.sum.toFixed(1)],

@@ -39,6 +39,8 @@
 // refresh token) does not log the visitor out of the shell; it just means
 // backend-dependent actions show the "not connected" error state (§16)
 // until re-bridged.
+import { isBackendAuth } from '@/lib/auth/auth-mode'
+import { ensureSession, logout } from '@/lib/auth/session'
 import { authApi } from '@/lib/api/endpoints'
 import { ApiError, clearBackendSession, getAccessToken, getBackendUser, onRoleForbidden, onUnauthorized, setBackendSession } from '@/lib/api/client'
 import { getShellUser } from '@/modules/assessment/lib/shell-bridge'
@@ -132,6 +134,9 @@ function cachedSessionMatchesCurrentShellUser(): boolean {
  * never got a reason to re-check since).
  */
 export async function ensureBackendSession(force = false): Promise<boolean> {
+  // Fase 8, modalità `backend`: nessun ponte, nessuna credenziale nel codice.
+  // La sessione è quella aperta dall'utente su /login (o rinnovata col cookie).
+  if (isBackendAuth()) return ensureSession()
   if (!force && getAccessToken() && getBackendUser() && cachedSessionMatchesCurrentShellUser()) return true
   if (!bridgeInFlight) bridgeInFlight = performBridgeLogin().finally(() => (bridgeInFlight = null))
   return bridgeInFlight
@@ -157,6 +162,11 @@ let unauthorizedHandlerRegistered = false
 export function registerAuthBridgeRecovery(): void {
   if (unauthorizedHandlerRegistered) return
   unauthorizedHandlerRegistered = true
+  if (isBackendAuth()) {
+    // Sessione scaduta e non rinnovabile: la guardia rimanda a /login.
+    onUnauthorized(() => void logout())
+    return
+  }
   onUnauthorized(() => {
     clearBackendSession()
     void ensureBackendSession()

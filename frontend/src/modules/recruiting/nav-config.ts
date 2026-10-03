@@ -66,9 +66,9 @@ export const RECRUITING_NAV_ITEMS: RecruitingNavItem[] = [
   { screen: 'pipeline', label: 'CV Elaborati', icon: Workflow, to: '/recruiting/pipeline' },
   { screen: 'paginaA', label: 'Migliori Candidati', icon: ClipboardCheck, to: '/recruiting/pagina-a' },
   { screen: 'ranking', label: 'Risultati', icon: Trophy, to: '/recruiting/ranking' },
-  { screen: 'match', label: 'Partita interna', icon: ArrowLeftRight, to: '/recruiting/match' },
+  { screen: 'match', label: 'Confronto interno', icon: ArrowLeftRight, to: '/recruiting/match' },
   { screen: 'formule', label: 'Metodo', icon: Sigma, to: '/recruiting/metodo' },
-  { screen: 'ai', label: 'Ask', icon: Sparkles, to: '/recruiting/ask' },
+  { screen: 'ai', label: 'Assistente IA', icon: Sparkles, to: '/recruiting/ask' },
   { screen: 'cipAdmin', label: 'CIP', icon: IdCard, to: '/recruiting/admin/cip', roles: ['PLATFORM_ADMIN'] },
   { screen: 'emailAdmin', label: 'Email', icon: Mail, to: '/recruiting/admin/email', roles: ['PLATFORM_ADMIN', 'COMPANY_ADMIN'] },
 ]

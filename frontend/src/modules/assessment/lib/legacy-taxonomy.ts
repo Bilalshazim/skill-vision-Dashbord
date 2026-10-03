@@ -79,10 +79,10 @@ export const NAV_CONFIG_IT: NavConfigEntry[] = [
   { type:'link', id:'hard-risultati', label:'Risultati Valutazioni Professionali', icon:'hard', requires:'B' },
   { type:'link', id:'valore', label:'Valori Complessivi', icon:'value', requires:null },
   { type:'link', id:'feedback', label:'Piani di Sviluppo', icon:'feedback', requires:null, badge:true },
-  { type:'link', id:'ai', label:'Assistenza IA', icon:'ai', requires:null },
+  { type:'link', id:'ai', label:'Assistente IA', icon:'ai', requires:null },
   { type:'action', id:'methodology', label:'Note Metodologiche', icon:'notes', action:'openMethodologyModal' },
   { type:'section', label:'Strumenti Amministrazione', editOnly:true },
-  { type:'action', id:'reset', label:'Reset Demo', icon:'refresh', action:'confirmResetDemo', editOnly:true },
+  { type:'action', id:'reset', label:'Ripristina demo', icon:'refresh', action:'confirmResetDemo', editOnly:true },
 ];
 
 /* ---------------------- TAXONOMY — 35 SOFT SKILLS (Module A) ----------------------
@@ -293,13 +293,15 @@ export const LEVEL_ANCHORS_IT = [
 ];
 
 /* ---------------------- COMPANY AREAS / ROLES (demo) ---------------------- */
+// Fase 6: tradotti in italiano (TRADUZIONI.md, gruppo D). I dati demo già
+// salvati nel browser tengono i nomi inglesi fino al «Ripristina demo».
 export const AREAS_CONFIG = [
-  { area:'Sales Area', roles:['Account Manager','Sales Representative','Business Developer'] },
-  { area:'Technical Area', roles:['Technical Specialist','Technical Team Leader','Process Analyst'] },
-  { area:'Administration', roles:['Administrative Clerk','Administrative Coordinator'] },
-  { area:'Production', roles:['Production Operator','Line Supervisor'] },
-  { area:'Customer Service', roles:['Customer Support Representative','Customer Care Manager'] },
-  { area:'Human Resources', roles:['HR Specialist','HR Business Partner'] },
+  { area:'Area commerciale', roles:['Responsabile clienti','Addetto vendite','Sviluppo commerciale'] },
+  { area:'Area tecnica', roles:['Specialista tecnico','Coordinatore tecnico','Analista di processo'] },
+  { area:'Amministrazione', roles:['Impiegato amministrativo','Coordinatore amministrativo'] },
+  { area:'Produzione', roles:['Operatore di produzione','Capo linea'] },
+  { area:'Assistenza clienti', roles:['Operatore assistenza clienti','Responsabile assistenza clienti'] },
+  { area:'Risorse umane', roles:['Specialista risorse umane','Referente risorse umane'] },
 ];
 
 // Ported verbatim from js/assessment.js ~3022-3035 (TIER_DEFS_EN/IT) — the
@@ -340,17 +342,17 @@ export const PAGE_META_TEXT_EN: Record<string, { title: string; sub: string }> =
 }
 export const PAGE_META_TEXT_IT: Record<string, { title: string; sub: string }> = {
   home: { title: 'Home', sub: "Stato generale dell'organizzazione" },
-  'soft-overview': { title: 'Competenze Trasversali', sub: 'Cosa sono e come si misurano — Soft Skills & Big Five' },
-  'hard-overview': { title: 'Competenze Professionali', sub: 'Cosa sono e come si misurano — protocollo APEX 5D multi-source' },
+  'soft-overview': { title: 'Competenze Trasversali', sub: 'Cosa sono e come si misurano — competenze trasversali e Big Five' },
+  'hard-overview': { title: 'Competenze Professionali', sub: 'Cosa sono e come si misurano — protocollo APEX 5D a più fonti' },
   company: { title: 'Profilo Azienda', sub: 'Sedi, contatti, organico per tipologia e ruoli chiave aziendali' },
   anagrafica: { title: 'Anagrafica Risorse', sub: 'Elenco dipendenti, mansioni, attività e requisiti di mansione' },
-  analisi: { title: 'Intervista', sub: 'Executive Human Capital Interview — la percezione della Direzione prima della misurazione oggettiva' },
-  soft: { title: 'Area Valutazioni Trasversali', sub: 'Soft Skills & Big Five — inserimento dati' },
-  hard: { title: 'Area Valutazioni Professionali', sub: 'Protocollo APEX 5D multi-source — inserimento dati' },
-  'soft-risultati': { title: 'Risultati Valutazioni Trasversali', sub: 'Soft Skills & Big Five — reportistica' },
-  'hard-risultati': { title: 'Risultati Valutazioni Professionali', sub: 'Protocollo APEX 5D multi-source — reportistica' },
+  analisi: { title: 'Intervista', sub: 'Intervista alla Direzione sul capitale umano — la percezione della Direzione prima della misurazione oggettiva' },
+  soft: { title: 'Area Valutazioni Trasversali', sub: 'Competenze trasversali e Big Five — inserimento dati' },
+  hard: { title: 'Area Valutazioni Professionali', sub: 'Protocollo APEX 5D a più fonti — inserimento dati' },
+  'soft-risultati': { title: 'Risultati Valutazioni Trasversali', sub: 'Competenze trasversali e Big Five — reportistica' },
+  'hard-risultati': { title: 'Risultati Valutazioni Professionali', sub: 'Protocollo APEX 5D a più fonti — reportistica' },
   valore: { title: 'Valore Complessivo della Persona', sub: 'Integrazione Competenze Trasversali + Competenze Professionali' },
-  customercare: { title: 'Logica Customer Care', sub: 'Gestione e analisi delle competenze Customer Care' },
+  customercare: { title: "Logica dell'assistenza clienti", sub: 'Gestione e analisi delle competenze di assistenza clienti' },
   feedback: { title: 'Piani di Sviluppo', sub: 'Restituzione individuale e azioni di crescita' },
-  ai: { title: 'Assistente AI', sub: 'Interroga la dashboard in linguaggio naturale' },
+  ai: { title: 'Assistente IA', sub: 'Interroga la dashboard in linguaggio naturale' },
 }

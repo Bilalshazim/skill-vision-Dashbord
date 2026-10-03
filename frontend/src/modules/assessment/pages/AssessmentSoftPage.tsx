@@ -338,7 +338,7 @@ function SoftIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
           <ProfileRadar
             title={ui.softSummaryTitle}
             size="sm"
-            axes={ss.perCluster.map((c) => ({ key: c.cluster, label: c.cluster }))}
+            axes={ss.perCluster.map((c) => ({ key: c.cluster, label: c.cluster, short: shortCluster(c.cluster) }))}
             series={[
               { label: ui.chartExpected, values: Object.fromEntries(ss.perCluster.map((c) => [c.cluster, c.atteso])), reference: true },
               { label: `${emp.nome} ${emp.cognome}`, values: Object.fromEntries(ss.perCluster.map((c) => [c.cluster, c.ottenuto])) },
@@ -530,4 +530,11 @@ function SoftMatchClusterRows({ cluster, skills, emps }: { cluster: string; skil
       })}
     </>
   )
+}
+
+// «Competenze di Realizzazione» → «Realizzazione»: nel radar il nome intero
+// dei cluster si sovrappone; la tabella sotto lo tiene.
+function shortCluster(name: string): string {
+  const s = name.replace(/^(Competenze|Competencies|Skills)\s+(di\s+)?/i, '')
+  return s.charAt(0).toUpperCase() + s.slice(1)
 }

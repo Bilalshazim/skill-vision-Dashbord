@@ -18,7 +18,7 @@ export function OpeningsList({ openings }: { openings: OpeningRow[] }) {
       <EmptyState
         size="sm"
         icon={Briefcase}
-        description="Nessuna posizione aperta. Configurane una dalla pagina CV & Export (Routing & Isolation)."
+        description="Nessuna posizione aperta. Aprine una dalla pagina CV & Esportazione (Posizione e archivio)."
       />
     )
   }

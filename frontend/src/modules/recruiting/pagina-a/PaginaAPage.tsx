@@ -1,8 +1,9 @@
-import { ClipboardCheck, Loader2, Send } from 'lucide-react'
+import { ClipboardCheck } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { PageHeader } from '@/components/patterns/PageHeader'
+import { SendTestLinkBar } from '@/components/patterns/SendTestLinkBar'
 import { EmptyState } from '@/components/patterns/EmptyState'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { sendTestLinkForCandidate, syncRankingFromBackend } from '@/modules/recruiting/lib/backend-sync'
@@ -14,18 +15,18 @@ import { PaginaACandidateRow } from '@/modules/recruiting/pagina-a/PaginaACandid
 // modules/recruiting.html line 2302) — reused verbatim rather than invented.
 const NO_ACTIVE_OPENING_MESSAGE = 'Seleziona prima una company/opening nella pagina CV & Esportazione'
 
-// Legacy gives Pagina A's send button the same gold treatment as Pipeline's
-// "Conferma vincitore" (`btn-act btn-gold`, modules/recruiting.html line
-// 471) — same --warning-token mapping WinnerCard.tsx already established,
-// now via the shared Button component's own `warning` variant instead of a
-// third hand-rolled copy of that recipe.
-const goldBtnClass = buttonVariants({ variant: 'warning', size: 'default' })
-
 type SendState =
   | { kind: 'idle' }
-  | { kind: 'pending' }
+  | { kind: 'pending'; done: number; total: number }
   | { kind: 'blocked'; message: string }
-  | { kind: 'result'; tone: 'success' | 'warning'; message: string }
+  | { kind: 'result'; tone: 'success' | 'warning'; sent: string[]; failed: string[] }
+
+// L'esito dell'ultimo invio per candidato, mostrato nella sua riga.
+export type SendOutcome = { ok: boolean; message: string }
+
+// Chi ha già ricevuto il link nella posizione attiva: non si può spuntare
+// e non riceve un secondo invio (il server lo rifiuterebbe comunque, 409).
+const ALREADY_SENT = new Set(['inviato', 'completato', 'ha_risposto', 'non_ha_risposto'])
 
 const IDLE: SendState = { kind: 'idle' }
 
@@ -57,6 +58,7 @@ export default function PaginaAPage() {
   // effect that writes back into this same state.
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [sendState, setSendState] = useState<SendState>(IDLE)
+  const [outcomes, setOutcomes] = useState<Record<string, SendOutcome>>({})
 
   // Phase 32 §2/§4/§8 — same backend-primary match-score reconciliation as
   // Ranking/CV & Esportazione, so the sort order here (by Match CV/Profilo,
@@ -79,16 +81,30 @@ export default function PaginaAPage() {
   // useEffect that deletes from `selected` after the fact (same observable
   // result; no extra render pass).
   const pendingIds = useMemo(() => new Set(pending.map((c) => c.id)), [pending])
-  const effectiveSelected = useMemo(() => new Set(Array.from(selected).filter((id) => pendingIds.has(id))), [selected, pendingIds])
+  // Le voci di preselezione della posizione attiva, lette una volta per
+  // aggiornamento e passate alle righe (prima ogni riga rileggeva lo stato).
+  const prescreenedById = useMemo(() => {
+    void refreshKey
+    const prescreened = getActiveOpening(readCvMatchingState()).opening?.pipeline?.prescreened ?? []
+    return new Map(prescreened.map((p) => [p.candidateId, p]))
+  }, [refreshKey])
+  const alreadySent = useMemo(
+    () => new Set([...prescreenedById.values()].filter((p) => p.autoSent || ALREADY_SENT.has(p.status)).map((p) => p.candidateId)),
+    [prescreenedById],
+  )
+  const effectiveSelected = useMemo(
+    () => new Set(Array.from(selected).filter((id) => pendingIds.has(id) && !alreadySent.has(id))),
+    [selected, pendingIds, alreadySent],
+  )
 
-  function handleToggle(id: string, checked: boolean) {
+  const handleToggle = useCallback((id: string, checked: boolean) => {
     setSelected((prev) => {
       const next = new Set(prev)
       if (checked) next.add(id)
       else next.delete(id)
       return next
     })
-  }
+  }, [])
 
   // Ported verbatim from sendPaginaABulk() (modules/recruiting.html
   // ~2300-2319). Reuses addPrescreenedEntry() (Phase 7, unmodified) for
@@ -120,72 +136,49 @@ export default function PaginaAPage() {
       return
     }
 
-    setSendState({ kind: 'pending' })
-
-    // Fresh read, not the memoized `pending` list — a candidate's
-    // testCompleted/email may have changed since this page last rendered.
+    // Uno alla volta, nell'ordine della lista: ogni invio attende la risposta
+    // del server prima del successivo, e l'esito di ciascuno resta nella sua
+    // riga. Un errore su un candidato non ferma gli altri.
     const freshCandidates = readCandidates()
-    let sent = 0
-    let missingEmail = 0
-    let backendFailed = 0
-    let unlinked = 0
-    for (const id of ids) {
+    const sent: string[] = []
+    const failed: string[] = []
+    const next: Record<string, SendOutcome> = {}
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i]
+      setSendState({ kind: 'pending', done: i, total: ids.length })
       const c = freshCandidates.find((x) => x.id === id)
-      // A candidate that vanished or is no longer pending is silently
-      // skipped — exactly like legacy's bare `return` here, counted in
-      // neither `sent` nor `missingEmail`.
+      // Sparito o non più in attesa (test completato altrove): non si invia.
       if (!c || c.testCompleted !== false) continue
-      // sendTestLinkForCandidate() (lib/backend-sync.ts) is the same
-      // real send used by the per-row "Invia Lettera e Link Test" button
-      // below — one implementation, two call sites.
       const result = await sendTestLinkForCandidate(id)
       if (result.ok) {
-        sent++
-      } else if (result.reason === 'missing-email') {
-        missingEmail++
-      } else if (result.reason === 'unlinked') {
-        unlinked++
+        sent.push(c.name)
+        next[id] = { ok: true, message: 'Link inviato' }
       } else {
-        backendFailed++
+        const why =
+          result.reason === 'missing-email'
+            ? 'email mancante'
+            : result.reason === 'unlinked'
+              ? 'non collegato al server'
+              : result.reason === 'mail-not-configured'
+                ? 'invio email non configurato: link pronto da inviare a mano'
+                : 'errore del server'
+        failed.push(`${c.name} (${why})`)
+        next[id] = { ok: false, message: `Non inviato: ${why}` }
       }
     }
 
+    setOutcomes(next)
     setSelected(new Set())
     handleMutated()
-
-    const problems: string[] = []
-    if (backendFailed) problems.push(`${backendFailed} fallit${backendFailed === 1 ? 'o' : 'i'} sul server`)
-    if (missingEmail) problems.push(`${missingEmail} saltat${missingEmail === 1 ? 'o' : 'i'} (email mancante)`)
-    if (unlinked) problems.push(`${unlinked} non collegat${unlinked === 1 ? 'o' : 'i'} al server (email non inviata)`)
-
-    if (sent && !problems.length) {
-      setSendState({ kind: 'result', tone: 'success', message: `Link test e lettera inviati a ${sent} candidat${sent === 1 ? 'o' : 'i'}.` })
-    } else if (sent) {
-      setSendState({ kind: 'result', tone: 'warning', message: `Inviati a ${sent} candidat${sent === 1 ? 'o' : 'i'} — ${problems.join(', ')}.` })
-    } else if (problems.length) {
-      setSendState({ kind: 'result', tone: 'warning', message: `Nessuna email inviata — ${problems.join(', ')}.` })
-    } else {
-      setSendState({ kind: 'result', tone: 'warning', message: 'Nessun invio: aggiungi l’email ai candidati selezionati.' })
-    }
+    setSendState({ kind: 'result', tone: failed.length ? 'warning' : 'success', sent, failed })
   }
 
-  const selCount = effectiveSelected.size
   const sendPending = sendState.kind === 'pending'
+  const selectedNames = pending.filter((c) => effectiveSelected.has(c.id)).map((c) => c.name)
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <ClipboardCheck className="size-6 text-muted-foreground" aria-hidden="true" />
-        </div>
-        <div>
-          <h2 className="text-app-section font-semibold tracking-tight">Migliori Candidati</h2>
-          <p className="text-app-small text-muted-foreground">
-            Candidati con CV caricato ma non ancora sottoposti al test soft skill, ordinati per Match CV/Profilo. Spunta
-            "Promosso al test", aggiungi l'email e invia il link in blocco, oppure invia singolarmente da ogni riga.
-          </p>
-        </div>
-      </div>
+      <PageHeader level="page" className="mb-0" title="Migliori Candidati" description={<>Candidati con CV caricato ma non ancora sottoposti al test delle competenze trasversali, ordinati per corrispondenza CV/profilo. Spunta i candidati, aggiungi l'email e invia il link ai selezionati, oppure da ogni riga. Chi ha già ricevuto il link non si può spuntare.</>} />
 
       {opening && company ? (
         <p className="text-app-caption text-muted-foreground">
@@ -200,28 +193,29 @@ export default function PaginaAPage() {
         </p>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h4 className="text-app-small font-semibold">
-          In attesa di test — <span className="font-mono">{pending.length}</span>
-        </h4>
-        <button type="button" onClick={handleBulkSend} disabled={sendPending || selCount === 0} className={goldBtnClass}>
-          {sendPending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Send className="size-3.5 shrink-0" aria-hidden="true" />}
-          {selCount
-            ? `Invia link test a ${selCount} candidat${selCount === 1 ? 'o' : 'i'} selezionat${selCount === 1 ? 'o' : 'i'}`
-            : 'Invia link test ai selezionati'}
-        </button>
+      <div className="flex flex-col gap-3">
+        <h2 className="text-app-section">
+          In attesa di test — <span className="tabular-nums">{pending.length}</span>
+        </h2>
+        <SendTestLinkBar selectedNames={selectedNames} onSend={handleBulkSend} onClear={() => setSelected(new Set())} sending={sendPending} />
       </div>
 
-      {sendState.kind === 'blocked' && <p className="text-app-caption font-medium text-destructive">{sendState.message}</p>}
+      {sendState.kind === 'pending' && (
+        <InlineAlert tone="info">{`Invio in corso: ${sendState.done + 1} di ${sendState.total}…`}</InlineAlert>
+      )}
+      {sendState.kind === 'blocked' && <InlineAlert tone="destructive">{sendState.message}</InlineAlert>}
       {sendState.kind === 'result' && (
-        <p className={cn('text-app-caption font-medium', sendState.tone === 'success' ? 'text-success' : 'text-warning')}>{sendState.message}</p>
+        <InlineAlert tone={sendState.tone}>
+          {sendState.sent.length ? `Link inviato a ${sendState.sent.join(', ')}.` : 'Nessun link inviato.'}
+          {sendState.failed.length ? ` Non ricevono il link: ${sendState.failed.join('; ')}.` : ''}
+        </InlineAlert>
       )}
 
       {!pending.length ? (
         <EmptyState
           size="sm"
           icon={ClipboardCheck}
-          description='Nessun candidato in attesa di test. I candidati compaiono qui appena viene caricato un CV, fino al completamento del test soft skill (segnato dalla Pipeline → "Segna completato").'
+          description='Nessun candidato in attesa di test. I candidati compaiono qui appena viene caricato un CV, fino al completamento del test delle competenze trasversali (segnato da CV Elaborati → "Segna completato").'
         />
       ) : (
         <div>
@@ -230,7 +224,10 @@ export default function PaginaAPage() {
               key={c.id}
               candidate={c}
               selected={effectiveSelected.has(c.id)}
-              onToggleSelect={(checked) => handleToggle(c.id, checked)}
+              prescreened={prescreenedById.get(c.id)}
+              alreadySent={alreadySent.has(c.id)}
+              outcome={outcomes[c.id]}
+              onToggleSelect={handleToggle}
               onMutated={handleMutated}
             />
           ))}

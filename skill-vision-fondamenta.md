@@ -106,15 +106,15 @@ Un valore per modalità. I fondi si ricavano con l'opacità, come per l'accento.
 
 | Stato | Light | Dark | su `neutral-50` | su `neutral-900` |
 |---|---|---|---|---|
-| Errore | `#BF3022` | `#EF6B54` | 5,5:1 | 5,7:1 |
-| Warning | `#8A5107` | `#E08A0B` | 6,2:1 | 6,6:1 |
-| Successo | `#1C7A4D` | `#3FBF7F` | 5,4:1 | 7,5:1 |
+| Errore | `#AC2B1F` | `#F1826F` | 6,5:1 | 6,8:1 |
+| Warning | `#8A5107` | `#E48D0B` | 6,2:1 | 6,7:1 |
+| Successo | `#186A43` | `#3FBF7F` | 6,4:1 | 7,5:1 |
 
-Fondo dell'alert: colore di stato al 12%, bordo al 20%.
+Fondo dell'alert: colore di stato al 12%, bordo al 20%. I valori sono scelti perché il testo di stato resti sopra 4,5:1 anche **sul suo fondo tenue**, sopra `card` e `background`: badge e celle con il colore di stato appoggiano lì, non sul fondo pagina. Rivisti il 2026-10-01 dopo la verifica in produzione (prima: `#BF3022`, `#EF6B54`, `#E08A0B`, `#1C7A4D`, fra 4,0 e 4,4:1 sul fondo tenue). La famiglia categorica dei grafici tiene i valori di prima: non fa da testo su fondo tenue.
 
 **Il successo non è lime.** Un messaggio di conferma in colore brand sembrerebbe una promozione, e l'accento perderebbe il suo significato di azione. Il verde di successo è a 152° di tonalità, ottantaquattro gradi dal lime.
 
-**Il warning in light mode è brunito**, quasi tabacco. È l'unico modo per farlo passare come testo su fondo cream: un ambra brillante non raggiunge la soglia. In alternativa, `#E08A0B` per icona e bordo con il testo in `neutral-800`.
+**Il warning in light mode è brunito**, quasi tabacco. È l'unico modo per farlo passare come testo su fondo cream: un ambra brillante non raggiunge la soglia. In alternativa, `#E48D0B` per icona e bordo con il testo in `neutral-800`.
 
 **Non esiste un colore info.** Un blu in mezzo a questi neutri caldi stona. I messaggi informativi restano in neutro, distinti dalla sola icona.
 
@@ -127,7 +127,7 @@ La scelta della famiglia dipende dal numero di serie, non dal tipo di grafico.
 | Serie | Cosa usare |
 |---|---|
 | Una | Colore brand: `accent-600` su fondo chiaro, `accent-400` su fondo scuro |
-| Due | Brand per il dato principale, `neutral-400` / `neutral-500` per il termine di confronto |
+| Due | Brand per il dato principale, `chart-compare` per il termine di confronto: `neutral-400` in chiaro, `neutral-500` in scuro |
 | Tre o più | Famiglia categorica qui sotto |
 
 **Grafico monocromatico.** Il riferimento è sempre il colore brand. Su fondo chiaro va usato `accent-600`, perché `accent-400` su cream dà 1,25:1 ed è invisibile. È il caso più frequente della piattaforma: il risultato della persona contro il benchmark, l'elemento selezionato dentro una lista, la barra di completamento.
@@ -492,11 +492,11 @@ Le lightness della scala neutra sono allineate a quelle della scala `neutral` di
   --color-accent-800: #565D05;
 
   /* stati — valore light / valore dark */
-  --color-danger:       #BF3022;
-  --color-danger-dark:  #EF6B54;
+  --color-danger:       #AC2B1F;
+  --color-danger-dark:  #F1826F;
   --color-warning-light: #8A5107;
-  --color-warning-dark: #E08A0B;
-  --color-success-light: #1C7A4D;
+  --color-warning-dark: #E48D0B;
+  --color-success-light: #186A43;
   --color-success-dark: #3FBF7F;
 
   /* grafici — famiglia categorica */
@@ -592,6 +592,7 @@ Le lightness della scala neutra sono allineate a quelle della scala `neutral` di
   --success:           var(--color-success-light);
 
   --chart-mono:        var(--color-accent-600);
+  --chart-compare:     var(--color-neutral-400);
   --chart-1:           var(--color-chart-1-light);
   --chart-2:           var(--color-chart-2-light);
   --chart-3:           var(--color-chart-3-light);
@@ -620,6 +621,7 @@ Le lightness della scala neutra sono allineate a quelle della scala `neutral` di
   --success:           var(--color-success-dark);
 
   --chart-mono:        var(--color-accent-400);
+  --chart-compare:     var(--color-neutral-500);
   --chart-1:           var(--color-chart-1-dark);
   --chart-2:           var(--color-chart-2-dark);
   --chart-3:           var(--color-chart-3-dark);

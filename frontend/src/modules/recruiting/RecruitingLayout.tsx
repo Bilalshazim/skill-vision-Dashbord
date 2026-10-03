@@ -1,35 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 
 import { ModuleLockGate } from '@/components/ModuleLockGate'
 import { AppShell } from '@/layouts/AppShell'
+import { AuthGuard } from '@/layouts/AuthGuard'
 import { RecruitingHeader } from '@/modules/recruiting/components/RecruitingHeader'
 import { RecruitingNav } from '@/modules/recruiting/components/RecruitingNav'
 // Shared shell-session check — same module Assessment already uses (see
 // its own AssessmentAuthGuard for the identical pattern). Not module-specific
 // despite the import path: it just reads the legacy shell's sessionStorage.
-import { SHELL_ENTRY_URL, isShellAuthenticated } from '@/modules/assessment/lib/shell-bridge'
 import { BackendStatusBanner } from '@/modules/recruiting/components/BackendStatusBanner'
 import { useBackendSession } from '@/lib/api/useBackendSession'
-
-// AUTH — index.html's login/landing stays the only entry point. Now that
-// the legacy dashboard's "Recruiting" card does a real top-level navigation
-// to /recruiting (instead of loading it inside an iframe reachable only
-// after already passing the shell's login/landing screens), this route is
-// independently reachable by URL and needs its own guard — otherwise
-// visiting /recruiting directly would skip the login this app has always
-// required. Redirects to the shell instead of rendering anything.
-function RecruitingAuthGuard({ children }: { children: React.ReactNode }) {
-  const [authed, setAuthed] = useState<boolean | null>(null)
-  useEffect(() => {
-    setAuthed(isShellAuthenticated())
-  }, [])
-  useEffect(() => {
-    if (authed === false) window.location.replace(SHELL_ENTRY_URL)
-  }, [authed])
-  if (authed !== true) return null
-  return <>{children}</>
-}
 
 // Recruiting nel guscio unico (Fase 4): AppShell con la barra laterale del
 // modulo. `contextVersion` cambia quando si sceglie un'altra società dalla
@@ -44,7 +25,7 @@ export default function RecruitingLayout() {
   const backend = useBackendSession()
   const [contextVersion, setContextVersion] = useState(0)
   return (
-    <RecruitingAuthGuard>
+    <AuthGuard>
       <AppShell section="recruiting" sidebarLabel="Recruiting" sidebar={<RecruitingNav onCompanyChange={() => setContextVersion((v) => v + 1)} />}>
         <BackendStatusBanner status={backend.status} />
         <ModuleLockGate module="RECRUITING">
@@ -54,6 +35,6 @@ export default function RecruitingLayout() {
           <Outlet key={contextVersion} />
         </ModuleLockGate>
       </AppShell>
-    </RecruitingAuthGuard>
+    </AuthGuard>
   )
 }

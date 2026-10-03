@@ -3,7 +3,7 @@
 import type { scaleBand } from "@visx/scale";
 import type { Transition } from "motion/react";
 import { motion } from "motion/react";
-import { memo, useId, useMemo } from "react";
+import { Fragment, memo, useId, useMemo } from "react";
 import { barDepthAndRise, barDepthMaxDepth } from "./bar-depth-geometry";
 import {
   chartCssVars,
@@ -35,7 +35,7 @@ function barDepthPerspectiveRise(
   innerWidth: number,
   datum: Record<string, unknown>,
   topY: number,
-  baselineY: number
+  baselineY: number,
 ): number {
   const centerX = innerWidth / 2;
   if (centerX <= 0) {
@@ -64,7 +64,7 @@ export interface BarProps {
   lineCap?: BarLineCap;
   /** Whether to animate the bars. Default: true */
   animate?: boolean;
-  /** Animation type: "grow" (height) or "fade" (opacity + blur). Default: "grow" */
+  /** Animation type: "grow" (height) or "fade" (opacity only in Skill Vision, rule 4). Default: "grow" */
   animationType?: BarAnimationType;
   /** Opacity when not hovered (when another bar is hovered). Default: 0.3 */
   fadedOpacity?: number;
@@ -83,6 +83,9 @@ export interface BarProps {
    * zero-value bars so they stay visible. Pair with the same value on
    * `<BarDepthProvider minBarHeight>` when using the 3D surfaces. Default: 0 */
   minBarHeight?: number;
+  /** Skill Vision: writes each bar's value as a direct label (above a vertical
+   * bar, after a horizontal one) — CLAUDE.md, "Barre con il valore". */
+  valueLabel?: (value: number) => string;
 }
 
 interface BarInnerProps extends BarProps {
@@ -135,11 +138,10 @@ function AnimatedBar({
       <motion.rect
         animate={{
           opacity: isFaded ? fadedOpacity : 1,
-          filter: "blur(0px)",
         }}
         fill={fill}
         height={height}
-        initial={{ opacity: 0, filter: "blur(2px)" }}
+        initial={{ opacity: 0 }}
         key={`fade-${index}-${revealEpoch}`}
         rx={rx}
         ry={ry}
@@ -189,6 +191,7 @@ const BarInner = memo(function BarInner({
   groupGap = 4,
   perspective = false,
   minBarHeight = 0,
+  valueLabel,
   barScale,
   bandWidth,
   barXAccessor,
@@ -374,7 +377,7 @@ const BarInner = memo(function BarInner({
               innerWidth,
               d,
               y,
-              baselineY
+              baselineY,
             );
             const trim = Math.min(rise, Math.max(0, barHeight - 1));
             y += trim;
@@ -396,47 +399,69 @@ const BarInner = memo(function BarInner({
         const effectiveRx = applyRounding ? cornerRadius : 0;
         const effectiveRy = applyRounding ? cornerRadius : 0;
 
+        const label = valueLabel ? (
+          <text
+            className="tabular-nums"
+            dominantBaseline={isHorizontal ? "middle" : "auto"}
+            fill="var(--foreground)"
+            fontSize={11}
+            key={`${barKey}-label`}
+            opacity={isFaded ? fadedOpacity : 1}
+            textAnchor={isHorizontal ? "start" : "middle"}
+            x={isHorizontal ? x + barW + 4 : x + barW / 2}
+            y={isHorizontal ? y + barHeight / 2 : y - 4}
+          >
+            {valueLabel(value)}
+          </text>
+        ) : null;
+
         if (animate && !isLoaded) {
           return (
-            <AnimatedBar
-              animationType={animationType}
-              enterTransition={enterTransition}
-              fadedOpacity={fadedOpacity}
-              fill={fill}
-              height={barHeight}
-              index={i}
-              innerHeight={innerHeight}
-              isFaded={isFaded}
-              isHorizontal={isHorizontal}
-              key={barKey}
-              revealEpoch={revealEpoch}
-              rx={effectiveRx}
-              ry={effectiveRy}
-              staggerDelay={calculatedStaggerDelay}
-              width={barW}
-              x={x}
-              y={y}
-            />
+            <Fragment key={barKey}>
+              <AnimatedBar
+                animationType={animationType}
+                enterTransition={enterTransition}
+                fadedOpacity={fadedOpacity}
+                fill={fill}
+                height={barHeight}
+                index={i}
+                innerHeight={innerHeight}
+                isFaded={isFaded}
+                isHorizontal={isHorizontal}
+                key={barKey}
+                revealEpoch={revealEpoch}
+                rx={effectiveRx}
+                ry={effectiveRy}
+                staggerDelay={calculatedStaggerDelay}
+                width={barW}
+                x={x}
+                y={y}
+              />
+              {label}
+            </Fragment>
           );
         }
 
         // Static bar after animation completes
         return (
-          <rect
-            fill={fill}
-            height={barHeight}
-            key={barKey}
-            opacity={isFaded ? fadedOpacity : 1}
-            rx={effectiveRx}
-            ry={effectiveRy}
-            style={{
-              cursor: "default",
-              transition: "opacity 0.15s ease-in-out",
-            }}
-            width={barW}
-            x={x}
-            y={y}
-          />
+          <Fragment key={barKey}>
+            <rect
+              fill={fill}
+              height={barHeight}
+              key={barKey}
+              opacity={isFaded ? fadedOpacity : 1}
+              rx={effectiveRx}
+              ry={effectiveRy}
+              style={{
+                cursor: "default",
+                transition: "opacity 0.15s ease-in-out",
+              }}
+              width={barW}
+              x={x}
+              y={y}
+            />
+            {label}
+          </Fragment>
         );
       })}
     </g>

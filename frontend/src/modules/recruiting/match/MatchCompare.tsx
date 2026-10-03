@@ -1,3 +1,4 @@
+import { fmtDec } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { Candidate } from '@/modules/recruiting/lib/types'
 
@@ -72,14 +73,14 @@ export function MatchCompare({ picks }: { picks: MatchPick[] }) {
 
   return (
     <div className="rounded-sm border border-border bg-card p-5">
-      <div className="label-mono mb-3 text-muted-foreground">Gap Analysis — soft skill</div>
+      <div className="label-mono mb-3 text-muted-foreground">Gap analysis — competenze trasversali</div>
 
       <div className="mb-2 flex flex-wrap items-center gap-2 text-app-caption font-semibold">
         {picks.map((p, i) => (
           <span key={p.c.id} className="inline-flex items-center gap-1.5">
             {p.c.name}
             {p.c.isInternalTalent && (
-              <span className="label-mono rounded-full border border-border bg-secondary px-1.5 py-0.5 text-muted-foreground">
+              <span className="label-mono rounded-full border border-border bg-secondary px-1.5 py-0.5 text-muted-foreground dark:text-secondary-foreground">
                 INT
               </span>
             )}
@@ -108,7 +109,7 @@ export function MatchCompare({ picks }: { picks: MatchPick[] }) {
       </div>
 
       {rows.length === 0 ? (
-        <div className="text-app-small text-muted-foreground">Nessuna soft skill in comune trovata.</div>
+        <div className="text-app-small text-muted-foreground">Nessuna competenza trasversale in comune.</div>
       ) : (
         <div className="flex flex-col gap-2.5">
           {rows.map((row) => (
@@ -118,7 +119,7 @@ export function MatchCompare({ picks }: { picks: MatchPick[] }) {
               </span>
               <div className="flex items-center gap-1">
                 {row.series.map((s, i) => (
-                  <div key={i} className="h-3 flex-1 rounded-full border border-border bg-secondary" title={`${s.name}: ${s.value.toFixed(1)}/31`}>
+                  <div key={i} className="h-3 flex-1 rounded-full border border-border bg-secondary" title={`${s.name}: ${fmtDec(s.value)}/31`}>
                     <div
                       className={cn('h-full rounded-full', TONE_BAR_CLASS[s.tone])}
                       style={{ width: `${Math.max(Math.min((s.value / barMax) * 100, 100), 2)}%`, opacity: s.opacity }}

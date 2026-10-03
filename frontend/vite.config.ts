@@ -66,6 +66,12 @@ function legacyShellDevServer(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [legacyShellDevServer(), react(), tailwindcss()],
+  // Fase 8, modalità `backend` in sviluppo: /api va al backend locale, come
+  // farà serve-combined in produzione, così il cookie httpOnly è della stessa
+  // origine. Con VITE_API_BASE_URL assoluto (modalità `legacy`) non entra in gioco.
+  server: {
+    proxy: { '/api': { target: process.env.BACKEND_DEV_URL || 'http://localhost:4000', changeOrigin: false, xfwd: true } },
+  },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),

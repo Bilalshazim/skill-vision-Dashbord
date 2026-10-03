@@ -667,3 +667,175 @@ caratteri in linea perché i client di posta non leggono variabili CSS —
 portarli sulla palette (esadecimali dei token) è una scelta da fare a parte.
 L'audit non riconosce le sfumature Tailwind (`bg-gradient-*`): una è stata
 trovata a occhio; proposta di aggiungere il controllo allo script.
+
+## globals.css del pacchetto: unito, non sostituito · 2026-10-02
+Il file di Alessio aggiorna quattro colori e i commenti tipografici, ma è la
+versione "di sistema", senza le aggiunte del progetto: alias dei grafici Bklit
+(`--chart-*`), scala dei livelli (`--z-*`) e la nota sulle primitive `-light`.
+Copiato al posto del nostro, grafici e dialog avrebbero perso colori e livelli
+senza dare errore. Scelta: **il nostro file, con sopra le modifiche del
+pacchetto**. Da segnalare ad Alessio, perché la prossima consegna parta dal
+file del repository.
+
+## Badge neutri in scuro su `secondary-foreground` · 2026-10-02
+In scuro `muted-foreground` (neutral-400) su `secondary` (neutral-700) dà
+4,11:1. Scelta: `dark:text-secondary-foreground` dove le due classi stanno
+insieme (badge neutro e 15 punti di Recruiting). In chiaro resta il grigio
+tenue (6,4:1): il badge neutro deve restare più quieto di quelli di stato.
+
+## Decimali: virgola a schermo, punto nei CSV · 2026-10-02
+Opzioni: virgola ovunque, o solo a schermo. Cambia: i CSV con `;` sono letti da
+chi li importa, e un cambio di formato è un cambio di comportamento. Scelta:
+**solo a schermo** (`fmtDec`, `fmt1`); le esportazioni tengono il punto
+(`fmt1csv`). Nel protocollo del colloquio i punteggi restano a **due decimali**:
+sono su /5 e le differenze di 0,05 decidono la classifica fra candidati. Per
+portarli a uno basta un parametro.
+
+## «Archivia» non è un'azione distruttiva · 2026-10-02
+Archiviare un dipendente si annulla con «Ripristina» e non cancella dati. In
+una colonna di tabella il rosso ripetuto su ogni riga diventava il segnale più
+forte della pagina. Scelta: `ghost` nella riga, `default` per la conferma nel
+dialog (l'unica azione primaria lì).
+
+## Note da sviluppatore che nascondono funzioni mancanti · 2026-10-02
+Tre note dicevano «resta nell'app corrente»: «Segna completato» in CV
+Elaborati, cambio posizione/scheda vuota/import CSV in Profilo Candidatura,
+import massivo dei CV. Sono funzioni del vecchio Recruiting mai portate in
+React, cioè lacune precedenti alla migrazione. Il testo ora dice «non ancora
+disponibile in questa schermata/versione», ma **la lacuna resta** e va decisa
+col cliente: riportata nel resoconto.
+
+## Niente sfocature né aloni nei grafici · 2026-10-02
+Bklit anima l'entrata di barre e punti con un `blur()` e mette un alone
+`drop-shadow` su radar e anello al passaggio del mouse. Il nuovo audit li vede
+(regola 4). Scelta: tolti, resta l'opacità. Le prop `showGlow`, `enterBlur` e
+`inactiveBlur` restano nel tipo per compatibilità, ma non fanno più niente.
+
+## `chart-compare` per la serie di confronto · 2026-10-02
+Da CLAUDE.md (Fase 5): il confronto non usa più `muted-foreground`, che è un
+colore di testo e come riempimento pesa quanto il dato principale. Token nuovo
+`--chart-compare` (neutral-400 / neutral-500), usato da `seriesColors`, dagli
+alias di Bklit (`--chart-line-secondary`) e da «nella norma» nelle
+distribuzioni e nella matrice.
+
+## Valore sulle barre: prop `valueLabel` nel `Bar` di Bklit · 2026-10-02
+Bklit non scrive il valore sulla barra. Opzioni: un livello SVG a parte che
+ricalcola le posizioni, o una prop nel `Bar` installato (è codice nostro,
+copiato dal registro). Scelta: **la prop**, che usa le stesse coordinate della
+barra (raggruppate, orizzontali, verticali) e non può disallinearsi.
+
+## Matrice: soglie diagonali e forme per fascia · 2026-10-02
+L'indice di Valori Complessivi è la media 50/50 dei due assi, quindi la soglia
+t è la retta x + y = 2t. Le linee si disegnano con la formula vera, non come
+griglia. Forma per fascia, nell'ordine delle fasce: rombo, cerchio, quadrato,
+triangolo, triangolo giù; la stessa forma nella legenda.
+
+## Radar: etichette brevi invece di un radar più piccolo · 2026-10-02
+Riquadri più alti (448 / 384 px) e, dove il nome non ci sta, un'etichetta
+breve per asse (`short`), come chiede CLAUDE.md. I cluster soft perdono il
+prefisso «Competenze (di)»; la tabella sotto il radar tiene il nome intero.
+
+## Recruiting: intestazione dopo la barra del contesto · 2026-10-02
+La barra Società / Campagna / CIP sta nel layout di Recruiting, sopra la
+pagina; il `PageHeader` è il primo elemento della pagina, quindi viene sotto.
+Alternativa: spostare la barra sotto l'intestazione in ogni pagina. Scelta:
+**lasciarla dov'è**, perché è il contesto di tutto il modulo e non di una
+pagina sola.
+
+## Traduzioni: preset di Recruiting esclusi · 2026-10-02
+I preset (`jd-presets.ts`) e le opzioni come «Hard Skills / Soft Skills» si
+salvano nelle schede come testo. Tradurli cambierebbe i valori e una scheda
+già salvata non ritroverebbe più la sua scelta. È un cambio dei dati salvati,
+quindi resta fuori finché non si decide una migrazione. «Excel import» dei
+candidati si traduce solo a schermo (`sourceLabel`). I dati demo di
+Assessment si traducono nel seed: quelli già nel browser restano inglesi fino
+a «Ripristina demo», e Customer Care riconosce l'area con i due nomi.
+
+## Invio del link: niente reinvii, esito per persona · 2026-10-02
+«Già ricevuto» = voce di preselezione della posizione attiva in stato
+inviato / completato / ha risposto / non ha risposto, oppure inviata in
+automatico. «Link pronto» (link generato ma non spedito, perché manca il
+servizio email) **non** conta come ricevuto: si può ancora inviare. Il backend
+rifiuta comunque il reinvio (409); l'interfaccia lo impedisce prima, con la
+casella disattivata e l'etichetta «Link già inviato».
+
+## Contrasto in scuro dentro le superfici `secondary` · 2026-10-02
+In scuro, sul fondo `secondary` (neutral-700), testo secondario e colori di
+stato scendono sotto 4,5:1. Opzioni: correggere ogni punto, o una regola nel
+tema valida per ogni superficie `bg-secondary` e riga selezionata. Scelta:
+**la regola nel tema**, perché i casi nascono per composizione (un badge dentro
+un riquadro) e non si vedono nel singolo componente. Il testo di stato prende
+`secondary-foreground`: il significato resta affidato a etichetta e icona
+(regola 10).
+
+## Gruppo B: si tengono i termini inglesi · 2026-10-02
+Decisione di Alessio: report, gap, benchmark, feedback e team restano in
+inglese; resta tradotto solo ranking → classifica. Il dizionario di Assessment
+è stato ricostruito dall'ultimo commit con le sole traduzioni del gruppo A,
+per non lasciare voci miste.
+
+## Preset delle schede: tradotti, con conversione all'apertura · 2026-10-02
+Le schede salvate hanno una copia delle proprie voci, quindi tradurre i preset
+non rompe le selezioni. Le schede vecchie però resterebbero in inglese. Scelta:
+**conversione all'apertura** (`convertJdState`, stessa tabella dei preset),
+invece di una migrazione una tantum dei dati salvati. Così non si scrive niente
+finché l'utente non salva, e funziona anche per le schede sul server. Restano
+in inglese nomi propri, sigle, titoli delle posizioni e i termini del gruppo B.
+
+## Original Skills: chiamata di prova senza vedere le credenziali · 2026-10-02
+`railway run --service Backend` inietta le variabili di Railway nel processo:
+la chiave non passa dalla sessione, dai file o dai log. Lo script stampa solo la
+struttura della risposta, mai valori di persone. I due codici azienda passati
+solo come variabile del comando, perché `ORIGINAL_SKILLS_COMPANY_MAP` non è
+ancora impostata: va aggiunta su Railway.
+
+## Fase 8 dietro un interruttore · 2026-10-02
+Opzioni: sostituire subito il login, o costruire il nuovo accanto al vecchio.
+Scelta: **accanto**, con `VITE_AUTH_MODE` (default `legacy`). Il passaggio
+richiede account reali, che dipendono dal cliente, e il ritiro del guscio va
+fatto in un colpo solo con la sua copia. Il backend è compatibile con le due
+strade (token nel corpo o nel cookie).
+
+## Cookie httpOnly: API sulla stessa origine · 2026-10-02
+Frontend e backend su Railway hanno domini diversi, e un cookie
+`SameSite=Strict` non viaggia fra siti diversi. Opzioni: `SameSite=None`
+(cookie di terza parte, bloccato da Safari e in via di blocco altrove, e più
+esposto a CSRF) oppure passare l'API dal server del frontend. Scelta: **proxy
+`/api/*` in serve-combined** (`BACKEND_INTERNAL_URL`), con il cookie limitato a
+`/api/v1/auth`. Refresh e logout via cookie controllano comunque l'origine. Il
+CORS del backend, che oggi rimanda qualunque origine, non serve in questa
+modalità: si potrà restringere al ritiro del guscio.
+
+## Limite ai tentativi in memoria · 2026-10-02
+Nessuna dipendenza nuova: un limitatore a finestra fissa. Vale per
+un'istanza; con più istanze del backend serve un archivio condiviso. `trust
+proxy` è un numero di passaggi e non `true`, perché con `true` il client
+sceglierebbe il proprio IP.
+
+## Account con password pubbliche: disattivati, non cancellati · 2026-10-02
+Opzioni: cancellarli, cambiare loro la password, disattivarli. Cancellarli
+rompe i legami con i dati (CV caricati, campagne, valutazioni). Cambiare la
+password lascia account che nessuno usa. Scelta: **stato DISABLED con revoca
+delle sessioni**, reversibile con `--restore`. In più `/auth/refresh` e
+`/auth/me` ora rifiutano gli account disattivati: prima un refresh token
+ancora valido li teneva aperti per 30 giorni.
+
+## Script nel container, non da fuori · 2026-10-02
+Il Postgres di produzione non è esposto (niente `DATABASE_PUBLIC_URL`), ed è
+giusto che resti così. Gli script girano con `railway ssh` dentro il Backend,
+dalla versione compilata in `dist/scripts`. Così non serve esporre il
+database né portare la sua stringa di connessione su un computer.
+
+## Proxy: si inoltra solo l'IP aggiunto dal bordo · 2026-10-02
+Con tutta la catena `X-Forwarded-For` il backend avrebbe dovuto fidarsi di
+due proxy, e sul suo dominio pubblico (ancora attivo) un client avrebbe
+potuto falsificare l'IP. Inoltrando solo l'ultimo indirizzo, quello del bordo
+di Railway, `TRUST_PROXY_HOPS=1` è corretto su tutte e due le strade.
+Verificato con un IP finto diverso a ogni tentativo.
+
+## Competenze: proposta di adottare le diciture di Original Skills · 2026-10-02
+Proposta, non applicata: serve l'approvazione del cliente. Le diciture
+ufficiali risolvono anche le differenze fra le liste di Assessment e
+Recruiting. Raccomandate: adottare «Sensibilità alla formazione» (la nostra
+dicitura ha il senso rovesciato) e le quattro diciture inglesi come nomi
+propri del test. `ps6` aspetta la risposta di Original Skills.

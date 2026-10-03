@@ -201,7 +201,7 @@ function HardIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
             title={ui.hardMultiSourceTitle}
             axes={hsm.dims.map((d) => ({ key: d.code, label: `${d.code} · ${d.name}` }))}
             series={[
-              { label: 'Benchmark', values: Object.fromEntries(hsm.dims.map((d) => [d.code, 6.5])), reference: true },
+              { label: ui.homeOrgTrendModeBenchmark, values: Object.fromEntries(hsm.dims.map((d) => [d.code, 6.5])), reference: true },
               { label: ui.hardColManager, values: Object.fromEntries(hsm.dims.map((d) => [d.code, d.perSource.resp])) },
               { label: ui.hardColPeer, values: Object.fromEntries(hsm.dims.map((d) => [d.code, d.perSource.peer])) },
               { label: ui.hardColSelf, values: Object.fromEntries(hsm.dims.map((d) => [d.code, d.perSource.auto])) },

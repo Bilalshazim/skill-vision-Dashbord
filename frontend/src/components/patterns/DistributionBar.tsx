@@ -9,7 +9,7 @@ const FILL: Record<DistributionTone, string> = {
   warning: 'bg-warning',
   destructive: 'bg-destructive',
   neutral: 'bg-foreground',
-  muted: 'bg-muted-foreground',
+  muted: 'bg-chart-compare',
 }
 
 // Come si divide un insieme fra fasce (es. i dipendenti per fascia di

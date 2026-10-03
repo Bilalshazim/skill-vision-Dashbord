@@ -246,7 +246,7 @@ export default function AssessmentAnagraficaPage() {
                 </Button>
               ) : (
                 <Button
-                  variant="destructive"
+                  variant="ghost"
                   size="sm"
                   onClick={(ev) => {
                     ev.stopPropagation()
@@ -298,7 +298,7 @@ function ArchiveModal({ employeeId, onClose, onConfirm }: { employeeId: string; 
             {ui.importCancel}
           </Button>
           <Button
-            variant="destructive"
+            variant="default"
             onClick={() => {
               if (reason === 'altro' && !note.trim()) return
               onConfirm(reason, reason === 'altro' ? note.trim() : '')

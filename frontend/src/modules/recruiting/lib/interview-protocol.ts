@@ -12,7 +12,7 @@ import { readInterviewProtocol, writeInterviewProtocol } from '@/modules/recruit
 
 // Domain logic behind the Protocollo di Intervista (modules/recruiting.html
 // "Area Valutatore" — Verbale di Colloquio / Scheda di Valutazione Candidato /
-// Report Finale di Valutazione, ~4392-4821). Role-scoped only (currentRole),
+// Resoconto finale di valutazione, ~4392-4821). Role-scoped only (currentRole),
 // verified (Phase 19, re-verified fresh this phase) to have NO link to
 // candidateId/employeeId/Pipeline/CANDIDATES anywhere in legacy source.
 //
@@ -351,7 +351,7 @@ export function clearIvEval(role: string): void {
 }
 
 // ════════════════════════════════════════════════════════════════
-// Report Finale Valutativo (report)
+// Resoconto finale di valutazione (report)
 // ════════════════════════════════════════════════════════════════
 
 function emptyStep() {

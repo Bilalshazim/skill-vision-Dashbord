@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/patterns/PageHeader'
 import { CheckCircle2, FileCheck2, FileSpreadsheet, FileText, Loader2, Percent, Upload } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -26,7 +27,7 @@ const STEP_LABELS = [
   'Lettura del documento (OCR / estrazione testo)',
   'Estrazione entità: esperienze, ruoli, formazione',
   'Mappatura sulle 35 skill APEX (modello ML)',
-  'Calcolo Match CV/Profilo e inserimento in Pagina A',
+  'Calcolo corrispondenza CV/profilo e inserimento in Migliori Candidati',
 ]
 type StepState = 'pending' | 'run' | 'done'
 
@@ -169,8 +170,8 @@ export default function CvExportPage() {
           : {
               kind: 'success',
               message: backendResult.autoSent
-                ? `${backendResult.candidateName} salvato sul server e link test inviato automaticamente (match ${backendResult.icv}%)`
-                : `${backendResult.candidateName} salvato sul server · match CV/Profilo: ${backendResult.icv}% · in Pagina A`,
+                ? `${backendResult.candidateName} salvato sul server e link test inviato automaticamente (corrispondenza ${backendResult.icv}%)`
+                : `${backendResult.candidateName} salvato sul server · corrispondenza CV/profilo: ${backendResult.icv}% · in Migliori Candidati`,
             },
       )
       void setCvRetentionChoice(backendResult.backendCandidateId, retentionChoice)
@@ -198,8 +199,8 @@ export default function CvExportPage() {
     setUploadFeedback({
       kind: 'success',
       message: (result.autoSent
-        ? `${result.candidateName} aggiunto e link test inviato automaticamente (match ${result.icv}%)`
-        : `Profilo creato · match CV/Profilo: ${result.icv}% · in Pagina A`) + localNote,
+        ? `${result.candidateName} aggiunto e link test inviato automaticamente (corrispondenza ${result.icv}%)`
+        : `Profilo creato · corrispondenza CV/profilo: ${result.icv}% · in Migliori Candidati`) + localNote,
     })
     handleMutated()
   }
@@ -212,154 +213,152 @@ export default function CvExportPage() {
       {/* TOP — header & summary: page identity plus at-a-glance counters,
           so the recruiter sees the state of the archive before touching
           any control below. */}
-      <div className="flex items-center gap-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <FileText className="size-6 text-muted-foreground" aria-hidden="true" />
-        </div>
-        <div>
-          <h2 className="text-app-section font-semibold tracking-tight">Carica CV, esporta dati</h2>
-          <p className="text-app-small text-muted-foreground">
-            Il parsing ML legge il CV e crea il profilo candidato pre-APEX. I dati escono in formati standard per qualsiasi ATS.
-          </p>
-        </div>
-      </div>
+      <PageHeader level="page" className="mb-0" title="Carica CV, esporta dati" description={<>L'analisi automatica legge il CV e crea il profilo candidato pre-APEX. I dati escono in formati standard, leggibili da qualsiasi ATS.</>} />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <StatCard icon={FileText} value={candidates.length} label="CV caricati" />
-        <StatCard icon={Percent} value={avgIcv} label="Match medio (ICV %)" />
-        <StatCard icon={FileCheck2} value={rk.length} label="Pronti per il ranking" />
+        <StatCard icon={Percent} value={avgIcv} label="Corrispondenza media (ICV %)" />
+        <StatCard icon={FileCheck2} value={rk.length} label="Pronti per la classifica" />
       </div>
 
-      {/* MIDDLE — action area: upload, GDPR retention consent, routing,
-          bulk import and export/transfer controls. */}
-      <label
-        className={cn(
-          'flex flex-col items-center gap-2 rounded-lg border-2 border-dashed border-border bg-secondary px-6 py-8 text-center transition-colors',
-          uploading ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-ring hover:bg-primary/5',
-        )}
-      >
-        {uploading ? <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden="true" /> : <Upload className="size-8 text-muted-foreground" aria-hidden="true" />}
-        <h3 className="text-app-section font-semibold">{uploading ? 'Analisi in corso…' : 'Tocca per caricare un CV'}</h3>
-        <p className="text-app-small font-semibold text-muted-foreground">PDF o Word · il sistema estrae dati anagrafici, esperienza e segnali di competenza</p>
-        <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFileChange} disabled={uploading} />
-      </label>
-
-      {/* Client §6 — GDPR retention disclosure, shown once per upload session
-          (retentionChoice persists across uploads in this same page visit).
-          Consent default is 2 years; a candidate can always ask to shorten
-          it to 6 months, which is why this stays a live control rather than
-          a static notice — see setCvRetentionChoice() (lib/backend-sync.ts),
-          which persists it against the real backend Candidate record. */}
-      <div className="flex flex-col gap-2 rounded-sm border border-border bg-secondary/60 px-4 py-3 text-app-caption text-muted-foreground">
-        <p>
-          I dati del CV vengono conservati per <b className="font-semibold text-foreground">2 anni</b> dalla candidatura, salvo revoca. Il
-          candidato può in qualsiasi momento richiedere di limitare la conservazione a <b className="font-semibold text-foreground">6 mesi</b>.
-        </p>
-        <label className="flex w-fit items-center gap-2 text-app-caption font-semibold text-foreground">
-          <span>Conservazione dati:</span>
-          <SelectField
-            value={retentionChoice}
-            onValueChange={(v) => setRetentionChoice(v as 'TWO_YEARS' | 'SIX_MONTHS')}
-            disabled={uploading}
-            size="sm"
+      {/* Caricamento a sinistra, contesto e importazione a destra: blocchi
+          brevi affiancati, non a tutta riga (CLAUDE.md, Fase 6). */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="flex flex-col gap-4">
+          {/* MIDDLE — action area: upload, GDPR retention consent, routing,
+              bulk import and export/transfer controls. */}
+          <label
+            className={cn(
+              'flex flex-col items-center gap-2 rounded-lg border-2 border-dashed border-border bg-secondary px-6 py-8 text-center transition-colors',
+              uploading ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-ring hover:bg-primary/5',
+            )}
           >
-            <option value="TWO_YEARS">2 anni (default)</option>
-            <option value="SIX_MONTHS">6 mesi (su richiesta del candidato)</option>
-          </SelectField>
-        </label>
-      </div>
+            {uploading ? <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden="true" /> : <Upload className="size-8 text-muted-foreground" aria-hidden="true" />}
+            <h3 className="text-app-section font-semibold">{uploading ? 'Analisi in corso…' : 'Tocca per caricare un CV'}</h3>
+            <p className="text-app-small font-semibold text-muted-foreground">PDF o Word · il sistema estrae dati anagrafici, esperienza e segnali di competenza</p>
+            <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFileChange} disabled={uploading} />
+          </label>
 
-      {showProgress && (
-        <Card>
-          <div className="flex flex-col gap-3">
-            {STEP_LABELS.map((label, i) => (
-              <div key={label} className={cn('flex items-center gap-3 text-app-small font-semibold', steps[i] === 'done' ? 'text-foreground' : 'text-muted-foreground')}>
-                <span
-                  className={cn(
-                    'grid size-6 shrink-0 place-items-center rounded-full border-2 text-app-caption',
-                    steps[i] === 'done' && 'border-success bg-success/15 text-success',
-                    steps[i] === 'run' && 'border-primary',
-                    steps[i] === 'pending' && 'border-border',
-                  )}
-                >
-                  {steps[i] === 'done' ? <CheckCircle2 className="size-3.5" aria-hidden="true" /> : steps[i] === 'run' ? <Loader2 className="size-3.5 animate-spin" aria-hidden="true" /> : i + 1}
-                </span>
-                {label}
-              </div>
-            ))}
+          {/* Client §6 — GDPR retention disclosure, shown once per upload session
+              (retentionChoice persists across uploads in this same page visit).
+              Consent default is 2 years; a candidate can always ask to shorten
+              it to 6 months, which is why this stays a live control rather than
+              a static notice — see setCvRetentionChoice() (lib/backend-sync.ts),
+              which persists it against the real backend Candidate record. */}
+          <div className="flex flex-col gap-2 rounded-sm border border-border bg-secondary/60 px-4 py-3 text-app-caption text-muted-foreground dark:text-secondary-foreground">
+            <p>
+              I dati del CV vengono conservati per <b className="font-semibold text-foreground">2 anni</b> dalla candidatura, salvo revoca. Il
+              candidato può in qualsiasi momento richiedere di limitare la conservazione a <b className="font-semibold text-foreground">6 mesi</b>.
+            </p>
+            <label className="flex w-fit items-center gap-2 text-app-caption font-semibold text-foreground">
+              <span>Conservazione dati:</span>
+              <SelectField
+                value={retentionChoice}
+                onValueChange={(v) => setRetentionChoice(v as 'TWO_YEARS' | 'SIX_MONTHS')}
+                disabled={uploading}
+                size="sm"
+              >
+                <option value="TWO_YEARS">2 anni (default)</option>
+                <option value="SIX_MONTHS">6 mesi (su richiesta del candidato)</option>
+              </SelectField>
+            </label>
           </div>
-          {uploadFeedback.kind === 'error' && <p className="mt-3 text-app-small font-medium text-destructive">{uploadFeedback.message}</p>}
-          {uploadFeedback.kind === 'success' && <p className="mt-3 text-app-small font-medium text-success">{uploadFeedback.message}</p>}
-        </Card>
-      )}
 
-      <div className="rounded-lg border border-border bg-secondary p-4">
-        <div className="label-mono mb-3 text-muted-foreground">Routing &amp; Isolation</div>
-        <FieldGrid>
-          <Field label="Company">
-            <SelectField value={company?.id || ''} onValueChange={(v) => handleCompanyChange(v)}>
-              {companies.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </SelectField>
-          </Field>
-          <Field label="Job Opening">
-            <SelectField value={opening?.id || ''} onValueChange={(v) => handleOpeningChange(v)}>
-              {(company?.jobOpenings || []).map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.title}
-                </option>
-              ))}
-            </SelectField>
-          </Field>
-        </FieldGrid>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          {/* "Parse CV & Match" removed — its legacy implementation was dead
-              code (see this file's header comment) and its bridge target
-              (/modules/recruiting.html) no longer exists; the real
-              parse+match+backend flow is the drop zone above. */}
-          {company && opening && (
-            <span className="text-app-caption text-muted-foreground">
-              <b className="font-semibold text-foreground">{company.name}</b> · {opening.title}
-              <br />
-              Profile: <b className="font-semibold text-foreground">{opening.jobProfile?.title || '—'}</b> · Candidate pool:{' '}
-              <b className="font-semibold text-foreground">{opening.candidatePool?.length || 0}</b>
-            </span>
+          {showProgress && (
+            <Card>
+              <div className="flex flex-col gap-3">
+                {STEP_LABELS.map((label, i) => (
+                  <div key={label} className={cn('flex items-center gap-3 text-app-small font-semibold', steps[i] === 'done' ? 'text-foreground' : 'text-muted-foreground')}>
+                    <span
+                      className={cn(
+                        'grid size-6 shrink-0 place-items-center rounded-full border-2 text-app-caption',
+                        steps[i] === 'done' && 'border-success bg-success/15 text-success',
+                        steps[i] === 'run' && 'border-primary',
+                        steps[i] === 'pending' && 'border-border',
+                      )}
+                    >
+                      {steps[i] === 'done' ? <CheckCircle2 className="size-3.5" aria-hidden="true" /> : steps[i] === 'run' ? <Loader2 className="size-3.5 animate-spin" aria-hidden="true" /> : i + 1}
+                    </span>
+                    {label}
+                  </div>
+                ))}
+              </div>
+              {uploadFeedback.kind === 'error' && <p className="mt-3 text-app-small font-medium text-destructive">{uploadFeedback.message}</p>}
+              {uploadFeedback.kind === 'success' && <p className="mt-3 text-app-small font-medium text-success">{uploadFeedback.message}</p>}
+            </Card>
           )}
-        </div>
-      </div>
 
-      <div className="rounded-lg border border-border bg-secondary p-4">
-        <div className="label-mono mb-2 text-muted-foreground">Import massivo · archivio storico</div>
-        <p className="mb-3 text-app-small leading-relaxed text-muted-foreground">
-          Carica in un colpo solo l'intero database di CV esistente (più PDF insieme) nell'archivio della company selezionata sopra. Richiede il
-          servizio di ingestione backend — non disponibile in questa build, resta nell'app corrente.
-        </p>
-        {/* No backend ingest route exists (POST /api/ingest/bulk was never
-            implemented — verified against backend/src), and the old bridge
-            target (/modules/recruiting.html) no longer exists — so this is
-            an honest DISABLED control, never a dead link or a fake upload. */}
-        <Hint label="Il servizio di ingestione backend non è disponibile in questa build">
-          <Button
-            type="button"
-            disabled
-            aria-disabled="true"
-            variant="outline"
-            size="sm"
-          >
-            <FileSpreadsheet className="size-3.5 shrink-0" aria-hidden="true" />
-            Seleziona più CV (PDF)…
-          </Button>
-        </Hint>
+        </div>
+        <div className="flex flex-col gap-4">
+          <div className="rounded-lg border border-border bg-secondary p-4">
+            <div className="label-mono mb-3 text-muted-foreground">Posizione e archivio</div>
+            <FieldGrid>
+              <Field label="Società">
+                <SelectField value={company?.id || ''} onValueChange={(v) => handleCompanyChange(v)}>
+                  {companies.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </SelectField>
+              </Field>
+              <Field label="Posizione aperta">
+                <SelectField value={opening?.id || ''} onValueChange={(v) => handleOpeningChange(v)}>
+                  {(company?.jobOpenings || []).map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.title}
+                    </option>
+                  ))}
+                </SelectField>
+              </Field>
+            </FieldGrid>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              {/* "Parse CV & Match" removed — its legacy implementation was dead
+                  code (see this file's header comment) and its bridge target
+                  (/modules/recruiting.html) no longer exists; the real
+                  parse+match+backend flow is the drop zone above. */}
+              {company && opening && (
+                <span className="text-app-caption text-muted-foreground">
+                  <b className="font-semibold text-foreground">{company.name}</b> · {opening.title}
+                  <br />
+                  Profilo: <b className="font-semibold text-foreground">{opening.jobProfile?.title || '—'}</b> · Candidati in archivio:{' '}
+                  <b className="font-semibold text-foreground">{opening.candidatePool?.length || 0}</b>
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-border bg-secondary p-4 flex-1">
+            <div className="label-mono mb-2 text-muted-foreground">Import massivo · archivio storico</div>
+            <p className="mb-3 text-app-small leading-relaxed text-muted-foreground">
+              Carica in un colpo solo l'intero archivio di CV esistente (più PDF insieme) per la società selezionata sopra. Non ancora disponibile in
+              questa versione.
+            </p>
+            {/* No backend ingest route exists (POST /api/ingest/bulk was never
+                implemented — verified against backend/src), and the old bridge
+                target (/modules/recruiting.html) no longer exists — so this is
+                an honest DISABLED control, never a dead link or a fake upload. */}
+            <Hint label="Il servizio di ingestione backend non è disponibile in questa build">
+              <Button
+                type="button"
+                disabled
+                aria-disabled="true"
+                variant="outline"
+                size="sm"
+              >
+                <FileSpreadsheet className="size-3.5 shrink-0" aria-hidden="true" />
+                Seleziona più CV (PDF)…
+              </Button>
+            </Hint>
+          </div>
+        </div>
       </div>
 
       <div>
         <div className="mb-2 text-app-small font-semibold">Esporta o trasferisci</div>
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" onClick={() => downloadRankingCsv(rk)} className={primaryBtnClass}>
-            Scarica ranking (CSV)
+            Scarica classifica (CSV)
           </button>
           <button type="button" onClick={() => downloadRankingJson(rk)} className={goldBtnClass}>
             Profili completi (JSON per ATS)
@@ -372,7 +371,7 @@ export default function CvExportPage() {
       </div>
 
       <p className="text-app-small leading-relaxed text-muted-foreground">
-        Nota demo: il parsing è simulato con dati realistici. In produzione il modello ML legge il documento reale; nessun dato lascia l'ambiente del
+        Nota demo: l'analisi del CV è simulata con dati realistici. In produzione il modello ML legge il documento reale; nessun dato lascia l'ambiente del
         cliente senza autorizzazione.
       </p>
 

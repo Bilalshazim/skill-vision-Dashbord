@@ -1,4 +1,5 @@
-import { Sigma } from 'lucide-react'
+import { PageHeader } from '@/components/patterns/PageHeader'
+import { fmtDec } from '@/lib/format'
 import { useMemo } from 'react'
 
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
@@ -24,23 +25,15 @@ export default function MetodoPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <Sigma className="size-6 text-muted-foreground" aria-hidden="true" />
-        </div>
-        <div>
-          <h2 className="text-app-section font-semibold tracking-tight">Come decide il sistema?</h2>
-          <p className="text-app-small text-muted-foreground">Le formule del ranking, spiegate a chi firma l'assunzione. Nessuna scatola nera.</p>
-        </div>
-      </div>
+      <PageHeader level="page" className="mb-0" title="Come decide il sistema?" description={<>Le formule della classifica, spiegate a chi firma l'assunzione. Nessuna scatola nera.</>} />
 
       <Card>
         <h3 className="flex items-center gap-2 text-app-small font-semibold">
-          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-app-caption text-muted-foreground">1</span>
-          Fit Competenze — FC (peso 55%)
+          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-app-caption text-muted-foreground dark:text-secondary-foreground">1</span>
+          Aderenza alle competenze — FC (peso 55%)
         </h3>
         <p className="mt-2 text-app-small leading-relaxed text-muted-foreground">
-          Misura quanto il candidato copre le skill che <b className="font-semibold text-foreground">tu hai flaggato</b> per il ruolo. Ogni skill ha un
+          Misura quanto il candidato copre le skill che <b className="font-semibold text-foreground">hai selezionato</b> per il ruolo. Ogni skill ha un
           peso (Essenziale=3, Importante=2, Utile=1) e un target minimo sulla scala APEX /31.
         </p>
         <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-app-body font-semibold text-foreground">
@@ -55,7 +48,7 @@ export default function MetodoPage() {
           {top ? (
             <>
               <b className="font-semibold text-foreground">Esempio con i dati reali di oggi</b> — {top.c.name}, ruolo {DEFAULT_ROLE}: FC ={' '}
-              <b className="font-semibold text-foreground">{top.r.fc}</b>. Significa che copre il {top.r.fc}% del profilo che hai flaggato, con le
+              <b className="font-semibold text-foreground">{fmtDec(top.r.fc)}</b>. Significa che copre il {fmtDec(top.r.fc)}% del profilo che hai flaggato, con le
               essenziali che pesano il triplo delle utili.
             </>
           ) : (
@@ -66,7 +59,7 @@ export default function MetodoPage() {
 
       <Card>
         <h3 className="flex items-center gap-2 text-app-small font-semibold">
-          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-app-caption text-muted-foreground">2</span>
+          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-app-caption text-muted-foreground dark:text-secondary-foreground">2</span>
           Affinità Big Five — AB (peso 30%)
         </h3>
         <p className="mt-2 text-app-small leading-relaxed text-muted-foreground">
@@ -79,14 +72,14 @@ export default function MetodoPage() {
         <p className="text-app-small leading-relaxed text-muted-foreground">
           <b className="font-semibold text-foreground">P</b>ₖ = percentile del candidato sul fattore k (Estroversione, Coscienziosità, Apertura,
           Amicalità, Stabilità emotiva) · <b className="font-semibold text-foreground">I</b>ₖ = percentile ideale del ruolo. I sottofattori (3 per
-          fattore nella demo) spiegano il "perché" del punteggio e compaiono nel dettaglio candidato.
+          fattore) spiegano il "perché" del punteggio e compaiono nel dettaglio candidato.
         </p>
         <p className="mt-3 text-app-small leading-relaxed text-muted-foreground">
           {top ? (
             <>
               <b className="font-semibold text-foreground">Esempio</b> — {top.c.name}: distanze per fattore{' '}
               {BF.map((k) => `|${top.c.bf[k]}−${ROLES[DEFAULT_ROLE].bf[k]}|=${Math.abs(top.c.bf[k] - ROLES[DEFAULT_ROLE].bf[k])}`).join(' · ')} → media{' '}
-              {(BF.reduce((a, k) => a + Math.abs(top.c.bf[k] - ROLES[DEFAULT_ROLE].bf[k]), 0) / 5).toFixed(1)} → AB = <b className="font-semibold text-foreground">{top.r.ab}</b>.
+              {fmtDec(BF.reduce((a, k) => a + Math.abs(top.c.bf[k] - ROLES[DEFAULT_ROLE].bf[k]), 0) / 5, 1)} → AB = <b className="font-semibold text-foreground">{fmtDec(top.r.ab)}</b>.
             </>
           ) : (
             emptyExampleText
@@ -96,25 +89,25 @@ export default function MetodoPage() {
 
       <Card>
         <h3 className="flex items-center gap-2 text-app-small font-semibold">
-          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-app-caption text-muted-foreground">3</span>
+          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-app-caption text-muted-foreground dark:text-secondary-foreground">3</span>
           Indice CV — ICV (peso 15%)
         </h3>
         <p className="mt-2 text-app-small leading-relaxed text-muted-foreground">
-          Prodotto dal parsing ML del curriculum: anni di esperienza pertinente, coerenza del percorso, settore, segnali di competenza nel testo. Serve
+          Prodotto dall'analisi automatica del curriculum: anni di esperienza pertinente, coerenza del percorso, settore, segnali di competenza nel testo. Serve
           da contesto, non da giudice: per questo pesa solo il 15%.
         </p>
         <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-app-body font-semibold text-foreground">
-          ICV = 0.5·Esperienza + 0.3·Coerenza + 0.2·Settore &nbsp;(scala 0–100)
+          ICV = 0,5·Esperienza + 0,3·Coerenza + 0,2·Settore &nbsp;(scala 0–100)
         </div>
       </Card>
 
       <Card>
         <h3 className="flex items-center gap-2 text-app-small font-semibold">
-          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-app-caption text-muted-foreground">4</span>
+          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-app-caption text-muted-foreground dark:text-secondary-foreground">4</span>
           APEX Hiring Index — la classifica
         </h3>
         <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-app-body font-semibold text-foreground">
-          AHI = 0.55 · FC + 0.30 · AB + 0.15 · ICV
+          AHI = 0,55 · FC + 0,30 · AB + 0,15 · ICV
         </div>
         <p className="text-app-small leading-relaxed text-muted-foreground">
           <b className="font-semibold text-foreground">Regola di sbarramento (red flag):</b> se anche una sola skill{' '}
@@ -153,12 +146,12 @@ export default function MetodoPage() {
 
       <Card>
         <h3 className="flex items-center gap-2 text-app-small font-semibold">
-          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-app-caption text-muted-foreground">5</span>
+          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary font-mono text-app-caption text-muted-foreground dark:text-secondary-foreground">5</span>
           Compatibilità Interna — CI (il match con i tuoi)
         </h3>
         <p className="mt-2 text-app-small leading-relaxed text-muted-foreground">
           Confronta il candidato con il <b className="font-semibold text-foreground">benchmark interno</b>: il dipendente già valutato APEX che
-          performa meglio nel ruolo. Si calcola solo sulle skill flaggate, pesate.
+          performa meglio nel ruolo. Si calcola solo sulle competenze selezionate, pesate.
         </p>
         <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-app-small font-semibold text-foreground">
           CI = 100 − [ Σᵢ wᵢ · |Sᵢᶜᵃⁿᵈ − Sᵢᵇᵉⁿᶜʰ| / (Σᵢ wᵢ · 31) ] × 100

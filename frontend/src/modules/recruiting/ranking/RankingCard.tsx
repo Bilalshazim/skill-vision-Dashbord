@@ -1,6 +1,8 @@
+import { fmtDec } from '@/lib/format'
 import { AlertTriangle, ArrowLeftRight, ChevronDown, Download, FileJson } from 'lucide-react'
 import { useState } from 'react'
 
+import { sourceLabel } from '@/modules/recruiting/lib/format'
 import { cn } from '@/lib/utils'
 import { EssentialSkillBars } from '@/modules/recruiting/components/EssentialSkillBars'
 import { Card } from '@/components/ui/card'
@@ -65,7 +67,7 @@ export function RankingCard({
         <div
           className={cn(
             'grid size-12 shrink-0 place-items-center rounded-sm font-mono text-app-section font-semibold tabular-nums',
-            position === 1 ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground',
+            position === 1 ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground dark:text-secondary-foreground',
           )}
         >
           {position}
@@ -73,11 +75,11 @@ export function RankingCard({
 
         <div className="min-w-0">
           <div className="truncate text-app-body font-semibold">{candidate.name}</div>
-          <div className="text-app-small font-semibold text-muted-foreground">{candidate.src}</div>
+          <div className="text-app-small font-semibold text-muted-foreground">{sourceLabel(candidate.src)}</div>
         </div>
 
         <div className="hidden text-right sm:block">
-          <div className="font-mono text-metric-lg font-semibold leading-none tabular-nums text-foreground">{result.v}</div>
+          <div className="font-mono text-metric-lg font-semibold leading-none tabular-nums text-foreground">{fmtDec(result.v)}</div>
           <ScoreBadge fascia={f} className="mt-1 block" />
         </div>
 
@@ -87,7 +89,7 @@ export function RankingCard({
       {/* Score repeats on its own row on narrow screens — the header grid
           hides it above md to keep the header from wrapping awkwardly. */}
       <div className="mt-3 flex items-center justify-between sm:hidden">
-        <div className="font-mono text-app-title font-semibold tabular-nums">{result.v}</div>
+        <div className="font-mono text-app-title font-semibold tabular-nums">{fmtDec(result.v)}</div>
         <ScoreBadge fascia={f} />
       </div>
 
@@ -119,7 +121,7 @@ export function RankingCard({
           {hardFlags.length > 0 && (
             <p className="mt-4 flex items-start gap-2 text-app-small font-semibold text-destructive">
               <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-              Sbarramento attivo: {hardFlags.map((x) => `${x.sk} (${x.s.toFixed(1)} vs target ${x.t})`).join(' · ')} — AHI
+              Sbarramento attivo: {hardFlags.map((x) => `${x.sk} (${fmtDec(x.s)} vs target ${x.t})`).join(' · ')} — AHI
               bloccato a 59.
             </p>
           )}

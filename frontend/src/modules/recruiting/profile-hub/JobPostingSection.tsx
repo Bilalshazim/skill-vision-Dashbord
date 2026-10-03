@@ -60,7 +60,7 @@ export function JobPostingSection() {
   function handleClearUrl() {
     setUrl('')
     setOpen(false)
-    setMessage(`Job Posting rimosso per "${DEFAULT_ROLE}"`)
+    setMessage(`Annuncio rimosso per "${DEFAULT_ROLE}"`)
   }
 
   function handleSaveUrl() {
@@ -75,7 +75,7 @@ export function JobPostingSection() {
     }
     setUrl(v)
     setOpen(false)
-    setMessage('Job Posting salvato')
+    setMessage('Annuncio salvato')
     window.open(v, '_blank', 'noopener')
   }
 
@@ -109,7 +109,7 @@ export function JobPostingSection() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Megaphone className="size-4 shrink-0" aria-hidden="true" />
-              Job Posting
+              Annuncio
             </DialogTitle>
             <DialogDescription>
               Posizione: <b className="font-semibold text-foreground">&quot;{DEFAULT_ROLE}&quot;</b> — incolla il link dell&apos;annuncio (LinkedIn, Indeed, sito aziendale)

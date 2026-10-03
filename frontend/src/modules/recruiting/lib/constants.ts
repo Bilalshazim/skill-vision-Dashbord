@@ -51,7 +51,7 @@ export const DEFAULT_MATCH_THRESHOLD = 70
 // searches across all 35, not just the currently-flagged ones.
 // Ported verbatim from modules/recruiting.html line 1377 — the same 35
 // skills as SKILLS above, grouped into the 5 labeled columns the legacy
-// soft-skill picker (renderSkillsInto(), "Le 35 soft skill APEX 5D" modal)
+// soft-skill picker (renderSkillsInto(), "Le 35 competenze trasversali APEX 5D" modal)
 // renders them in. Phase 20 (Profilo della ricerca hub) needs this grouping
 // for its read-only soft-skill display; nothing before it did.
 export const SKILL_MATRIX: { label: string; full: string; items: string[] }[] = [

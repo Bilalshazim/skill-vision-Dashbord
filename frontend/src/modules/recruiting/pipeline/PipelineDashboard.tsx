@@ -23,7 +23,7 @@ export function PipelineDashboard({
       <EmptyState
         size="sm"
         icon={Workflow}
-        description="Nessuna posizione aperta. Configura un job opening dalla pagina CV & Export (Routing & Isolation)."
+        description="Nessuna posizione aperta. Aprine una dalla pagina CV & Esportazione (Posizione e archivio)."
       />
     )
   }

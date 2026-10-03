@@ -1,31 +1,13 @@
-import { useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 
 import { ModuleLockGate } from '@/components/ModuleLockGate'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { AppShell } from '@/layouts/AppShell'
+import { AuthGuard } from '@/layouts/AuthGuard'
 import { AssessmentNav } from '@/modules/assessment/components/AssessmentNav'
 import { AssessmentProvider, useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { getPageMeta } from '@/modules/assessment/lib/legacy-utils'
-import { SHELL_ENTRY_URL, isShellAuthenticated } from '@/modules/assessment/lib/shell-bridge'
 import '@/modules/assessment/styles/assessment-print.css'
-
-// AUTH — no second login. If the shell's own login (index.html) was never
-// completed this session (`sessionStorage.sv_shell_auth !== '1'`), this
-// redirects to the shell instead of rendering anything, mirroring exactly
-// what a direct, unauthenticated visit to the legacy iframe URL would leave
-// the user looking at: the real login, not a React approximation of one.
-function AssessmentAuthGuard({ children }: { children: React.ReactNode }) {
-  const [authed, setAuthed] = useState<boolean | null>(null)
-  useEffect(() => {
-    setAuthed(isShellAuthenticated())
-  }, [])
-  useEffect(() => {
-    if (authed === false) window.location.replace(SHELL_ENTRY_URL)
-  }, [authed])
-  if (authed !== true) return null
-  return <>{children}</>
-}
 
 // Assessment nel guscio unico (Fase 4): lo stesso AppShell di Recruiting,
 // con la barra laterale del modulo. Il vecchio tema del modulo
@@ -54,10 +36,10 @@ function AssessmentShell() {
 
 export default function AssessmentLayout() {
   return (
-    <AssessmentAuthGuard>
+    <AuthGuard>
       <AssessmentProvider>
         <AssessmentShell />
       </AssessmentProvider>
-    </AssessmentAuthGuard>
+    </AuthGuard>
   )
 }

@@ -10,8 +10,8 @@ export function BackendStatusBanner({ status }: { status: BackendSessionState['s
   if (status !== 'unavailable') return null
   return (
     <InlineAlert className="mb-4">
-      Impossibile collegarsi al server Recruiting — i dati mostrati potrebbero essere locali/non aggiornati e le azioni che richiedono il backend
-      (caricamento CV, invio link test, valutatori) non sono disponibili al momento. Riprova più tardi o contatta l&apos;amministratore.
+      Il server di Recruiting non risponde. I dati mostrati potrebbero non essere aggiornati, e caricamento dei CV, invio del link test e
+      valutatori tornano disponibili quando la connessione riprende. Riprova più tardi o contatta l&apos;amministratore.
     </InlineAlert>
   )
 }

@@ -1,4 +1,5 @@
-import { ArrowLeftRight, FileSpreadsheet } from 'lucide-react'
+import { PageHeader } from '@/components/patterns/PageHeader'
+import { FileSpreadsheet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { LegacyBridgeButton } from '@/modules/recruiting/components/LegacyBridgeButton'
@@ -53,19 +54,11 @@ export default function MatchPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <ArrowLeftRight className="size-6 text-muted-foreground" aria-hidden="true" />
-        </div>
-        <div>
-          <h2 className="text-app-section font-semibold tracking-tight">Confronto candidati &amp; talenti interni</h2>
-          <p className="text-app-small text-muted-foreground">Seleziona fino a 2 candidati e 5 talenti interni per confrontarli sullo stesso schermo.</p>
-        </div>
-      </div>
+      <PageHeader level="page" className="mb-0" title={<>Confronto candidati &amp; talenti interni</>} description={<>Seleziona fino a 2 candidati e 5 talenti interni per confrontarli sullo stesso schermo.</>} />
 
       {noCandidates ? (
         <p className="py-6 text-app-small text-muted-foreground">
-          Nessun candidato in archivio. Carica i primi CV dalla pagina <b className="font-semibold text-foreground">CV & Export</b> per confrontarli
+          Nessun candidato in archivio. Carica i primi CV dalla pagina <b className="font-semibold text-foreground">CV & Esportazione</b> per confrontarli
           con i vostri talenti interni.
         </p>
       ) : (

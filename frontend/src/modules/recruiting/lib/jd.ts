@@ -2,6 +2,7 @@ import { DEFAULT_FLAGS, SKILLS } from '@/modules/recruiting/lib/constants'
 import { JD_GEN_DISPONIBILITA, JD_GEN_LINGUE, JD_GEN_SETTORI, JD_GEN_TITOLI, JD_GEN_VALUTAZIONE, JD_LANG_LEVELS, JD_PROFILES } from '@/modules/recruiting/lib/jd-presets'
 import type { JdPresetId } from '@/modules/recruiting/lib/jd-presets'
 import type { JdExtraRow, JdHardSkillGroup, JdItemCheck, JdItemLevel, JdItemTool, JdItemValue, JdState, SalaryBenefitsRecord, SalaryLevelRecord } from '@/modules/recruiting/lib/jd-types'
+import { convertJdState } from '@/modules/recruiting/lib/jd-preset-translations'
 import { readJdTemplates, readJobPostingSummaries, readSalaryBenefits, writeJdTemplates, writeJobPostingSummaries, writeSalaryBenefits } from '@/modules/recruiting/lib/storage'
 
 // Migrated from modules/recruiting.html's "JOB DESCRIPTION EDITOR (embedded)"
@@ -74,7 +75,7 @@ export function buildJdStateFromPreset(presetId: JdPresetId): JdState {
     sections: {
       responsabilita: { label: 'Responsabilità', kind: 'check', items: mkCheck(p.responsabilita) },
       attivita: { label: 'Attività principali', kind: 'check', items: mkCheck(p.attivita) },
-      softSkills: { label: 'Soft skills', kind: 'value', items: [] },
+      softSkills: { label: 'Competenze trasversali', kind: 'value', items: [] },
       competenzeTecniche: { label: 'Competenze tecniche (tool)', kind: 'tool', items: mkTool(p.tools) },
       titoliStudio: { label: 'Titoli di studio accettati', kind: 'check', items: mkCheck(JD_GEN_TITOLI) },
       certificazioni: { label: 'Certificazioni preferenziali', kind: 'check', items: mkCheck(p.certificazioni) },
@@ -156,7 +157,9 @@ export function loadJdTemplate(role: string): JdState | null {
   const templates = readJdTemplates()
   const tmpl = templates[role]
   if (!tmpl) return null
-  const cloned: JdState = JSON.parse(JSON.stringify(tmpl))
+  // Le voci dei preset salvate prima della traduzione si aprono in italiano
+  // (jd-preset-translations.ts); il dato salvato cambia al prossimo salvataggio.
+  const cloned: JdState = convertJdState(tmpl)
   if (cloned.header) cloned.header.titolo = cloned.header.titolo || cloned.header.title || role
   return cloned
 }

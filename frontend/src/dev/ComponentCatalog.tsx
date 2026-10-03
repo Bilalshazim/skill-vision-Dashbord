@@ -55,6 +55,7 @@ import { useDirty } from '@/hooks/use-dirty'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { LoginForm } from '@/components/patterns/LoginForm'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -532,8 +533,8 @@ function HomeCardsDemo() {
         }
         panel={
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <StatCard tone="accent" size="lg" icon={Gauge} label="Punteggio complessivo" value="60%" unit="/100" progress={60} />
-            <StatCard icon={Target} label="Copertura ruoli" value="93%" unit="/100" progress={93} />
+            <StatCard tone="accent" size="lg" icon={Gauge} label="Punteggio complessivo" value="60%" progress={60} />
+            <StatCard icon={Target} label="Copertura ruoli" value="93%" progress={93} />
           </div>
         }
       />
@@ -1067,11 +1068,11 @@ const ENTRIES: Entry[] = [
       <>
         <Row label="Toni — neutral · accent (uno solo per gruppo) · fasce con la parola">
           <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
-            <StatCard icon={Target} label="Copertura ruoli" value="93%" unit="/100" progress={93} />
-            <StatCard tone="accent" icon={Gauge} label="Punteggio complessivo" value="60%" unit="/100" progress={60} />
-            <StatCard tone="success" label="Livello ottimale" value="17%" note="Verde" progress={17} />
-            <StatCard tone="warning" label="Livello moderato" value="52%" note="Giallo" progress={52} />
-            <StatCard tone="destructive" label="Livello critico" value="31%" note="Rosso" progress={31} />
+            <StatCard icon={Target} label="Copertura ruoli" value="93%" progress={93} />
+            <StatCard tone="accent" icon={Gauge} label="Punteggio complessivo" value="60%" progress={60} />
+            <StatCard tone="success" label="Livello ottimale" value="17%" progress={17} />
+            <StatCard tone="warning" label="Livello moderato" value="52%" progress={52} />
+            <StatCard tone="destructive" label="Livello critico" value="31%" progress={31} />
             <StatCard tone="destructive" icon={MapPin} valueKind="text" label="Area più critica" value="Customer Service" note="Gap -1,7" />
           </div>
         </Row>
@@ -1340,15 +1341,15 @@ const ENTRIES: Entry[] = [
       <div className="grid w-full grid-cols-1 gap-6">
         <Row label="ScoreGauge e CompletionRing, dentro uno StatCard">
           <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-            <StatCard tone="accent" size="lg" icon={Gauge} label="Punteggio complessivo" value="60%" unit="/100">
+            <StatCard tone="accent" size="lg" icon={Gauge} label="Punteggio complessivo" value="60%">
               <ScoreGauge value={60} label="Punteggio complessivo" />
             </StatCard>
-            <StatCard icon={Target} label="Copertura mansioni" value="93%" unit="/100">
+            <StatCard icon={Target} label="Copertura mansioni" value="93%">
               <CompletionRing value={93} label="Copertura mansioni" />
             </StatCard>
           </div>
         </Row>
-        <Row label="ScatterMatrix — un punto per persona, colore della fascia con il nome">
+        <Row label="ScatterMatrix — forma e colore per fascia, soglie diagonali (indice = media dei due assi)">
           <div className="w-full">
             <ScatterMatrix
               title="Matrice di classificazione"
@@ -1357,10 +1358,19 @@ const ENTRIES: Entry[] = [
               groups={[
                 { key: 'top', label: 'Top Talent', color: 'var(--foreground)' },
                 { key: 'val', label: 'Talento da valorizzare', color: 'var(--success)' },
-                { key: 'ade', label: 'Persona adeguata', color: 'var(--muted-foreground)' },
+                { key: 'ade', label: 'Persona adeguata', color: 'var(--chart-compare)' },
                 { key: 'cri', label: 'Persona critica', color: 'var(--destructive)' },
               ]}
-              points={PEOPLE.map((p, i) => ({ id: p.id, label: `${p.nome} ${p.cognome}`, x: p.score, y: [3.4, 6.1, 7.2, 5.9, 8.4][i], group: p.score >= 8 ? 'top' : p.score >= 7 ? 'val' : p.score >= 5 ? 'ade' : 'cri' }))}
+              points={PEOPLE.map((p, i) => {
+                const y = [3.4, 6.1, 7.2, 5.9, 8.4][i]
+                const idx = (p.score + y) / 2
+                return { id: p.id, label: `${p.nome} ${p.cognome}`, x: p.score, y, group: idx >= 8 ? 'top' : idx >= 7 ? 'val' : idx >= 5 ? 'ade' : 'cri' }
+              })}
+              thresholds={[
+                { value: 8, label: 'Top Talent' },
+                { value: 7, label: 'Talento da valorizzare' },
+                { value: 5, label: 'Persona adeguata' },
+              ]}
               onPointClick={(id) => toast(`Apre la scheda ${id}`)}
             />
           </div>
@@ -1373,6 +1383,28 @@ const ENTRIES: Entry[] = [
     level: 'Pattern',
     source: 'components/patterns/SendTestLinkBar.tsx · DataTable (selection)',
     render: () => <SendTestLinkDemo />,
+  },
+  {
+    name: 'Accesso',
+    level: 'Pattern',
+    source: 'components/patterns/LoginForm.tsx · pages/LoginPage.tsx (Fase 8)',
+    render: () => (
+      <div className="flex flex-col gap-6">
+        <Row label="Vuoto — il bottone si accende con email e password">
+          <LoginForm onSubmit={(email) => toast(`Accesso di ${email}`)} />
+        </Row>
+        <Row label="Credenziali errate — non dice se l'email esiste">
+          <LoginForm onSubmit={() => undefined} error={{ kind: 'invalid' }} />
+        </Row>
+        <Row label="Troppi tentativi — dice fra quanto riprovare (Retry-After)">
+          <LoginForm onSubmit={() => undefined} error={{ kind: 'locked', retryAfterSec: 840 }} />
+        </Row>
+        <Row label="In corso e server non raggiungibile">
+          <LoginForm onSubmit={() => undefined} pending />
+          <LoginForm onSubmit={() => undefined} error={{ kind: 'network' }} />
+        </Row>
+      </div>
+    ),
   },
 ]
 

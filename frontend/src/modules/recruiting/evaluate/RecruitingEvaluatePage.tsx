@@ -1,4 +1,4 @@
-import { ClipboardList } from 'lucide-react'
+import { PageHeader } from '@/components/patterns/PageHeader'
 
 import { EvaluatorWorkspace } from '@/modules/recruiting/evaluate/EvaluatorWorkspace'
 
@@ -13,15 +13,7 @@ import { EvaluatorWorkspace } from '@/modules/recruiting/evaluate/EvaluatorWorks
 export default function RecruitingEvaluatePage() {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <ClipboardList className="size-6 text-muted-foreground" aria-hidden="true" />
-        </div>
-        <div>
-          <h2 className="text-app-section font-semibold tracking-tight">Le mie valutazioni</h2>
-          <p className="max-w-[70ch] text-app-small text-muted-foreground">Candidature che ti sono state assegnate come valutatore.</p>
-        </div>
-      </div>
+      <PageHeader level="page" className="mb-0" title="Le mie valutazioni" description="Candidature che ti sono state assegnate come valutatore." />
       <EvaluatorWorkspace />
     </div>
   )

@@ -49,7 +49,7 @@ export function EvaluatorAreaCard() {
           its own subcard rather than folded into the 3 above: those remain
           the pre-existing role-scoped, single-evaluator local forms
           (Scheda Intervista/Valutazione/Report), genuinely unrelated data. */}
-      <Subcard icon={Users} label="Valutatori (backend)" value="Gestione multi-valutatore">
+      <Subcard icon={Users} label="Valutatori" value="Gestione multi-valutatore">
         <EvaluatorsBackendPanel />
       </Subcard>
     </div>

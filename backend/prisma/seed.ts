@@ -9,6 +9,13 @@ import { hashPassword } from '../src/lib/password.js'
 const prisma = new PrismaClient()
 
 async function main() {
+  // Fase 8 — il seed crea account con password pubbliche (admin123, acme123):
+  // in produzione no. Per un ambiente di prova con dati finti si può forzare
+  // con SEED_ALLOW_PRODUCTION=1, sapendo che quegli account vanno poi chiusi
+  // (scripts/secure-demo-accounts.ts).
+  if (process.env.NODE_ENV === 'production' && process.env.SEED_ALLOW_PRODUCTION !== '1') {
+    throw new Error('Seed rifiutato in produzione: crea account con password pubbliche. Vedi prisma/seed.ts.')
+  }
   const platform = await prisma.platform.upsert({
     where: { id: '00000000-0000-0000-0000-000000000001' },
     update: {},

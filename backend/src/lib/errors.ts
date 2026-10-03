@@ -59,3 +59,10 @@ export class BadGatewayError extends AppError {
     super(502, 'bad_gateway', message)
   }
 }
+// Fase 8 — troppi tentativi di login. Il route imposta Retry-After prima di
+// lanciarlo: il frontend dice all'utente fra quanto riprovare.
+export class TooManyRequestsError extends AppError {
+  constructor(message = 'Too many attempts, try again later') {
+    super(429, 'too_many_requests', message)
+  }
+}

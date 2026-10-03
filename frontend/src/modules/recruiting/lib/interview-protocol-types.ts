@@ -74,7 +74,7 @@ export type IvEvalRecord = {
   savedAt: number
 }
 
-// ── Report Finale Valutativo (report) ──
+// ── Resoconto finale di valutazione (report) ──
 export type IvReportStep = { date: string; interlocutore: string; esito: string }
 export type IvReportAggregate = {
   tec: string

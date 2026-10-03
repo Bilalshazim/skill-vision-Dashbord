@@ -2,7 +2,7 @@ import { Award, Wrench } from 'lucide-react'
 
 import { NavCard } from '@/components/patterns/NavCard'
 import { Badge } from '@/components/ui/badge'
-import { Card } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { getApex5dDimensions } from '@/modules/assessment/lib/legacy-utils'
 
@@ -15,13 +15,17 @@ export default function AssessmentHardOverviewPage() {
   const employeeCount = state.employees.length
 
   return (
-    <div className="flex flex-col gap-5">
-      <Card className="p-6">
-        <h3 className="mb-2">{lang === 'it' ? 'Cosa sono le Competenze Professionali' : 'What Professional Competencies are'}</h3>
+    // Introduzione e accessi affiancati: il testo è breve, non serve la riga
+    // intera (CLAUDE.md, Fase 6). Le due card di accesso si impilano a destra.
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle>{lang === 'it' ? 'Cosa sono le Competenze Professionali' : 'What Professional Competencies are'}</CardTitle>
+        </CardHeader>
         <p className="text-muted-foreground leading-relaxed">
           {lang === 'it'
-            ? 'Le Competenze Professionali (Hard Skill) descrivono COSA una persona sa fare tecnicamente nel proprio ruolo. Il protocollo APEX 5D le misura su 5 dimensioni, con valutazione multi-source (responsabile, colleghi, autovalutazione).'
-            : 'Professional Competencies (Hard Skills) describe WHAT a person can technically do in their role. The APEX 5D protocol measures them across 5 dimensions, with multi-source evaluation (manager, peers, self-assessment).'}
+            ? 'Le Competenze Professionali (Hard Skill) descrivono cosa una persona sa fare tecnicamente nel proprio ruolo. Il protocollo APEX 5D le misura su 5 dimensioni, con valutazione multi-source (responsabile, colleghi, autovalutazione).'
+            : 'Professional Competencies (Hard Skills) describe what a person can technically do in their role. The APEX 5D protocol measures them across 5 dimensions, with multi-source evaluation (manager, peers, self-assessment).'}
         </p>
         <div className="flex flex-wrap gap-2 mt-4">
           {dimensions.map((d) => (
@@ -32,9 +36,9 @@ export default function AssessmentHardOverviewPage() {
         </div>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="flex flex-col gap-4">
         <NavCard to="/assessment/hard" icon={Wrench} title={lang === 'it' ? 'Area Valutazioni Professionali' : 'Professional Evaluation Area'} description={lang === 'it' ? 'Inserisci una nuova valutazione per un dipendente' : 'Enter a new evaluation for an employee'} />
-        <NavCard to="/assessment/hard-risultati" icon={Award} title={lang === 'it' ? 'Risultati Valutazioni Professionali' : 'Professional Evaluation Results'} description={lang === 'it'
+        <NavCard className="flex-1" to="/assessment/hard-risultati" icon={Award} title={lang === 'it' ? 'Risultati Valutazioni Professionali' : 'Professional Evaluation Results'} description={lang === 'it'
                   ? `Classifiche, gap e confronti su ${employeeCount} dipendenti`
                   : `Rankings, gaps and comparisons across ${employeeCount} employees`} />
       </div>

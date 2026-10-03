@@ -1,3 +1,4 @@
+import { fmtDec } from '@/lib/format'
 import { NotebookPen } from 'lucide-react'
 import { useState } from 'react'
 
@@ -161,7 +162,7 @@ export function IvEvalDialog({ role, savedAt, onSavedAtChange }: { role: string;
                       ))}
                     </SelectField>
                   </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">{calc.tecRowWeighted[i].toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">{fmtDec(calc.tecRowWeighted[i], 2)}</TableCell>
                   <TableCell>
                     <Input type="text" value={draft.tecnica[rowKey].note} onChange={(e) => setTec(rowKey, { note: e.target.value })} size="sm" />
                   </TableCell>
@@ -173,13 +174,13 @@ export function IvEvalDialog({ role, savedAt, onSavedAtChange }: { role: string;
                   {calc.tecWeightSum}%{calc.tecWeightSum !== 100 && ' ⚠'}
                 </TableCell>
                 <TableCell />
-                <TableCell className="text-right font-mono tabular-nums">{calc.tecScoreSum.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-mono tabular-nums">{fmtDec(calc.tecScoreSum, 2)}</TableCell>
                 <TableCell />
               </TableRow>
             </TableBody>
           </Table>
 
-        <SectionLabel>3. Matrice di valutazione — Soft skills / competenze trasversali</SectionLabel>
+        <SectionLabel>3. Matrice di valutazione — competenze trasversali</SectionLabel>
         <p className="text-app-caption text-muted-foreground">Aree comuni a qualsiasi ruolo; i pesi indicati sono un punto di partenza modificabile.</p>
         <Table frame size="sm" minWidth="lg">
             <TableHeader>
@@ -208,7 +209,7 @@ export function IvEvalDialog({ role, savedAt, onSavedAtChange }: { role: string;
                         ))}
                       </SelectField>
                     </TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">{calc.softRowWeighted[i].toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-mono tabular-nums">{fmtDec(calc.softRowWeighted[i], 2)}</TableCell>
                     <TableCell>
                       <Input type="text" value={row.note} onChange={(e) => setSoft(name, { note: e.target.value })} size="sm" />
                     </TableCell>
@@ -216,17 +217,17 @@ export function IvEvalDialog({ role, savedAt, onSavedAtChange }: { role: string;
                 )
               })}
               <TableRow className="font-medium">
-                <TableCell>Subtotale area soft skills</TableCell>
+                <TableCell>Subtotale competenze trasversali</TableCell>
                 <TableCell className="font-mono tabular-nums">100%</TableCell>
                 <TableCell />
-                <TableCell className="text-right font-mono tabular-nums">{calc.softScoreSum.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-mono tabular-nums">{fmtDec(calc.softScoreSum, 2)}</TableCell>
                 <TableCell />
               </TableRow>
             </TableBody>
           </Table>
 
         <SectionLabel>4. Calcolo del punteggio complessivo</SectionLabel>
-        <p className="text-app-caption text-muted-foreground">Ponderazione tra le due aree secondo la rilevanza per il ruolo (esempio: 60% tecnica / 40% soft skills, da adattare).</p>
+        <p className="text-app-caption text-muted-foreground">Ponderazione tra le due aree secondo la rilevanza per il ruolo (esempio: 60% competenze professionali / 40% competenze trasversali, da adattare).</p>
         <Table frame size="sm" minWidth="lg">
             <TableHeader>
               <TableRow>
@@ -241,20 +242,20 @@ export function IvEvalDialog({ role, savedAt, onSavedAtChange }: { role: string;
                 <TableCell>
                   <Input type="number" min={0} max={100} value={draft.areaWeightTec} onChange={(e) => set('areaWeightTec', e.target.value)} placeholder="60" size="sm" className="w-20" />
                 </TableCell>
-                <TableCell className="text-right font-mono tabular-nums">{calc.tecScoreSum.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-mono tabular-nums">{fmtDec(calc.tecScoreSum, 2)}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>Soft skills</TableCell>
+                <TableCell>Competenze trasversali</TableCell>
                 <TableCell>
                   <Input type="number" min={0} max={100} value={draft.areaWeightSoft} onChange={(e) => set('areaWeightSoft', e.target.value)} placeholder="40" size="sm" className="w-20" />
                 </TableCell>
-                <TableCell className="text-right font-mono tabular-nums">{calc.softScoreSum.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-mono tabular-nums">{fmtDec(calc.softScoreSum, 2)}</TableCell>
               </TableRow>
               <TableRow className="font-medium">
                 <TableCell colSpan={2}>
                   Punteggio finale (0–5)
                 </TableCell>
-                <TableCell className="text-right font-mono tabular-nums">{calc.finalScore == null ? '—' : calc.finalScore.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-mono tabular-nums">{calc.finalScore == null ? '—' : fmtDec(calc.finalScore, 2)}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -283,7 +284,7 @@ export function IvEvalDialog({ role, savedAt, onSavedAtChange }: { role: string;
           </Table>
 
         <SectionLabel>6. Confronto tra candidati (facoltativo)</SectionLabel>
-        <p className="text-app-caption text-muted-foreground">Da compilare quando più candidati vengono valutati per la stessa posizione, ai fini della comparazione e del ranking finale.</p>
+        <p className="text-app-caption text-muted-foreground">Da compilare quando più candidati vengono valutati per la stessa posizione, ai fini della comparazione e della classifica finale.</p>
         <CompareRowsTable scoreLabel="Punteggio finale" scoreKind="number" rows={draft.compareRows} onChange={(rows) => set('compareRows', rows)} />
 
         <SectionLabel>7. Raccomandazione finale</SectionLabel>

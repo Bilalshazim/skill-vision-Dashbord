@@ -7,3 +7,9 @@ export function fmtIT100(n: number): string {
 export function fmtITpct(n: number): string {
   return (Math.round((n || 0) * 10) / 10).toFixed(1).replace('.', ',') + '%'
 }
+
+// L'origine del candidato a schermo. «Excel import · …» è il valore salvato
+// nei dati importati: si traduce solo nella visualizzazione, il dato resta.
+export function sourceLabel(src: string | undefined): string {
+  return (src ?? '').replace(/^Excel import ·/, 'Importato da Excel ·')
+}

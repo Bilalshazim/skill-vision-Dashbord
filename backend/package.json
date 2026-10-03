@@ -16,7 +16,9 @@
     "seed": "tsx prisma/seed.ts",
     "migrate:localstorage": "tsx scripts/migrate-localstorage.ts",
     "smtp:verify": "tsx --env-file=.env scripts/verify-smtp.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "team-admin": "tsx scripts/create-team-admin.ts",
+    "secure-demo-accounts": "tsx scripts/secure-demo-accounts.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.16.3",

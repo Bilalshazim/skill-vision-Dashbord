@@ -44,7 +44,7 @@ type WriteState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; mess
 // separate, CANDIDATES-mutating side effect this phase deliberately does
 // not implement).
 //
-// PHASE 22 — "Apri nella Pipeline" used to bridge to legacy (Pipeline
+// PHASE 22 — "Apri in CV Elaborati" used to bridge to legacy (Pipeline
 // wasn't migrated yet when this dialog was built). Pipeline has its own
 // React route since Phase 11B, so this is now a real internal link to
 // /recruiting/pipeline?companyId=&openingId= — the same query-param
@@ -153,7 +153,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
         result.reason === 'no-active-opening'
           ? NO_ACTIVE_OPENING_MESSAGE
           : result.reason === 'entry-not-found'
-            ? 'Voce di pre-screening non trovata — potrebbe essere stata rimossa altrove.'
+            ? 'Voce di preselezione non trovata — potrebbe essere stata rimossa altrove.'
             : `Impossibile salvare: ${result.message}`
       setWriteState({ kind: 'error', message })
       return
@@ -233,7 +233,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
           <div className="mb-2 text-app-small font-semibold">Skill essenziali vs target</div>
           {pending ? (
             <p className="text-app-caption text-muted-foreground">
-              Test soft skill non ancora completato — il dettaglio per skill sarà disponibile dopo il test (vedi Pagina
+              Test delle competenze trasversali non ancora completato — il dettaglio per competenza sarà disponibile dopo il test (vedi Pagina
               A).
             </p>
           ) : (
@@ -292,7 +292,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
             {already?.status === 'inviato' && (
               <span className="inline-flex items-center gap-1.5 text-app-small font-medium text-success">
                 <CheckCircle2 className="size-3.5 shrink-0" aria-hidden="true" />
-                Candidato in pre-screening — link generato
+                Candidato in preselezione — link generato
               </span>
             )}
 
@@ -335,12 +335,12 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
             )}
 
             {already && (
-              <Hint label="Rimuovi dal pre-screening">
+              <Hint label="Rimuovi dalla preselezione">
                 <Button
                   type="button"
                   onClick={handleRemove}
                   disabled={writeState.kind === 'pending'}
-                  aria-label="Rimuovi dal pre-screening"
+                  aria-label="Rimuovi dalla preselezione"
                   variant="destructive"
                   size="icon-sm"
                 >
@@ -357,7 +357,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
               <Button asChild variant="outline" size="sm">
                 <Link to={`/recruiting/pipeline?companyId=${encodeURIComponent(activeIds.companyId)}&openingId=${encodeURIComponent(activeIds.openingId)}`}>
                   <Workflow className="size-3.5 shrink-0" aria-hidden="true" />
-                  Apri nella Pipeline
+                  Apri in CV Elaborati
                 </Link>
               </Button>
             )}

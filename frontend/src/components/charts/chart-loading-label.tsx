@@ -13,7 +13,7 @@ export interface ChartLoadingLabelProps {
   /** Label shown centered over the chart. */
   text?: string;
   className?: string;
-  /** Animate down, fade, and blur during loading → ready handoff. */
+  /** Animate down and fade during loading → ready handoff. */
   exiting?: boolean;
 }
 
@@ -31,7 +31,6 @@ export function ChartLoadingLabel({
       animate={{
         y: exiting ? LOADING_LABEL_EXIT_Y_PX : 0,
         opacity: exiting ? 0 : 1,
-        filter: exiting ? "blur(2px)" : "blur(0px)",
       }}
       aria-live="polite"
       className={cn(

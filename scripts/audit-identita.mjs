@@ -82,11 +82,27 @@ for (const percorso of file(ROOT)) {
     }
 
     // 3 — ombre
-    for (const m of pulita.matchAll(/\bshadow-(?!none\b)[a-z0-9/[\]-]+/g)) {
+    for (const m of pulita.matchAll(/(?<![\w-])shadow-(?!none\b)[a-z0-9/[\]-]+/g)) {
       segna(rel, n, riga, "ombra", `${m[0]} — le superfici si separano per colore e perimetro`);
     }
     if (/box-shadow\s*:(?!\s*none)/.test(pulita)) {
       segna(rel, n, riga, "ombra", "box-shadow");
+    }
+
+    // 3b — sfumature, aloni, sfocature (regola 4)
+    for (const m of pulita.matchAll(/\bbg-(?:gradient|linear|radial|conic)-[a-z0-9/[\]-]+/g)) {
+      segna(rel, n, riga, "sfumatura", `${m[0]} — nessuna sfumatura nel sistema`);
+    }
+    if (/\b(?:linear|radial|conic)-gradient\s*\(/.test(pulita)) {
+      segna(rel, n, riga, "sfumatura", "gradient() in CSS");
+    }
+    for (const m of pulita.matchAll(/(?<![\w-])(?:backdrop-)?blur(?:-[a-z0-9[\]]+)?\b/g)) {
+      if (m[0] === "blur-none" || m[0] === "backdrop-blur-none") continue;
+      segna(rel, n, riga, "sfocatura", `${m[0]} — i livelli flottanti usano scrim e bordo`);
+    }
+    for (const m of pulita.matchAll(/(?<![\w-])drop-shadow(?:-[a-z0-9[\]]+)?\b/g)) {
+      if (m[0] === "drop-shadow-none") continue;
+      segna(rel, n, riga, "ombra", `${m[0]} — alone o ombra su icone e grafici`);
     }
 
     // 4 — valori arbitrari

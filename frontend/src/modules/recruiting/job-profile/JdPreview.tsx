@@ -98,7 +98,7 @@ export function JdPreview({ jd }: { jd: JdState }) {
       <PreviewSection title="Attività principali">
         <TagBlock items={checked('attivita')} />
       </PreviewSection>
-      <PreviewSection title="Hard skills">
+      <PreviewSection title="Competenze professionali">
         {hardAll.length ? (
           <div className="flex flex-col">
             {hardAll.map((i) => (
@@ -114,7 +114,7 @@ export function JdPreview({ jd }: { jd: JdState }) {
           <p className="text-app-caption italic text-muted-foreground">Nessuna voce selezionata</p>
         )}
       </PreviewSection>
-      <PreviewSection title="Soft skills">
+      <PreviewSection title="Competenze trasversali">
         <LevelBlock items={checked('softSkills')} valueKey="valoreAtteso" />
       </PreviewSection>
       <PreviewSection title="Competenze tecniche">

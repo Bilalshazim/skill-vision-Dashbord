@@ -1,4 +1,4 @@
-import { Workflow } from 'lucide-react'
+import { PageHeader } from '@/components/patterns/PageHeader'
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
@@ -11,7 +11,7 @@ import { PipelineDetail } from '@/modules/recruiting/pipeline/PipelineDetail'
 // Migrated from modules/recruiting.html #scr-pipeline (renderPipelineScreen()
 // = renderPipelineDashboard() + renderPipelineDetail(), ~1975-2156).
 // PHASE 11B built this as read-only. PHASE 11C-1 wired up the Prescreened
-// CV section's four actions (+ Dal pool CV, + Aggiungi manual, Segna
+// CV section's four actions (+ Dall&apos;archivio CV, + Aggiungi manual, Segna
 // inviato, remove) — see pipeline/PrescreenedList.tsx. PHASE 11C-2 wired up
 // Ranking post-test (+ Aggiungi risultato, remove) — see
 // pipeline/TestResultList.tsx. PHASE 11C-3 wired up Colloqui (+ Aggiungi
@@ -98,20 +98,10 @@ export default function PipelinePage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <Workflow className="size-6 text-muted-foreground" aria-hidden="true" />
-        </div>
-        <div>
-          <h2 className="text-app-section font-semibold tracking-tight">Pipeline di selezione</h2>
-          <p className="text-app-small text-muted-foreground">
-            Stato di avanzamento e tracciamento per ogni posizione aperta — pre-screening, test, colloqui, vincitore.
-          </p>
-        </div>
-      </div>
+      <PageHeader level="page" className="mb-0" title="Avanzamento della selezione" description={<>Stato di avanzamento e tracciamento per ogni posizione aperta — preselezione, test, colloqui, vincitore.</>} />
 
-      <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground">
-        "Segna completato" resta disponibile solo nell'app corrente.
+      <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground dark:text-secondary-foreground">
+        "Segna completato" non è ancora disponibile in questa schermata.
       </p>
 
       <PipelineDashboard cards={cards} selectedKey={selectedKey} onSelect={handleSelect} />

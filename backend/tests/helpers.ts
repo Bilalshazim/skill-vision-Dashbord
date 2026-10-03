@@ -1,3 +1,4 @@
+import { resetLoginLimiters } from '../src/modules/auth/routes.js'
 import { PrismaClient } from '@prisma/client'
 import request from 'supertest'
 
@@ -13,6 +14,7 @@ export const api = request(app)
 // leftover rows from a previous test (§20: realistic fixtures, not shared
 // mutable global state between tests).
 export async function resetDb() {
+  resetLoginLimiters()
   await prisma.$transaction([
     prisma.auditLog.deleteMany(),
     prisma.testResponse.deleteMany(),

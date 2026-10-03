@@ -131,7 +131,7 @@ export function EvaluatorWorkspace({ evaluatorToken }: { evaluatorToken?: string
                 <span
                   className={cn(
                     'label-mono mt-1 rounded-full px-2 py-0.5',
-                    a.myEvaluation?.status === 'SUBMITTED' ? 'bg-success/12 text-success' : a.myEvaluation ? 'bg-warning/12 text-warning' : 'bg-secondary text-muted-foreground',
+                    a.myEvaluation?.status === 'SUBMITTED' ? 'bg-success/12 text-success' : a.myEvaluation ? 'bg-warning/12 text-warning' : 'bg-secondary text-muted-foreground dark:text-secondary-foreground',
                   )}
                 >
                   {a.myEvaluation?.status === 'SUBMITTED' ? 'Inviata' : a.myEvaluation ? 'Bozza' : 'Da compilare'}

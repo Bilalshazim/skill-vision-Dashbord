@@ -2,6 +2,7 @@ import { Bar, BarChart, BarXAxis, BarYAxis, ChartTooltip, Grid } from '@/compone
 import { ChartDataTable } from '@/components/patterns/ChartDataTable'
 import { ChartLegend } from '@/components/patterns/ChartLegend'
 import { seriesColors } from '@/lib/chart-colors'
+import { fmtDec } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 export type BarSeries = { key: string; label: string; reference?: boolean }
@@ -11,7 +12,9 @@ export type BarSeries = { key: string; label: string; reference?: boolean }
 // Composed di Bklit ha solo l'asse del tempo: DECISIONI, "Composed solo sul
 // tempo"). Colori dalle regole della Fase 5 (lib/chart-colors.ts). Il fondo
 // scala è fisso (`valueMax`, 10 per i punteggi): due grafici si confrontano.
-// Nomi delle serie sotto il grafico, valori in tabella per i lettori di schermo.
+// Ogni barra porta il suo valore (un decimale, o `format`): senza, una barra
+// non si legge (CLAUDE.md, regole dei pattern dei grafici). Nomi delle serie
+// sotto il grafico, valori in tabella per i lettori di schermo.
 export function CategoryBars({
   title,
   rows,
@@ -43,11 +46,11 @@ export function CategoryBars({
           className="h-full"
           orientation={orientation}
           valueMax={valueMax}
-          margin={orientation === 'horizontal' ? { top: 8, right: 16, bottom: 8, left: 208 } : { top: 16, right: 8, bottom: 40, left: 32 }}
+          margin={orientation === 'horizontal' ? { top: 8, right: 40, bottom: 8, left: 208 } : { top: 24, right: 8, bottom: 40, left: 32 }}
         >
           <Grid horizontal={orientation === 'vertical'} vertical={orientation === 'horizontal'} />
           {series.map((s, i) => (
-            <Bar key={s.key} dataKey={s.key} fill={colors[i]} lineCap={4} />
+            <Bar key={s.key} dataKey={s.key} fill={colors[i]} lineCap={4} valueLabel={(v) => (format ? format(v) : fmtDec(v))} />
           ))}
           {orientation === 'horizontal' ? <BarYAxis /> : <BarXAxis showAllLabels />}
           <ChartTooltip />

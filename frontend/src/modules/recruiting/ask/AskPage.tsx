@@ -1,22 +1,17 @@
-import { ArrowRight, Loader2, MessageSquare, Sparkles } from 'lucide-react'
+import { ArrowRight, Loader2, Sparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Textarea } from '@/components/ui/textarea'
-import { Card } from '@/components/ui/card'
-import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { ChatMessage } from '@/components/patterns/ChatMessage'
+import { PageHeader } from '@/components/patterns/PageHeader'
+import { Button } from '@/components/ui/button'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AskAnswerView } from '@/modules/recruiting/ask/AskAnswerView'
 import { ScreeningResultView } from '@/modules/recruiting/ask/ScreeningResultView'
 import type { AskAnswer, QuickQuestion, ScreeningResult } from '@/modules/recruiting/lib/ask'
 import { QUICK_QUESTIONS, composeAnswer, isScreeningPrompt, runLocalScreeningQuery } from '@/modules/recruiting/lib/ask'
 import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/storage'
-
-// See CipAdminPage.tsx's identical comment.
-const primaryBtnClass = buttonVariants({ size: 'sm' })
-const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
-const chipClass =
-  'rounded-full border border-border bg-secondary px-3 py-1.5 text-app-caption font-medium text-foreground transition-colors hover:border-ring hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
 
 type FreeTextState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'answer'; answer: AskAnswer } | { kind: 'screening'; result: ScreeningResult }
 
@@ -25,7 +20,7 @@ type ChatState = { kind: 'idle' } | { kind: 'pending'; index: number } | { kind:
 const NO_CANDIDATES_ANSWER: AskAnswer = {
   blocks: [
     { type: 'title', parts: ['Nessun candidato in archivio'] },
-    { type: 'paragraph', parts: ['Carica i primi CV dalla pagina ', { text: 'CV & Export', bold: true }, ' (o importa in blocco un archivio storico) per vedere qui analisi calcolate sui dati reali.'] },
+    { type: 'paragraph', parts: ['Carica i primi CV dalla pagina ', { text: 'CV & Esportazione', bold: true }, ' (o importa in blocco un archivio storico) per vedere qui analisi calcolate sui dati reali.'] },
   ],
 }
 const INSUFFICIENT_DATA_ANSWER: AskAnswer = {
@@ -109,94 +104,96 @@ export default function AskPage() {
   const visibleChips = chatState.kind === 'pending' ? [] : chatState.kind === 'answered' ? allChips.filter((c) => c.index !== chatState.index) : allChips
 
   return (
-    <div className="flex flex-col gap-4">
+    // Una sola intestazione di pagina e il contenuto nella colonna di
+    // lettura (720px): domande e risposte sono testo da leggere (CLAUDE.md,
+    // Fase 6). Messaggi e bottoni dalla libreria (ChatMessage, Button).
+    <div className="flex max-w-180 flex-col gap-4">
+      <PageHeader level="page" className="mb-0" title="Assistente IA" description="Domande sui dati di Recruiting: le risposte sono calcolate sulla classifica attuale." />
+
       <Card>
-        <h3 className="flex items-center gap-2 text-app-section">
-          <MessageSquare className="size-4 text-muted-foreground" aria-hidden="true" />
-          Chiedi a Skill-Vision AI
-        </h3>
-        <p className="mt-1 text-app-small text-muted-foreground">
-          Fai una domanda libera sui dati della piattaforma: un candidato specifico, un'analisi comparativa, l'interpretazione di un ranking…
-        </p>
+        <CardHeader>
+          <CardTitle>Domanda libera</CardTitle>
+          <CardDescription>
+            Un candidato specifico, un&apos;analisi comparativa, l&apos;interpretazione di una classifica…
+          </CardDescription>
+        </CardHeader>
         <Textarea
           value={freeText}
           onChange={(e) => setFreeText(e.target.value)}
           rows={3}
-          placeholder="Es. Quali sono i punti di forza principali di Angeloni Nicola? Chi è il candidato più adatto alla posizione di ASSISTENZA CLIENTI e perché?"
-          size="sm" className="mt-3"
- />
+          placeholder="Es. Quali sono i punti di forza principali di Angeloni Nicola? Chi è il candidato più adatto alla posizione di Assistenza clienti e perché?"
+          size="sm"
+        />
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button type="button" onClick={handleAnalyze} disabled={freeTextState.kind === 'pending'} className={primaryBtnClass}>
-            {freeTextState.kind === 'pending' ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Sparkles className="size-3.5 shrink-0" aria-hidden="true" />}
+          <Button size="sm" onClick={handleAnalyze} disabled={freeTextState.kind === 'pending'}>
+            {freeTextState.kind === 'pending' ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
             Analizza
-          </button>
-          <button type="button" onClick={handleClearFreeText} className={ghostBtnClass}>
+          </Button>
+          <Button size="sm" variant="outline" onClick={handleClearFreeText}>
             Pulisci
-          </button>
-          <span className="text-app-caption text-muted-foreground">Le risposte usano dati locali della piattaforma</span>
+          </Button>
+          <span className="text-app-caption text-muted-foreground">Le risposte usano i dati locali della piattaforma</span>
         </div>
 
         {freeTextState.kind !== 'idle' && (
           <div className="mt-4 border-t border-border pt-4">
-            {freeTextState.kind === 'pending' && <p className="text-app-small text-muted-foreground">⏳ Analisi in corso…</p>}
+            {freeTextState.kind === 'pending' && (
+              <p className="inline-flex items-center gap-2 text-app-small text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                Analisi in corso…
+              </p>
+            )}
             {freeTextState.kind === 'answer' && <AskAnswerView answer={freeTextState.answer} />}
             {freeTextState.kind === 'screening' && <ScreeningResultView result={freeTextState.result} />}
           </div>
         )}
       </Card>
 
-      <div className="flex items-center gap-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary">
-          <Sparkles className="size-6 text-muted-foreground" aria-hidden="true" />
-        </div>
-        <div>
-          <h2 className="text-app-section font-semibold tracking-tight">Chiedi al Recruiting Lab</h2>
-          <p className="text-app-small text-muted-foreground">Le risposte sono calcolate sui dati reali della classifica attuale</p>
-        </div>
-      </div>
-
       <Card>
+        <CardHeader>
+          <CardTitle>Domande rapide</CardTitle>
+        </CardHeader>
         <div className="flex flex-col gap-3">
           {askedQuestions.length === 0 ? (
-            <div className="rounded-sm bg-secondary px-3.5 py-2.5 text-app-small">
-              <div className="font-semibold">Sono l'assistente APEX 5D per la selezione.</div>
-              Ho la classifica aggiornata dei candidati per il ruolo che hai configurato. Tocca una domanda — le risposte si basano sui punteggi veri,
-              non su frasi preconfezionate.
-            </div>
+            <ChatMessage from="assistant">
+              <p className="font-medium">Sono l&apos;assistente APEX 5D per la selezione.</p>
+              Ho la classifica aggiornata dei candidati per la posizione che hai configurato. Scegli una domanda: le risposte si basano sui
+              punteggi veri, non su frasi preconfezionate.
+            </ChatMessage>
           ) : (
             <>
               {askedQuestions.map((q, i) => (
-                <div key={i} className="ml-auto max-w-[85%] rounded-sm bg-primary/10 px-3.5 py-2 text-app-small font-medium text-foreground">
+                <ChatMessage from="user" key={i}>
                   {q}
-                </div>
+                </ChatMessage>
               ))}
-              <div className="max-w-[85%] rounded-sm bg-secondary px-3.5 py-2.5 text-app-small">
+              <ChatMessage from="assistant">
                 {chatState.kind === 'pending' && (
-                  <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                    <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
+                  <span className="inline-flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                     Sto pensando…
                   </span>
                 )}
                 {chatState.kind === 'answered' && (
                   <>
                     <AskAnswerView answer={chatState.answer} />
-                    <button type="button" onClick={() => handleOpenSection(QUICK_QUESTIONS[chatState.index].actionTarget)} className={cn(primaryBtnClass, 'mt-3.5')}>
+                    <Button size="sm" variant="outline" className="mt-3" onClick={() => handleOpenSection(QUICK_QUESTIONS[chatState.index].actionTarget)}>
                       Apri la sezione collegata
-                      <ArrowRight className="size-3.5 shrink-0" aria-hidden="true" />
-                    </button>
+                      <ArrowRight aria-hidden="true" />
+                    </Button>
                   </>
                 )}
-              </div>
+              </ChatMessage>
             </>
           )}
         </div>
 
         {visibleChips.length > 0 && (
-          <div className="mt-3.5 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             {visibleChips.map(({ item, index }) => (
-              <button key={item.id} type="button" onClick={() => handleAskQuick(index)} className={chipClass}>
+              <Button key={item.id} size="sm" variant="outline" onClick={() => handleAskQuick(index)}>
                 {item.question}
-              </button>
+              </Button>
             ))}
           </div>
         )}

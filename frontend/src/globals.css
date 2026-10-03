@@ -60,11 +60,11 @@
      (--color-warning: var(--warning)), e --warning: var(--color-warning)
      diventerebbe un riferimento circolare: in chiaro la variabile resta
      vuota e text-warning, bg-success, chart-1… non colorano niente. */
-  --color-danger:       #BF3022;
-  --color-danger-dark:  #EF6B54;
+  --color-danger:       #AC2B1F;
+  --color-danger-dark:  #F1826F;
   --color-warning-light: #8A5107;
-  --color-warning-dark: #E08A0B;
-  --color-success-light: #1C7A4D;
+  --color-warning-dark: #E48D0B;
+  --color-success-light: #186A43;
   --color-success-dark: #3FBF7F;
 
   /* --- Famiglia categorica per i grafici ----------------------
@@ -91,7 +91,9 @@
                Menlo, Consolas, monospace;
 
   /* --- Scala tipografica dell'interfaccia ---------------------
-     Base 14px, non 16: un'interfaccia si legge per ore.
+     Base 15px. Sotto i 14 scende solo l'informazione di contorno
+     (caption) e la label, che essendo maiuscola si legge più
+     grande del suo corpo.
      Ogni ruolo porta con sé interlinea e tracking, quindi
      `text-app-label` basta da solo. ---------------------------- */
   --text-app-title: 1.5rem;                       /* 24 */
@@ -114,10 +116,13 @@
   --text-app-small: 0.875rem;                  /* 14 */
   --text-app-small--line-height: 1.45;
 
+  /* Solo informazione di contorno: date, contatori, note, legende. */
   --text-app-caption: 0.8125rem;               /* 13 */
   --text-app-caption--line-height: 1.4;
 
-  /* Lo stile label: mono maiuscolo... */
+  /* Lo stile label: mono maiuscolo. È l'elemento più
+     caratterizzante del sistema. Tre o quattro parole al massimo,
+     mai testo che va a capo. */
   --text-app-label: 0.75rem;                   /* 12 */
   --text-app-label--line-height: 1.2;
   --text-app-label--letter-spacing: 0.06em;
@@ -219,6 +224,10 @@
   /* Serie singola nei grafici. Su fondo chiaro NON si usa il 400:
      su cream dà 1,25:1 ed è invisibile. */
   --chart-mono: var(--color-accent-600);
+  /* La serie di confronto (atteso, benchmark, profilo ideale): un neutro che
+     arretra. Non muted-foreground: è un colore di testo e come riempimento
+     pesa quanto il dato principale (CLAUDE.md, Fase 5). */
+  --chart-compare: var(--color-neutral-400);
   --chart-1: var(--color-chart-1-light);
   --chart-2: var(--color-chart-2-light);
   --chart-3: var(--color-chart-3-light);
@@ -248,7 +257,7 @@
   --chart-foreground-muted:    var(--muted-foreground);
   --chart-label:               var(--muted-foreground);
   --chart-line-primary:        var(--chart-mono);
-  --chart-line-secondary:      var(--muted-foreground);
+  --chart-line-secondary:      var(--chart-compare);
   --chart-grid:                var(--border);
   --chart-crosshair:           var(--border-strong);
   --chart-brush-border:        var(--border);
@@ -304,6 +313,7 @@
 
 
   --chart-mono: var(--color-accent-400);
+  --chart-compare: var(--color-neutral-500);
   --chart-1: var(--color-chart-1-dark);
   --chart-2: var(--color-chart-2-dark);
   --chart-3: var(--color-chart-3-dark);
@@ -330,7 +340,7 @@
   --chart-foreground-muted:    var(--muted-foreground);
   --chart-label:               var(--muted-foreground);
   --chart-line-primary:        var(--chart-mono);
-  --chart-line-secondary:      var(--muted-foreground);
+  --chart-line-secondary:      var(--chart-compare);
   --chart-grid:                var(--border);
   --chart-crosshair:           var(--border-strong);
   --chart-brush-border:        var(--border);
@@ -396,6 +406,7 @@
   --color-link:                  var(--link);
 
   --color-chart-mono: var(--chart-mono);
+  --color-chart-compare: var(--chart-compare);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -473,6 +484,23 @@
   background-color: color-mix(in oklab, var(--success) 12%, transparent);
   border: 1px solid color-mix(in oklab, var(--success) 20%, transparent);
 }
+
+/* Superfici `secondary` in scuro (neutral-700): sopra, il grigio del testo
+   secondario e i colori di stato scendono sotto 4,5:1 (4,1 e 3,3–3,9).
+   Dentro queste superfici il testo secondario passa a neutral-300, il testo
+   di stato a `secondary-foreground` (il significato lo portano etichetta e
+   icona, regola 10) e i fondi tenui di stato si calcolano sulla card, come
+   fuori. Vale anche per le righe di tabella selezionate, che in scuro hanno
+   lo stesso fondo. Verificato il 2026-10-02. */
+.dark :is(.bg-secondary, tr[data-state='selected']) {
+  --muted-foreground: var(--color-neutral-300);
+}
+.dark :is(.bg-secondary, tr[data-state='selected']) :is(.text-success, .text-warning, .text-destructive):not(:is([class*='surface-'], [class*='surface-'] *)) {
+  color: var(--secondary-foreground);
+}
+.dark :is(.bg-secondary, tr[data-state='selected']) .surface-success { background-color: color-mix(in oklab, var(--success) 12%, var(--card)); }
+.dark :is(.bg-secondary, tr[data-state='selected']) .surface-warning { background-color: color-mix(in oklab, var(--warning) 12%, var(--card)); }
+.dark :is(.bg-secondary, tr[data-state='selected']) .surface-danger { background-color: color-mix(in oklab, var(--destructive) 12%, var(--card)); }
 
 /* Lo stile label in una sola classe. */
 @utility label-mono {

@@ -1,3 +1,4 @@
+import { fmtDec } from '@/lib/format'
 import { fmtITpct } from '@/modules/recruiting/lib/format'
 import type { SkillTierSums as SkillTierSumsData } from '@/modules/recruiting/lib/scoring'
 
@@ -16,7 +17,7 @@ export function SkillTierSums({ sums }: { sums: SkillTierSumsData }) {
         <div
           key={t.key}
           className="flex flex-col items-center justify-center rounded-sm border border-border bg-secondary px-3 py-3 text-center"
-          title={`${sums[t.key].sum.toFixed(1)} punti su ${sums[t.key].count * 31 || 0} disponibili`}
+          title={`${fmtDec(sums[t.key].sum)} punti su ${sums[t.key].count * 31 || 0} disponibili`}
         >
           <div className="label-mono">{t.label}</div>
           <div className="mt-0.5 text-app-section font-semibold tabular-nums">{fmtITpct(sums[t.key].pct)}</div>
@@ -24,7 +25,7 @@ export function SkillTierSums({ sums }: { sums: SkillTierSumsData }) {
       ))}
       <div
         className="flex flex-col items-center justify-center rounded-sm border-2 border-foreground bg-secondary px-3 py-3 text-center"
-        title={`${sums.total.sum.toFixed(1)} punti su ${sums.total.count * 31 || 0} disponibili`}
+        title={`${fmtDec(sums.total.sum)} punti su ${sums.total.count * 31 || 0} disponibili`}
       >
         <div className="label-mono">Punteggio totale</div>
         <div className="mt-0.5 text-app-section font-semibold tabular-nums">{fmtITpct(sums.total.pct)}</div>

@@ -264,7 +264,7 @@ function ModuleADetail({ emp }: { emp: Employee }) {
         title={ui.profileModuleATitle}
         axes={BF_ORDER.map((d) => ({ key: d, label: BIGFIVE_DIMS[d].label }))}
         series={[
-          { label: 'Benchmark', values: Object.fromEntries(BF_ORDER.map((d) => [d, 6.5])), reference: true },
+          { label: ui.homeOrgTrendModeBenchmark, values: Object.fromEntries(BF_ORDER.map((d) => [d, 6.5])), reference: true },
           { label: `${emp.nome} ${emp.cognome}`, values: bf },
         ]}
       />
@@ -312,7 +312,7 @@ function ModuleBDetail({ emp }: { emp: Employee }) {
         title={ui.profileModuleBTitle}
         axes={hsm.dims.map((d) => ({ key: d.code, label: `${d.code} · ${d.name}` }))}
         series={[
-          { label: 'Benchmark', values: Object.fromEntries(hsm.dims.map((d) => [d.code, 6.5])), reference: true },
+          { label: ui.homeOrgTrendModeBenchmark, values: Object.fromEntries(hsm.dims.map((d) => [d.code, 6.5])), reference: true },
           { label: `${emp.nome} ${emp.cognome}`, values: Object.fromEntries(hsm.dims.map((d) => [d.code, d.mediaTotale])) },
         ]}
       />
