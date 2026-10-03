@@ -17,6 +17,7 @@ const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RecruitingHome = lazy(() => import('@/modules/recruiting/RecruitingHome'))
 const CipAdminPage = lazy(() => import('@/modules/recruiting/admin/CipAdminPage'))
 const EmailConfigAdminPage = lazy(() => import('@/modules/recruiting/admin/EmailConfigAdminPage'))
+const OriginalSkillsPreviewPage = lazy(() => import('@/modules/recruiting/admin/OriginalSkillsPreviewPage'))
 const AskPage = lazy(() => import('@/modules/recruiting/ask/AskPage'))
 const CvExportPage = lazy(() => import('@/modules/recruiting/cv-export/CvExportPage'))
 const EvaluateStandalonePage = lazy(() => import('@/modules/recruiting/evaluate/EvaluateStandalonePage'))
@@ -84,6 +85,7 @@ function App() {
                   still the real authority on every request either way. */}
               <Route path="admin/cip" element={<CipAdminPage />} />
               <Route path="admin/email" element={<EmailConfigAdminPage />} />
+              <Route path="admin/original-skills" element={<OriginalSkillsPreviewPage />} />
               <Route path="evaluate" element={<RecruitingEvaluatePage />} />
             </Route>
           </Route>

@@ -126,6 +126,70 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-03 — Original Skills: anteprima in sola lettura
+- [x] Backend `modules/originalSkills`: `GET /api/v1/original-skills/companies`
+      e `/results?from&to&company`. `requireAuth` + PLATFORM_ADMIN; 503
+      `service_disabled` salvo `ORIGINAL_SKILLS_ENABLED=true` e configurazione
+      completa (variabili lette a ogni richiesta). Intervallo ≤ 89 giorni,
+      timeout 15 s, errori dell'API → 502 senza dettagli.
+- [x] Normalizzazione: numeri da stringa, nomi senza spazi, risultato vuoto →
+      null, voci ripetute tolte; scartate le righe di `codAzienda` non
+      richiesti (compresa quella dell'account API). Non escono: sesso, anno di
+      nascita, luogo, email, RAL, date, titolo di studio, codici azienda.
+- [x] Niente si salva: solo una riga di AuditLog (`originalSkills.previewed`,
+      date, chiavi società, conteggi; nessun dato di persona).
+- [x] Frontend: `/recruiting/admin/original-skills` (voce "Original Skills",
+      solo PLATFORM_ADMIN, solo con `VITE_AUTH_MODE=backend`). Pagina composta
+      con PageHeader, Field, SelectField, DataTable, FilterBar, Sheet,
+      EmptyState, InlineAlert: nessuno stile proprio, nessun pattern nuovo.
+- [x] Test: `tests/originalSkills.test.ts` (6) — backend 114/114; typecheck
+      frontend e backend puliti; build ok; audit: 0 difetti in `frontend/src`.
+- [ ] In produzione resta spenta: `ORIGINAL_SKILLS_ENABLED` non impostata.
+      Accenderla richiede conferma. Le chiavi della mappa sono ancora
+      `societa1`/`societa2`: la pagina mostra queste etichette finché non
+      diventano companyId di società vere.
+- [ ] Non verificata a schermo (serve il backend acceso con le variabili).
+
+## 2026-10-03 — Produzione in modalità `backend`
+- [x] Deploy di `173150a` (Backend e Skill Vision).
+- [x] Account del gruppo di lavoro creati da Bilal via `railway ssh`
+      (password mai passate dalla sessione). Verificato: 2 PLATFORM_ADMIN
+      attivi. In produzione non esistono admin@skill-vision.it,
+      hr@acme.example e recruiter@acme.example; esiste `operatore`
+      (43 sessioni attive).
+- [x] Variabili di Skill Vision: `VITE_AUTH_MODE=backend`,
+      `VITE_API_BASE_URL=/api/v1`, `BACKEND_INTERNAL_URL` →
+      `http://backend.railway.internal:8080`. Valore precedente di
+      `VITE_API_BASE_URL`, per tornare indietro:
+      `https://backend-production-9ace.up.railway.app/api/v1`.
+- [x] Verifica in produzione:
+      - il proxy `/api` risponde 401 senza token;
+      - le pagine protette portano a `/login?next=…`;
+      - `sv_shell_auth` scritto a mano non apre niente;
+      - credenziali errate danno il messaggio corretto;
+      - le chiamate API vanno solo al dominio del sito;
+      - `/evaluate` resta fuori dal login.
+- [x] Accesso vero verificato da Bilal con un account del gruppo.
+- [x] Passo 4: `secure-demo-accounts.js --apply --frontend-is-backend-mode`
+      in produzione. `operatore` disattivato, 43 sessioni revocate; gli
+      altri account demo non esistono in produzione. 2 PLATFORM_ADMIN attivi.
+- [x] Tolta `VITE_OPERATORE_BRIDGE_PASSWORD`. **Railway non rifà la build
+      quando si cancella una variabile**: il bundle conteneva ancora la
+      password, quindi ho rifatto la build con `railway redeploy --from-source`.
+      Nel nuovo bundle la password di operatore è vuota. Restano
+      `admin123`/`acme123` nel codice del ponte: senza effetto (account
+      inesistenti o disattivati), escono con il ritiro del guscio legacy.
+- [x] `ORIGINAL_SKILLS_COMPANY_MAP` impostata sul Backend (2026-10-03),
+      nel verso companyId → codAzienda. Chiavi provvisorie `societa1`,
+      `societa2`: in produzione esiste solo la società «Acme Corp», e le due
+      società di Original Skills vanno create nella piattaforma prima di usare
+      la mappa nella rotta vera. Script di prova lanciato in produzione:
+      200, 7 persone (6 società 1, 0 società 2, 1 account API da scartare).
+      Nuovo: `risultato` può arrivare vuoto.
+- [ ] Fase 8, ultimo passo: ritiro del guscio legacy e della copia
+      `frontend/legacy-shell/`, di `authBridge.ts` e delle coppie di
+      `js/app.js`.
+
 ## 2026-10-03 — Script di prova Original Skills
 - [x] `backend/scripts/test-original-skills-fetch.ts` (compilato in
       `dist/scripts/`): chiamata di prova con le variabili di Railway

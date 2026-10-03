@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   type LucideIcon,
   Mail,
+  ScanSearch,
   Sigma,
   Sparkles,
   Trophy,
@@ -71,4 +72,5 @@ export const RECRUITING_NAV_ITEMS: RecruitingNavItem[] = [
   { screen: 'ai', label: 'Assistente IA', icon: Sparkles, to: '/recruiting/ask' },
   { screen: 'cipAdmin', label: 'CIP', icon: IdCard, to: '/recruiting/admin/cip', roles: ['PLATFORM_ADMIN'] },
   { screen: 'emailAdmin', label: 'Email', icon: Mail, to: '/recruiting/admin/email', roles: ['PLATFORM_ADMIN', 'COMPANY_ADMIN'] },
+  { screen: 'originalSkills', label: 'Original Skills', icon: ScanSearch, to: '/recruiting/admin/original-skills', roles: ['PLATFORM_ADMIN'] },
 ]

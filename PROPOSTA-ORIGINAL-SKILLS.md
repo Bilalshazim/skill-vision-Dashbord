@@ -392,6 +392,10 @@ ultimi 30 giorni). Due scoperte che cambiano la traduzione nel server:
    nella stessa persona: due voci diverse, o la stessa rinominata? Domanda
    al §8. Le società 1 e 2 nei periodi osservati usano ancora le 36.
 
+3. **`risultato` e `graduatoria` possono essere vuoti** (stringa vuota):
+   visto in 1 riga su 7 il 2026-10-03, con le competenze presenti. Il
+   server li traduce in `null`, senza scartare la riga.
+
 **Lo script di prova** si lancia così (codici azienda solo da Railway, mai in un
 file):
 
@@ -404,8 +408,10 @@ railway run --service Backend node dist/scripts/test-original-skills-fetch.js --
 - **Cosa stampa:** esito, tempi, campi, tipi, scale, formati mascherati, le
   verifiche fra i campi e le competenze per società. Mai nomi, email o
   codici.
-- **Dove prende i codici:** da `ORIGINAL_SKILLS_COMPANY_MAP` (ancora da
-  impostare sul servizio Backend). Fino ad allora si possono passare solo
+- **Dove prende i codici:** da `ORIGINAL_SKILLS_COMPANY_MAP` sul servizio
+  Backend (impostata il 2026-10-03; le chiavi sono provvisorie, `societa1` e
+  `societa2`, finché le due società non esistono nella piattaforma con un
+  loro id). Fino ad allora si possono passare solo
   sulla riga di comando con `ORIGINAL_SKILLS_TEST_CODES=…`.
 - **Senza codici** si ferma e spiega cosa impostare.
 
@@ -423,7 +429,7 @@ type OriginalSkillsResult = {
   fullName: string              // Nome + Cognome, solo per l'anteprima del collegamento
   email: string | null          // null se non è un'email valida
   completedAt: string           // «ultima modifica», ISO 8601
-  overall: number               // «risultato» (standardizzato)
+  overall: number | null        // «risultato» (standardizzato); può arrivare vuoto (visto il 2026-10-03)
   skills: { skillId: string | null; label: string; value: number }[]   // 36; skillId null se non mappata
   roleSkills: { skillId: string | null; label: string; value: number; expected: number; gap: number }[]
 }
@@ -556,6 +562,12 @@ Ancora aperte:
 ## 9. Stima
 
 ### 9.1 Lettura in sola visualizzazione (nessun salvataggio)
+
+**Stato al 2026-10-03:** fatta la prima parte — rotta nel server e pagina di
+anteprima per i PLATFORM_ADMIN (`/recruiting/admin/original-skills`), spenta
+salvo `ORIGINAL_SKILLS_ENABLED=true`. Restano la cache, il filtro per la
+società dell'utente (serve una società vera nella mappa) e l'interfaccia
+nelle schermate del §5.
 
 | Parte | Giornate |
 |---|---|

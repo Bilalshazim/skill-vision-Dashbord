@@ -15,6 +15,7 @@ import { emailConfigRouter } from './modules/emailConfig/routes.js'
 import { evaluatorsRouter } from './modules/evaluators/routes.js'
 import { healthRouter } from './modules/health/routes.js'
 import { jobProfilesRouter } from './modules/jobProfiles/routes.js'
+import { originalSkillsRouter } from './modules/originalSkills/routes.js'
 import { platformsRouter } from './modules/platforms/routes.js'
 import { shortlistRouter } from './modules/shortlist/routes.js'
 import { webhooksRouter } from './modules/webhooks/routes.js'
@@ -110,6 +111,7 @@ export function createApp() {
   app.use('/api/v1/job-profiles', jobProfilesRouter)
   app.use('/api/v1/webhooks', webhooksRouter)
   app.use('/api/v1/assessment-ai', assessmentAiRouter)
+  app.use('/api/v1/original-skills', originalSkillsRouter)
 
   app.use(notFoundHandler)
   app.use(errorHandler)

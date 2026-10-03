@@ -177,3 +177,35 @@ export const emailConfigApi = {
     apiPatch<BackendEmailServiceConfig>('/email-config/admin/email-service', input),
   activateEmailServiceConfig: (id: string) => apiPost<BackendEmailServiceConfig>(`/email-config/admin/email-service/${id}/activate`),
 }
+
+// Original Skills — anteprima in sola lettura (solo PLATFORM_ADMIN). Il
+// server legge l'API al momento e non salva niente; i codici azienda e le
+// credenziali non arrivano mai qui.
+export type OriginalSkillsCompany = { key: string; label: string; linked: boolean }
+export type OriginalSkillsCompetency = { name: string; score: number | null }
+export type OriginalSkillsPerson = {
+  interviewId: string
+  firstName: string
+  lastName: string
+  companyKey: string
+  site: string
+  updatedAt: string | null
+  result: number | null
+  competencies: OriginalSkillsCompetency[]
+  roleCompetencies: (OriginalSkillsCompetency & { expected: number | null; diff: number | null })[]
+}
+export type OriginalSkillsResults = {
+  from: string
+  to: string
+  companies: OriginalSkillsCompany[]
+  people: OriginalSkillsPerson[]
+  discardedRows: number
+  invalidRows: number
+  duplicateEntries: number
+}
+
+export const originalSkillsApi = {
+  companies: () => apiGet<{ companies: OriginalSkillsCompany[]; maxRangeDays: number }>('/original-skills/companies'),
+  results: (q: { from: string; to: string; company?: string }) =>
+    apiGet<OriginalSkillsResults>('/original-skills/results', q.company ? q : { from: q.from, to: q.to }),
+}

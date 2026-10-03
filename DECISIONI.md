@@ -839,3 +839,14 @@ ufficiali risolvono anche le differenze fra le liste di Assessment e
 Recruiting. Raccomandate: adottare «Sensibilità alla formazione» (la nostra
 dicitura ha il senso rovesciato) e le quattro diciture inglesi come nomi
 propri del test. `ps6` aspetta la risposta di Original Skills.
+
+## Original Skills: anteprima in sola lettura e non importazione · 2026-10-03
+Opzioni: (a) importare le persone come candidati di Acme Corp; (b) anteprima
+che legge al momento, senza salvare; (c) aspettare l'integrazione completa.
+(a) mette dipendenti reali ("Dipendente dell'impresa") come candidati in una
+società di prova che non è la loro e tocca il salvataggio dei dati: escluso.
+Scelta di Bilal: (b). Solo PLATFORM_ADMIN, spenta salvo
+`ORIGINAL_SKILLS_ENABLED=true`, visibile solo con il login backend. Le chiavi
+della mappa che sono companyId mostrano il nome della società; le altre
+restano etichette provvisorie. Dati personali non necessari filtrati nel
+server, non nel browser.

@@ -66,3 +66,10 @@ export class TooManyRequestsError extends AppError {
     super(429, 'too_many_requests', message)
   }
 }
+// Un'integrazione spenta per configurazione (es. ORIGINAL_SKILLS_ENABLED):
+// non è un guasto, quindi 503 con un codice proprio e niente log d'errore.
+export class ServiceDisabledError extends AppError {
+  constructor(message = 'Service disabled') {
+    super(503, 'service_disabled', message)
+  }
+}
