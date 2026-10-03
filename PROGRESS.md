@@ -126,6 +126,15 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-03 — Original Skills: LOGICAMED S.R.L. nella mappa
+- [x] Su richiesta di Bilal: le righe di LOGICAMED S.R.L. (1 negli ultimi 89
+      giorni, il suo test) hanno il codice dell'account API (`authCompany`).
+      Aggiunta la chiave `logicamed` a `ORIGINAL_SKILLS_COMPANY_MAP` con quel
+      valore, letto dalle variabili senza stamparlo. Verificato nel container:
+      chiavi `societa1,societa2,logicamed`, `logicamed` = authCompany.
+- [ ] Da sapere: LOGICAMED usa il questionario a 42 voci (non le 36), con
+      «Innovazione» ripetuta; la normalizzazione toglie il doppione.
+
 ## 2026-10-03 — Original Skills: anteprima in sola lettura
 - [x] Backend `modules/originalSkills`: `GET /api/v1/original-skills/companies`
       e `/results?from&to&company`. `requireAuth` + PLATFORM_ADMIN; 503

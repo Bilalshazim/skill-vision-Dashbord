@@ -850,3 +850,10 @@ Scelta di Bilal: (b). Solo PLATFORM_ADMIN, spenta salvo
 della mappa che sono companyId mostrano il nome della società; le altre
 restano etichette provvisorie. Dati personali non necessari filtrati nel
 server, non nel browser.
+
+## Original Skills: le righe dell'account API entrano come società propria · 2026-10-03
+L'API restituisce sempre le righe con codAzienda = authCompany e il server le
+scarta se quel codice non è richiesto. Bilal ha chiesto di vedere LOGICAMED
+S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
+`logicamed`. Le sue righe compaiono solo filtrando per tutte le società o per
+`logicamed`; il filtro per le altre società continua a scartarle.
