@@ -144,8 +144,9 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
       EmptyState, InlineAlert: nessuno stile proprio, nessun pattern nuovo.
 - [x] Test: `tests/originalSkills.test.ts` (6) — backend 114/114; typecheck
       frontend e backend puliti; build ok; audit: 0 difetti in `frontend/src`.
-- [ ] In produzione resta spenta: `ORIGINAL_SKILLS_ENABLED` non impostata.
-      Accenderla richiede conferma. Le chiavi della mappa sono ancora
+- [x] In produzione (commit `0395d11`, conferma di Bilal):
+      `ORIGINAL_SKILLS_ENABLED=true` sul Backend. Verificato dopo il deploy:
+      rotta senza token → 401, pagina → 200, bundle nuovo. Le chiavi della mappa sono ancora
       `societa1`/`societa2`: la pagina mostra queste etichette finché non
       diventano companyId di società vere.
 - [ ] Non verificata a schermo (serve il backend acceso con le variabili).
