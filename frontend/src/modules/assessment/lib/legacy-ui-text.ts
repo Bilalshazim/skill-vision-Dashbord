@@ -228,6 +228,7 @@ export const UI_EN = {
   f3ModeCP: 'HS · Hard skills',
   f3ModeBoth: 'SS + HS · Complete',
   f3Scale100: '/100%',
+  f3IndexValue: 'Generated Performance Value Index',
   f3Points: 'points',
   f3ScoreVsBenchmark: 'Score and benchmark',
   f3Benchmark: 'Benchmark',
@@ -289,7 +290,7 @@ export const UI_EN = {
   // Renamed from "At Risk": the KPI row further down uses "People at Risk"
   // for the UNION of this tier + Critical, so reusing the same words for
   // just this one sub-tier made the two numbers look contradictory.
-  quadNeedsDevelopment: 'Needs Development',
+  quadNeedsDevelopment: 'Needs Strengthening',
   quadNeedsSupport: 'Needs support',
   // The 5th tile — previously this tier (score 5.5–7.0) had no tile at all,
   // so the 4 tiles on screen never summed to the full employee count.
@@ -332,7 +333,7 @@ export const UI_EN = {
   crossBannerInterviewsThisWeekSub: (n) => `${n} companies involved`,
   crossBannerClosedPositions: 'CLOSED POSITIONS',
   crossBannerClosedPositionsSub: (total) => `out of ${total} open positions`,
-  azioniTraining: 'Training',
+  azioniTraining: 'Training and Development',
   azioniTrainingDesc: (skill) => `Close the gap on "${skill}"`,
   azioniCoaching: 'Coaching',
   azioniCoachingDesc: 'Accelerate the growth of high-potential employees',
@@ -1279,6 +1280,7 @@ export const UI_IT = {
   f3ModeCP: 'CP · Competenze professionali',
   f3ModeBoth: 'CT + CP · Completo',
   f3Scale100: '/100%',
+  f3IndexValue: 'Indice Valore Rendimento Generato',
   f3Points: 'punti',
   f3ScoreVsBenchmark: 'Punteggio e benchmark',
   f3Benchmark: 'Benchmark',
@@ -1333,7 +1335,7 @@ export const UI_IT = {
   quadOperationalPillars: 'Pilastri operativi',
   quadCritical: 'Critici',
   quadUrgentAction: 'Azione urgente necessaria',
-  quadNeedsDevelopment: 'Da Sviluppare',
+  quadNeedsDevelopment: 'Da Potenziare',
   quadNeedsSupport: 'Necessita supporto',
   quadOnTrack: 'Nella Norma',
   quadOnTrackCaption: 'In linea con le attese',
@@ -1374,7 +1376,7 @@ export const UI_IT = {
   crossBannerInterviewsThisWeekSub: (n) => `${n} aziende coinvolte`,
   crossBannerClosedPositions: 'POSIZIONI CHIUSE',
   crossBannerClosedPositionsSub: (total) => `su ${total} posizioni aperte`,
-  azioniTraining: 'Formazione',
+  azioniTraining: 'Formazione e Sviluppo',
   azioniTrainingDesc: (skill) => `Colma il gap su "${skill}"`,
   azioniCoaching: 'Coaching',
   azioniCoachingDesc: 'Accelera la crescita dei dipendenti ad alto potenziale',

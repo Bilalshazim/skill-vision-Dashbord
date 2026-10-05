@@ -126,6 +126,14 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Foglio 3 Assessment, versione aggiornata del PDF (voci in rosso)
+- [x] Finestra 1: sotto il numero grande, "Indice Valore Rendimento Generato".
+- [x] Finestra 2: la 4ª fascia "Da Sviluppare" è ora "Da Potenziare" (anche
+      nella legenda della mappa).
+- [x] Finestra 4: la prima azione "Formazione" è ora "Formazione e Sviluppo"
+      (anche nell'esportazione del piano d'azione).
+- Il resto del foglio era già fatto (vedi voce precedente). `tsc`, build, audit ok.
+
 ## 2026-10-05 — Assessment Foglio 3 (Roberto Feliciani) + dimensione delle card Recruiting
 Da "Foglio 3 modifiche migliorative.pdf" e dalla schermata di Bilal.
 - [x] **Card Recruiting troppo piccole:** `FolderCard` ha ora un corpo alto

@@ -39,7 +39,7 @@ import {
   tierFor,
   worstCompetenza,
 } from '@/modules/assessment/lib/calculations'
-import { fmt1, fmt1csv, fmt1it, getTierDefs, round1 } from '@/modules/assessment/lib/legacy-utils'
+import { fmt1, fmt1csv, fmt1it, round1 } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import type { getUI } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentState } from '@/modules/assessment/lib/types'
@@ -172,7 +172,8 @@ export default function AssessmentHomePage() {
       }),
     [state, lang],
   )
-  const mapGroups = useMemo(() => getTierDefs(lang).map((t) => ({ key: t.key, label: t.label, color: TIER_COLORS[t.key] })), [lang])
+  // Le etichette delle fasce sono quelle della finestra ("Da Potenziare", ...).
+  const mapGroups = useMemo(() => quadDefs(ui).map((q) => ({ key: q.key, label: q.label, color: TIER_COLORS[q.key] })), [ui])
 
   // Dove il valore si ferma: quanto la media di aree e mansioni resta sotto il
   // benchmark (solo quelle sotto, dalla più lontana).

@@ -58,7 +58,7 @@ export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgG
                 scrive una volta, nel riquadro; la legenda dice il nome della
                 fascia, mai il colore (CLAUDE.md). "/100%": richiesta del
                 Foglio 3, un'unica unità. */}
-            <StatCard elevated emphasis tone="accent" size="lg" className="sm:col-span-2" icon={Gauge} label={ui.homeQ1Score} value={overallPct} unit={ui.f3Scale100}>
+            <StatCard elevated emphasis tone="accent" size="lg" className="sm:col-span-2" icon={Gauge} label={ui.homeQ1Score} value={overallPct} unit={ui.f3Scale100} note={<b className="font-semibold text-foreground">{ui.f3IndexValue}</b>}>
               <ScoreGauge value={overallPct} label={ui.homeQ1Score} />
             </StatCard>
             <StatCard elevated emphasis icon={Target} label={ui.homeQ1Coverage} value={roleCovPct} unit={ui.f3Scale100}>
