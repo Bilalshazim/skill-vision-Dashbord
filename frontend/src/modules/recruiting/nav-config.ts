@@ -68,7 +68,7 @@ export const RECRUITING_NAV_ITEMS: RecruitingNavItem[] = [
   { screen: 'ranking', label: 'Risultati', icon: Trophy, to: '/recruiting/ranking' },
   { screen: 'match', label: 'Confronto interno', icon: ArrowLeftRight, to: '/recruiting/match' },
   // Fase 3 (Roberto Feliciani): la voce sta subito dopo "Confronto interno"; era "Inizia", ora "Stato dell'arte".
-  { screen: 'home', label: "Stato dell'arte", icon: LayoutDashboard, to: '/recruiting', end: true },
+  { screen: 'home', label: "Stato dell'arte", icon: LayoutDashboard, to: '/recruiting/stato-dell-arte' },
   { screen: 'formule', label: 'Metodo', icon: Sigma, to: '/recruiting/metodo' },
   { screen: 'ai', label: 'Assistente IA', icon: Sparkles, to: '/recruiting/ask' },
   { screen: 'cipAdmin', label: 'CIP', icon: IdCard, to: '/recruiting/admin/cip', roles: ['PLATFORM_ADMIN'] },

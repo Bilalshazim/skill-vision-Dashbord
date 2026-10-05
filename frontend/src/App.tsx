@@ -71,7 +71,10 @@ function App() {
           <Route path="/" element={<ModuleChooserPage />} />
           <Route>
             <Route path="recruiting" element={<RecruitingLayout />}>
-              <Route index element={<RecruitingHome />} />
+              {/* Entrando in Recruiting si apre "Profilo della ricerca", la prima
+                  pagina; "Stato dell'arte" (la vecchia home) ha un indirizzo suo. */}
+              <Route index element={<Navigate to="profile" replace />} />
+              <Route path="stato-dell-arte" element={<RecruitingHome />} />
               <Route path="ranking" element={<RankingPage />} />
               <Route path="pagina-a" element={<PaginaAPage />} />
               <Route path="pipeline" element={<PipelinePage />} />

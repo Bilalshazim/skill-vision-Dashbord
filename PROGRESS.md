@@ -126,6 +126,15 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Recruiting si apre su "Profilo della ricerca" (Bilal)
+- [x] `/recruiting` ora rimanda a `/recruiting/profile` (Navigate replace): chi
+      entra in Recruiting — dalla scelta del modulo, dal commutatore, dai
+      collegamenti degli altri moduli o con un solo modulo acquistato — vede
+      "Profilo della ricerca", la prima voce del menu.
+- [x] "Stato dell'arte" (la vecchia home, `RecruitingHome`) ha un indirizzo
+      suo: `/recruiting/stato-dell-arte`; la voce di menu punta lì.
+- [ ] Non committato né pubblicato. `tsc`, build ok. Non verificato a schermo.
+
 ## 2026-10-05 — Assistente IA a tutta larghezza (Bilal)
 - [x] `AskPage`: tolto `max-w-180` (720px); la pagina usa tutta la larghezza
       del guscio. Il guscio resta a 1536px al massimo (per tutte le pagine).
