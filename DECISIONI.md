@@ -1009,3 +1009,16 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   lunghe, meno comode da leggere. Il limite del guscio (`max-w-screen-2xl`,
   1536px, deciso il 2026-10-01 per tutte le pagine) non è stato toccato.
 - I messaggi della chat (`ChatMessage`) restano a `max-w-[82%]` della larghezza.
+
+## Icone di Profilo della ricerca · 2026-10-05
+- I disegni del cliente hanno icone illustrate (casa con l'euro, lampadina con
+  diamante, sacco di denaro con freccia, mano con ingranaggio e avviso). La
+  regola è Lucide, senza dipendenze visive nuove (CLAUDE.md cap. 3 e 12).
+- Opzioni: (a) icone Lucide composte (grande + segno piccolo); (b) importare gli
+  SVG originali. Presa **(a)**: nessun file nuovo, tratto coerente con il resto.
+  Per (b) servono gli SVG dal cliente; andrebbero aggiunti qui come decisione.
+- Nei disegni "Competenze trasversali" e "Profilo Candidato" hanno la stessa
+  casa nella pagina del pannello aperto, e "Area Valutatori" ha il sacco di
+  denaro: ho seguito la prima schermata (icone tutte diverse).
+- Titolo "Area Valutatori" (plurale) come nei disegni; altrove nel prodotto
+  resta "Area Valutatore": va allineato quando Roberto sceglie il nome.

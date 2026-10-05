@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react'
+import type { IconComponent } from '@/components/patterns/CompositeIcon'
 import { type CSSProperties, type ReactNode, useId } from 'react'
 
 import { FolderCard } from '@/components/patterns/FolderCard'
@@ -23,7 +23,7 @@ export function SkillVisionCard({
   labels = { today: 'oggi', skillVision: 'Skill Vision' },
   style,
 }: {
-  icon: LucideIcon
+  icon: IconComponent
   iconSide?: 'start' | 'end'
   title: ReactNode
   subtitle?: ReactNode

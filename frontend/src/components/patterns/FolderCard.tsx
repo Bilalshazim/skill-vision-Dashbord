@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react'
+import type { IconComponent } from '@/components/patterns/CompositeIcon'
 import type { ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
@@ -23,7 +23,7 @@ export function FolderCard({
   className,
   children,
 }: {
-  icon: LucideIcon
+  icon: IconComponent
   title: ReactNode
   kicker?: ReactNode
   aside?: ReactNode

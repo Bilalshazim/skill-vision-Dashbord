@@ -126,6 +126,18 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Profilo della ricerca secondo i disegni del cliente (Bilal)
+- [x] Le card chiuse mostrano **solo il titolo** (sottotitolo, righe e bottone
+      tolti dalla faccia della card); la riga di descrizione di ogni disegno
+      ("Il profilo della ricerca in corso · Responsabilità, competenze e
+      requisiti", ecc.) è in cima al pannello che si apre a destra. Righe del
+      pannello: quelle di prima, identiche. Layout della card non toccato.
+- [x] Icone nuove, composte con Lucide (`CompositeIcon`, `profile-hub-icons.ts`):
+      casa + euro, lampadina + diamante, monete + freccia in calo, ingranaggio +
+      avviso. Sono un'approssimazione dei disegni, non gli originali.
+- [x] Titolo "Area Valutatore" → "Area Valutatori", come nei disegni.
+- [ ] Non committato né pubblicato. `tsc`, build, audit ok. Non verificato a schermo.
+
 ## 2026-10-05 — Recruiting si apre su "Profilo della ricerca" (Bilal)
 - [x] `/recruiting` ora rimanda a `/recruiting/profile` (Navigate replace): chi
       entra in Recruiting — dalla scelta del modulo, dal commutatore, dai

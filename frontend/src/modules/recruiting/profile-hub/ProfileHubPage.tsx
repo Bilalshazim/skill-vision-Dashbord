@@ -1,27 +1,28 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { SkillVisionCard } from '@/components/patterns/SkillVisionCard'
-import { ArrowUpRight, Brain, ClipboardList, Compass, FileText, Megaphone, User } from 'lucide-react'
+import { Compass, FileText } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Card, CardDescription } from '@/components/ui/card'
 import { usePersistedFlag } from '@/hooks/use-persisted-flag'
 import { homeCardLayout } from '@/lib/home-card-layout'
 import { EvaluatorAreaCard } from '@/modules/recruiting/profile-hub/EvaluatorAreaCard'
 import { JobPostingSection } from '@/modules/recruiting/profile-hub/JobPostingSection'
 import { SoftSkillSection } from '@/modules/recruiting/profile-hub/SoftSkillSection'
 import { SurveyLinkSection } from '@/modules/recruiting/profile-hub/SurveyLinkSection'
+import { AnnuncioDiLavoroIcon, AreaValutatoriIcon, CompetenzeTrasversaliIcon, ProfiloCandidatoIcon } from '@/modules/recruiting/profile-hub/profile-hub-icons'
 
 // Migrated from modules/recruiting.html #scr-profilo ("Profilo della
 // ricerca" — nav-labeled "Report", ~241-354): le quattro finestre nello
 // stesso ordine di legacy (Profilo Candidato / Competenze trasversali /
 // Annuncio di lavoro / Area Valutatore).
 //
-// Come la Home di Assessment (Roberto Feliciani): ogni finestra è una
-// SkillVisionCard — titolo, sottotitolo, due righe, icona a sinistra — e
-// "Skill Vision" apre sulla destra, nella stessa riga, quello che prima stava
-// dentro la card (identico: stesse sezioni, stessi dialog). Aperto/chiuso è
-// ricordato nel browser; all'inizio sono tutte chiuse.
+// Come nei disegni del cliente (Roberto Feliciani): ogni finestra è una
+// SkillVisionCard con il solo titolo e l'icona a sinistra; "Skill Vision" apre
+// sulla destra, nella stessa riga, il pannello con una riga di descrizione e
+// quello che prima stava dentro la card (identico: stesse sezioni, stessi
+// dialog). Aperto/chiuso è ricordato nel browser; all'inizio sono tutte chiuse.
 export default function ProfileHubPage() {
   const [openProfilo, setOpenProfilo] = usePersistedFlag('sv-recruiting-profile-profilo-view', 'skillvision', 'oggi')
   const [openSoft, setOpenSoft] = usePersistedFlag('sv-recruiting-profile-soft-view', 'skillvision', 'oggi')
@@ -46,22 +47,14 @@ export default function ProfileHubPage() {
 
       <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
         <SkillVisionCard
-          icon={User}
+          icon={ProfiloCandidatoIcon}
           title="Profilo Candidato"
-          subtitle="la scheda della posizione"
-          lines={['Il profilo della ricerca in corso', 'Responsabilità, competenze e requisiti']}
           open={openProfilo}
           onOpenChange={setOpenProfilo}
           style={cardLayout.profilo}
-          actions={
-            <Button asChild variant="outline" size="sm">
-              <Link to="/recruiting/job-profile">
-                Apri scheda <ArrowUpRight />
-              </Link>
-            </Button>
-          }
           panel={
             <Card className="gap-3">
+              <CardDescription>Il profilo della ricerca in corso · Responsabilità, competenze e requisiti</CardDescription>
               <Button asChild variant="outline" className="h-auto justify-start gap-2.5 p-3 text-left">
                 <Link to="/recruiting/job-profile">
                   <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -74,15 +67,14 @@ export default function ProfileHubPage() {
         />
 
         <SkillVisionCard
-          icon={Brain}
+          icon={CompetenzeTrasversaliIcon}
           title="Competenze trasversali"
-          subtitle="le 35 competenze APEX 5D"
-          lines={['Quelle che contano per il ruolo', 'E il link al questionario']}
           open={openSoft}
           onOpenChange={setOpenSoft}
           style={cardLayout.soft}
           panel={
             <Card className="gap-3">
+              <CardDescription>Quelle che contano per il ruolo · Link al questionario</CardDescription>
               <SoftSkillSection />
               <SurveyLinkSection />
             </Card>
@@ -90,30 +82,28 @@ export default function ProfileHubPage() {
         />
 
         <SkillVisionCard
-          icon={Megaphone}
+          icon={AnnuncioDiLavoroIcon}
           title="Annuncio di lavoro"
-          subtitle="dove cercano i candidati"
-          lines={['Il link dell’annuncio pubblicato', 'E il riepilogo della ricerca']}
           open={openAnnuncio}
           onOpenChange={setOpenAnnuncio}
           style={cardLayout.annuncio}
           panel={
-            <Card>
+            <Card className="gap-3">
+              <CardDescription>Il link dell’annuncio pubblicato · Riepilogo della ricerca</CardDescription>
               <JobPostingSection />
             </Card>
           }
         />
 
         <SkillVisionCard
-          icon={ClipboardList}
-          title="Area Valutatore"
-          subtitle="chi valuta e cosa scrive"
-          lines={['Schede di intervista, valutazione e report', 'Valutatori, invii e sintesi']}
+          icon={AreaValutatoriIcon}
+          title="Area Valutatori"
           open={openValutatore}
           onOpenChange={setOpenValutatore}
           style={cardLayout.valutatore}
           panel={
-            <Card>
+            <Card className="gap-3">
+              <CardDescription>Schede di intervista, valutazione e report · Valutatori, invii e sintesi</CardDescription>
               <EvaluatorAreaCard />
             </Card>
           }
