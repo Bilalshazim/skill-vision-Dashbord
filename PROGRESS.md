@@ -126,6 +126,11 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Voce di menu "Inizia" → "Stato dell'arte" (Bilal)
+- [x] `nav-config.ts`: etichetta della prima pagina di Recruiting (`/recruiting`)
+      rinominata; posizione (dopo "Confronto interno") e indirizzo invariati.
+      Scritta in minuscolo ("Stato dell'arte"): il maiuscolo è solo dello stile label.
+
 ## 2026-10-05 — Profilo della ricerca: card come quelle di Assessment (Bilal)
 - [x] `ProfileHubPage`: le quattro finestre (Profilo Candidato, Competenze
       trasversali, Annuncio di lavoro, Area Valutatore) sono `SkillVisionCard`
