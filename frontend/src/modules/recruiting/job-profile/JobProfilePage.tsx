@@ -3,7 +3,6 @@ import { AlertTriangle, CheckCircle2, Copy, FileText, Pencil, Save } from 'lucid
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useConfirm } from '@/hooks/use-confirm'
 import { Checkbox } from '@/components/ui/checkbox'
 import { jobProfilesApi } from '@/lib/api/endpoints'
@@ -14,7 +13,6 @@ import { loadJobProfileFromBackend, saveJobProfileToBackend } from '@/modules/re
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import type { JdPresetId } from '@/modules/recruiting/lib/jd-presets'
-import { JD_PROFILES } from '@/modules/recruiting/lib/jd-presets'
 import type { JdExtraRow, JdHardSkillGroup, JdSectionKey, JdState } from '@/modules/recruiting/lib/jd-types'
 import { JdExtraRequirements } from '@/modules/recruiting/job-profile/JdExtraRequirements'
 import { JdHardSkills } from '@/modules/recruiting/job-profile/JdHardSkills'
@@ -47,7 +45,7 @@ const SECTION_SUB: Partial<Record<JdSectionKey, string>> = {
 }
 
 // Ported literal groups order from jd_buildEditor() (modules/recruiting.html
-// ~4058-4080) — Intestazione + Fasce Retributive first, then the 13
+// ~4058-4080) — Intestazione + Compensation e Benefit first, then the 13
 // section keys in this exact sequence, hard skills right after Attività,
 // extra requirements last.
 const SECTION_ORDER: JdSectionKey[] = ['responsabilita', 'attivita']
@@ -111,7 +109,6 @@ function buildInitialState(): JdState {
 export default function JobProfilePage() {
   const [jdState, setJdState] = useState<JdState>(buildInitialState)
   const [confirm, confirmDialog] = useConfirm()
-  const [currentPreset, setCurrentPreset] = useState<JdPresetId>('sam')
   const [saveMessage, setSaveMessage] = useState('')
   const [backendNote, setBackendNote] = useState('')
 
@@ -171,7 +168,6 @@ export default function JobProfilePage() {
   // legacy exactly; only the explicit "Salva JD" button writes storage.
   async function handleSelectPreset(pid: JdPresetId) {
     if (!(await confirm({ title: 'Cambiare profilo di partenza?', description: 'Le selezioni correnti della scheda verranno sovrascritte.', confirmLabel: 'Cambia profilo', destructive: true }))) return
-    setCurrentPreset(pid)
     setJdState(buildJdStateFromPreset(pid))
     setSaveMessage('')
     setBackendNote('')
@@ -241,11 +237,7 @@ export default function JobProfilePage() {
         level="page"
         className="mb-0"
         title="Configura la Scheda Professionale per la ricerca in corso"
-        description={
-          mode === 'edit'
-            ? "Parti da un profilo precompilato, poi seleziona, deseleziona, cambia livelli e aggiungi righe libere per adattarlo alla ricerca specifica. L'anteprima a destra si aggiorna in tempo reale ed è pronta per essere stampata o condivisa."
-            : 'Anteprima pulita della scheda salvata — pronta per essere approvata e condivisa. Usa "Modifica" per tornare all\'editor.'
-        }
+        description={mode === 'preview' ? 'Anteprima pulita della scheda salvata — pronta per essere approvata e condivisa. Usa "Modifica" per tornare all\'editor.' : undefined}
         actions={
           <Button
             type="button"
@@ -270,29 +262,13 @@ export default function JobProfilePage() {
 
       {mode === 'edit' ? (
         <>
-          <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground dark:text-secondary-foreground">
-            Questa scheda si riferisce alla posizione attiva (<b className="font-semibold text-foreground">{DEFAULT_ROLE}</b>). Cambio di posizione,
-            scheda vuota e importazione CSV/XLSX non sono ancora disponibili in questa schermata.
-          </p>
-
-          <div>
-            <div className="label-mono mb-2 text-muted-foreground">Profilo di partenza</div>
-            <ToggleGroup type="single" value={currentPreset} onValueChange={(pid) => pid && handleSelectPreset(pid as JdPresetId)} aria-label="Profilo di partenza">
-              {(Object.keys(JD_PROFILES) as JdPresetId[]).map((pid) => (
-                <ToggleGroupItem key={pid} value={pid}>
-                  {JD_PROFILES[pid].label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </div>
-
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_420px]">
             <Accordion type="multiple" defaultValue={ALL_SECTIONS} className="flex flex-col gap-4">
               <AccordionSection index={nextIdx()} title="Intestazione posizione" value="header">
-                <JdHeaderFields header={jdState.header} scopo={jdState.scopo} onHeaderChange={(patch) => setJdState((prev) => ({ ...prev, header: { ...prev.header, ...patch } }))} onScopoChange={(scopo) => setJdState((prev) => ({ ...prev, scopo }))} />
+                <JdHeaderFields header={jdState.header} scopo={jdState.scopo} onSelectPreset={handleSelectPreset} onHeaderChange={(patch) => setJdState((prev) => ({ ...prev, header: { ...prev.header, ...patch } }))} onScopoChange={(scopo) => setJdState((prev) => ({ ...prev, scopo }))} />
               </AccordionSection>
 
-              <AccordionSection index={nextIdx()} title="Fasce Retributive e Benefit" value="salary">
+              <AccordionSection index={nextIdx()} title="Compensation e Benefit" value="salary">
                 <JdSalaryBenefits role={DEFAULT_ROLE} />
               </AccordionSection>
 

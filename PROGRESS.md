@@ -126,6 +126,20 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Fase 4: Profilo Candidatura (checklist Roberto Feliciani)
+- [x] Tolti dall'editor: testo "Parti da un profilo precompilato…", nota sulla
+      posizione attiva, chip "Profilo di partenza". Nell'anteprima resta la
+      sua descrizione.
+- [x] "Titolo della posizione" è di nuovo una tendina con le cinque posizioni
+      e "Altro" per ultima (con campo libero). Scegliere una posizione carica
+      il profilo corrispondente, con la conferma di prima: è la funzione che
+      avevano i chip, quindi non si perde.
+- [x] "Fasce Retributive e Benefit" → "Compensation e Benefit".
+- [x] Competenze trasversali: il nome della competenza ora si può cliccare
+      per selezionarla/deselezionarla (prima solo la casella; nelle altre
+      sezioni il testo era già cliccabile).
+- [ ] Non verificato a schermo (serve l'accesso). `tsc`, build, audit ok.
+
 ## 2026-10-05 — Fase 3: layout, dashboard, rilievo (checklist Roberto Feliciani)
 - [x] Menu Recruiting: "Inizia" subito dopo "Confronto interno" (`nav-config.ts`).
 - [x] Home Recruiting: le quattro finestre (Candidati per fascia, Imbuto,

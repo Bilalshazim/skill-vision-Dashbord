@@ -73,10 +73,14 @@ export function JdSection({ section, onChange }: { section: JdSectionData; onCha
           <div key={it.id} className="flex flex-wrap items-start justify-between gap-2">
             <div className="flex items-start gap-2">
               <CheckDot checked={it.checked} label={it.label} onClick={() => onChange({ ...section, items: section.items.map((x) => (x.id === it.id ? { ...x, checked: !x.checked } : x)) })} />
-              <span className={cn('text-app-small', it.checked ? 'text-foreground' : 'text-muted-foreground')}>
+              <button
+                type="button"
+                onClick={() => onChange({ ...section, items: section.items.map((x) => (x.id === it.id ? { ...x, checked: !x.checked } : x)) })}
+                className={cn('text-left text-app-small', it.checked ? 'text-foreground' : 'text-muted-foreground')}
+              >
                 {it.label}
                 {it.weight > 0 && <Badge className="ml-2">{WEIGHT_LABEL[it.weight]}</Badge>}
-              </span>
+              </button>
             </div>
             <Label className="shrink-0">
               Valore atteso
