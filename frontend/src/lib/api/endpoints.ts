@@ -1,7 +1,7 @@
 // Phase 31 §2 — one typed function per backend route the Recruiting
 // frontend actually calls, grouped by domain. Thin wrappers over
 // apiGet/apiPost/apiPatch/apiUpload (client.ts) — no fetch() elsewhere.
-import { apiDelete, apiGet, apiPatch, apiPost, apiPostAnonymous, apiRequest, apiUpload } from '@/lib/api/client'
+import { apiDelete, apiGet, apiGetAnonymous, apiPatch, apiPost, apiPostAnonymous, apiRequest, apiUpload } from '@/lib/api/client'
 import type {
   BackendCampaign,
   BackendCampaignCandidate,
@@ -113,6 +113,13 @@ export const jobProfilesApi = {
   ) => apiPatch<BackendJobProfile>(`/job-profiles/campaign/${campaignId}`, input),
   approve: (id: string) => apiPost<BackendJobProfile>(`/job-profiles/${id}/approve`),
   unapprove: (id: string) => apiPost<BackendJobProfile>(`/job-profiles/${id}/unapprove`),
+}
+
+// La pagina pubblica dell'annuncio (Fase 5): senza accesso, solo per i profili
+// approvati. Torna il minimo che il backend espone.
+export type PublicJobPosting = { title: string | null; header: Record<string, unknown>; sections: Record<string, unknown>; hardSkillGroups: unknown[]; extraRequirements: unknown[] }
+export const publicJobPostingsApi = {
+  get: (token: string) => apiGetAnonymous<PublicJobPosting>(`/public/job-postings/${encodeURIComponent(token)}`),
 }
 
 export const cipApi = {

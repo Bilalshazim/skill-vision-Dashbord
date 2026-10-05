@@ -126,6 +126,27 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Fase 5: Annuncio di lavoro (checklist Roberto Feliciani)
+- [x] **Causa del link morto:** il server generava
+      `https://dashboard.skill-vision.it/jd/<codice>`: dominio non
+      dell'applicazione (Railway ha solo `*.up.railway.app`) e nessuna pagina
+      `/jd/…` esistente. Corretto in tre punti:
+      - pagina pubblica `/jd/:token` (`JobPostingPublicPage`), senza accesso;
+      - rotta backend `GET /api/v1/public/job-postings/:token`: solo profili
+        approvati, niente retribuzioni/id/autori, 60 richieste/min per IP;
+      - link mostrato composto con l'origine reale (`publicJobPostingUrl`),
+        valido anche per i link già salvati col dominio vecchio; ora è un
+        collegamento cliccabile oltre che copiabile.
+- [x] `serve-combined.mjs`: `/jd` tra le rotte React.
+- [x] Campo obbligatorio "Come inviare il CV" (testo libero: email di
+      destinazione o link al modulo) nell'intestazione posizione. Salvare senza
+      riempirlo è bloccato con il messaggio; appare nell'anteprima e
+      nell'annuncio pubblico. Va in `header` (Json): nessuna migrazione.
+- [ ] Il link compare solo dopo "Approvata", che richiede la scheda salvata sul
+      server (posizione collegata a una campagna: serve aver caricato un CV).
+      Senza collegamento resta il messaggio di prima: non cambiato.
+- [ ] Test backend della rotta pubblica non scritti/eseguiti (servono Postgres).
+
 ## 2026-10-05 — Fase 4: Profilo Candidatura (checklist Roberto Feliciani)
 - [x] Tolti dall'editor: testo "Parti da un profilo precompilato…", nota sulla
       posizione attiva, chip "Profilo di partenza". Nell'anteprima resta la

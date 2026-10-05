@@ -285,6 +285,9 @@ export function apiDelete<T>(path: string): Promise<T> {
 export function apiUpload<T>(path: string, form: FormData): Promise<T> {
   return apiRequest<T>(path, { method: 'POST', form })
 }
+export function apiGetAnonymous<T>(path: string): Promise<T> {
+  return apiRequest<T>(path, { method: 'GET', anonymous: true })
+}
 export function apiPostAnonymous<T>(path: string, body?: unknown): Promise<T> {
   return apiRequest<T>(path, { method: 'POST', body, anonymous: true })
 }

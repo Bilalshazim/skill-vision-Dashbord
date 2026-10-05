@@ -17,6 +17,7 @@ import { healthRouter } from './modules/health/routes.js'
 import { jobProfilesRouter } from './modules/jobProfiles/routes.js'
 import { originalSkillsRouter } from './modules/originalSkills/routes.js'
 import { platformsRouter } from './modules/platforms/routes.js'
+import { publicJobPostingsRouter } from './modules/publicJobPostings/routes.js'
 import { shortlistRouter } from './modules/shortlist/routes.js'
 import { webhooksRouter } from './modules/webhooks/routes.js'
 import { env } from './lib/env.js'
@@ -109,6 +110,8 @@ export function createApp() {
   app.use('/api/v1/candidate-profiles', candidateProfilesRouter)
   app.use('/api/v1/email-config', emailConfigRouter)
   app.use('/api/v1/job-profiles', jobProfilesRouter)
+  // Senza accesso, di proposito: la pagina pubblica dell'annuncio approvato.
+  app.use('/api/v1/public/job-postings', publicJobPostingsRouter)
   app.use('/api/v1/webhooks', webhooksRouter)
   app.use('/api/v1/assessment-ai', assessmentAiRouter)
   app.use('/api/v1/original-skills', originalSkillsRouter)

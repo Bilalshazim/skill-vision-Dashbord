@@ -190,3 +190,13 @@ export function clearSalaryBenefits(role: string): void {
   delete all[role]
   writeSalaryBenefits(all)
 }
+
+// Fase 5: il link di pubblicazione salvato dal server ha un dominio scritto a
+// mano (`dashboard.skill-vision.it`) che non è quello dell'applicazione, e
+// quindi non apriva niente. Del link conta solo il codice finale: l'indirizzo
+// si compone con l'origine di dove l'applicazione gira davvero, e vale anche
+// per i link già salvati con il dominio vecchio.
+export function publicJobPostingUrl(storedLink: string): string {
+  const token = storedLink.split('/').filter(Boolean).pop() || ''
+  return `${window.location.origin}/jd/${token}`
+}

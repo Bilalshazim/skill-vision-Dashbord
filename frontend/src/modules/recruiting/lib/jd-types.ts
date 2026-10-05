@@ -39,6 +39,10 @@ export type JdHeader = {
   modalita: string
   contratto: string
   mansione: string
+  /** Fase 5: come e dove i candidati inviano il CV (modulo di caricamento o
+   *  email di destinazione). Obbligatorio per salvare la scheda. Viaggia dentro
+   *  `header`, che sul server è Json libero: nessuna colonna nuova. */
+  invioCv?: string
   fasciaRetributiva?: string
   benefit?: string
   /** Dead field — legacy's saveJdTemplateForRole()/loadJdTemplateForRole()

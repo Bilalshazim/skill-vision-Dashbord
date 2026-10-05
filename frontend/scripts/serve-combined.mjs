@@ -29,7 +29,7 @@ function send(res, filePath) {
 }
 
 const CATALOG_ENABLED = process.env.VITE_ENABLE_COMPONENT_CATALOG === 'true'
-const REACT_PREFIXES = ['/login', '/recruiting', '/assessment', '/evaluate', ...(CATALOG_ENABLED ? ['/dev/components'] : [])]
+const REACT_PREFIXES = ['/login', '/jd', '/recruiting', '/assessment', '/evaluate', ...(CATALOG_ENABLED ? ['/dev/components'] : [])]
 
 function isReactRoute(urlPath) {
   const p = urlPath.length > 1 ? urlPath.replace(/\/+$/, '') : urlPath

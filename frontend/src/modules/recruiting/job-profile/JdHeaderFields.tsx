@@ -29,12 +29,14 @@ export function JdHeaderFields({
   onHeaderChange,
   onScopoChange,
   onSelectPreset,
+  invioCvError,
 }: {
   header: JdHeader
   scopo: string
   onHeaderChange: (patch: Partial<JdHeader>) => void
   onScopoChange: (v: string) => void
   onSelectPreset: (id: JdPresetId) => void
+  invioCvError?: string
 }) {
   const matched = PRESET_IDS.find((id) => JD_PROFILES[id].header.titolo === header.titolo)
   const [otherPicked, setOtherPicked] = useState(false)
@@ -88,6 +90,14 @@ export function JdHeaderFields({
           <Input type="text" value={header.contratto} onChange={(e) => onHeaderChange({ contratto: e.target.value })} />
         </Field>
       </FieldGrid>
+      <Field
+        label="Come inviare il CV"
+        required
+        hint="Dove e in che modo i candidati inviano o caricano il CV: l'indirizzo email di destinazione o il link al modulo di caricamento."
+        error={invioCvError}
+      >
+        <Textarea value={header.invioCv ?? ''} onChange={(e) => onHeaderChange({ invioCv: e.target.value })} rows={2} placeholder="es. Invia il CV a selezione@azienda.it indicando il codice posizione nell'oggetto" />
+      </Field>
       <Field label="Scopo della posizione">
         <Textarea value={scopo} onChange={(e) => onScopoChange(e.target.value)} rows={3} />
       </Field>

@@ -44,7 +44,7 @@ function PreviewSection({ title, children }: { title: string; children: ReactNod
 // definita" empty-state copy as legacy.
 type CheckOrValueKey = 'responsabilita' | 'attivita' | 'softSkills' | 'titoliStudio' | 'certificazioni' | 'settori' | 'disponibilita' | 'personalita' | 'kpi' | 'valutazione'
 
-export function JdPreview({ jd }: { jd: JdState }) {
+export function JdPreview({ jd, eyebrow = 'Scheda professionale · Anteprima' }: { jd: JdState; eyebrow?: string }) {
   const checked = (key: CheckOrValueKey) => jd.sections[key].items.filter((i) => i.checked)
   const toolsActive = (key: 'competenzeTecniche' | 'lingue') => jd.sections[key].items.filter((i) => i.level && i.level !== 'Non richiesto')
   const extraActive = jd.extra.filter((r) => r.label.trim() !== '')
@@ -53,7 +53,7 @@ export function JdPreview({ jd }: { jd: JdState }) {
   return (
     <div>
       <div className="mb-5 border-b border-border pb-4">
-        <div className="label-mono text-muted-foreground">Scheda professionale · Anteprima</div>
+        <div className="label-mono text-muted-foreground">{eyebrow}</div>
         <h2 className="mt-1 text-app-section font-semibold">{jd.header.titolo || 'Posizione da definire'}</h2>
         <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-app-caption">
           {jd.header.mansione && (
@@ -89,6 +89,9 @@ export function JdPreview({ jd }: { jd: JdState }) {
         </div>
       </div>
 
+      <PreviewSection title="Come inviare il CV">
+        <p className="text-app-small leading-relaxed whitespace-pre-line text-muted-foreground">{jd.header.invioCv?.trim() || <span className="italic">Da definire: obbligatorio per salvare la scheda</span>}</p>
+      </PreviewSection>
       <PreviewSection title="Scopo della posizione">
         <p className="text-app-small leading-relaxed text-muted-foreground">{jd.scopo || <span className="italic">Non definito</span>}</p>
       </PreviewSection>

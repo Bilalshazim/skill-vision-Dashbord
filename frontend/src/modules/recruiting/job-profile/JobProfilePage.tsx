@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { jobProfilesApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
-import { buildJdStateFromPreset, loadJdTemplate, saveJdTemplate } from '@/modules/recruiting/lib/jd'
+import { buildJdStateFromPreset, loadJdTemplate, publicJobPostingUrl, saveJdTemplate } from '@/modules/recruiting/lib/jd'
 import { loadJobProfileFromBackend, saveJobProfileToBackend } from '@/modules/recruiting/lib/backend-sync'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
@@ -111,6 +111,7 @@ export default function JobProfilePage() {
   const [confirm, confirmDialog] = useConfirm()
   const [saveMessage, setSaveMessage] = useState('')
   const [backendNote, setBackendNote] = useState('')
+  const [invioCvError, setInvioCvError] = useState('')
 
   // Client §3 — "Compile -> Save -> Display clean finished preview state",
   // an edit toggle, and an "Approvata" flag that generates a publication
@@ -178,6 +179,14 @@ export default function JobProfilePage() {
   // existing local-only reader of apex5d_jd_templates (the preview, Job
   // Posting summary cross-write) keeps working exactly as before.
   async function handleSave() {
+    // Fase 5: come inviare il CV è obbligatorio — senza, l'annuncio non dice
+    // ai candidati dove candidarsi.
+    if (!jdState.header.invioCv?.trim()) {
+      setInvioCvError('Indica come e dove i candidati inviano il CV (email di destinazione o modulo di caricamento).')
+      setSaveMessage('')
+      return
+    }
+    setInvioCvError('')
     const { opening } = getActiveOpening(readCvMatchingState())
     if (opening) {
       const backendResult = await saveJobProfileToBackend(opening.id, jdState)
@@ -265,7 +274,10 @@ export default function JobProfilePage() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_420px]">
             <Accordion type="multiple" defaultValue={ALL_SECTIONS} className="flex flex-col gap-4">
               <AccordionSection index={nextIdx()} title="Intestazione posizione" value="header">
-                <JdHeaderFields header={jdState.header} scopo={jdState.scopo} onSelectPreset={handleSelectPreset} onHeaderChange={(patch) => setJdState((prev) => ({ ...prev, header: { ...prev.header, ...patch } }))} onScopoChange={(scopo) => setJdState((prev) => ({ ...prev, scopo }))} />
+                <JdHeaderFields header={jdState.header} scopo={jdState.scopo} onSelectPreset={handleSelectPreset} invioCvError={invioCvError} onHeaderChange={(patch) => {
+                  if (patch.invioCv !== undefined) setInvioCvError('')
+                  setJdState((prev) => ({ ...prev, header: { ...prev.header, ...patch } }))
+                }} onScopoChange={(scopo) => setJdState((prev) => ({ ...prev, scopo }))} />
               </AccordionSection>
 
               <AccordionSection index={nextIdx()} title="Compensation e Benefit" value="salary">
@@ -339,13 +351,20 @@ export default function JobProfilePage() {
             )}
             {approvalError && <span className="text-app-caption font-medium text-destructive">{approvalError}</span>}
             {approved && publicationLink && (
-              <div className="flex min-w-0 items-center gap-1.5 text-app-caption text-muted-foreground">
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-app-caption text-muted-foreground">
                 <span>Link di pubblicazione:</span>
-                <code className="truncate rounded bg-secondary px-1.5 py-0.5">{publicationLink}</code>
+                <a
+                  href={publicJobPostingUrl(publicationLink)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="truncate rounded bg-secondary px-1.5 py-0.5 font-mono text-foreground underline-offset-2 hover:underline"
+                >
+                  {publicJobPostingUrl(publicationLink)}
+                </a>
                 <Hint label="Copia link">
                   <Button
                     type="button"
-                    onClick={() => navigator.clipboard?.writeText(publicationLink)}
+                    onClick={() => navigator.clipboard?.writeText(publicJobPostingUrl(publicationLink))}
                     aria-label="Copia link"
                     variant="outline"
                     size="icon-sm"

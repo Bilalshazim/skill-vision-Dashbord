@@ -611,7 +611,7 @@ function isJdShapedSections(sections: unknown): sections is JdState['sections'] 
   return JD_SECTION_KEYS.every((key) => key in (sections as Record<string, unknown>))
 }
 
-function backendProfileToJdState(profile: { header: Record<string, unknown>; sections: Record<string, unknown>; hardSkillGroups: unknown[]; extraRequirements: unknown[] }): JdState | null {
+export function backendProfileToJdState(profile: { header: Record<string, unknown>; sections: Record<string, unknown>; hardSkillGroups: unknown[]; extraRequirements: unknown[] }): JdState | null {
   if (!isJdShapedSections(profile.sections)) return null
   const header = profile.header as JdState['header'] & { scopo?: string }
   return {

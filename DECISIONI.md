@@ -910,3 +910,17 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   pannello che si apre accanto alla card nella stessa riga. Recruiting fa lo
   stesso, per essere identico come richiesto. Se serve davvero uno Sheet
   laterale, va cambiato in tutti e due i moduli.
+
+## Pagina pubblica dell'annuncio · 2026-10-05
+- Il link di pubblicazione non portava a niente (dominio e pagina inesistenti).
+  Opzioni: (a) solo correggere il dominio; (b) costruire la pagina pubblica
+  che il link prometteva. Preso **(b)**: senza (a) il link sarebbe ancora vuoto.
+- Esposizione: la pagina è pubblica per chiunque abbia il link (codice di 96
+  bit, non indovinabile); legge solo profili **approvati** — togliere
+  l'approvazione spegne il link. Dati usati: titolo, intestazione, sezioni,
+  competenze, richieste aggiuntive. Esclusi: retribuzioni, id, autori, date.
+- Il dominio non è più scritto nel backend: il link si compone nel browser con
+  l'origine corrente. Quando ci sarà un dominio proprio, il link lo seguirà.
+- "Come inviare il CV" è testo libero dentro `header`: copre email e link a un
+  modulo. Un modulo di caricamento CV vero e proprio per i candidati sarebbe
+  una funzione nuova (upload pubblico): non fatto, da concordare.
