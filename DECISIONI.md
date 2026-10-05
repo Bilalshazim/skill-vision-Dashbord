@@ -870,3 +870,13 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   oggi sono davvero condivisi. Il modale legacy aveva colori esadecimali,
   nome società e scala di punteggio: non riportati (regola 1; le impostazioni
   di Assessment restano nel modulo). Da confermare con Roberto se servono altre voci.
+
+## Ombra sulle due card della scelta del modulo · 2026-10-05
+- Richiesta esplicita (Bilal): ombra sulle card "Accedi al cruscotto
+  Recruiting / Assessment", perché senza sembravano piatte. Contraddice la
+  regola 3 (nessuna ombra): **eccezione voluta, limitata a queste due card.**
+- Realizzata con `shadow-[0_8px_16px_0_var(--border-strong)]`: colore da
+  token (regola 1), scarti dalla scala (8, 16), nessuna sfumatura colorata.
+  Le `--shadow-*` del tema restano azzerate: nessun'altra card cambia.
+- `audit-identita` oggi non la segnala (non riconosce questa forma): va
+  comunque tenuta in elenco qui e rimossa se Roberto Feliciani non conferma. Per tornare indietro: togliere la classe.

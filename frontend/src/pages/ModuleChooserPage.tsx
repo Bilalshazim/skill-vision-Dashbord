@@ -65,7 +65,7 @@ function ModuleChooser() {
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {(available.length ? available : MODULES).map((m) => (
-                <Card key={m.key} padding="lg" className="gap-4 border-2 border-border-strong transition-colors hover:border-primary">
+                <Card key={m.key} padding="lg" className="gap-4 border-2 border-border-strong shadow-[0_8px_16px_0_var(--border-strong)] transition-colors hover:border-primary">
                   <div className="flex items-center gap-3">
                     <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-md border-2 border-primary bg-primary font-mono text-app-title text-primary-foreground">
                       {m.letter}
