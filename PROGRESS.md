@@ -126,6 +126,27 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Profilo della ricerca: card come quelle di Assessment (Bilal)
+- [x] `ProfileHubPage`: le quattro finestre (Profilo Candidato, Competenze
+      trasversali, Annuncio di lavoro, Area Valutatore) sono `SkillVisionCard`
+      — titolo, sottotitolo, due righe, icona a sinistra, "oggi / Skill
+      Vision". Quello che stava dentro la card (scheda, selezione competenze e
+      link al questionario, annuncio, schede e valutatori) è ora nel pannello
+      che si apre a destra, identico. Tutte chiuse all'inizio, stato ricordato.
+- [x] Solo "Profilo Candidato" ha il pulsante in card ("Apri scheda"): le altre
+      tre non hanno una destinazione propria, il contenuto è nel pannello.
+- [x] `MasterCard.tsx` rimosso (non più usato).
+- [ ] Non committato né pubblicato (insieme alla Home Recruiting). `tsc`, build,
+      audit ok. Non verificato a schermo.
+
+## 2026-10-05 — Home Recruiting: card come quelle di Assessment (da schermata di Bilal)
+- [x] Le quattro card (Candidati per fascia, Imbuto, Posizioni aperte, Prossimi
+      colloqui) hanno ora sottotitolo, due righe di testo e il pulsante, come
+      le card di Assessment; icona a sinistra e linguetta a destra (specchio).
+      Prima mostravano solo il titolo (richiesta del 2026-10-05, Fase 3):
+      questa nuova indicazione la sostituisce.
+- [ ] Non committato né pubblicato: attende il via. `tsc`, build, audit ok.
+
 ## 2026-10-05 — Foglio 2, parte 5: Area Valutatore (Roberto Feliciani)
 Già esistente e riusato: valutatori esterni con token (14 giorni), assegnazione
 alla campagna, bozza/invio, valutazioni indipendenti per candidato, elenco per

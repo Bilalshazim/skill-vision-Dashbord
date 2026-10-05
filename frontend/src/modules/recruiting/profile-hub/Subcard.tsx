@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
-// Riquadro secondario dentro una MasterCard, chiuso all'inizio. Intestazione
+// Riquadro secondario dentro un riquadro della pagina, chiuso all'inizio. Intestazione
 // con icona, voce e valore a destra; solo l'intestazione apre e chiude.
 export function Subcard({ icon: Icon, label, value, children }: { icon: LucideIcon; label: string; value: string; children: ReactNode }) {
   return (

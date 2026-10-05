@@ -98,13 +98,23 @@ export default function RecruitingHome() {
       </div>
 
       {/* Le quattro finestre, con la stessa struttura della Home di
-          Assessment (Fase 3, Roberto Feliciani): ognuna parte con il solo
-          titolo; "Skill Vision" apre il dettaglio sulla destra, nella stessa
+          Assessment (Fase 3, Roberto Feliciani): ognuna ha titolo, sottotitolo,
+          due righe e il pulsante (come in Assessment, ma con l'icona a
+          sinistra); "Skill Vision" apre il dettaglio sulla destra, nella stessa
           riga (SkillVisionCard + homeCardLayout, gli stessi pattern). */}
       <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
         <SkillVisionCard
           icon={Users}
           title="Candidati per fascia di idoneità"
+          subtitle="quello che devi sapere"
+          lines={[`${data.rankedCount} candidati in classifica`, `Posizione attiva: ${data.roleLabel}`]}
+          actions={
+            <Button asChild variant="outline" size="sm">
+              <Link to="/recruiting/ranking">
+                Vedi classifica <ArrowUpRight />
+              </Link>
+            </Button>
+          }
           open={openCandidati}
           onOpenChange={setOpenCandidati}
           style={cardLayout.candidati}
@@ -148,6 +158,15 @@ export default function RecruitingHome() {
         <SkillVisionCard
           icon={Filter}
           title="Imbuto di Selezione"
+          subtitle="dove si fermano i candidati"
+          lines={['Dal CV caricato alla selezione finale', 'Quanti candidati superano ogni fase']}
+          actions={
+            <Button asChild variant="outline" size="sm">
+              <Link to="/recruiting/pipeline">
+                Vedi l&apos;avanzamento <ArrowUpRight />
+              </Link>
+            </Button>
+          }
           open={openImbuto}
           onOpenChange={setOpenImbuto}
           style={cardLayout.imbuto}
@@ -163,6 +182,15 @@ export default function RecruitingHome() {
         <SkillVisionCard
           icon={Briefcase}
           title="Posizioni aperte"
+          subtitle="le ricerche in corso"
+          lines={['Lo stato di avanzamento di ogni posizione', 'Quali sono ferme e quali chiuse']}
+          actions={
+            <Button asChild variant="outline" size="sm">
+              <Link to="/recruiting/job-profile">
+                Nuova ricerca <ArrowUpRight />
+              </Link>
+            </Button>
+          }
           open={openPosizioni}
           onOpenChange={setOpenPosizioni}
           style={cardLayout.posizioni}
@@ -178,6 +206,15 @@ export default function RecruitingHome() {
         <SkillVisionCard
           icon={CalendarDays}
           title="Prossimi colloqui"
+          subtitle="quello che hai in agenda"
+          lines={['I colloqui in arrivo, ordinati per data', 'Quelli già completati']}
+          actions={
+            <Button asChild variant="outline" size="sm">
+              <Link to="/recruiting/pipeline">
+                Vedi tutti i colloqui <ArrowUpRight />
+              </Link>
+            </Button>
+          }
           open={openColloqui}
           onOpenChange={setOpenColloqui}
           style={cardLayout.colloqui}

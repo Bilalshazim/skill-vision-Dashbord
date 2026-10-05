@@ -1,25 +1,39 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
-import { Brain, ClipboardList, Compass, FileText, Megaphone, User } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { SkillVisionCard } from '@/components/patterns/SkillVisionCard'
+import { ArrowUpRight, Brain, ClipboardList, Compass, FileText, Megaphone, User } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { usePersistedFlag } from '@/hooks/use-persisted-flag'
+import { homeCardLayout } from '@/lib/home-card-layout'
 import { EvaluatorAreaCard } from '@/modules/recruiting/profile-hub/EvaluatorAreaCard'
 import { JobPostingSection } from '@/modules/recruiting/profile-hub/JobPostingSection'
-import { MasterCard } from '@/modules/recruiting/profile-hub/MasterCard'
 import { SoftSkillSection } from '@/modules/recruiting/profile-hub/SoftSkillSection'
 import { SurveyLinkSection } from '@/modules/recruiting/profile-hub/SurveyLinkSection'
 
 // Migrated from modules/recruiting.html #scr-profilo ("Profilo della
-// ricerca" — nav-labeled "Report", ~241-354). Per the Phase 19 audit and
-// this phase's explicit scope: the hub shell (4 master cards, accordion
-// behavior, same order as legacy's #mcHomeGrid: Profilo Candidato / Soft
-// skill / Annuncio di lavoro / Area Valutatore), the Profilo Candidato
-// bridge to the already-migrated JD route, Soft Skill's READ-ONLY display,
-// Survey Link, and Job Posting are all migrated here. The Area Valutatore /
-// Protocollo di Intervista forms stay deferred to Phase 21 (see
-// EvaluatorAreaCard.tsx) — that sub-feature alone rivals the entire JD
-// screen in size, per the Phase 19 audit's finding.
+// ricerca" — nav-labeled "Report", ~241-354): le quattro finestre nello
+// stesso ordine di legacy (Profilo Candidato / Competenze trasversali /
+// Annuncio di lavoro / Area Valutatore).
+//
+// Come la Home di Assessment (Roberto Feliciani): ogni finestra è una
+// SkillVisionCard — titolo, sottotitolo, due righe, icona a sinistra — e
+// "Skill Vision" apre sulla destra, nella stessa riga, quello che prima stava
+// dentro la card (identico: stesse sezioni, stessi dialog). Aperto/chiuso è
+// ricordato nel browser; all'inizio sono tutte chiuse.
 export default function ProfileHubPage() {
-  const navigate = useNavigate()
+  const [openProfilo, setOpenProfilo] = usePersistedFlag('sv-recruiting-profile-profilo-view', 'skillvision', 'oggi')
+  const [openSoft, setOpenSoft] = usePersistedFlag('sv-recruiting-profile-soft-view', 'skillvision', 'oggi')
+  const [openAnnuncio, setOpenAnnuncio] = usePersistedFlag('sv-recruiting-profile-annuncio-view', 'skillvision', 'oggi')
+  const [openValutatore, setOpenValutatore] = usePersistedFlag('sv-recruiting-profile-valutatore-view', 'skillvision', 'oggi')
+  const cardLayout = homeCardLayout(
+    [
+      ['profilo', 'soft'],
+      ['annuncio', 'valutatore'],
+    ] as const,
+    { profilo: openProfilo, soft: openSoft, annuncio: openAnnuncio, valutatore: openValutatore },
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -30,31 +44,80 @@ export default function ProfileHubPage() {
         Area Operativa
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <MasterCard icon={User} title="Profilo Candidato">
-          <button
-            type="button"
-            onClick={() => navigate('/recruiting/job-profile')}
-            className="flex w-full items-center gap-2.5 rounded-sm border border-border p-3 text-left transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-          >
-            <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <span className="flex-1 text-app-small font-medium text-foreground">Scheda professionale</span>
-            <span className="text-app-caption font-medium text-foreground dark:text-primary">Apri scheda →</span>
-          </button>
-        </MasterCard>
+      <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+        <SkillVisionCard
+          icon={User}
+          title="Profilo Candidato"
+          subtitle="la scheda della posizione"
+          lines={['Il profilo della ricerca in corso', 'Responsabilità, competenze e requisiti']}
+          open={openProfilo}
+          onOpenChange={setOpenProfilo}
+          style={cardLayout.profilo}
+          actions={
+            <Button asChild variant="outline" size="sm">
+              <Link to="/recruiting/job-profile">
+                Apri scheda <ArrowUpRight />
+              </Link>
+            </Button>
+          }
+          panel={
+            <Card className="gap-3">
+              <Button asChild variant="outline" className="h-auto justify-start gap-2.5 p-3 text-left">
+                <Link to="/recruiting/job-profile">
+                  <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <span className="flex-1 text-app-small font-medium text-foreground">Scheda professionale</span>
+                  <span className="text-app-caption font-medium text-foreground dark:text-primary">Apri scheda →</span>
+                </Link>
+              </Button>
+            </Card>
+          }
+        />
 
-        <MasterCard icon={Brain} title="Competenze trasversali">
-          <SoftSkillSection />
-          <SurveyLinkSection />
-        </MasterCard>
+        <SkillVisionCard
+          icon={Brain}
+          title="Competenze trasversali"
+          subtitle="le 35 competenze APEX 5D"
+          lines={['Quelle che contano per il ruolo', 'E il link al questionario']}
+          open={openSoft}
+          onOpenChange={setOpenSoft}
+          style={cardLayout.soft}
+          panel={
+            <Card className="gap-3">
+              <SoftSkillSection />
+              <SurveyLinkSection />
+            </Card>
+          }
+        />
 
-        <MasterCard icon={Megaphone} title="Annuncio di lavoro">
-          <JobPostingSection />
-        </MasterCard>
+        <SkillVisionCard
+          icon={Megaphone}
+          title="Annuncio di lavoro"
+          subtitle="dove cercano i candidati"
+          lines={['Il link dell’annuncio pubblicato', 'E il riepilogo della ricerca']}
+          open={openAnnuncio}
+          onOpenChange={setOpenAnnuncio}
+          style={cardLayout.annuncio}
+          panel={
+            <Card>
+              <JobPostingSection />
+            </Card>
+          }
+        />
 
-        <MasterCard icon={ClipboardList} title="Area Valutatore">
-          <EvaluatorAreaCard />
-        </MasterCard>
+        <SkillVisionCard
+          icon={ClipboardList}
+          title="Area Valutatore"
+          subtitle="chi valuta e cosa scrive"
+          lines={['Schede di intervista, valutazione e report', 'Valutatori, invii e sintesi']}
+          open={openValutatore}
+          onOpenChange={setOpenValutatore}
+          style={cardLayout.valutatore}
+          panel={
+            <Card>
+              <EvaluatorAreaCard />
+            </Card>
+          }
+        />
       </div>
     </div>
   )
