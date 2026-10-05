@@ -126,6 +126,36 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Foglio 2, parte 5: Area Valutatore (Roberto Feliciani)
+Già esistente e riusato: valutatori esterni con token (14 giorni), assegnazione
+alla campagna, bozza/invio, valutazioni indipendenti per candidato, elenco per
+il responsabile. **Nuovo:**
+- [x] **Invio email delle schede.** `POST /evaluators/campaigns/:id/send-forms`
+      (COMPANY_ADMIN / PLATFORM_ADMIN): per ogni valutatore spuntato emette un
+      token nuovo e invia un'email col link `/evaluate?evaluatorToken=…`. Il
+      link usa l'origine da cui lavora il responsabile (deve coincidere con
+      l'header Origin). Esito per valutatore, mostrato nel pannello.
+- [x] **Compilazione dal link.** La pagina del valutatore ha ora le due schede
+      (Intervista strutturata, Valutazione candidato) al posto dei tre campi
+      semplici; "Invia valutazione" chiede conferma e le consegna. I corpi delle
+      schede sono estratti in `IvNotesForm` / `IvEvalForm`, usati anche dai
+      dialog dell'Area Valutatore (nessun cambiamento per loro). Le schede
+      stanno in `Evaluation.scores` (Json): nessuna migrazione. Punteggio,
+      raccomandazione e note si ricavano dalla scheda di valutazione.
+- [x] **Vista multi-valutatore.** "Valutazioni ricevute per candidato": per
+      ogni valutatore stato, punteggio, raccomandazione e "Apri le schede".
+- [x] **Sintesi IA.** `POST /evaluators/campaign-candidates/:id/synthesis`:
+      elementi rilevanti, convergenze, divergenze, aspetti critici. Quattro
+      campi modificabili; "Riporta nel Report finale valutativo" scrive
+      sintesi e aspetti critici nel report (con conferma se c'è già un testo).
+- [ ] **Per far funzionare la sintesi serve `ANTHROPIC_API_KEY` sul servizio
+      Backend di Railway**: oggi non c'è (elenco delle variabili). Senza, il
+      pulsante risponde "La sintesi IA non è attiva su questo server". Modello
+      configurabile con `AI_MODEL` (predefinito claude-sonnet-5-5).
+- [ ] Email: servono `RESEND_API_KEY` e `MAIL_FROM` (presenti su Railway).
+- [ ] Non verificato end to end: niente database locale, niente chiavi, niente
+      accesso. `tsc` frontend e backend, build, audit ok. Test backend non scritti.
+
 ## 2026-10-05 — Foglio 2, parte 4: pagina Metodo per ambiente (Roberto Feliciani)
 - [x] `MetodoPage` decide con `isDemoMode()` (VITE_DEMO_MODE=true o sviluppo):
       - **demo:** pagina vuota, nessun contenuto visibile;

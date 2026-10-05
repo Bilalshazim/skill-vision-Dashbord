@@ -48,6 +48,9 @@ export const env = {
   // never returned in any response. Not required(): the button shows a
   // clear "not configured" error rather than the server failing to boot.
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
+  // Modello per la sintesi delle valutazioni (modules/evaluators). Cambiabile
+  // da ambiente senza toccare il codice.
+  aiModel: process.env.AI_MODEL || 'claude-sonnet-5-5',
   // Fase 8 — origini ammesse per le richieste autenticate col cookie di
   // refresh, oltre alla stessa origine (lib/authCookie.ts). Elenco separato
   // da virgole, es. https://app.esempio.it. Vuoto: solo la stessa origine.

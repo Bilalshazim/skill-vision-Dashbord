@@ -115,10 +115,11 @@ export function loadIvNotesRecord(role: string): IvNotesRecord | null {
   return readInterviewProtocol().verbale[role] ?? null
 }
 
-export function loadIvNotesDraft(role: string): IvNotesDraft {
-  const saved = loadIvNotesRecord(role)
-  if (!saved) return defaultIvNotesDraft(role)
+// Porta un record salvato (dal browser o ricevuto dal server) alla forma
+// completa della bozza: i campi mancanti tornano ai valori di partenza.
+export function normalizeIvNotesDraft(saved: Partial<IvNotesRecord> | null | undefined, role: string): IvNotesDraft {
   const base = defaultIvNotesDraft(role)
+  if (!saved) return base
   return {
     ...base,
     ...saved,
@@ -126,6 +127,10 @@ export function loadIvNotesDraft(role: string): IvNotesDraft {
     tecnica: { row1: saved.tecnica?.row1 ?? emptyIvNotesTecRow(), row2: saved.tecnica?.row2 ?? emptyIvNotesTecRow(), row3: saved.tecnica?.row3 ?? emptyIvNotesTecRow() },
     soft: { ...emptyIvNotesSoft(), ...saved.soft },
   }
+}
+
+export function loadIvNotesDraft(role: string): IvNotesDraft {
+  return normalizeIvNotesDraft(loadIvNotesRecord(role), role)
 }
 
 // Ported verbatim from saveIvNotesForm() (modules/recruiting.html
@@ -234,8 +239,7 @@ export function loadIvEvalRecord(role: string): IvEvalRecord | null {
 // Ported from openIvEvalModal() (~4641-4657), including renderIvEvalMatrices()'s
 // area-weight fallback (record.areaWeightTec!=null && !=='' ? saved : 60/40)
 // and the "2 blank compare rows when none saved" default.
-export function loadIvEvalDraft(role: string): IvEvalDraft {
-  const saved = loadIvEvalRecord(role)
+export function normalizeIvEvalDraft(saved: Partial<IvEvalRecord> | null | undefined, role: string): IvEvalDraft {
   const base = defaultIvEvalDraft(role)
   if (!saved) return base
   return {
@@ -253,6 +257,10 @@ export function loadIvEvalDraft(role: string): IvEvalDraft {
     soft: { ...emptyIvEvalSoft(), ...saved.soft },
     compareRows: Array.isArray(saved.compareRows) && saved.compareRows.length ? saved.compareRows.map((r) => ({ ...r })) : defaultCompareRows(),
   }
+}
+
+export function loadIvEvalDraft(role: string): IvEvalDraft {
+  return normalizeIvEvalDraft(loadIvEvalRecord(role), role)
 }
 
 export type IvEvalCalc = {
@@ -449,4 +457,32 @@ export function clearIvReport(role: string): void {
   const state = readInterviewProtocol()
   delete state.report[role]
   writeInterviewProtocol(state)
+}
+
+// ════════════════════════════════════════════════════════════════
+// Sintesi IA → Report finale valutativo
+// ════════════════════════════════════════════════════════════════
+
+export type SynthesisSections = { rilevanti: string; convergenze: string; divergenze: string; criticita: string }
+
+const SYNTHESIS_LABELS: [keyof SynthesisSections, string][] = [
+  ['rilevanti', 'Elementi più rilevanti'],
+  ['convergenze', 'Convergenze tra i valutatori'],
+  ['divergenze', 'Divergenze tra i valutatori'],
+]
+
+/** Il Report finale di questa posizione ha già un testo che la sintesi sostituirebbe? */
+export function ivReportHasSynthesisText(role: string): boolean {
+  const saved = loadIvReportRecord(role)
+  return !!(saved?.summary?.trim() || saved?.risks?.trim())
+}
+
+// Riporta la sintesi (già verificata e modificata dal responsabile) nel
+// Report finale valutativo: sintesi → "summary", aspetti critici → "risks".
+// Gli altri campi del report restano com'erano. Il report è per posizione, non
+// per candidato (così è sempre stato): chi importa ne risponde.
+export function importSynthesisIntoReport(role: string, candidateName: string, sections: SynthesisSections): void {
+  const draft = loadIvReportDraft(role)
+  const summary = SYNTHESIS_LABELS.map(([k, label]) => (sections[k].trim() ? `${label}\n${sections[k].trim()}` : '')).filter(Boolean).join('\n\n')
+  saveIvReport(role, { ...draft, nominativo: candidateName || draft.nominativo, summary, risks: sections.criticita.trim() })
 }

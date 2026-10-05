@@ -24,7 +24,7 @@ export default function EvaluateStandalonePage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10" data-theme={theme}>
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-5xl">
         <div className="mb-8 flex flex-col items-center gap-3">
           <Logo size="lg" />
           <p className="text-app-small text-muted-foreground">Area valutatore</p>

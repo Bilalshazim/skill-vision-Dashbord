@@ -970,3 +970,33 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   richiesta non descrive quel caso. Il contenuto resta in `MetodoContent.tsx`;
   va collegato quando si decide chi lo può leggere (ad esempio per ruolo o per
   società). Fino ad allora nemmeno gli amministratori lo vedono.
+
+## Area Valutatore: invio, schede, vista multipla, sintesi IA · 2026-10-05
+- **Dove stanno le schede compilate:** dentro `Evaluation.scores` (Json) come
+  `{ verbale, valutazione }`. Opzione scartata: tabelle nuove per le schede (una
+  migrazione di produzione per dati che si leggono solo insieme). Punteggio,
+  raccomandazione e note dell'`Evaluation` si ricavano dalla scheda di
+  valutazione, così l'elenco dei valutatori non deve aprire le schede.
+- **Link nell'email:** `appUrl` deve coincidere con l'header `Origin` della
+  richiesta. Opzioni: variabile `PUBLIC_APP_URL` (da impostare su Railway) o
+  questa. Presa questa: funziona su qualunque dominio e nessuno può far partire
+  email con un link verso un sito qualunque.
+- **Un token per valutatore:** rinviare il link invalida il precedente (il
+  modello ha un solo token per valutatore). Se l'email non parte, il token
+  vecchio resta valido. Il link apre tutte le candidature assegnate a quel
+  valutatore, non una sola.
+- **Sintesi IA e dati personali — da confermare con Roberto.** Il testo delle
+  valutazioni di un candidato viene inviato a un fornitore esterno (Anthropic).
+  Minimizzazione fatta: niente nome del candidato, niente nomi/email dei
+  valutatori, niente firme, riferimenti di candidatura, retribuzioni; i
+  valutatori compaiono come "Valutatore N — Ruolo". I testi liberi possono
+  comunque contenere nomi: non si filtrano. Servono informativa/contratto col
+  fornitore adeguati prima di usarla su dati reali. Il server non registra il
+  contenuto né le risposte d'errore del fornitore.
+- **Nessuna sintesi salvata:** si genera, si modifica e si riporta; rigenerare
+  chiede conferma perché perde le modifiche.
+- **Il Report finale è per posizione, non per candidato** (così è sempre
+  stato): riportare la sintesi di un candidato sostituisce quella di un altro.
+  Per questo c'è la conferma. Un report per candidato è un cambio di modello dati.
+- **Non fatto:** avviso al responsabile quando arriva una valutazione (compare
+  quando apre l'elenco); promemoria ai valutatori che non hanno risposto.

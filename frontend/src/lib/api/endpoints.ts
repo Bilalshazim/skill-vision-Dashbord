@@ -154,6 +154,14 @@ export const evaluatorsApi = {
   ) => apiPost<BackendEvaluation>('/evaluators/evaluations', input, evaluatorToken),
   finalizeEvaluation: (evaluationId: string, evaluatorToken?: string) => apiPost<BackendEvaluation>(`/evaluators/evaluations/${evaluationId}/submit`, undefined, evaluatorToken),
   listForCampaignCandidate: (campaignCandidateId: string) => apiGet<BackendEvaluation[]>(`/evaluators/campaign-candidates/${campaignCandidateId}/evaluations`),
+  // Invio via email del link alle schede a più valutatori (Area Valutatore).
+  sendForms: (campaignId: string, evaluatorIds: string[]) =>
+    apiPost<{ results: { evaluatorId: string; ok: boolean; reason?: string }[] }>(`/evaluators/campaigns/${campaignId}/send-forms`, { evaluatorIds, appUrl: window.location.origin }),
+  // Sintesi IA di tutte le valutazioni inviate per un candidato.
+  synthesis: (campaignCandidateId: string) =>
+    apiPost<{ sections: { rilevanti: string; convergenze: string; divergenze: string; criticita: string }; evaluationsUsed: number; generatedAt: string }>(
+      `/evaluators/campaign-candidates/${campaignCandidateId}/synthesis`,
+    ),
   // Phase 33 §4/§5 — the evaluator-facing reads (new backend routes).
   // `evaluatorToken`, when given, authorizes via X-Evaluator-Token instead
   // of the bearer JWT — apiGet has no header param, so these two go

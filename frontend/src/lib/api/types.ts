@@ -88,6 +88,9 @@ export type BackendEvaluation = {
   finalScore: number | null
   recommendation: 'PROCEDI' | 'RISERVA' | 'CONFRONTA' | 'NO' | null
   notes: string | null
+  /** Le schede compilate (Fase "Foglio 2"): `{ verbale, valutazione }`, vedi lib/evaluation-forms.ts. */
+  scores?: Record<string, unknown>
+  submittedAt?: string | null
   evaluator?: BackendEvaluator
 }
 

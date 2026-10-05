@@ -203,3 +203,48 @@ export function readLogoBuffer(): Buffer {
   if (!cachedLogo) cachedLogo = fs.readFileSync(LOGO_PATH)
   return cachedLogo
 }
+
+// ── Invito ai valutatori esterni (Area Valutatore) ──
+// Stesso guscio dell'invito al test, più sobrio: saluto, di cosa si tratta,
+// pulsante verso le schede, link di riserva, scadenza.
+export type EvaluatorInvitationVars = {
+  evaluatorName: string
+  companyName: string
+  campaignName: string
+  link: string
+  expiresOn: string
+}
+
+export function renderEvaluatorInvitation(vars: EvaluatorInvitationVars): RenderedEmail {
+  const { evaluatorName, companyName, campaignName, link, expiresOn } = vars
+  const intro = `Sei stato indicato come valutatore per la selezione "${campaignName}" di ${companyName}.\n\nTramite il link qui sotto puoi compilare la Scheda Intervista Strutturata e la Scheda Valutazione Candidato per i candidati che ti sono stati assegnati. Quando premi "Invia valutazione" la scheda arriva direttamente al responsabile della selezione: non devi rispondere a questa email.\n\nIl link è personale e valido fino al ${expiresOn}.`
+  const subject = `Schede di valutazione — ${campaignName}`
+  const text = [
+    `Ciao ${evaluatorName},`,
+    '',
+    intro,
+    '',
+    `COMPILA LE SCHEDE: ${link}`,
+    '',
+    'Se il link non funziona, copialo e incollalo nel browser.',
+    '',
+    '---',
+    'Skill Vision',
+    'Domande? Scrivi a info@skill-vision.it.',
+  ].join('\n')
+  const html = `<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(subject)}</title></head>
+<body style="margin:0; padding:0; background-color:${BRAND_BG}; font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BRAND_BG};"><tr><td align="center" style="padding:32px 16px;">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:100%; background-color:#FFFFFF; border-radius:10px; border:1px solid ${BRAND_BORDER};">
+      <tr><td align="center" style="padding:32px 40px 8px 40px;"><img src="cid:${LOGO_CID}" width="160" alt="Skill Vision" style="display:block; border:0; height:auto;"></td></tr>
+      <tr><td style="padding:16px 40px 0 40px;"><h1 style="margin:0; font-size:20px; line-height:28px; color:${BRAND_INK}; font-weight:700;">Ciao ${escapeHtml(evaluatorName)},</h1></td></tr>
+      <tr><td style="padding:16px 40px 0 40px; font-size:14.5px; line-height:23px; color:${BRAND_INK};">${paragraphsToHtml(intro)}</td></tr>
+      <tr><td style="padding:24px 40px 8px 40px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="border-radius:8px; background-color:${BRAND_ACCENT};"><a href="${escapeHtml(link)}" target="_blank" style="display:inline-block; padding:14px 32px; font-size:14px; font-weight:700; color:${BRAND_INK}; text-decoration:none; border-radius:8px;">COMPILA LE SCHEDE</a></td></tr></table></td></tr>
+      <tr><td style="padding:8px 40px 0 40px; font-size:12px; line-height:18px; color:${BRAND_MUTED};"><p style="margin:0 0 4px 0;">Se il pulsante non funziona, copia e incolla questo link nel browser:</p><p style="margin:0; word-break:break-all;"><a href="${escapeHtml(link)}" target="_blank" style="color:${BRAND_INK};">${escapeHtml(link)}</a></p></td></tr>
+      <tr><td style="padding:28px 40px 32px 40px; font-size:12px; line-height:18px; color:${BRAND_MUTED};"><p style="margin:0; font-weight:700; color:${BRAND_INK};">Skill Vision</p><p style="margin:0;">Domande? Scrivi a <a href="mailto:info@skill-vision.it" style="color:${BRAND_INK};">info@skill-vision.it</a>.</p></td></tr>
+    </table>
+  </td></tr></table>
+</body></html>`
+  return { subject, html, text }
+}

@@ -44,13 +44,15 @@ export function EvaluatorAreaCard() {
       <Subcard icon={FileBarChart2} label="Report Finale Valutativo" value={teaserValue(reportSavedAt, 'Non compilato')}>
         <IvReportDialog role={role} savedAt={reportSavedAt} onSavedAtChange={setReportSavedAt} />
       </Subcard>
-      {/* Phase 31 §13 — real, backend-backed multi-evaluator management
-          (create/assign/role/minimum-3 readiness/accountless token), kept as
-          its own subcard rather than folded into the 3 above: those remain
-          the pre-existing role-scoped, single-evaluator local forms
-          (Scheda Intervista/Valutazione/Report), genuinely unrelated data. */}
+      {/* Phase 31 §13 — gestione multi-valutatore sul server (creazione,
+          assegnazione, ruolo, minimo 3, token). Le tre schede sopra restano i
+          moduli locali per posizione; i valutatori esterni compilano le stesse
+          due schede (Intervista e Valutazione) dal link ricevuto via email, e
+          le loro valutazioni si vedono e si sintetizzano da qui. La sintesi
+          può essere riportata nel Report finale (`onReportChanged` ne
+          aggiorna l'etichetta). */}
       <Subcard icon={Users} label="Valutatori" value="Gestione multi-valutatore">
-        <EvaluatorsBackendPanel />
+        <EvaluatorsBackendPanel onReportChanged={() => setReportSavedAt(loadIvReportRecord(role)?.savedAt ?? null)} />
       </Subcard>
     </div>
   )

@@ -2,11 +2,9 @@ import { AlertTriangle, CheckCircle2, ClipboardList, Loader2, Send, UserCircle2 
 import { useEffect, useState } from 'react'
 
 import { LoadingState } from '@/components/patterns/LoadingState'
-import { SelectField } from '@/components/patterns/SelectField'
-import { Field } from '@/components/patterns/Field'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useConfirm } from '@/hooks/use-confirm'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ApiError } from '@/lib/api/client'
@@ -15,6 +13,11 @@ import { useBackendSession } from '@/lib/api/useBackendSession'
 import type { BackendMyAssignment } from '@/lib/api/endpoints'
 import type { BackendEvaluator } from '@/lib/api/types'
 import { EmptyState } from '@/components/patterns/EmptyState'
+import { EvaluationFormsView } from '@/modules/recruiting/evaluate/EvaluationFormsView'
+import { formsFromScores, RECOMMENDATION_LABEL, scoresPayload, summaryFromForms } from '@/modules/recruiting/lib/evaluation-forms'
+import type { EvaluationForms } from '@/modules/recruiting/lib/evaluation-forms'
+import { IvEvalForm } from '@/modules/recruiting/profile-hub/protocol/IvEvalForm'
+import { IvNotesForm } from '@/modules/recruiting/profile-hub/protocol/IvNotesForm'
 
 const ROLE_LABEL: Record<string, string> = { HR: 'HR', MANAGER: 'Manager', DIRETTORE_HR: 'Direttore HR', ALTRO: 'Altro' }
 
@@ -140,47 +143,42 @@ export function EvaluatorWorkspace({ evaluatorToken }: { evaluatorToken?: string
             ))}
           </div>
 
-          {selected && <EvaluationForm key={selected.campaignCandidateId} assignment={selected} evaluatorToken={evaluatorToken} onSubmitted={load} />}
+          {selected && <EvaluationForm key={selected.campaignCandidateId} assignment={selected} evaluatorName={evaluator.fullName} evaluatorToken={evaluatorToken} onSubmitted={load} />}
         </div>
       )}
     </div>
   )
 }
 
-const RECOMMENDATIONS: { value: 'PROCEDI' | 'RISERVA' | 'CONFRONTA' | 'NO'; label: string }[] = [
-  { value: 'PROCEDI', label: 'Procedi' },
-  { value: 'RISERVA', label: 'Riserva' },
-  { value: 'CONFRONTA', label: 'Confronta' },
-  { value: 'NO', label: 'No' },
-]
-
-function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignment: BackendMyAssignment; evaluatorToken?: string; onSubmitted: () => void }) {
+// Le due schede compilate dal valutatore: Intervista strutturata e Valutazione
+// candidato (le stesse dell'Area Valutatore, ora anche per chi arriva dal
+// link ricevuto via email). "Salva bozza" le conserva sul server; "Invia
+// valutazione" le consegna al responsabile e le chiude: da quel momento non
+// si possono più modificare.
+function EvaluationForm({ assignment, evaluatorName, evaluatorToken, onSubmitted }: { assignment: BackendMyAssignment; evaluatorName: string; evaluatorToken?: string; onSubmitted: () => void }) {
   const existing = assignment.myEvaluation
   const isSubmitted = existing?.status === 'SUBMITTED'
+  const [confirm, confirmDialog] = useConfirm()
 
-  const [finalScore, setFinalScore] = useState(existing?.finalScore != null ? String(existing.finalScore) : '')
-  const [recommendation, setRecommendation] = useState(existing?.recommendation || '')
-  const [notes, setNotes] = useState(existing?.notes || '')
+  const [forms, setForms] = useState<EvaluationForms>(() =>
+    formsFromScores(existing?.scores, { posizione: assignment.campaignName, candidato: assignment.candidate.fullName, valutatore: evaluatorName }),
+  )
   const [saving, setSaving] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [savedMessage, setSavedMessage] = useState('')
 
+  function saveDraft() {
+    return evaluatorsApi.submitEvaluation({ campaignCandidateId: assignment.campaignCandidateId, scores: scoresPayload(forms), ...summaryFromForms(forms) }, evaluatorToken)
+  }
+
   async function handleSave() {
-    if (saving || isSubmitted) return
+    if (saving || submitting || isSubmitted) return
     setSaving(true)
     setError('')
     setSavedMessage('')
     try {
-      await evaluatorsApi.submitEvaluation(
-        {
-          campaignCandidateId: assignment.campaignCandidateId,
-          finalScore: finalScore.trim() ? Number(finalScore) : undefined,
-          recommendation: recommendation || undefined,
-          notes: notes.trim() || undefined,
-        },
-        evaluatorToken,
-      )
+      await saveDraft()
       setSavedMessage('Bozza salvata')
     } catch (err) {
       setError(apiErrorMessage(err))
@@ -190,21 +188,14 @@ function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignmen
   }
 
   async function handleSubmit() {
-    if (submitting || isSubmitted) return
+    if (saving || submitting || isSubmitted) return
+    if (!(await confirm({ title: 'Inviare la valutazione?', description: 'Le due schede arrivano al responsabile della selezione e non potranno più essere modificate.', confirmLabel: 'Invia valutazione' }))) return
     setSubmitting(true)
     setError('')
     try {
-      // Save whatever is currently on screen first, so "Invia" always
-      // submits the latest edits — never a stale draft from a previous save.
-      const draft = await evaluatorsApi.submitEvaluation(
-        {
-          campaignCandidateId: assignment.campaignCandidateId,
-          finalScore: finalScore.trim() ? Number(finalScore) : undefined,
-          recommendation: recommendation || undefined,
-          notes: notes.trim() || undefined,
-        },
-        evaluatorToken,
-      )
+      // Si salva prima ciò che c'è a schermo, così "Invia" consegna sempre
+      // l'ultima versione e non una bozza vecchia.
+      const draft = await saveDraft()
       await evaluatorsApi.finalizeEvaluation(draft.id, evaluatorToken)
       onSubmitted()
     } catch (err) {
@@ -224,35 +215,33 @@ function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignmen
       </div>
 
       {isSubmitted ? (
-        <div className="flex items-start gap-2 rounded-sm border border-success/30 bg-success/10 px-3.5 py-3 text-app-small text-success">
-          <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          <div>
-            <div className="font-semibold">Valutazione già inviata — non modificabile.</div>
-            {existing?.finalScore != null && <div className="mt-1 text-foreground">Punteggio: {existing.finalScore}</div>}
-            {existing?.recommendation && <div className="text-foreground">Raccomandazione: {RECOMMENDATIONS.find((r) => r.value === existing.recommendation)?.label}</div>}
-            {existing?.notes && <div className="mt-1 text-muted-foreground">{existing.notes}</div>}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-start gap-2 rounded-sm border border-success/30 bg-success/10 px-3.5 py-3 text-app-small text-success">
+            <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <div>
+              <div className="font-semibold">Valutazione inviata al responsabile — non modificabile.</div>
+              {existing?.finalScore != null && <div className="mt-1 text-foreground">Punteggio: {existing.finalScore}</div>}
+              {existing?.recommendation && <div className="text-foreground">Raccomandazione: {RECOMMENDATION_LABEL[existing.recommendation]}</div>}
+            </div>
           </div>
+          <EvaluationFormsView scores={existing?.scores} />
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          <Field label="Punteggio finale">
-            <Input type="number" step="0.1" value={finalScore} onChange={(e) => setFinalScore(e.target.value)} placeholder="es. 4.5" className="w-36" />
-          </Field>
-          <Field label="Raccomandazione">
-            <SelectField value={recommendation} onValueChange={(v) => setRecommendation(v)} className="w-48">
-              <option value="">—</option>
-              {RECOMMENDATIONS.map((r) => (
-                <option key={r.value} value={r.value}>
-                  {r.label}
-                </option>
-              ))}
-            </SelectField>
-          </Field>
-          <Field label="Note">
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} />
-          </Field>
+        <div className="flex flex-col gap-4">
+          <Tabs defaultValue="verbale">
+            <TabsList>
+              <TabsTrigger value="verbale">Intervista strutturata</TabsTrigger>
+              <TabsTrigger value="valutazione">Valutazione candidato</TabsTrigger>
+            </TabsList>
+            <TabsContent value="verbale" className="flex flex-col gap-3 pt-3">
+              <IvNotesForm draft={forms.verbale} onChange={(verbale) => setForms((f) => ({ ...f, verbale }))} />
+            </TabsContent>
+            <TabsContent value="valutazione" className="flex flex-col gap-3 pt-3">
+              <IvEvalForm draft={forms.valutazione} onChange={(valutazione) => setForms((f) => ({ ...f, valutazione }))} />
+            </TabsContent>
+          </Tabs>
 
-          <div className="flex flex-wrap items-center gap-2 pt-1">
+          <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
             <button type="button" onClick={handleSave} disabled={saving || submitting} className={ghostBtnClass}>
               {saving ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : null}
               Salva bozza
@@ -271,6 +260,7 @@ function EvaluationForm({ assignment, evaluatorToken, onSubmitted }: { assignmen
           )}
         </div>
       )}
+      {confirmDialog}
     </Card>
   )
 }
