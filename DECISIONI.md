@@ -945,3 +945,17 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   nella barra laterale, accanto alla società. Presa **(b)**: la pagina è pulita
   come chiesto e la funzione resta. Per annullare lo spostamento basta
   togliere il blocco "Posizione aperta" da `RecruitingNav.tsx`.
+
+## Confronto interno: radar con Bklit, non Recharts/Chart.js · 2026-10-05
+- La richiesta cita Recharts / Chart.js. CLAUDE.md (Fase 5) li ha tolti: la
+  libreria dei grafici è Bklit, che ha il Radar ed è già usato da
+  `ProfileRadar`. Usato quello; nessuna dipendenza nuova.
+- **Colori:** le regole del progetto (`chart-colors.ts`) danno a due serie
+  senza riferimento `chart-mono` + `chart-compare` (neutri), a tre o più la
+  famiglia categorica. Con 2 candidati e nessun talento i due contorni sono
+  quindi uno scuro e uno grigio, non due colori vivi; con un riferimento (media
+  dei talenti) i candidati hanno colori distinti. Legenda sotto il grafico e
+  valori in tabella. Per colori sempre distinti anche con 2 serie, la regola va
+  cambiata in `chart-colors.ts` (vale per tutti i radar dell'app).
+- Asse: 8 competenze al massimo per leggibilità (CLAUDE.md: il radar deve
+  restare leggibile); scelte per scarto fra i profili.

@@ -126,6 +126,22 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Foglio 2, parte 3: Confronto interno a radar (Roberto Feliciani)
+- [x] `MatchCompare` rifatto sul pattern `ProfileRadar` (Bklit Radar, già nel
+      progetto): le barre per competenza sono sostituite da radar.
+      - radar dei **candidati** (fino a 2, un colore ciascuno) contro la
+        **media dei talenti interni** in tratteggio — lo stesso riferimento che
+        il vecchio confronto usava;
+      - radar dei **talenti interni** a parte (da 2 in su), così nessun grafico
+        ha più di 5 serie; legenda sotto il grafico e tabella dei valori.
+      - oltre 8 competenze il radar mostra le 8 con più scarto fra i profili;
+        "Tutte le competenze trasversali" resta in una tabella a scomparsa.
+- Persa: la colorazione verde/ambra/rosso per competenza ("in linea / gap
+  moderato / gap ampio"). Il colore non era accompagnato da etichetta
+  (regola 10); il confronto ora si legge dalla distanza fra i contorni e dai
+  valori in tabella.
+- [ ] Non verificato a schermo (serve l'accesso e dei dati). `tsc`, build, audit ok.
+
 ## 2026-10-05 — Foglio 2, parte 2: CV & Esportazione più semplice (Roberto Feliciani)
 - [x] Tolto il riquadro "Posizione e archivio" (selettori Società e Posizione
       aperta, riga con profilo e candidati in archivio) da CV & Esportazione.
