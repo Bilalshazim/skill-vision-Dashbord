@@ -47,14 +47,14 @@ export function SkillVisionCard({
       data-slot="skill-vision-card"
       data-state={open ? 'open' : 'closed'}
       style={style}
-      className={cn('flex min-w-0 flex-col', open && 'col-span-full grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]')}
+      className={cn('flex min-w-0 flex-col', open && 'col-span-full grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]')}
     >
       <FolderCard
         icon={icon}
         iconSide={iconSide}
         title={title}
         kicker={subtitle}
-        className="flex-1"
+        className={cn('flex-1', open && 'lg:sticky lg:top-20')}
         aside={
           <ToggleGroup
             type="single"

@@ -126,6 +126,17 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Card come nei disegni (titolo nel corpo) e card aperta che resta in vista (Bilal)
+- [x] `FolderCard`: la linguetta tiene solo "oggi / Skill Vision"; il titolo
+      è grande e centrato nel corpo, con sottotitolo, domanda e spiegazione
+      sotto, centrati — come nei disegni del Foglio 3 e di Recruiting. Valeva
+      per le card di Assessment e di Recruiting. Prima il titolo stava nella
+      linguetta e le card di Recruiting avevano un corpo alto e vuoto.
+- [x] `SkillVisionCard` aperta: la card sta in alto, non al centro del pannello,
+      e resta in vista mentre si scorre il pannello alto (sticky, da `lg`).
+      Prima, con i pannelli lunghi, restava a mezz'aria con un grande vuoto sopra.
+- [ ] Non committato né pubblicato. `tsc`, build ok. Non verificato a schermo.
+
 ## 2026-10-05 — Foglio 3 Assessment, versione aggiornata del PDF (voci in rosso)
 - [x] Finestra 1: sotto il numero grande, "Indice Valore Rendimento Generato".
 - [x] Finestra 2: la 4ª fascia "Da Sviluppare" è ora "Da Potenziare" (anche
