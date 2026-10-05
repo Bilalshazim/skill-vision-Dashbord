@@ -1,4 +1,4 @@
-import { RefreshCw, ShieldAlert, Unplug, Users } from 'lucide-react'
+import { RefreshCw, Search, ShieldAlert, Unplug, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
 import { DataTable, type DataTableColumn } from '@/components/patterns/DataTable'
@@ -18,7 +18,7 @@ import { isBackendAuth } from '@/lib/auth/auth-mode'
 import { originalSkillsApi, type OriginalSkillsCompany, type OriginalSkillsPerson, type OriginalSkillsResults } from '@/lib/api/endpoints'
 import { useBackendSession } from '@/lib/api/useBackendSession'
 
-// Anteprima in sola lettura di Original Skills (PROPOSTA-ORIGINAL-SKILLS.md):
+// Anteprima in sola lettura del Comitato scientifico (già "Original Skills"; PROPOSTA-ORIGINAL-SKILLS.md):
 // il server legge l'API al momento e non salva niente. Solo per gli
 // amministratori della piattaforma, finché i dati non hanno una società vera
 // a cui appartenere.
@@ -35,7 +35,7 @@ const aboveExpected = (p: OriginalSkillsPerson) => p.roleCompetencies.filter((c)
 function errorMessage(err: unknown): string {
   if (err instanceof ApiError) {
     if (err.network) return 'Impossibile contattare il server. Controlla la connessione e riprova.'
-    if (err.status === 502) return 'Original Skills non ha risposto correttamente. Riprova fra qualche minuto.'
+    if (err.status === 502) return 'Il Comitato scientifico non ha risposto correttamente. Riprova fra qualche minuto.'
     return err.message
   }
   return err instanceof Error ? err.message : 'Errore sconosciuto'
@@ -45,9 +45,9 @@ function Header() {
   return (
     <PageHeader
       level="page"
-      eyebrow="Original Skills"
+      eyebrow="Comitato scientifico"
       title="Anteprima risultati"
-      description="Lettura al momento dall'API di Original Skills. Niente viene salvato nella piattaforma."
+      description="Lettura al momento dal sistema del Comitato scientifico. Niente viene salvato nella piattaforma."
     />
   )
 }
@@ -96,7 +96,7 @@ export default function OriginalSkillsPreviewPage() {
   }, [backend.status, isPlatformAdmin])
 
   const span = (Date.parse(to) - Date.parse(from)) / 86_400_000
-  const rangeError = !from || !to ? 'Indica le due date.' : span < 0 ? '«Dal» deve precedere «al».' : span > maxDays ? `Al massimo ${maxDays} giorni: Original Skills non accetta intervalli più lunghi.` : ''
+  const rangeError = !from || !to ? 'Indica le due date.' : span < 0 ? '«Dal» deve precedere «al».' : span > maxDays ? `Al massimo ${maxDays} giorni: il Comitato scientifico non accetta intervalli più lunghi.` : ''
 
   async function load() {
     if (rangeError || loading) return
@@ -119,7 +119,31 @@ export default function OriginalSkillsPreviewPage() {
   }, [data, search])
 
   const columns: DataTableColumn<OriginalSkillsPerson>[] = [
-    { key: 'name', header: 'Persona', cell: fullName, truncate: 'md' },
+    {
+      key: 'name',
+      header: 'Persona',
+      // La lente accanto al nome apre subito tutti i dati del Comitato
+      // scientifico per quella persona (competenze, scarti, risultato).
+      cell: (p) => (
+        <span className="flex min-w-0 items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            aria-label={`Apri tutti i dati di ${fullName(p)}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              setOpen(p)
+            }}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <Search aria-hidden="true" />
+          </Button>
+          <span className="truncate">{fullName(p)}</span>
+        </span>
+      ),
+      truncate: 'md',
+    },
     { key: 'company', header: 'Società', cell: (p) => labelOf.get(p.companyKey) ?? p.companyKey, emphasis: 'muted', truncate: 'sm' },
     { key: 'site', header: 'Sede', cell: (p) => p.site || '—', emphasis: 'muted', truncate: 'sm' },
     { key: 'result', header: 'Risultato', cell: (p) => <span className="font-mono tabular-nums">{fmt(p.result, 3)}</span>, align: 'end', nowrap: true },
@@ -161,7 +185,7 @@ export default function OriginalSkillsPreviewPage() {
           <EmptyState
             icon={Unplug}
             title="Integrazione spenta"
-            description="L'anteprima si accende con ORIGINAL_SKILLS_ENABLED=true sul servizio Backend, insieme alle credenziali e alla mappa delle società."
+            description="L'integrazione con il Comitato scientifico non è attiva su questo ambiente. Chiedi all'amministratore della piattaforma di attivarla."
           />
         </Card>
       </div>
@@ -227,7 +251,7 @@ export default function OriginalSkillsPreviewPage() {
         onRowClick={setOpen}
         rowLabel={(p) => `Apri le competenze di ${fullName(p)}`}
         loading={loading}
-        loadingLabel="Lettura da Original Skills…"
+        loadingLabel="Lettura dal Comitato scientifico…"
         pagination={{
           page,
           pageSize: 25,
@@ -245,7 +269,7 @@ export default function OriginalSkillsPreviewPage() {
             title={data ? 'Nessun risultato nell’intervallo' : 'Nessuna lettura ancora'}
             description={
               data
-                ? 'Original Skills non ha questionari completati fra queste date. Allarga l’intervallo o cambia società.'
+                ? 'Il Comitato scientifico non ha questionari completati fra queste date. Allarga l’intervallo o cambia società.'
                 : 'Scegli le date e premi «Leggi i risultati»: compariranno qui le persone con il loro punteggio.'
             }
           />
@@ -288,7 +312,7 @@ function PersonDetail({ person, companyLabel }: { person: OriginalSkillsPerson; 
             columns={role}
             rows={person.roleCompetencies}
             getRowId={(c) => c.name}
-            empty={<EmptyState size="sm" description="Original Skills non ha indicato competenze di ruolo per questa persona." />}
+            empty={<EmptyState size="sm" description="Il Comitato scientifico non ha indicato competenze di ruolo per questa persona." />}
           />
         </section>
         <section className="flex flex-col gap-2">

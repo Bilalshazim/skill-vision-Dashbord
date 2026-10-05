@@ -924,3 +924,15 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - "Come inviare il CV" è testo libero dentro `header`: copre email e link a un
   modulo. Un modulo di caricamento CV vero e proprio per i candidati sarebbe
   una funzione nuova (upload pubblico): non fatto, da concordare.
+
+## Rinomina in "Comitato scientifico" · 2026-10-05
+- Rinominato tutto ciò che l'utente vede. Non rinominati: rotta API,
+  variabili d'ambiente su Railway (`ORIGINAL_SKILLS_*`), nome dei file e dei
+  tipi: cambiarli rompe la configurazione senza che nessuno lo veda.
+- Voce di menu in minuscolo ("Comitato scientifico"), non "COMITATO
+  SCIENTIFICO": il maiuscolo è solo dello stile label (regola 8).
+- "Tutti i dati, test e risultati": il pannello mostra tutto ciò che il
+  server tiene di quel sistema. Sesso, anno di nascita, luogo, email, RAL,
+  date di assunzione e titolo di studio **non** escono dal server, per
+  minimizzazione (PROPOSTA-ORIGINAL-SKILLS.md §3.2): non li ho riaperti. Se
+  Roberto li vuole, è una decisione sui dati personali, da prendere a parte.

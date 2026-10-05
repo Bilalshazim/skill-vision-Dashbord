@@ -19,7 +19,7 @@ export type OsConfig = {
 // Letta a ogni richiesta, non all'avvio: cambiare una variabile su Railway
 // non deve richiedere altro che il riavvio che Railway fa da sé.
 export function readConfig(): OsConfig {
-  if (process.env.ORIGINAL_SKILLS_ENABLED !== 'true') throw new ServiceDisabledError('Original Skills integration is disabled')
+  if (process.env.ORIGINAL_SKILLS_ENABLED !== 'true') throw new ServiceDisabledError('Integrazione con il Comitato scientifico non attiva')
   const url = process.env.ORIGINAL_SKILLS_API_URL || ''
   const authKey = process.env.ORIGINAL_SKILLS_AUTH_KEY || ''
   const authCompany = process.env.ORIGINAL_SKILLS_AUTH_COMPANY || ''
@@ -32,7 +32,7 @@ export function readConfig(): OsConfig {
   } catch {
     companies = []
   }
-  if (!url || !authKey || !authCompany || !companies.length) throw new ServiceDisabledError('Original Skills integration is not configured')
+  if (!url || !authKey || !authCompany || !companies.length) throw new ServiceDisabledError('Integrazione con il Comitato scientifico non configurata')
   return { url, authKey, authCompany, companies }
 }
 
@@ -46,12 +46,12 @@ export async function fetchExport(cfg: OsConfig, from: string, to: string, codes
       signal: AbortSignal.timeout(TIMEOUT_MS),
     })
   } catch {
-    throw new BadGatewayError('Original Skills non risponde')
+    throw new BadGatewayError('Il Comitato scientifico non risponde')
   }
-  if (!res.ok) throw new BadGatewayError(`Original Skills ha risposto ${res.status}`)
+  if (!res.ok) throw new BadGatewayError(`Il Comitato scientifico ha risposto ${res.status}`)
   try {
     return await res.json()
   } catch {
-    throw new BadGatewayError('Original Skills ha restituito una risposta non leggibile')
+    throw new BadGatewayError('Il Comitato scientifico ha restituito una risposta non leggibile')
   }
 }

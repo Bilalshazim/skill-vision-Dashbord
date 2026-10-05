@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { Toaster } from '@/components/ui/sonner'
 import AssessmentLayout from '@/modules/assessment/AssessmentLayout'
@@ -88,7 +88,9 @@ function App() {
                   still the real authority on every request either way. */}
               <Route path="admin/cip" element={<CipAdminPage />} />
               <Route path="admin/email" element={<EmailConfigAdminPage />} />
-              <Route path="admin/original-skills" element={<OriginalSkillsPreviewPage />} />
+              <Route path="admin/comitato-scientifico" element={<OriginalSkillsPreviewPage />} />
+              {/* Il vecchio indirizzo (preferiti): stessa pagina, nome nuovo. */}
+              <Route path="admin/original-skills" element={<Navigate to="/recruiting/admin/comitato-scientifico" replace />} />
               <Route path="evaluate" element={<RecruitingEvaluatePage />} />
             </Route>
           </Route>

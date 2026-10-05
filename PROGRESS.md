@@ -126,6 +126,22 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Foglio 2, parte 1: "Comitato scientifico" (Roberto Feliciani)
+- [x] "Original Skills" non compare più in nessun testo visibile: voce di
+      menu, intestazione, messaggi di errore, caricamento, stati vuoti, e i
+      messaggi del backend. Il testo che citava `ORIGINAL_SKILLS_ENABLED` ora
+      parla di "integrazione non attiva" senza nomi di variabili.
+- [x] Voce di menu "Comitato scientifico" (solo PLATFORM_ADMIN, come prima).
+      Indirizzo nuovo `/recruiting/admin/comitato-scientifico`; il vecchio
+      rimanda al nuovo (preferiti).
+- [x] Lente accanto al nome di ogni persona: apre subito il pannello con tutti
+      i dati disponibili (risultato, competenze del ruolo con atteso e scarto,
+      tutte le competenze, società, sede). Il clic sulla riga fa lo stesso.
+- Restano "original" solo in nomi interni (file, variabili, rotta API
+      `/api/v1/original-skills`, variabili d'ambiente, chiave di registro
+      `OriginalSkills`): non visibili all'utente, non toccati per non rompere
+      la configurazione su Railway.
+
 ## 2026-10-05 — Fase 5: Annuncio di lavoro (checklist Roberto Feliciani)
 - [x] **Causa del link morto:** il server generava
       `https://dashboard.skill-vision.it/jd/<codice>`: dominio non
