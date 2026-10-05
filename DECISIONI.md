@@ -1022,3 +1022,28 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   denaro: ho seguito la prima schermata (icone tutte diverse).
 - Titolo "Area Valutatori" (plurale) come nei disegni; altrove nel prodotto
   resta "Area Valutatore": va allineato quando Roberto sceglie il nome.
+
+## Assessment Foglio 3: scelte e limiti · 2026-10-05
+- **"/100%" accanto ai numeri (Finestra 1):** il numero grande e "/100%" piccolo
+  accanto, come chiesto. La regola dei pattern dei grafici dice "mai 93% /100":
+  qui l'unità è una sola (il numero non porta il %, lo porta il fondo scala).
+- **Domande in sentence case:** nel foglio sono tutto maiuscolo; il maiuscolo è
+  solo dello stile label (regola 8), quindi grassetto in minuscolo.
+- **Indice attenuato:** le voci della vista non scelta si schiariscono al 45%,
+  sotto la soglia di contrasto per progetto (come un disabilitato), ma restano
+  leggibili e cliccabili. Il prima ("sparivano") era un filtro; ora si vedono.
+  Le pagine dell'altra vista funzionano come prima (non controllano il modulo).
+- **Mappa dei valori:** i punti sono dipendenti su competenze trasversali (x) e
+  professionali (y); servono entrambe, quindi con una sola vista compare un
+  invito a passare a "CT + CP". Zone: in alto a destra ≥ 7 su entrambe, in basso
+  a sinistra < 5 su entrambe (le soglie "buono" e "medio" della scala). Tutto
+  ciò che il mouse mostra si ottiene anche con i pulsanti.
+- **"Stima dell'impatto economico" (Finestra 3):** la spiegazione del foglio la
+  cita, ma l'applicazione non ha un modello di costo (retribuzioni, costo del
+  turnover): non l'ho inventata. Il pannello mostra scarti in punti sul
+  benchmark. Per una stima in euro serve decidere la formula e i dati.
+- **Eccezione alla regola 3 estesa:** bordo `primary` e rilievo anche sui
+  riquadri dei pannelli (`StatCard elevated`, `ChartCard elevated`), come sulle card.
+- **Icone:** come per Recruiting, composte con Lucide, non gli originali.
+- **Card di Recruiting:** corpo alto almeno 208px come in Assessment; il testo
+  delle card di Recruiting resta il solo titolo, come nei disegni.

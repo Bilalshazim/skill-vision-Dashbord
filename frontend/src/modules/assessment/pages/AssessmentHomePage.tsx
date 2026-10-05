@@ -1,9 +1,11 @@
-import { AlertTriangle, ArrowRight, Award, ArrowUpRight, Briefcase, GraduationCap, ListChecks, MapPin, Sparkles, TrendingDown, TrendingUp, UserX, Users } from 'lucide-react'
+import { AlertTriangle, ArrowRight, Award, ArrowUpRight, Briefcase, GraduationCap, ListChecks, MapPin, Sparkles, TrendingDown, TrendingUp, UserX } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { CoinsLossIcon, GearAlertIcon, LightbulbGemIcon } from '@/components/patterns/CardIcons'
+import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { ChartCard } from '@/components/patterns/ChartCard'
 import { DistributionBar } from '@/components/patterns/DistributionBar'
 import type { DistributionTone } from '@/components/patterns/DistributionBar'
@@ -17,21 +19,27 @@ import { DecisionRow } from '@/modules/assessment/components/DecisionRow'
 import type { DecisionTone } from '@/modules/assessment/components/DecisionRow'
 import { lastSixMonthLabels } from '@/modules/assessment/lib/months'
 import { TrendChart } from '@/components/patterns/TrendChart'
+import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
+import { ModeSwitch } from '@/modules/assessment/components/ModeSwitch'
 import { ValoreCard } from '@/modules/assessment/components/ValoreCard'
+import { ValueMap, type MapPerson } from '@/modules/assessment/components/ValueMap'
 import { homeCardLayout } from '@/lib/home-card-layout'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import {
   bothActive,
   computeAvgMetric,
+  computeHardSummary,
+  computeSoftSummary,
   homeStats,
   orgCriticalAreas,
   orgCriticalRoles,
   primaryScore,
   quadDefs,
   roleCoveragePct,
+  tierFor,
   worstCompetenza,
 } from '@/modules/assessment/lib/calculations'
-import { fmt1, fmt1csv, fmt1it, round1 } from '@/modules/assessment/lib/legacy-utils'
+import { fmt1, fmt1csv, fmt1it, getTierDefs, round1 } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import type { getUI } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentState } from '@/modules/assessment/lib/types'
@@ -44,6 +52,9 @@ import { EmptyState } from '@/components/patterns/EmptyState'
 // priority actions), same module A/B merge-diagram toggle, same bottom KPI
 // row + Module A totalizer. Collapse/expand accordion state is real React
 // state now instead of the DOM class toggle toggleHomeCard() used.
+// La finestra a fondo pagina "una sola lettura" è parcheggiata (Foglio 3).
+const SHOW_CROSS_MODULE_BANNER = false
+
 export default function AssessmentHomePage() {
   const { state, setState, lang, ui, canEdit } = useAssessment()
   const navigate = useNavigate()
@@ -58,16 +69,7 @@ export default function AssessmentHomePage() {
   // reflect any real state (CLAUDE.md, capitolo 7).
   // setModuleExclusive is a hoisted function declaration (defined further
   // down), so it's safely callable here despite the textual order.
-  useTopbarActions(
-    <>
-      <ToggleGroup type="single" value={both ? 'AB' : f.A ? 'A' : 'B'} onValueChange={(v) => v && setModuleExclusive(v as 'A' | 'B' | 'AB')}>
-        <ToggleGroupItem value="A">{ui.homeModuleALabel}</ToggleGroupItem>
-        <ToggleGroupItem value="B">{ui.homeModuleBLabel}</ToggleGroupItem>
-        <ToggleGroupItem value="AB">{ui.homeModuleCompleteLabel}</ToggleGroupItem>
-      </ToggleGroup>
-    </>,
-    [ui, both, f.A, f.B],
-  )
+  useTopbarActions(<ModeSwitch value={both ? 'AB' : f.A ? 'A' : 'B'} onChange={setModuleExclusive} ui={ui} />, [ui, both, f.A, f.B])
 
   // Phase 3: no real monthly history exists anywhere in demo-data.ts, so
   // this is the same "illustrative walk anchored to today's real number"
@@ -160,11 +162,38 @@ export default function AssessmentHomePage() {
 
   const skillVisionLabels = { today: ui.homeTodayLabel, skillVision: ui.homeSkillVisionLabel }
 
+  // La mappa dei valori: ogni dipendente con i due punteggi e la sua fascia.
+  const [drawerId, setDrawerId] = useState<string | null>(null)
+  const mapPeople = useMemo<MapPerson[]>(
+    () =>
+      state.employees.map((e) => {
+        const combined = primaryScore(e, state, lang)
+        return { id: e.id, first: e.nome, last: e.cognome, role: e.ruolo, soft: computeSoftSummary(e, lang).overallOttenuto, hard: computeHardSummary(e, lang).apexScore, combined, tier: tierFor(combined, lang).key }
+      }),
+    [state, lang],
+  )
+  const mapGroups = useMemo(() => getTierDefs(lang).map((t) => ({ key: t.key, label: t.label, color: TIER_COLORS[t.key] })), [lang])
+
+  // Dove il valore si ferma: quanto la media di aree e mansioni resta sotto il
+  // benchmark (solo quelle sotto, dalla più lontana).
+  const gapRows = (list: { label: string; avg: number }[]) =>
+    list
+      .map((r) => ({ label: r.label, gap: round1(hs.benchmark - r.avg) }))
+      .filter((r) => r.gap > 0.05)
+      .sort((a, b) => b.gap - a.gap)
+      .slice(0, 6)
+  const gapAreas = gapRows(orgCriticalAreas(state, lang, 6).map((a) => ({ label: a.area, avg: a.avg })))
+  const gapRoles = gapRows(orgCriticalRoles(state, lang, 6).map((r) => ({ label: r.ruolo, avg: r.avg })))
+
   return (
     <div>
       <PageHeader title={ui.homeStatusTitle} description={ui.homeStatusSub} />
 
       <div className="mb-6 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+        {/* Foglio 3 (Roberto Feliciani): le quattro card mostrano solo titolo,
+            sottotitolo, domanda e spiegazione. I pulsanti di approfondimento
+            non stanno più sulla card ma nel pannello che si apre con "Skill
+            Vision", dove compaiono i primi dati. */}
         <ValoreCard
           ui={ui}
           overallPct={overallPct}
@@ -176,7 +205,7 @@ export default function AssessmentHomePage() {
           open={openValore}
           onOpenChange={setOpenValore}
           style={cardLayout.valore}
-          actions={
+          panelActions={
             <>
               <Button type="button" size="sm" onClick={() => navigate(`/assessment/${detailPage}`)}>
                 {ui.homeQ1ViewDetails}
@@ -191,35 +220,48 @@ export default function AssessmentHomePage() {
           }
         />
 
-        {/* Q3 — Il Capitale Umano: Skill Vision opens the 3 tier tiles (Alto
-            Potenziale / Alto Valore / Critici) and the 5-tier distribution. */}
+        {/* Finestra 2 — La mappa dei valori: i tre riquadri per fascia, la
+            distribuzione e, soprattutto, la mappa di ogni dipendente
+            (competenze trasversali × professionali) con le zone da
+            interrogare con il mouse. "Vedi analisi" sta qui, non sulla card. */}
         <SkillVisionCard
           iconSide="end"
-          icon={Users}
+          icon={LightbulbGemIcon}
           title={ui.homeQ3Title}
           subtitle={ui.homeQ3Kicker}
-          lines={ui.homeQ3CardLines}
+          headline={ui.homeQ3Headline}
+          description={ui.homeQ3Description}
           labels={skillVisionLabels}
           open={openCapitale}
           onOpenChange={setOpenCapitale}
           style={cardLayout.capitale}
-          actions={
-            <Button type="button" variant="outline" size="sm" onClick={() => navigate('/assessment/valore')}>
-              {ui.homeQ3ViewAnalysis} <ArrowUpRight />
-            </Button>
-          }
           panel={
-            <>
+            <div className="flex flex-col gap-3">
+              {both ? (
+                <ValueMap
+                  ui={ui}
+                  people={mapPeople}
+                  groups={mapGroups}
+                  onPersonClick={setDrawerId}
+                />
+              ) : (
+                <div className="flex flex-col items-start gap-3 rounded-md border-2 border-primary bg-card p-4 shadow-[0_8px_16px_0_var(--border-strong)]">
+                  <p className="text-app-small text-muted-foreground">{ui.f3MapNeedBoth}</p>
+                  <Button type="button" size="sm" onClick={() => setModuleExclusive('AB')}>
+                    {ui.f3MapShowBoth}
+                  </Button>
+                </div>
+              )}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {quadDefs(ui)
                   .filter((q) => q.key === 'valorizzare' || q.key === 'top' || q.key === 'critica')
                   .map((q) => {
                     const count = tiers[q.key].length
                     const pct = totalEmp ? Math.round((count / totalEmp) * 100) : 0
-                    return <StatCard key={q.key} tone={TIER_TILE[q.key].tone} icon={TIER_TILE[q.key].Icon} label={q.label} value={count} note={`${pct}%`} progress={pct} />
+                    return <StatCard key={q.key} elevated tone={TIER_TILE[q.key].tone} icon={TIER_TILE[q.key].Icon} label={q.label} value={count} note={`${pct}%`} progress={pct} />
                   })}
               </div>
-              <div className="rounded-md border border-border bg-card p-4">
+              <div className="rounded-md border-2 border-primary bg-card p-4 shadow-[0_8px_16px_0_var(--border-strong)]">
                 <DistributionBar
                   label={ui.homeQ3DistributionLabel}
                   segments={[...quadDefs(ui)].sort((x, y) => TIER_ORDER.indexOf(x.key) - TIER_ORDER.indexOf(y.key)).map((q) => ({
@@ -230,32 +272,34 @@ export default function AssessmentHomePage() {
                   }))}
                 />
               </div>
-            </>
+              <div className="flex justify-center">
+                <Button type="button" variant="outline" size="sm" onClick={() => navigate('/assessment/valore')}>
+                  {ui.homeQ3ViewAnalysis} <ArrowUpRight />
+                </Button>
+              </div>
+            </div>
           }
         />
 
-        {/* Q2 — Le Perdite: where value stalls. Skill Vision opens the most
-            critical area / role / competency, and the org score trend vs
-            benchmark (the former Andamento card). */}
+        {/* Finestra 3 — Le perdite invisibili: dove il valore si ferma, con le
+            aree e le mansioni più sotto il benchmark in grafico, l'andamento
+            e "Vedi analisi dettagliata" nel pannello. */}
         <SkillVisionCard
           iconSide="end"
-          icon={TrendingDown}
+          icon={CoinsLossIcon}
           title={ui.homeQ2Title}
           subtitle={ui.homeQ2Kicker}
-          lines={ui.homeQ2CardLines}
+          headline={ui.homeQ2Headline}
+          description={ui.homeQ2Description}
           labels={skillVisionLabels}
           open={openPerdite}
           onOpenChange={setOpenPerdite}
           style={cardLayout.perdite}
-          actions={
-            <Button type="button" variant="outline" size="sm" onClick={() => navigate(`/assessment/${detailPage}`)}>
-              {ui.homeQ2ViewDetail}
-            </Button>
-          }
           panel={
-            <>
+            <div className="flex flex-col gap-3">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <StatCard
+                  elevated
                   tone="destructive"
                   icon={MapPin}
                   valueKind="text"
@@ -264,6 +308,7 @@ export default function AssessmentHomePage() {
                   note={worstArea ? ui.homeQ2Gap(fmt1it(round1(worstArea.avg - hs.benchmark))) : undefined}
                 />
                 <StatCard
+                  elevated
                   icon={Briefcase}
                   valueKind="text"
                   label={ui.homeQ2RoleAtRisk}
@@ -271,6 +316,7 @@ export default function AssessmentHomePage() {
                   note={worstRole ? ui.homeQ2Gap(fmt1it(round1(worstRole.avg - hs.benchmark))) : undefined}
                 />
                 <StatCard
+                  elevated
                   tone="warning"
                   icon={TrendingDown}
                   valueKind="text"
@@ -279,7 +325,27 @@ export default function AssessmentHomePage() {
                   note={worstSkill ? ui.homeQ2Gap(fmt1it(worstSkill.gap)) : undefined}
                 />
               </div>
+              <div className="grid grid-cols-1 gap-3">
+                {[
+                  { title: ui.f3GapAreasTitle, rows: gapAreas },
+                  { title: ui.f3GapRolesTitle, rows: gapRoles },
+                ].map((c) => (
+                  <ChartCard key={c.title} elevated title={c.title} description={ui.f3GapSub} height="md" empty={c.rows.length ? undefined : { title: ui.f3GapNone }}>
+                    <CategoryBars
+                      title={c.title}
+                      orientation="horizontal"
+                      valueMax={Math.max(2, Math.ceil(Math.max(...c.rows.map((r) => r.gap), 0)))}
+                      format={fmt1it}
+                      height="sm"
+                      className="h-full"
+                      series={[{ key: 'gap', label: ui.f3GapSeries }]}
+                      rows={c.rows.map((r) => ({ label: r.label, values: { gap: r.gap } }))}
+                    />
+                  </ChartCard>
+                ))}
+              </div>
               <ChartCard
+                elevated
                 title={ui.homeOrgTrendTitle}
                 description={`${trendMonths[0]} — ${trendMonths[trendMonths.length - 1]}`}
                 actions={
@@ -310,28 +376,30 @@ export default function AssessmentHomePage() {
                   points={trendMonths.map((m, i) => ({ date: new Date(new Date().getFullYear(), new Date().getMonth() - (trendMonths.length - 1 - i), 1), label: m, values: { v: orgTrendSeries[i], b: hs.benchmark } }))}
                 />
               </ChartCard>
-            </>
+              <div className="flex justify-center">
+                <Button type="button" variant="outline" size="sm" onClick={() => navigate(`/assessment/${detailPage}`)}>
+                  {ui.homeQ2ViewDetail}
+                </Button>
+              </div>
+            </div>
           }
         />
 
-        {/* Q4 — Le Decisioni: Skill Vision opens the priority actions. */}
+        {/* Finestra 4 — Dove intervenire: il pannello resta com'è; "Vedi tutte
+            le azioni" passa dalla card al pannello. */}
         <SkillVisionCard
           iconSide="end"
-          icon={ListChecks}
+          icon={GearAlertIcon}
           title={ui.homeQ4Title}
           subtitle={ui.homeQ4Kicker}
-          lines={ui.homeQ4CardLines}
+          headline={ui.homeQ4Headline}
+          description={ui.homeQ4Description}
           labels={skillVisionLabels}
           open={openDecisioni}
           onOpenChange={setOpenDecisioni}
           style={cardLayout.decisioni}
-          actions={
-            <Button type="button" variant="outline" size="sm" onClick={() => navigate('/assessment/feedback')}>
-              {ui.homeQ4ViewAll} <ArrowUpRight />
-            </Button>
-          }
           panel={
-            <div className="flex flex-col gap-3 rounded-md border border-border bg-card p-4">
+            <div className="flex flex-col gap-3 rounded-md border-2 border-primary bg-card p-4 shadow-[0_8px_16px_0_var(--border-strong)]">
               <ToggleGroup type="single" value={decisioniTab} onValueChange={(v) => v && setDecisioniTab(v as typeof decisioniTab)} aria-label={ui.homeQ4Title}>
                 <ToggleGroupItem value="tutte">{ui.homeQ4TabAll}</ToggleGroupItem>
                 <ToggleGroupItem value="urgenti">{ui.homeQ4TabUrgent}</ToggleGroupItem>
@@ -356,7 +424,10 @@ export default function AssessmentHomePage() {
                   ))}
                 </div>
               )}
-              <div className="flex justify-end">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => navigate('/assessment/feedback')}>
+                  {ui.homeQ4ViewAll} <ArrowUpRight />
+                </Button>
                 <Button type="button" variant="link" size="sm" onClick={() => exportActionPlan(state, lang, ui)}>
                   {ui.homeQ4Export}
                 </Button>
@@ -366,7 +437,11 @@ export default function AssessmentHomePage() {
         />
       </div>
 
-      <CrossModuleBanner
+      {/* Foglio 3: la finestra "Una sola lettura, mai due sistemi diversi" è
+          tolta dalla dashboard ma non buttata: resta qui, spenta, per
+          riprenderla quando si deciderà dove metterla. */}
+      {SHOW_CROSS_MODULE_BANNER && (
+        <CrossModuleBanner
         heading={ui.crossBannerHeading}
         body={ui.crossBannerBody}
         ctaLabel={ui.crossBannerCtaToRecruiting}
@@ -380,6 +455,8 @@ export default function AssessmentHomePage() {
           { label: ui.crossBannerEvalsInProgress, value: pendingEvalsCount, sub: ui.crossBannerEvalsInProgressSub },
         ]}
       />
+      )}
+      {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
     </div>
   )
 }
@@ -415,6 +492,16 @@ const TIER_DIST: Record<'top' | 'valorizzare' | 'adeguata' | 'sviluppo' | 'criti
   adeguata: 'muted',
   sviluppo: 'warning',
   critica: 'destructive',
+}
+// I colori dei punti della mappa, per fascia (stessi della pagina Valori
+// Complessivi): la fascia più alta neutra piena, "adeguata" neutra tenue, le
+// altre sui toni di stato; il nome della fascia sta in legenda.
+const TIER_COLORS: Record<string, string> = {
+  top: 'var(--foreground)',
+  valorizzare: 'var(--success)',
+  adeguata: 'var(--chart-compare)',
+  sviluppo: 'var(--warning)',
+  critica: 'var(--destructive)',
 }
 const ACTION_TONE: Record<'warning' | 'success' | 'danger' | 'accent', DecisionTone> = {
   warning: 'warning',

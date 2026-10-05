@@ -38,7 +38,7 @@ const ICONS: Record<string, LucideIcon> = {
 const iconFor = (name?: string) => (name && ICONS[name]) || ClipboardList
 
 // Il contenuto della barra laterale di Assessment nel guscio unico. Stesse
-// voci, stesse sezioni, stesso filtro per modulo A/B, stesso contatore dei
+// voci, stesse sezioni, l'evidenziazione per vista (CT/CP) al posto del filtro per modulo, stesso contatore dei
 // piani di sviluppo, stesse voci-azione (Note metodologiche, Reset demo) di
 // prima; il Reset demo compare solo in demo (lib/demo-mode.ts). In testa la
 // società (struttura gruppo → società: oggi Assessment ne conosce una, il
@@ -54,10 +54,24 @@ export function AssessmentNav() {
   const demo = isDemoMode()
   const nav = getNavConfig(lang)
   const flags = { A: state.settings.modulo === 'A' || state.settings.modulo === 'AB', B: state.settings.modulo === 'B' || state.settings.modulo === 'AB' }
-  const moduleRequirementMet = (req: string | null | undefined) => {
-    if (!req) return true
-    if (req === 'AB') return flags.A && flags.B
-    return req === 'A' ? flags.A : flags.B
+  // Foglio 3 (Roberto Feliciani): la vista scelta nella Home (CT, CP o
+  // Completo) si vede anche nell'indice. Con CT le voci delle competenze
+  // trasversali stanno in evidenza e quelle delle professionali si attenuano;
+  // con CP il contrario; con CT + CP tutte uguali. Le voci attenuate restano
+  // visibili e si possono aprire (prima, con una sola vista, sparivano).
+  const SOFT_ITEMS = ['soft-overview', 'soft', 'soft-risultati']
+  const HARD_ITEMS = ['hard-overview', 'hard', 'hard-risultati']
+  const onlyOneView = flags.A !== flags.B
+  const emphasisFor = (id: string): 'on' | 'off' | 'none' => {
+    if (!onlyOneView) return 'none'
+    const soft = SOFT_ITEMS.includes(id)
+    const hard = HARD_ITEMS.includes(id)
+    if (!soft && !hard) return 'none'
+    return (soft && flags.A) || (hard && flags.B) ? 'on' : 'off'
+  }
+  const emphasisClass = (id: string) => {
+    const e = emphasisFor(id)
+    return e === 'on' ? 'font-semibold text-sidebar-foreground' : e === 'off' ? 'text-sidebar-foreground/45 hover:text-sidebar-foreground' : undefined
   }
   const feedbackBadge = state.employees.filter((e) => e.feedbackNeeded).length
 
@@ -83,11 +97,10 @@ export function AssessmentNav() {
 
   function renderEntry(entry: Entry) {
     if (entry.type === 'link') {
-      if (!moduleRequirementMet(entry.requires)) return null
       const Icon = iconFor(entry.icon)
       return (
         <SidebarMenuItem key={entry.id}>
-          <SidebarMenuButton asChild isActive={entry.id === currentPage}>
+          <SidebarMenuButton asChild isActive={entry.id === currentPage} className={emphasisClass(entry.id)}>
             <NavLink to={`/assessment/${entry.id}`}>
               <Icon aria-hidden="true" />
               <span className="min-w-0 flex-1">{entry.label}</span>
@@ -111,7 +124,7 @@ export function AssessmentNav() {
       )
     }
     if (entry.type === 'group') {
-      const visibleItems = entry.items.filter((it) => moduleRequirementMet(it.requires))
+      const visibleItems = entry.items
       if (!visibleItems.length) return null
       const containsActive = visibleItems.some((it) => it.id === currentPage)
       const isOpen = containsActive || !!openGroups[entry.groupId]
@@ -126,7 +139,7 @@ export function AssessmentNav() {
             <SidebarMenuSub>
               {visibleItems.map((it) => (
                 <SidebarMenuItem key={it.id}>
-                  <SidebarMenuButton asChild isActive={it.id === currentPage}>
+                  <SidebarMenuButton asChild isActive={it.id === currentPage} className={emphasisClass(it.id)}>
                     <NavLink to={`/assessment/${it.id}`}>{it.label}</NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

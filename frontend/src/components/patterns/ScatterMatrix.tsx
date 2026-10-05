@@ -1,7 +1,7 @@
 import { fmtDec } from '@/lib/format'
 import { ParentSize } from '@visx/responsive'
 import { scaleLinear } from '@visx/scale'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { ChartDataTable } from '@/components/patterns/ChartDataTable'
 import { ChartLegend, markerPath, type MarkerShape } from '@/components/patterns/ChartLegend'
@@ -11,6 +11,22 @@ export type ScatterPoint = { id: string; label: string; x: number; y: number; gr
 export type ScatterGroup = { key: string; label: string; color: string; shape?: MarkerShape }
 /** Una soglia di fascia: `value` sull'indice = media dei due assi. */
 export type ScatterThreshold = { value: number; label: string }
+/** Un'area rettangolare nel piano dei due punteggi. */
+export type ScatterRegion = { x0: number; y0: number; x1: number; y1: number }
+/**
+ * Selezione con il mouse (la "mappa" della Home di Assessment): si trascina
+ * per scegliere un'area, e passando sulle `zones` (gli angoli) si anticipano
+ * i nomi che contengono. L'area `region` la decide chi usa il grafico: i punti
+ * dentro restano pieni, gli altri si attenuano.
+ */
+export type ScatterSelection = {
+  region: ScatterRegion | null
+  onRegionChange: (region: ScatterRegion | null) => void
+  zones?: { key: string; label: string; region: ScatterRegion }[]
+  onZoneHover?: (key: string | null) => void
+}
+
+const inRegion = (p: { x: number; y: number }, r: ScatterRegion) => p.x >= r.x0 && p.x <= r.x1 && p.y >= r.y0 && p.y <= r.y1
 
 const SHAPES: MarkerShape[] = ['diamond', 'circle', 'square', 'triangle', 'triangle-down']
 
@@ -37,6 +53,7 @@ export function ScatterMatrix({
   max = 10,
   thresholds = [],
   onPointClick,
+  selection,
   className,
 }: {
   title: string
@@ -47,9 +64,12 @@ export function ScatterMatrix({
   max?: number
   thresholds?: ScatterThreshold[]
   onPointClick?: (id: string) => void
+  selection?: ScatterSelection
   className?: string
 }) {
   const [hover, setHover] = useState<string | null>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
+  const dragStart = useRef<{ x: number; y: number } | null>(null)
   const colorOf = (g: string) => groups.find((x) => x.key === g)?.color ?? 'var(--chart-compare)'
   const shapeOf = (g: string) => {
     const i = groups.findIndex((x) => x.key === g)
@@ -68,8 +88,13 @@ export function ScatterMatrix({
             const x = scaleLinear({ domain: [0, max], range: [0, w] })
             const y = scaleLinear({ domain: [0, max], range: [h, 0] })
             const hovered = points.find((p) => p.id === hover)
+            const clamp = (v: number) => Math.max(0, Math.min(max, v))
+            const toData = (e: React.PointerEvent) => {
+              const r = svgRef.current?.getBoundingClientRect()
+              return { x: clamp(x.invert(e.clientX - (r?.left ?? 0) - m.left)), y: clamp(y.invert(e.clientY - (r?.top ?? 0) - m.top)) }
+            }
             return (
-              <svg width={width} height={height} role="group" aria-label={title}>
+              <svg ref={svgRef} width={width} height={height} role="group" aria-label={title}>
                 <g transform={`translate(${m.left},${m.top})`}>
                   {ticks.map((t) => (
                     <g key={t}>
@@ -116,6 +141,79 @@ export function ScatterMatrix({
                       </g>
                     )
                   })}
+                  {selection ? (
+                    <>
+                      {selection.zones?.map((z) => (
+                        <g key={z.key} aria-hidden="true">
+                          <rect
+                            x={x(z.region.x0)}
+                            y={y(z.region.y1)}
+                            width={x(z.region.x1) - x(z.region.x0)}
+                            height={y(z.region.y0) - y(z.region.y1)}
+                            fill="none"
+                            stroke="var(--border-strong)"
+                            strokeDasharray="2 4"
+                          />
+                          <text
+                            x={z.region.x1 >= max ? x(z.region.x1) - 6 : x(z.region.x0) + 6}
+                            y={z.region.y1 >= max ? y(z.region.y1) + 16 : y(z.region.y0) - 8}
+                            textAnchor={z.region.x1 >= max ? 'end' : 'start'}
+                            fontSize={11}
+                            fill="var(--muted-foreground)"
+                          >
+                            {z.label}
+                          </text>
+                        </g>
+                      ))}
+                      {selection.region ? (
+                        <rect
+                          aria-hidden="true"
+                          x={x(selection.region.x0)}
+                          y={y(selection.region.y1)}
+                          width={x(selection.region.x1) - x(selection.region.x0)}
+                          height={y(selection.region.y0) - y(selection.region.y1)}
+                          fill="var(--primary)"
+                          fillOpacity={0.14}
+                          stroke="var(--primary)"
+                          strokeWidth={2}
+                          strokeDasharray="4 4"
+                        />
+                      ) : null}
+                      <rect
+                        aria-hidden="true"
+                        x={0}
+                        y={0}
+                        width={w}
+                        height={h}
+                        fill="transparent"
+                        className="cursor-crosshair"
+                        onPointerDown={(e) => {
+                          const p = toData(e)
+                          dragStart.current = p
+                          e.currentTarget.setPointerCapture(e.pointerId)
+                        }}
+                        onPointerMove={(e) => {
+                          const p = toData(e)
+                          const a = dragStart.current
+                          if (a) {
+                            selection.onRegionChange({ x0: Math.min(a.x, p.x), y0: Math.min(a.y, p.y), x1: Math.max(a.x, p.x), y1: Math.max(a.y, p.y) })
+                            return
+                          }
+                          const zone = selection.zones?.find((z) => inRegion(p, z.region))
+                          selection.onZoneHover?.(zone ? zone.key : null)
+                        }}
+                        onPointerUp={(e) => {
+                          const a = dragStart.current
+                          dragStart.current = null
+                          if (!a) return
+                          const p = toData(e)
+                          // Un clic senza trascinare toglie la selezione.
+                          if (Math.abs(p.x - a.x) < 0.15 && Math.abs(p.y - a.y) < 0.15) selection.onRegionChange(null)
+                        }}
+                        onPointerLeave={() => selection.onZoneHover?.(null)}
+                      />
+                    </>
+                  ) : null}
                   {points.map((p) => (
                     <path
                       key={p.id}
@@ -123,6 +221,7 @@ export function ScatterMatrix({
                       fill={colorOf(p.group)}
                       stroke="var(--chart-background)"
                       strokeWidth={2}
+                      opacity={selection?.region && !inRegion(p, selection.region) ? 0.25 : 1}
                       role={onPointClick ? 'button' : undefined}
                       tabIndex={onPointClick ? 0 : undefined}
                       aria-label={`${p.label}: ${xLabel} ${fmtDec(p.x)}, ${yLabel} ${fmtDec(p.y)}`}

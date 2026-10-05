@@ -22,6 +22,7 @@ export function ChartCard({
   loading = false,
   empty,
   surface = 'card',
+  elevated = false,
   className,
   children,
 }: {
@@ -35,6 +36,8 @@ export function ChartCard({
   /** Se dato, il grafico non si disegna e compare lo stato vuoto con questo testo. */
   empty?: { title: ReactNode; description?: ReactNode }
   surface?: 'card' | 'none'
+  /** Bordo `primary` di 2px e rilievo, come le card della Home (eccezione alla regola 3, DECISIONI). */
+  elevated?: boolean
   className?: string
   children?: ReactNode
 }) {
@@ -59,7 +62,7 @@ export function ChartCard({
     </>
   )
   return surface === 'card' ? (
-    <Card data-slot="chart-card" className={cn('gap-4', className)}>
+    <Card data-slot="chart-card" className={cn('gap-4', elevated && 'border-2 border-primary shadow-[0_8px_16px_0_var(--border-strong)]', className)}>
       {body}
     </Card>
   ) : (

@@ -1,4 +1,5 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
+import { CoinsLossIcon, GearAlertIcon, HouseValueIcon, LightbulbGemIcon } from '@/components/patterns/CardIcons'
 import { SkillVisionCard } from '@/components/patterns/SkillVisionCard'
 import { Compass, FileText } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -11,7 +12,6 @@ import { EvaluatorAreaCard } from '@/modules/recruiting/profile-hub/EvaluatorAre
 import { JobPostingSection } from '@/modules/recruiting/profile-hub/JobPostingSection'
 import { SoftSkillSection } from '@/modules/recruiting/profile-hub/SoftSkillSection'
 import { SurveyLinkSection } from '@/modules/recruiting/profile-hub/SurveyLinkSection'
-import { AnnuncioDiLavoroIcon, AreaValutatoriIcon, CompetenzeTrasversaliIcon, ProfiloCandidatoIcon } from '@/modules/recruiting/profile-hub/profile-hub-icons'
 
 // Migrated from modules/recruiting.html #scr-profilo ("Profilo della
 // ricerca" — nav-labeled "Report", ~241-354): le quattro finestre nello
@@ -47,7 +47,7 @@ export default function ProfileHubPage() {
 
       <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
         <SkillVisionCard
-          icon={ProfiloCandidatoIcon}
+          icon={HouseValueIcon}
           title="Profilo Candidato"
           open={openProfilo}
           onOpenChange={setOpenProfilo}
@@ -67,7 +67,7 @@ export default function ProfileHubPage() {
         />
 
         <SkillVisionCard
-          icon={CompetenzeTrasversaliIcon}
+          icon={LightbulbGemIcon}
           title="Competenze trasversali"
           open={openSoft}
           onOpenChange={setOpenSoft}
@@ -82,7 +82,7 @@ export default function ProfileHubPage() {
         />
 
         <SkillVisionCard
-          icon={AnnuncioDiLavoroIcon}
+          icon={CoinsLossIcon}
           title="Annuncio di lavoro"
           open={openAnnuncio}
           onOpenChange={setOpenAnnuncio}
@@ -96,7 +96,7 @@ export default function ProfileHubPage() {
         />
 
         <SkillVisionCard
-          icon={AreaValutatoriIcon}
+          icon={GearAlertIcon}
           title="Area Valutatori"
           open={openValutatore}
           onOpenChange={setOpenValutatore}

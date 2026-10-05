@@ -44,7 +44,7 @@ export function FolderCard({
       </div>
       <div
         className={cn(
-          'flex flex-1 flex-col rounded-lg border-2 border-primary bg-card px-6 pt-3 pb-6 shadow-[0_8px_16px_0_var(--border-strong)]',
+          'flex min-h-52 flex-1 flex-col rounded-lg border-2 border-primary bg-card px-6 pt-3 pb-6 shadow-[0_8px_16px_0_var(--border-strong)]',
           iconSide === 'end' ? 'rounded-tl-none' : 'rounded-tr-none',
         )}
       >

@@ -52,6 +52,8 @@ export function StatCard({
   size = 'md',
   valueKind = 'number',
   surface = 'card',
+  elevated = false,
+  emphasis = false,
   progress,
   progressTone,
   delta,
@@ -68,6 +70,10 @@ export function StatCard({
   size?: 'sm' | 'md' | 'lg'
   valueKind?: 'number' | 'text'
   surface?: 'card' | 'none'
+  /** Bordo `primary` di 2px e rilievo, come le card della Home (eccezione alla regola 3, DECISIONI). */
+  elevated?: boolean
+  /** Il numero in grande (metric-lg) anche in un riquadro di taglia normale. */
+  emphasis?: boolean
   /** 0–100: una barra sotto il valore. */
   progress?: number
   /** La fascia del valore sulla barra, quando il riquadro resta neutro. */
@@ -97,6 +103,7 @@ export function StatCard({
         'flex min-w-0 flex-col gap-2 text-left text-card-foreground',
         onClick && 'cursor-pointer transition-colors outline-none hover:border-border-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         surface === 'card' && ['rounded-md', SURFACE[tone], size === 'lg' ? 'gap-4 p-6' : 'p-4'],
+        surface === 'card' && elevated && 'border-2 border-primary shadow-[0_8px_16px_0_var(--border-strong)]',
         className,
       )}
     >
@@ -113,7 +120,7 @@ export function StatCard({
         </div>
       ) : null}
       <div
-        className={cn('min-w-0 tabular-nums', valueKind === 'text' ? 'text-app-subtitle break-words' : size === 'lg' ? 'text-metric-lg' : size === 'sm' ? 'text-app-subtitle' : 'text-metric', size === 'lg' && 'mt-auto')}
+        className={cn('min-w-0 tabular-nums', valueKind === 'text' ? 'text-app-subtitle break-words' : size === 'lg' || emphasis ? 'text-metric-lg' : size === 'sm' ? 'text-app-subtitle' : 'text-metric', size === 'lg' && 'mt-auto')}
       >
         {value}
         {unit ? <span className="ml-1 text-app-small font-normal text-muted-foreground">{unit}</span> : null}

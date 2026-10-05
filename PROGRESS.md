@@ -126,6 +126,39 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Assessment Foglio 3 (Roberto Feliciani) + dimensione delle card Recruiting
+Da "Foglio 3 modifiche migliorative.pdf" e dalla schermata di Bilal.
+- [x] **Card Recruiting troppo piccole:** `FolderCard` ha ora un corpo alto
+      almeno 208px (`min-h-52`), uguale in Assessment e in Recruiting.
+- [x] **Home Assessment, titoli:** Il valore che generi / La mappa dei valori /
+      Le perdite invisibili / Dove intervenire, con sottotitolo, domanda e
+      spiegazione del foglio (italiano e inglese). Domande in minuscolo con
+      iniziale maiuscola, non in tutto maiuscolo (regola 8).
+- [x] **Pulsanti tolti dalle card** (Vedi dettagli, Confronta aree, Esporta
+      report, Vedi analisi, Vedi analisi dettagliata, Vedi tutte le azioni):
+      stanno solo nel pannello che si apre con "Skill Vision".
+- [x] **Finestra "Una sola lettura, mai due sistemi diversi"** tolta dalla
+      dashboard, non buttata: resta nel codice dietro `SHOW_CROSS_MODULE_BANNER = false`.
+- [x] **Selettore CT / CP / Completo** (`ModeSwitch`): grande, "Seleziona la
+      vista", voce scelta piena di lime con la spunta.
+- [x] **Indice a sinistra** segue la vista: con CT le voci delle competenze
+      trasversali in evidenza e quelle delle professionali attenuate; con CP il
+      contrario; con CT + CP tutte uguali. Le voci attenuate restano visibili e
+      cliccabili (prima sparivano).
+- [x] **Finestra 1:** bordo e rilievo, numeri grandi con "/100%" piccolo,
+      un grafico per ogni numero (arco, anelli, barre punteggio/benchmark),
+      i tre pulsanti nel pannello.
+- [x] **Finestra 2:** mappa dei dipendenti (CT × CP) con zone sugli angoli e
+      selezione trascinando: in alto a destra i più talentuosi, in basso a
+      sinistra chi richiede attenzione; stessi elenchi anche con i pulsanti.
+      "Vedi analisi" nel pannello.
+- [x] **Finestra 3:** grafici a barre di aree e mansioni sotto il benchmark,
+      più l'andamento; "Vedi analisi dettagliata" nel pannello.
+- [x] **Finestra 4:** pannello com'era, con "Vedi tutte le azioni" dentro.
+- [x] Icone delle quattro card: composte con Lucide (`CardIcons.ts`), le stesse
+      dei disegni del cliente; icona a destra in Assessment, a sinistra in Recruiting.
+- [ ] Non verificato a schermo (serve l'accesso). `tsc`, build, audit ok.
+
 ## 2026-10-05 — Profilo della ricerca secondo i disegni del cliente (Bilal)
 - [x] Le card chiuse mostrano **solo il titolo** (sottotitolo, righe e bottone
       tolti dalla faccia della card); la riga di descrizione di ogni disegno

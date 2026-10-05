@@ -16,6 +16,8 @@ export function SkillVisionCard({
   title,
   subtitle,
   lines = [],
+  headline,
+  description,
   actions,
   panel,
   open,
@@ -28,6 +30,10 @@ export function SkillVisionCard({
   title: ReactNode
   subtitle?: ReactNode
   lines?: readonly string[]
+  /** La domanda in evidenza sotto il sottotitolo (Foglio 3 di Assessment). */
+  headline?: ReactNode
+  /** Due righe di spiegazione, piccole, sotto la domanda. */
+  description?: ReactNode
   actions?: ReactNode
   panel: ReactNode
   open: boolean
@@ -63,6 +69,8 @@ export function SkillVisionCard({
           </ToggleGroup>
         }
       >
+        {headline ? <p className="mt-4 text-app-body font-semibold text-card-foreground">{headline}</p> : null}
+        {description ? <p className={headline ? 'mt-2 text-app-caption text-muted-foreground' : 'mt-4 text-app-caption text-muted-foreground'}>{description}</p> : null}
         {lines.length ? (
           <div className="mt-4 flex flex-col gap-1 text-app-body font-medium text-card-foreground">
             {lines.map((l) => (
