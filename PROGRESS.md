@@ -126,6 +126,20 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Foglio 2, parte 4: pagina Metodo per ambiente (Roberto Feliciani)
+- [x] `MetodoPage` decide con `isDemoMode()` (VITE_DEMO_MODE=true o sviluppo):
+      - **demo:** pagina vuota, nessun contenuto visibile;
+      - **cliente:** titolo "Metodo", messaggio di accesso riservato e pulsante
+        «Chiedere l'accesso» (apre un'email a info@skill-vision.it già
+        compilata: non esiste un flusso di richiesta nell'app).
+- [x] Il contenuto di prima (formule della classifica) è in
+      `metodo/MetodoContent.tsx`, non collegato a nessuna rotta: non perso.
+- Su Railway il servizio "Skill Vision" ha `VITE_DEMO_MODE` impostata: finché
+  vale `true` la produzione di oggi è "demo" e Metodo è vuoto. La vista cliente
+  si vede su un ambiente separato, senza quella variabile (DECISIONI, "Come si
+  riconosce la demo"). Variabili non toccate.
+- [ ] Non verificato a schermo. `tsc`, build, audit ok.
+
 ## 2026-10-05 — Foglio 2, parte 3: Confronto interno a radar (Roberto Feliciani)
 - [x] `MatchCompare` rifatto sul pattern `ProfileRadar` (Bklit Radar, già nel
       progetto): le barre per competenza sono sostituite da radar.

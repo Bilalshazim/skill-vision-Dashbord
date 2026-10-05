@@ -959,3 +959,14 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   cambiata in `chart-colors.ts` (vale per tutti i radar dell'app).
 - Asse: 8 competenze al massimo per leggibilità (CLAUDE.md: il radar deve
   restare leggibile); scelte per scarto fra i profili.
+
+## Pagina Metodo: vuota in demo, richiesta di accesso al cliente · 2026-10-05
+- "Demo" = `isDemoMode()` (già deciso il 2026-09-30). Nessuna variabile nuova.
+- «Chiedere l'accesso»: non c'è un flusso di richieste né una tabella dei
+  permessi. Opzioni: (a) email precompilata a info@skill-vision.it; (b) una
+  richiesta salvata sul server con approvazione. Presa **(a)**: nessun dato
+  nuovo; (b) è lavoro di backend da concordare.
+- Chi ha già l'accesso non ha ancora un modo di vedere il contenuto: la
+  richiesta non descrive quel caso. Il contenuto resta in `MetodoContent.tsx`;
+  va collegato quando si decide chi lo può leggere (ad esempio per ruolo o per
+  società). Fino ad allora nemmeno gli amministratori lo vedono.
