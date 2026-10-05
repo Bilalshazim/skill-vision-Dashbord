@@ -936,3 +936,12 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   date di assunzione e titolo di studio **non** escono dal server, per
   minimizzazione (PROPOSTA-ORIGINAL-SKILLS.md §3.2): non li ho riaperti. Se
   Roberto li vuole, è una decisione sui dati personali, da prendere a parte.
+
+## "Posizione e archivio" tolto, selettore della posizione spostato · 2026-10-05
+- Richiesta: togliere il riquadro da CV & Esportazione. Problema: conteneva
+  l'**unico** selettore della posizione aperta; senza, non si poteva più
+  scegliere a quale posizione vanno i CV (CLAUDE.md: nessuna funzione sparisce).
+- Opzioni: (a) togliere e basta; (b) togliere e spostare il solo selettore
+  nella barra laterale, accanto alla società. Presa **(b)**: la pagina è pulita
+  come chiesto e la funzione resta. Per annullare lo spostamento basta
+  togliere il blocco "Posizione aperta" da `RecruitingNav.tsx`.

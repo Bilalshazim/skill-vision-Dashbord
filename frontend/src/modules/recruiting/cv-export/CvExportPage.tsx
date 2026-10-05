@@ -3,8 +3,6 @@ import { CheckCircle2, FileCheck2, FileSpreadsheet, FileText, Loader2, Percent, 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { SelectField } from '@/components/patterns/SelectField'
-import { Field } from '@/components/patterns/Field'
-import { FieldGrid } from '@/components/patterns/FieldGrid'
 import { Hint } from '@/components/patterns/Hint'
 import { Card } from '@/components/ui/card'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -12,7 +10,6 @@ import { cn } from '@/lib/utils'
 import { StatCard } from '@/components/patterns/StatCard'
 import { CvArchiveList } from '@/modules/recruiting/cv-export/CvArchiveList'
 import { downloadRankingCsv, downloadRankingJson } from '@/modules/recruiting/lib/candidateExport'
-import { setActiveContext } from '@/modules/recruiting/lib/pipeline'
 import { ranking } from '@/modules/recruiting/lib/scoring'
 import { uploadCvToActiveOpening } from '@/modules/recruiting/lib/cv-upload'
 import { setCvRetentionChoice, syncRankingFromBackend, uploadCvViaBackend } from '@/modules/recruiting/lib/backend-sync'
@@ -40,10 +37,10 @@ const IDLE_FEEDBACK: UploadFeedback = { kind: 'idle' }
 // lib/cv-upload.ts, lib/pipeline.ts, lib/candidateExport.ts for the
 // individual write/pure-logic contracts this orchestrates).
 //
-// ACTIVE CONTEXT — this screen is the real owner: every activeContext
-// change goes through setActiveContext() (lib/pipeline.ts), the same
-// apex5d_cv_matching_state key and shape every other screen already reads
-// via getActiveOpening(). No second context store is introduced.
+// ACTIVE CONTEXT — Fase 'Foglio 2' (Roberto Feliciani): il riquadro
+// "Posizione e archivio" è stato tolto da questa pagina. Società e posizione
+// attive si scelgono ora dalla barra laterale (RecruitingNav), con lo stesso
+// setActiveContext() di lib/pipeline.ts: nessun secondo archivio di contesto.
 //
 // NOT MIGRATED / REMOVED (per the Phase 15 audit, re-confirmed this phase):
 //  - Bulk Import — real backend dependency (POST /api/ingest/bulk), and no
@@ -64,7 +61,7 @@ const IDLE_FEEDBACK: UploadFeedback = { kind: 'idle' }
 export default function CvExportPage() {
   const [refreshKey, setRefreshKey] = useState(0)
   const handleMutated = useCallback(() => setRefreshKey((k) => k + 1), [])
-  const { companies, company, opening, candidates } = useCvExportData(refreshKey)
+  const { candidates } = useCvExportData(refreshKey)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showProgress, setShowProgress] = useState(false)
@@ -90,15 +87,6 @@ export default function CvExportPage() {
       cancelled = true
     }
   }, [handleMutated])
-
-  function handleCompanyChange(companyId: string) {
-    setActiveContext(companyId, opening?.id || '')
-    handleMutated()
-  }
-  function handleOpeningChange(openingId: string) {
-    setActiveContext(company?.id || '', openingId)
-    handleMutated()
-  }
 
   // Reproduces runPipeline()'s exact 4-step, 850ms-per-step sequential
   // animation (modules/recruiting.html ~3165-3234) before the real logic
@@ -290,48 +278,10 @@ export default function CvExportPage() {
 
         </div>
         <div className="flex flex-col gap-4">
-          <div className="rounded-lg border border-border bg-secondary p-4">
-            <div className="label-mono mb-3 text-muted-foreground">Posizione e archivio</div>
-            <FieldGrid>
-              <Field label="Società">
-                <SelectField value={company?.id || ''} onValueChange={(v) => handleCompanyChange(v)}>
-                  {companies.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </SelectField>
-              </Field>
-              <Field label="Posizione aperta">
-                <SelectField value={opening?.id || ''} onValueChange={(v) => handleOpeningChange(v)}>
-                  {(company?.jobOpenings || []).map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.title}
-                    </option>
-                  ))}
-                </SelectField>
-              </Field>
-            </FieldGrid>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              {/* "Parse CV & Match" removed — its legacy implementation was dead
-                  code (see this file's header comment) and its bridge target
-                  (/modules/recruiting.html) no longer exists; the real
-                  parse+match+backend flow is the drop zone above. */}
-              {company && opening && (
-                <span className="text-app-caption text-muted-foreground">
-                  <b className="font-semibold text-foreground">{company.name}</b> · {opening.title}
-                  <br />
-                  Profilo: <b className="font-semibold text-foreground">{opening.jobProfile?.title || '—'}</b> · Candidati in archivio:{' '}
-                  <b className="font-semibold text-foreground">{opening.candidatePool?.length || 0}</b>
-                </span>
-              )}
-            </div>
-          </div>
-
           <div className="rounded-lg border border-border bg-secondary p-4 flex-1">
             <div className="label-mono mb-2 text-muted-foreground">Import massivo · archivio storico</div>
             <p className="mb-3 text-app-small leading-relaxed text-muted-foreground">
-              Carica in un colpo solo l'intero archivio di CV esistente (più PDF insieme) per la società selezionata sopra. Non ancora disponibile in
+              Carica in un colpo solo l'intero archivio di CV esistente (più PDF insieme) per la società attiva. Non ancora disponibile in
               questa versione.
             </p>
             {/* No backend ingest route exists (POST /api/ingest/bulk was never

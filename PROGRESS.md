@@ -126,6 +126,17 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Foglio 2, parte 2: CV & Esportazione più semplice (Roberto Feliciani)
+- [x] Tolto il riquadro "Posizione e archivio" (selettori Società e Posizione
+      aperta, riga con profilo e candidati in archivio) da CV & Esportazione.
+- [x] **Funzione conservata:** la scelta della posizione attiva stava solo lì.
+      Ora sta nella barra laterale sotto la società ("Posizione aperta"),
+      visibile quando la società ha più di una posizione. Stesso
+      `setActiveContext`: dove vanno i CV caricati non cambia.
+- Si perde, nella pagina: la riga di riepilogo "Profilo: … · Candidati in
+  archivio: N". Il numero dei CV è già nelle statistiche in cima e nell'elenco.
+- [ ] Non verificato a schermo. `tsc`, build, audit ok.
+
 ## 2026-10-05 — Foglio 2, parte 1: "Comitato scientifico" (Roberto Feliciani)
 - [x] "Original Skills" non compare più in nessun testo visibile: voce di
       menu, intestazione, messaggi di errore, caricamento, stati vuoti, e i

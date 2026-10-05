@@ -1,6 +1,9 @@
 import { NavLink, useLocation } from 'react-router-dom'
 
+import { Briefcase } from 'lucide-react'
+
 import { CompanySwitcher } from '@/components/patterns/CompanySwitcher'
+import { SelectField } from '@/components/patterns/SelectField'
 import { SidebarContent, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { getBackendUser } from '@/lib/api/client'
 import { RECRUITING_NAV_ITEMS } from '@/modules/recruiting/nav-config'
@@ -12,7 +15,10 @@ import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 // modulo. Il filtro per ruolo del backend resta (una comodità: il limite
 // vero lo mette il server — vedi nav-config.ts). Cambiare società usa lo
 // stesso `setActiveContext` del selettore di CV & Esportazione: nessun
-// salvataggio nuovo. `onCompanyChange` avvisa il layout, che ridisegna la
+// salvataggio nuovo. Con più posizioni aperte, sotto la società c'è anche la
+// scelta della posizione attiva (prima stava in CV & Esportazione, nel
+// riquadro "Posizione e archivio", tolto su richiesta di Roberto Feliciani).
+// `onCompanyChange` avvisa il layout, che ridisegna la
 // pagina aperta sulla società scelta.
 export function RecruitingNav({ onCompanyChange }: { onCompanyChange: () => void }) {
   const role = getBackendUser()?.role
@@ -32,6 +38,30 @@ export function RecruitingNav({ onCompanyChange }: { onCompanyChange: () => void
             onCompanyChange()
           }}
         />
+        {company && company.jobOpenings.length > 1 ? (
+          <div className="flex min-w-0 flex-col gap-1 px-1">
+            <div className="label-mono flex items-center gap-2 text-muted-foreground">
+              <Briefcase className="size-3.5 shrink-0" aria-hidden="true" />
+              Posizione aperta
+            </div>
+            <SelectField
+              size="sm"
+              className="w-full"
+              value={opening?.id ?? ''}
+              onValueChange={(id) => {
+                setActiveContext(company.id, id)
+                onCompanyChange()
+              }}
+              aria-label="Posizione aperta attiva"
+            >
+              {company.jobOpenings.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.title}
+                </option>
+              ))}
+            </SelectField>
+          </div>
+        ) : null}
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
