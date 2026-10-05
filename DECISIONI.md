@@ -1000,3 +1000,12 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   Per questo c'è la conferma. Un report per candidato è un cambio di modello dati.
 - **Non fatto:** avviso al responsabile quando arriva una valutazione (compare
   quando apre l'elenco); promemoria ai valutatori che non hanno risposto.
+
+## Assistente IA a tutta larghezza · 2026-10-05
+- Su richiesta di Bilal la pagina Assistente IA (`/recruiting/ask`) non è più
+  nella colonna di lettura da 720px (CLAUDE.md, Fase 6: "messaggi di chat entro
+  la colonna di lettura"): occupa tutta la larghezza del guscio, su telefono,
+  tablet e schermi larghi. Contro: su uno schermo largo le risposte hanno righe
+  lunghe, meno comode da leggere. Il limite del guscio (`max-w-screen-2xl`,
+  1536px, deciso il 2026-10-01 per tutte le pagine) non è stato toccato.
+- I messaggi della chat (`ChatMessage`) restano a `max-w-[82%]` della larghezza.

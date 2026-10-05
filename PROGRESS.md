@@ -126,6 +126,11 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Assistente IA a tutta larghezza (Bilal)
+- [x] `AskPage`: tolto `max-w-180` (720px); la pagina usa tutta la larghezza
+      del guscio. Il guscio resta a 1536px al massimo (per tutte le pagine).
+- [ ] Non committato né pubblicato. `tsc` ok. Non verificato a schermo.
+
 ## 2026-10-05 — Voce di menu "Inizia" → "Stato dell'arte" (Bilal)
 - [x] `nav-config.ts`: etichetta della prima pagina di Recruiting (`/recruiting`)
       rinominata; posizione (dopo "Confronto interno") e indirizzo invariati.

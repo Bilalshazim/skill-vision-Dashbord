@@ -104,10 +104,11 @@ export default function AskPage() {
   const visibleChips = chatState.kind === 'pending' ? [] : chatState.kind === 'answered' ? allChips.filter((c) => c.index !== chatState.index) : allChips
 
   return (
-    // Una sola intestazione di pagina e il contenuto nella colonna di
-    // lettura (720px): domande e risposte sono testo da leggere (CLAUDE.md,
-    // Fase 6). Messaggi e bottoni dalla libreria (ChatMessage, Button).
-    <div className="flex max-w-180 flex-col gap-4">
+    // Una sola intestazione di pagina; il contenuto occupa tutta la larghezza
+    // disponibile su ogni dispositivo (richiesta di Bilal, 2026-10-05: prima
+    // era nella colonna di lettura da 720px, CLAUDE.md Fase 6 — vedi
+    // DECISIONI). Messaggi e bottoni dalla libreria (ChatMessage, Button).
+    <div className="flex w-full flex-col gap-4">
       <PageHeader level="page" className="mb-0" title="Assistente IA" description="Domande sui dati di Recruiting: le risposte sono calcolate sulla classifica attuale." />
 
       <Card>
