@@ -896,3 +896,17 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 
 - **Esito (2026-10-05):** Bilal ha approvato la raccomandazione (a): colonne
   opzionali `referent` e `advisor` su `Cip`, compilate alla generazione.
+
+## Fase 3: ombra, bordo colorato e icona a destra sulle card della Home · 2026-10-05
+- Richiesta (Roberto Feliciani): bordino colorato e ombre per l'effetto
+  rilievo; icona a sinistra in Recruiting, a destra in Assessment.
+- **Eccezione alla regola 3** (come per le card di scelta del modulo): ombra
+  `0 8px 16px` in `--border-strong`, solo sul corpo di `FolderCard`.
+  Bordo `primary` 2px: il lime come bordo è ammesso (regola 6 vale per il testo).
+- Fra "icona a destra" e "differenziare per colore" ho preso la prima: il
+  colore come categoria è escluso dalle regole 10 e 1. Tocca la Home di
+  Assessment (concept del cliente): cambia solo il lato dell'icona.
+- "Drawer a destra": in Assessment il dettaglio non è uno Sheet ma un
+  pannello che si apre accanto alla card nella stessa riga. Recruiting fa lo
+  stesso, per essere identico come richiesto. Se serve davvero uno Sheet
+  laterale, va cambiato in tutti e due i moduli.

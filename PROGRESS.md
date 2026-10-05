@@ -126,6 +126,19 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Fase 3: layout, dashboard, rilievo (checklist Roberto Feliciani)
+- [x] Menu Recruiting: "Inizia" subito dopo "Confronto interno" (`nav-config.ts`).
+- [x] Home Recruiting: le quattro finestre (Candidati per fascia, Imbuto,
+      Posizioni aperte, Prossimi colloqui) sono `SkillVisionCard` come in
+      Assessment: all'inizio solo il titolo, "Skill Vision" apre il dettaglio
+      sulla destra nella stessa riga, stato ricordato nel browser. Stesso
+      `homeCardLayout`, spostato in `lib/` perché ora serve a due moduli.
+- [x] `FolderCard`: bordo 2px `primary`, rilievo con ombra (eccezione
+      DECISIONI), `iconSide`: icona a sinistra in Recruiting, a destra in
+      Assessment. Stessi componenti → stessi font e misure nei due moduli.
+- [x] Catalogo: entrambe le posizioni dell'icona. `tsc`, build, audit ok.
+- [ ] Non verificato a schermo (serve l'accesso): chiaro/scuro da guardare.
+
 ## 2026-10-05 — CIP: referente e advisor (approvati da Bilal)
 - [x] Migrazione `20261005120000_add_cip_referent_advisor`: due colonne TEXT
       opzionali su `Cip`, solo aggiunta, righe esistenti intatte (NULL).

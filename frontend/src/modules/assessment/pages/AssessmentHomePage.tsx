@@ -18,7 +18,7 @@ import type { DecisionTone } from '@/modules/assessment/components/DecisionRow'
 import { lastSixMonthLabels } from '@/modules/assessment/lib/months'
 import { TrendChart } from '@/components/patterns/TrendChart'
 import { ValoreCard } from '@/modules/assessment/components/ValoreCard'
-import { homeCardLayout } from '@/modules/assessment/lib/home-card-layout'
+import { homeCardLayout } from '@/lib/home-card-layout'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import {
   bothActive,
@@ -194,6 +194,7 @@ export default function AssessmentHomePage() {
         {/* Q3 — Il Capitale Umano: Skill Vision opens the 3 tier tiles (Alto
             Potenziale / Alto Valore / Critici) and the 5-tier distribution. */}
         <SkillVisionCard
+          iconSide="end"
           icon={Users}
           title={ui.homeQ3Title}
           subtitle={ui.homeQ3Kicker}
@@ -237,6 +238,7 @@ export default function AssessmentHomePage() {
             critical area / role / competency, and the org score trend vs
             benchmark (the former Andamento card). */}
         <SkillVisionCard
+          iconSide="end"
           icon={TrendingDown}
           title={ui.homeQ2Title}
           subtitle={ui.homeQ2Kicker}
@@ -314,6 +316,7 @@ export default function AssessmentHomePage() {
 
         {/* Q4 — Le Decisioni: Skill Vision opens the priority actions. */}
         <SkillVisionCard
+          iconSide="end"
           icon={ListChecks}
           title={ui.homeQ4Title}
           subtitle={ui.homeQ4Kicker}

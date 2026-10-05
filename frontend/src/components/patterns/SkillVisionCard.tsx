@@ -12,9 +12,10 @@ import { cn } from '@/lib/utils'
 // `style`: solo il posto nella griglia (order, grid-column), deciso dalla pagina.
 export function SkillVisionCard({
   icon,
+  iconSide,
   title,
   subtitle,
-  lines,
+  lines = [],
   actions,
   panel,
   open,
@@ -23,9 +24,10 @@ export function SkillVisionCard({
   style,
 }: {
   icon: LucideIcon
+  iconSide?: 'start' | 'end'
   title: ReactNode
-  subtitle: ReactNode
-  lines: readonly string[]
+  subtitle?: ReactNode
+  lines?: readonly string[]
   actions?: ReactNode
   panel: ReactNode
   open: boolean
@@ -43,6 +45,7 @@ export function SkillVisionCard({
     >
       <FolderCard
         icon={icon}
+        iconSide={iconSide}
         title={title}
         kicker={subtitle}
         className="flex-1"
@@ -60,11 +63,13 @@ export function SkillVisionCard({
           </ToggleGroup>
         }
       >
-        <div className="mt-4 flex flex-col gap-1 text-app-body font-medium text-card-foreground">
-          {lines.map((l) => (
-            <p key={l}>{l}</p>
-          ))}
-        </div>
+        {lines.length ? (
+          <div className="mt-4 flex flex-col gap-1 text-app-body font-medium text-card-foreground">
+            {lines.map((l) => (
+              <p key={l}>{l}</p>
+            ))}
+          </div>
+        ) : null}
         {actions ? <div className="mt-auto flex flex-wrap justify-center gap-2 pt-6">{actions}</div> : null}
       </FolderCard>
 

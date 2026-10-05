@@ -37,6 +37,7 @@ const signed = (n: number) => `${n > 0 ? '+' : ''}${fmt1it(n)}`
 export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgGapPct, breakdown, actions, open, onOpenChange, style }: Props) {
   return (
     <SkillVisionCard
+      iconSide="end"
       icon={CircleDollarSign}
       title={ui.homeQ1Title}
       subtitle={ui.homeQ1Kicker}

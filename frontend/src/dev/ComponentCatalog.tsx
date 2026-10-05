@@ -513,8 +513,11 @@ function HomeCardsDemo() {
   const [open, setOpen] = useState(false)
   return (
     <div className="grid w-full grid-cols-1 gap-4">
-      <FolderCard icon={ListChecks} title="Le Decisioni" kicker="quello che puoi fare da subito">
+      <FolderCard icon={ListChecks} title="Le Decisioni — icona a sinistra (Recruiting)" kicker="quello che puoi fare da subito">
         <p className="mt-4 text-app-body font-medium">Come agire da subito</p>
+      </FolderCard>
+      <FolderCard icon={ListChecks} iconSide="end" title="Le Decisioni — icona a destra (Assessment)">
+        <p className="mt-4 text-app-body font-medium">Stessa card, icona dall'altra parte</p>
       </FolderCard>
       <SkillVisionCard
         icon={CircleDollarSign}

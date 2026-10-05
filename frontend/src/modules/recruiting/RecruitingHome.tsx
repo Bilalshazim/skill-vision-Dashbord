@@ -1,13 +1,16 @@
-import { ArrowUpRight, Users } from 'lucide-react'
+import { ArrowUpRight, Briefcase, CalendarDays, Filter, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CrossModuleBanner } from '@/components/patterns/CrossModuleBanner'
 import { PageHeader } from '@/components/patterns/PageHeader'
+import { SkillVisionCard } from '@/components/patterns/SkillVisionCard'
 import { StatCard } from '@/components/patterns/StatCard'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { usePersistedFlag } from '@/hooks/use-persisted-flag'
+import { homeCardLayout } from '@/lib/home-card-layout'
 import { OpeningsList } from '@/modules/recruiting/components/OpeningsList'
 import { QualityStackedBar } from '@/modules/recruiting/components/QualityStackedBar'
 import { SelectionFunnel } from '@/modules/recruiting/components/SelectionFunnel'
@@ -40,6 +43,19 @@ function exportHomeSummary(data: RecruitingHomeData): void {
 export default function RecruitingHome() {
   const data = useRecruitingHomeData()
   const [interviewsTab, setInterviewsTab] = useState<'arrivo' | 'completati'>('arrivo')
+  // Aperto/chiuso di ogni finestra, ricordato nel browser come in Assessment;
+  // all'inizio sono tutte chiuse (solo il titolo).
+  const [openCandidati, setOpenCandidati] = usePersistedFlag('sv-recruiting-home-candidati-view', 'skillvision', 'oggi')
+  const [openImbuto, setOpenImbuto] = usePersistedFlag('sv-recruiting-home-imbuto-view', 'skillvision', 'oggi')
+  const [openPosizioni, setOpenPosizioni] = usePersistedFlag('sv-recruiting-home-posizioni-view', 'skillvision', 'oggi')
+  const [openColloqui, setOpenColloqui] = usePersistedFlag('sv-recruiting-home-colloqui-view', 'skillvision', 'oggi')
+  const cardLayout = homeCardLayout(
+    [
+      ['candidati', 'imbuto'],
+      ['posizioni', 'colloqui'],
+    ] as const,
+    { candidati: openCandidati, imbuto: openImbuto, posizioni: openPosizioni, colloqui: openColloqui },
+  )
 
   // Cross-module banner stats — all derived from the same real data already
   // computed above, no new sources invented (see CrossModuleBanner.tsx).
@@ -81,99 +97,121 @@ export default function RecruitingHome() {
         <StatCard label={data.kpis[3].label} value={data.kpis[3].value} />
       </div>
 
-      {/* 4 direct grid children instead of 2 flex-col column stacks — each
-          ROW's height is now independent (Candidati/Imbuto vs Posizioni/
-          Prossimi), so a tall card only affects its own row's gap instead
-          of the whole column accumulating one large dead zone at the
-          bottom before the cross-module banner (the ring chart made that
-          column-stack gap severe enough to look broken). Visual position
-          is identical to before — grid auto-placement fills row-major,
-          same as the two stacks did. */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
-        <Card>
-          <CardHeader>
-            <div>
-              <CardTitle>Candidati per fascia di idoneità</CardTitle>
-              <p className="mt-0.5 text-app-caption text-muted-foreground">
-                {data.rankedCount} candidati · posizione attiva: <b className="font-semibold text-foreground">{data.roleLabel}</b>
-              </p>
-            </div>
-            <Link to="/recruiting/ranking" className="flex shrink-0 items-center gap-1 text-app-caption font-medium text-foreground hover:underline">
-              Vedi classifica <ArrowUpRight className="size-3.5" />
-            </Link>
-          </CardHeader>
-          <CardContent className="overflow-x-auto">
-            {data.rankedCount ? (
-              <>
-                {/* 3 of the 4 real buckets get a KPI tile, matching the
-                    concept's own choice — "Gap Strutturali" (buckets[2])
-                    stays bar-only, same as the concept. */}
-                <div className="mb-4 grid grid-cols-3 gap-3">
-                  {[data.buckets[0], data.buckets[1], data.buckets[3]].map((b) => (
-                    <div key={b.label} className="rounded-lg border border-border bg-secondary/40 p-3">
-                      <div className="label-mono text-muted-foreground">{b.label}</div>
-                      <div className="mt-1 font-mono text-app-section font-semibold tabular-nums text-foreground">{b.count}</div>
+      {/* Le quattro finestre, con la stessa struttura della Home di
+          Assessment (Fase 3, Roberto Feliciani): ognuna parte con il solo
+          titolo; "Skill Vision" apre il dettaglio sulla destra, nella stessa
+          riga (SkillVisionCard + homeCardLayout, gli stessi pattern). */}
+      <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+        <SkillVisionCard
+          icon={Users}
+          title="Candidati per fascia di idoneità"
+          open={openCandidati}
+          onOpenChange={setOpenCandidati}
+          style={cardLayout.candidati}
+          panel={
+            <Card>
+              <CardHeader>
+                <p className="text-app-caption text-muted-foreground">
+                  {data.rankedCount} candidati · posizione attiva: <b className="font-semibold text-foreground">{data.roleLabel}</b>
+                </p>
+                <Link to="/recruiting/ranking" className="flex shrink-0 items-center gap-1 text-app-caption font-medium text-foreground hover:underline">
+                  Vedi classifica <ArrowUpRight className="size-3.5" />
+                </Link>
+              </CardHeader>
+              <CardContent className="overflow-x-auto">
+                {data.rankedCount ? (
+                  <>
+                    {/* 3 of the 4 real buckets get a KPI tile, matching the
+                        concept's own choice — "Gap Strutturali" (buckets[2])
+                        stays bar-only, same as the concept. */}
+                    <div className="mb-4 grid grid-cols-3 gap-3">
+                      {[data.buckets[0], data.buckets[1], data.buckets[3]].map((b) => (
+                        <div key={b.label} className="rounded-lg border border-border bg-secondary/40 p-3">
+                          <div className="label-mono text-muted-foreground">{b.label}</div>
+                          <div className="mt-1 font-mono text-app-section font-semibold tabular-nums text-foreground">{b.count}</div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <QualityStackedBar buckets={data.buckets} total={data.rankedCount} />
-              </>
-            ) : (
-              <p className="py-1 text-app-small text-muted-foreground">
-                Nessun candidato ancora in classifica per questo ruolo. Carica i primi CV dalla pagina CV &amp;
-                Export.
-              </p>
-            )}
-          </CardContent>
-        </Card>
+                    <QualityStackedBar buckets={data.buckets} total={data.rankedCount} />
+                  </>
+                ) : (
+                  <p className="py-1 text-app-small text-muted-foreground">
+                    Nessun candidato ancora in classifica per questo ruolo. Carica i primi CV dalla pagina CV &amp;
+                    Export.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          }
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Imbuto di Selezione</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <SelectionFunnel stages={data.funnel} />
-          </CardContent>
-        </Card>
+        <SkillVisionCard
+          icon={Filter}
+          title="Imbuto di Selezione"
+          open={openImbuto}
+          onOpenChange={setOpenImbuto}
+          style={cardLayout.imbuto}
+          panel={
+            <Card>
+              <CardContent>
+                <SelectionFunnel stages={data.funnel} />
+              </CardContent>
+            </Card>
+          }
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Posizioni aperte</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <OpeningsList openings={data.openings} />
-          </CardContent>
-        </Card>
+        <SkillVisionCard
+          icon={Briefcase}
+          title="Posizioni aperte"
+          open={openPosizioni}
+          onOpenChange={setOpenPosizioni}
+          style={cardLayout.posizioni}
+          panel={
+            <Card>
+              <CardContent>
+                <OpeningsList openings={data.openings} />
+              </CardContent>
+            </Card>
+          }
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Prossimi colloqui</CardTitle>
-            <p className="mt-0.5 text-app-caption text-muted-foreground">Ordinati per data</p>
-          </CardHeader>
-          <Tabs value={interviewsTab} onValueChange={(v) => setInterviewsTab(v as typeof interviewsTab)}>
-            <TabsList className="w-full">
-              <TabsTrigger value="arrivo" className="flex-1">
-                In arrivo
-              </TabsTrigger>
-              <TabsTrigger value="completati" className="flex-1">
-                Completati
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <CardContent className="pt-3">
-            {interviewsTab === 'arrivo' ? (
-              <UpcomingList upcoming={data.upcoming} />
-            ) : (
-              <UpcomingList upcoming={data.completed} emptyText="Nessun colloquio completato ancora." />
-            )}
-            <Link
-              to="/recruiting/pipeline"
-              className="mt-3 flex w-full items-center justify-center gap-1 rounded-sm border border-border py-2 text-app-small font-semibold text-foreground hover:bg-secondary"
-            >
-              Vedi tutti i colloqui <ArrowUpRight className="size-3.5" />
-            </Link>
-          </CardContent>
-        </Card>
+        <SkillVisionCard
+          icon={CalendarDays}
+          title="Prossimi colloqui"
+          open={openColloqui}
+          onOpenChange={setOpenColloqui}
+          style={cardLayout.colloqui}
+          panel={
+            <Card>
+              <CardHeader>
+                <p className="text-app-caption text-muted-foreground">Ordinati per data</p>
+              </CardHeader>
+              <Tabs value={interviewsTab} onValueChange={(v) => setInterviewsTab(v as typeof interviewsTab)}>
+                <TabsList className="w-full">
+                  <TabsTrigger value="arrivo" className="flex-1">
+                    In arrivo
+                  </TabsTrigger>
+                  <TabsTrigger value="completati" className="flex-1">
+                    Completati
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <CardContent className="pt-3">
+                {interviewsTab === 'arrivo' ? (
+                  <UpcomingList upcoming={data.upcoming} />
+                ) : (
+                  <UpcomingList upcoming={data.completed} emptyText="Nessun colloquio completato ancora." />
+                )}
+                <Link
+                  to="/recruiting/pipeline"
+                  className="mt-3 flex w-full items-center justify-center gap-1 rounded-sm border border-border py-2 text-app-small font-semibold text-foreground hover:bg-secondary"
+                >
+                  Vedi tutti i colloqui <ArrowUpRight className="size-3.5" />
+                </Link>
+              </CardContent>
+            </Card>
+          }
+        />
       </div>
 
       <CrossModuleBanner

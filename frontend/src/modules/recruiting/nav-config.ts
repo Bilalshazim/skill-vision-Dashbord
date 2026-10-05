@@ -59,7 +59,6 @@ export type RecruitingNavItem = {
 // clearer id-adjacent comment since its label change is the least obvious
 // mapping (Profilo di Lavoro -> Profilo Candidatura).
 export const RECRUITING_NAV_ITEMS: RecruitingNavItem[] = [
-  { screen: 'home', label: 'Inizia', icon: LayoutDashboard, to: '/recruiting', end: true },
   // Era "Menu": la voce prende il nome della sua destinazione (CLAUDE.md, Fase 6).
   { screen: 'profilo', label: 'Profilo della ricerca', icon: FileBarChart, to: '/recruiting/profile' },
   { screen: 'jd', label: 'Profilo Candidatura', icon: FileText, to: '/recruiting/job-profile' },
@@ -68,6 +67,8 @@ export const RECRUITING_NAV_ITEMS: RecruitingNavItem[] = [
   { screen: 'paginaA', label: 'Migliori Candidati', icon: ClipboardCheck, to: '/recruiting/pagina-a' },
   { screen: 'ranking', label: 'Risultati', icon: Trophy, to: '/recruiting/ranking' },
   { screen: 'match', label: 'Confronto interno', icon: ArrowLeftRight, to: '/recruiting/match' },
+  // Fase 3 (Roberto Feliciani): "Inizia" subito dopo "Confronto interno".
+  { screen: 'home', label: 'Inizia', icon: LayoutDashboard, to: '/recruiting', end: true },
   { screen: 'formule', label: 'Metodo', icon: Sigma, to: '/recruiting/metodo' },
   { screen: 'ai', label: 'Assistente IA', icon: Sparkles, to: '/recruiting/ask' },
   { screen: 'cipAdmin', label: 'CIP', icon: IdCard, to: '/recruiting/admin/cip', roles: ['PLATFORM_ADMIN'] },
