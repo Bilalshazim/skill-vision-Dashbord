@@ -57,14 +57,15 @@ function ModuleChooser() {
       <div className="flex min-h-screen flex-col bg-background text-foreground">
         <Topbar />
         <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-6 p-4 sm:p-6">
-          <PageHeader level="page" title="Skill Vision" description="Dai dati sul Capitale Umano alle decisioni che generano valore per l'impresa" />
+          <PageHeader level="page" title="Skill Vision" />
+          <p className="max-w-prose text-app-section text-foreground">Dai dati sul Capitale Umano alle decisioni che generano valore per l'impresa</p>
           <p className="text-app-small text-muted-foreground">Seleziona il cruscotto di tuo interesse per proseguire</p>
           {!modules ? (
             <LoadingState label="Verifica dei moduli attivi…" />
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {(available.length ? available : MODULES).map((m) => (
-                <Card key={m.key} padding="lg" className="gap-4">
+                <Card key={m.key} padding="lg" className="gap-4 border-2 border-border-strong transition-colors hover:border-primary">
                   <div className="flex items-center gap-3">
                     <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-md border-2 border-primary bg-primary font-mono text-app-title text-primary-foreground">
                       {m.letter}
