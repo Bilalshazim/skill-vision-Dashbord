@@ -1,9 +1,11 @@
-import { LogOut, Moon, Sun } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { LogOut, Moon, Settings, Sun } from 'lucide-react'
+import { type ReactNode, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Hint } from '@/components/patterns/Hint'
+import { LanguageSwitch } from '@/components/patterns/LanguageSwitch'
 import { ModuleSwitcher } from '@/components/patterns/ModuleSwitcher'
+import { SettingsDialog } from '@/components/patterns/SettingsDialog'
 import { Button } from '@/components/ui/button'
 import { usePurchasedModules } from '@/hooks/use-purchased-modules'
 import { useTheme } from '@/hooks/use-theme'
@@ -17,11 +19,11 @@ import { logoutFromShell } from '@/modules/assessment/lib/shell-bridge'
 // La barra superiore del guscio unico: marchio (porta alla `/`, la scelta
 // del modulo), il
 // commutatore Recruiting / Assessment — solo se la società ha tutti e due i
-// moduli —, tema e uscita. Nessuno switch della lingua: l'interfaccia è in
-// italiano (CLAUDE.md cap. 7, "Lingua"). `menuTrigger`: il bottone che apre
-// la barra laterale su mobile.
+// moduli —, selettore della lingua, impostazioni, tema e uscita.
+// `menuTrigger`: il bottone che apre la barra laterale su mobile.
 export function Topbar({ menuTrigger }: { menuTrigger?: ReactNode }) {
   const { theme, setTheme } = useTheme()
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const dark = theme === 'dark'
   const modules = usePurchasedModules()
   const both = !!modules && modules.includes('RECRUITING') && modules.includes('ASSESSMENT')
@@ -42,6 +44,12 @@ export function Topbar({ menuTrigger }: { menuTrigger?: ReactNode }) {
       </Link>
       {both ? <ModuleSwitcher className="ml-2" /> : null}
       <div className="ml-auto flex items-center gap-2">
+        <LanguageSwitch />
+        <Hint label="Impostazioni">
+          <Button variant="outline" size="icon" onClick={() => setSettingsOpen(true)} aria-label="Impostazioni">
+            <Settings />
+          </Button>
+        </Hint>
         <Hint label={dark ? 'Modalità chiara' : 'Modalità scura'}>
           <Button variant="outline" size="icon" onClick={() => setTheme(dark ? 'light' : 'dark')} aria-label={dark ? 'Passa alla modalità chiara' : 'Passa alla modalità scura'}>
             {dark ? <Sun /> : <Moon />}
@@ -53,6 +61,7 @@ export function Topbar({ menuTrigger }: { menuTrigger?: ReactNode }) {
           </Button>
         </Hint>
       </div>
+      {settingsOpen ? <SettingsDialog onClose={() => setSettingsOpen(false)} /> : null}
     </header>
   )
 }

@@ -126,6 +126,20 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Entry Page (checklist di Roberto Feliciani, Fase 1)
+- [x] Slogan "Dai dati sul Capitale Umano alle decisioni che generano valore
+      per l'impresa" nella scelta del modulo (`ModuleChooserPage`); la frase
+      "Seleziona il cruscotto…" resta sotto.
+- [x] Topbar: tornano il selettore lingua IT/EN (`LanguageSwitch`) e
+      l'icona Impostazioni (`SettingsDialog`: tema e lingua). `readSharedLang`
+      legge di nuovo `sv_language` → DECISIONI.
+- [x] Card Recruiting / Assessment: tessera con la lettera R / A, "Modulo R/A",
+      icona e nome — identificazione che non dipende dal colore.
+- [x] `tsc`, build e audit-identita senza nuovi difetti. Non verificato a schermo
+      in chiaro/scuro (richiede l'accesso): da guardare in produzione.
+- [ ] Le due nuove componenti (`LanguageSwitch`, `SettingsDialog`) non sono
+      ancora nel catalogo `/dev/components`.
+
 ## 2026-10-03 — Original Skills: LOGICAMED S.R.L. nella mappa
 - [x] Su richiesta di Bilal: le righe di LOGICAMED S.R.L. (1 negli ultimi 89
       giorni, il suo test) hanno il codice dell'account API (`authCompany`).

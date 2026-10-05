@@ -87,13 +87,16 @@ export function writeSharedTheme(theme: 'light' | 'dark'): void {
   }
 }
 
-// Solo italiano per ora (CLAUDE.md cap. 7, "Lingua", deciso dal cliente):
-// lo switch IT/EN è tolto dal guscio e l'interfaccia parte in italiano anche
-// se nel browser è rimasto `sv_language=en` da prima (o dal guscio legacy).
-// I testi inglesi e la struttura che li sceglie restano: per riaccendere
-// l'inglese basta tornare a leggere la chiave qui sotto.
+// La lingua scelta nel selettore del guscio (chiave `sv_language`). Il
+// predefinito è l'italiano (CLAUDE.md cap. 7); il selettore è tornato in
+// Topbar su richiesta di Roberto Feliciani (Fase 1 Entry Page, 2026-10-05):
+// vedi DECISIONI.md, "Selettore lingua e impostazioni nella barra superiore".
 export function readSharedLang(): 'it' | 'en' {
-  return 'it'
+  try {
+    return localStorage.getItem(LANG_KEY) === 'en' ? 'en' : 'it'
+  } catch {
+    return 'it'
+  }
 }
 export function writeSharedLang(lang: 'it' | 'en'): void {
   try {

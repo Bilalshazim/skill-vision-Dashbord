@@ -857,3 +857,16 @@ scarta se quel codice non è richiesto. Bilal ha chiesto di vedere LOGICAMED
 S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 `logicamed`. Le sue righe compaiono solo filtrando per tutte le società o per
 `logicamed`; il filtro per le altre società continua a scartarle.
+
+## Selettore lingua e impostazioni nella barra superiore · 2026-10-05
+- Richiesta (checklist Entry Page, Roberto Feliciani): ripristinare in alto a
+  destra Impostazioni e selettore lingua. Contraddice "Solo italiano ·
+  2026-09-30" e CLAUDE.md cap. 7 ("Lingua"), quindi la nuova richiesta prevale.
+- Opzioni: (a) selettore IT/EN che scrive `sv_language`; (b) solo icona.
+  Presa **(a)**. `readSharedLang()` legge di nuovo la chiave (predefinito `it`).
+- **Effetto:** l'inglese cambia solo i testi di Assessment (dizionario già
+  presente); guscio e Recruiting restano in italiano finché non si traducono.
+- Impostazioni: nuovo `SettingsDialog` con solo tema e lingua, i valori che
+  oggi sono davvero condivisi. Il modale legacy aveva colori esadecimali,
+  nome società e scala di punteggio: non riportati (regola 1; le impostazioni
+  di Assessment restano nel modulo). Da confermare con Roberto se servono altre voci.
