@@ -1,4 +1,5 @@
 import { Check, IdCard, Pencil } from 'lucide-react'
+import type { BackendCip } from '@/lib/api/types'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -27,10 +28,10 @@ function EditableField({ label, value, onSave }: { label: string; value: string;
   }
 
   return (
-    <div className="min-w-0">
+    <div className="min-w-48">
       <div className="label-mono text-muted-foreground">{label}</div>
       {editing ? (
-        <div className="mt-0.5 flex items-center gap-1">
+        <div className="mt-1 flex items-center gap-1">
           <Input
             autoFocus
             value={draft}
@@ -60,11 +61,11 @@ function EditableField({ label, value, onSave }: { label: string; value: string;
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="group mt-0.5 flex w-full items-center gap-1.5 text-left text-app-small font-semibold text-foreground"
-          title={`Modifica ${label.toLowerCase()}`}
+          className="mt-1 flex min-h-10 w-full items-center gap-2 rounded-sm border-2 border-border-strong bg-background px-3 text-left text-app-small font-semibold text-foreground transition-colors outline-none hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          aria-label={`Modifica ${label.toLowerCase()}`}
         >
-          <span className="truncate">{value || '—'}</span>
-          <Pencil className="size-3 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+          <span className="min-w-0 flex-1 truncate">{value || '—'}</span>
+          <Pencil className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
         </button>
       )}
     </div>
@@ -95,12 +96,13 @@ export function RecruitingHeader() {
   const user = getBackendUser()
   const isPlatformAdmin = user?.role === 'PLATFORM_ADMIN'
 
-  const [cipCode, setCipCode] = useState<string | null>(null)
+  const [cip, setCip] = useState<BackendCip | null>(null)
+  const cipCode = cip?.code ?? null
   const [cipLoading, setCipLoading] = useState(false)
 
   useEffect(() => {
     if (!isPlatformAdmin || !backendCampaignId) {
-      setCipCode(null)
+      setCip(null)
       return
     }
     let cancelled = false
@@ -110,10 +112,10 @@ export function RecruitingHeader() {
       .then((cips) => {
         if (cancelled) return
         const active = cips.find((c) => c.status === 'ACTIVE')
-        setCipCode(active?.code || null)
+        setCip(active ?? null)
       })
       .catch(() => {
-        if (!cancelled) setCipCode(null)
+        if (!cancelled) setCip(null)
       })
       .finally(() => {
         if (!cancelled) setCipLoading(false)
@@ -126,35 +128,55 @@ export function RecruitingHeader() {
   if (!company || !opening) return null
 
   return (
-    <Card className="flex-row flex-wrap items-center gap-x-8 gap-y-3">
-      <EditableField label="Società" value={company.name} onSave={(next) => {
-        renameCompany(company.id, next)
-        forceRerender((n) => n + 1)
-      }} />
-      <EditableField label="Campagna" value={opening.title} onSave={(next) => {
-        renameOpening(company.id, opening.id, next)
-        forceRerender((n) => n + 1)
-      }} />
-      <div className="min-w-0">
-        <div className="label-mono text-muted-foreground">CIP</div>
-        <div className="mt-0.5 flex items-center gap-1.5 text-app-small font-semibold">
-          <IdCard className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-          {!isPlatformAdmin ? (
-            <span className="text-muted-foreground">Non disponibile — chiedilo all'amministratore della piattaforma</span>
-          ) : cipLoading ? (
-            <span className="text-muted-foreground">Verifica…</span>
-          ) : cipCode ? (
-            <span className={cn('font-mono')}>{cipCode}</span>
-          ) : (
-            <>
-              <span className="text-muted-foreground">Non generato</span>
-              <Link to="/recruiting/admin/cip" className="text-app-caption font-semibold text-foreground hover:underline dark:text-primary">
-                Genera →
-              </Link>
-            </>
-          )}
+    <Card className="gap-4">
+      <div className="flex flex-wrap items-start gap-x-8 gap-y-4">
+        <EditableField label="Società" value={company.name} onSave={(next) => {
+          renameCompany(company.id, next)
+          forceRerender((n) => n + 1)
+        }} />
+        <EditableField label="Campagna" value={opening.title} onSave={(next) => {
+          renameOpening(company.id, opening.id, next)
+          forceRerender((n) => n + 1)
+        }} />
+        <div className="min-w-48">
+          <div className="label-mono text-muted-foreground">CIP</div>
+          <div className="mt-1 flex min-h-10 items-center gap-2 rounded-sm border-2 border-border-strong bg-muted px-3 text-app-small font-semibold">
+            <IdCard className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            {!isPlatformAdmin ? (
+              <span className="text-muted-foreground">Non disponibile — chiedilo all'amministratore della piattaforma</span>
+            ) : cipLoading ? (
+              <span className="text-muted-foreground">Verifica…</span>
+            ) : cipCode ? (
+              <span className={cn('font-mono')}>{cipCode}</span>
+            ) : (
+              <>
+                <span className="text-muted-foreground">Non generato</span>
+                <Link to="/recruiting/admin/cip" className="text-app-caption font-semibold text-foreground hover:underline dark:text-primary">
+                  Genera →
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
+      {cip ? (
+        <dl className="grid grid-cols-1 gap-x-8 gap-y-3 border-t border-border pt-4 sm:grid-cols-2 lg:grid-cols-5">
+          <CipDetail label="Cliente" value={company.name} />
+          <CipDetail label="Campagna" value={opening.title} />
+          <CipDetail label="N. progressivo" value={`${String(cip.sequence).padStart(2, '0')}`} mono />
+          <CipDetail label="Venditore" value={cip.sellerCode ? `${cip.sellerCode.code} · ${cip.sellerCode.label}` : cip.sellerCodeId} />
+          <CipDetail label="Attivazione" value={new Date(cip.generatedAt).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })} mono />
+        </dl>
+      ) : null}
     </Card>
+  )
+}
+
+function CipDetail({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div className="min-w-0">
+      <dt className="label-mono text-muted-foreground">{label}</dt>
+      <dd className={cn('mt-1 truncate text-app-small font-semibold text-foreground', mono && 'font-mono')}>{value}</dd>
+    </div>
   )
 }

@@ -126,6 +126,17 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — Intestazione e sezione CIP (checklist Roberto Feliciani, Fase 2)
+- [x] Società, Campagna e CIP in riquadri con bordo 2px `border-strong`
+      (`RecruitingHeader`); Società e Campagna con matita sempre visibile e
+      bordo lime al passaggio; il CIP, generato dal sistema, su fondo `muted`.
+- [x] Dettaglio CIP sotto i campi (solo se il CIP esiste, solo PLATFORM_ADMIN):
+      cliente, campagna, n. progressivo, venditore, data di attivazione.
+- [x] Numeratore progressivo: **già automatico** nel backend
+      (`lib/cip.ts`, contatore per anno/venditore/mese). Nessuna modifica.
+- [ ] **Aperto:** referente aziendale e advisor non hanno una colonna nel
+      database → serve una migrazione di produzione. Non fatta, vedi DECISIONI.
+
 ## 2026-10-05 — Entry Page (checklist di Roberto Feliciani, Fase 1)
 - [x] Slogan "Dai dati sul Capitale Umano alle decisioni che generano valore
       per l'impresa" nella scelta del modulo (`ModuleChooserPage`); la frase

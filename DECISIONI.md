@@ -880,3 +880,16 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   Le `--shadow-*` del tema restano azzerate: nessun'altra card cambia.
 - `audit-identita` oggi non la segnala (non riconosce questa forma): va
   comunque tenuta in elenco qui e rimossa se Roberto Feliciani non conferma. Per tornare indietro: togliere la classe.
+
+## Referente e advisor nel CIP · 2026-10-05
+- La richiesta (Fase 2) chiede nel CIP: cliente, campagna, progressivo,
+  venditore, referente aziendale, advisor, data di attivazione.
+- Cinque esistono già (cliente e campagna dal proprietario del CIP,
+  progressivo e venditore nel modello `Cip`, attivazione = `generatedAt`).
+  **Referente e advisor non esistono**: servono due colonne nuove su `Cip`
+  (migrazione Prisma sul database di produzione) e i campi in `generateCip`.
+- Opzioni: (a) colonne opzionali, compilate alla generazione; (b) tabella a
+  parte modificabile. Il CIP è immutabile per decisione OD-1 (si annulla e
+  si riemette): con (a) cambiare il referente richiede un nuovo CIP.
+- Raccomandazione: (a). **Non applicata**: tocca il salvataggio dei dati in
+  produzione e il punto OD-1 ancora aperto → in attesa di conferma.
