@@ -115,6 +115,8 @@ export type BackendCip = {
   generatedAt: string
   voidedAt: string | null
   voidReason: string | null
+  referent: string | null
+  advisor: string | null
 }
 export type BackendPlatform = { id: string; name: string; status: 'PENDING' | 'ACTIVE'; activatedAt: string | null }
 

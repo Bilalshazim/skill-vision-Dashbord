@@ -16,7 +16,7 @@ import { ConflictError, NotFoundError } from './errors.js'
 // the fix is wiring a trigger to call this function, not rewriting it.
 export async function generateCip(
   prisma: PrismaClient,
-  input: { ownerType: 'PLATFORM' | 'COMPANY' | 'CAMPAIGN'; ownerId: string; sellerCodeId: string; generatedById: string },
+  input: { ownerType: 'PLATFORM' | 'COMPANY' | 'CAMPAIGN'; ownerId: string; sellerCodeId: string; generatedById: string; referent?: string; advisor?: string },
 ) {
   const seller = await prisma.sellerCode.findUnique({ where: { id: input.sellerCodeId } })
   if (!seller || !seller.active) throw new NotFoundError('Unknown or inactive seller code')
@@ -50,6 +50,8 @@ export async function generateCip(
         ownerType: input.ownerType,
         ownerId: input.ownerId,
         generatedById: input.generatedById,
+        referent: input.referent || null,
+        advisor: input.advisor || null,
       },
     })
   })

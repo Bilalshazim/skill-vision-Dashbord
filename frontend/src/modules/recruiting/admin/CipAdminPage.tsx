@@ -63,6 +63,8 @@ export default function CipAdminPage() {
   const [ownerType, setOwnerType] = useState<OwnerType>('PLATFORM')
   const [ownerId, setOwnerId] = useState('')
   const [sellerCodeId, setSellerCodeId] = useState('')
+  const [referent, setReferent] = useState('')
+  const [advisor, setAdvisor] = useState('')
   const [generating, setGenerating] = useState(false)
   const [actionError, setActionError] = useState('')
   const [voidReason, setVoidReason] = useState<Record<string, string>>({})
@@ -102,8 +104,10 @@ export default function CipAdminPage() {
     setGenerating(true)
     setActionError('')
     try {
-      await cipApi.generate({ ownerType, ownerId, sellerCodeId })
+      await cipApi.generate({ ownerType, ownerId, sellerCodeId, referent: referent.trim() || undefined, advisor: advisor.trim() || undefined })
       setOwnerId('')
+      setReferent('')
+      setAdvisor('')
       await refreshCips()
     } catch (err) {
       setActionError(apiErrorMessage(err))
@@ -240,6 +244,8 @@ export default function CipAdminPage() {
                 </option>
               ))}
             </SelectField>
+            <Input value={referent} onChange={(e) => setReferent(e.target.value)} placeholder="Referente aziendale (cliente)" maxLength={120} size="sm" className="w-64" aria-label="Referente aziendale" />
+            <Input value={advisor} onChange={(e) => setAdvisor(e.target.value)} placeholder="Advisor (fornitore)" maxLength={120} size="sm" className="w-56" aria-label="Advisor" />
             <button type="button" onClick={handleGenerate} disabled={generating || !ownerId || !sellerCodeId} className={primaryBtnClass}>
               {generating ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Plus className="size-3.5 shrink-0" aria-hidden="true" />}
               Genera CIP

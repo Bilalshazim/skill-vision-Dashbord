@@ -70,6 +70,8 @@ const generateSchema = z.object({
   ownerType: z.enum(['PLATFORM', 'COMPANY', 'CAMPAIGN']),
   ownerId: z.string().uuid(),
   sellerCodeId: z.string().uuid(),
+  referent: z.string().trim().max(120).optional(),
+  advisor: z.string().trim().max(120).optional(),
 })
 
 cipRouter.post('/', requireRole('PLATFORM_ADMIN'), validateBody(generateSchema), async (req, res, next) => {

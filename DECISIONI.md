@@ -893,3 +893,6 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   si riemette): con (a) cambiare il referente richiede un nuovo CIP.
 - Raccomandazione: (a). **Non applicata**: tocca il salvataggio dei dati in
   produzione e il punto OD-1 ancora aperto → in attesa di conferma.
+
+- **Esito (2026-10-05):** Bilal ha approvato la raccomandazione (a): colonne
+  opzionali `referent` e `advisor` su `Cip`, compilate alla generazione.

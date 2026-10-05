@@ -122,7 +122,7 @@ export const cipApi = {
   // as one path segment or Express's :code param splits on it.
   get: (code: string) => apiGet<BackendCip>(`/cip/${encodeURIComponent(code)}`),
   list: (owner?: { ownerType: 'PLATFORM' | 'COMPANY' | 'CAMPAIGN'; ownerId: string }) => apiGet<BackendCip[]>('/cip', owner),
-  generate: (input: { ownerType: 'PLATFORM' | 'COMPANY' | 'CAMPAIGN'; ownerId: string; sellerCodeId: string }) => apiPost<BackendCip>('/cip', input),
+  generate: (input: { ownerType: 'PLATFORM' | 'COMPANY' | 'CAMPAIGN'; ownerId: string; sellerCodeId: string; referent?: string; advisor?: string }) => apiPost<BackendCip>('/cip', input),
   void: (id: string, reason: string) => apiPost<BackendCip>(`/cip/${id}/void`, { reason }),
 }
 

@@ -126,6 +126,18 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-05 — CIP: referente e advisor (approvati da Bilal)
+- [x] Migrazione `20261005120000_add_cip_referent_advisor`: due colonne TEXT
+      opzionali su `Cip`, solo aggiunta, righe esistenti intatte (NULL).
+      Si applica da sola: il servizio Backend esegue `prisma migrate deploy`
+      come preDeployCommand.
+- [x] `generateCip` e `POST /cip` accettano `referent` e `advisor` (max 120).
+- [x] Pagina CIP admin: due campi alla generazione; riga dei dettagli
+      nell'intestazione con Referente aziendale e Advisor ("—" se vuoti).
+- [ ] Test backend non eseguiti qui (richiedono Postgres locale, assente).
+      `tsc` backend e frontend e build frontend: ok.
+- Per tornare indietro: `ALTER TABLE "Cip" DROP COLUMN "referent", DROP COLUMN "advisor"`.
+
 ## 2026-10-05 — Intestazione e sezione CIP (checklist Roberto Feliciani, Fase 2)
 - [x] Società, Campagna e CIP in riquadri con bordo 2px `border-strong`
       (`RecruitingHeader`); Società e Campagna con matita sempre visibile e

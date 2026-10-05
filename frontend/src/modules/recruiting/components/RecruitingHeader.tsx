@@ -160,10 +160,12 @@ export function RecruitingHeader() {
         </div>
       </div>
       {cip ? (
-        <dl className="grid grid-cols-1 gap-x-8 gap-y-3 border-t border-border pt-4 sm:grid-cols-2 lg:grid-cols-5">
+        <dl className="grid grid-cols-1 gap-x-8 gap-y-3 border-t border-border pt-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
           <CipDetail label="Cliente" value={company.name} />
           <CipDetail label="Campagna" value={opening.title} />
           <CipDetail label="N. progressivo" value={`${String(cip.sequence).padStart(2, '0')}`} mono />
+          <CipDetail label="Referente aziendale" value={cip.referent || '—'} />
+          <CipDetail label="Advisor" value={cip.advisor || '—'} />
           <CipDetail label="Venditore" value={cip.sellerCode ? `${cip.sellerCode.code} · ${cip.sellerCode.label}` : cip.sellerCodeId} />
           <CipDetail label="Attivazione" value={new Date(cip.generatedAt).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })} mono />
         </dl>

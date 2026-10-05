@@ -243,6 +243,12 @@ model Cip {
   voidedBy      User?       @relation("CipVoidedBy", fields: [voidedById], references: [id])
   voidReason    String?
 
+  // Fase 2 (2026-10-05): referente del cliente e advisor del fornitore, scelti
+  // alla generazione. Opzionali; il CIP resta immutabile (OD-1): per
+  // cambiarli si annulla e si riemette.
+  referent      String?
+  advisor       String?
+
   // Sequence scope assumed here: (year, seller, month) — this is the
   // recommended-but-unconfirmed reading from OD-1 ("progressive number of
   // active platforms" alongside year/seller/month in the same code). If
