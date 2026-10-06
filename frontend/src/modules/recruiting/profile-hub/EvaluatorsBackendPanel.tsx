@@ -2,7 +2,9 @@ import { AlertTriangle, CheckCircle2, ChevronDown, Copy, FileBarChart2, Loader2,
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { SelectField } from '@/components/patterns/SelectField'
+import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -16,7 +18,7 @@ import { getCachedBackendLink } from '@/modules/recruiting/lib/backend-link'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import { EmptyState } from '@/components/patterns/EmptyState'
-import { EvaluationFormsView } from '@/modules/recruiting/evaluate/EvaluationFormsView'
+import { EvaluationFormsView, receivedForms, type FormKind } from '@/modules/recruiting/evaluate/EvaluationFormsView'
 import { RECOMMENDATION_LABEL } from '@/modules/recruiting/lib/evaluation-forms'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { importSynthesisIntoReport, ivReportHasSynthesisText } from '@/modules/recruiting/lib/interview-protocol'
@@ -301,12 +303,50 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
   const [evaluations, setEvaluations] = useState<BackendEvaluation[] | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [openDetail, setOpenDetail] = useState<string | null>(null)
+  const [openDetail, setOpenDetail] = useState<{ evaluatorId: string; kind: FormKind } | null>(null)
+  // Quante valutazioni inviate ha ogni candidato (per il badge nella lista) e
+  // quante ne aveva già viste il responsabile (per "Nuova valutazione ricevuta").
+  const [counts, setCounts] = useState<Record<string, number>>({})
+  const seenKey = `sv-eval-seen-${campaignId}`
+  const [seen, setSeen] = useState<Record<string, number>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(`sv-eval-seen-${campaignId}`) || '{}') as Record<string, number>
+    } catch {
+      return {}
+    }
+  })
 
   useEffect(() => {
     if (!open) return
-    candidatesApi.campaignRoster(campaignId).then(setCandidates).catch(() => setCandidates([]))
+    candidatesApi
+      .campaignRoster(campaignId)
+      .then((list) => {
+        setCandidates(list)
+        // Un conteggio per candidato: una richiesta ciascuno, in parallelo.
+        list.forEach((c) =>
+          evaluatorsApi
+            .listForCampaignCandidate(c.id)
+            .then((evs) => setCounts((prev) => ({ ...prev, [c.id]: evs.filter((e) => e.status === 'SUBMITTED').length })))
+            .catch(() => undefined),
+        )
+      })
+      .catch(() => setCandidates([]))
   }, [open, campaignId])
+
+  // Aprendo un candidato, le sue valutazioni diventano "viste".
+  useEffect(() => {
+    if (!selectedId || counts[selectedId] == null) return
+    setSeen((prev) => {
+      if (prev[selectedId] === counts[selectedId]) return prev
+      const next = { ...prev, [selectedId]: counts[selectedId] }
+      try {
+        localStorage.setItem(seenKey, JSON.stringify(next))
+      } catch {
+        /* non disponibile: il badge "Nuova" resterà acceso */
+      }
+      return next
+    })
+  }, [selectedId, counts, seenKey])
 
   useEffect(() => {
     setOpenDetail(null)
@@ -339,14 +379,36 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
       </button>
       {open && (
         <div className="border-t border-border p-3">
-          <SelectField value={selectedId} onValueChange={(v) => setSelectedId(v)} size="sm" className="max-w-72">
-            <option value="">{candidates.length ? 'Seleziona un candidato…' : '(nessun candidato in questa campagna)'}</option>
-            {candidates.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.candidate?.fullName || c.id}
-              </option>
-            ))}
-          </SelectField>
+          {/* Dove finiscono le schede compilate: ogni candidato con quante
+              valutazioni ha ricevuto; il badge verde dice che ce n'è di nuove. */}
+          {candidates.length === 0 ? (
+            <p className="text-app-caption text-muted-foreground">Nessun candidato in questa campagna.</p>
+          ) : (
+            <ul className="flex flex-col gap-1.5" aria-label="Candidati della campagna">
+              {candidates.map((c) => {
+                const n = counts[c.id]
+                const isNew = n != null && n > (seen[c.id] ?? 0) && c.id !== selectedId
+                return (
+                  <li key={c.id}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedId(c.id === selectedId ? '' : c.id)}
+                      aria-pressed={c.id === selectedId}
+                      className={cn('flex w-full flex-wrap items-center gap-2 rounded-sm border px-3 py-2 text-left text-app-small transition-colors hover:border-primary', c.id === selectedId ? 'border-2 border-primary' : 'border-border')}
+                    >
+                      <span className="min-w-0 flex-1 font-medium text-foreground">{c.candidate?.fullName || c.id}</span>
+                      {isNew ? (
+                        <Badge tone="success" dot>
+                          Nuova valutazione ricevuta
+                        </Badge>
+                      ) : null}
+                      <Badge>{n == null ? '…' : n === 0 ? 'Nessuna scheda ricevuta' : `${n} ${n === 1 ? 'valutazione ricevuta' : 'valutazioni ricevute'}`}</Badge>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
 
           {loading && <Loader2 className="mt-3 size-4 animate-spin text-muted-foreground" aria-hidden="true" />}
           {error && (
@@ -380,25 +442,55 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
                             </span>
                             {submitted && evalu.finalScore != null && <span className="font-mono tabular-nums text-foreground">{evalu.finalScore}</span>}
                             {submitted && evalu.recommendation && <span className="text-foreground">{RECOMMENDATION_LABEL[evalu.recommendation]}</span>}
-                            {submitted && (
-                              <button type="button" onClick={() => setOpenDetail(openDetail === r.id ? null : r.id)} aria-expanded={openDetail === r.id} className="font-semibold text-foreground hover:underline dark:text-primary">
-                                {openDetail === r.id ? 'Chiudi le schede' : 'Apri le schede →'}
-                              </button>
-                            )}
                           </span>
                         ) : (
                           <span className="text-app-caption text-muted-foreground">Non ancora compilata</span>
                         )}
                       </div>
-                      {submitted && openDetail === r.id && (
-                        <div className="border-t border-border pt-3">
-                          <EvaluationFormsView scores={evalu.scores} />
+                      {submitted && (
+                        <div className="flex flex-wrap items-center gap-2 border-t border-border pt-2">
+                          {(
+                            [
+                              ['verbale', 'Verbale di colloquio'],
+                              ['valutazione', 'Scheda di valutazione'],
+                            ] as [FormKind, string][]
+                          ).map(([kind, label]) => {
+                            const got = receivedForms(evalu.scores)[kind]
+                            return (
+                              <span key={kind} className="inline-flex items-center gap-2">
+                                <Badge tone={got ? 'success' : 'neutral'} dot>
+                                  {label}: {got ? 'Ricevuto' : 'Non compilato'}
+                                </Badge>
+                                {got ? (
+                                  <button type="button" onClick={() => setOpenDetail({ evaluatorId: r.id, kind })} className="font-semibold text-foreground hover:underline dark:text-primary">
+                                    {kind === 'verbale' ? 'Apri il verbale →' : 'Apri la valutazione →'}
+                                  </button>
+                                ) : null}
+                              </span>
+                            )
+                          })}
                         </div>
                       )}
                     </div>
                   )
                 })
               )}
+              {openDetail && selectedCandidate ? (
+                (() => {
+                  const ev = evaluations.find((e) => e.evaluatorId === openDetail.evaluatorId)
+                  const who = roster.find((r) => r.id === openDetail.evaluatorId)
+                  return ev ? (
+                    <ModalDialog
+                      title={openDetail.kind === 'verbale' ? 'Verbale di colloquio' : 'Scheda di valutazione candidato'}
+                      sub={`${selectedCandidate.candidate?.fullName || ''} · compilata da ${who?.fullName || 'valutatore'}`}
+                      size="xl"
+                      onClose={() => setOpenDetail(null)}
+                    >
+                      <EvaluationFormsView scores={ev.scores} only={openDetail.kind} />
+                    </ModalDialog>
+                  ) : null
+                })()
+              ) : null}
               {evaluations.length > 0 && submittedCount > 0 && selectedCandidate && (
                 <SynthesisPanel campaignCandidateId={selectedId} candidateName={selectedCandidate.candidate?.fullName || ''} submittedCount={submittedCount} onReportChanged={onReportChanged} />
               )}

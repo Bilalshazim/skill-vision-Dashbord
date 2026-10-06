@@ -52,7 +52,16 @@ const EVAL_RECO: [keyof IvEvalRecord, string][] = [
 // ha scritto, senza i campi di intestazione (nomi, riferimenti, firme). Lo usa
 // la pagina del valutatore dopo l'invio e il responsabile nella vista
 // multi-valutatore.
-export function EvaluationFormsView({ scores }: { scores: Record<string, unknown> | undefined }) {
+export type FormKind = 'verbale' | 'valutazione'
+
+// Quali delle due schede un valutatore ha davvero compilato.
+export function receivedForms(scores: Record<string, unknown> | undefined): Record<FormKind, boolean> {
+  return { verbale: Object.keys(asRecord(scores?.verbale)).length > 0, valutazione: Object.keys(asRecord(scores?.valutazione)).length > 0 }
+}
+
+// `only`: mostra una sola delle due schede (i pulsanti "Apri verbale" /
+// "Apri valutazione" del responsabile); senza, le mostra entrambe.
+export function EvaluationFormsView({ scores, only }: { scores: Record<string, unknown> | undefined; only?: FormKind }) {
   const v = asRecord(scores?.verbale)
   const w = asRecord(scores?.valutazione)
   const hasAny = Object.keys(v).length > 0 || Object.keys(w).length > 0
@@ -76,20 +85,38 @@ export function EvaluationFormsView({ scores }: { scores: Record<string, unknown
 
   return (
     <div className="flex flex-col gap-5">
+      {only !== 'valutazione' && (
       <section className="flex flex-col gap-3">
-        <h4 className="text-app-small font-semibold text-foreground">Scheda intervista strutturata</h4>
+        <h4 className="text-app-small font-semibold text-foreground">Verbale di colloquio (intervista strutturata)</h4>
+        <dl className="grid grid-cols-2 gap-3 md:grid-cols-3">
+          <Line label="Data" value={text(v.data)} />
+          <Line label="Ora" value={text(v.ora)} />
+          <Line label="Modalità" value={text(v.modalita)} />
+          <Line label="Sede" value={text(v.sede)} />
+          <Line label="Fase del processo" value={text(v.faseProcesso)} />
+          <Line label="N. colloquio" value={text(v.nColloquio)} />
+          <Line label="Intervistatori" value={text(v.intervistatori)} />
+        </dl>
         <ScoreRows rows={verbaleRows} />
         <dl className="flex flex-col gap-3">
+          <Line label="Domande e risposte" value={text(v.qa)} />
           <Line label="Punti di forza" value={text(v.puntiForza)} />
           <Line label="Miglioramenti e rischi" value={text(v.areeMiglioramento)} />
           <Line label="Giudizio sintetico" value={text(v.giudizioSintetico)} />
           <Line label="Punteggio complessivo" value={text(v.punteggioComplessivo) ? `${text(v.punteggioComplessivo)}/5` : ''} />
           <Line label="Esito del colloquio" value={esito} />
           <Line label="Motivazione" value={text(v.motivazioneDecisione)} />
+          <Line label="Note aggiuntive" value={text(v.noteAggiuntive)} />
         </dl>
       </section>
+      )}
+      {only !== 'verbale' && (
       <section className="flex flex-col gap-3">
-        <h4 className="text-app-small font-semibold text-foreground">Scheda valutazione candidato</h4>
+        <h4 className="text-app-small font-semibold text-foreground">Scheda di valutazione candidato</h4>
+        <dl className="grid grid-cols-2 gap-3">
+          <Line label="Data valutazione" value={text(w.dataValutazione)} />
+          <Line label="Valutatore" value={text(w.evaluatorName)} />
+        </dl>
         <ScoreRows rows={evalRows} />
         <dl className="flex flex-col gap-3">
           <Line label="Punteggio finale (0–5)" value={Number.isNaN(finalNum) ? '' : fmtDec(finalNum, 2)} />
@@ -97,6 +124,7 @@ export function EvaluationFormsView({ scores }: { scores: Record<string, unknown
           <Line label="Motivazione" value={text(w.motivazione)} />
         </dl>
       </section>
+      )}
     </div>
   )
 }

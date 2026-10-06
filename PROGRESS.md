@@ -126,6 +126,11 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 — Area Valutatore: dove si vedono le schede ricevute (chiarimento di Roberto)
+- [x] "Valutazioni ricevute per candidato": la tendina diventa un elenco di candidati, ciascuno con il numero di valutazioni ricevute e, se ce ne sono di nuove dall'ultima apertura, il badge verde "Nuova valutazione ricevuta" (visto/non visto in localStorage, per campagna).
+- [x] Per ogni valutatore che ha inviato: badge "Verbale di colloquio: Ricevuto" e "Scheda di valutazione: Ricevuto" con "Apri il verbale →" / "Apri la valutazione →", che aprono una finestra larga con tutti i campi (data, ora, modalità, sede, fase, intervistatori, Q&A, punteggi, esito, note).
+- `EvaluationFormsView` ha `only` e `receivedForms`. Non verificato a schermo né con dati reali; tsc pulito.
+
 ## 2026-10-06 — Foglio 6: hover giallo su card e toggle (Recruiting e Assessment)
 - [x] `Card`, `NavCard`, `StatCard`, `ModeSwitch`, bottone `outline`: al passaggio del mouse il bordo va a `primary` (il lime del marchio).
 - [x] `ToggleGroupItem` (compreso "Skill Vision" / "oggi"): hover = fondo `primary` con testo `primary-foreground`.
