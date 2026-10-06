@@ -14,7 +14,7 @@ export function NavCard({ to, icon: Icon, title, description, className }: { to:
       to={to}
       data-slot="nav-card"
       className={cn(
-        'group flex items-center gap-3 rounded-lg border border-border bg-card p-4 text-card-foreground outline-none transition-colors hover:border-border-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        'group flex items-center gap-3 rounded-lg border border-border bg-card p-4 text-card-foreground outline-none transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         className,
       )}
     >

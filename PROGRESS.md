@@ -126,6 +126,13 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 — Foglio 6: hover giallo su card e toggle (Recruiting e Assessment)
+- [x] `Card`, `NavCard`, `StatCard`, `ModeSwitch`, bottone `outline`: al passaggio del mouse il bordo va a `primary` (il lime del marchio).
+- [x] `ToggleGroupItem` (compreso "Skill Vision" / "oggi"): hover = fondo `primary` con testo `primary-foreground`.
+- [x] `FolderCard`: l'ombra (eccezione già approvata) passa al colore `primary` al hover della card.
+- [x] Nel commit anche la pagina Metodo riservata allo staff (`lib/staff.ts`, `VITE_STAFF_EMAILS`), già in lavorazione.
+- Profilo della ricerca: struttura invariata, in attesa dei colori di Alessio. Il giallo è il token, non l'esadecimale #D1D500 (regola 1). Non verificato a schermo.
+
 ## 2026-10-06 — Foglio 5, parte C: Competenze trasversali per fattore Big Five
 - [x] Pagina "Competenze Trasversali" di Assessment: sotto l'introduzione, nuova selezione per persona (`SoftSkillBigFivePicker`): le 35 competenze in cinque colonne, una per fattore Big Five (dal campo `dim` di ogni competenza), con sottofattori, casella e etichetta del peso come nella selezione di Recruiting. Spuntare/togliere scrive `Employee.softSkillOverrides` (stesso dato della finestra dell'Anagrafica); "Ripristina" torna alla mansione.
 - Sottofattori solo in italiano e presi da `BF_SUB` di Recruiting (import fra moduli). Non verificato a schermo; tsc pulito.

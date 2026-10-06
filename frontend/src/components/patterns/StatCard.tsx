@@ -101,8 +101,8 @@ export function StatCard({
       {...rootProps}
       className={cn(
         'flex min-w-0 flex-col gap-2 text-left text-card-foreground',
-        onClick && 'cursor-pointer transition-colors outline-none hover:border-border-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-        surface === 'card' && ['rounded-md', SURFACE[tone], size === 'lg' ? 'gap-4 p-6' : 'p-4'],
+        onClick && 'cursor-pointer outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        surface === 'card' && ['rounded-md transition-colors hover:border-primary', SURFACE[tone], size === 'lg' ? 'gap-4 p-6' : 'p-4'],
         surface === 'card' && elevated && 'border-2 border-primary shadow-[0_8px_16px_0_var(--border-strong)]',
         className,
       )}

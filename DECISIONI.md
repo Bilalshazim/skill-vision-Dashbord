@@ -1047,3 +1047,9 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - **Icone:** come per Recruiting, composte con Lucide, non gli originali.
 - **Card di Recruiting:** corpo alto almeno 208px come in Assessment; il testo
   delle card di Recruiting resta il solo titolo, come nei disegni.
+
+## Hover giallo sulle card · 2026-10-06
+- Richiesta (Foglio 6): bordo / "Skill Vision" in giallo `#D1D500` al passaggio del mouse.
+- Opzioni: esadecimale scritto a mano (viola la regola 1) oppure il token `primary` (lime del marchio, stesso colore).
+- Il lime non è testo su fondo chiaro (regola 6): "Skill Vision" non cambia colore di testo, prende il fondo `primary` con testo scuro.
+- Presa: token `primary`; bordo sulle card, fondo sui toggle, ombra della FolderCard.

@@ -32,7 +32,7 @@ export function ModeSwitch({ value, onChange, ui }: { value: ModuleMode; onChang
           <ToggleGroupItem
             key={it.value}
             value={it.value}
-            className="h-11 gap-2 border-2 border-transparent px-4 text-app-small font-semibold text-foreground hover:border-border-strong data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+            className="h-11 gap-2 border-2 border-transparent px-4 text-app-small font-semibold text-foreground hover:border-primary data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
           >
             {value === it.value ? <Check aria-hidden="true" /> : null}
             {it.label}

@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 // i pannelli larghi, `none` quando il contenuto va a filo (tabelle).
 // Le parti interne non hanno padding proprio: stanno dentro quello della
 // card, così il raggio annidato torna (24 − 16 = 8 per gli elementi dentro).
-const cardVariants = cva('flex flex-col rounded-lg border border-border bg-card text-card-foreground', {
+const cardVariants = cva('flex flex-col rounded-lg border border-border bg-card text-card-foreground transition-colors hover:border-primary', {
   variants: {
     padding: {
       md: 'p-4',
