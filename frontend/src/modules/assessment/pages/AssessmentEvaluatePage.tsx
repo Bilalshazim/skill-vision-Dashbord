@@ -3,9 +3,9 @@ import { useSearchParams } from 'react-router-dom'
 
 import { Logo } from '@/layouts/Logo'
 import { Note } from '@/components/patterns/Note'
-import { Slider } from '@/components/ui/slider'
 import { Card, CardTitle, CardLabel } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { ApexItemRow } from '@/modules/assessment/components/ApexItemRow'
 import { computeHardSummary } from '@/modules/assessment/lib/calculations'
 import { getApex5dDimensions, getApexSources, getUI } from '@/modules/assessment/lib/legacy-utils'
 import { readSharedLang } from '@/modules/assessment/lib/shell-bridge'
@@ -47,15 +47,22 @@ export default function AssessmentEvaluatePage() {
     if (emp && assignment) {
       APEX5D_DIMENSIONS.forEach((dim) =>
         dim.items.forEach((it) => {
-          initial[it.cod] = (emp.hard[assignment.templateType] || {})[it.cod] || 6
+          initial[it.cod] = (emp.hard[assignment.templateType] || {})[it.cod] || 0
         }),
       )
     }
     return initial
   })
 
+  const [notes, setNotes] = useState<Record<string, string>>(() => (emp && assignment ? emp.hardNotes?.[assignment.templateType] : undefined) || {})
+  const [error, setError] = useState('')
+
   function submit() {
     if (!assignment || !emp) return
+    if (APEX5D_DIMENSIONS.some((d) => d.items.some((it) => !(values[it.cod] > 0)))) {
+      setError(ui.f6RateAll)
+      return
+    }
     const source = assignment.templateType
     const nextState = structuredClone(state)
     const nEmp = nextState.employees.find((e) => e.id === emp.id)!
@@ -63,6 +70,7 @@ export default function AssessmentEvaluatePage() {
     Object.entries(values).forEach(([cod, v]) => {
       nEmp.hard[source][cod] = v
     })
+    nEmp.hardNotes = { ...(nEmp.hardNotes || {}), [source]: { ...((nEmp.hardNotes || {})[source] || {}), ...Object.fromEntries(Object.entries(notes).filter(([, t]) => t.trim())) } }
     if (!nEmp.hardEvaluatedBy) nEmp.hardEvaluatedBy = { resp: '', peer: '', auto: '' }
     nEmp.hardEvaluatedBy[source] = source === 'auto' ? `${nEmp.nome} ${nEmp.cognome}` : assignment.evaluatorName || ''
     if (source !== 'auto' && assignment.evaluatorName) {
@@ -140,26 +148,24 @@ export default function AssessmentEvaluatePage() {
                 {ui.hardDimensionPrefix} {dim.code} — {dim.name} <span className="font-sans tracking-normal normal-case">· {dim.desc}</span>
               </CardLabel>
               {dim.items.map((it) => (
-                <div className="flex items-center gap-3 border-b border-border py-2 last:border-b-0" title={it.q} key={it.cod}>
-                  <div className="w-72 shrink-0 text-app-small font-medium">
-                    {it.cod} · {it.area}
-                  </div>
-                  <Slider
-                    className="flex-1"
-                    min={1}
-                    max={10}
-                    step={1}
-                    value={[values[it.cod] ?? 6]}
-                    onValueChange={([n]) => setValues((prev) => ({ ...(prev || {}), [it.cod]: n }))}
-                    aria-label={it.q}
-                  />
-                  <div className="w-8 text-right font-medium tabular-nums">{values[it.cod] ?? 6}</div>
-                </div>
+                <ApexItemRow
+                  key={it.cod}
+                  item={it}
+                  lang={lang}
+                  value={values[it.cod] ?? 0}
+                  note={notes[it.cod] ?? ''}
+                  onValue={(n) => {
+                    setError('')
+                    setValues((prev) => ({ ...(prev || {}), [it.cod]: n }))
+                  }}
+                  onNote={(t) => setNotes((prev) => ({ ...prev, [it.cod]: t }))}
+                />
               ))}
             </section>
           ))}
         </div>
-        <div className="mt-4 text-right">
+        <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
+          {error ? <span className="text-app-small font-medium text-destructive">{error}</span> : null}
           <Button variant="default" onClick={submit}>
             {ui.reSubmitBtn}
           </Button>

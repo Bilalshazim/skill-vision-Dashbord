@@ -40,6 +40,7 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
   const [area, setArea] = useState('')
   const [reparto, setReparto] = useState('')
   const [ruolo, setRuolo] = useState('')
+  const [responsabileId, setResponsabileId] = useState('')
   const [mansione, setMansione] = useState('')
   const [sesso, setSesso] = useState('')
   const [ccnl, setCcnl] = useState('')
@@ -47,7 +48,7 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
   const [benefit, setBenefit] = useState('')
   const [tipoContratto, setTipoContratto] = useState<Employee['tipoContratto']>('dipendente')
   const [absences, setAbsences] = useState<Absence[]>([])
-  const dirty = useDirty({ nome, cognome, email, area, reparto, ruolo, mansione, sesso, ccnl, ral, benefit, tipoContratto, absences })
+  const dirty = useDirty({ nome, cognome, email, area, reparto, ruolo, responsabileId, mansione, sesso, ccnl, ral, benefit, tipoContratto, absences })
 
   function submit() {
     const n = nome.trim()
@@ -79,6 +80,7 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
         area: area.trim() || 'Unassigned',
         reparto: reparto.trim(),
         ruolo: ruolo.trim(),
+        responsabileId: responsabileId || undefined,
         mansione: mansione.trim(),
         tipoProfilo: 'Employee',
         sesso,
@@ -159,6 +161,16 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
           placeholder={ui.addEmpRoleEmptyOption}
           groups={[...(censusRoles.length ? [{ label: lang === 'it' ? 'Mansioni dell\'azienda' : 'Company roles', roles: censusRoles }] : []), ...ROLE_CATALOG.map((g) => ({ label: g.area, roles: g.roles }))]}
         />
+      </Field>
+      <Field label={ui.f6ManagerLabel}>
+        <SelectField value={responsabileId} onValueChange={setResponsabileId}>
+          <option value="">{ui.f6ManagerNone}</option>
+          {state.employees.filter((e) => !e.archived).map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.cognome} {e.nome} — {e.ruolo}
+            </option>
+          ))}
+        </SelectField>
       </Field>
       <Field label={ui.addEmpDuties}>
         <Textarea placeholder={ui.addEmpDutiesPh} value={mansione} onChange={(e) => setMansione(e.target.value)} />

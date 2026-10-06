@@ -2,10 +2,8 @@ import { BookOpenText, Wrench } from 'lucide-react'
 import { useState } from 'react'
 
 import { CardLabel } from '@/components/ui/card'
-import { InfoBubble } from '@/components/patterns/InfoBubble'
 import { Note } from '@/components/patterns/Note'
 import { useDirty } from '@/hooks/use-dirty'
-import { Slider } from '@/components/ui/slider'
 import { SelectField } from '@/components/patterns/SelectField'
 import { Field } from '@/components/patterns/Field'
 import { FieldGrid } from '@/components/patterns/FieldGrid'
@@ -13,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ModalDialog } from '@/components/patterns/ModalDialog'
+import { ApexItemRow } from '@/modules/assessment/components/ApexItemRow'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { computeHardSummary } from '@/modules/assessment/lib/calculations'
 import { getApex5dDimensions, getApexSources } from '@/modules/assessment/lib/legacy-utils'
@@ -51,22 +50,28 @@ export function HardEvalModal({ onClose }: { onClose: () => void }) {
 
   const [values, setValues] = useState<Record<string, number>>(() => {
     const init: Record<string, number> = {}
-    if (emp) APEX5D_DIMENSIONS.forEach((dim) => dim.items.forEach((it) => (init[it.cod] = (emp.hard[source] || {})[it.cod] || 6)))
+    if (emp) APEX5D_DIMENSIONS.forEach((dim) => dim.items.forEach((it) => (init[it.cod] = (emp.hard[source] || {})[it.cod] || 0)))
     return init
   })
-  const dirty = useDirty({ empId, source, periodId, evaluatorName, values })
+  const [notes, setNotes] = useState<Record<string, string>>(() => (emp?.hardNotes?.[source]) || {})
+  const dirty = useDirty({ empId, source, periodId, evaluatorName, values, notes })
 
   function reloadValues(nextEmpId: string, nextSource: ApexSourceKey) {
     const e = state.employees.find((x) => x.id === nextEmpId)
     const init: Record<string, number> = {}
-    if (e) APEX5D_DIMENSIONS.forEach((dim) => dim.items.forEach((it) => (init[it.cod] = (e.hard[nextSource] || {})[it.cod] || 6)))
+    if (e) APEX5D_DIMENSIONS.forEach((dim) => dim.items.forEach((it) => (init[it.cod] = (e.hard[nextSource] || {})[it.cod] || 0)))
     setValues(init)
+    setNotes(e?.hardNotes?.[nextSource] || {})
   }
 
   function submit() {
     if (!emp) return
     if (source !== 'auto' && !evaluatorName.trim()) {
       toast(ui.toastEnterEvaluatorFirst, 'err')
+      return
+    }
+    if (APEX5D_DIMENSIONS.some((d) => d.items.some((it) => !(values[it.cod] > 0)))) {
+      toast(ui.f6RateAll, 'err')
       return
     }
     setState((prev) => ({
@@ -77,7 +82,8 @@ export function HardEvalModal({ onClose }: { onClose: () => void }) {
         const hardEvaluatedBy = { ...(e.hardEvaluatedBy || { resp: '', peer: '', auto: '' }) }
         hardEvaluatedBy[source] = source === 'auto' ? `${e.nome} ${e.cognome}` : evaluatorName.trim()
         const hard = { ...e.hard, [source]: { ...(e.hard[source] || {}), ...values } }
-        const nEmp = { ...e, hard, hardEvaluatedBy }
+        const hardNotes = { ...(e.hardNotes || {}), [source]: Object.fromEntries(Object.entries(notes).filter(([, t]) => t.trim())) }
+        const nEmp = { ...e, hard, hardEvaluatedBy, hardNotes }
         const period = periods.find((p) => p.id === periodId)
         const hsm = computeHardSummary(nEmp, lang)
         const hardHistory = [
@@ -182,49 +188,17 @@ export function HardEvalModal({ onClose }: { onClose: () => void }) {
           <CardLabel className="mb-2 border-b border-border pb-2">
             {ui.hardDimensionPrefix} {dim.code} — {dim.name} <span className="font-sans tracking-normal normal-case">· {dim.desc}</span>
           </CardLabel>
-          {/* Foglio 5: sopra le voci i due titoli di colonna; accanto a ogni
-              voce due nuvolette, la domanda di valutazione e l'indice
-              comportamentale (guida al punteggio) del file del cliente. */}
-          <div className="label-mono hidden items-center gap-3 py-2 text-muted-foreground md:flex">
-            <div className="w-72 shrink-0">Domanda di valutazione</div>
-            <div className="flex-1">Indice comportamentale (guida al punteggio)</div>
-          </div>
-          {dim.items.map((it) => {
-            const guide = APEX5D_GUIDE[it.cod]
-            return (
-              <div className="flex flex-wrap items-center gap-3 border-b border-border py-3 last:border-b-0 md:flex-nowrap" key={it.cod}>
-                <div className="flex w-full items-center gap-2 md:w-72 md:shrink-0">
-                  <span className="min-w-0 flex-1 text-app-small font-medium">
-                    {it.cod} · {it.area}
-                  </span>
-                  {guide ? (
-                    <InfoBubble label={`Domanda di valutazione ${it.cod}`} title="Domanda di valutazione">
-                      <p>{guide.q}</p>
-                    </InfoBubble>
-                  ) : null}
-                </div>
-                <Slider className="min-w-40 flex-1" min={1} max={10} step={1} value={[values[it.cod] ?? 6]} onValueChange={([n]) => setValues((prev) => ({ ...prev, [it.cod]: n }))} aria-label={guide?.q ?? it.q} />
-                <div className="w-8 text-right font-medium tabular-nums">{values[it.cod] ?? 6}</div>
-                {guide ? (
-                  <InfoBubble label={`Indice comportamentale ${it.cod}`} title="Indice comportamentale">
-                    <dl className="flex flex-col gap-2">
-                      {[
-                        ['1', guide.low],
-                        ['5', guide.mid],
-                        ['10', guide.high],
-                      ].map(([n, t]) => (
-                        <div key={n} className="flex gap-2">
-                          <dt className="w-6 shrink-0 font-semibold tabular-nums">{n}</dt>
-                          <dd className="text-muted-foreground">{t}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </InfoBubble>
-                ) : null}
-                <Badge className="shrink-0">{ui.hardExpChip}</Badge>
-              </div>
-            )
-          })}
+          {dim.items.map((it) => (
+            <ApexItemRow
+              key={it.cod}
+              item={it}
+              lang={lang}
+              value={values[it.cod] ?? 0}
+              note={notes[it.cod] ?? ''}
+              onValue={(n) => setValues((prev) => ({ ...prev, [it.cod]: n }))}
+              onNote={(t) => setNotes((prev) => ({ ...prev, [it.cod]: t }))}
+            />
+          ))}
         </section>
       ))}
       {info === 'instructions' ? (

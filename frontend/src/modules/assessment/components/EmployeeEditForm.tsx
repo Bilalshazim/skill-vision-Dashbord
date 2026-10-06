@@ -41,6 +41,7 @@ export function EmployeeEditForm({
   const [area, setArea] = useState(emp.area)
   const [reparto, setReparto] = useState(emp.reparto)
   const [ruolo, setRuolo] = useState(emp.ruolo)
+  const [responsabileId, setResponsabileId] = useState(emp.responsabileId || '')
   const [mansione, setMansione] = useState(emp.mansione)
   const [sesso, setSesso] = useState(emp.sesso)
   const [ccnl, setCcnl] = useState(emp.livelloCcnl)
@@ -48,7 +49,7 @@ export function EmployeeEditForm({
   const [benefit, setBenefit] = useState(emp.benefit)
   const [tipoContratto, setTipoContratto] = useState<Employee['tipoContratto']>(emp.tipoContratto)
   const [absences, setAbsences] = useState<Absence[]>(emp.assenzeProgrammate)
-  const dirty = useDirty({ nome, cognome, email, area, reparto, ruolo, mansione, sesso, ccnl, ral, benefit, tipoContratto, absences })
+  const dirty = useDirty({ nome, cognome, email, area, reparto, ruolo, responsabileId, mansione, sesso, ccnl, ral, benefit, tipoContratto, absences })
   useEffect(() => {
     onDirtyChange?.(dirty)
   }, [dirty, onDirtyChange])
@@ -66,6 +67,7 @@ export function EmployeeEditForm({
       email: email.trim(),
       area: area.trim() || 'Unassigned',
       reparto: reparto.trim(),
+      responsabileId: responsabileId || undefined,
       ruolo: ruolo.trim() || 'Unassigned',
       mansione: mansione.trim(),
       sesso,
@@ -115,6 +117,16 @@ export function EmployeeEditForm({
             <option key={r} value={r} />
           ))}
         </datalist>
+      </Field>
+      <Field label={ui.f6ManagerLabel}>
+        <SelectField value={responsabileId} onValueChange={setResponsabileId}>
+          <option value="">{ui.f6ManagerNone}</option>
+          {state.employees.filter((e) => !e.archived && e.id !== emp.id).map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.cognome} {e.nome} — {e.ruolo}
+            </option>
+          ))}
+        </SelectField>
       </Field>
       <Field label={ui.addEmpDuties}>
         <Textarea value={mansione} onChange={(e) => setMansione(e.target.value)} />

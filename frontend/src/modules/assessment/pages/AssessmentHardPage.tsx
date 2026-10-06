@@ -213,6 +213,9 @@ function HardIndividualeView({ selectedEmp, onSelectEmp }: { selectedEmp: string
             <CardTitle>{ui.hardApex5dProfile}</CardTitle>
           </CardHeader>
           <StatCard surface="none" size="lg" value={fmt1(hsm.apexScore)} note={ui.hardOverallApexLabel} />
+          <Badge className="mt-2">
+            {ui.f6Level}: {levelFor(hsm.apexScore, lang).label}
+          </Badge>
           <Separator className="my-4" />
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {hsm.dims.map((d) => (

@@ -135,6 +135,13 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 — Foglio 6: valutazione 5P multi-fonte (Assessment)
+- [x] Anagrafica: campo "Responsabile diretto" (`Employee.responsabileId`) in Nuovo dipendente e nella modifica; reparto e ruolo c'erano già.
+- [x] Piano di valutazione automatico (`lib/evaluation-plan.ts`, in "Gestione valutazioni"): per ogni dipendente attivo Dirigente = responsabile diretto, Peer = N colleghi dello stesso reparto (o area) a rotazione e con carico pari (default 3), Autovalutazione = sé stesso. Usa gli stessi `EvalAssignment` con link a token; rilanciabile senza duplicati; avvisa chi non ha responsabile o ha pochi colleghi. Provato con un test a parte (7 persone: nessun duplicato al secondo lancio).
+- [x] Scheda APEX 5D (`ApexItemRow`, usata da `HardEvalModal` e dalla pagina del valutatore esterno): domanda e indice comportamentale (1/5/10) nelle due nuvolette, barra numerata 1–10 con il livello, note con esempio concreto (`Employee.hardNotes`). Le voci partono senza voto e il salvataggio chiede tutte le 25 (prima partivano a 6).
+- [x] Risultati: medie per P, punteggio unico, radar e tabella c'erano già; aggiunta l'etichetta del livello accanto al punteggio.
+- Dati ancora solo nel browser (Assessment non ha tabelle sul server). Non verificato a schermo; tsc pulito.
+
 ## 2026-10-06 (3) — Incidente in produzione: `/api` 502 dopo il deploy, causa un TCP Proxy sul Backend
 - [x] Dopo il push del commit sotto, Railway ha ridistribuito Backend e Skill
       Vision quasi insieme; da lì `/api/*` in produzione rispondeva `502`

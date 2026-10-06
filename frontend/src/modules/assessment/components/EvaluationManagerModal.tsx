@@ -17,6 +17,7 @@ import { CardLabel, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
+import { DEFAULT_PEERS, buildEvaluationPlan } from '@/modules/assessment/lib/evaluation-plan'
 import { buildAssignmentLink } from '@/modules/assessment/lib/shell-bridge'
 import { getApexSources, uid } from '@/modules/assessment/lib/legacy-utils'
 import type { ApexSourceKey } from '@/modules/assessment/lib/types'
@@ -42,6 +43,8 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
   const [targets, setTargets] = useState<Record<string, boolean>>({})
   const [linkModal, setLinkModal] = useState<string | null>(null)
   const [breakdownOpen, setBreakdownOpen] = useState(false)
+  const [peers, setPeers] = useState(String(DEFAULT_PEERS))
+  const [planResult, setPlanResult] = useState<{ created: number; noManager: string[]; fewPeers: string[] } | null>(null)
   const dirty = useDirty({ template, periodId, newPeriodLabel, evaluatorName, evaluatorEmail, targets })
 
   const assignments = state.evalAssignments
@@ -93,6 +96,15 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
     setEvaluatorName('')
     setEvaluatorEmail('')
     toast(ui.toastAssignmentsCreated(targetIds.length), 'ok')
+  }
+
+  // Piano automatico 5P: Dirigente, N Peer a rotazione e Autovalutazione per tutti.
+  function generatePlan() {
+    const n = Math.max(0, Math.min(10, parseInt(peers, 10) || 0))
+    const plan = buildEvaluationPlan(state, periodId, n)
+    if (plan.assignments.length) setState((prev) => ({ ...prev, evalAssignments: [...prev.evalAssignments, ...plan.assignments] }))
+    setPlanResult({ created: plan.assignments.length, noManager: plan.noManager, fewPeers: plan.fewPeers })
+    toast(plan.assignments.length ? ui.f6PlanCreated(plan.assignments.length) : ui.f6PlanNothing, plan.assignments.length ? 'ok' : 'err')
   }
 
   function copyLink(id: string) {
@@ -196,6 +208,34 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
         <StatCard label={ui.evalSentLabel} value={sentCount} onClick={() => setBreakdownOpen(true)} />
         <StatCard label={ui.evalReceivedLabel} value={receivedCount} onClick={() => setBreakdownOpen(true)} />
       </div>
+
+      <Separator className="my-4" />
+      <CardTitle className="mb-1">{ui.f6PlanTitle}</CardTitle>
+      <Note className="mb-3">{ui.f6PlanIntro}</Note>
+      <div className="mb-2 flex flex-wrap items-end gap-3">
+        <Field label={ui.evalPeriodLabel} className="min-w-48">
+          <SelectField value={periodId} onValueChange={(v) => setPeriodId(v)}>
+            {periods.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+              </option>
+            ))}
+          </SelectField>
+        </Field>
+        <Field label={ui.f6PlanPeers} className="w-32">
+          <Input type="number" min={0} max={10} value={peers} onChange={(e) => setPeers(e.target.value)} />
+        </Field>
+        <Button variant="default" onClick={generatePlan}>
+          {ui.f6PlanGenerate}
+        </Button>
+      </div>
+      {planResult ? (
+        <div className="mb-2 flex flex-col gap-1">
+          <Note>{planResult.created ? ui.f6PlanCreated(planResult.created) : ui.f6PlanNothing}</Note>
+          {planResult.noManager.length ? <Note>{ui.f6PlanNoManager(planResult.noManager.join(', '))}</Note> : null}
+          {planResult.fewPeers.length ? <Note>{ui.f6PlanFewPeers(planResult.fewPeers.join(', '))}</Note> : null}
+        </div>
+      ) : null}
 
       <Separator className="my-4" />
       <CardTitle className="mb-3">
