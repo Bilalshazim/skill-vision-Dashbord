@@ -126,6 +126,10 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 — Foglio 5, parte C: Competenze trasversali per fattore Big Five
+- [x] Pagina "Competenze Trasversali" di Assessment: sotto l'introduzione, nuova selezione per persona (`SoftSkillBigFivePicker`): le 35 competenze in cinque colonne, una per fattore Big Five (dal campo `dim` di ogni competenza), con sottofattori, casella e etichetta del peso come nella selezione di Recruiting. Spuntare/togliere scrive `Employee.softSkillOverrides` (stesso dato della finestra dell'Anagrafica); "Ripristina" torna alla mansione.
+- Sottofattori solo in italiano e presi da `BF_SUB` di Recruiting (import fra moduli). Non verificato a schermo; tsc pulito.
+
 ## 2026-10-06 — Foglio 5, parte B: Nuova valutazione Competenze Professionali
 - [x] `HardEvalModal`: titoli "Domanda di valutazione" / "Indice comportamentale (guida al punteggio)" sopra le voci di ogni dimensione; due nuvolette per voce (domanda; guida 1 / 5 / 10) con i testi del file Excel del cliente (`lib/apex5d-guide.ts`); finestra più larga (`ModalDialog size="xl"`).
 - [x] Pulsanti "Istruzioni operative di valutazione" e "Note tecniche" (schede ISTRUZIONI e NOTE TECNICHE del file) in due finestre.

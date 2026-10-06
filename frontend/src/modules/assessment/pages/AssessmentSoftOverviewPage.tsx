@@ -3,6 +3,7 @@ import { Award, Brain } from 'lucide-react'
 import { NavCard } from '@/components/patterns/NavCard'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
+import { SoftSkillBigFivePicker } from '@/modules/assessment/components/SoftSkillBigFivePicker'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { getSoftClusters } from '@/modules/assessment/lib/legacy-utils'
 
@@ -17,8 +18,9 @@ export default function AssessmentSoftOverviewPage() {
   const employeeCount = state.employees.length
 
   return (
-    // Introduzione e accessi affiancati: il testo è breve, non serve la riga
-    // intera (CLAUDE.md, Fase 6). Le due card di accesso si impilano a destra.
+    <div className="flex flex-col gap-4">
+    {/* Introduzione e accessi affiancati: il testo è breve, non serve la riga
+        intera (CLAUDE.md, Fase 6). Le due card di accesso si impilano a destra. */}
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <Card className="lg:col-span-2">
         <CardHeader>
@@ -44,6 +46,9 @@ export default function AssessmentSoftOverviewPage() {
                   ? `Classifiche, gap e confronti su ${employeeCount} dipendenti`
                   : `Rankings, gaps and comparisons across ${employeeCount} employees`} />
       </div>
+    </div>
+    {/* Foglio 5 parte C: la selezione per persona, in colonne per fattore Big Five. */}
+    <SoftSkillBigFivePicker />
     </div>
   )
 }
