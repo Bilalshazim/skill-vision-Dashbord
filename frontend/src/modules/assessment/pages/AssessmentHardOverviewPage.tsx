@@ -20,11 +20,11 @@ export default function AssessmentHardOverviewPage() {
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <Card className="lg:col-span-2">
         <CardHeader>
-          <CardTitle>{lang === 'it' ? 'Cosa sono le Competenze Professionali' : 'What Professional Competencies are'}</CardTitle>
+          <CardTitle>{lang === 'it' ? 'Competenze Professionali: le 5 P' : 'What Professional Competencies are'}</CardTitle>
         </CardHeader>
         <p className="text-muted-foreground leading-relaxed">
           {lang === 'it'
-            ? 'Le Competenze Professionali (Hard Skill) descrivono cosa una persona sa fare tecnicamente nel proprio ruolo. Il protocollo APEX 5D le misura su 5 dimensioni, con valutazione multi-source (responsabile, colleghi, autovalutazione).'
+            ? 'Le Competenze Professionali (Hard Skill) descrivono cosa una persona sa fare tecnicamente nel proprio ruolo. Il protocollo APEX 5D le misura su 5 dimensioni (PROFESSIONALITÀ · PERFORMANCE · PREDISPOSIZIONE · PENSIERO · POTENZIALE), con valutazione multi-source (responsabile, colleghi, autovalutazione).'
             : 'Professional Competencies (Hard Skills) describe what a person can technically do in their role. The APEX 5D protocol measures them across 5 dimensions, with multi-source evaluation (manager, peers, self-assessment).'}
         </p>
         <div className="flex flex-wrap gap-2 mt-4">

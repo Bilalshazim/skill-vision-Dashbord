@@ -126,6 +126,11 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 — Foglio 5: le 5 P e nuovo ordine del menu di Assessment
+- [x] "Competenze Professionali: le 5 P" (voce di menu, titolo pagina, introduzione); dimensioni APEX 5D: Attitudine → Predisposizione, Mentalità → Pensiero (taxonomy IT/EN e nota metodologica).
+- [x] Menu Assessment: Home, Intervista, Dati Aziendali, Anagrafica, Area Valutazioni (Soft/Hard Skill), Area Risultati (Trasversali/Professionali); le due pagine introduttive e il resto seguono. Nessuna rotta cambiata.
+- Non verificato a schermo; tsc pulito.
+
 ## 2026-10-05 — Card come nei disegni (titolo nel corpo) e card aperta che resta in vista (Bilal)
 - [x] `FolderCard`: la linguetta tiene solo "oggi / Skill Vision"; il titolo
       è grande e centrato nel corpo, con sottotitolo, domanda e spiegazione

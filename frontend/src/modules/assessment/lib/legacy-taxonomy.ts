@@ -50,15 +50,19 @@ export type NavConfigEntry =
 // functionality is deleted, only the nav entries.
 export const NAV_CONFIG_EN: NavConfigEntry[] = [
   { type:'link', id:'home', label:'Home', icon:'home', requires:null },
-  { type:'link', id:'soft-overview', label:'Cross-Functional Competencies', icon:'soft', requires:null },
-  { type:'link', id:'hard-overview', label:'Professional Competencies', icon:'hard', requires:null },
-  { type:'link', id:'company', label:'Company Data', icon:'users', requires:null },
   { type:'link', id:'analisi', label:'Interview', icon:'notes', requires:null },
+  { type:'link', id:'company', label:'Company Data', icon:'users', requires:null },
   { type:'link', id:'anagrafica', label:'Employee Directory', icon:'users', requires:null },
-  { type:'link', id:'soft', label:'Cross-Functional Evaluation Area (Soft Skill Evaluation)', icon:'soft', requires:'A' },
-  { type:'link', id:'hard', label:'Professional Evaluation Area (Hard Skill Evaluation)', icon:'hard', requires:'B' },
-  { type:'link', id:'soft-risultati', label:'Cross-Functional Evaluation Results', icon:'soft', requires:'A' },
-  { type:'link', id:'hard-risultati', label:'Professional Evaluation Results', icon:'hard', requires:'B' },
+  { type:'group', groupId:'valutazioni', label:'Evaluation Area', icon:'soft', items:[
+    { id:'soft', label:'Soft Skill Evaluations', requires:'A' },
+    { id:'hard', label:'Hard Skill Evaluations', requires:'B' },
+  ] },
+  { type:'group', groupId:'risultati', label:'Results Area', icon:'value', items:[
+    { id:'soft-risultati', label:'Cross-Functional Evaluation Results', requires:'A' },
+    { id:'hard-risultati', label:'Professional Evaluation Results', requires:'B' },
+  ] },
+  { type:'link', id:'soft-overview', label:'Cross-Functional Competencies', icon:'soft', requires:null },
+  { type:'link', id:'hard-overview', label:'Professional Competencies: the 5 Ps', icon:'hard', requires:null },
   { type:'link', id:'valore', label:'Overall Value', icon:'value', requires:null },
   { type:'link', id:'feedback', label:'Development Plans', icon:'feedback', requires:null, badge:true },
   { type:'link', id:'ai', label:'AI Assistant', icon:'ai', requires:null },
@@ -68,15 +72,19 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
 ];
 export const NAV_CONFIG_IT: NavConfigEntry[] = [
   { type:'link', id:'home', label:'Home', icon:'home', requires:null },
-  { type:'link', id:'soft-overview', label:'Competenze Trasversali', icon:'soft', requires:null },
-  { type:'link', id:'hard-overview', label:'Competenze Professionali', icon:'hard', requires:null },
-  { type:'link', id:'company', label:'Dati Aziendali', icon:'users', requires:null },
   { type:'link', id:'analisi', label:'Intervista', icon:'notes', requires:null },
+  { type:'link', id:'company', label:'Dati Aziendali', icon:'users', requires:null },
   { type:'link', id:'anagrafica', label:'Anagrafica', icon:'users', requires:null },
-  { type:'link', id:'soft', label:'Area Valutazioni Trasversali (Valutazione delle Soft Skill)', icon:'soft', requires:'A' },
-  { type:'link', id:'hard', label:'Area Valutazioni Professionali (Valutazione delle Hard Skill)', icon:'hard', requires:'B' },
-  { type:'link', id:'soft-risultati', label:'Risultati Valutazioni Trasversali', icon:'soft', requires:'A' },
-  { type:'link', id:'hard-risultati', label:'Risultati Valutazioni Professionali', icon:'hard', requires:'B' },
+  { type:'group', groupId:'valutazioni', label:'Area Valutazioni', icon:'soft', items:[
+    { id:'soft', label:'Valutazioni delle Soft Skill', requires:'A' },
+    { id:'hard', label:'Valutazioni delle Hard Skill', requires:'B' },
+  ] },
+  { type:'group', groupId:'risultati', label:'Area Risultati', icon:'value', items:[
+    { id:'soft-risultati', label:'Risultati Valutazioni Trasversali', requires:'A' },
+    { id:'hard-risultati', label:'Risultati Valutazioni Professionali', requires:'B' },
+  ] },
+  { type:'link', id:'soft-overview', label:'Competenze Trasversali', icon:'soft', requires:null },
+  { type:'link', id:'hard-overview', label:'Competenze Professionali: le 5 P', icon:'hard', requires:null },
   { type:'link', id:'valore', label:'Valori Complessivi', icon:'value', requires:null },
   { type:'link', id:'feedback', label:'Piani di Sviluppo', icon:'feedback', requires:null, badge:true },
   { type:'link', id:'ai', label:'Assistente IA', icon:'ai', requires:null },
@@ -208,14 +216,14 @@ export const APEX5D_DIMENSIONS_EN = [
     {cod:'B4', area:'Operational Autonomy', q:'How capable are they of working independently without requiring constant supervision?'},
     {cod:'B5', area:'Professional Growth and Development', q:'To what extent do they show concrete commitment to improving their skills?'},
   ]},
-  { code:'C', name:'Aptitude', desc:'Adaptability, flexibility, continuous learning', items:[
+  { code:'C', name:'Predisposition', desc:'Adaptability, flexibility, continuous learning', items:[
     {cod:'C1', area:'Adaptability to Change', q:'How effectively do they adapt to organizational, role, or process changes?'},
     {cod:'C2', area:'Workload and Stress Management', q:'How do they handle situations of high workload or pressure?'},
     {cod:'C3', area:'Continuous Learning', q:'How quickly and thoroughly do they acquire new skills and procedures?'},
     {cod:'C4', area:'Problem Solving and Creativity', q:'How effective are they at identifying problems and finding innovative solutions?'},
     {cod:'C5', area:'Role Flexibility', q:'To what extent are they willing and able to take on functions different from their usual role?'},
   ]},
-  { code:'D', name:'Mindset', desc:'Engagement, motivation, relationships, contribution', items:[
+  { code:'D', name:'Thought', desc:'Engagement, motivation, relationships, contribution', items:[
     {cod:'D1', area:'Commitment and Dedication to the Role', q:'How much consistent commitment and ownership of their responsibilities do they show?'},
     {cod:'D2', area:'Contribution to Company Goals', q:'To what extent do their actions concretely contribute to achieving company goals?'},
     {cod:'D3', area:'Active Participation', q:'With what quality do they participate in meetings, initiatives, and company projects?'},
@@ -245,14 +253,14 @@ export const APEX5D_DIMENSIONS_IT = [
     {cod:'B4', area:'Autonomia operativa', q:'Quanto è capace di lavorare in autonomia senza richiedere supervisione continua?'},
     {cod:'B5', area:'Crescita e sviluppo professionale', q:'In che misura dimostra un impegno concreto nel migliorare le proprie competenze?'},
   ]},
-  { code:'C', name:'Attitudine', desc:'Adattabilità, flessibilità, apprendimento continuo', items:[
+  { code:'C', name:'Predisposizione', desc:'Adattabilità, flessibilità, apprendimento continuo', items:[
     {cod:'C1', area:'Adattabilità al cambiamento', q:'Con quale efficacia si adatta a cambiamenti organizzativi, di ruolo o di processo?'},
     {cod:'C2', area:'Gestione del carico e dello stress', q:'Come gestisce situazioni di elevato carico lavorativo o pressione?'},
     {cod:'C3', area:'Apprendimento continuo', q:'Con quale velocità e profondità acquisisce nuove competenze e procedure?'},
     {cod:'C4', area:'Problem solving e creatività', q:'Quanto è efficace nell\'identificare problemi e trovare soluzioni innovative?'},
     {cod:'C5', area:'Flessibilità di ruolo', q:'In che misura è disponibile e capace di ricoprire funzioni diverse dal suo ruolo abituale?'},
   ]},
-  { code:'D', name:'Mentalità', desc:'Coinvolgimento, motivazione, relazioni, contributo', items:[
+  { code:'D', name:'Pensiero', desc:'Coinvolgimento, motivazione, relazioni, contributo', items:[
     {cod:'D1', area:'Impegno e dedizione al ruolo', q:'Quanto impegno costante e ownership delle proprie responsabilità dimostra?'},
     {cod:'D2', area:'Contributo agli obiettivi aziendali', q:'In che misura le sue azioni contribuiscono concretamente al raggiungimento degli obiettivi aziendali?'},
     {cod:'D3', area:'Partecipazione attiva', q:'Con quale qualità partecipa a riunioni, iniziative e progetti aziendali?'},
@@ -343,7 +351,7 @@ export const PAGE_META_TEXT_EN: Record<string, { title: string; sub: string }> =
 export const PAGE_META_TEXT_IT: Record<string, { title: string; sub: string }> = {
   home: { title: 'Home', sub: "Stato generale dell'organizzazione" },
   'soft-overview': { title: 'Competenze Trasversali', sub: 'Cosa sono e come si misurano — competenze trasversali e Big Five' },
-  'hard-overview': { title: 'Competenze Professionali', sub: 'Cosa sono e come si misurano — protocollo APEX 5D a più fonti' },
+  'hard-overview': { title: 'Competenze Professionali: le 5 P', sub: 'Cosa sono e come si misurano — protocollo APEX 5D a più fonti' },
   company: { title: 'Profilo Azienda', sub: 'Sedi, contatti, organico per tipologia e ruoli chiave aziendali' },
   anagrafica: { title: 'Anagrafica Risorse', sub: 'Elenco dipendenti, mansioni, attività e requisiti di mansione' },
   analisi: { title: 'Intervista', sub: 'Intervista alla Direzione sul capitale umano — la percezione della Direzione prima della misurazione oggettiva' },
