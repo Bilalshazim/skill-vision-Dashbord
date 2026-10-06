@@ -126,6 +126,13 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 — Foglio 6: elenco completo delle posizioni nei selettori di ruolo
+- [x] `lib/role-catalog.ts`: le 20 aree e 90 posizioni del vecchio elenco (ROLES92 di Apex-5D.html: Direzione generale, Amministrazione e finanza, HR, Commerciale, Marketing, … Servizi professionali).
+- [x] Nuovo pattern `RoleCombobox`: campo con ricerca, elenco intero diviso per gruppo (nessun limite), e posizione personalizzata ("Usa la posizione scritta").
+- [x] Recruiting, Profilo Candidatura → "Titolo della posizione": gruppo "Profili preconfigurati" (i 5 che caricano la scheda, con conferma) poi tutte le aree; sostituisce la tendina con "Altro".
+- [x] Assessment: "Ruolo" in Nuovo dipendente (mansioni del censimento + tutte le aree + testo libero; il profilo della mansione si crea al salvataggio) e "Nuova mansione" nel Censimento.
+- Restano fuori: i tre ruoli del seed senza scheda di partenza (Digital Marketing, Customer Care, Team Leader) e il selettore di ruolo della Home legacy. Non verificato a schermo; tsc pulito.
+
 ## 2026-10-06 — Verbale di colloquio: domande 3 e 4, testo editabile, salvataggio e sintesi
 - [ ] Bug "domande 3 e 4 bloccate": **non riprodotto**. Nel codice di `IvNotesForm` nessun campo delle sezioni 3 (competenze professionali) e 4 (trasversali) è disabilitato o in sola lettura; manca una segnalazione precisa (schermata, pagina, browser). Il testo delle domande della sezione 4, prima fisso, è ora modificabile (commit aae4f3d).
 - [x] Sintesi IA (backend): leggeva le domande originali; ora usa i testi riscritti (`softLabels`) e le domande aggiunte (`extraQuestions`), così le modifiche non si perdono a valle. Salvataggio locale, server e vista del responsabile già le portavano.

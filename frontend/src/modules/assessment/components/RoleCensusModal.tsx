@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { CardLabel } from '@/components/ui/card'
 import { Note } from '@/components/patterns/Note'
 import { useDirty } from '@/hooks/use-dirty'
+import { RoleCombobox } from '@/components/patterns/RoleCombobox'
+import { ROLE_CATALOG } from '@/lib/role-catalog'
 import { SelectField } from '@/components/patterns/SelectField'
 import { Field } from '@/components/patterns/Field'
 import { Input } from '@/components/ui/input'
@@ -116,8 +118,8 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
         </Field>
         {canEdit && creating && (
           <>
-            <Field label={ui.newRoleTitleLabel} className="min-w-52 max-w-72 flex-1">
-              <Input type="text" placeholder={ui.newRoleTitlePh} value={newRoleName} onChange={(e) => setNewRoleName(e.target.value)} />
+            <Field label={ui.newRoleTitleLabel} className="min-w-52 max-w-80 flex-1">
+              <RoleCombobox value={newRoleName} onValueChange={setNewRoleName} placeholder={ui.newRoleTitlePh} groups={ROLE_CATALOG.map((g) => ({ label: g.area, roles: g.roles }))} />
             </Field>
             <Button variant="default" onClick={confirmCreateRole}>
               {ui.newRoleSaveBtn}

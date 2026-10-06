@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { Note } from '@/components/patterns/Note'
 import { Separator } from '@/components/ui/separator'
 import { useDirty } from '@/hooks/use-dirty'
+import { RoleCombobox } from '@/components/patterns/RoleCombobox'
+import { ROLE_CATALOG } from '@/lib/role-catalog'
 import { SelectField } from '@/components/patterns/SelectField'
 import { Field } from '@/components/patterns/Field'
 import { FieldGrid } from '@/components/patterns/FieldGrid'
@@ -54,13 +56,13 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
       toast(ui.toastEnterNameFirst, 'err')
       return
     }
-    if (!ruolo || !state.roleProfiles[ruolo]) {
+    if (!ruolo.trim()) {
       toast(ui.toastSelectRoleFirst, 'err')
       return
     }
     setState((prev) => {
       const next = structuredClone(prev)
-      const rp = ensureRoleProfile(next, ruolo)
+      const rp = ensureRoleProfile(next, ruolo.trim())
       const soft: Employee['soft'] = {}
       SOFT_SKILLS.forEach((s) => {
         const weighted = rp.skillWeights?.[s.id]
@@ -76,7 +78,7 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
         email: email.trim(),
         area: area.trim() || 'Unassigned',
         reparto: reparto.trim(),
-        ruolo,
+        ruolo: ruolo.trim(),
         mansione: mansione.trim(),
         tipoProfilo: 'Employee',
         sesso,
@@ -147,15 +149,16 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
           </datalist>
         </Field>
       </FieldGrid>
-      <Field label={ui.addEmpRole} hint={!censusRoles.length ? ui.addEmpNoRolesHint : undefined}>
-        <SelectField disabled={!censusRoles.length} value={ruolo} onValueChange={(v) => setRuolo(v)}>
-          <option value="">{ui.addEmpRoleEmptyOption}</option>
-          {censusRoles.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </SelectField>
+      {/* Foglio 6: tutte le posizioni preconfigurate, per area, oltre alle
+          mansioni già nel censimento; si può anche scriverne una nuova (il
+          suo profilo si crea al salvataggio, con le attese di base). */}
+      <Field label={ui.addEmpRole}>
+        <RoleCombobox
+          value={ruolo}
+          onValueChange={setRuolo}
+          placeholder={ui.addEmpRoleEmptyOption}
+          groups={[...(censusRoles.length ? [{ label: lang === 'it' ? 'Mansioni dell\'azienda' : 'Company roles', roles: censusRoles }] : []), ...ROLE_CATALOG.map((g) => ({ label: g.area, roles: g.roles }))]}
+        />
       </Field>
       <Field label={ui.addEmpDuties}>
         <Textarea placeholder={ui.addEmpDutiesPh} value={mansione} onChange={(e) => setMansione(e.target.value)} />

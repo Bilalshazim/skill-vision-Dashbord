@@ -1,15 +1,16 @@
-import { useState } from 'react'
-
 import { Field } from '@/components/patterns/Field'
 import { FieldGrid } from '@/components/patterns/FieldGrid'
-import { SelectField } from '@/components/patterns/SelectField'
+import { RoleCombobox } from '@/components/patterns/RoleCombobox'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { ROLE_CATALOG } from '@/lib/role-catalog'
 import { JD_PROFILES, type JdPresetId } from '@/modules/recruiting/lib/jd-presets'
 import type { JdHeader } from '@/modules/recruiting/lib/jd-types'
 
-const OTHER = 'altro'
 const PRESET_IDS = Object.keys(JD_PROFILES) as JdPresetId[]
+// Prima i profili preconfigurati (caricano la scheda di partenza), poi tutte
+// le posizioni per area aziendale (Foglio 6: l'elenco completo).
+const ROLE_GROUPS = [{ label: 'Profili preconfigurati', roles: PRESET_IDS.map((id) => JD_PROFILES[id].header.titolo) }, ...ROLE_CATALOG.map((g) => ({ label: g.area, roles: g.roles }))]
 
 // Migrated from jd_headerFieldsHTML() (modules/recruiting.html
 // ~3929-3968). The "Titolo ruolo" field is plain here — legacy wires its
@@ -39,33 +40,24 @@ export function JdHeaderFields({
   invioCvError?: string
 }) {
   const matched = PRESET_IDS.find((id) => JD_PROFILES[id].header.titolo === header.titolo)
-  const [otherPicked, setOtherPicked] = useState(false)
-  const isOther = otherPicked || !matched
   return (
     <div className="flex flex-col gap-4">
       <FieldGrid>
         <Field label="Titolo della posizione" className="sm:col-span-2">
           <div className="flex flex-col gap-2">
-            <SelectField
-              value={isOther ? OTHER : (matched as string)}
-              onValueChange={(v) => {
-                if (v === OTHER) {
-                  setOtherPicked(true)
-                  return
-                }
-                setOtherPicked(false)
-                if (v !== matched) onSelectPreset(v as JdPresetId)
-              }}
+            <RoleCombobox
               aria-label="Titolo della posizione"
-            >
-              {PRESET_IDS.map((id) => (
-                <option key={id} value={id}>
-                  {JD_PROFILES[id].header.titolo}
-                </option>
-              ))}
-              <option value={OTHER}>Altro</option>
-            </SelectField>
-            {isOther ? <Input type="text" value={header.titolo} onChange={(e) => onHeaderChange({ titolo: e.target.value })} placeholder="Scrivi il titolo della posizione" aria-label="Altro titolo" /> : null}
+              value={header.titolo}
+              groups={ROLE_GROUPS}
+              onValueChange={(v) => {
+                // Un profilo preconfigurato carica la scheda di partenza (con
+                // conferma); ogni altra posizione, dell'elenco o scritta a
+                // mano, cambia solo il titolo.
+                const preset = PRESET_IDS.find((id) => JD_PROFILES[id].header.titolo === v)
+                if (preset && preset !== matched) onSelectPreset(preset)
+                else if (v !== header.titolo) onHeaderChange({ titolo: v })
+              }}
+            />
           </div>
         </Field>
         <Field label="Mansione specifica">
