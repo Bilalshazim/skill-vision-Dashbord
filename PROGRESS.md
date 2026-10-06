@@ -126,6 +126,12 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 — Foglio 5, parte B: Nuova valutazione Competenze Professionali
+- [x] `HardEvalModal`: titoli "Domanda di valutazione" / "Indice comportamentale (guida al punteggio)" sopra le voci di ogni dimensione; due nuvolette per voce (domanda; guida 1 / 5 / 10) con i testi del file Excel del cliente (`lib/apex5d-guide.ts`); finestra più larga (`ModalDialog size="xl"`).
+- [x] Pulsanti "Istruzioni operative di valutazione" e "Note tecniche" (schede ISTRUZIONI e NOTE TECNICHE del file) in due finestre.
+- [x] Nuovo pattern `InfoBubble` (popover a fumetto, bordo marcato, nessuna ombra). Le due pagine introduttive restano nel menu sotto Area Risultati (già fatto nel primo passo).
+- Solo italiano per le guide (il file non ha l'inglese). Non verificato a schermo; tsc pulito.
+
 ## 2026-10-06 — Foglio 5: le 5 P e nuovo ordine del menu di Assessment
 - [x] "Competenze Professionali: le 5 P" (voce di menu, titolo pagina, introduzione); dimensioni APEX 5D: Attitudine → Predisposizione, Mentalità → Pensiero (taxonomy IT/EN e nota metodologica).
 - [x] Menu Assessment: Home, Intervista, Dati Aziendali, Anagrafica, Area Valutazioni (Soft/Hard Skill), Area Risultati (Trasversali/Professionali); le due pagine introduttive e il resto seguono. Nessuna rotta cambiata.

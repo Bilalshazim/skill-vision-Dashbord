@@ -14,6 +14,7 @@ export function ModalDialog({
   title,
   sub,
   wide = false,
+  size,
   onClose,
   footer,
   dirty = false,
@@ -22,6 +23,8 @@ export function ModalDialog({
   title: ReactNode
   sub?: ReactNode
   wide?: boolean
+  /** Più largo di `wide`: per i moduli con molte colonne (es. la valutazione a 25 voci). */
+  size?: 'xl'
   onClose: () => void
   footer?: ReactNode
   dirty?: boolean
@@ -38,7 +41,7 @@ export function ModalDialog({
     <>
       <span ref={anchor} hidden />
       <Dialog open={container !== undefined} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent size={wide ? 'lg' : 'default'} dirty={dirty} container={container ?? null} className="overflow-hidden">
+        <DialogContent size={size ?? (wide ? 'lg' : 'default')} dirty={dirty} container={container ?? null} className="overflow-hidden">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             {sub ? <DialogDescription>{sub}</DialogDescription> : null}
