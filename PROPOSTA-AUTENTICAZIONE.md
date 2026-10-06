@@ -316,8 +316,54 @@ exit
 ### Da non fare
 
 - **`ORIGINAL_SKILLS_ENABLED`:** non impostarla prima della fine del passo 4
-  (CLAUDE.md: niente dati reali prima del login vero).
+  (CLAUDE.md: niente dati reali prima del login vero). **Già fatto**: è
+  attiva in produzione dal 2026-10-02, dopo il passo 4 del 2026-10-03 —
+  vedi PROGRESS.md.
 - **Variabili `VITE_`:** non metterci segreti. Finiscono nel JavaScript
   servito.
 - **Seed in produzione:** non lanciarlo, ricrea gli account con password
   pubbliche. Ora si rifiuta da solo con `NODE_ENV=production`.
+
+---
+
+## Account di Roberto e della società demo — 2026-10-06
+
+`scripts/create-team-admin.ts` accetta ora `--role` e `--company-id` (oltre
+a creare PLATFORM_ADMIN come prima): può quindi creare anche l'account
+COMPANY_ADMIN della società demo, non solo gli account del gruppo di lavoro.
+
+**Oggi esistono già 2 PLATFORM_ADMIN** (Alessio e Bilal, creati al Passo 1).
+Restano da creare: l'account personale di Roberto (PLATFORM_ADMIN) e
+`demo@skill-vision.it` (COMPANY_ADMIN, solo sulla società demo). **Da
+lanciare da Roberto o Alessio**, non da una sessione di Claude Code: lo
+script stampa la password generata una sola volta, in chiaro, sull'output
+del comando — in una sessione assistita finirebbe nella trascrizione, che
+non è un canale più sicuro di un'email.
+
+```bash
+railway ssh --service Backend --environment production
+
+# Account personale di Roberto — password scelta a mano (chiesta due volte,
+# non mostrata), non generata: è l'unico dei quattro che la tiene per sé.
+node dist/scripts/create-team-admin.js --email roberto.f@skill-vision.it --name "Roberto Feliciani" --apply
+
+# Account demo — COMPANY_ADMIN sulla sola società demo. <id società demo> è
+# l'id della società «Acme Corp» (nel seed è 00000000-0000-0000-0000-000000000002;
+# verificare che sia lo stesso anche in produzione prima di lanciare, per
+# esempio da /recruiting/admin o con una query sola lettura su Company).
+node dist/scripts/create-team-admin.js --email demo@skill-vision.it --name "Account demo" --role COMPANY_ADMIN --company-id <id società demo> --apply --generate
+
+exit
+```
+
+- **Perché `--generate` solo per `demo@skill-vision.it`** e non per Roberto:
+  l'account personale lo sceglie chi lo userà; gli account che non sono di
+  una singola persona (o che si consegnano) usano una password generata,
+  mostrata una volta e poi trasferita a voce o con un gestore di password.
+- **Verifica:** rilanciando lo stesso comando senza `--apply`, lo script deve
+  rispondere che l'account esiste già con quel ruolo e quella società.
+- **Fuori da questo passo:** gli account delle due società reali di Original
+  Skills. Si creano con lo stesso script quando quelle società esistono come
+  `Company` in piattaforma e il cliente ha indicato chi deve avere accesso
+  (CLAUDE.md, Fase 8: gli account del cliente si concordano, non si
+  inventano).

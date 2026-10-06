@@ -144,7 +144,7 @@ export const SOFT_SKILLS_IT = [
   {id:'ps3', name:'Autonomia', cluster:'Competenze Personali', dim:'C'},
   {id:'ps4', name:'Fiducia in se stessi', cluster:'Competenze Personali', dim:'S'},
   {id:'ps5', name:'Flessibilità/Adattabilità', cluster:'Competenze Personali', dim:'O'},
-  {id:'ps6', name:'Dedizione al lavoro', cluster:'Competenze Personali', dim:'C'},
+  {id:'ps6', name:'Impegno lavorativo', cluster:'Competenze Personali', dim:'C'},
   {id:'ps7', name:'Innovazione', cluster:'Competenze Personali', dim:'O'},
   {id:'ps8', name:'Intelligenza emotiva', cluster:'Competenze Personali', dim:'A'},
   {id:'ps9', name:'Motivazione ed efficacia personale', cluster:'Competenze Personali', dim:'C'},

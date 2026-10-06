@@ -1,6 +1,9 @@
-// Fase 8 — crea un account PLATFORM_ADMIN per il gruppo di lavoro (studio e
-// sviluppo: uno per Alessio, uno per Bilal). Gli account del cliente NON si
-// creano qui: si concordano con il cliente (CLAUDE.md, Fase 8).
+// Fase 8 — crea un account per il gruppo di lavoro o per la società demo.
+// Senza --role crea un PLATFORM_ADMIN (uso originale: uno per Alessio, uno
+// per Bilal, uno per Roberto). Con --role e --company-id crea un account
+// legato a una società (es. demo@skill-vision.it, COMPANY_ADMIN sulla sola
+// società demo). Gli account del CLIENTE (le società reali) NON si creano
+// qui: si concordano con il cliente (CLAUDE.md, Fase 8).
 //
 // La password non passa mai da codice, Git, argomenti o cronologia:
 //  - di default lo script la chiede al terminale, senza mostrarla, due volte;
@@ -9,10 +12,15 @@
 // Nel database va solo l'hash bcrypt.
 //
 // Uso (da backend/):
-//   npx tsx scripts/create-team-admin.ts --email nome@dominio --name "Nome Cognome"            # anteprima, non scrive
+//   npx tsx scripts/create-team-admin.ts --email nome@dominio --name "Nome Cognome"            # anteprima, PLATFORM_ADMIN
 //   npx tsx scripts/create-team-admin.ts --email nome@dominio --name "Nome Cognome" --apply    # crea
+//   … --role COMPANY_ADMIN --company-id <id società>   # account legato a una società, non PLATFORM_ADMIN
 //   … --apply --generate          # crea con una password generata
 //   … --apply --reset-password    # account già esistente: nuova password, sessioni revocate
+//
+// --role accetta PLATFORM_ADMIN (default, senza società), COMPANY_ADMIN,
+// RECRUITER, EVALUATOR, READONLY (richiedono --company-id). Lo script non
+// crea società: --company-id deve essere l'id di una società già esistente.
 //
 // Database: DATABASE_URL della singola esecuzione. Su Railway l'indirizzo
 // interno non è raggiungibile dal computer: usare quello pubblico del
@@ -21,10 +29,11 @@
 import { randomBytes } from 'node:crypto'
 import { stdin, stdout } from 'node:process'
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, type UserRole } from '@prisma/client'
 
 import { hashPassword } from '../src/lib/password.js'
 
+const VALID_ROLES: UserRole[] = ['PLATFORM_ADMIN', 'COMPANY_ADMIN', 'RECRUITER', 'EVALUATOR', 'READONLY']
 const MIN_LENGTH = 14
 // Le password pubbliche del seed e del ponte: mai riusabili.
 const FORBIDDEN = ['admin123', 'acme123', 'password', 'skillvision']
@@ -96,8 +105,25 @@ async function main() {
   const fullName = arg('--name')?.trim()
   const apply = has('--apply')
   const reset = has('--reset-password')
+  const role = (arg('--role')?.trim().toUpperCase() ?? 'PLATFORM_ADMIN') as UserRole
+  const companyId = arg('--company-id')?.trim()
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !fullName) {
-    console.error('Uso: npx tsx scripts/create-team-admin.ts --email nome@dominio --name "Nome Cognome" [--apply] [--generate] [--reset-password]')
+    console.error('Uso: npx tsx scripts/create-team-admin.ts --email nome@dominio --name "Nome Cognome" [--role RUOLO] [--company-id id] [--apply] [--generate] [--reset-password]')
+    process.exitCode = 1
+    return
+  }
+  if (!VALID_ROLES.includes(role)) {
+    console.error(`Ruolo non valido: ${role}. Validi: ${VALID_ROLES.join(', ')}.`)
+    process.exitCode = 1
+    return
+  }
+  if (role === 'PLATFORM_ADMIN' && companyId) {
+    console.error('PLATFORM_ADMIN non ha società: non passare --company-id.')
+    process.exitCode = 1
+    return
+  }
+  if (role !== 'PLATFORM_ADMIN' && !companyId) {
+    console.error(`Il ruolo ${role} richiede --company-id (l'id di una società già esistente).`)
     process.exitCode = 1
     return
   }
@@ -107,18 +133,32 @@ async function main() {
     console.log(`Database: ${redactDatabaseUrl(process.env.DATABASE_URL)}`)
     console.log(`Modalità: ${apply ? 'SCRITTURA' : 'ANTEPRIMA (nessuna scrittura: aggiungi --apply)'}\n`)
 
+    let company: { id: string; name: string } | null = null
+    if (companyId) {
+      company = await prisma.company.findUnique({ where: { id: companyId }, select: { id: true, name: true } })
+      if (!company) {
+        console.error(`Nessuna società con id ${companyId}. Lo script non crea società.`)
+        process.exitCode = 1
+        return
+      }
+    }
+
     const existing = await prisma.user.findUnique({ where: { email } })
-    if (existing && existing.role !== 'PLATFORM_ADMIN') {
-      console.error(`Esiste già ${email} con ruolo ${existing.role}: lo script non cambia ruoli. Interrompo.`)
+    if (existing && (existing.role !== role || existing.companyId !== (companyId ?? null))) {
+      console.error(`Esiste già ${email} con ruolo ${existing.role}${existing.companyId ? ` (società ${existing.companyId})` : ''}: lo script non cambia ruolo o società. Interrompo.`)
       process.exitCode = 1
       return
     }
     if (existing && !reset) {
-      console.error(`${email} esiste già (PLATFORM_ADMIN, ${existing.status}). Per una nuova password: --reset-password.`)
+      console.error(`${email} esiste già (${role}, ${existing.status}). Per una nuova password: --reset-password.`)
       process.exitCode = 1
       return
     }
-    console.log(existing ? `Account esistente: nuova password per ${email}, sessioni aperte revocate.` : `Nuovo account PLATFORM_ADMIN: ${fullName} <${email}>, senza società.`)
+    console.log(
+      existing
+        ? `Account esistente: nuova password per ${email}, sessioni aperte revocate.`
+        : `Nuovo account ${role}: ${fullName} <${email}>${company ? `, società «${company.name}»` : ', senza società'}.`,
+    )
     if (!apply) return
 
     let password: string
@@ -142,10 +182,15 @@ async function main() {
     const passwordHash = await hashPassword(password)
     const user = existing
       ? await prisma.user.update({ where: { id: existing.id }, data: { passwordHash, status: 'ACTIVE' } })
-      : await prisma.user.create({ data: { email, fullName, role: 'PLATFORM_ADMIN', companyId: null, passwordHash } })
+      : await prisma.user.create({ data: { email, fullName, role, companyId: companyId ?? null, passwordHash } })
     if (existing) await prisma.refreshToken.updateMany({ where: { userId: user.id, revokedAt: null }, data: { revokedAt: new Date() } })
     await prisma.auditLog.create({
-      data: { action: existing ? 'team_admin.password_reset' : 'team_admin.created', entityType: 'User', entityId: user.id, metadata: { email, via: 'scripts/create-team-admin.ts' } },
+      data: {
+        action: existing ? 'provisioned_account.password_reset' : 'provisioned_account.created',
+        entityType: 'User',
+        entityId: user.id,
+        metadata: { email, role, companyId: companyId ?? null, via: 'scripts/create-team-admin.ts' },
+      },
     })
 
     console.log(`\nFatto: ${email} (${user.id}).`)

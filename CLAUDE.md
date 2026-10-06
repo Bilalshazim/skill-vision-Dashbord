@@ -818,6 +818,13 @@ dove veniva.
   o di pari valore. Il guscio va costruito per la struttura gruppo → società
   anche quando la società è una sola.
 
+  > **Superata dal 2026-10-02, per le due società di Original Skills**: non
+  > sono un gruppo/holding, sono due `Company` distinte sotto `Platform` (vedi
+  > sotto). Questo caso — una vera holding che chiede il confronto fra le sue
+  > società — resta valido se e quando si presenta, ma non è il caso di
+  > Original Skills: lì niente ruolo di gruppo, niente vista "tutte le società
+  > del gruppo".
+
 **Queste ultime due non sono solo migrazione.** Le valutazioni e i dipendenti di
 Assessment oggi vivono nel browser: inviare il link dal server, gestire più
 società e confrontare dipendenti fra società richiede che Assessment salvi i
@@ -825,6 +832,39 @@ suoi dati sul backend — la stessa condizione del valutatore esterno. Non
 implementarlo dentro la migrazione: analizza, stima e proponi, poi fermati.
 Nella migrazione entrano solo la parte d'interfaccia (selezione + invio,
 selettore di società) e quello che funziona già con i dati di oggi.
+
+**Decise dal cliente il 2026-10-02** (call con Roberto)
+
+- **Le due società di Original Skills non sono un gruppo**: sono due aziende
+  clienti distinte che Skill Vision amministra. È la forma `Platform` →
+  `Company`: Skill Vision è la piattaforma, ogni azienda cliente una `Company`.
+  I loro dati sono di persone reali.
+- **Accessi**: chi lavora in una società vede solo la sua. Lo staff di Skill
+  Vision (superamministratore) vede tutte le società, anche le singole
+  persone. Un account demo amministra solo la società demo.
+- **Original Skills**: l'accordo con l'università copre il passaggio e la
+  conservazione dei risultati (confermato per iscritto). La chiave non scade.
+  "Ultima modifica" è la data in cui il test è stato completato. Original
+  Skills ha un avviso automatico a test completato; non ha un ambiente di
+  prova.
+- **Competenze**: si usano i nomi italiani del test, tranne dove il test usa
+  l'inglese (Decision Making, Problem Solving, Team Work, Customer Experience):
+  lì **non** si adotta l'inglese, restano le diciture italiane di oggi
+  (`ma6` Risoluzione dei problemi, `ma8` Lavoro di squadra, `so2` Esperienza
+  del cliente; `ma1` oggi diverge fra Assessment e Recruiting, va scelta una
+  sola dicitura italiana e proposta ad Alessio).
+  "Dedizione al lavoro" corrisponde a "Impegno lavorativo"; "Engagement
+  lavorativo" non si usa. Si cambiano le etichette, non gli identificativi.
+- **Dati di Assessment di oggi**: sono di prova. Con i dati veri si riparte da
+  zero.
+- **Recruiting**: "Segna completato" non serve a mano, basta quello automatico
+  da Original Skills. Cambio di posizione, scheda vuota, import CSV e import
+  multiplo dei CV servono, ma possono aspettare.
+- **"Assessment sul server"**: più avanti, data da definire.
+- **Ancora da chiarire**, non decidere da solo: come si converte il punteggio
+  complessivo (oggi standardizzato, circa −3…+1) sulla scala 1–10; cosa vuol
+  dire "il pari valore si fa a parte, solo per i manager"; dove va
+  l'aggiornamento notturno, visto che Assessment non è ancora sul server.
 
 ---
 

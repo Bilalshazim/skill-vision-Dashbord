@@ -113,18 +113,102 @@ insieme allo spegnimento del catalogo in produzione.
       logout, permessi dal ruolo, proxy `/api` per la stessa origine
 - [x] Script per gli account del gruppo di lavoro (`create-team-admin`) e per
       chiudere gli account con password pubbliche (`secure-demo-accounts`),
-      2026-10-02. Da lanciare in produzione nell'ordine di
-      PROPOSTA-AUTENTICAZIONE.md
-- [ ] Account del cliente, d'accordo con il cliente
-- [ ] Passaggio su un ambiente di prova, poi in produzione (variabili in
-      PROPOSTA-AUTENTICAZIONE.md, «Cosa resta»)
+      2026-10-02. **2026-10-06: questa checklist era disallineata dal
+      registro** — i passi sotto erano già fatti dal 2026-10-03 (vedi
+      «Produzione in modalità backend» e seguenti) ma qui segnati come aperti.
+- [x] **Passaggio in produzione, 2026-10-03** (registro: «Produzione in
+      modalità backend»): `VITE_AUTH_MODE=backend` sul servizio Skill Vision,
+      account del gruppo di lavoro creati via `railway ssh`, Passo 4
+      (`secure-demo-accounts.js --apply --frontend-is-backend-mode`)
+      eseguito, `VITE_OPERATORE_BRIDGE_PASSWORD` tolta e bundle ricostruito.
+      Verificato: proxy `/api` risponde 401 senza token, pagine protette →
+      `/login`, accesso vero riuscito. **Account del cliente**: solo quelli
+      del gruppo di lavoro e la società demo esistono oggi; gli account delle
+      due società reali di Original Skills restano da creare con loro,
+      d'accordo (CLAUDE.md, Fase 8) — non ancora fatto.
 - [ ] Ritiro del guscio legacy e della sua copia, del ponte e delle coppie
-      di `js/app.js`, nello stesso passaggio
+      di `js/app.js`, nello stesso passaggio — unico punto ancora aperto di
+      questa fase.
 ### Progetto separato — Assessment sul server
 Analisi e stima in PROGETTO-ASSESSMENT-SERVER.md (20–30 giornate, dopo la
 Fase 8): valutatore esterno, invio link test in Assessment, holding → società.
 
 ## Registro
+
+## 2026-10-06 (2) — Rettifiche di Alessio: provisioning, Gruppo → Platform/Company, glossario, punteggio grezzo
+- [x] **Rettifiche di PROPOSTA-AUTENTICAZIONE.md** (script path, nome
+      servizio, `SameSite=Strict`, flag `--apply --frontend-is-backend-mode`,
+      `VITE_OPERATORE_BRIDGE_PASSWORD`): verificate sul documento e sul
+      codice — **erano già tutte corrette**, nessuna modifica necessaria.
+- [x] **`scripts/create-team-admin.ts`**: generalizzato con `--role` e
+      `--company-id` (valida che la società esista, valida il ruolo contro
+      l'enum, impedisce di cambiare ruolo/società a un account esistente).
+      Resta compatibile con l'uso di sempre (senza `--role` crea
+      PLATFORM_ADMIN come prima). Azioni di `AuditLog` generalizzate
+      (`provisioned_account.created/.password_reset`, non più
+      `team_admin.*`: nessun altro punto del codice le leggeva). `tsc` pulito.
+- [ ] **I 4 account richiesti (Bilal, Alessio, Roberto PLATFORM_ADMIN;
+      demo@skill-vision.it COMPANY_ADMIN sulla società demo) non sono stati
+      creati in produzione in questa sessione.** Lo script genera la
+      password e la stampa una sola volta: farlo girare da questa sessione
+      la scriverebbe nella trascrizione, che è esattamente quello che le
+      istruzioni del file vogliono evitare («mai per email in chiaro», «mai
+      in Git o cronologia»). Vanno lanciati da Roberto o Alessio via
+      `railway ssh --service Backend` sul loro terminale. Comandi pronti più
+      sotto nel resoconto di sessione.
+- [x] **Cambio password autonomo: la funzione non esiste.** Solo
+      `/auth/login`, `/auth/refresh`, `/auth/logout`, `/auth/me`
+      (`backend/src/modules/auth`); nessuna rotta né schermata per cambiare
+      la propria password. Segnalato: va aggiunto se gli account del cliente
+      devono poterla cambiare da soli.
+- [x] **Niente «Gruppo»**: `PROPOSTA-ORIGINAL-SKILLS.md` §2 riscritto da
+      «Gruppo → Società» a «Platform → Company» (due `Company` distinte,
+      niente ruolo di gruppo, niente vista di gruppo), coerente con la
+      decisione del cliente del 2026-10-02 già in CLAUDE.md cap. 7 ma non
+      ancora applicata al documento tecnico. Aggiunta nota di correzione
+      anche sulla voce «Azienda attiva» del 2026-09-30 in CLAUDE.md (quel
+      caso — holding vera — resta valido in generale, solo non è questo).
+      Opzione B (mappa Railway) confermata come scelta presa, non più aperta:
+      è già impostata in produzione dal 2026-10-03 con chiavi provvisorie.
+- [x] **`ps6` → "Impegno lavorativo"** (non "Engagement lavorativo"):
+      cambiata in Assessment (`legacy-taxonomy.ts`), dove l'etichetta è
+      per `id` e il dato non si tocca (CLAUDE.md). **Non cambiata in
+      Recruiting** (`modules/recruiting/lib/constants.ts`): lì il nome è
+      anche la chiave dei punteggi candidato salvati, quindi un cambio
+      diretto romperebbe i punteggi già salvati sotto "Dedizione al lavoro".
+      Serve la conversione all'apertura già prevista per questo in
+      PROPOSTA-ORIGINAL-SKILLS.md (come i preset, TRADUZIONI.md), stimata
+      1–1,5 giornate: non è un cambio di una riga, è un lavoro a parte.
+      Deciso in DECISIONI.md.
+- [x] **`ma1`, e le quattro diciture inglesi**: nessun cambio di codice.
+      CLAUDE.md già registra la decisione del cliente (tenere l'italiano per
+      Decision Making/Problem Solving/Team Work/Customer Experience) e che
+      `ma1` va proposto ad Alessio. Proposta in DECISIONI.md: unificare `ma1`
+      su **"Processo decisionale"** (vicino sia a "Prendere decisioni" di
+      Assessment che a "Il processo decisionale" di Recruiting, e non
+      un'azione come "decidere" ma il nome di una competenza, come le altre
+      della lista). Da confermare con Alessio prima di scriverla nel codice.
+- [x] **"Segna completato" (Recruiting): non esiste da costruire.** Verificato
+      nel codice (`PipelinePage.tsx`, `PipelineDetail.tsx`, `pipeline.ts`,
+      `backend-sync.ts`, `types.ts`): è sempre stato un placeholder nei
+      commenti ("non ancora disponibile", "unimplemented"), non una funzione
+      viva da rimuovere. La decisione del cliente di non costruirla a mano
+      era già lo stato di fatto: nessuna modifica necessaria.
+- [x] **Punteggio complessivo nascosto**: tolto da
+      `OriginalSkillsPreviewPage.tsx` (colonna "Risultato" della tabella e
+      riga nel dettaglio) finché non arriva la formula ufficiale di
+      conversione sulla scala 1–10 (CLAUDE.md, «ancora da chiarire»). Il
+      dato resta nel backend (ordina ancora l'elenco), solo non è mostrato.
+      `tsc` pulito, frontend e backend.
+- [x] **`ORIGINAL_SKILLS_ENABLED`, `VITE_DEMO_MODE`, `VITE_ENABLE_COMPONENT_CATALOG`
+      in produzione: non toccati.** `ORIGINAL_SKILLS_ENABLED=true` è già
+      attivo dal 2026-10-02 (registro sotto), prima di questa sessione. Gli
+      altri due non sono stati impostati né letti (Railway non fa leggere i
+      valori delle variabili di produzione da questa sessione — solo i nomi).
+      Spiegazione e richiesta di conferma nel resoconto di sessione: cambiano
+      il comportamento dell'unico ambiente di produzione oggi in uso dal
+      gruppo di lavoro, e vanno fatti da chi può verificarli subito dopo.
+- Non eseguito: commit e push. In coda a questa voce.
 
 ## 2026-10-06 — Foglio 6: elenco completo delle posizioni nei selettori di ruolo
 - [x] `lib/role-catalog.ts`: le 20 aree e 90 posizioni del vecchio elenco (ROLES92 di Apex-5D.html: Direzione generale, Amministrazione e finanza, HR, Commerciale, Marketing, … Servizi professionali).

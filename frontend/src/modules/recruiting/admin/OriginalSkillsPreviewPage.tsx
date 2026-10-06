@@ -146,7 +146,8 @@ export default function OriginalSkillsPreviewPage() {
     },
     { key: 'company', header: 'Società', cell: (p) => labelOf.get(p.companyKey) ?? p.companyKey, emphasis: 'muted', truncate: 'sm' },
     { key: 'site', header: 'Sede', cell: (p) => p.site || '—', emphasis: 'muted', truncate: 'sm' },
-    { key: 'result', header: 'Risultato', cell: (p) => <span className="font-mono tabular-nums">{fmt(p.result, 3)}</span>, align: 'end', nowrap: true },
+    // Il punteggio complessivo ("Risultato", standardizzato ~-3…+1) resta nascosto finché
+    // non arriva da Alessio la formula ufficiale di conversione sulla scala 1-10 (CLAUDE.md).
     {
       key: 'role',
       header: 'Ruolo ≥ atteso',
@@ -302,7 +303,7 @@ function PersonDetail({ person, companyLabel }: { person: OriginalSkillsPerson; 
         <SheetTitle>{fullName(person)}</SheetTitle>
         <SheetDescription>
           {companyLabel}
-          {person.site ? ` · ${person.site}` : ''} · risultato {fmt(person.result, 3)}
+          {person.site ? ` · ${person.site}` : ''}
         </SheetDescription>
       </SheetHeader>
       <SheetBody className="flex flex-col gap-6">

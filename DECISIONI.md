@@ -1053,3 +1053,68 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - Opzioni: esadecimale scritto a mano (viola la regola 1) oppure il token `primary` (lime del marchio, stesso colore).
 - Il lime non è testo su fondo chiaro (regola 6): "Skill Vision" non cambia colore di testo, prende il fondo `primary` con testo scuro.
 - Presa: token `primary`; bordo sulle card, fondo sui toggle, ombra della FolderCard.
+
+## Rinominare `ps6` in Recruiting: rimandato, non rifiutato · 2026-10-06
+- Richiesta di Alessio: `ps6` si chiama "Impegno lavorativo" ("Engagement lavorativo" è vietato).
+- Opzioni: (a) sostituire la stringa in `recruiting/lib/constants.ts` (`SKILLS`,
+  `SKILL_MATRIX`) insieme ad Assessment; (b) cambiare solo Assessment ora, e
+  trattare Recruiting come il lavoro a parte già stimato in
+  PROPOSTA-ORIGINAL-SKILLS.md (1–1,5 giornate, con conversione all'apertura).
+- Cosa cambia: in Assessment il nome è un'etichetta, i punteggi sono per `id`
+  (CLAUDE.md) — (a) è sicuro lì e l'ho applicato subito. In Recruiting il nome
+  **è** la chiave con cui sono salvati i punteggi dei candidati e le
+  competenze selezionate (confermato in `PROPOSTA-ORIGINAL-SKILLS.md` §3.2):
+  una sostituzione diretta della stringa in `constants.ts` rende illeggibili,
+  silenziosamente, tutti i punteggi già salvati sotto "Dedizione al lavoro" —
+  non c'è messaggio d'errore, i dati semplicemente non si ritrovano più sotto
+  la chiave nuova. È la stessa classe di problema già risolta per i preset
+  delle schede (TRADUZIONI.md): serve una tabella di conversione all'apertura,
+  non un cambio di una riga.
+- Raccomandazione: (b) — fare subito la parte senza rischio (Assessment),
+  rimandare Recruiting alla stessa sessione che farà anche `ps13`, le quattro
+  diciture inglesi e `ma1` insieme (sono la stessa famiglia di modifiche,
+  con la stessa conversione da scrivere una volta per tutte le voci che
+  cambiano, non una per volta).
+- Presa: **(b)**. Fatto: Assessment (`legacy-taxonomy.ts`, ps6 → "Impegno
+  lavorativo"). Non fatto: Recruiting — resta "Dedizione al lavoro" nel
+  codice finché non si scrive la conversione.
+
+## Dicitura unica per `ma1` · 2026-10-06
+- Il cliente (CLAUDE.md, 2026-10-02) ha chiesto un'unica dicitura italiana per
+  `ma1`, da proporre ad Alessio: oggi Assessment dice "Prendere decisioni",
+  Recruiting "Il processo decisionale"; Original Skills lo chiama "Decision
+  Making" (che il cliente ha già deciso di non adottare per questo gruppo di
+  quattro competenze).
+- Opzioni: (a) "Prendere decisioni" (verbo, come oggi in Assessment);
+  (b) "Il processo decisionale" (oggi in Recruiting); (c) "Processo
+  decisionale" (senza articolo, per uniformità con le altre 34 voci della
+  lista, che sono tutte nomi e non verbi né frasi con articolo: "Autocontrollo",
+  "Delega", "Leadership", "Strategia"…).
+- Raccomandazione: **(c)** — è la sola delle tre che sta in riga con le voci
+  vicine della stessa lista (`ma2` Delega, `ma3` Direzione, `ma7` Strategia),
+  ed è la stessa correzione già fatta per `ps5`/`ps8` (solo forma, non senso).
+- Presa: proposta **(c)** "Processo decisionale", **non ancora scritta nel
+  codice** — da confermare con Alessio prima (è un'etichetta che tocca sia
+  Assessment sia la chiave salvata di Recruiting, stesso discorso di `ps6`
+  sopra).
+
+## Produzione: account dei 4 utenti e flag `ORIGINAL_SKILLS_ENABLED`/demo/catalogo · 2026-10-06
+- Richiesta di Alessio: creare 4 account in produzione con password generate,
+  e disattivare `VITE_DEMO_MODE`/`VITE_ENABLE_COMPONENT_CATALOG` insieme
+  all'attivazione di `ORIGINAL_SKILLS_ENABLED`.
+- Verificato: `ORIGINAL_SKILLS_ENABLED=true` è già attivo in produzione dal
+  2026-10-02 (PROGRESS.md), prima di questa richiesta — non c'è nulla da
+  attivare lì. Gli altri due flag non sono leggibili da questa sessione
+  (Railway nega la lettura delle variabili di produzione a questo strumento);
+  il loro stato reale va controllato da chi ha accesso alla dashboard.
+- Perché non ho lanciato gli script di creazione account da qui: la
+  password generata viene stampata dallo script una sola volta, in chiaro,
+  sull'output del comando — che in questa sessione finirebbe nella
+  trascrizione della conversazione. È esattamente il canale che
+  `create-team-admin.ts` dice di evitare ("mai per email in chiaro, mai in
+  Git o cronologia della shell"). Una trascrizione di chat non è più sicura
+  di un'email.
+- Presa: ho preparato ed esteso lo script (`--role`, `--company-id`), ma la
+  creazione va fatta da Roberto o Alessio in prima persona via
+  `railway ssh --service Backend --environment production`, sul loro
+  terminale. Comandi pronti nel resoconto di sessione.

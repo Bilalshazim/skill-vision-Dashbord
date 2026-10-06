@@ -107,7 +107,18 @@ valido la rotta risponde 401 e Original Skills non viene chiamato.** Con
 Il browser usa un `GET` sulla nostra rotta; è il server a fare il `POST`
 verso Original Skills (§3.1).
 
-## 2. `codAzienda` e la struttura Gruppo → Società
+## 2. `codAzienda` e la struttura Platform → Company
+
+> **Corretto il 2026-10-06, su indicazione del cliente (CLAUDE.md, call del
+> 2026-10-02).** Questa sezione descriveva all'origine una struttura
+> «Gruppo → Società» (holding con due società, ruolo di gruppo
+> `GROUP_ADMIN`, vista «tutte le società del gruppo»). **Le due società di
+> Original Skills non sono un gruppo**: sono due aziende clienti distinte
+> che Skill Vision amministra come piattaforma. Niente ruolo di gruppo,
+> niente vista di gruppo: ogni società è una `Company` a sé, scoperta da
+> `requireCompanyScope` come qualunque altra. Il caso holding → società
+> resta scritto in CLAUDE.md cap. 7 per quando (e se) si presenterà davvero,
+> ma non è questo.
 
 ### Il principio: si ricava sul server, non arriva dal browser
 
@@ -117,55 +128,54 @@ Skills. Se il `codAzienda` arrivasse dal browser, basterebbe cambiarlo per
 leggere i risultati di un'altra azienda: è il punto di sicurezza più
 importante della proposta.
 
-### I due codici del gruppo
+### I due codici
 
 Le specifiche indicano due codici, qui **«società 1»** e **«società 2»**: i
 valori reali stanno solo in `ORIGINAL_SKILLS_COMPANY_MAP` su Railway, mai nel
-repository. Sono due società dello stesso gruppo, e l'API li accetta **insieme**: `codAzienda` è
-un elenco, quindi una sola chiamata può restituire i risultati di più
-società.
-
-È esattamente la struttura che il guscio già prevede (CLAUDE.md cap. 7,
-«Azienda attiva»: holding → società). `CompanySwitcher` mostra il nome del
-gruppo in alto e, sotto, la società attiva fra quelle del gruppo.
+repository. Sono **due `Company` distinte e indipendenti**, non due rami di
+un gruppo. L'API accetta comunque `codAzienda` come elenco, ma qui non c'è
+motivo di chiederne più di uno per richiesta: ogni utente vede la propria
+società, mai l'altra.
 
 ```
-Gruppo (holding)                      ← nome in testa a CompanySwitcher
-├── Società 1  →  codAzienda «codice società 1»
-└── Società 2  →  codAzienda «codice società 2»
+Platform (Skill Vision)
+├── Company «società 1»  →  codAzienda «codice società 1»
+└── Company «società 2»  →  codAzienda «codice società 2»
 ```
 
-**Da confermare con Alessio:** quale società del gruppo corrisponde a
-ciascun codice, e il nome del gruppo.
+**Da confermare con Alessio:** quale società corrisponde a ciascun codice.
 
 ### Che cosa chiede il server in ciascun caso
 
 | Cosa vede l'utente | `codAzienda` inviato | Chi può |
 |---|---|---|
-| La società attiva in `CompanySwitcher` | `["<codice società 1>"]` (solo il codice di quella società) | chi ha accesso a quella società (`requireCompanyScope`) |
-| «Tutte le società del gruppo» (confronto fra società, caso holding) | `["<codice società 1>", "<codice società 2>"]` | solo un ruolo di gruppo, che oggi **non esiste** (vedi sotto) |
-| Amministrazione della piattaforma | qualunque codice | `PLATFORM_ADMIN` |
+| La società attiva dell'utente | `["<codice della sua società>"]` (solo quel codice) | chi ha accesso a quella società (`requireCompanyScope`) |
+| Amministrazione della piattaforma | qualunque codice, anche più di uno insieme | `PLATFORM_ADMIN` |
 
 Il server costruisce l'elenco a partire dai permessi, **mai dall'elenco
-mandato dal browser**. Se la richiesta è per il gruppo ma l'utente ha accesso
-a una sola società, l'elenco contiene solo il suo codice: non si allarga.
-
-**Il ruolo di gruppo manca.** Oggi i ruoli backend sono `COMPANY_ADMIN`,
-`RECRUITER`, `PLATFORM_ADMIN`, tutti legati a una sola società o a tutte.
-Una vista «tutto il gruppo» richiede un ruolo di gruppo (es. `GROUP_ADMIN`).
-Arriva con la Fase 8 (permessi dal ruolo backend) o con «Assessment sul
-server». Fino ad allora la lettura è **per singola società**.
+mandato dal browser**. Non esiste una vista «tutte le società insieme» per
+chi non è `PLATFORM_ADMIN`: ogni società resta scoperta dalla sua.
 
 ### Dove tenere la corrispondenza
 
 | Opzione | Pro | Contro |
 |---|---|---|
-| **A. Campo `originalSkillsCode` su `Company` + il gruppo nel database** (raccomandata a regime) | si gestisce dall'amministrazione; il gruppo è un dato vero, utile anche ai permessi | migrazione del database. Il gruppo può essere `Platform`, che già raccoglie più `Company`, ma la cardinalità Platform↔Company è ancora aperta (OD-1): da decidere |
-| **B. Mappa JSON in una variabile Railway** (`ORIGINAL_SKILLS_COMPANY_MAP`, es. `{"<companyId società 1>":"<codice società 1>","<companyId società 2>":"<codice società 2>"}`) | nessuna migrazione, utile per partire con queste due società | ogni nuova società richiede un intervento su Railway; il gruppo non esiste come dato |
+| **A. Campo `originalSkillsCode` su `Company`** (raccomandata a regime) | si gestisce dall'amministrazione, senza Railway | migrazione del database |
+| **B. Mappa JSON in una variabile Railway** (`ORIGINAL_SKILLS_COMPANY_MAP`, es. `{"<companyId società 1>":"<codice società 1>","<companyId società 2>":"<codice società 2>"}`) — **scelta per partire, già impostata in produzione (2026-10-03)** | nessuna migrazione, attiva da subito | ogni nuova società richiede un intervento su Railway |
 
-Proposta: **B per partire**, A quando arriva il ruolo di gruppo. Senza codice
-associato, la rotta risponde «Società non collegata a Original Skills» e la
-schermata lo dice, con chi contattare.
+**Decisione presa: B per partire**, A quando il numero di società collegate
+crescerà abbastanza da rendere Railway scomodo da mantenere a mano. Senza
+codice associato, la rotta risponde «Società non collegata a Original
+Skills» e la schermata lo dice, con chi contattare.
+
+**Stato in produzione (2026-10-03):** `ORIGINAL_SKILLS_COMPANY_MAP` è
+impostata sul servizio Backend, ma con chiavi provvisorie (`societa1`,
+`societa2`): in produzione esiste solo la società demo («Acme Corp»; §9.1).
+Le due società vere di Original Skills vanno create come `Company` nella
+piattaforma — con i loro dati reali, d'accordo col cliente (CLAUDE.md, Fase
+8: gli account e le società del cliente non si inventano) — e la mappa va
+riscritta con i loro `companyId` veri prima che la rotta possa restituire i
+loro dati.
 
 ### Recruiting e Assessment
 
@@ -434,7 +444,7 @@ type OriginalSkillsResult = {
   roleSkills: { skillId: string | null; label: string; value: number; expected: number; gap: number }[]
 }
 type OriginalSkillsResponse = {
-  scope: 'company' | 'group'    // una società o tutto il gruppo (§2)
+  scope: 'company'               // sempre una sola società (§2): niente gruppo
   companyIds: string[]
   dataDa: string; dataA: string
   results: OriginalSkillsResult[]
@@ -549,7 +559,7 @@ Ancora aperte:
    collegamento alla posizione sarebbe diretto.
 7. **`ultima modifica`**: è la data di completamento? In che fuso? `dataA` è
    inclusiva?
-8. **Quale società** corrisponde a ciascun codice, e il nome del gruppo.
+8. **Quale società** corrisponde a ciascun codice.
 9. **La durata di `authKey`**: scade? Come si rinnova? A chi si chiede in
    caso di compromissione?
 10. **Limiti di richieste** al minuto o al giorno.
