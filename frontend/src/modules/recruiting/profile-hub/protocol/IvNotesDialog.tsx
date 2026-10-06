@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { clearIvNotes, loadIvNotesDraft, loadIvNotesRecord, saveIvNotes } from '@/modules/recruiting/lib/interview-protocol'
 import type { IvNotesDraft } from '@/modules/recruiting/lib/interview-protocol'
 import { IvNotesForm } from '@/modules/recruiting/profile-hub/protocol/IvNotesForm'
+import { SheetBrand } from '@/modules/recruiting/profile-hub/protocol/SheetBrand'
 import { ModalEyebrow } from '@/modules/recruiting/profile-hub/protocol/protocol-ui'
 import { dangerBtnClass, ghostBtnClass, primaryBtnClass } from '@/modules/recruiting/profile-hub/protocol/protocol-styles'
 
@@ -48,6 +49,7 @@ export function IvNotesDialog({ role, savedAt, onSavedAtChange }: { role: string
       </DialogTrigger>
       <DialogContent size="lg" dirty={dirty}>
         <DialogHeader>
+          <SheetBrand />
           <ModalEyebrow>Documento interno — Selezione del personale</ModalEyebrow>
           <DialogTitle className="flex items-center gap-2">
             <Mic className="size-4 shrink-0" aria-hidden="true" />

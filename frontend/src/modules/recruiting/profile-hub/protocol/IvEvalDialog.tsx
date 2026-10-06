@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { clearIvEval, loadIvEvalDraft, loadIvEvalRecord, saveIvEval } from '@/modules/recruiting/lib/interview-protocol'
 import type { IvEvalDraft } from '@/modules/recruiting/lib/interview-protocol'
 import { IvEvalForm } from '@/modules/recruiting/profile-hub/protocol/IvEvalForm'
+import { SheetBrand } from '@/modules/recruiting/profile-hub/protocol/SheetBrand'
 import { ModalEyebrow } from '@/modules/recruiting/profile-hub/protocol/protocol-ui'
 import { dangerBtnClass, ghostBtnClass, primaryBtnClass } from '@/modules/recruiting/profile-hub/protocol/protocol-styles'
 
@@ -49,6 +50,7 @@ export function IvEvalDialog({ role, savedAt, onSavedAtChange }: { role: string;
       </DialogTrigger>
       <DialogContent size="xl" dirty={dirty}>
         <DialogHeader>
+          <SheetBrand />
           <ModalEyebrow>Documento interno — Selezione del personale</ModalEyebrow>
           <DialogTitle className="flex items-center gap-2">
             <NotebookPen className="size-4 shrink-0" aria-hidden="true" />

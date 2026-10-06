@@ -14,6 +14,7 @@ import { calcIvReportTotal, clearIvReport, loadIvReportDraft, loadIvReportRecord
 import type { IvReportDraft } from '@/modules/recruiting/lib/interview-protocol'
 import type { IvReportStep } from '@/modules/recruiting/lib/interview-protocol-types'
 import { CompareRowsTable } from '@/modules/recruiting/profile-hub/protocol/CompareRowsTable'
+import { SheetBrand } from '@/modules/recruiting/profile-hub/protocol/SheetBrand'
 import { CheckRow, ModalEyebrow, SectionLabel } from '@/modules/recruiting/profile-hub/protocol/protocol-ui'
 import { dangerBtnClass, ghostBtnClass, primaryBtnClass } from '@/modules/recruiting/profile-hub/protocol/protocol-styles'
 
@@ -89,6 +90,7 @@ export function IvReportDialog({ role, savedAt, onSavedAtChange }: { role: strin
       </DialogTrigger>
       <DialogContent size="lg" dirty={dirty}>
         <DialogHeader>
+          <SheetBrand />
           <ModalEyebrow>Documento riservato — Processo di selezione</ModalEyebrow>
           <DialogTitle className="flex items-center gap-2">
             <FileBarChart2 className="size-4 shrink-0" aria-hidden="true" />

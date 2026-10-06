@@ -18,6 +18,7 @@ import { getCachedBackendLink } from '@/modules/recruiting/lib/backend-link'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import { EmptyState } from '@/components/patterns/EmptyState'
+import { EvaluationCompare } from '@/modules/recruiting/evaluate/EvaluationCompare'
 import { EvaluationFormsView, receivedForms, type FormKind } from '@/modules/recruiting/evaluate/EvaluationFormsView'
 import { RECOMMENDATION_LABEL } from '@/modules/recruiting/lib/evaluation-forms'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
@@ -304,6 +305,7 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [openDetail, setOpenDetail] = useState<{ evaluatorId: string; kind: FormKind } | null>(null)
+  const [comparing, setComparing] = useState(false)
   // Quante valutazioni inviate ha ogni candidato (per il badge nella lista) e
   // quante ne aveva già viste il responsabile (per "Nuova valutazione ricevuta").
   const [counts, setCounts] = useState<Record<string, number>>({})
@@ -475,6 +477,21 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
                   )
                 })
               )}
+              {submittedCount >= 2 && selectedCandidate ? (
+                <button type="button" onClick={() => setComparing(true)} className={btnClass + ' self-start'}>
+                  Confronta le {submittedCount} valutazioni
+                </button>
+              ) : null}
+              {comparing && selectedCandidate ? (
+                <ModalDialog title="Confronto fra valutatori" sub={selectedCandidate.candidate?.fullName || ''} size="xl" onClose={() => setComparing(false)}>
+                  <EvaluationCompare
+                    columns={roster
+                      .map((r, i) => ({ r, i, ev: evaluations.find((e) => e.evaluatorId === r.id && e.status === 'SUBMITTED') }))
+                      .filter((x) => x.ev)
+                      .map((x) => ({ id: x.r.id, label: `Valutatore ${x.i + 1} — ${x.r.fullName}`, scores: x.ev!.scores }))}
+                  />
+                </ModalDialog>
+              ) : null}
               {openDetail && selectedCandidate ? (
                 (() => {
                   const ev = evaluations.find((e) => e.evaluatorId === openDetail.evaluatorId)

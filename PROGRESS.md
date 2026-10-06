@@ -135,6 +135,12 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 — Area Valutatore: schede ridisegnate, logo SV, confronto fra valutatori
+- [x] Area Valutatore: le tre schede (Intervista strutturata, Valutazione candidato, Report finale di valutazione) sono tre card affiancate con icona, stato ("Compilata · data" / "Non compilata") e pulsante; "Valutatori esterni" è un riquadro a sé con la spiegazione (email, link, nessun allegato). Colori e stile: design system attuale, in attesa dei colori di Alessio.
+- [x] Logo Skill Vision in testa ai tre documenti (`SheetBrand`); la pagina dei valutatori esterni lo aveva già.
+- [x] Confronto fra valutatori (`EvaluationCompare`): per candidato con almeno 2 schede inviate, tabella con una colonna per valutatore e una riga per criterio (domande riscritte e aggiunte comprese), punteggio finale/complessivo, esito e raccomandazione, e lo scarto con la parola "Divergenza" da 2 punti in su.
+- Già presenti e non toccati: valutazione di più candidati nella stessa sessione (elenco a sinistra nella pagina del valutatore), invio dei link per email, salvataggio nel database, riepilogo IA modificabile e "Riporta nel Report finale". Verificato con `npm run build`; non verificato a schermo.
+
 ## 2026-10-06 — Correzione: build del frontend fallita per 3bf2c47
 - [x] Il deploy di 3bf2c47 sul servizio "Skill Vision" è fallito in fase BUILD_IMAGE: `npm run build` esegue `tsc -b`, più severo di `tsc --noEmit -p .` usato nei controlli, e segnalava due import inutilizzati in `HardEvalModal.tsx` (Badge, APEX5D_GUIDE) rimasti dopo il passaggio a `ApexItemRow`. Tolti; `npm run build` ora passa in locale.
 - Da qui in poi, prima di ogni push si lancia `npm run build`, non solo `tsc --noEmit`.
