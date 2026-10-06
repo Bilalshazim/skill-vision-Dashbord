@@ -126,6 +126,11 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 — Verbale di colloquio: domande 3 e 4, testo editabile, salvataggio e sintesi
+- [ ] Bug "domande 3 e 4 bloccate": **non riprodotto**. Nel codice di `IvNotesForm` nessun campo delle sezioni 3 (competenze professionali) e 4 (trasversali) è disabilitato o in sola lettura; manca una segnalazione precisa (schermata, pagina, browser). Il testo delle domande della sezione 4, prima fisso, è ora modificabile (commit aae4f3d).
+- [x] Sintesi IA (backend): leggeva le domande originali; ora usa i testi riscritti (`softLabels`) e le domande aggiunte (`extraQuestions`), così le modifiche non si perdono a valle. Salvataggio locale, server e vista del responsabile già le portavano.
+- Test del backend non eseguiti (nessun Postgres locale); tsc backend pulito.
+
 ## 2026-10-06 — Domande editabili nelle schede di intervista e valutazione
 - [x] Verbale di colloquio e Scheda di valutazione: il testo di ogni domanda fissa (competenze trasversali) è un campo modificabile (`softLabels`, torna all'originale se si cancella o si riscrive uguale); "Aggiungi una domanda" crea domande proprie con punteggio e nota, rimovibili (`extraQuestions`). Le aree tecniche erano già libere.
 - [x] Salvataggio: i due campi stanno nella bozza, quindi vanno nel browser (Area Valutatore) e nel backend (`Evaluation.scores`, link del valutatore esterno) insieme a risposte e punteggi; `EvaluationFormsView` mostra i testi riscritti e le domande aggiunte.

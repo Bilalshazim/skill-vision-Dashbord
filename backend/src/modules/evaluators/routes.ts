@@ -330,14 +330,24 @@ const synthesisLimiter = createLimiter({ max: 20, windowMs: 10 * 60_000 })
 const clip = (v: unknown, max = 1500): string => (typeof v === 'string' ? v.trim().slice(0, max) : '')
 const asRecord = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {})
 
-function rowsToText(rows: unknown, labelKey: string | null): string[] {
+// `labels`: i testi riscritti dal valutatore per le domande fisse (softLabels);
+// `extras`: le domande che ha aggiunto (extraQuestions). Senza, la sintesi
+// leggerebbe le domande originali al posto di quelle usate nel colloquio.
+function rowsToText(rows: unknown, labelKey: string | null, labels?: unknown, extras?: unknown): string[] {
   const out: string[] = []
+  const custom = asRecord(labels)
   for (const [key, raw] of Object.entries(asRecord(rows))) {
     const r = asRecord(raw)
-    const label = labelKey ? clip(r[labelKey], 120) || key : key
+    const label = labelKey ? clip(r[labelKey], 120) || key : clip(custom[key], 120) || key
     const score = clip(r.score, 10)
     const note = clip(r.note, 400)
     if (score || note) out.push(`- ${label}${score ? `: ${score}/5` : ''}${note ? ` — ${note}` : ''}`)
+  }
+  for (const raw of Array.isArray(extras) ? extras : []) {
+    const r = asRecord(raw)
+    const score = clip(r.score, 10)
+    const note = clip(r.note, 400)
+    if (score || note) out.push(`- ${clip(r.label, 120) || 'Domanda aggiunta'}${score ? `: ${score}/5` : ''}${note ? ` — ${note}` : ''}`)
   }
   return out
 }
@@ -355,7 +365,7 @@ function describeEvaluation(index: number, evaluator: { role: string; altroLabel
   const verbale: string[] = []
   if (clip(v.faseProcesso, 60)) verbale.push(`Fase: ${clip(v.faseProcesso, 60)}`)
   if (clip(v.percorso)) verbale.push(`Percorso: ${clip(v.percorso)}`)
-  verbale.push(...rowsToText(asRecord(v.tecnica), 'area'), ...rowsToText(v.soft, null))
+  verbale.push(...rowsToText(asRecord(v.tecnica), 'area'), ...rowsToText(v.soft, null, v.softLabels, v.extraQuestions))
   if (clip(v.puntiForza)) verbale.push(`Punti di forza: ${clip(v.puntiForza)}`)
   if (clip(v.areeMiglioramento)) verbale.push(`Miglioramenti e rischi: ${clip(v.areeMiglioramento)}`)
   if (clip(v.qa)) verbale.push(`Domande e risposte chiave: ${clip(v.qa)}`)
@@ -367,7 +377,7 @@ function describeEvaluation(index: number, evaluator: { role: string; altroLabel
   if (verbale.length) lines.push('Scheda intervista strutturata:', ...verbale)
 
   const valutazione: string[] = []
-  valutazione.push(...rowsToText(asRecord(w.tecnica), 'label'), ...rowsToText(w.soft, null))
+  valutazione.push(...rowsToText(asRecord(w.tecnica), 'label'), ...rowsToText(w.soft, null, w.softLabels, w.extraQuestions))
   if (clip(w.finalScore, 10)) valutazione.push(`Punteggio finale (0–5): ${clip(w.finalScore, 10)}`)
   if (clip(w.motivazione)) valutazione.push(`Motivazione: ${clip(w.motivazione)}`)
   if (valutazione.length) lines.push('Scheda valutazione candidato:', ...valutazione)
