@@ -135,6 +135,30 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 (3) — Incidente in produzione: `/api` 502 dopo il deploy, causa un TCP Proxy sul Backend
+- [x] Dopo il push del commit sotto, Railway ha ridistribuito Backend e Skill
+      Vision quasi insieme; da lì `/api/*` in produzione rispondeva `502`
+      ("Backend unreachable") per tutti, login compreso. Non era una
+      regressione di codice: nessuna modifica di questa sessione tocca rete,
+      porte o variabili del Backend.
+- [x] **Causa trovata**: il servizio Backend aveva un **TCP Proxy** (visibile
+      in `get-service-config` sotto `networking.tcpProxies`, voce `"5432"`).
+      Un TCP Proxy fa impostare a Railway la variabile `PORT` del servizio sul
+      numero della porta del proxy: il Backend quindi ascoltava sulla **5432**
+      (porta di Postgres) invece che sulla **8080** che `serviceDomains` si
+      aspettava — "Recruiting backend listening" lo confermava, con
+      `port: "5432"` nei campi del log. Il dominio pubblico del Backend dava
+      "Application failed to respond" anche bypassando il proxy di Skill
+      Vision: non era la rete privata, era la porta sbagliata.
+- [x] **Risolto da Roberto**: rimosso il TCP Proxy dal servizio Backend su
+      Railway. Verificato subito dopo: `/api/v1/auth/me` → 401 "Missing
+      bearer token" (corretto, non più 502), `/api/v1/auth/refresh` → 401,
+      `/recruiting` → 200.
+- Non sappiamo quando o perché quel TCP Proxy sia stato aggiunto al Backend
+  (serve solo se qualcosa fuori da Railway deve collegarsi a Postgres passando
+  per il Backend, cosa che oggi non succede): se serviva a qualcosa, va
+  ricreato su un servizio diverso, non sul Backend applicativo.
+
 ## 2026-10-06 (2) — Rettifiche di Alessio: provisioning, Gruppo → Platform/Company, glossario, punteggio grezzo
 - [x] **Rettifiche di PROPOSTA-AUTENTICAZIONE.md** (script path, nome
       servizio, `SameSite=Strict`, flag `--apply --frontend-is-backend-mode`,
