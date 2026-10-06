@@ -135,6 +135,11 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 — Correzione: build del frontend fallita per 3bf2c47
+- [x] Il deploy di 3bf2c47 sul servizio "Skill Vision" è fallito in fase BUILD_IMAGE: `npm run build` esegue `tsc -b`, più severo di `tsc --noEmit -p .` usato nei controlli, e segnalava due import inutilizzati in `HardEvalModal.tsx` (Badge, APEX5D_GUIDE) rimasti dopo il passaggio a `ApexItemRow`. Tolti; `npm run build` ora passa in locale.
+- Da qui in poi, prima di ogni push si lancia `npm run build`, non solo `tsc --noEmit`.
+- Nel frattempo il frontend in produzione era stato riportato al commit b6dafb3 (redeploy delle 16:24): la funzione 5P non era visibile finché non passa il nuovo deploy.
+
 ## 2026-10-06 — Foglio 6: valutazione 5P multi-fonte (Assessment)
 - [x] Anagrafica: campo "Responsabile diretto" (`Employee.responsabileId`) in Nuovo dipendente e nella modifica; reparto e ruolo c'erano già.
 - [x] Piano di valutazione automatico (`lib/evaluation-plan.ts`, in "Gestione valutazioni"): per ogni dipendente attivo Dirigente = responsabile diretto, Peer = N colleghi dello stesso reparto (o area) a rotazione e con carico pari (default 3), Autovalutazione = sé stesso. Usa gli stessi `EvalAssignment` con link a token; rilanciabile senza duplicati; avvisa chi non ha responsabile o ha pochi colleghi. Provato con un test a parte (7 persone: nessun duplicato al secondo lancio).
