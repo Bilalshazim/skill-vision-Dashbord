@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { IVN_SOFT_SKILLS } from '@/modules/recruiting/lib/interview-protocol'
 import type { IvNotesDraft } from '@/modules/recruiting/lib/interview-protocol'
 import type { IvNotesSoftRow, IvNotesTecRow } from '@/modules/recruiting/lib/interview-protocol-types'
+import { AddQuestionButton, ExtraQuestionRows, QuestionLabelInput } from '@/modules/recruiting/profile-hub/protocol/EditableQuestions'
 import { CheckRow, SectionLabel } from '@/modules/recruiting/profile-hub/protocol/protocol-ui'
 
 const EXCLUSIVE_KEYS = ['esitoProcedi', 'esitoStandby', 'esitoAlternativo', 'esitoNonIdoneo'] as const
@@ -154,7 +155,9 @@ export function IvNotesForm({ draft, onChange }: { draft: IvNotesDraft; onChange
                 const row = draft.soft[name] || { score: '', note: '' }
                 return (
                   <TableRow key={name}>
-                    <TableCell>{name}</TableCell>
+                    <TableCell>
+                      <QuestionLabelInput original={name} labels={draft.softLabels} onChange={(softLabels) => set('softLabels', softLabels)} />
+                    </TableCell>
                     <TableCell>
                       <SelectField value={row.score} onValueChange={(v) => setSoft(name, { score: v })} size="sm">
                         <option value="">—</option>
@@ -171,8 +174,10 @@ export function IvNotesForm({ draft, onChange }: { draft: IvNotesDraft; onChange
                   </TableRow>
                 )
               })}
+              <ExtraQuestionRows columns="notes" rows={draft.extraQuestions} onChange={(q) => set('extraQuestions', q)} />
             </TableBody>
           </Table>
+        <AddQuestionButton rows={draft.extraQuestions} onChange={(q) => set('extraQuestions', q)} />
 
         <SectionLabel>5. Aspettative economiche e disponibilità</SectionLabel>
         <FieldGrid columns={3}>

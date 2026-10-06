@@ -71,13 +71,16 @@ export function EvaluationFormsView({ scores, only }: { scores: Record<string, u
   const vTec = asRecord(v.tecnica)
   const wSoft = asRecord(w.soft)
   const wTec = asRecord(w.tecnica)
+  const extras = (x: unknown) => (Array.isArray(x) ? x : []).map((q) => ({ label: text(asRecord(q).label) || 'Domanda aggiunta', score: text(asRecord(q).score), note: text(asRecord(q).note) }))
   const verbaleRows = [
     ...Object.values(vTec).map((r, i) => ({ label: text(asRecord(r).area) || `Competenza tecnica ${i + 1}`, score: text(asRecord(r).score), note: text(asRecord(r).note) })),
-    ...IVN_SOFT_SKILLS.map((name) => ({ label: name, score: text(asRecord(vSoft[name]).score), note: text(asRecord(vSoft[name]).note) })),
+    ...IVN_SOFT_SKILLS.map((name) => ({ label: text(asRecord(v.softLabels)[name]) || name, score: text(asRecord(vSoft[name]).score), note: text(asRecord(vSoft[name]).note) })),
+    ...extras(v.extraQuestions),
   ]
   const evalRows = [
     ...Object.values(wTec).map((r, i) => ({ label: text(asRecord(r).label) || `Competenza tecnica ${i + 1}`, score: text(asRecord(r).score), note: text(asRecord(r).note) })),
-    ...IV_SOFT_SKILLS.map((name) => ({ label: name, score: text(asRecord(wSoft[name]).score), note: text(asRecord(wSoft[name]).note) })),
+    ...IV_SOFT_SKILLS.map((name) => ({ label: text(asRecord(w.softLabels)[name]) || name, score: text(asRecord(wSoft[name]).score), note: text(asRecord(wSoft[name]).note) })),
+    ...extras(w.extraQuestions),
   ]
   const esito = NOTES_ESITO.filter(([k]) => v[k] === true).map(([, l]) => l).join(', ')
   const reco = EVAL_RECO.filter(([k]) => w[k] === true).map(([, l]) => l).join(', ')

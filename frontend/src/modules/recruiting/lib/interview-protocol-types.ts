@@ -10,6 +10,13 @@ export const IV_COMPARE_ROW_EMPTY: IvCompareRow = { rank: '', code: '', score: '
 export type IvNotesTecRow = { area: string; score: string; note: string }
 export type IvNotesSoftRow = { score: string; note: string }
 
+// Domande personalizzate (Foglio 6): chi conduce il colloquio può riscrivere il
+// testo di una domanda fissa (`softLabels`, per nome originale) e aggiungerne
+// di proprie (`extraQuestions`). Viaggiano nella scheda, quindi si salvano
+// sul server insieme a risposte e punteggi. Le aggiunte non entrano nel
+// punteggio pesato della Scheda di valutazione.
+export type IvExtraQuestion = { id: string; label: string; score: string; note: string }
+
 export type IvNotesRecord = {
   posizione: string
   rifCandidatura: string
@@ -45,6 +52,8 @@ export type IvNotesRecord = {
   firma: string
   tecnica: { row1: IvNotesTecRow; row2: IvNotesTecRow; row3: IvNotesTecRow }
   soft: Record<string, IvNotesSoftRow>
+  softLabels?: Record<string, string>
+  extraQuestions?: IvExtraQuestion[]
   savedAt: number
 }
 
@@ -62,6 +71,8 @@ export type IvEvalRecord = {
   areaWeightSoft: string
   tecnica: { row1: IvEvalTecRow; row2: IvEvalTecRow; row3: IvEvalTecRow; row4: IvEvalTecRow }
   soft: Record<string, IvEvalSoftRow>
+  softLabels?: Record<string, string>
+  extraQuestions?: IvExtraQuestion[]
   finalScore: string
   compareRows: IvCompareRow[]
   reco_procedi: boolean

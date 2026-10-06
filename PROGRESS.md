@@ -126,6 +126,11 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-06 — Domande editabili nelle schede di intervista e valutazione
+- [x] Verbale di colloquio e Scheda di valutazione: il testo di ogni domanda fissa (competenze trasversali) è un campo modificabile (`softLabels`, torna all'originale se si cancella o si riscrive uguale); "Aggiungi una domanda" crea domande proprie con punteggio e nota, rimovibili (`extraQuestions`). Le aree tecniche erano già libere.
+- [x] Salvataggio: i due campi stanno nella bozza, quindi vanno nel browser (Area Valutatore) e nel backend (`Evaluation.scores`, link del valutatore esterno) insieme a risposte e punteggi; `EvaluationFormsView` mostra i testi riscritti e le domande aggiunte.
+- Le domande aggiunte nella Scheda di valutazione non entrano nel punteggio pesato (pesi fissi al 20%). Non verificato a schermo; tsc pulito, test del backend non eseguiti.
+
 ## 2026-10-06 — Area Valutatore: dove si vedono le schede ricevute (chiarimento di Roberto)
 - [x] "Valutazioni ricevute per candidato": la tendina diventa un elenco di candidati, ciascuno con il numero di valutazioni ricevute e, se ce ne sono di nuove dall'ultima apertura, il badge verde "Nuova valutazione ricevuta" (visto/non visto in localStorage, per campagna).
 - [x] Per ogni valutatore che ha inviato: badge "Verbale di colloquio: Ricevuto" e "Scheda di valutazione: Ricevuto" con "Apri il verbale →" / "Apri la valutazione →", che aprono una finestra larga con tutti i campi (data, ora, modalità, sede, fase, intervistatori, Q&A, punteggi, esito, note).

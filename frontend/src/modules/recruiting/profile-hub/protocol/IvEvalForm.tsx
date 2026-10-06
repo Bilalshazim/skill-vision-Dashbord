@@ -10,6 +10,7 @@ import { IV_SOFT_SKILLS, calcIvEval } from '@/modules/recruiting/lib/interview-p
 import type { IvEvalDraft } from '@/modules/recruiting/lib/interview-protocol'
 import type { IvEvalSoftRow, IvEvalTecRow } from '@/modules/recruiting/lib/interview-protocol-types'
 import { CompareRowsTable } from '@/modules/recruiting/profile-hub/protocol/CompareRowsTable'
+import { AddQuestionButton, ExtraQuestionRows, QuestionLabelInput } from '@/modules/recruiting/profile-hub/protocol/EditableQuestions'
 import { CheckRow, SectionLabel } from '@/modules/recruiting/profile-hub/protocol/protocol-ui'
 
 const RECO_KEYS = ['reco_procedi', 'reco_riserva', 'reco_confronta', 'reco_no'] as const
@@ -148,7 +149,9 @@ export function IvEvalForm({ draft, onChange }: { draft: IvEvalDraft; onChange: 
                 const row = draft.soft[name] || { score: '', note: '' }
                 return (
                   <TableRow key={name}>
-                    <TableCell>{name}</TableCell>
+                    <TableCell>
+                      <QuestionLabelInput original={name} labels={draft.softLabels} onChange={(softLabels) => set('softLabels', softLabels)} />
+                    </TableCell>
                     <TableCell className="font-mono tabular-nums">20%</TableCell>
                     <TableCell>
                       <SelectField value={row.score} onValueChange={(v) => setSoft(name, { score: v })} size="sm">
@@ -167,6 +170,7 @@ export function IvEvalForm({ draft, onChange }: { draft: IvEvalDraft; onChange: 
                   </TableRow>
                 )
               })}
+              <ExtraQuestionRows columns="eval" rows={draft.extraQuestions} onChange={(q) => set('extraQuestions', q)} />
               <TableRow className="font-medium">
                 <TableCell>Subtotale competenze trasversali</TableCell>
                 <TableCell className="font-mono tabular-nums">100%</TableCell>
@@ -176,6 +180,8 @@ export function IvEvalForm({ draft, onChange }: { draft: IvEvalDraft; onChange: 
               </TableRow>
             </TableBody>
           </Table>
+        <AddQuestionButton rows={draft.extraQuestions} onChange={(q) => set('extraQuestions', q)} />
+        <p className="text-app-caption text-muted-foreground">Le domande aggiunte restano nella scheda ma non entrano nel punteggio pesato.</p>
 
         <SectionLabel>4. Calcolo del punteggio complessivo</SectionLabel>
         <p className="text-app-caption text-muted-foreground">Ponderazione tra le due aree secondo la rilevanza per il ruolo (esempio: 60% competenze professionali / 40% competenze trasversali, da adattare).</p>
