@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useConfirm } from '@/hooks/use-confirm'
 import { cn } from '@/lib/utils'
 import { readWorkbook } from '@/modules/assessment/gestione5p/files'
-import { PS, SRC, SOURCES, type Eval5p, type State5p, compute, fmt1, norm, parseWorkbook, personByName } from '@/modules/assessment/gestione5p/model'
+import { PS, SRC, SOURCES, type Eval5p, type State5p, compute, fmt1, norm, parseResponses, parseWorkbook, personByName } from '@/modules/assessment/gestione5p/model'
 import { SourceTag } from '@/modules/assessment/gestione5p/SourceTag'
 
 type LogLine = { c: 'ok' | 'warn' | 'bad'; t: string }
@@ -36,8 +36,8 @@ export function CaricamentoTab({ state, update, toast }: { state: State5p; updat
     const evals = [...state.evals]
     for (const f of files) {
       try {
-        const { X, wb } = await readWorkbook(f)
-        const res = parseWorkbook(X, wb, f.name)
+        const isText = /\.(json|txt)$/i.test(f.name)
+        const res = isText ? parseResponses(await f.text(), f.name) ?? [] : await readWorkbook(f).then(({ X, wb }) => parseWorkbook(X, wb, f.name))
         if (!res.length) {
           empty++
           lines.push({ c: 'warn', t: `${f.name}: nessuna scheda compilata trovata (voti assenti o formato non riconosciuto)` })
@@ -98,7 +98,7 @@ export function CaricamentoTab({ state, update, toast }: { state: State5p; updat
             <span className="text-app-caption text-muted-foreground">Anche decine di file insieme. Accetta: schede SKILL-VISION (una o più per file), il modulo attuale a 3 fogli, export di Microsoft Forms o Google Forms.</span>
             <span className="rounded-sm border border-border-strong px-3 py-1 text-app-small font-medium">Scegli file</span>
           </div>
-          <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" multiple hidden onChange={(e) => { if (e.target.files?.length) void handle([...e.target.files]); e.target.value = '' }} />
+          <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv,.json,.txt" multiple hidden onChange={(e) => { if (e.target.files?.length) void handle([...e.target.files]); e.target.value = '' }} />
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-app-small text-muted-foreground">{state.evals.length} schede nel sistema</span>
             <Button

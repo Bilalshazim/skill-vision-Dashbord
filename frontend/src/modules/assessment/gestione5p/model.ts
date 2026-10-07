@@ -453,3 +453,68 @@ export function demoState(): State5p {
   })
   return s
 }
+
+// ---------- scheda del valutatore (link) ----------
+// Il link della scheda porta con sé l'elenco di chi valutare, nell'indirizzo
+// stesso (dopo il #): nessun server. Le risposte tornano come file JSON (o come
+// codice) e si caricano nella scheda Caricamento, oppure — se la scheda è
+// aperta nello stesso browser del piano — si inviano direttamente al modulo.
+export type SheetData = { a: string; v: string; p: { n: string; t: SourceKey; r: string }[] }
+export function encodeSheet(d: SheetData): string {
+  return btoa(unescape(encodeURIComponent(JSON.stringify(d)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+export function decodeSheet(code: string): SheetData | null {
+  try {
+    const b = code.replace(/-/g, '+').replace(/_/g, '/')
+    const d = JSON.parse(decodeURIComponent(escape(atob(b + '='.repeat((4 - (b.length % 4)) % 4))))) as SheetData
+    return d && typeof d.v === 'string' && Array.isArray(d.p) ? d : null
+  } catch {
+    return null
+  }
+}
+export function sheetFor(s: State5p, valutatore: string): SheetData {
+  return {
+    a: s.company,
+    v: valutatore,
+    p: s.plan.filter((x) => x.valutatore === valutatore).map((x) => ({ n: x.valutato, t: x.tipo, r: personByName(s, x.valutato)?.ruolo || '' })),
+  }
+}
+export type ResponsesPayload = { format: 'sv5p-risposte'; v: 1; azienda: string; valutatore: string; creato: string; valutazioni: { valutato: string; tipo: SourceKey; ruolo: string; scores: Record<string, number>; notes: Record<string, string> }[] }
+// Un file di risposte (JSON) o il codice "SV5P:…" copiato dall'email.
+export function parseResponses(text: string, file: string): Parsed[] | null {
+  let raw = text.trim()
+  try {
+    if (raw.startsWith('SV5P:')) raw = decodeURIComponent(escape(atob(raw.slice(5).trim())))
+    const p = JSON.parse(raw) as ResponsesPayload
+    if (p.format !== 'sv5p-risposte' || !Array.isArray(p.valutazioni)) return null
+    return p.valutazioni.map((x) => {
+      const errs: string[] = []
+      const scores: Record<string, number> = {}
+      Object.entries(x.scores || {}).forEach(([c, v]) => {
+        if (CODES.includes(c) && typeof v === 'number' && v >= 1 && v <= 10) scores[c] = v
+        else errs.push(`${c}: voto non valido`)
+      })
+      const e: Eval5p = { id: uid(), valutato: x.valutato, tipo: x.tipo, valutatore: x.tipo === 'AUTO' ? x.valutato : p.valutatore, ruolo: x.ruolo || '', data: (p.creato || '').slice(0, 10), scores, notes: x.notes || {}, source: `${file} › risposte di ${p.valutatore}` }
+      return { e, errs, missing: 25 - Object.keys(scores).length, noNotes: Object.keys(scores).filter((c) => !e.notes[c]).length }
+    })
+  } catch {
+    return null
+  }
+}
+// Invio diretto: la scheda è aperta nello stesso browser del piano. Ritorna il
+// numero di schede salvate, o null se in questo browser non c'è un piano per quel valutatore.
+export function deliverToPlatform(valutatore: string, valutazioni: ResponsesPayload['valutazioni']): number | null {
+  const s = loadState()
+  if (!s || !s.plan.some((x) => norm(x.valutatore) === norm(valutatore))) return null
+  let n = 0
+  valutazioni.forEach((x) => {
+    const ev: Eval5p = { id: uid(), valutato: x.valutato, tipo: x.tipo, valutatore: x.tipo === 'AUTO' ? x.valutato : valutatore, ruolo: x.ruolo || '', data: today(), scores: x.scores, notes: x.notes, source: 'scheda del valutatore' }
+    const k = `${ev.tipo}|${norm(ev.valutato)}|${norm(ev.valutatore)}`
+    const i = s.evals.findIndex((o) => `${o.tipo}|${norm(o.valutato)}|${norm(o.valutatore)}` === k)
+    if (i >= 0) s.evals[i] = ev
+    else s.evals.push(ev)
+    n++
+  })
+  saveState(s)
+  return n
+}

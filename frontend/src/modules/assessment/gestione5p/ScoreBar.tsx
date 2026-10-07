@@ -8,11 +8,13 @@ const BAND = ['', 'surface-danger text-destructive', 'surface-warning text-warni
 
 // La barra di voto 1–10, numerata e colorata (Foglio 7). È un gruppo di
 // opzioni: frecce e invio come i radio, il voto scelto ha il bordo marcato.
-export function ScoreBar({ value, onChange, label }: { value: number; onChange: (n: number) => void; label: string }) {
+// `fill`: come nella scheda del valutatore, i voti fino a quello scelto restano colorati e gli altri si spengono.
+export function ScoreBar({ value, onChange, label, fill = false }: { value: number; onChange: (n: number) => void; label: string; fill?: boolean }) {
   return (
     <div role="radiogroup" aria-label={label} className="flex flex-wrap items-center gap-1">
       {SCORES.map((n) => {
         const on = value === n
+        const lit = fill ? value > 0 && n <= value : true
         return (
           <button
             key={n}
@@ -23,8 +25,8 @@ export function ScoreBar({ value, onChange, label }: { value: number; onChange: 
             onClick={() => onChange(n)}
             className={cn(
               'size-9 rounded-sm font-mono text-app-small tabular-nums outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-              BAND[level(n).c],
-              on ? 'font-bold ring-2 ring-foreground ring-offset-2 ring-offset-background' : 'opacity-70 hover:opacity-100',
+              lit ? BAND[level(n).c] : 'bg-muted text-muted-foreground',
+              on ? 'font-bold ring-2 ring-foreground ring-offset-2 ring-offset-background' : fill && lit ? 'opacity-70 hover:opacity-100' : fill ? 'hover:text-foreground' : 'opacity-70 hover:opacity-100',
             )}
           >
             {n}

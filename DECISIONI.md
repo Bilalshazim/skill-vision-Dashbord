@@ -1127,3 +1127,9 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - Il modello legge le schede da file Excel; Foglio 6 chiedeva invece di non usare file: il modulo fa entrambe le cose, e le schede si compilano anche direttamente sulla piattaforma (barra 1–10 colorata, ancoraggi 1/5/10 sempre visibili, note facoltative).
 - La voce di menu "Valutazioni delle Hard Skill" diventa "Gestione valutazioni"; la pagina APEX 5D classica resta raggiungibile da un link nella nuova pagina.
 - I dati restano nel browser (chiave `sv5p_state_v1`), come nel modello; come per il resto di Assessment, il salvataggio sul server è lavoro separato.
+
+## Scheda del valutatore come nel file Scheda_5P_Paolo_Conti.html · 2026-10-07
+- Roberto trova troppo complicata la versione con finestra di compilazione e vuole le due pagine identiche ai suoi prototipi.
+- Presa: la finestra di compilazione e le aggiunte che non stanno nel prototipo sono tolte (anche il link a fondo pagina). La scheda del valutatore è una pagina a sé, `/assessment/scheda-5p#d=…`, con barra laterale (Istruzioni e scala, Persone da valutare con 0/25 … ✓, Concludi e invia), istruzioni, scala a cinque fasce e le 25 domande con barra 1–10 e ancoraggi.
+- I dati di chi valutare stanno nel link (dopo il #): nessun server, come il prototipo (che era un file). Le risposte si salvano nel browser del valutatore; a fine scheda si scarica il file (o si copia il codice) per HR, che lo carica nel passo 3; se la scheda è aperta nello stesso browser del piano, "Invia alla piattaforma" le salva direttamente.
+- Aggiunte necessarie rispetto al prototipo, in una riga: nel Piano la colonna "Scheda online" (Apri / Copia link), e nel Caricamento l'accettazione dei file JSON delle risposte.

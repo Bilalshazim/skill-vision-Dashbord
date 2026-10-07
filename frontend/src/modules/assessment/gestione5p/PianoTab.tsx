@@ -5,10 +5,8 @@ import { StatCard } from '@/components/patterns/StatCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { CompilaDialog, evalKey } from '@/modules/assessment/gestione5p/CompilaDialog'
 import { downloadBlank, downloadFlat, downloadPlan, downloadSchede } from '@/modules/assessment/gestione5p/files'
-import { type Eval5p, type PlanItem, SRC, type State5p, buildPlan } from '@/modules/assessment/gestione5p/model'
-import { SourceTag } from '@/modules/assessment/gestione5p/SourceTag'
+import { type PlanItem, SRC, type State5p, buildPlan, encodeSheet, sheetFor } from '@/modules/assessment/gestione5p/model'
 
 // 2 · Piano e schede. Ogni dipendente riceve: 1 autovalutazione, 1 valutazione
 // dal proprio responsabile, N valutazioni da colleghi dello stesso reparto, a
@@ -16,13 +14,12 @@ import { SourceTag } from '@/modules/assessment/gestione5p/SourceTag'
 // compilano subito sulla piattaforma dal pulsante accanto a ogni nome.
 export function PianoTab({ state, update, toast }: { state: State5p; update: (fn: (s: State5p) => State5p) => void; toast: (m: string) => void }) {
   const [peerN, setPeerN] = useState(String(state.set.peerN))
-  const [compiling, setCompiling] = useState<PlanItem | null>(null)
   const c = { DIR: 0, PEER: 0, AUTO: 0 }
   state.plan.forEach((x) => c[x.tipo]++)
   const valutatori = new Set(state.plan.map((x) => x.valutatore))
   const by: Record<string, PlanItem[]> = {}
   state.plan.forEach((x) => (by[x.valutatore] = by[x.valutatore] || []).push(x))
-  const done = new Set(state.evals.map(evalKey))
+  const linkFor = (v: string) => `${window.location.origin}/assessment/scheda-5p#d=${encodeSheet(sheetFor(state, v))}`
   const need = (): boolean => {
     if (!state.plan.length) toast('Genera prima il piano')
     return state.plan.length > 0
@@ -40,16 +37,6 @@ export function PianoTab({ state, update, toast }: { state: State5p; update: (fn
     })
     toast('Piano generato')
   }
-  function saveEval(e: Eval5p) {
-    update((s) => {
-      const k = evalKey(e)
-      const i = s.evals.findIndex((o) => evalKey(o) === k)
-      return { ...s, evals: i >= 0 ? s.evals.map((o, j) => (j === i ? e : o)) : [...s.evals, e] }
-    })
-    setCompiling(null)
-    toast('Scheda salvata')
-  }
-
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
@@ -88,7 +75,7 @@ export function PianoTab({ state, update, toast }: { state: State5p; update: (fn
             Modello per Microsoft/Google Forms
           </Button>
         </div>
-        <p className="text-app-caption text-muted-foreground">Lo ZIP contiene un file Excel per ogni valutatore, con un foglio per ciascuna persona che deve valutare: nome, ruolo e tipo di valutazione sono già scritti. Il valutatore compila solo SCORE (1–10) e NOTE, poi restituisce il file. In alternativa si compila qui, direttamente sulla piattaforma.</p>
+        <p className="text-app-caption text-muted-foreground">Lo ZIP contiene un file Excel per ogni valutatore, con un foglio per ciascuna persona che deve valutare: nome, ruolo e tipo di valutazione sono già scritti. Il valutatore compila solo SCORE (1–10) e NOTE, poi restituisce il file. In alternativa il valutatore compila la scheda online dal link della riga: le risposte tornano come file, o direttamente qui se la apri da questo browser.</p>
       </div>
       {state.plan.length ? (
         <Table frame minWidth="lg">
@@ -97,6 +84,7 @@ export function PianoTab({ state, update, toast }: { state: State5p; update: (fn
               <TableHead>Valutatore</TableHead>
               <TableHead className="text-center">Schede</TableHead>
               <TableHead>Deve valutare</TableHead>
+              <TableHead>Scheda online</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -107,14 +95,23 @@ export function PianoTab({ state, update, toast }: { state: State5p; update: (fn
                   <TableCell className="font-semibold">{v}</TableCell>
                   <TableCell className="text-center font-mono tabular-nums">{list.length}</TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-2">
-                      {list.map((x) => (
-                        <Button key={`${x.tipo}-${x.valutato}`} variant="outline" size="sm" onClick={() => setCompiling(x)} aria-label={`Compila: ${SRC[x.tipo].lab} su ${x.valutato}`}>
-                          <SourceTag source={x.tipo} />
-                          {x.tipo === 'AUTO' ? 'sé stesso' : x.valutato}
-                          {done.has(evalKey(x)) ? <span className="text-success">· compilata</span> : null}
-                        </Button>
-                      ))}
+                    {list.map((x, i) => (
+                      <span key={`${x.tipo}-${x.valutato}`}>
+                        {i ? ' · ' : ''}
+                        <span className="whitespace-nowrap">
+                          {x.tipo === 'AUTO' ? 'sé stesso' : x.valutato} <span className="font-mono">({SRC[x.tipo].sh})</span>
+                        </span>
+                      </span>
+                    ))}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => window.open(linkFor(v), '_blank', 'noopener')}>
+                        Apri
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => navigator.clipboard?.writeText(linkFor(v)).then(() => toast('Link copiato'), () => toast('Copia non riuscita'))}>
+                        Copia link
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -122,7 +119,6 @@ export function PianoTab({ state, update, toast }: { state: State5p; update: (fn
           </TableBody>
         </Table>
       ) : null}
-      {compiling ? <CompilaDialog item={compiling} existing={state.evals.find((e) => evalKey(e) === evalKey(compiling))} onSave={saveEval} onClose={() => setCompiling(null)} /> : null}
     </section>
   )
 }

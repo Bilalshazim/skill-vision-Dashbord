@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -58,7 +57,10 @@ export default function AssessmentGestioneValutazioniPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <p className="text-app-small text-muted-foreground">Valutazione 5P · Dirigente · Peer · Autovalutazione</p>
+        <div className="flex flex-wrap items-baseline gap-3">
+          <h2 className="text-app-title text-foreground">Valutazione 5P</h2>
+          <span className="text-app-small text-muted-foreground">SKILL-VISION · Dirigente · Peer · Autovalutazione</span>
+        </div>
         <div className="flex items-center gap-2">
           <label htmlFor="g5p-company" className="text-app-small text-muted-foreground">
             Azienda
@@ -121,13 +123,6 @@ export default function AssessmentGestioneValutazioniPage() {
           <MetodoTab />
         </TabsContent>
       </Tabs>
-      <p className="text-app-caption text-muted-foreground">
-        La scheda APEX 5D classica (una valutazione alla volta, risultati per fonte) resta disponibile in{' '}
-        <Link to="/assessment/hard" className="font-medium text-foreground underline">
-          Valutazioni APEX 5D
-        </Link>
-        .
-      </p>
       {confirmDialog}
     </div>
   )

@@ -135,6 +135,12 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-07 — Foglio 7 (seconda parte): allineamento ai due prototipi HTML
+- [x] Dashboard `/assessment/gestione-valutazioni`: titolo "Valutazione 5P" con sottotitolo e campo Azienda in testa, banner giallo dei dati di esempio, sei schede (Metodo senza numero), Anagrafica come nel modello; tolto il link a fondo pagina e la finestra di compilazione dal Piano (i nomi sono testo semplice con (D)/(P)/(A)).
+- [x] Nuova pagina `/assessment/scheda-5p` = Scheda_5P_Paolo_Conti.html: sidebar "Istruzioni e scala" / "Persone da valutare (N)" con avanzamento / "Concludi e invia"; intestazione con avanzamento voti; istruzioni ("Gentile …"), "Come si compila" in 5 passi, scala a 5 fasce, le 5 P, regole; per ogni persona le 25 domande con barra 1–10 (colorata fino al voto scelto), ancoraggi 1/5/10, "Togli voto", note; Concludi e invia (file JSON, codice, invio diretto se stesso browser del piano).
+- [x] Piano: colonna "Scheda online" (Apri / Copia link) per valutatore; Caricamento: accetta anche i file JSON / .txt con il codice delle risposte.
+- `npm run build` passa; la pagina della scheda è stata guardata in un browser locale (schermata Istruzioni). Non provati: invio diretto tra i due browser, e le altre viste (persona, concludi).
+
 ## 2026-10-07 — Foglio 7: "Gestione valutazioni" (Valutazione 5P, come il file HTML del cliente)
 - [x] Nuova pagina `/assessment/gestione-valutazioni`, voce di menu "Gestione valutazioni" nell'Area Valutazioni (prende il posto di "Valutazioni delle Hard Skill"; la pagina APEX 5D classica resta raggiungibile da un link).
 - [x] Sei schede come nel modello: 1 Anagrafica (inserimento, importazione Excel/CSV, modello da scaricare), 2 Piano e schede (piano automatico, piano in Excel, ZIP di schede precompilate, scheda vuota, modello per Forms), 3 Caricamento (trascinamento di file, esito, avanzamento rispetto al piano, elenco schede), 4 Risultati (3 modi di calcolo, media aziendale, matrice Competenze × Potenziale a 9 quadranti, tabella con livelli, esportazione Excel), 5 Scheda individuale (radar a 3 fonti + punteggio unico, punti di forza e aree di sviluppo, gap di percezione, 25 item, registro note), Metodo.

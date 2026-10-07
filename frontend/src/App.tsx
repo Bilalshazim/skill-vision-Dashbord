@@ -39,6 +39,7 @@ const AssessmentCustomerCarePage = lazy(() => import('@/modules/assessment/pages
 const AssessmentEvaluatePage = lazy(() => import('@/modules/assessment/pages/AssessmentEvaluatePage'))
 const AssessmentFeedbackPage = lazy(() => import('@/modules/assessment/pages/AssessmentFeedbackPage'))
 const AssessmentHardOverviewPage = lazy(() => import('@/modules/assessment/pages/AssessmentHardOverviewPage'))
+const AssessmentScheda5pPage = lazy(() => import('@/modules/assessment/pages/AssessmentScheda5pPage'))
 const AssessmentGestioneValutazioniPage = lazy(() => import('@/modules/assessment/pages/AssessmentGestioneValutazioniPage'))
 const AssessmentHardPage = lazy(() => import('@/modules/assessment/pages/AssessmentHardPage'))
 const AssessmentHardRisultatiPage = lazy(() => import('@/modules/assessment/pages/AssessmentHardRisultatiPage'))
@@ -137,6 +138,8 @@ function App() {
               legacy's enterRestrictedEvaluatorMode() full-page swap exactly
               (js/assessment.js ~4247-4250, ~6676-6734). */}
           <Route path="assessment/evaluate" element={<AssessmentEvaluatePage />} />
+          {/* La scheda del valutatore della Valutazione 5P (Foglio 7): pagina intera, senza guscio; i dati stanno nel link. */}
+          <Route path="assessment/scheda-5p" element={<AssessmentScheda5pPage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
