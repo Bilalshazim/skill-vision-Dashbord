@@ -1,25 +1,36 @@
 import { Plus, Trash2 } from 'lucide-react'
 
-import { SelectField } from '@/components/patterns/SelectField'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { TableCell, TableRow } from '@/components/ui/table'
+import { Textarea } from '@/components/ui/textarea'
 import type { IvExtraQuestion } from '@/modules/recruiting/lib/interview-protocol-types'
+import { QuestionRow } from '@/modules/recruiting/profile-hub/protocol/protocol-ui'
 
-const SCORE_1_5 = ['1', '2', '3', '4', '5']
-
-// Il testo di una domanda fissa, riscrivibile: vuoto o uguale all'originale
-// torna alla domanda di partenza.
-export function QuestionLabelInput({ original, labels, onChange }: { original: string; labels?: Record<string, string>; onChange: (next: Record<string, string>) => void }) {
+// Il testo di una domanda fissa, riscrivibile: vuoto o uguale al testo di
+// partenza (`display`, di solito la chiave stessa) torna alla domanda originale.
+export function QuestionLabelInput({
+  original,
+  display,
+  labels,
+  onChange,
+}: {
+  original: string
+  display?: string
+  labels?: Record<string, string>
+  onChange: (next: Record<string, string>) => void
+}) {
+  const start = display ?? original
   return (
-    <Input
-      type="text"
+    <Textarea
+      variant="inline"
       size="sm"
-      aria-label={`Testo della domanda: ${original}`}
-      value={labels?.[original] ?? original}
+      rows={1}
+      className="text-foreground"
+      aria-label={`Testo della domanda: ${start}`}
+      value={labels?.[original] ?? start}
       onChange={(e) => {
         const next = { ...(labels || {}) }
-        if (e.target.value === original) delete next[original]
+        if (e.target.value === start || e.target.value === '') delete next[original]
         else next[original] = e.target.value
         onChange(next)
       }}
@@ -27,50 +38,45 @@ export function QuestionLabelInput({ original, labels, onChange }: { original: s
   )
 }
 
-// Le domande aggiunte da chi conduce il colloquio, come righe della tabella
-// (stesse colonne della scheda: `extraCells` riempie quelle fra testo e
-// punteggio, `trailingCell` quelle dopo la nota).
-export function ExtraQuestionRows({ rows, onChange, columns }: { rows: IvExtraQuestion[] | undefined; onChange: (next: IvExtraQuestion[]) => void; columns: 'notes' | 'eval' }) {
-  const list = rows || []
-  const patch = (id: string, p: Partial<IvExtraQuestion>) => onChange(list.map((r) => (r.id === id ? { ...r, ...p } : r)))
+export function newQuestion(): IvExtraQuestion {
+  return { id: `q${Date.now()}`, label: '', score: '', note: '' }
+}
+
+// Le domande personalizzate del Verbale (Parte B): il testo lo scrive chi
+// conduce il colloquio, con la sintesi della risposta e il punteggio.
+export function CustomQuestionRows({ rows, onChange }: { rows: IvExtraQuestion[]; onChange: (next: IvExtraQuestion[]) => void }) {
+  const patch = (id: string, p: Partial<IvExtraQuestion>) => onChange(rows.map((r) => (r.id === id ? { ...r, ...p } : r)))
   return (
     <>
-      {list.map((r) => (
-        <TableRow key={r.id}>
-          <TableCell>
-            <Input type="text" size="sm" aria-label="Testo della nuova domanda" placeholder="Scrivi la domanda" value={r.label} onChange={(e) => patch(r.id, { label: e.target.value })} />
-          </TableCell>
-          {columns === 'eval' ? <TableCell className="text-app-caption text-muted-foreground">Extra</TableCell> : null}
-          <TableCell>
-            <SelectField value={r.score} onValueChange={(v) => patch(r.id, { score: v })} size="sm">
-              <option value="">—</option>
-              {SCORE_1_5.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </SelectField>
-          </TableCell>
-          {columns === 'eval' ? <TableCell /> : null}
-          <TableCell>
+      {rows.map((r, i) => (
+        <QuestionRow
+          key={r.id}
+          prompt={
             <div className="flex items-center gap-2">
-              <Input type="text" size="sm" aria-label="Note" value={r.note} onChange={(e) => patch(r.id, { note: e.target.value })} />
-              <Button type="button" variant="ghost" size="icon" aria-label="Rimuovi la domanda" onClick={() => onChange(list.filter((x) => x.id !== r.id))}>
+              <span className="font-mono text-app-caption text-muted-foreground tabular-nums">{i + 1}.</span>
+              <Input type="text" size="sm" aria-label={`Testo della domanda personalizzata ${i + 1}`} placeholder="Scrivi la domanda" value={r.label} onChange={(e) => patch(r.id, { label: e.target.value })} />
+              <Button type="button" variant="ghost" size="icon" aria-label={`Rimuovi la domanda ${i + 1}`} onClick={() => onChange(rows.filter((x) => x.id !== r.id))}>
                 <Trash2 aria-hidden="true" />
               </Button>
             </div>
-          </TableCell>
-        </TableRow>
+          }
+          note={r.note}
+          onNote={(note) => patch(r.id, { note })}
+          score={r.score}
+          onScore={(score) => patch(r.id, { score })}
+          noteLabel={`Sintesi della risposta ${i + 1}`}
+        />
       ))}
     </>
   )
 }
 
-export function AddQuestionButton({ rows, onChange }: { rows: IvExtraQuestion[] | undefined; onChange: (next: IvExtraQuestion[]) => void }) {
+export function AddQuestionButton({ rows, onChange, label = 'Aggiungi una domanda' }: { rows: IvExtraQuestion[] | undefined; onChange: (next: IvExtraQuestion[]) => void; label?: string }) {
   return (
-    <Button type="button" variant="outline" size="sm" className="self-start" onClick={() => onChange([...(rows || []), { id: `q${Date.now()}`, label: '', score: '', note: '' }])}>
+    <Button type="button" variant="outline" size="sm" className="self-start" onClick={() => onChange([...(rows || []), newQuestion()])}>
       <Plus aria-hidden="true" />
-      Aggiungi una domanda
+      {label}
     </Button>
   )
 }
+

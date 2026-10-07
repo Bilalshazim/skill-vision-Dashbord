@@ -135,6 +135,33 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-07 — Foglio 8: i tre documenti dell'Area Valutatore sui modelli PDF del cliente
+- [x] Verbale di colloquio, Scheda di valutazione candidato e Report finale
+      rifatti sui tre PDF di Roberto (struttura, sezioni numerate, parti A/B/C,
+      campi, scale). I PDF restano riferimento: non sono allegati alla piattaforma.
+      Dialog a `size="xl"`, tutto su token e pattern (Field, FieldGrid, Table, ToggleGroup).
+- [x] Verbale: domande di prassi (apertura, percorso, trasversali STAR) con la
+      traccia "Ascoltare" e punteggio /5; competenze professionali con livello
+      Base/Medio/Alto; Parte B = domande personalizzate (le `extraQuestions` di Foglio 6);
+      riepilogo per area; esito. Il testo delle domande resta riscrivibile.
+- [x] Scheda di valutazione: percorso del candidato, matrice a tre fasi con
+      criterio chiave, media per fase, fascia attuale e criteri chiave sotto 3
+      calcolati, considerazioni per colloquio, confronto, firme.
+      **Cambia il calcolo**: non più pesi % per riga e 60/40 fra le aree, ma la
+      media semplice per fase come nel modello (DECISIONI.md).
+- [x] Report finale: sintesi con media complessiva, valutazione per area (quinta
+      area libera), profilo, fit Alto/Medio/Basso, percorso con media e esito,
+      confronto, proposta e verifiche, allegati, decisione dei responsabili.
+- [x] I dati salvati restano leggibili: i campi nuovi si aggiungono, nessuno si
+      rimuove. Diciture vecchie (Video call, Telefonico, Parziale, Superato…)
+      riportate a quelle del modello alla lettura. Il backend (sintesi IA) e le
+      viste di confronto leggono anche i campi nuovi.
+- [ ] Da sapere: le risposte date alle vecchie domande (altri nomi) restano nel
+      record ma non compaiono più nel form; sezioni "Sintesi colloquio" e
+      "Domande e risposte chiave" del vecchio Verbale non esistono nel modello.
+- [ ] Non verificato: apertura dal browser dei tre dialog nell'app (verificati i
+      form in pagina di prova, chiaro e scuro); pagina del valutatore esterno.
+
 ## 2026-10-07 — scheda del valutatore sui token
 - [x] Segnalato: l'anteprima della scheda era blu, diversa dalla piattaforma. Riscritto il CSS del file con i token (iniettati alla generazione, chiaro e scuro), fasce della scala sui toni di stato con la parola, Geist, raggi e bottoni del sistema, nessun esadecimale. Tolta l'esclusione dall'audit.
 

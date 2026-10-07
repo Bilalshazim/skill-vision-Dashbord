@@ -366,6 +366,7 @@ function describeEvaluation(index: number, evaluator: { role: string; altroLabel
   if (clip(v.faseProcesso, 60)) verbale.push(`Fase: ${clip(v.faseProcesso, 60)}`)
   if (clip(v.percorso)) verbale.push(`Percorso: ${clip(v.percorso)}`)
   verbale.push(...rowsToText(asRecord(v.tecnica), 'area'), ...rowsToText(v.soft, null, v.softLabels, v.extraQuestions))
+  verbale.push(...rowsToText(v.riepilogo, null))
   if (clip(v.puntiForza)) verbale.push(`Punti di forza: ${clip(v.puntiForza)}`)
   if (clip(v.areeMiglioramento)) verbale.push(`Miglioramenti e rischi: ${clip(v.areeMiglioramento)}`)
   if (clip(v.qa)) verbale.push(`Domande e risposte chiave: ${clip(v.qa)}`)
@@ -378,6 +379,10 @@ function describeEvaluation(index: number, evaluator: { role: string; altroLabel
 
   const valutazione: string[] = []
   valutazione.push(...rowsToText(asRecord(w.tecnica), 'label'), ...rowsToText(w.soft, null, w.softLabels, w.extraQuestions))
+  for (const raw of Array.isArray(w.considerazioni) ? w.considerazioni : []) {
+    const r = asRecord(raw)
+    if (clip(r.emerso) || clip(r.approfondire)) valutazione.push(`Considerazioni dell'HR: ${clip(r.emerso, 600)}${clip(r.approfondire) ? ` — da approfondire: ${clip(r.approfondire, 400)}` : ''}`)
+  }
   if (clip(w.finalScore, 10)) valutazione.push(`Punteggio finale (0–5): ${clip(w.finalScore, 10)}`)
   if (clip(w.motivazione)) valutazione.push(`Motivazione: ${clip(w.motivazione)}`)
   if (valutazione.length) lines.push('Scheda valutazione candidato:', ...valutazione)

@@ -1141,3 +1141,19 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - La scheda del valutatore (`scheda-valutatore.template.html`) segue il sistema di design: nessun colore scritto nel file; i token della piattaforma (chiaro e scuro) si leggono al momento della generazione e si iniettano nel CSS. Il file scaricato segue il tema del computer di chi lo apre, l'anteprima quello in uso. Le cinque fasce della scala sono sui toni di stato con la parola accanto, la più alta neutra piena. Correzione del 2026-10-07 dopo la segnalazione: la prima versione usava i colori blu del prototipo e il file era escluso dall'audit; l'esclusione è tolta. Nell'anteprima gira in un iframe con `sandbox`.
 - Excel con menu a tendina: SheetJS libero non scrive stili né convalide, quindi `xlsx-writer.ts` scrive il file con jszip, come il modello. I colori delle celle di quel file sono quelli del file Excel.
 - Nell'interfaccia le tre colonne (autovalutazione, responsabile, colleghi) si distinguono per intestazione e per bordo, senza colore come unico segnale.
+
+## Calcolo della Scheda di valutazione sul modello PDF · 2026-10-07
+- Contesto: il modello del cliente (Foglio 8) ha una matrice con tre colonne di
+  fase e una media per fase ("somma dei punteggi ÷ numero di criteri valutati");
+  la fascia segue la media dell'ultima fase e i criteri chiave. Il form di prima
+  aveva un punteggio per riga, peso % per le righe tecniche, 20% fisso per le
+  trasversali e 60/40 fra le aree.
+- Opzioni: (a) tenere il calcolo pesato e aggiungere solo le colonne; (b)
+  adottare il calcolo del modello.
+- Cosa cambia: con (b) il punteggio finale che i valutatori esterni inviano (e che
+  finisce nell'elenco dei valutatori) cambia formula. Il punteggio delle schede
+  già salvate si legge come punteggio della 1ª fase e si ricalcola al prossimo
+  salvataggio; i pesi restano nei dati ma non si usano.
+- Raccomandazione: (b), perché l'incarico è sostituire le pagine con il modello.
+- Presa: **(b)**. Le domande aggiunte dal valutatore contano come criteri nella
+  media (prima restavano fuori dal punteggio pesato). Da confermare col cliente.

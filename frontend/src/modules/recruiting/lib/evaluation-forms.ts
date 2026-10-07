@@ -22,7 +22,7 @@ export function formsFromScores(scores: Record<string, unknown> | undefined, def
 }
 
 export function summaryFromForms(forms: EvaluationForms): { finalScore?: number; recommendation?: RecommendationValue; notes?: string } {
-  const calc = calcIvEval(forms.valutazione.tecnica, forms.valutazione.soft, forms.valutazione.areaWeightTec, forms.valutazione.areaWeightSoft)
+  const calc = calcIvEval(forms.valutazione)
   const v = forms.valutazione
   const recommendation: RecommendationValue | undefined = v.reco_procedi ? 'PROCEDI' : v.reco_riserva ? 'RISERVA' : v.reco_confronta ? 'CONFRONTA' : v.reco_no ? 'NO' : undefined
   const notes = (v.motivazione || forms.verbale.motivazioneDecisione || '').trim()
@@ -34,6 +34,6 @@ export function summaryFromForms(forms: EvaluationForms): { finalScore?: number;
 }
 
 export function scoresPayload(forms: EvaluationForms): Record<string, unknown> {
-  const calc = calcIvEval(forms.valutazione.tecnica, forms.valutazione.soft, forms.valutazione.areaWeightTec, forms.valutazione.areaWeightSoft)
+  const calc = calcIvEval(forms.valutazione)
   return { verbale: forms.verbale, valutazione: { ...forms.valutazione, finalScore: calc.finalScore == null ? '' : calc.finalScore.toFixed(2) } }
 }

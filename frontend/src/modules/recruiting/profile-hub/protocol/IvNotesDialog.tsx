@@ -47,17 +47,15 @@ export function IvNotesDialog({ role, savedAt, onSavedAtChange }: { role: string
           {savedAt != null ? 'Modifica scheda →' : 'Compila scheda →'}
         </button>
       </DialogTrigger>
-      <DialogContent size="lg" dirty={dirty}>
+      <DialogContent size="xl" dirty={dirty}>
         <DialogHeader>
           <SheetBrand />
           <ModalEyebrow>Documento interno — Selezione del personale</ModalEyebrow>
           <DialogTitle className="flex items-center gap-2">
             <Mic className="size-4 shrink-0" aria-hidden="true" />
-            Verbale di Colloquio
+            Verbale di colloquio
           </DialogTitle>
-          <DialogDescription>
-            Ruolo: <b className="font-semibold text-foreground">&quot;{role}&quot;</b>
-          </DialogDescription>
+          <DialogDescription>Scheda di conduzione e valutazione: traccia di prassi, spazio per le domande personalizzate, esito.</DialogDescription>
         </DialogHeader>
 
         <IvNotesForm draft={draft} onChange={setDraft} />
@@ -70,7 +68,7 @@ export function IvNotesDialog({ role, savedAt, onSavedAtChange }: { role: string
             Svuota scheda
           </button>
           <button type="button" onClick={handleSave} className={primaryBtnClass}>
-            Salva scheda ✓
+            Salva scheda
           </button>
         </DialogFooter>
       </DialogContent>

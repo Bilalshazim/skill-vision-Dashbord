@@ -1,5 +1,5 @@
 import { fmtDec } from '@/lib/format'
-import { IV_SOFT_SKILLS, IVN_SOFT_SKILLS } from '@/modules/recruiting/lib/interview-protocol'
+import { IV_SOFT_SKILLS, IVN_SOFT_SKILLS, IVN_SUMMARY_AREAS } from '@/modules/recruiting/lib/interview-protocol'
 import type { IvEvalRecord, IvNotesRecord } from '@/modules/recruiting/lib/interview-protocol-types'
 
 const asRecord = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {})
@@ -76,6 +76,7 @@ export function EvaluationFormsView({ scores, only }: { scores: Record<string, u
     ...Object.values(vTec).map((r, i) => ({ label: text(asRecord(r).area) || `Competenza tecnica ${i + 1}`, score: text(asRecord(r).score), note: text(asRecord(r).note) })),
     ...IVN_SOFT_SKILLS.map((name) => ({ label: text(asRecord(v.softLabels)[name]) || name, score: text(asRecord(vSoft[name]).score), note: text(asRecord(vSoft[name]).note) })),
     ...extras(v.extraQuestions),
+    ...IVN_SUMMARY_AREAS.map((name) => ({ label: `Riepilogo — ${name}`, score: text(asRecord(asRecord(v.riepilogo)[name]).score), note: text(asRecord(asRecord(v.riepilogo)[name]).note) })),
   ]
   const evalRows = [
     ...Object.values(wTec).map((r, i) => ({ label: text(asRecord(r).label) || `Competenza tecnica ${i + 1}`, score: text(asRecord(r).score), note: text(asRecord(r).note) })),
@@ -95,9 +96,9 @@ export function EvaluationFormsView({ scores, only }: { scores: Record<string, u
           <Line label="Data" value={text(v.data)} />
           <Line label="Ora" value={text(v.ora)} />
           <Line label="Modalità" value={text(v.modalita)} />
-          <Line label="Sede" value={text(v.sede)} />
+          <Line label="Durata" value={text(v.durata)} />
+          <Line label="Canale di candidatura" value={text(v.canaleCandidatura)} />
           <Line label="Fase del processo" value={text(v.faseProcesso)} />
-          <Line label="N. colloquio" value={text(v.nColloquio)} />
           <Line label="Intervistatori" value={text(v.intervistatori)} />
         </dl>
         <ScoreRows rows={verbaleRows} />
@@ -108,6 +109,7 @@ export function EvaluationFormsView({ scores, only }: { scores: Record<string, u
           <Line label="Giudizio sintetico" value={text(v.giudizioSintetico)} />
           <Line label="Punteggio complessivo" value={text(v.punteggioComplessivo) ? `${text(v.punteggioComplessivo)}/5` : ''} />
           <Line label="Esito del colloquio" value={esito} />
+          <Line label="Prossimo passo" value={text(v.prossimoPasso)} />
           <Line label="Motivazione" value={text(v.motivazioneDecisione)} />
           <Line label="Note aggiuntive" value={text(v.noteAggiuntive)} />
         </dl>
@@ -125,6 +127,7 @@ export function EvaluationFormsView({ scores, only }: { scores: Record<string, u
           <Line label="Punteggio finale (0–5)" value={Number.isNaN(finalNum) ? '' : fmtDec(finalNum, 2)} />
           <Line label="Raccomandazione" value={reco} />
           <Line label="Motivazione" value={text(w.motivazione)} />
+          <Line label="Punti da definire prima dell’offerta" value={text(w.puntiDaDefinire)} />
         </dl>
       </section>
       )}

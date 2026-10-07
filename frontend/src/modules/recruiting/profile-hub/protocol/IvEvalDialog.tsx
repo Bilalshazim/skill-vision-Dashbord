@@ -54,11 +54,9 @@ export function IvEvalDialog({ role, savedAt, onSavedAtChange }: { role: string;
           <ModalEyebrow>Documento interno — Selezione del personale</ModalEyebrow>
           <DialogTitle className="flex items-center gap-2">
             <NotebookPen className="size-4 shrink-0" aria-hidden="true" />
-            Scheda di Valutazione Candidato
+            Scheda di valutazione candidato
           </DialogTitle>
-          <DialogDescription>
-            Ruolo: <b className="font-semibold text-foreground">&quot;{role}&quot;</b>
-          </DialogDescription>
+          <DialogDescription>Si aggiorna a ogni fase del processo: punteggi, considerazioni dell’HR e decisione restano in un unico documento.</DialogDescription>
         </DialogHeader>
 
         <IvEvalForm draft={draft} onChange={setDraft} />
@@ -71,7 +69,7 @@ export function IvEvalDialog({ role, savedAt, onSavedAtChange }: { role: string;
             Svuota scheda
           </button>
           <button type="button" onClick={handleSave} className={primaryBtnClass}>
-            Salva scheda ✓
+            Salva scheda
           </button>
         </DialogFooter>
       </DialogContent>
