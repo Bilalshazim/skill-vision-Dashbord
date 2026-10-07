@@ -39,6 +39,7 @@ const AssessmentCustomerCarePage = lazy(() => import('@/modules/assessment/pages
 const AssessmentEvaluatePage = lazy(() => import('@/modules/assessment/pages/AssessmentEvaluatePage'))
 const AssessmentFeedbackPage = lazy(() => import('@/modules/assessment/pages/AssessmentFeedbackPage'))
 const AssessmentHardOverviewPage = lazy(() => import('@/modules/assessment/pages/AssessmentHardOverviewPage'))
+const AssessmentGestioneValutazioniPage = lazy(() => import('@/modules/assessment/pages/AssessmentGestioneValutazioniPage'))
 const AssessmentHardPage = lazy(() => import('@/modules/assessment/pages/AssessmentHardPage'))
 const AssessmentHardRisultatiPage = lazy(() => import('@/modules/assessment/pages/AssessmentHardRisultatiPage'))
 const AssessmentHomePage = lazy(() => import('@/modules/assessment/pages/AssessmentHomePage'))
@@ -119,6 +120,8 @@ function App() {
             <Route path="analisi" element={<AssessmentAnalisiPage />} />
             <Route path="soft" element={<AssessmentSoftPage />} />
             <Route path="hard" element={<AssessmentHardPage />} />
+            {/* Foglio 7: la Valutazione 5P multi-fonte (sei schede di lavoro), nell'Area Valutazioni professionali. */}
+            <Route path="gestione-valutazioni" element={<AssessmentGestioneValutazioniPage />} />
             <Route path="soft-risultati" element={<AssessmentSoftRisultatiPage />} />
             <Route path="hard-risultati" element={<AssessmentHardRisultatiPage />} />
             <Route path="valore" element={<AssessmentValorePage />} />

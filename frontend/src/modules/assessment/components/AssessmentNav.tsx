@@ -60,7 +60,7 @@ export function AssessmentNav() {
   // con CP il contrario; con CT + CP tutte uguali. Le voci attenuate restano
   // visibili e si possono aprire (prima, con una sola vista, sparivano).
   const SOFT_ITEMS = ['soft-overview', 'soft', 'soft-risultati']
-  const HARD_ITEMS = ['hard-overview', 'hard', 'hard-risultati']
+  const HARD_ITEMS = ['hard-overview', 'hard', 'gestione-valutazioni', 'hard-risultati']
   const onlyOneView = flags.A !== flags.B
   const emphasisFor = (id: string): 'on' | 'off' | 'none' => {
     if (!onlyOneView) return 'none'

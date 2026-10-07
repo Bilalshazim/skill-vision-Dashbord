@@ -135,6 +135,12 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-07 — Foglio 7: "Gestione valutazioni" (Valutazione 5P, come il file HTML del cliente)
+- [x] Nuova pagina `/assessment/gestione-valutazioni`, voce di menu "Gestione valutazioni" nell'Area Valutazioni (prende il posto di "Valutazioni delle Hard Skill"; la pagina APEX 5D classica resta raggiungibile da un link).
+- [x] Sei schede come nel modello: 1 Anagrafica (inserimento, importazione Excel/CSV, modello da scaricare), 2 Piano e schede (piano automatico, piano in Excel, ZIP di schede precompilate, scheda vuota, modello per Forms), 3 Caricamento (trascinamento di file, esito, avanzamento rispetto al piano, elenco schede), 4 Risultati (3 modi di calcolo, media aziendale, matrice Competenze × Potenziale a 9 quadranti, tabella con livelli, esportazione Excel), 5 Scheda individuale (radar a 3 fonti + punteggio unico, punti di forza e aree di sviluppo, gap di percezione, 25 item, registro note), Metodo.
+- [x] Scheda del valutatore compilabile sulla piattaforma dal piano: barra 1–10 numerata e colorata per fascia, ancoraggi 1/5/10 sempre visibili, note facoltative; richiede tutte le 25 voci.
+- Logica provata a parte sui dati di esempio (piano 43 schede, punteggi, tre metodi); la lettura/scrittura Excel non è stata provata con file reali. `npm run build` passa. Non verificato a schermo.
+
 ## 2026-10-06 — Area Valutatore: schede ridisegnate, logo SV, confronto fra valutatori
 - [x] Area Valutatore: le tre schede (Intervista strutturata, Valutazione candidato, Report finale di valutazione) sono tre card affiancate con icona, stato ("Compilata · data" / "Non compilata") e pulsante; "Valutatori esterni" è un riquadro a sé con la spiegazione (email, link, nessun allegato). Colori e stile: design system attuale, in attesa dei colori di Alessio.
 - [x] Logo Skill Vision in testa ai tre documenti (`SheetBrand`); la pagina dei valutatori esterni lo aveva già.

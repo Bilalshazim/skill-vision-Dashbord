@@ -1118,3 +1118,12 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   creazione va fatta da Roberto o Alessio in prima persona via
   `railway ssh --service Backend --environment production`, sul loro
   terminale. Comandi pronti nel resoconto di sessione.
+
+## Gestione valutazioni (Valutazione 5P) · 2026-10-07
+- Richiesta (Foglio 7): il modulo identico al file SKILL-VISION_Valutazione_5P.html, nell'Area Valutazioni professionali, voce "Gestione valutazioni".
+- Opzioni: (a) incorporare il file HTML in una pagina (iframe) — fuori dal design system e dalle regole; (b) portarlo in React sui componenti della libreria, con la stessa logica e le stesse sei schede.
+- Presa: (b). Logica pura in `gestione5p/model.ts` (piano, parser Excel/CSV, calcolo, livelli, matrice a nove quadranti); schermate nelle sei schede del modello. Colori dai token: le tre fonti si riconoscono per lettera (D / P / A) e parola, i cinque livelli per parola e per toni di stato (il più alto è neutro pieno).
+- Dipendenze: `xlsx` (già presente) e `jszip` (nuova) per leggere e produrre i file Excel e lo ZIP delle schede; si caricano solo quando servono (import dinamico).
+- Il modello legge le schede da file Excel; Foglio 6 chiedeva invece di non usare file: il modulo fa entrambe le cose, e le schede si compilano anche direttamente sulla piattaforma (barra 1–10 colorata, ancoraggi 1/5/10 sempre visibili, note facoltative).
+- La voce di menu "Valutazioni delle Hard Skill" diventa "Gestione valutazioni"; la pagina APEX 5D classica resta raggiungibile da un link nella nuova pagina.
+- I dati restano nel browser (chiave `sv5p_state_v1`), come nel modello; come per il resto di Assessment, il salvataggio sul server è lavoro separato.
