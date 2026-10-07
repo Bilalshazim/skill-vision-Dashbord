@@ -24,7 +24,9 @@ const ROOT = process.argv[2] ?? ".";
 const ESTENSIONI = new Set([".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte", ".css", ".scss", ".html"]);
 const SALTA = new Set(["node_modules", ".next", ".git", "dist", "build", "out", "coverage", ".turbo"]);
 // globals.css è l'unico posto dove i valori possono stare.
-const ESENTI = [/globals\.css$/, /theme\.css$/, /tokens\.css$/];
+// Esclusioni esplicite e motivate in DECISIONI.md: la scheda del valutatore è un
+// file autonomo che parte per email, non usa i token dell'applicazione.
+const ESENTI = [/globals\.css$/, /theme\.css$/, /tokens\.css$/, /gestione5p\/scheda-valutatore\.template\.html$/];
 
 const PALETTE = new Set([
   "#fffef5", "#fdfcf2", "#f7f5ea", "#fffce0", "#eeeada", "#dbd7c7",

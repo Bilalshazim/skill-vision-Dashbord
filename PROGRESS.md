@@ -135,6 +135,12 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-07 — Foglio 7 (terza parte): nuovo modello di Roberto, "Valutazione 5P Multi-Fonte"
+- [x] Sette schede come nel modello: 1 Anagrafica (con email e "Avanti"), 2 Assegnazioni (una riga per dipendente, caselle con elenco e ricerca, suggeriti e carico accanto, controllo OK / da controllare / errore, filtro, KPI, Excel con menu a tendina e reimportazione, vista per valutatore), 3 Invio schede (email HR, scadenza, ZIP di file HTML per valutatore con elenco invii e testo email, anteprima, alternative Excel/Forms), 4 Caricamento (anche codice SV5P incollato; risposte dall'anteprima), 5 Risultati, 6 Scheda individuale, Metodo aggiornato.
+- [x] Salva progetto / Apri progetto / Nuovo; progetti vecchi migrati (assegnazioni dal piano).
+- [x] Tolti: pagina `/assessment/scheda-5p`, ScoreBar, colonna "Scheda online" (non nel modello).
+- Verificato: logica su dati di esempio (11 persone, 47 schede, 3 righe gialle come dice Roberto: Laura, Marco, Elena; migrazione; lettura risposte); la scheda del valutatore si apre in browser. `npm run build` passa. Non provati a schermo: la pagina Assegnazioni dentro l'app, l'Excel aperto in Excel, il giro completo ZIP → compilazione → caricamento.
+
 ## 2026-10-07 — Foglio 7 (seconda parte): allineamento ai due prototipi HTML
 - [x] Dashboard `/assessment/gestione-valutazioni`: titolo "Valutazione 5P" con sottotitolo e campo Azienda in testa, banner giallo dei dati di esempio, sei schede (Metodo senza numero), Anagrafica come nel modello; tolto il link a fondo pagina e la finestra di compilazione dal Piano (i nomi sono testo semplice con (D)/(P)/(A)).
 - [x] Nuova pagina `/assessment/scheda-5p` = Scheda_5P_Paolo_Conti.html: sidebar "Istruzioni e scala" / "Persone da valutare (N)" con avanzamento / "Concludi e invia"; intestazione con avanzamento voti; istruzioni ("Gentile …"), "Come si compila" in 5 passi, scala a 5 fasce, le 5 P, regole; per ogni persona le 25 domande con barra 1–10 (colorata fino al voto scelto), ancoraggi 1/5/10, "Togli voto", note; Concludi e invia (file JSON, codice, invio diretto se stesso browser del piano).

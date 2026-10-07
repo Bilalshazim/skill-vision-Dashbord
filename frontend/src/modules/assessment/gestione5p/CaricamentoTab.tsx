@@ -1,5 +1,5 @@
 import { Upload, X } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,7 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useConfirm } from '@/hooks/use-confirm'
 import { cn } from '@/lib/utils'
 import { readWorkbook } from '@/modules/assessment/gestione5p/files'
-import { PS, SRC, SOURCES, type Eval5p, type State5p, compute, fmt1, norm, parseResponses, parseWorkbook, personByName } from '@/modules/assessment/gestione5p/model'
+import { PS, SRC, SOURCES, type Eval5p, type Parsed, type ResponsesPayload, type State5p, codeToJson, compute, fmt1, fromPayload, norm, parseWorkbook, personByName } from '@/modules/assessment/gestione5p/model'
+import { Textarea } from '@/components/ui/textarea'
 import { SourceTag } from '@/modules/assessment/gestione5p/SourceTag'
 
 type LogLine = { c: 'ok' | 'warn' | 'bad'; t: string }
@@ -19,13 +20,23 @@ const evalP = (e: Eval5p, P: string) => {
 // 3 · Caricamento. Si trascinano insieme tutti i file Excel o CSV compilati: il
 // sistema legge nomi, tipo e voti, segnala errori e doppioni, e la tabella di
 // avanzamento mostra chi manca rispetto al piano.
-export function CaricamentoTab({ state, update, toast }: { state: State5p; update: (fn: (s: State5p) => State5p) => void; toast: (m: string) => void }) {
+export function CaricamentoTab({ state, update, toast, incoming, onConsumed }: { state: State5p; update: (fn: (s: State5p) => State5p) => void; toast: (m: string) => void; incoming: File[] | null; onConsumed: () => void }) {
   const [log, setLog] = useState<LogLine[] | null>(null)
   const [summary, setSummary] = useState('')
   const [over, setOver] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const [confirm, confirmDialog] = useConfirm()
   const R = compute(state)
+  const [code, setCode] = useState('')
+
+  // Le risposte inviate dall'anteprima di una scheda (pagina 3) arrivano qui.
+  useEffect(() => {
+    if (incoming?.length) {
+      void handle(incoming)
+      onConsumed()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incoming])
 
   async function handle(files: File[]) {
     const lines: LogLine[] = []
@@ -36,14 +47,21 @@ export function CaricamentoTab({ state, update, toast }: { state: State5p; updat
     const evals = [...state.evals]
     for (const f of files) {
       try {
-        const isText = /\.(json|txt)$/i.test(f.name)
-        const res = isText ? parseResponses(await f.text(), f.name) ?? [] : await readWorkbook(f).then(({ X, wb }) => parseWorkbook(X, wb, f.name))
+        let res: Parsed[]
+        if (/\.(json|txt)$/i.test(f.name)) {
+          const r = fromPayload(state, JSON.parse(await f.text()) as ResponsesPayload, f.name)
+          if (r.warn) lines.push({ c: 'warn', t: r.warn })
+          res = r.res
+        } else {
+          const { X, wb } = await readWorkbook(f)
+          res = parseWorkbook(X, wb, f.name)
+        }
         if (!res.length) {
           empty++
           lines.push({ c: 'warn', t: `${f.name}: nessuna scheda compilata trovata (voti assenti o formato non riconosciuto)` })
           continue
         }
-        res.forEach((x) => {
+        res.forEach((x: Parsed) => {
           const e = x.e
           if (!e.valutato || !e.tipo) {
             bad++
@@ -68,7 +86,8 @@ export function CaricamentoTab({ state, update, toast }: { state: State5p; updat
         })
       } catch (err) {
         bad++
-        lines.push({ c: 'bad', t: `${f.name}: file non leggibile (${err instanceof Error ? err.message : ''})` })
+        const m = err instanceof Error ? err.message : ''
+        lines.push({ c: 'bad', t: `${f.name}: ${/^(è un file|non è un file|questo è)/.test(m) ? m : `file non leggibile (${m})`}` })
       }
     }
     update((s) => ({ ...s, evals }))
@@ -95,10 +114,30 @@ export function CaricamentoTab({ state, update, toast }: { state: State5p; updat
           >
             <Upload className="size-6 text-muted-foreground" aria-hidden="true" />
             <b className="text-app-subtitle">Trascina qui i file Excel o CSV</b>
-            <span className="text-app-caption text-muted-foreground">Anche decine di file insieme. Accetta: schede SKILL-VISION (una o più per file), il modulo attuale a 3 fogli, export di Microsoft Forms o Google Forms.</span>
+            <span className="text-app-caption text-muted-foreground">Tutti insieme, anche decine. Accetta i file risposte delle schede (Risposte_5P_….json), le schede Excel, il vostro modulo a 3 fogli e gli export di Microsoft Forms o Google Forms.</span>
             <span className="rounded-sm border border-border-strong px-3 py-1 text-app-small font-medium">Scegli file</span>
           </div>
           <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv,.json,.txt" multiple hidden onChange={(e) => { if (e.target.files?.length) void handle([...e.target.files]); e.target.value = '' }} />
+          <details>
+            <summary className="cursor-pointer text-app-caption">Un valutatore ha mandato il codice nel testo dell&apos;email?</summary>
+            <Textarea aria-label="Codice delle risposte" placeholder="Incolla qui il codice che inizia con SV5P:" className="mt-2 font-mono" value={code} onChange={(e) => setCode(e.target.value)} />
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() => {
+                try {
+                  const payload = codeToJson(code)
+                  void handle([new File([JSON.stringify(payload)], 'codice_incollato.json', { type: 'application/json' })])
+                  setCode('')
+                } catch {
+                  toast('Codice non valido: copialo per intero, da SV5P: alla fine')
+                }
+              }}
+            >
+              Carica codice
+            </Button>
+          </details>
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-app-small text-muted-foreground">{state.evals.length} schede nel sistema</span>
             <Button

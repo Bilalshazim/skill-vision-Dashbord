@@ -3,11 +3,11 @@
 // del modello (SKILL-VISION_Valutazione_5P.html).
 const STEPS = [
   ['Anagrafica.', "HR prepara l'elenco: nome, ruolo, reparto, responsabile diretto. Si importa da Excel."],
-  ['Piano.', 'Il sistema assegna chi valuta chi: responsabile → i suoi collaboratori, colleghi dello stesso reparto a rotazione, ognuno su sé stesso.'],
+  ['Assegnazioni.', "Una tabella con una riga per dipendente: accanto al nome ci sono il responsabile e i colleghi che lo valuteranno (l'autovalutazione è sempre inclusa). Il sistema prepara una proposta; per cambiare un valutatore si clicca sulla casella. Si può anche lavorare in Excel con i menu a tendina e reimportare."],
   ['Comunicazione.', 'Prima di distribuire le schede, incontro o email: scopo (sviluppo, non sanzione), riservatezza dei Peer, obbligo di un esempio concreto nelle NOTE, scadenza.'],
-  ['Distribuzione.', 'Ogni valutatore riceve il suo file Excel precompilato (ZIP del passo 2), oppure il link di un modulo Forms, oppure compila direttamente sulla piattaforma.'],
-  ['Raccolta.', 'HR riceve i file in una cartella condivisa (es. SharePoint/OneDrive con accesso solo HR).'],
-  ['Caricamento.', 'Tutti i file si trascinano insieme nel passo 3. Il sistema legge nomi, tipo e voti, segnala errori e doppioni.'],
+  ['Distribuzione.', "Chi gestisce la piattaforma scarica lo ZIP delle schede (passo 3) e invia a ogni valutatore, con un'email personale, il suo file Scheda_5P_Nome.html. L'elenco invii nello ZIP dice quale file va a chi."],
+  ['Compilazione e ritorno.', "Il valutatore apre la scheda con un doppio clic, legge le istruzioni, vota con la barra 1–10 e alla fine scarica il file Risposte_5P_Nome.json, che rimanda all'email indicata."],
+  ['Caricamento.', 'Tutti i file ricevuti si trascinano insieme nel passo 4. Il sistema legge nomi, tipo e voti, segnala errori e doppioni.'],
   ['Verifica copertura.', 'La tabella avanzamento mostra chi manca. Si sollecita, si ricaricano i nuovi file.'],
   ['Risultati e restituzione.', 'Punteggio unico per P, scheda individuale, gap di percezione, esportazione Excel per il colloquio di feedback.'],
 ]
@@ -34,6 +34,9 @@ export function MetodoTab() {
               </li>
             ))}
           </ol>
+          <p className="text-app-caption">
+            <b className="font-semibold">Per chi gestisce la piattaforma.</b> Il lavoro resta salvato nel browser di questo computer. A fine sessione premi <b className="font-semibold">Salva progetto</b> in alto: ottieni un file per ogni azienda cliente, da riaprire con <b className="font-semibold">Apri progetto</b> anche da un altro PC. Se dopo l&apos;invio cambi un&apos;assegnazione, rimanda la scheda solo ai valutatori interessati: le risposte che avevano già dato restano.
+          </p>
         </Panel>
         <Panel title="Come si calcola">
           <div className="flex flex-col gap-3 text-app-small">
