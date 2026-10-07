@@ -135,6 +135,9 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-07 — scheda del valutatore sui token
+- [x] Segnalato: l'anteprima della scheda era blu, diversa dalla piattaforma. Riscritto il CSS del file con i token (iniettati alla generazione, chiaro e scuro), fasce della scala sui toni di stato con la parola, Geist, raggi e bottoni del sistema, nessun esadecimale. Tolta l'esclusione dall'audit.
+
 ## 2026-10-07 — Foglio 7 (terza parte): nuovo modello di Roberto, "Valutazione 5P Multi-Fonte"
 - [x] Sette schede come nel modello: 1 Anagrafica (con email e "Avanti"), 2 Assegnazioni (una riga per dipendente, caselle con elenco e ricerca, suggeriti e carico accanto, controllo OK / da controllare / errore, filtro, KPI, Excel con menu a tendina e reimportazione, vista per valutatore), 3 Invio schede (email HR, scadenza, ZIP di file HTML per valutatore con elenco invii e testo email, anteprima, alternative Excel/Forms), 4 Caricamento (anche codice SV5P incollato; risposte dall'anteprima), 5 Risultati, 6 Scheda individuale, Metodo aggiornato.
 - [x] Salva progetto / Apri progetto / Nuovo; progetti vecchi migrati (assegnazioni dal piano).

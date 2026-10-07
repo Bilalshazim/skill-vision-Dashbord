@@ -18,7 +18,9 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
   const [sel, setSel] = useState('')
   const who = vs.includes(sel) ? sel : vs[0] || ''
   const nErr = people(state).filter((p) => state.assign[p.id] && rowCheck(state, p, state.assign[p.id]).e.length).length
-  const html = useMemo(() => (who ? buildEval(state, who) : ''), [state, who])
+  // L'anteprima segue il tema in uso; il file scaricato segue quello del computer di chi lo apre.
+  const dark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+  const html = useMemo(() => (who ? buildEval(state, who, dark ? 'dark' : 'light') : ''), [state, who, dark])
 
   // "Invia al sistema (anteprima)" dentro la scheda carica le risposte nel passo 4.
   useEffect(() => {
@@ -79,7 +81,7 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
               ))}
             </SelectField>
           </Field>
-          <Button variant="outline" size="sm" onClick={() => who && saveFile(evalFile(who), new Blob([html], { type: 'text/html' }))}>
+          <Button variant="outline" size="sm" onClick={() => who && saveFile(evalFile(who), new Blob([buildEval(state, who)], { type: 'text/html' }))}>
             Scarica solo questa
           </Button>
         </div>

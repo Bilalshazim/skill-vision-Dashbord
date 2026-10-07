@@ -328,10 +328,28 @@ export function listFor(S: State5p, v: string) {
   return S.plan.filter((x) => norm(x.valutatore) === k).sort((a, b) => ORD[a.tipo] - ORD[b.tipo]).map((x) => ({ valutato: x.valutato, tipo: x.tipo, ruolo: personByName(S, x.valutato)?.ruolo || '' }))
 }
 const escHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c as '&'])
-export function buildEval(S: State5p, v: string): string {
+// I colori della scheda non sono scritti nel file: si leggono dai token della
+// piattaforma (chiaro e scuro) al momento di generarla e si iniettano nel CSS.
+const TOKENS = ['background', 'foreground', 'card', 'muted', 'muted-foreground', 'border', 'border-strong', 'primary', 'primary-foreground', 'success', 'warning', 'destructive', 'ring']
+function readTokens(): { light: string; dark: string; wasDark: boolean } {
+  const root = document.documentElement
+  const wasDark = root.classList.contains('dark')
+  const read = (dark: boolean) => {
+    root.classList.toggle('dark', dark)
+    const cs = getComputedStyle(root)
+    return TOKENS.map((t) => `--${t}:${cs.getPropertyValue(`--${t}`).trim()}`).join(';')
+  }
+  const light = read(false)
+  const dark = read(true)
+  root.classList.toggle('dark', wasDark)
+  return { light, dark, wasDark }
+}
+export function buildEval(S: State5p, v: string, force?: 'light' | 'dark'): string {
+  const tk = readTokens()
+  const css = `:root{${tk.light}}@media (prefers-color-scheme:dark){:root{${tk.dark}}}` + (force ? `:root{${force === 'dark' ? tk.dark : tk.light}}` : '')
   const data = { pianoId: S.pianoId, azienda: S.company || '', valutatore: v, scadenza: S.set.scad || '', emailHR: S.set.emailHR || '', PS: PS.map((p) => ({ k: p.k, n: p.n, d: p.d })), ITEMS: ITEMS_5P.map((i) => [i.cod, i.area, i.q, `1=${i.low} | 5=${i.mid} | 10=${i.high}`]), persone: listFor(S, v) }
   const json = JSON.stringify(data).replace(/</g, '\\u003c')
-  return schedaTemplate.replace('/*SVDATA*/null', () => json).replace('<title>Scheda di valutazione 5P</title>', () => `<title>Scheda 5P – ${escHtml(v)}</title>`)
+  return schedaTemplate.replace('/*SVTOKENS*/', () => css).replace('/*SVDATA*/null', () => json).replace('<title>Scheda di valutazione 5P</title>', () => `<title>Scheda 5P – ${escHtml(v)}</title>`)
 }
 export function mailText(S: State5p): string {
   return `Oggetto: Valutazione delle competenze professionali${S.company ? ` – ${S.company}` : ''}\n\nGentile collega,\n\nin allegato trovi la tua scheda di valutazione delle competenze professionali (5P).\n\nCome fare:\n1. Salva il file allegato e aprilo con un doppio clic: si apre nel browser, non serve installare nulla.\n2. Leggi la pagina "Istruzioni e scala".\n3. Per ogni persona in elenco rispondi alle 25 domande cliccando un voto da 1 a 10 sulla barra; sotto ogni barra trovi la guida al punteggio.\n4. Le risposte si salvano da sole: puoi interrompere e riprendere riaprendo lo stesso file.\n5. Alla fine vai su "Concludi e invia", scarica il file delle risposte e rispondi a questa email allegandolo${S.set.emailHR ? ` (oppure invialo a ${S.set.emailHR})` : ''}.\n\n${S.set.scad ? `Ti chiediamo di completare entro il ${S.set.scad}.\n\n` : ''}Le valutazioni dei colleghi restano anonime: le persone valutate vedono solo medie aggregate.\n\nGrazie per la collaborazione.`
