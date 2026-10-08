@@ -1,27 +1,21 @@
-import { Lock } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { DEFAULT_FLAGS, SKILL_MATRIX, SUBFACTORS, W } from '@/modules/recruiting/lib/constants'
+import { SKILL_MATRIX, SUBFACTORS, W } from '@/modules/recruiting/lib/constants'
+import { cycleSkillFlag, resetSkillFlags, useSkillFlags } from '@/modules/recruiting/lib/skill-flags'
 
-// Ported from renderSkillsInto()/updateProfCnt()/updateProfileCardsSS()
-// (modules/recruiting.html ~5529-5581) — the "Soft skill" master card's
-// teaser row + the full "Le 35 competenze trasversali APEX 5D" picker modal
-// (ssModalOv/skillGridModal, ~1018-1035).
-//
-// READ-ONLY BY DESIGN (Phase 19/20 scope): the picker's click handler
-// (cycleSkillFlag()) mutates the shared `flags` global, but its ONLY
-// persistence trigger anywhere in legacy is inside the role-switch
-// function — which this migration has never built (DEFAULT_ROLE/
-// DEFAULT_FLAGS are fixed since Phase 4). So an editable version here would
-// have no way to ever save a change, unlike legacy where switching away
-// from a role is what commits it. Reproducing the display only, off the
-// same DEFAULT_FLAGS every other migrated screen already reads, with the
-// modal's own weight tags/legend/Sottofattori column intact for visual
-// parity — never wired to a click handler.
+// Il riquadro "Soft skill" del Profilo della ricerca e il selettore delle 35
+// competenze trasversali APEX 5D. Un clic su una competenza ne cambia il peso
+// (non richiesta → utile → importante → essenziale → non richiesta); la scelta
+// si salva in questo browser e la usano ranking, punteggi e scheda di lavoro
+// (lib/skill-flags.ts).
 export function SoftSkillSection() {
-  const flaggedCount = Object.keys(DEFAULT_FLAGS).length
-  const essentialCount = Object.values(DEFAULT_FLAGS).filter((v) => v === 3).length
+  const flags = useSkillFlags()
+  const flaggedCount = Object.keys(flags).length
+  const countOf = (lv: number) => Object.values(flags).filter((v) => v === lv).length
+  const essentialCount = countOf(3)
 
   return (
     <Dialog>
@@ -40,9 +34,18 @@ export function SoftSkillSection() {
           <DialogTitle>Le 35 competenze trasversali APEX 5D</DialogTitle>
         </DialogHeader>
 
-        <p className="flex items-start gap-1.5 rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground dark:text-secondary-foreground">
-          <Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-          Sola lettura in questa versione — la modifica richiede il cambio ruolo, non ancora disponibile in questa migrazione.
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-app-small text-muted-foreground">
+            Clicca su una competenza per cambiarne il peso: non richiesta, utile, importante, essenziale. La scelta si salva in questo browser.
+          </p>
+          <Button type="button" variant="outline" size="sm" onClick={resetSkillFlags}>
+            <RotateCcw aria-hidden="true" />
+            Ripristina i pesi di partenza
+          </Button>
+        </div>
+        <p className="text-app-small text-foreground" aria-live="polite">
+          Selezionate: <b className="font-semibold">{countOf(3)}</b> essenziali · <b className="font-semibold">{countOf(2)}</b> importanti · <b className="font-semibold">{countOf(1)}</b> utili
+          <span className="text-muted-foreground"> — da scegliere almeno 6 essenziali, 4 importanti e 2 utili.</span>
         </p>
 
         <div className="flex flex-wrap items-center gap-3 text-app-caption text-muted-foreground">
@@ -63,12 +66,18 @@ export function SoftSkillSection() {
               <div key={col.label} className="flex flex-col gap-1.5">
                 <div className="label-mono mb-1 text-muted-foreground">{col.label}</div>
                 {col.items.map((sk) => {
-                  const lv = DEFAULT_FLAGS[sk]
+                  const lv = flags[sk]
                   return (
-                    <div key={sk} className="rounded-sm border border-border px-2 py-1.5 text-app-caption leading-snug text-foreground">
+                    <button
+                      key={sk}
+                      type="button"
+                      onClick={() => cycleSkillFlag(sk)}
+                      aria-label={`${sk}: ${lv ? W[lv].label : 'non richiesta'}. Clic per cambiare il peso`}
+                      className={`rounded-sm border px-2 py-1.5 text-left text-app-caption leading-snug text-foreground transition-colors outline-none hover:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${lv ? 'border-border-strong bg-muted' : 'border-border'}`}
+                    >
                       {sk}
                       {lv && <Badge className="ml-1.5 align-middle">{W[lv].label}</Badge>}
-                    </div>
+                    </button>
                   )
                 })}
               </div>

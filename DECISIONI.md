@@ -1157,3 +1157,15 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - Raccomandazione: (b), perché l'incarico è sostituire le pagine con il modello.
 - Presa: **(b)**. Le domande aggiunte dal valutatore contano come criteri nella
   media (prima restavano fuori dal punteggio pesato). Da confermare col cliente.
+
+## Pesi delle 35 competenze: dove si salvano · 2026-10-08
+- Contesto: il selettore era di sola lettura perché il profilo della posizione è
+  una costante e non c'era un posto dove salvare le modifiche.
+- Opzioni: (a) salvare nel browser e modificare `DEFAULT_FLAGS` sul posto;
+  (b) portare i pesi sul server per posizione.
+- Cosa cambia: (a) funziona subito per tutto il modulo senza toccare i punti che
+  leggono i pesi, ma vale solo per quel browser; (b) richiede un modello dati nuovo
+  (come "Assessment sul server", rimandato).
+- Raccomandazione: (a) ora, (b) insieme al lavoro sul server.
+- Presa: **(a)**. Cambiare i pesi cambia i punteggi dei candidati: è il comportamento
+  voluto da Roberto, ma va segnalato a chi usa la classifica.

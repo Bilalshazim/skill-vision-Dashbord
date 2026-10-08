@@ -25,6 +25,25 @@ export const ROLES: Record<string, RoleProfile> = rolesSeed as Record<string, Ro
 export const DEFAULT_ROLE = 'Sales Account Manager'
 export const DEFAULT_FLAGS: Record<string, SoftSkillLevel> = { ...ROLES[DEFAULT_ROLE].flags }
 
+// I pesi delle 35 competenze si possono cambiare dal selettore del Profilo
+// della ricerca (Foglio 8): la scelta si salva in questo browser e rimpiazza
+// il profilo di partenza. DEFAULT_FLAGS si modifica sul posto, così ranking,
+// punteggi, Ask ed esportazioni — che lo leggono a ogni chiamata — usano
+// subito i pesi nuovi. Vedi lib/skill-flags.ts.
+export const SKILL_FLAGS_KEY = 'sv_recruiting_skill_flags_v1'
+try {
+  const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(SKILL_FLAGS_KEY) : null
+  if (raw) {
+    const saved = JSON.parse(raw) as Record<string, number>
+    Object.keys(DEFAULT_FLAGS).forEach((k) => delete DEFAULT_FLAGS[k])
+    Object.entries(saved).forEach(([k, v]) => {
+      if (v === 1 || v === 2 || v === 3) DEFAULT_FLAGS[k] = v
+    })
+  }
+} catch {
+  // Dato illeggibile o storage bloccato: restano i pesi di partenza.
+}
+
 // Ported verbatim from modules/recruiting.html (line ~1381) — sub-trait
 // labels shown next to each Big Five dimension on Ranking.
 export const BF_SUB: Record<string, string[]> = {

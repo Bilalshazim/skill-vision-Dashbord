@@ -135,6 +135,21 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-08 — Foglio 8 (seguito): selettore delle 35 competenze modificabile
+- [x] Segnalazione di Roberto: in Recruiting le 35 competenze trasversali non si
+      potevano selezionare (il selettore era di sola lettura, in Assessment sì).
+      Ora un clic cambia il peso: non richiesta → utile → importante → essenziale;
+      conteggio per peso, "Ripristina i pesi di partenza". Verificato in browser,
+      anche dopo il ricaricamento.
+- [x] I pesi si salvano nel browser (`sv_recruiting_skill_flags_v1`) e si scrivono
+      sul posto in `DEFAULT_FLAGS`: ranking, punteggi, Ask ed esportazioni li usano
+      subito; la scheda di lavoro li riprende all'apertura (valori attesi già scritti
+      conservati). `RankingCard` non fissa più le essenziali all'avvio.
+- [ ] Da sapere: i pesi valgono per questo browser e per la posizione unica di
+      oggi (Sales Account Manager); non sono ancora sul server né per ruolo.
+- [x] Layout dei tre documenti dell'Area Valutatore: resta quello di CLAUDE.md
+      (token del sistema), come deciso; Roberto preferiva la grafica dei PDF.
+
 ## 2026-10-07 — Foglio 8: i tre documenti dell'Area Valutatore sui modelli PDF del cliente
 - [x] Verbale di colloquio, Scheda di valutazione candidato e Report finale
       rifatti sui tre PDF di Roberto (struttura, sezioni numerate, parti A/B/C,

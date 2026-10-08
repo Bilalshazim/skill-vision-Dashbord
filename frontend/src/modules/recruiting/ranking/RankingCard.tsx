@@ -21,9 +21,11 @@ import { fasce, skillTierSums } from '@/modules/recruiting/lib/scoring'
 import type { AhiResult } from '@/modules/recruiting/lib/scoring'
 import type { Candidate, RoleProfile } from '@/modules/recruiting/lib/types'
 
-const ESSENTIAL_SKILLS = Object.entries(DEFAULT_FLAGS)
-  .filter(([, lv]) => lv === 3)
-  .map(([sk]) => sk)
+// Letto a ogni chiamata: i pesi si possono cambiare dal Profilo della ricerca.
+const essentialSkills = () =>
+  Object.entries(DEFAULT_FLAGS)
+    .filter(([, lv]) => lv === 3)
+    .map(([sk]) => sk)
 
 // Ported from renderRanking()'s per-card markup (modules/recruiting.html
 // ~2865-2933). Candidate-detail actions: name click → CandidateProfileDialog
@@ -110,7 +112,7 @@ export function RankingCard({
 
           <div className="mt-4 text-app-small font-semibold">Skill essenziali vs target (linea = target)</div>
           <div className="mt-2">
-            <EssentialSkillBars candidate={candidate} essentialSkills={ESSENTIAL_SKILLS} />
+            <EssentialSkillBars candidate={candidate} essentialSkills={essentialSkills()} />
           </div>
 
           <div className="mt-4 text-app-small font-semibold">Big Five (percentili) vs profilo ideale della posizione</div>

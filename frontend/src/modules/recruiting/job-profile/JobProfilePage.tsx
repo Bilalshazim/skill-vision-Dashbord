@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { jobProfilesApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
-import { buildJdStateFromPreset, loadJdTemplate, publicJobPostingUrl, saveJdTemplate } from '@/modules/recruiting/lib/jd'
+import { buildJdStateFromPreset, buildSoftSkillItems, loadJdTemplate, publicJobPostingUrl, saveJdTemplate } from '@/modules/recruiting/lib/jd'
 import { loadJobProfileFromBackend, saveJobProfileToBackend } from '@/modules/recruiting/lib/backend-sync'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
@@ -75,8 +75,13 @@ function AccordionSection({ value, index, title, sub, children }: { value: strin
   )
 }
 
+// Le competenze trasversali seguono i pesi scelti nel selettore delle 35
+// (lib/skill-flags.ts): una scheda salvata prima di cambiarli li aggiorna qui,
+// tenendo i valori attesi già scritti.
 function buildInitialState(): JdState {
-  return loadJdTemplate(DEFAULT_ROLE) || buildJdStateFromPreset('sam')
+  const state = loadJdTemplate(DEFAULT_ROLE) || buildJdStateFromPreset('sam')
+  state.sections.softSkills.items = buildSoftSkillItems(state.sections.softSkills.items)
+  return state
 }
 
 // Migrated from modules/recruiting.html #scr-jd ("Configura la Scheda
