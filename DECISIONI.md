@@ -1169,3 +1169,22 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - Raccomandazione: (a) ora, (b) insieme al lavoro sul server.
 - Presa: **(a)**. Cambiare i pesi cambia i punteggi dei candidati: è il comportamento
   voluto da Roberto, ma va segnalato a chi usa la classifica.
+
+## Colori dei pesi delle 35 competenze · 2026-10-08
+- Contesto: Roberto chiede i colori; il peso è una categoria, non uno stato.
+- Opzioni: (a) scala sul lime: essenziale pieno, importante tenue, utile neutro;
+  (b) token di stato verde/ambra/rosso.
+- Cosa cambia: (b) farebbe leggere "importante" come un avviso; (a) resta nel
+  sistema e il lime segnala ciò che conta di più.
+- Raccomandazione: (a), con la parola sempre accanto al colore (regola 10).
+- Presa: **(a)**. Da confermare con Roberto se voleva colori più distinti.
+
+## Nomi dei moduli in maiuscolo e cerchi colorati · 2026-10-08
+- Contesto: Roberto chiede i nomi delle due aree in maiuscolo grassetto come titoli
+  e due cerchi di colore diverso.
+- Opzioni: (a) farlo come richiesto; (b) tenere il titolo minuscolo (regola 8).
+- Cosa cambia: (a) è un'eccezione alla regola 8 (il maiuscolo è dello stile label);
+  i colori vengono da `chart-1`/`chart-2`, senza lime, e il nome resta scritto.
+- Raccomandazione: (a), perché è una richiesta esplicita del cliente su un solo
+  punto (la scelta del modulo); peso 600, l'unico sopra 500 ammesso.
+- Presa: **(a)**. Il maiuscolo non si estende ad altri titoli.

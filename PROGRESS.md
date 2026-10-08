@@ -135,6 +135,20 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-08 — Scelta del modulo: nomi in evidenza
+- [x] Richiesta di Roberto: evidenziare RECRUITING e ASSESSMENT. In
+      `ModuleChooserPage.tsx` il quadrato lime diventa un cerchio, di colore
+      diverso per modulo (`chart-1` petrolio, `chart-2` magenta), e il nome è in
+      maiuscolo semibold 24px. `tsc` pulito. Non verificato a occhio in
+      chiaro/scuro; il commutatore nella barra superiore non è toccato.
+
+## 2026-10-08 — Foglio 8 (seguito 2): clic e colori dei pesi
+- [x] Richiesta di Roberto: 1 clic essenziale, 2 importante, 3 utile (il 4° toglie
+      la competenza), con i colori. `skill-flags.ts` cambia l'ordine; in
+      `SoftSkillSection.tsx` riquadri e badge hanno una scala sul lime (pieno /
+      tenue / neutro) con sempre la parola accanto. `tsc` pulito, audit senza
+      nuovi difetti nei due file. Non verificato a occhio in chiaro/scuro.
+
 ## 2026-10-08 — Foglio 8 (seguito): selettore delle 35 competenze modificabile
 - [x] Segnalazione di Roberto: in Recruiting le 35 competenze trasversali non si
       potevano selezionare (il selettore era di sola lettura, in Assessment sì).

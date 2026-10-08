@@ -8,9 +8,21 @@ import { cycleSkillFlag, resetSkillFlags, useSkillFlags } from '@/modules/recrui
 
 // Il riquadro "Soft skill" del Profilo della ricerca e il selettore delle 35
 // competenze trasversali APEX 5D. Un clic su una competenza ne cambia il peso
-// (non richiesta → utile → importante → essenziale → non richiesta); la scelta
+// (1 clic essenziale → 2 importante → 3 utile → 4 non richiesta); la scelta
 // si salva in questo browser e la usano ranking, punteggi e scheda di lavoro
 // (lib/skill-flags.ts).
+const CLICKS = { 3: '1 clic', 2: '2 clic', 1: '3 clic' } as const
+const TILE_TONE = {
+  3: 'border-primary bg-primary text-primary-foreground',
+  2: 'surface-accent text-foreground',
+  1: 'border-border-strong bg-muted text-foreground',
+} as const
+const BADGE_TONE = {
+  3: 'border-transparent bg-foreground text-background',
+  2: 'surface-accent text-foreground',
+  1: 'border-border-strong bg-muted text-foreground',
+} as const
+
 export function SoftSkillSection() {
   const flags = useSkillFlags()
   const flaggedCount = Object.keys(flags).length
@@ -36,7 +48,7 @@ export function SoftSkillSection() {
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-app-small text-muted-foreground">
-            Clicca su una competenza per cambiarne il peso: non richiesta, utile, importante, essenziale. La scelta si salva in questo browser.
+            Clicca su una competenza per darle un peso: 1 clic essenziale, 2 clic importante, 3 clic utile, 4 clic la toglie. La scelta si salva in questo browser.
           </p>
           <Button type="button" variant="outline" size="sm" onClick={resetSkillFlags}>
             <RotateCcw aria-hidden="true" />
@@ -49,12 +61,12 @@ export function SoftSkillSection() {
         </p>
 
         <div className="flex flex-wrap items-center gap-3 text-app-caption text-muted-foreground">
-          {/* Il peso è una categoria, non uno stato: badge neutro con la
-              parola, nessun colore che lo distingua (regola 10). */}
+          {/* Il peso è una categoria, non uno stato: scala di intensità sul
+              lime (pieno, tenue, neutro) e sempre la parola accanto (regola 10). */}
           {([3, 2, 1] as const).map((lv) => (
             <span key={lv} className="inline-flex items-center gap-1.5">
-              <Badge>{W[lv].label}</Badge>
-              peso {lv}
+              <Badge className={BADGE_TONE[lv]}>{W[lv].label}</Badge>
+              {CLICKS[lv]}
             </span>
           ))}
           <span>Senza badge: non richiesta</span>
@@ -73,10 +85,10 @@ export function SoftSkillSection() {
                       type="button"
                       onClick={() => cycleSkillFlag(sk)}
                       aria-label={`${sk}: ${lv ? W[lv].label : 'non richiesta'}. Clic per cambiare il peso`}
-                      className={`rounded-sm border px-2 py-1.5 text-left text-app-caption leading-snug text-foreground transition-colors outline-none hover:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${lv ? 'border-border-strong bg-muted' : 'border-border'}`}
+                      className={`rounded-sm border px-2 py-1.5 text-left text-app-caption leading-snug transition-colors outline-none hover:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${lv ? TILE_TONE[lv] : 'border-border text-foreground'}`}
                     >
                       {sk}
-                      {lv && <Badge className="ml-1.5 align-middle">{W[lv].label}</Badge>}
+                      {lv && <Badge className={`ml-1.5 align-middle ${BADGE_TONE[lv]}`}>{W[lv].label}</Badge>}
                     </button>
                   )
                 })}

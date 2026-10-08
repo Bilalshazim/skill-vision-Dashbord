@@ -5,7 +5,7 @@ import type { SoftSkillLevel } from '@/modules/recruiting/lib/types'
 
 // Il peso delle 35 competenze trasversali per la posizione in uso: 0 non
 // richiesta, 1 utile, 2 importante, 3 essenziale. Il clic sul selettore li
-// fa girare in quest'ordine. Si salva nel browser (SKILL_FLAGS_KEY) e si
+// fa girare così: 1 clic essenziale, 2 importante, 3 utile, 4 non richiesta. Si salva nel browser (SKILL_FLAGS_KEY) e si
 // scrive sul posto in DEFAULT_FLAGS, che il resto del modulo già legge.
 
 const listeners = new Set<() => void>()
@@ -21,8 +21,10 @@ function commit() {
   listeners.forEach((l) => l())
 }
 
+const NEXT_FLAG: Record<number, number> = { 0: 3, 3: 2, 2: 1, 1: 0 }
+
 export function cycleSkillFlag(skill: string): void {
-  const next = ((DEFAULT_FLAGS[skill] ?? 0) + 1) % 4
+  const next = NEXT_FLAG[DEFAULT_FLAGS[skill] ?? 0]
   if (next === 0) delete DEFAULT_FLAGS[skill]
   else DEFAULT_FLAGS[skill] = next as SoftSkillLevel
   commit()
