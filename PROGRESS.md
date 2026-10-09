@@ -135,6 +135,80 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-09 (3) — Valutazione 5P: modulo concluso
+- [x] Migrazione del modulo, calcolo unico in tutte le schede e profilo della persona
+      (valori attesi, skill gap, radar e barre Bklit) completati e approvati da Roberto.
+      Dettagli nelle due voci qui sotto.
+- [x] Importazione dei valori attesi da Excel: rimandata per decisione di Roberto. Oggi
+      si inseriscono a mano nella scheda "Valori attesi"; si riprende se serve.
+- [ ] Rimasto aperto, non del modulo: l'audit del contrasto per tutte le schermate
+      (lo snippet non legge i colori `oklab` con trasparenza, vedi DECISIONI).
+
+## 2026-10-09 (2) — Valutazione 5P: calcolo unico in tutte le schede
+- [x] `compute()` usa il calcolo deciso (media piatta Dirigente + Peer, autovalutazione
+      fuori, scala 0–100 = voto × 10) tramite `pMeans`, lo stesso del profilo della
+      persona: Risultati, Matrice, Scheda individuale, Excel e profilo non possono più
+      discordare. Verificato su dati di esempio (10 persone, anche con una scheda a
+      voci mancanti): 0 discordanze fra `compute` e `get5pDashboardPayload`.
+- [x] Tolti "Metodo" (3 modi), pesi e "Includi autovalutazione" dalle impostazioni e
+      dalla scheda Risultati; i progetti vecchi si aprono e le chiavi si scartano.
+- [x] Tutto a schermo e in Excel su scala 0–100 intera: Risultati (riquadri, barre,
+      tabella, soglie "Sotto 50", "Gap auto ≥ 15"), Matrice (soglie 50 e 70), Scheda
+      individuale (radar, tabelle per fonte, differenze con segno), elenco schede in
+      Caricamento, foglio Parametri dell'Excel. `level()` e la Matrice confrontano il
+      valore arrotondato, così un "70" non è mai "Adeguato". Scheda Metodo riscritta.
+- [x] Tolti dalla Scheda individuale "Punti di forza / Aree di sviluppo" (stavano
+      nel vecchio calcolo; ci sono già nel profilo nuovo).
+- Verifica: `npm run build` passa; audit 305 (nessuno nei file di questo lavoro).
+  Contrasto: lo snippet dell'audit non legge i fondi `oklab` con trasparenza (badge e
+  StatCard), quindi l'ho rifatto risolvendo i colori con un canvas: Risultati,
+  Scheda individuale e Valori attesi, chiaro e scuro, nessun testo sotto soglia
+  (minimo 4,60 su "Vicino al livello" in scuro; soglia 4,5). Nessun errore in console.
+- [ ] Da sapere: le schede già salvate si ricalcolano da sole con il nuovo metodo, e i
+      voti cambiano rispetto a prima dove il Metodo era diverso dalla media piatta.
+- [ ] Non fatto: importazione dei valori attesi da Excel (rimandata, come detto);
+      sporadica la tabella dei risultati scorre in orizzontale a 1440px (colonna
+      Livello fuori vista): già così prima.
+
+## 2026-10-09 — Valutazione 5P: profilo della persona con valori attesi e skill gap
+- [x] `gestione5p/model.ts`: `State5p.exp` (valori attesi di base e per reparto, scala
+      1–10, letto/salvato con il progetto), `expOf`, `expCount` e
+      `get5pDashboardPayload(state, id|nome|chiave)`. Calcolo deciso il 2026-10-09:
+      media piatta di Dirigente e Peer scheda per scheda, autovalutazione fuori dal
+      voto, voce → P → totale, scala 0–100 = voto × 10 arrotondato, scarti sui valori
+      arrotondati, atteso di P e totale solo se ci sono tutte le voci. Indipendente
+      dal "Metodo": le altre schede non cambiano.
+- [x] Componenti nuovi in `gestione5p/dashboard/` (PersonDashboard, DashboardCharts,
+      DashboardInsights, DashboardItemsTable, gap-style): quattro StatCard (accent
+      solo sul voto), barre raggruppate e radar Bklit voto contro atteso nella stessa
+      card, tre riquadri di lettura, tabella delle 25 voci, avvisi (solo
+      autovalutazione, Peer riconoscibili, atteso incompleto). Stati di gap con
+      token di stato e parola.
+- [x] `IndividualeTab`: l'intestazione con il punteggio è sostituita dal nuovo profilo
+      (con "Scarica dati (JSON)", `saveDashboardPayload`); il resto della scheda resta.
+- [x] Nuova scheda "Valori attesi" (`ValoriAttesiTab`): base + una colonna per reparto,
+      riga per P che imposta le cinque voci.
+- Verifica: payload provato su dati di esempio (voto a mano = voto del payload, persona
+  inesistente → null, senza atteso → gap null). `npm run build` passa. Visto in
+  browser (Playwright) in chiaro e in scuro: nessun errore in console. Audit: nessun
+  difetto nei file nuovi (305 totali, già presenti altrove).
+- [ ] Da sapere: Risultati, Matrice e il resto delle schede usano ancora il "Metodo"
+      configurabile (di base: media per fonte, con autovalutazione); il profilo della
+      persona usa il calcolo deciso. I due numeri possono differire: va deciso se
+      allineare anche le altre schede.
+- [ ] Non verificato: contrasto reale con lo snippet dell'audit; la scheda "Valori
+      attesi" a occhio e con dati veri; importazione dei valori attesi da Excel (non
+      c'è: oggi si inseriscono a mano).
+
+## 2026-10-08 — Pesi delle competenze: gialli diversi
+- [x] Roberto: colori diversi per le altre due voci, sulla tonalità del giallo ma
+      più spenti. Essenziale lime pieno; Importante oliva spento
+      (`accent-600` 25%); Utile ambra spento (`warning` 15%). Parola sempre
+      accanto. Build pulita. Non verificato a occhio in chiaro/scuro.
+- [ ] Aperti, da Roberto (13:54-13:56): pagina "Profilo candidatura" per ruolo
+      (oggi solo Sales/Marketing) e area di valutazione 5P: vedi risposta in chat,
+      niente ancora fatto.
+
 ## 2026-10-08 — Scelta del modulo: nomi in evidenza
 - [x] Richiesta di Roberto: evidenziare RECRUITING e ASSESSMENT. In
       `ModuleChooserPage.tsx` il quadrato lime diventa un cerchio, di colore

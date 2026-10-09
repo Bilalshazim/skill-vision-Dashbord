@@ -13,6 +13,7 @@ import { InvioTab } from '@/modules/assessment/gestione5p/InvioTab'
 import { MetodoTab } from '@/modules/assessment/gestione5p/MetodoTab'
 import { openProject, saveProject } from '@/modules/assessment/gestione5p/files'
 import { RisultatiTab } from '@/modules/assessment/gestione5p/RisultatiTab'
+import { ValoriAttesiTab } from '@/modules/assessment/gestione5p/ValoriAttesiTab'
 import { blank, edit } from '@/modules/assessment/gestione5p/model'
 import { use5pState } from '@/modules/assessment/gestione5p/use5pState'
 
@@ -23,6 +24,7 @@ const TABS = [
   ['load', '4', 'Caricamento'],
   ['res', '5', 'Risultati'],
   ['ind', '6', 'Scheda individuale'],
+  ['att', '', 'Valori attesi'],
   ['met', '', 'Metodo'],
 ] as const
 type TabId = (typeof TABS)[number][0]
@@ -152,7 +154,6 @@ export default function AssessmentGestioneValutazioniPage() {
         <TabsContent value="res">
           <RisultatiTab
             state={state}
-            update={update}
             toast={say}
             onOpen={(k) => {
               setSelected(k)
@@ -162,6 +163,9 @@ export default function AssessmentGestioneValutazioniPage() {
         </TabsContent>
         <TabsContent value="ind">
           <IndividualeTab state={state} selected={selected} onSelect={setSelected} />
+        </TabsContent>
+        <TabsContent value="att">
+          <ValoriAttesiTab state={state} update={update} />
         </TabsContent>
         <TabsContent value="met">
           <MetodoTab />

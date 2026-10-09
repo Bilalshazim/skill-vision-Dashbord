@@ -1,6 +1,7 @@
 // 6 · Metodo: come si svolge in azienda, come si calcola, gli errori trovati nel
 // foglio DASHBOARD del vecchio modulo, riservatezza e regole. Il testo è quello
-// del modello (SKILL-VISION_Valutazione_5P.html).
+// del modello (SKILL-VISION_Valutazione_5P.html), con il calcolo unico del
+// 2026-10-09 (media piatta di Dirigente e Peer, scala 0–100).
 const STEPS = [
   ['Anagrafica.', "HR prepara l'elenco: nome, ruolo, reparto, responsabile diretto. Si importa da Excel."],
   ['Assegnazioni.', "Una tabella con una riga per dipendente: accanto al nome ci sono il responsabile e i colleghi che lo valuteranno (l'autovalutazione è sempre inclusa). Il sistema prepara una proposta; per cambiare un valutatore si clicca sulla casella. Si può anche lavorare in Excel con i menu a tendina e reimportare."],
@@ -9,7 +10,7 @@ const STEPS = [
   ['Compilazione e ritorno.', "Il valutatore apre la scheda con un doppio clic, legge le istruzioni, vota con la barra 1–10 e alla fine scarica il file Risposte_5P_Nome.json, che rimanda all'email indicata."],
   ['Caricamento.', 'Tutti i file ricevuti si trascinano insieme nel passo 4. Il sistema legge nomi, tipo e voti, segnala errori e doppioni.'],
   ['Verifica copertura.', 'La tabella avanzamento mostra chi manca. Si sollecita, si ricaricano i nuovi file.'],
-  ['Risultati e restituzione.', 'Punteggio unico per P, scheda individuale, gap di percezione, esportazione Excel per il colloquio di feedback.'],
+  ['Risultati e restituzione.', 'Voto per P, scheda individuale, skill gap e gap di percezione, esportazione Excel per il colloquio di feedback.'],
 ]
 const Formula = ({ children }: { children: string }) => <pre className="overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-app-caption whitespace-pre">{children}</pre>
 const Panel = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -40,22 +41,18 @@ export function MetodoTab() {
         </Panel>
         <Panel title="Come si calcola">
           <div className="flex flex-col gap-3 text-app-small">
-            <p>Per ogni scheda, il voto di una P è la media dei suoi 5 item compilati (1–10).</p>
-            <Formula>P(scheda) = (item1 + … + item5) / item compilati</Formula>
-            <p>Poi si fa la media per fonte, su tutte le schede ricevute da quella fonte:</p>
-            <Formula>P(Dirigente), P(Peer), P(Auto) = media delle schede di quella fonte</Formula>
-            <p>
-              Il <b className="font-semibold">punteggio unico</b> di ogni P si ottiene in uno dei tre modi (si sceglie nella scheda Risultati):
-            </p>
-            <Formula>{`Media delle 3 fonti   = (Dir + Peer + Auto) / 3\nMedia semplice        = somma di tutti i voti P / n. schede\nMedia pesata          = Dir×wD + Peer×wP + Auto×wA (pesi su 100)`}</Formula>
+            <p>Il voto di ogni voce è la media di tutte le schede di Dirigente e Peer che l&apos;hanno compilata, una per una. L&apos;autovalutazione non entra nel voto: resta accanto, per il confronto.</p>
+            <Formula>{`voce   = media delle schede di Dirigente e Peer\nP      = media delle 5 voci\n5P     = media delle 5 P\nscala  = voto (1–10) × 10, arrotondato → 0–100`}</Formula>
+            <p>Dove c&apos;è il valore atteso (scheda Valori attesi), lo skill gap è la differenza fra voto e atteso. L&apos;atteso di una P e del totale esiste solo se ci sono tutte le sue voci.</p>
+            <Formula>{`skill gap          = voto − atteso\ndifferenza (auto)  = autovalutazione − voto`}</Formula>
             <p className="text-app-caption">
-              Esempio: Mario riceve 1 scheda Dirigente (6), 4 Peer (8, 8, 7, 9) e la sua Auto (9). Media delle fonti = (6 + 8 + 9) / 3 = <b className="font-semibold">7,67</b>. Media semplice = (6+8+8+7+9+9) / 6 = <b className="font-semibold">7,83</b>. Con la media semplice i 4 colleghi pesano il 67% del voto e il dirigente il 17%; con la media delle fonti ogni fonte pesa un terzo, qualunque sia il numero di colleghi. Per questo il default è la media delle fonti, la stessa usata nel foglio DASHBOARD del vostro modulo.
+              Esempio: Mario riceve 1 scheda Dirigente (6) e 4 Peer (8, 8, 7, 9) su una voce; l&apos;autovalutazione è 9. Voto = (6 + 8 + 8 + 7 + 9) / 5 = <b className="font-semibold">7,6</b>, cioè <b className="font-semibold">76</b> su 100. Con un atteso di 70 lo skill gap è <b className="font-semibold">+6</b>; la differenza di autovalutazione è <b className="font-semibold">+14</b>. Ogni scheda pesa uguale: con più colleghi che dirigenti, i Peer pesano di più.
             </p>
             <p className="text-app-caption">
-              <b className="font-semibold">Punteggio 5P</b> = media delle 5 P. <b className="font-semibold">Livelli</b> (dal vostro protocollo): sotto 3 Non adeguato · 3–5 In sviluppo · 5–7 Adeguato · 7–9 Avanzato · 9 e oltre Eccellente.
+              <b className="font-semibold">Livelli</b> (dal vostro protocollo, su 100): sotto 30 Non adeguato · 30–50 In sviluppo · 50–70 Adeguato · 70–90 Avanzato · 90 e oltre Eccellente. <b className="font-semibold">Skill gap</b>: da 0 in su livello raggiunto, da −10 in giù da sviluppare, in mezzo vicino al livello.
             </p>
             <p className="text-app-caption">
-              <b className="font-semibold">Gap di percezione</b>: differenza tra fonti. Se l&apos;autovalutazione supera di almeno 1,5 punti la media degli altri, la persona si sopravvaluta; se è più bassa di 1,5, si sottovaluta.
+              <b className="font-semibold">Differenza di percezione</b>: se l&apos;autovalutazione supera il voto di almeno 15 punti la persona si sopravvaluta; se è più bassa di 15, si sottovaluta.
             </p>
           </div>
         </Panel>

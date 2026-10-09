@@ -1,6 +1,6 @@
 import { ITEMS_5P } from '@/modules/assessment/gestione5p/items'
 import { buildXlsx, colL, simpleSheet, XS, type XCell, type XSheet } from '@/modules/assessment/gestione5p/xlsx-writer'
-import { CODES, PS, SRC, type Assign, type Result, type SourceKey, type State5p, blank, cellStr, compute, edit, gapOf, level, nameList, normalizeState, norm, peerN, people, personByName, preparePlan, slug, today, typeOf, uid } from '@/modules/assessment/gestione5p/model'
+import { CODES, PS, SRC, type Assign, type Dash5pPayload, type Result, type SourceKey, type State5p, blank, cellStr, compute, edit, gapOf, level, rd, nameList, normalizeState, norm, peerN, people, personByName, preparePlan, slug, today, typeOf, uid } from '@/modules/assessment/gestione5p/model'
 import schedaTemplate from '@/modules/assessment/gestione5p/scheda-valutatore.template.html?raw'
 
 // Download e lettura dei file del modello Valutazione 5P: schede Excel
@@ -105,14 +105,14 @@ export async function exportResults(S: State5p): Promise<boolean> {
   if (!R.length) return false
   const X = await loadXlsx()
   const wb = X.utils.book_new()
-  const r2 = (v: number | null) => (v == null ? null : Math.round(v * 100) / 100)
-  const h1 = ['Valutato', 'Ruolo', 'Reparto', 'Responsabile', 'N. Dirigente', 'N. Peer', 'N. Auto', ...PS.map((p) => `${p.k} ${p.n}`), 'Punteggio 5P', 'Livello', 'Competenze (A-D)', 'Potenziale (E)', 'Gap Auto vs altri']
+  const r2 = rd
+  const h1 = ['Valutato', 'Ruolo', 'Reparto', 'Responsabile', 'N. Dirigente', 'N. Peer', 'N. Auto', ...PS.map((p) => `${p.k} ${p.n}`), 'Voto 5P', 'Livello', 'Competenze (A-D)', 'Potenziale (E)', 'Gap Auto vs voto']
   const d1 = R.map((r: Result) => [r.nome, r.ruolo, r.reparto, r.resp, r.cnt.DIR, r.cnt.PEER, r.cnt.AUTO, ...PS.map((p) => r2(r.fin[p.k])), r2(r.score), level(r.score).t, r2(r.comp), r2(r.pot), r2(gapOf(S, r).d)])
   const ws1 = X.utils.aoa_to_sheet([h1, ...d1])
   ws1['!cols'] = h1.map((_, i) => ({ wch: i < 4 ? 24 : 14 }))
   X.utils.book_append_sheet(wb, ws1, 'Punteggi 5P')
   const h2 = ['Valutato']
-  PS.forEach((p) => ['Dir', 'Peer', 'Auto', 'Unico'].forEach((t) => h2.push(`${p.k} ${t}`)))
+  PS.forEach((p) => ['Dir', 'Peer', 'Auto', 'Voto'].forEach((t) => h2.push(`${p.k} ${t}`)))
   X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet([h2, ...R.map((r) => { const a: unknown[] = [r.nome]; PS.forEach((p) => { const s = r.src[p.k]; a.push(r2(s.DIR), r2(s.PEER), r2(s.AUTO), r2(r.fin[p.k])) }); return a })]), 'Per fonte')
   const d3: unknown[][] = []
   R.forEach((r) => CODES.forEach((c) => { const s = r.items[c]; d3.push([r.nome, c, ITEMS_5P.find((i) => i.cod === c)!.area, r2(s.DIR), r2(s.PEER), r2(s.AUTO)]) }))
@@ -122,11 +122,10 @@ export async function exportResults(S: State5p): Promise<boolean> {
   X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet([
     ['Azienda', S.company],
     ['Data elaborazione', today()],
-    ['Metodo', { fonti: 'Media delle 3 fonti', semplice: 'Media semplice di tutte le schede', pesata: 'Media pesata' }[st.method]],
-    ['Autovalutazione nel punteggio', st.incAuto ? 'Sì' : 'No'],
-    ['Pesi Dir/Peer/Auto', st.method === 'pesata' ? `${st.w.DIR}/${st.w.PEER}/${st.w.AUTO}` : 'n.a.'],
-    ['Livelli', '<3 Non adeguato; 3-5 In sviluppo; 5-7 Adeguato; 7-9 Avanzato; >=9 Eccellente'],
-    ['Soglia gap', st.gap],
+    ['Scala', '0–100 (voto 1–10 × 10, arrotondato all’intero)'],
+    ['Voto', 'media di tutte le schede di Dirigente e Peer, una per una; autovalutazione esclusa'],
+    ['Livelli', '<30 Non adeguato; 30-50 In sviluppo; 50-70 Adeguato; 70-90 Avanzato; >=90 Eccellente'],
+    ['Soglia gap di percezione (punti)', Math.round(st.gap * 10)],
   ]), 'Parametri')
   saveFile(`Risultati_5P_${slug(S.company)}_${today()}.xlsx`, wbBlob(X, wb))
   return true
@@ -379,4 +378,9 @@ export async function openProject(f: File): Promise<State5p> {
   if (o && o.format === 'sv5p-risposte') throw new Error('questo è il file risposte di un valutatore: caricalo nella pagina Caricamento')
   if (!o || o.format !== 'sv5p-progetto' || !o.stato) throw new Error('non è un file progetto 5P')
   return normalizeState(o.stato)
+}
+
+// ---------- dati del profilo di una persona ----------
+export function saveDashboardPayload(p: Dash5pPayload) {
+  saveFile(`Profilo_5P_${slug(p.person.name)}_${today()}.json`, new Blob([JSON.stringify(p, null, 2)], { type: 'application/json' }))
 }

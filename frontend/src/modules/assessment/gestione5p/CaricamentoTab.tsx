@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useConfirm } from '@/hooks/use-confirm'
 import { cn } from '@/lib/utils'
 import { readWorkbook } from '@/modules/assessment/gestione5p/files'
-import { PS, SRC, SOURCES, type Eval5p, type Parsed, type ResponsesPayload, type State5p, codeToJson, compute, fmt1, fromPayload, norm, parseWorkbook, personByName } from '@/modules/assessment/gestione5p/model'
+import { PS, SRC, SOURCES, type Eval5p, type Parsed, type ResponsesPayload, type State5p, codeToJson, compute, fmt100, fromPayload, norm, parseWorkbook, personByName } from '@/modules/assessment/gestione5p/model'
 import { Textarea } from '@/components/ui/textarea'
 import { SourceTag } from '@/modules/assessment/gestione5p/SourceTag'
 
@@ -245,7 +245,7 @@ export function CaricamentoTab({ state, update, toast, incoming, onConsumed }: {
                   <TableCell>{e.valutatore || '—'}</TableCell>
                   {PS.map((p) => (
                     <TableCell key={p.k} className="text-center font-mono tabular-nums">
-                      {fmt1(evalP(e, p.k))}
+                      {fmt100(evalP(e, p.k))}
                     </TableCell>
                   ))}
                   <TableCell className="text-center font-mono tabular-nums">{Object.keys(e.scores).length}/25</TableCell>

@@ -20,9 +20,11 @@ export type Eval5p = {
   notes: Record<string, string>
   source: string
 }
-export type Method = 'fonti' | 'semplice' | 'pesata'
-export type Settings = { method: Method; incAuto: boolean; w: Record<SourceKey, number>; peerN: number; peerMin: number; gap: number; emailHR: string; scad: string }
-export type State5p = { company: string; people: Person[]; plan: PlanItem[]; evals: Eval5p[]; set: Settings; demo: boolean; assign: Record<string, Assign>; assignSig: string; pianoId: string }
+export type Settings = { peerN: number; peerMin: number; gap: number; emailHR: string; scad: string }
+// Valori attesi: il livello richiesto per ogni voce, su scala 1–10. `base` vale per tutti,
+// `groups` (per reparto) lo sostituisce dove è diverso. Non compaiono nelle schede dei valutatori.
+export type Targets = { base: Record<string, number>; groups: Record<string, Record<string, number>> }
+export type State5p = { company: string; people: Person[]; plan: PlanItem[]; evals: Eval5p[]; set: Settings; demo: boolean; assign: Record<string, Assign>; assignSig: string; pianoId: string; exp: Targets }
 
 export const PS = [
   { k: 'A', n: 'Professionalità', d: 'Competenze tecniche, conoscenze, strumenti, decisioni' },
@@ -70,13 +72,16 @@ function num(v: unknown): number | null {
   return parseFloat(t)
 }
 
-// I cinque livelli del protocollo: sotto 3, 3–5, 5–7, 7–9, 9 e oltre.
+// I cinque livelli del protocollo: sotto 3, 3–5, 5–7, 7–9, 9 e oltre (sulla
+// scala 0–100: 30, 50, 70, 90). Si confronta il valore già arrotondato come si
+// legge a schermo, così un "70" non è mai "Adeguato".
 export function level(v: number | null | undefined): { t: string; c: 0 | 1 | 2 | 3 | 4 | 5 } {
   if (v == null || Number.isNaN(v)) return { t: '–', c: 0 }
-  if (v < 3) return { t: 'Non adeguato', c: 1 }
-  if (v < 5) return { t: 'In sviluppo', c: 2 }
-  if (v < 7) return { t: 'Adeguato', c: 3 }
-  if (v < 9) return { t: 'Avanzato', c: 4 }
+  const r = Math.round(v * 10 + 1e-9)
+  if (r < 30) return { t: 'Non adeguato', c: 1 }
+  if (r < 50) return { t: 'In sviluppo', c: 2 }
+  if (r < 70) return { t: 'Adeguato', c: 3 }
+  if (r < 90) return { t: 'Avanzato', c: 4 }
   return { t: 'Eccellente', c: 5 }
 }
 
@@ -90,11 +95,20 @@ export function typeOf(s: unknown): SourceKey | null {
 
 // ---------- stato ----------
 export function blank(): State5p {
-  return { company: '', people: [], plan: [], evals: [], set: { method: 'fonti', incAuto: true, w: { DIR: 50, PEER: 30, AUTO: 20 }, peerN: 3, peerMin: 3, gap: 1.5, emailHR: '', scad: '' }, demo: false, assign: {}, assignSig: '', pianoId: '' }
+  return { company: '', people: [], plan: [], evals: [], set: { peerN: 3, peerMin: 3, gap: 1.5, emailHR: '', scad: '' }, demo: false, assign: {}, assignSig: '', pianoId: '', exp: { base: {}, groups: {} } }
+}
+// I progetti salvati prima del calcolo unico portano ancora metodo, pesi e
+// autovalutazione nelle impostazioni: si leggono e si scartano.
+function pickSettings(base: Settings, o: Partial<Settings> | undefined): Settings {
+  const s = { ...base }
+  ;(Object.keys(base) as (keyof Settings)[]).forEach((k) => {
+    if (o && o[k] !== undefined) (s as Record<string, unknown>)[k] = o[k]
+  })
+  return s
 }
 export function normalizeState(o: Partial<State5p>): State5p {
   const b = blank()
-  const s: State5p = { ...b, ...o, set: { ...b.set, ...(o.set ?? {}) } }
+  const s: State5p = { ...b, ...o, set: pickSettings(b.set, o.set), exp: { base: { ...(o.exp?.base ?? {}) }, groups: { ...(o.exp?.groups ?? {}) } } }
   // I progetti salvati prima delle assegnazioni si riaprono senza perdere chi valuta chi.
   if (!o.assign) migratePlan(s)
   preparePlan(s)
@@ -293,11 +307,23 @@ export type Result = {
   items: Record<string, Record<SourceKey, number | null>>
   inAna: boolean
   score: number | null
+  /** Autovalutazione complessiva (media delle cinque P), fuori dal voto. */
+  auto: number | null
   comp: number | null
   pot: number | null
   exp: Record<SourceKey, number> | null
 }
-const evalP = (e: Eval5p, P: string) => mean(CODES.filter((c) => c[0] === P).map((c) => e.scores[c] ?? null))
+// Il calcolo unico (decisioni del 2026-10-09), usato da tutte le schede:
+// media di ogni voce sulle schede date → media delle voci di ogni P → media
+// delle cinque P. Con le schede di Dirigente e Peer insieme, una per una e
+// senza pesi, è il voto; con quelle di una sola fonte sono i valori "per fonte".
+type Means = { it: Record<string, number | null>; P: Record<string, number | null>; T: number | null }
+export function pMeans(evs: Eval5p[]): Means {
+  const it = Object.fromEntries(CODES.map((c) => [c, mean(evs.map((e) => e.scores[c] ?? null))])) as Means['it']
+  const P = Object.fromEntries(PS.map((x) => [x.k, mean(CODES.filter((c) => c[0] === x.k).map((c) => it[c]))])) as Means['P']
+  return { it, P, T: mean(PS.map((x) => P[x.k])) }
+}
+const hasScores = (e: Eval5p) => Object.keys(e.scores || {}).length > 0
 function expected(s: State5p, nome: string) {
   if (!s.plan.length) return null
   const k = norm(nome)
@@ -307,8 +333,8 @@ function expected(s: State5p, nome: string) {
   })
   return e
 }
+/** `fin`, `score`, `comp`, `pot` sono il voto (Dirigente + Peer, autovalutazione esclusa), scala 1–10: sullo schermo si scrive × 10 (vedi `rd`). */
 export function compute(s: State5p): Result[] {
-  const st = s.set
   const byP = new Map<string, Eval5p[]>()
   s.evals.forEach((e) => {
     const k = norm(e.valutato)
@@ -320,47 +346,27 @@ export function compute(s: State5p): Result[] {
     const p = personByName(s, n) || { nome: n, ruolo: '', reparto: '', resp: '' }
     const cnt: Record<SourceKey, number> = { DIR: 0, PEER: 0, AUTO: 0 }
     ev.forEach((e) => cnt[e.tipo]++)
-    const r: Result = { k, nome: p.nome, ruolo: p.ruolo || ev.find((e) => e.ruolo)?.ruolo || '', reparto: p.reparto || '', resp: p.resp || '', cnt, ev, src: {}, fin: {}, items: {}, inAna: !!personByName(s, n), score: null, comp: null, pot: null, exp: null }
+    const scored = ev.filter(hasScores)
+    const per = Object.fromEntries(SOURCES.map((t) => [t, pMeans(scored.filter((e) => e.tipo === t))])) as Record<SourceKey, Means>
+    const flat = pMeans(scored.filter((e) => e.tipo !== 'AUTO'))
+    const r: Result = { k, nome: p.nome, ruolo: p.ruolo || ev.find((e) => e.ruolo)?.ruolo || '', reparto: p.reparto || '', resp: p.resp || '', cnt, ev, src: {}, fin: flat.P, items: {}, inAna: !!personByName(s, n), score: flat.T, auto: per.AUTO.T, comp: null, pot: null, exp: null }
     PS.forEach(({ k: P }) => {
-      const sv = {} as Record<SourceKey, number | null>
-      SOURCES.forEach((t) => (sv[t] = mean(ev.filter((e) => e.tipo === t).map((e) => evalP(e, P)))))
-      r.src[P] = sv
-      const use: SourceKey[] = st.incAuto ? ['DIR', 'PEER', 'AUTO'] : ['DIR', 'PEER']
-      let f: number | null
-      if (st.method === 'fonti') f = mean(use.map((t) => sv[t]))
-      else if (st.method === 'semplice') f = mean(ev.filter((e) => use.includes(e.tipo)).map((e) => evalP(e, P)))
-      else {
-        let sw = 0
-        let sv2 = 0
-        use.forEach((t) => {
-          if (sv[t] != null) {
-            sw += +st.w[t] || 0
-            sv2 += (+st.w[t] || 0) * (sv[t] as number)
-          }
-        })
-        f = sw ? sv2 / sw : null
-      }
-      r.fin[P] = f
+      r.src[P] = { DIR: per.DIR.P[P], PEER: per.PEER.P[P], AUTO: per.AUTO.P[P] }
     })
     CODES.forEach((c) => {
-      const sv = {} as Record<SourceKey, number | null>
-      SOURCES.forEach((t) => (sv[t] = mean(ev.filter((e) => e.tipo === t).map((e) => e.scores[c] ?? null))))
-      r.items[c] = sv
+      r.items[c] = { DIR: per.DIR.it[c], PEER: per.PEER.it[c], AUTO: per.AUTO.it[c] }
     })
-    r.score = mean(PS.map((x) => r.fin[x.k]))
     r.comp = mean(['A', 'B', 'C', 'D'].map((x) => r.fin[x]))
     r.pot = r.fin.E
     r.exp = expected(s, r.nome)
     return r
   })
 }
-// Gap di percezione: l'autovalutazione contro la media di Dirigente e Peer.
+// Gap di percezione: autovalutazione meno voto, in punti 0–100. `flag` da
+// `set.gap` × 10 punti in su (di base 15).
 export function gapOf(s: State5p, r: Result) {
-  const others = mean(PS.map((p) => mean([r.src[p.k].DIR, r.src[p.k].PEER])))
-  const au = mean(PS.map((p) => r.src[p.k].AUTO))
-  if (others == null || au == null) return { d: null as number | null, flag: false }
-  const d = au - others
-  return { d, flag: Math.abs(d) >= s.set.gap }
+  const d = dd(r.auto, r.score)
+  return { d, flag: d != null && Math.abs(d) >= Math.round(s.set.gap * DASH_SCALE) }
 }
 
 // ---------- lettura delle schede compilate (Excel / CSV) ----------
@@ -566,6 +572,15 @@ export function demoState(): State5p {
   ]
   s.people = P.map((p) => ({ id: uid(), nome: p[0], ruolo: p[1], reparto: p[2], resp: p[3] }))
   preparePlan(s)
+  // Valori attesi di esempio: base 7 per tutti, più alti dove il reparto lo richiede.
+  CODES.forEach((c) => {
+    s.exp.base[c] = 7
+  })
+  s.exp.groups = { Direzione: Object.fromEntries(CODES.map((c) => [c, 8])), Produzione: {}, Amministrazione: { B2: 8.5, A3: 7.5 } }
+  CODES.forEach((c) => {
+    if (c[0] === 'A') s.exp.groups.Produzione[c] = 7.5
+    if (c[0] === 'B') s.exp.groups.Produzione[c] = 8
+  })
   let seed = 7
   const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
   const base: Record<string, number[]> = { 'Giulia Neri': [7.5, 8, 6.5, 7, 8], 'Paolo Conti': [8, 7, 5, 6, 4.5], 'Sara Gallo': [6, 6.5, 7, 7.5, 8], 'Luca Moretti': [4.5, 5, 4, 5, 4], 'Marco Ferri': [7, 7.5, 6, 6.5, 6], 'Davide Costa': [7, 8, 6, 6, 5.5], 'Chiara Fontana': [6.5, 7, 7, 8, 7.5], 'Andrea Greco': [5, 5.5, 6, 5, 6.5], 'Marta Villa': [6.5, 7, 6.5, 7, 6], 'Elena Rizzi': [8, 8, 7, 7.5, 7] }
@@ -623,4 +638,195 @@ export function fromPayload(s: State5p, o: ResponsesPayload, fname: string): { r
 export function codeToJson(t: string): ResponsesPayload {
   const raw = String(t).trim().replace(/^SV5P:/, '').replace(/\s+/g, '')
   return JSON.parse(decodeURIComponent(escape(atob(raw)))) as ResponsesPayload
+}
+
+// ---------- dashboard della persona: voti, valore atteso, skill gap ----------
+// Un solo calcolo per il profilo di una persona (decisioni del 2026-10-09):
+// - il voto è la media piatta di tutte le schede di Dirigente e Peer, una per
+//   una, senza pesi fra le fonti; l'autovalutazione resta fuori dal voto;
+// - voce → P = media delle voci → totale = media delle cinque P;
+// - scala 0–100 = voto 1–10 × 10, arrotondato all'intero; scarti sui valori
+//   arrotondati;
+// - il valore atteso di una P (e del totale) c'è solo se ci sono tutte le
+//   sue voci.
+// Non dipende dal "Metodo" delle altre schede: quelle restano com'erano.
+export const DASH_SCALE = 10
+/** Soglia dello skill gap in punti 0–100: da −10 in giù è "da sviluppare". */
+export const DASH_GAP_BAND = 10
+
+export type GapState = 'raggiunto' | 'vicino' | 'da-sviluppare'
+export type Perception = 'allineata' | 'sopravvaluta' | 'sottovaluta'
+export type DashMetric = {
+  actual: number | null
+  self: number | null
+  target: number | null
+  /** voto − atteso */
+  gap: number | null
+  gapState: GapState | null
+  /** autovalutazione − voto */
+  selfDiff: number | null
+  perception: Perception | null
+}
+export type DashLevel = { label: string; index: 1 | 2 | 3 | 4 | 5 }
+export type DashItemRef = { code: string; name: string; actual: number | null; target: number | null; gap: number | null; self: number | null; selfDiff: number | null }
+export type Dash5pPayload = {
+  schemaVersion: 1
+  generatedAt: string
+  source: { company: string | null; pianoId: string | null }
+  scale: { max: 100; conversion: string; gapBand: number; perceptionThreshold: number }
+  person: {
+    id: string | null
+    key: string
+    name: string
+    group: string | null
+    role: string | null
+    targetProfile: { group: string | null; definedItems: number; totalItems: number; complete: boolean; fromGroup: number; fromBase: number }
+  }
+  raters: { dir: number; peer: number; self: number; hasScore: boolean; peerAnonymityRisk: boolean; peerMin: number }
+  summary: DashMetric & { level: DashLevel | null }
+  categories: (DashMetric & { code: string; name: string; description: string; level: DashLevel | null })[]
+  items: (DashItemRef & DashMetric & { category: string; level: DashLevel | null; responses: number; selfAnswered: boolean })[]
+  insights: {
+    basis: 'gap' | 'voto'
+    strengths: DashItemRef[]
+    developmentPriorities: DashItemRef[]
+    allStrengthsBelowTarget: boolean
+    perceptionDiscrepancies: (DashItemRef & { direction: 'sopravvaluta' | 'sottovaluta' })[]
+  }
+  /** Solo il tipo di fonte, mai il nome di chi scrive: i Peer restano anonimi. */
+  notes: { code: string; item: string | null; source: SourceKey; text: string }[]
+}
+
+/** Il voto sulla scala 0–100: voto 1–10 × 10, arrotondato all’intero. */
+export const rd = (v: number | null | undefined): number | null => (v == null || Number.isNaN(v) ? null : Math.round(v * DASH_SCALE + 1e-9))
+/** Il voto da scrivere a schermo: 0–100 intero, o un trattino. */
+export const fmt100 = (v: number | null | undefined) => {
+  const r = rd(v)
+  return r == null ? '–' : String(r)
+}
+export const dd = (a: number | null | undefined, b: number | null | undefined): number | null => {
+  const ra = rd(a)
+  const rb = rd(b)
+  return ra == null || rb == null ? null : ra - rb
+}
+const gapState = (d: number | null): GapState | null => (d == null ? null : d >= 0 ? 'raggiunto' : d <= -DASH_GAP_BAND ? 'da-sviluppare' : 'vicino')
+const levelOf = (v: number | null): DashLevel | null => {
+  const l = level(v)
+  return l.c === 0 ? null : { label: l.t, index: l.c }
+}
+const ITEM_NAME: Record<string, string> = Object.fromEntries(ITEMS_5P.map((i) => [i.cod, i.area]))
+
+/** Il valore atteso di una voce: prima quello del reparto, poi quello di base. */
+export function expOf(s: State5p, reparto: string | undefined, code: string): { value: number; from: 'group' | 'base' } | null {
+  const g = (reparto || '').trim()
+  const gv = g ? s.exp.groups[g]?.[code] : undefined
+  if (gv != null) return { value: gv, from: 'group' }
+  const bv = s.exp.base[code]
+  return bv != null ? { value: bv, from: 'base' } : null
+}
+export const expCount = (s: State5p) => Object.keys(s.exp.base).length + Object.values(s.exp.groups).reduce((n, o) => n + Object.keys(o).length, 0)
+
+/** Il profilo di una persona, per id, nome o chiave (`Result.k`). `null` se la persona non c'è. */
+export function get5pDashboardPayload(s: State5p, personIdOrName: string): Dash5pPayload | null {
+  const q = String(personIdOrName ?? '').trim()
+  if (!q) return null
+  const k = norm(q)
+  const known = s.people.find((p) => p.id === q) ?? s.people.find((p) => norm(p.nome) === k)
+  const p: Person | undefined = known ?? allNames(s).filter((x) => x.k === k).map((x) => ({ id: '', nome: x.n, ruolo: '', reparto: '', resp: '' }))[0]
+  if (!p || !p.nome) return null
+  const key = norm(p.nome)
+
+  const all = s.evals.filter((e) => norm(e.valutato) === key)
+  const ev = all.filter((e) => Object.keys(e.scores || {}).length > 0)
+  const oth = ev.filter((e) => e.tipo !== 'AUTO')
+  const au = ev.filter((e) => e.tipo === 'AUTO')
+
+  const flat = pMeans(oth)
+  const own = pMeans(au)
+  const itemRaw = Object.fromEntries(
+    CODES.map((c) => {
+      const t = expOf(s, p.reparto, c)
+      return [c, { o: flat.it[c], a: own.it[c], x: t ? t.value : null, from: t?.from ?? null, n: oth.filter((e) => e.scores[c] != null).length }]
+    }),
+  )
+  const catRaw = PS.map((P) => {
+    const cs = CODES.filter((c) => c[0] === P.k)
+    return { P, o: flat.P[P.k], a: own.P[P.k], x: cs.every((c) => itemRaw[c].x != null) ? mean(cs.map((c) => itemRaw[c].x)) : null }
+  })
+  const tot = {
+    o: flat.T,
+    a: own.T,
+    x: catRaw.every((c) => c.x != null) ? mean(catRaw.map((c) => c.x)) : null,
+  }
+
+  const perceptionThreshold = Math.round(s.set.gap * DASH_SCALE)
+  const metric = (o: number | null, a: number | null, x: number | null): DashMetric => {
+    const gap = dd(o, x)
+    const selfDiff = dd(a, o)
+    return {
+      actual: rd(o),
+      self: rd(a),
+      target: rd(x),
+      gap,
+      gapState: gapState(gap),
+      selfDiff,
+      perception: selfDiff == null ? null : Math.abs(selfDiff) < perceptionThreshold ? 'allineata' : selfDiff > 0 ? 'sopravvaluta' : 'sottovaluta',
+    }
+  }
+
+  const rows = CODES.map((c) => ({ c, ...itemRaw[c], g: dd(itemRaw[c].o, itemRaw[c].x), d: dd(itemRaw[c].a, itemRaw[c].o) }))
+  const ref = (x: (typeof rows)[number]): DashItemRef => ({ code: x.c, name: ITEM_NAME[x.c], actual: rd(x.o), target: rd(x.x), gap: x.g, self: rd(x.a), selfDiff: x.d })
+  const withO = rows.filter((x) => x.o != null)
+  const hasX = rows.some((x) => x.g != null)
+  const pool = hasX ? withO.filter((x) => x.g != null) : withO
+  const best = [...pool].sort((a, b) => (hasX ? (b.g as number) - (a.g as number) : (b.o as number) - (a.o as number)))
+  const worst = [...pool].sort((a, b) => (hasX ? (a.g as number) - (b.g as number) : (a.o as number) - (b.o as number)))
+  const defined = CODES.filter((c) => itemRaw[c].x != null)
+
+  const notes: Dash5pPayload['notes'] = []
+  all.forEach((e) =>
+    Object.entries(e.notes || {}).forEach(([code, t]) => {
+      const text = String(t || '').trim()
+      if (text) notes.push({ code, item: code === 'GEN' ? null : (ITEM_NAME[code] ?? null), source: e.tipo, text })
+    }),
+  )
+  notes.sort((a, b) => a.code.localeCompare(b.code))
+
+  const nPeer = oth.filter((e) => e.tipo === 'PEER').length
+  return {
+    schemaVersion: 1,
+    generatedAt: new Date().toISOString(),
+    source: { company: s.company || null, pianoId: s.pianoId || null },
+    scale: { max: 100, conversion: 'voto 1–10 × 10, arrotondato all’intero', gapBand: DASH_GAP_BAND, perceptionThreshold },
+    person: {
+      id: p.id || null,
+      key,
+      name: p.nome,
+      group: (p.reparto || '').trim() || null,
+      role: p.ruolo || all.find((e) => e.ruolo)?.ruolo || null,
+      targetProfile: {
+        group: (p.reparto || '').trim() || null,
+        definedItems: defined.length,
+        totalItems: CODES.length,
+        complete: defined.length === CODES.length,
+        fromGroup: defined.filter((c) => itemRaw[c].from === 'group').length,
+        fromBase: defined.filter((c) => itemRaw[c].from === 'base').length,
+      },
+    },
+    raters: { dir: oth.filter((e) => e.tipo === 'DIR').length, peer: nPeer, self: au.length, hasScore: oth.length > 0, peerAnonymityRisk: nPeer > 0 && nPeer < s.set.peerMin, peerMin: s.set.peerMin },
+    summary: { ...metric(tot.o, tot.a, tot.x), level: levelOf(tot.o) },
+    categories: catRaw.map((c) => ({ code: c.P.k, name: c.P.n, description: c.P.d, ...metric(c.o, c.a, c.x), level: levelOf(c.o) })),
+    items: rows.map((x) => ({ ...ref(x), ...metric(x.o, x.a, x.x), category: x.c[0], level: levelOf(x.o), responses: x.n, selfAnswered: au.some((e) => e.scores[x.c] != null) })),
+    insights: {
+      basis: hasX ? 'gap' : 'voto',
+      strengths: best.slice(0, 3).map(ref),
+      developmentPriorities: worst.slice(0, 3).map(ref),
+      allStrengthsBelowTarget: hasX && best.length > 0 && (best[0].g as number) < 0,
+      perceptionDiscrepancies: rows
+        .filter((x) => x.d != null && Math.abs(x.d) >= perceptionThreshold)
+        .sort((a, b) => Math.abs(b.d as number) - Math.abs(a.d as number))
+        .map((x) => ({ ...ref(x), direction: (x.d as number) > 0 ? ('sopravvaluta' as const) : ('sottovaluta' as const) })),
+    },
+    notes,
+  }
 }

@@ -1188,3 +1188,53 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - Raccomandazione: (a), perché è una richiesta esplicita del cliente su un solo
   punto (la scelta del modulo); peso 600, l'unico sopra 500 ammesso.
 - Presa: **(a)**. Il maiuscolo non si estende ad altri titoli.
+
+## Profilo 5P della persona: un solo calcolo in TypeScript · 2026-10-09
+- Contesto: Roberto approva il porting in `model.ts` del calcolo del file HTML
+  (valori attesi, skill gap, payload) e il radar Bklit voto contro atteso.
+- Opzioni: (a) funzione nuova, indipendente dal "Metodo"; (b) far leggere il Metodo
+  anche al profilo.
+- Cosa cambia: (a) applica subito l'algoritmo deciso (media piatta Dirigente + Peer,
+  × 10, autovalutazione fuori) ma lascia due calcoli nel modulo finché le altre schede
+  non si allineano; (b) non rispetta la decisione.
+- Raccomandazione: (a), poi allineare Risultati e Matrice con un passo a parte.
+- Presa: **(a)**.
+- Soglie: la differenza di percezione usa `set.gap` × 10 (di base 15 punti, come nelle
+  altre schede, non i 10 del file HTML); i Peer sono "riconoscibili" sotto `set.peerMin`;
+  lo skill gap è "da sviluppare" da −10 in giù (`DASH_GAP_BAND`).
+- Grafici: solo due serie (voto, atteso come riferimento in `chart-compare`); il
+  valore atteso si disegna solo se c'è per tutte e cinque le P. Il radar proposto è
+  approvato (DECISIONI, 2026-10-09).
+- Note nel payload: solo il tipo di fonte, mai il nome di chi scrive.
+- Aggiunta non richiesta: scheda "Valori attesi", perché senza un modo di inserirli lo
+  skill gap non avrebbe dati. Senza numero nei passi, come "Metodo".
+
+## Calcolo unico in tutte le schede della Valutazione 5P · 2026-10-09
+- Contesto: Roberto chiede coerenza fra Risultati, Matrice, Scheda individuale ed
+  esportazioni (decisione precedente: media piatta Dirigente + Peer, autovalutazione
+  fuori, × 10).
+- Opzioni: (a) `compute()` passa al calcolo unico e il "Metodo" esce dalle
+  impostazioni; (b) tenere il Metodo come opzione e usare il calcolo unico solo nel
+  profilo.
+- Cosa cambia: (a) un solo numero ovunque, ma i tre modi di calcolo spariscono
+  (funzione tolta per decisione del cliente) e i voti già visti possono cambiare;
+  (b) due numeri diversi per la stessa persona.
+- Raccomandazione: (a). Presa: **(a)**.
+- Dettagli: il voto di una P è la media delle medie per voce (non la media dei voti P
+  di ogni scheda: le due coincidono solo con schede complete). Livelli e quadranti
+  della Matrice sul valore arrotondato (30/50/70/90; 50 e 70). Differenza di
+  percezione = autovalutazione − voto, da `set.gap` × 10 punti (15).
+- Aggiornati anche: scheda Metodo (con un esempio rifatto) e foglio Parametri
+  dell'Excel.
+- Controllo del contrasto: lo snippet dell'audit non interpreta i colori `oklab` con
+  alpha usati dai fondi tenui, quindi per questo modulo il controllo è stato rifatto
+  con un canvas che risolve i colori e compone i fondi. Da portare nello script
+  dell'audit se si vuole un controllo valido per tutte le schermate.
+
+## Chiusura del modulo Valutazione 5P · 2026-10-09
+- Stato: migrazione, calcolo unico (media piatta Dirigente + Peer, autovalutazione
+  fuori, × 10) e profilo della persona con valori attesi, skill gap, radar e barre
+  Bklit sono completati. Chiusura approvata da Roberto.
+- Importazione dei valori attesi da Excel: **non fatta, per scelta**. Resta
+  l'inserimento a mano; da riprendere solo se serve.
+

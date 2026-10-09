@@ -4,12 +4,14 @@ import { SelectField } from '@/components/patterns/SelectField'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ITEMS_5P } from '@/modules/assessment/gestione5p/items'
-import { LEVEL_TONE } from '@/modules/assessment/gestione5p/level-style'
-import { CODES, PS, SRC, type State5p, compute, fmt, fmt1, gapOf, level, mean } from '@/modules/assessment/gestione5p/model'
+import { PersonDashboard } from '@/modules/assessment/gestione5p/dashboard/PersonDashboard'
+import { saveDashboardPayload } from '@/modules/assessment/gestione5p/files'
+import { CODES, PS, SRC, type State5p, compute, dd, fmt100, gapOf, get5pDashboardPayload, level, rd } from '@/modules/assessment/gestione5p/model'
 import { ScoreCell } from '@/modules/assessment/gestione5p/ScoreCell'
 import { SourceTag } from '@/modules/assessment/gestione5p/SourceTag'
 
 const itemName = (c: string) => ITEMS_5P.find((i) => i.cod === c)!.area
+const sg = (d: number | null) => (d == null ? '–' : d > 0 ? `+${d}` : d < 0 ? `−${Math.abs(d)}` : '±0')
 
 // 5 · Scheda individuale: il punteggio unico e il livello, il radar a tre
 // fonti più il punteggio unico, punti di forza e aree di sviluppo, il gap di
@@ -20,22 +22,19 @@ export function IndividualeTab({ state, selected, onSelect }: { state: State5p; 
   const r = R.find((x) => x.k === selected) || R[0]
   if (!r) return <p className="text-app-small text-muted-foreground">Nessuna scheda caricata.</p>
   const st = state.set
-  const l = level(r.score)
+  const payload = get5pDashboardPayload(state, r.k)
   const g = gapOf(state, r)
-  const use = st.incAuto ? (['DIR', 'PEER', 'AUTO'] as const) : (['DIR', 'PEER'] as const)
-  const itemFin = CODES.map((c) => ({ c, v: mean(use.map((t) => r.items[c][t])) })).filter((x): x is { c: string; v: number } => x.v != null).sort((a, b) => b.v - a.v)
   const notes = r.ev.flatMap((e) => Object.entries(e.notes || {}).map(([c, n]) => ({ c, n, t: e.tipo, who: e.tipo === 'PEER' ? 'Collega' : e.tipo === 'AUTO' ? 'Autovalutazione' : `Responsabile${e.valutatore ? ` · ${e.valutatore}` : ''}` }))).sort((a, b) => a.c.localeCompare(b.c))
   const axes = PS.map((p) => ({ key: p.k, label: `${p.k} · ${p.n}` }))
-  const vals = (get: (k: string) => number | null) => Object.fromEntries(PS.map((p) => [p.k, get(p.k) ?? 0]))
+  const vals = (get: (k: string) => number | null) => Object.fromEntries(PS.map((p) => [p.k, rd(get(p.k)) ?? 0]))
   const series = [
-    { label: 'Punteggio unico', values: vals((k) => r.fin[k]) },
+    { label: 'Voto (Dirigente + Peer)', values: vals((k) => r.fin[k]) },
     ...(['DIR', 'PEER', 'AUTO'] as const).filter((t) => PS.every((p) => r.src[p.k][t] != null)).map((t) => ({ label: SRC[t].lab, values: vals((k) => r.src[k][t]), reference: t === 'AUTO' })),
   ]
   const gapRows = PS.map((p) => {
     const s = r.src[p.k]
-    const o = mean([s.DIR, s.PEER])
-    const d = s.AUTO != null && o != null ? s.AUTO - o : null
-    const it = d == null ? '–' : Math.abs(d) < st.gap ? 'Percezione allineata' : d > 0 ? 'Si sopravvaluta' : 'Si sottovaluta'
+    const d = dd(s.AUTO, r.fin[p.k])
+    const it = d == null ? '–' : Math.abs(d) < Math.round(st.gap * 10) ? 'Percezione allineata' : d > 0 ? 'Si sopravvaluta' : 'Si sottovaluta'
     return { p, s, it }
   })
 
@@ -51,32 +50,15 @@ export function IndividualeTab({ state, selected, onSelect }: { state: State5p; 
         </SelectField>
       </Field>
 
-      <div className="flex flex-wrap items-center gap-6 rounded-lg border border-border p-4">
-        <div>
-          <h3 className="text-app-title text-foreground">{r.nome}</h3>
-          <p className="text-app-small text-muted-foreground">{[r.ruolo, r.reparto, r.resp ? `Responsabile: ${r.resp}` : ''].filter(Boolean).join(' · ')}</p>
-          <p className="mt-1 flex flex-wrap gap-3">
-            <SourceTag source="DIR" count={r.cnt.DIR} long />
-            <SourceTag source="PEER" count={r.cnt.PEER} long />
-            <SourceTag source="AUTO" count={r.cnt.AUTO} long />
-          </p>
-        </div>
-        <div className="ml-auto text-right">
-          <div className="font-mono text-4xl font-semibold tabular-nums">{fmt(r.score)}</div>
-          <Badge tone={LEVEL_TONE[l.c]}>Punteggio 5P · {l.t}</Badge>
-        </div>
-      </div>
-      {r.cnt.PEER > 0 && r.cnt.PEER < st.peerMin ? (
-        <p className="rounded-md surface-warning px-3 py-2 text-app-small text-warning">Solo {r.cnt.PEER} collega/i: la media Peer può essere ricondotta a chi l&apos;ha data. Nel colloquio mostrare solo il punteggio finale.</p>
-      ) : null}
+      {payload ? <PersonDashboard payload={payload} onExport={() => saveDashboardPayload(payload)} /> : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
           <h3 className="text-app-section text-foreground">Profilo per fonte</h3>
-          <ProfileRadar title={`Profilo 5P di ${r.nome}`} axes={axes} series={series} />
+          <ProfileRadar title={`Profilo 5P di ${r.nome}`} axes={axes} series={series} max={100} format={(n) => String(Math.round(n))} />
         </div>
         <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
-          <h3 className="text-app-section text-foreground">Punteggio unico per P</h3>
+          <h3 className="text-app-section text-foreground">Voto per P</h3>
           <Table frame>
             <TableHeader>
               <TableRow>
@@ -84,7 +66,7 @@ export function IndividualeTab({ state, selected, onSelect }: { state: State5p; 
                 <TableHead className="text-center">Dir.</TableHead>
                 <TableHead className="text-center">Peer</TableHead>
                 <TableHead className="text-center">Auto</TableHead>
-                <TableHead className="text-center">Unico</TableHead>
+                <TableHead className="text-center">Voto</TableHead>
                 <TableHead>Livello</TableHead>
               </TableRow>
             </TableHeader>
@@ -96,9 +78,9 @@ export function IndividualeTab({ state, selected, onSelect }: { state: State5p; 
                     <TableCell>
                       {p.k} {p.n}
                     </TableCell>
-                    <TableCell className="text-center font-mono tabular-nums">{fmt1(s.DIR)}</TableCell>
-                    <TableCell className="text-center font-mono tabular-nums">{fmt1(s.PEER)}</TableCell>
-                    <TableCell className="text-center font-mono tabular-nums">{fmt1(s.AUTO)}</TableCell>
+                    <TableCell className="text-center font-mono tabular-nums">{fmt100(s.DIR)}</TableCell>
+                    <TableCell className="text-center font-mono tabular-nums">{fmt100(s.PEER)}</TableCell>
+                    <TableCell className="text-center font-mono tabular-nums">{fmt100(s.AUTO)}</TableCell>
                     <ScoreCell value={r.fin[p.k]} />
                     <TableCell>{level(r.fin[p.k]).t}</TableCell>
                   </TableRow>
@@ -106,31 +88,13 @@ export function IndividualeTab({ state, selected, onSelect }: { state: State5p; 
               })}
             </TableBody>
           </Table>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <h4 className="mb-1 text-app-small font-semibold">Punti di forza</h4>
-              {itemFin.slice(0, 3).map((x) => (
-                <div key={x.c} className="text-app-small">
-                  {x.c} {itemName(x.c)} · <b className="font-mono">{fmt1(x.v)}</b>
-                </div>
-              ))}
-            </div>
-            <div>
-              <h4 className="mb-1 text-app-small font-semibold">Aree di sviluppo</h4>
-              {itemFin.slice(-3).reverse().map((x) => (
-                <div key={x.c} className="text-app-small">
-                  {x.c} {itemName(x.c)} · <b className="font-mono">{fmt1(x.v)}</b>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
           <h3 className="text-app-section text-foreground">Gap di percezione</h3>
-          <p className="text-app-caption text-muted-foreground">Differenze tra fonti. Positivo nelle prime due colonne = gli altri valutano più alto di quanto si valuti la persona.{g.d != null ? ` Gap complessivo auto contro gli altri: ${fmt1(g.d)}.` : ''}</p>
+          <p className="text-app-caption text-muted-foreground">Differenze tra fonti. Positivo nelle prime due colonne = gli altri valutano più alto di quanto si valuti la persona.{g.d != null ? ` Gap complessivo autovalutazione meno voto: ${sg(g.d)} punti.` : ''}</p>
           <Table frame>
             <TableHeader>
               <TableRow>
@@ -147,9 +111,9 @@ export function IndividualeTab({ state, selected, onSelect }: { state: State5p; 
                   <TableCell>
                     {p.k} {p.n}
                   </TableCell>
-                  <TableCell className="text-center font-mono tabular-nums">{s.DIR != null && s.AUTO != null ? fmt1(s.DIR - s.AUTO) : '–'}</TableCell>
-                  <TableCell className="text-center font-mono tabular-nums">{s.PEER != null && s.AUTO != null ? fmt1(s.PEER - s.AUTO) : '–'}</TableCell>
-                  <TableCell className="text-center font-mono tabular-nums">{s.DIR != null && s.PEER != null ? fmt1(s.DIR - s.PEER) : '–'}</TableCell>
+                  <TableCell className="text-center font-mono tabular-nums">{sg(dd(s.DIR, s.AUTO))}</TableCell>
+                  <TableCell className="text-center font-mono tabular-nums">{sg(dd(s.PEER, s.AUTO))}</TableCell>
+                  <TableCell className="text-center font-mono tabular-nums">{sg(dd(s.DIR, s.PEER))}</TableCell>
                   <TableCell>
                     <Badge tone={it === 'Percezione allineata' ? 'success' : it === '–' ? 'neutral' : 'warning'}>{it}</Badge>
                   </TableCell>
@@ -178,9 +142,9 @@ export function IndividualeTab({ state, selected, onSelect }: { state: State5p; 
                       <TableCell>
                         <span className="font-mono">{c}</span> {itemName(c)}
                       </TableCell>
-                      <TableCell className="text-center font-mono tabular-nums">{fmt1(s.DIR)}</TableCell>
-                      <TableCell className="text-center font-mono tabular-nums">{fmt1(s.PEER)}</TableCell>
-                      <TableCell className="text-center font-mono tabular-nums">{fmt1(s.AUTO)}</TableCell>
+                      <TableCell className="text-center font-mono tabular-nums">{fmt100(s.DIR)}</TableCell>
+                      <TableCell className="text-center font-mono tabular-nums">{fmt100(s.PEER)}</TableCell>
+                      <TableCell className="text-center font-mono tabular-nums">{fmt100(s.AUTO)}</TableCell>
                     </TableRow>
                   )
                 })}
