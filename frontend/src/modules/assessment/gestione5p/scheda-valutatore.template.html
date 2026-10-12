@@ -7,33 +7,38 @@
 /* Colori e raggi arrivano dai token della piattaforma, iniettati alla generazione (chiaro e scuro). Nessun valore scritto qui. */
 /*SVTOKENS*/
 *{box-sizing:border-box}[hidden]{display:none!important}
-:root{--f:"Geist",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--m:"Geist Mono",ui-monospace,Consolas,monospace}
+:root{--f:"Geist",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--font-mono:"Geist Mono",ui-monospace,Consolas,monospace}
 body{margin:0;background:var(--background);color:var(--foreground);font:400 14px/1.5 var(--f)}
 .top{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--border)}
 .wrap{max-width:1100px;margin:0 auto;padding-inline:16px}
 .top .wrap{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding-block:12px}
 .top h1{font-size:18px;font-weight:600;margin:0}
 .top .who{color:var(--muted-foreground);font-size:12px}
-.prog{margin-left:auto;display:flex;gap:12px;align-items:center;font:500 12px var(--m)}
+.prog{margin-left:auto;display:flex;gap:12px;align-items:center;font:500 12px var(--font-mono)}
 .prog .t{width:160px;height:8px;border-radius:99px;background:var(--muted);overflow:hidden}.prog .t i{display:block;height:100%;background:var(--foreground)}
 .layout{display:grid;grid-template-columns:270px 1fr;gap:24px;padding-block:24px 64px}
 @media (max-width:820px){.layout{grid-template-columns:1fr}}
+@media (max-width:640px){.top{position:static}}
 aside{display:flex;flex-direction:column;gap:8px;min-width:0}
 aside button{all:unset;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:4px 8px;padding:12px;border-radius:16px;border:1px solid var(--border);background:var(--card);color:var(--foreground)}
 aside button:hover{border-color:var(--primary)}
 aside button small{color:var(--muted-foreground);font-size:12px;grid-column:1}
-aside button .st{grid-row:1/3;grid-column:2;align-self:center;font:500 12px var(--m)}
+aside button .st{grid-row:1/3;grid-column:2;align-self:center;font:500 12px var(--font-mono)}
 aside button[aria-current="true"]{border:2px solid var(--primary);padding:11px}
 aside button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
-aside h3{font:500 12px var(--m);text-transform:uppercase;letter-spacing:.06em;color:var(--muted-foreground);margin:12px 0 4px}
+aside h3{font:500 12px var(--font-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted-foreground);margin:12px 0 4px}
+aside h3:first-child{margin-top:0}
+@media (max-width:820px){aside{flex-direction:row;overflow-x:auto;gap:8px;padding-bottom:8px}aside h3{display:none}aside button{flex:0 0 auto;width:190px}}
 main{min-width:0;display:flex;flex-direction:column;gap:16px}
+.pg{display:flex;flex-direction:column;gap:16px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:12px}
 h2{font-size:20px;font-weight:600;margin:0}h3{margin:0;font-size:18px;font-weight:600}p{margin:0;max-width:78ch}
 .muted{color:var(--muted-foreground)}.small{font-size:12px}
-.pill{display:inline-block;font:500 12px var(--m);letter-spacing:.04em;text-transform:uppercase;padding:4px 8px;border-radius:99px;background:var(--muted);color:var(--muted-foreground);border:1px solid var(--border)}
+.pill{display:inline-block;font:500 12px var(--font-mono);letter-spacing:.04em;text-transform:uppercase;padding:4px 8px;border-radius:99px;background:var(--muted);color:var(--muted-foreground);border:1px solid var(--border)}
 .pill.ok{background:color-mix(in oklab,var(--success) 12%,transparent);border-color:color-mix(in oklab,var(--success) 20%,transparent);color:var(--success)}
 .pill.warn{background:color-mix(in oklab,var(--warning) 12%,transparent);border-color:color-mix(in oklab,var(--warning) 20%,transparent);color:var(--warning)}
-table{border-collapse:collapse;width:100%;font-size:14px}td,th{border-bottom:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}th{background:var(--muted);font:500 12px var(--m);letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
+.ok-t{color:var(--success);font-weight:600}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border-bottom:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}th{background:var(--muted);font:500 12px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
 a{color:var(--foreground)}
 .tw{overflow-x:auto}
 .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
@@ -48,14 +53,20 @@ a{color:var(--foreground)}
 .lv5{background:var(--card);border:2px solid var(--foreground)}
 .ph{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;border-bottom:2px solid var(--primary);padding-bottom:8px;margin-top:8px}
 .ph b{font-size:18px;font-weight:600}.ph span{color:var(--muted-foreground);font-size:12px}
+.ph .pc{margin-left:auto;font:500 12px var(--font-mono)}.ph .pc.ok{color:var(--success)}
 .item{border:1px solid var(--border);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--card)}
 .item.done{border-color:color-mix(in oklab,var(--success) 45%,var(--border))}
+.item.na .bar button{opacity:.4}
+.item.flash{border:2px solid var(--primary);padding:15px}
 .ih{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
-.code{font:600 12px var(--m);background:var(--primary);color:var(--primary-foreground);padding:4px 8px;border-radius:10px}
+.code{font:600 12px var(--font-mono);background:var(--primary);color:var(--primary-foreground);padding:4px 8px;border-radius:10px}
 .area{font-weight:600}
 .q{font-size:14px}
+.hint{background:var(--muted);border-radius:16px;padding:8px 12px;font-size:14px}
+.hint b{display:block;font:500 12px var(--font-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted-foreground)}
+.hint ul{margin-top:4px}
 .bar{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
-.bar button{all:unset;cursor:pointer;text-align:center;font:500 14px var(--m);padding:12px 0;border-radius:10px;border:1px solid var(--border);background:var(--muted);color:var(--foreground)}
+.bar button{all:unset;cursor:pointer;text-align:center;font:500 14px var(--font-mono);padding:12px 0;border-radius:10px;border:1px solid var(--border);background:var(--muted);color:var(--foreground)}
 .bar button:hover{border-color:var(--foreground)}
 .bar button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 .bar button.fill{opacity:.7}
@@ -65,19 +76,54 @@ a{color:var(--foreground)}
 .anch div{border-top:2px solid var(--border);padding-top:4px}
 .anch div:nth-child(2){text-align:center}.anch div:nth-child(3){text-align:right}
 .anch b{color:var(--foreground);font-weight:600}
+.anch.demo{background:var(--muted);border-radius:16px;padding:12px}
 .sel{font-size:12px;min-height:20px}
 textarea{width:100%;min-height:44px;font:400 14px var(--f);color:var(--foreground);background:var(--background);border:1px solid var(--border);border-radius:10px;padding:8px}
 textarea:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 .btn{all:unset;cursor:pointer;font-weight:500;font-size:14px;padding:8px 16px;border-radius:16px;border:1px solid var(--border-strong);background:var(--card);color:var(--foreground);display:inline-flex;gap:8px;align-items:center}
 .btn:hover{border-color:var(--primary)}
 .btn.pri{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary)}
+.btn.xs{padding:2px 8px;font-size:12px}
 .btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.lnk{all:unset;cursor:pointer;color:var(--foreground);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.lnk:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 ol,ul{margin:0;padding-left:24px}li{margin-bottom:8px}li:last-child{margin-bottom:0}
-.code-box{font:400 12px var(--m);width:100%;height:96px;word-break:break-all}
+.code-box{font:400 12px var(--font-mono);width:100%;height:96px;word-break:break-all}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:700px){.facts{grid-template-columns:1fr}}
+.fact{border:1px solid var(--border);border-radius:16px;padding:12px 16px;background:var(--background);display:flex;flex-direction:column;gap:4px}
+.fact b{font-size:20px;font-weight:600;line-height:1.25}
+.fact span{font-size:12px;color:var(--muted-foreground)}
+.lbl{font:500 12px var(--font-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted-foreground);margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12px;padding:4px 12px;border-radius:99px;background:var(--muted)}
+.chip .mono{font:600 12px var(--font-mono);margin-right:8px}
+.p5{display:flex;flex-wrap:wrap;gap:8px}
+.p5 button{all:unset;cursor:pointer;display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border:1px solid var(--border);border-radius:16px;font-weight:500;font-size:14px;background:var(--card)}
+.p5 button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.pcard{border-left:4px solid var(--primary)}
+.lvls{display:flex;flex-direction:column}
+.lv{display:grid;grid-template-columns:190px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.lv:last-child{border-bottom:0}
+@media (max-width:640px){.lv{grid-template-columns:1fr;gap:4px}}
+.lvh{border-radius:10px;padding:4px 8px;font-weight:600;align-self:start}
+.errs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:700px){.errs{grid-template-columns:1fr}}
+.err{border:1px solid var(--border);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.ex{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:640px){.ex{grid-template-columns:1fr}}
+.ex div{border-radius:16px;padding:12px;font-size:14px}
+.ex b{display:block;font:500 12px var(--font-mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.ex .bad{background:color-mix(in oklab,var(--warning) 12%,transparent)}.ex .bad b{color:var(--warning)}
+.ex .good{background:color-mix(in oklab,var(--success) 12%,transparent)}.ex .good b{color:var(--success)}
+.faqs{display:flex;flex-direction:column;gap:8px}
+details.faq{border:1px solid var(--border);border-radius:16px;padding:12px 16px}
+details.faq summary{cursor:pointer;font-weight:600}
+details.faq p{margin-top:8px}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--foreground);color:var(--background);padding:12px 16px;border-radius:16px;font-size:14px;z-index:9}
-@media print{.top,aside,.nav,.btn{display:none!important}.layout{display:block}}
+@media print{.top,aside,.nav,.btn,.lnk,#toast{display:none!important}.layout{display:block;padding:0}.card{break-inside:avoid}.pg+.pg{break-before:page}.scale div,.code,.hint,.ex div,.lvh{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style></head><body>
 <div class="top"><div class="wrap">
   <div><h1>Scheda di valutazione 5P</h1><div class="who" id="who"></div></div>
@@ -93,92 +139,217 @@ const D=/*SVDATA*/null;
 const KEY='sv5p_ans2_'+D.pianoId+'_'+D.valutatore;
 let A={};try{A=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){A={}}
 const ak=i=>D.persone[i].tipo+'|'+D.persone[i].valutato;
-D.persone.forEach((p,i)=>{if(!A[ak(i)])A[ak(i)]={scores:{},notes:{}}});
-let cur='istr';
+D.persone.forEach((p,i)=>{const k=ak(i);A[k]=A[k]||{};A[k].scores=A[k].scores||{};A[k].notes=A[k].notes||{};A[k].no=A[k].no||{}});
+let HINTS=true;try{HINTS=localStorage.getItem('sv5p_hints')!=='0'}catch(e){}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TIPO={DIR:'Valutazione del Responsabile',PEER:'Valutazione del Collega',AUTO:'Autovalutazione'};
-const SCALE=[[1,2,'Non adeguato','Il comportamento è assente o nettamente al di sotto delle aspettative del ruolo'],[3,4,'In sviluppo','Il comportamento è presente in modo discontinuo; richiede supporto frequente'],[5,6,'Adeguato','Il comportamento è stabile e coerente con le aspettative standard del ruolo'],[7,8,'Avanzato','Il comportamento supera le aspettative; è un punto di riferimento per il team'],[9,10,'Eccellente','Il comportamento è un benchmark aziendale; trasferisce valore agli altri']];
+const GUIDE=[['istr','Benvenuto','Cosa ti chiediamo e perché'],['mod','Il modello 5P','Le 5 aree e cosa osservare'],['voto','Come dare il voto','Scala, esempi, errori da evitare'],['faq','Domande frequenti','Riservatezza e aiuto']];
+const SCALE=[
+ [1,2,'Non adeguato','Il comportamento è assente o nettamente al di sotto delle aspettative del ruolo',"Manca le scadenze quasi sempre, anche con i promemoria."],
+ [3,4,'In sviluppo','Il comportamento è presente in modo discontinuo; richiede supporto frequente',"Rispetta le scadenze solo dopo più solleciti."],
+ [5,6,'Adeguato','Il comportamento è stabile e coerente con le aspettative standard del ruolo',"Rispetta le scadenze ordinarie, a volte dopo un promemoria."],
+ [7,8,'Avanzato','Il comportamento supera le aspettative; è un punto di riferimento per il team',"È puntuale anche nei periodi più difficili e avvisa in anticipo se qualcosa rischia di slittare."],
+ [9,10,'Eccellente','Il comportamento è un benchmark aziendale; trasferisce valore agli altri',"È sempre puntuale e aiuta il gruppo a organizzarsi per rispettare i tempi."]];
 const band=v=>SCALE.find(s=>v>=s[0]&&v<=s[1]);
+const PX={
+ A:{t:"Il sapere e il saper fare del ruolo",long:"Misura quanto la persona conosce il proprio mestiere e lo applica: competenze tecniche, conoscenza di processi e procedure, uso degli strumenti, qualità delle decisioni e capacità di trasmettere agli altri ciò che sa.",look:["Come affronta un compito tecnico senza aiuto","Se i colleghi le chiedono un parere","Quanto sono corrette le decisioni che prende nel suo ambito"]},
+ B:{t:"I risultati concreti del lavoro",long:"Misura che cosa la persona produce e con quale affidabilità: rispetto di scadenze e obiettivi, qualità del lavoro consegnato, contributo agli obiettivi del gruppo, autonomia e impegno a migliorarsi.",look:["Se le consegne arrivano nei tempi concordati","Quante volte il lavoro va corretto o rifatto","Quanta supervisione serve"]},
+ C:{t:"Come affronta cambiamenti, pressione e problemi",long:"Misura la capacità di adattarsi: reazione ai cambiamenti, gestione del carico e dello stress, velocità di apprendimento, soluzione dei problemi e disponibilità a coprire ruoli diversi.",look:["Come ha reagito all'ultimo cambiamento di procedura o di organizzazione","Che cosa succede nei periodi di picco","Come affronta un problema mai visto prima"]},
+ D:{t:"L'atteggiamento verso il ruolo e l'azienda",long:"Misura il coinvolgimento: impegno e senso di responsabilità, contributo agli obiettivi aziendali, partecipazione attiva, motivazione e qualità delle relazioni con i colleghi.",look:["Se si prende la responsabilità dei risultati","Come partecipa a riunioni e progetti","Che effetto ha sul clima del gruppo"]},
+ E:{t:"La capacità di crescere",long:"Misura quanto la persona può ancora svilupparsi: uso del feedback, consapevolezza di sé, formazione, adozione di nuove tecnologie e obiettivi di crescita personale.",look:["Che cosa cambia dopo un feedback","Se cerca la formazione o la evita","Come accoglie un nuovo strumento di lavoro"]}};
+const HINT={
+ A1:["Svolge i compiti tecnici del ruolo senza bisogno di aiuto?","Gli errori dovuti a lacune tecniche sono rari?","I colleghi la consultano sulle questioni tecniche?"],
+ A2:["Conosce le procedure e le applica senza doverle chiedere?","Sa da dove arriva e dove va il proprio lavoro nel processo?","Ha proposto miglioramenti concreti a un processo?"],
+ A3:["Usa in autonomia software, macchinari e strumenti del ruolo?","Sfrutta le funzioni che fanno risparmiare tempo o evitano errori?","Aiuta i colleghi a usarli meglio?"],
+ A4:["Le decisioni prese nel suo ambito si rivelano corrette?","Decide in tempi adeguati, anche con informazioni incomplete?","Quando comunica, gli altri capiscono subito che cosa fare?"],
+ A5:["Documenta ciò che fa: istruzioni, note, procedure?","Condivide ciò che sa senza che glielo si chieda?","Ha formato o affiancato colleghi meno esperti?"],
+ B1:["Consegna nei tempi concordati?","Avvisa per tempo quando un ritardo è inevitabile?","Raggiunge gli obiettivi assegnati nel periodo?"],
+ B2:["Quante volte il suo lavoro deve essere corretto o rifatto?","Controlla il proprio lavoro prima di consegnarlo?","Chi riceve il suo lavoro, collega o cliente, ne è soddisfatto?"],
+ B3:["Aiuta i colleghi quando serve, anche fuori dal proprio compito?","Mette l'obiettivo del gruppo davanti al proprio interesse?","Condivide le informazioni utili al lavoro degli altri?"],
+ B4:["Quanta supervisione serve perché il lavoro sia fatto bene?","Organizza da sé priorità e attività?","Affronta i compiti nuovi senza aspettare istruzioni dettagliate?"],
+ B5:["Negli ultimi 12 mesi ha migliorato in modo visibile le proprie competenze?","Chiede di imparare cose nuove o si limita a ciò che è obbligatorio?","Applica al lavoro ciò che ha imparato?"],
+ C1:["Come ha reagito all'ultimo cambiamento di procedura, orario o organizzazione?","Dopo quanto tempo il suo lavoro è tornato a pieno ritmo?","Aiuta gli altri ad adattarsi o alimenta le resistenze?"],
+ C2:["Nei periodi di picco mantiene qualità e precisione?","Sotto pressione mantiene calma e cortesia con gli altri?","Chiede aiuto o riorganizza il lavoro prima di andare in difficoltà?"],
+ C3:["Impara in fretta una nuova procedura o un nuovo compito?","Una volta imparata, la applica senza errori?","Riesce a usare ciò che ha imparato anche in situazioni diverse?"],
+ C4:["Davanti a un problema nuovo cerca la causa o si ferma?","Le soluzioni che propone funzionano e durano nel tempo?","Anticipa i problemi prima che si presentino?"],
+ C5:["Accetta compiti diversi dal proprio quando serve?","Quando copre un altro ruolo, lo fa bene?","Quante funzioni diverse sa coprire con efficacia?"],
+ D1:["Si prende la responsabilità dei risultati, anche quando qualcosa va storto?","Porta a termine ciò che inizia?","Fa ciò che serve per il risultato o si ferma al minimo richiesto?"],
+ D2:["Conosce gli obiettivi dell'azienda e del suo reparto?","Il suo lavoro ha un effetto visibile su questi obiettivi?","Propone azioni che migliorano i risultati?"],
+ D3:["Nelle riunioni interviene con proposte utili?","Partecipa a iniziative e progetti aziendali?","Aiuta le discussioni ad arrivare a una decisione?"],
+ D4:["Mostra interesse per il proprio lavoro anche senza sollecitazioni?","Rispetta i valori dell'azienda e ne parla in modo costruttivo?","Motiva i colleghi con il proprio esempio?"],
+ D5:["I rapporti con i colleghi sono corretti e collaborativi?","Come gestisce un disaccordo?","La sua presenza migliora il clima del gruppo?"],
+ E1:["Ascolta le critiche senza mettersi sulla difensiva?","Dopo un feedback, il comportamento cambia davvero?","Chiede feedback di propria iniziativa?"],
+ E2:["Riconosce i propri errori e i propri limiti?","Sa dire in che cosa è forte e in che cosa deve migliorare?","L'immagine che ha di sé coincide con ciò che vedono gli altri?"],
+ E3:["Partecipa volentieri alla formazione proposta?","Si aggiorna sul proprio settore anche di propria iniziativa?","Condivide con i colleghi ciò che ha imparato?"],
+ E4:["Quando arriva un nuovo strumento, lo impara in fretta?","Lo usa davvero o torna ai vecchi metodi?","Aiuta i colleghi ad adottarlo?"],
+ E5:["Ha obiettivi di crescita chiari e concreti?","Sta facendo qualcosa di concreto per raggiungerli?","Sono collegati alle esigenze dell'azienda?"]};
+const ERR=[
+ ["Effetto alone","Un punto forte, o un punto debole, influenza tutti gli altri voti.","Valuta ogni domanda da sola, con la sua guida al punteggio."],
+ ["Indulgenza o severità","Voti alti, o bassi, a tutti: per carattere o per non creare problemi.","Confronta il comportamento con le descrizioni della guida, non con il tuo metro personale."],
+ ["Tendenza centrale","5 o 6 a tutto, per non sbilanciarsi.","Se un comportamento è chiaramente sopra o sotto la norma, usa i voti che lo dicono."],
+ ["Effetto recente","Conta solo l'ultimo episodio, positivo o negativo.","Ripensa a tutti gli ultimi 12 mesi."],
+ ["Simpatia e somiglianza","Voti più alti a chi ci è simpatico o ci somiglia.","Valuta i fatti osservati, non il rapporto personale."],
+ ["Confronto tra persone","Voti dati mettendo a confronto le persone dell'elenco.","Confronta ogni persona con la guida al punteggio, non con gli altri."]];
 function save(){try{localStorage.setItem(KEY,JSON.stringify(A))}catch(e){}}
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,3000)}
-const done=i=>Object.keys(A[ak(i)].scores).length;
-const total=()=>D.persone.length*25;
+const rec=i=>A[ak(i)];
+const NI=()=>D.ITEMS.length;
+const nV=i=>Object.keys(rec(i).scores).length;
+const nN=i=>Object.keys(rec(i).no).length;
+const done=i=>nV(i)+nN(i);
+const missing=i=>D.ITEMS.map(it=>it[0]).filter(c=>!(c in rec(i).scores)&&!rec(i).no[c]);
+const total=()=>D.persone.length*NI();
 const filled=()=>D.persone.reduce((s,_,i)=>s+done(i),0);
+const cnt=t=>D.persone.filter(p=>p.tipo===t).length;
+const hrA=()=>D.emailHR?'a <b>'+esc(D.emailHR)+'</b>':"all'ufficio HR";
+const lvc=v=>'lv'+Math.ceil(v/2);
+function tempo(n){const m=n*6;if(m<60)return Math.max(5,Math.round(m/5)*5)+' minuti';const h=Math.round(m/30)/2,int=Math.floor(h);return (int===1?"un'ora":int+' ore')+(h%1?' e mezza':'')}
 function anchors(e){const parts=String(e||'').split('|').map(s=>s.trim());const g=n=>{const p=parts.find(x=>x.startsWith(n+'='));return p?p.slice(String(n).length+1):''};return[g(1),g(5),g(10)]}
+const firstOpen=()=>{for(let i=0;i<D.persone.length;i++)if(missing(i).length)return i;return 'fine'};
+let cur=filled()>0?firstOpen():'istr';
 function side(){
-  let h='<button data-go="istr" aria-current="'+(cur==='istr')+'"><span>Istruzioni e scala</span><small>Da leggere prima di iniziare</small><span class="st">ⓘ</span></button><h3>Persone da valutare ('+D.persone.length+')</h3>';
-  D.persone.forEach((p,i)=>{const d=done(i);h+='<button data-go="'+i+'" aria-current="'+(cur===i)+'"><span>'+esc(p.tipo==='AUTO'?'Me stesso/a':p.valutato)+'</span><small>'+TIPO[p.tipo]+(p.ruolo?' · '+esc(p.ruolo):'')+'</small><span class="st" style="color:var('+(d===25?'--success':'--muted-foreground')+')">'+(d===25?'✓':d+'/25')+'</span></button>'});
+  let h='<h3>Prima di iniziare</h3>'+GUIDE.map(g=>'<button data-go="'+g[0]+'" aria-current="'+(cur===g[0])+'"><span>'+g[1]+'</span><small>'+g[2]+'</small><span class="st">'+(g[0]==='istr'?'ⓘ':'')+'</span></button>').join('');
+  h+='<h3>Persone da valutare ('+D.persone.length+')</h3>';
+  D.persone.forEach((p,i)=>{const d=done(i),n=NI();h+='<button data-go="'+i+'" aria-current="'+(cur===i)+'"><span>'+esc(p.tipo==='AUTO'?'Me stesso/a':p.valutato)+'</span><small>'+TIPO[p.tipo]+(p.ruolo?' · '+esc(p.ruolo):'')+'</small><span class="st" style="color:var('+(d===n?'--success':'--muted-foreground')+')">'+(d===n?'✓':d+'/'+n)+'</span></button>'});
   h+='<h3>Fine</h3><button data-go="fine" aria-current="'+(cur==='fine')+'"><span>Concludi e invia</span><small>Genera il file da restituire</small><span class="st">→</span></button>';
   $('#side').innerHTML=h;
-  const f=filled(),t=total();$('#progT').textContent=f+' / '+t+' voti';$('#progB').style.width=(t?f/t*100:0)+'%';
+  const f=filled(),t=total();$('#progT').textContent=f+' / '+t+' risposte';$('#progB').style.width=(t?f/t*100:0)+'%';
 }
-function istr(){
-  return '<div class="card"><h2>Gentile '+esc(D.valutatore)+',</h2>'+
-  '<p>ti chiediamo di valutare le competenze professionali delle persone dell\'elenco'+(D.azienda?' per <b>'+esc(D.azienda)+'</b>':'')+'. La valutazione serve allo sviluppo professionale, non a sanzionare. '+(D.scadenza?'Ti chiediamo di completarla entro il <b>'+esc(D.scadenza)+'</b>.':'')+'</p>'+
+function guideNav(k){const prev=k>0?GUIDE[k-1]:null,next=k<GUIDE.length-1?GUIDE[k+1]:null;
+  const L=prev?'<button class="btn" data-go="'+prev[0]+'">← '+prev[1]+'</button>':'<button class="btn" data-print="1">Stampa la guida</button>';
+  const R=next?(k===0?'<button class="btn" data-go="0">Salta la guida</button>':'')+'<button class="btn pri" data-go="'+next[0]+'">'+next[1]+' →</button>':'<button class="btn pri" data-go="0">Inizia la valutazione →</button>';
+  return '<div class="nav">'+L+'<div class="row">'+R+'</div></div>'}
+function pgIstr(){
+  const n=D.persone.length,nd=cnt('DIR'),np=cnt('PEER'),na=cnt('AUTO');
+  const parts=[];if(nd)parts.push(nd+' come responsabile');if(np)parts.push(np+' come collega');
+  let sub=parts.join(', ');if(na)sub+=(sub?' e ':'')+'la tua autovalutazione';
+  return '<section class="pg"><div class="card"><h2>Gentile '+esc(D.valutatore)+',</h2>'+
+  '<p>'+(D.azienda?'<b>'+esc(D.azienda)+'</b> ti chiede':'Ti chiediamo')+' di partecipare alla valutazione delle competenze professionali con il <b>modello 5P</b>. La valutazione serve allo sviluppo professionale delle persone, non a sanzionare.</p>'+
+  '<div class="facts">'+
+   '<div class="fact"><b>'+n+'</b><span>'+(n===1?'valutazione da compilare':'valutazioni da compilare')+(sub?': '+esc(sub):'')+'</span></div>'+
+   '<div class="fact"><b>'+tempo(n)+'</b><span>tempo indicativo. Puoi farlo anche in più volte: le risposte si salvano da sole</span></div>'+
+   '<div class="fact"><b>'+(D.scadenza?esc(D.scadenza):'—')+'</b><span>'+(D.scadenza?'scadenza':'nessuna scadenza indicata')+(D.emailHR?' · restituisci il file a '+esc(D.emailHR):'')+'</span></div>'+
+  '</div>'+
   '<p class="small muted">Le tue risposte vengono salvate automaticamente su questo computer: puoi chiudere la scheda e riprendere più tardi, purché la riapra dallo stesso file e con lo stesso browser.</p></div>'+
   '<div class="card"><h3>Come si compila</h3><ol>'+
-  '<li>Apri una persona dall\'elenco. Per ognuna ci sono <b>25 domande</b>, divise nelle <b>5 P</b>.</li>'+
-  '<li>Leggi la <b>domanda</b> e la <b>guida al punteggio</b> sotto la barra: descrive cosa significa 1, 5 e 10 per quella domanda. Tutti i valutatori usano la stessa guida, così i voti sono confrontabili.</li>'+
-  '<li>Clicca sulla barra il numero da <b>1 a 10</b> che descrive meglio il comportamento che hai <b>osservato direttamente</b> negli ultimi 12 mesi.</li>'+
+  '<li>Leggi questa <b>guida</b>: quattro pagine brevi, circa 5 minuti. Spiega il modello, la scala e come dare voti equi.</li>'+
+  "<li>Apri una persona dall'elenco. Per ognuna ci sono <b>"+NI()+" domande</b>, divise nelle <b>5 P</b>.</li>"+
+  '<li>Leggi la <b>domanda</b> e la <b>guida al punteggio</b> sotto la barra: descrive che cosa significa 1, 5 e 10 per quella domanda. Il riquadro <b>Cosa osservare</b> suggerisce i comportamenti a cui pensare. Tutti i valutatori usano la stessa guida, così i voti sono confrontabili.</li>'+
+  '<li>Clicca sulla barra il numero da <b>1 a 10</b> che descrive meglio il comportamento che hai <b>osservato direttamente</b> negli ultimi 12 mesi. Se non hai elementi, premi <b>Non so valutare</b>.</li>'+
   '<li>Scrivi nelle <b>note</b> un esempio concreto che giustifica il voto. Non è obbligatorio, ma rende la valutazione molto più utile.</li>'+
-  '<li>Alla fine vai su <b>Concludi e invia</b>, scarica il file delle risposte e invialo '+(D.emailHR?'a <b>'+esc(D.emailHR)+'</b>':'all\'ufficio HR')+'.</li></ol></div>'+
-  '<div class="card"><h3>Scala di valutazione</h3><div class="scale">'+SCALE.map((s,i)=>'<div class="lv'+(i+1)+'"><b>'+s[0]+'–'+s[1]+' '+s[2]+'</b>'+s[3]+'</div>').join('')+'</div></div>'+
-  '<div class="card"><h3>Le 5 P</h3><div class="tw"><table><tr><th>P</th><th>Cosa misura</th></tr>'+D.PS.map(p=>'<tr><td><b>'+p.k+' – '+esc(p.n)+'</b></td><td>'+esc(p.d)+'</td></tr>').join('')+'</table></div></div>'+
-  '<div class="card"><h3>Regole per una valutazione equa</h3><ul>'+
-  '<li>Valuta i <b>fatti osservati</b>, non la simpatia o l\'impressione generale.</li>'+
-  '<li>Valuta ogni domanda <b>separatamente</b>: un punto forte non deve alzare tutti gli altri voti.</li>'+
-  '<li>Usa <b>tutta la scala</b>: 5–6 significa "adeguato al ruolo", non "insufficiente". Riserva 9–10 ai comportamenti che sono un esempio per tutta l\'azienda.</li>'+
-  '<li>Considera gli <b>ultimi 12 mesi</b>, non solo l\'ultimo episodio.</li>'+
-  '<li>Se non hai mai osservato un comportamento, lascia la domanda <b>senza voto</b> e scrivilo nelle note: non viene contata nella media.</li>'+
-  '<li>Le valutazioni dei colleghi restano <b>anonime</b>: la persona valutata vede solo medie aggregate.</li>'+
-  '<li>Nell\'autovalutazione, riferisci ogni domanda a <b>te stesso</b>.</li></ul></div>'+
-  '<div class="nav"><span></span><button class="btn pri" data-go="0">Inizia dalla prima persona →</button></div>';
-}
+  '<li>Alla fine vai su <b>Concludi e invia</b>, scarica il file delle risposte e invialo '+hrA()+'.</li></ol></div>'+
+  '<div class="card"><h3>A che cosa serve la tua valutazione</h3>'+
+  '<p>Ogni persona viene valutata da più punti di vista: il responsabile, alcuni colleghi e la persona stessa. Più valutatori danno un quadro più equilibrato di un giudizio singolo.</p>'+
+  "<p>Per ogni domanda e per ogni P si calcola la <b>media</b> delle valutazioni di responsabile e colleghi. L'<b>autovalutazione</b> resta separata: serve a confrontare come ci si vede con come si è visti.</p>"+
+  '<p>Con questi dati si prepara un <b>report per ogni persona</b>, da discutere con il proprio responsabile: punti di forza, aree da sviluppare, formazione e obiettivi.</p></div>'+
+  guideNav(0)+'</section>'}
+function pgMod(){
+  return '<section class="pg"><div class="card"><h2>Il modello 5P</h2><p>Le '+NI()+' domande sono divise in cinque aree, le <b>5 P</b>. Insieme descrivono una persona al lavoro: che cosa sa fare, che risultati ottiene, come affronta i cambiamenti, come vive il proprio ruolo e quanto può ancora crescere.</p>'+
+  '<div class="p5">'+D.PS.map(P=>'<button data-scroll="p-'+P.k+'"><span class="code">'+P.k+'</span>'+esc(P.n)+'</button>').join('')+'</div></div>'+
+  D.PS.map(P=>{const x=PX[P.k]||{},its=D.ITEMS.filter(it=>it[0][0]===P.k);
+    return '<div class="card pcard" id="p-'+P.k+'"><div class="ih"><span class="code">'+P.k+'</span><h3>'+esc(P.n)+'</h3>'+(x.t?'<span class="muted small">'+esc(x.t)+'</span>':'')+'</div>'+
+    '<p>'+esc(x.long||P.d)+'</p>'+
+    '<div><div class="lbl">Le '+its.length+' domande</div><div class="chips">'+its.map(it=>'<span class="chip"><span class="mono">'+it[0]+'</span>'+esc(it[1])+'</span>').join('')+'</div></div>'+
+    (x.look?'<div class="hint"><b>Cosa osservare</b><ul>'+x.look.map(l=>'<li>'+esc(l)+'</li>').join('')+'</ul></div>':'')+'</div>'}).join('')+
+  guideNav(1)+'</section>'}
+function pgVoto(){
+  const b1=D.ITEMS.find(it=>it[0]==='B1'),an=b1?anchors(b1[3]):null;
+  return '<section class="pg"><div class="card"><h2>Come dare il voto</h2><p>Ogni domanda si valuta con un numero da <b>1 a 10</b>. La scala ha cinque livelli, uguali per tutte le domande.</p>'+
+  '<div class="scale">'+SCALE.map(s=>'<div class="'+lvc(s[1])+'"><b>'+s[0]+'–'+s[1]+' '+s[2]+'</b>'+s[3]+'</div>').join('')+'</div>'+
+  "<p class=\"small\"><b>5–6 significa “adeguato al ruolo”</b>, non insufficiente. Riserva 9–10 ai comportamenti che sono un esempio per tutta l'azienda.</p></div>"+
+  (b1?'<div class="card"><h3>Un esempio sulla stessa domanda</h3><p class="small muted">'+esc(b1[0]+' '+b1[1])+' · '+esc(b1[2])+'</p>'+
+    '<div class="lvls">'+SCALE.map(s=>'<div class="lv"><span class="lvh '+lvc(s[1])+'">'+s[0]+'–'+s[1]+' '+s[2]+'</span><span>'+esc(s[4])+'</span></div>').join('')+'</div></div>':'')+
+  '<div class="card"><h3>La guida al punteggio</h3><p>Sotto ogni domanda trovi tre descrizioni: che cosa significano <b>1</b>, <b>5</b> e <b>10</b> per quel comportamento. Usale come punti di riferimento: 3–4 stanno tra 1 e 5, 7–8 tra 5 e 10.</p>'+
+    (an?'<div class="anch demo"><div><b>1</b> · '+esc(an[0])+'</div><div><b>5</b> · '+esc(an[1])+'</div><div><b>10</b> · '+esc(an[2])+'</div></div>':'')+
+    '<p><b>Tra due numeri vicini</b> scegli il più alto se il comportamento è costante, il più basso se è presente ma non sempre.</p></div>'+
+  '<div class="card"><h3>Quando non sai valutare</h3><p>Se non hai mai avuto occasione di vedere un comportamento, premi <b>Non so valutare</b>. Non dare un voto “di mezzo” per prudenza: sposterebbe la media senza dire nulla di vero. Le domande senza voto non entrano nel calcolo.</p></div>'+
+  '<div class="card"><h3>Sei errori da evitare</h3><p class="small muted">Sono gli errori di valutazione più studiati. Conoscerli è il modo più semplice per evitarli.</p><div class="errs">'+ERR.map(e=>'<div class="err"><b>'+esc(e[0])+'</b><p class="small">'+esc(e[1])+'</p><p class="small"><span class="ok-t">Come evitarlo:</span> '+esc(e[2])+'</p></div>').join('')+'</div></div>'+
+  '<div class="card"><h3>Come scrivere una nota utile</h3><p>Una buona nota racconta un <b>fatto</b>: la situazione, che cosa ha fatto la persona e che effetto ha avuto. Le note possono comparire nel report della persona, senza il tuo nome: scrivile in modo concreto e rispettoso.</p>'+
+    "<div class=\"ex\"><div class=\"bad\"><b>Poco utile</b>“Bravo, sempre disponibile.”</div><div class=\"good\"><b>Utile</b>“A marzo, con un ordine urgente bloccato, ha trovato il problema in mezz'ora e ha spiegato ai colleghi come evitarlo.”</div>"+
+    '<div class="bad"><b>Poco utile</b>“Deve migliorare la comunicazione.”</div><div class="good"><b>Utile</b>“Negli ultimi tre mesi due ritardi di consegna sono stati comunicati al cliente solo il giorno stesso.”</div></div></div>'+
+  guideNav(2)+'</section>'}
+function pgFaq(open){
+  const Q=[
+   ['Chi vedrà i miei voti?','Le valutazioni dei colleghi sono <b>anonime</b>: nel report della persona compaiono solo le medie, mai i voti del singolo, e le note compaiono senza nome. La valutazione del responsabile non è anonima, perché di norma il responsabile è uno solo. I file con le singole risposte sono visti solo da chi gestisce la valutazione.'],
+   ['Devo rispondere a tutte le domande?','Rispondi a tutte quelle per cui hai elementi concreti. Se non hai mai visto un comportamento, premi <b>Non so valutare</b>: è meglio di un voto dato a caso.'],
+   ['Posso interrompere e riprendere più tardi?','Sì. Le risposte si salvano da sole su questo computer, a ogni clic. Per riprendere, riapri lo stesso file con lo stesso browser: la scheda riparte da dove eri rimasto. Non ritrovi le risposte se apri il file da un altro computer, da un altro browser o in navigazione anonima.'],
+   ['Ho sbagliato un voto: posso correggerlo?',"Sì: clicca il numero giusto oppure <b>Togli voto</b>. Se hai già inviato il file, correggi, scaricalo di nuovo e rimandalo: vale l'ultimo ricevuto."],
+   ['Quanto tempo serve?','Circa 5–7 minuti per persona. La prima richiede qualche minuto in più, finché non prendi confidenza con le domande.'],
+   ['Posso compilare dal telefono?',"Solo se il telefono apre il file in un browser vero, come Chrome o Safari. Spesso invece l'allegato si apre in anteprima: i pulsanti non rispondono e le risposte non si salvano. Il computer è la scelta più sicura."]
+  ].concat(cnt('AUTO')?[["Perché devo fare anche l'autovalutazione?","Serve a confrontare come ti vedi con come ti vedono gli altri. Non entra nella media dei tuoi voti: dove le due visioni coincidono c'è una base solida, dove sono diverse c'è qualcosa da capire insieme."]]:[]).concat([
+   ['Il file delle risposte non si scarica: che cosa faccio?',"Nella pagina <b>Concludi e invia</b> apri «Il download non funziona?»: trovi un codice con le stesse risposte. Copialo e incollalo nel testo dell'email."],
+   ['A chi posso chiedere aiuto?','Scrivi '+hrA()+'.']]);
+  return '<section class="pg"><div class="card"><h2>Domande frequenti</h2><div class="faqs">'+Q.map(q=>'<details class="faq"'+(open?' open':'')+'><summary>'+q[0]+'</summary><p>'+q[1]+'</p></details>').join('')+'</div></div>'+
+  '<div class="card"><h3>Riservatezza</h3><ul>'+
+   '<li>Le risposte servono allo <b>sviluppo professionale</b>: riconoscere i punti di forza, decidere formazione e obiettivi.</li>'+
+   "<li>Le valutazioni dei colleghi sono <b>anonime</b> e vengono unite a quelle del responsabile in un'unica media.</li>"+
+   "<li>Per sapere come vengono trattati i dati personali, fai riferimento all'<b>informativa privacy</b> aziendale"+(D.emailHR?' o scrivi '+hrA():'')+'.</li></ul></div>'+
+  guideNav(3)+'</section>'}
 function person(i){
-  const p=D.persone[i],a=A[ak(i)];
-  let h='<div class="card"><div class="row" style="justify-content:space-between"><div><h2>'+esc(p.tipo==='AUTO'?'Autovalutazione · '+p.valutato:p.valutato)+'</h2><p class="muted small">'+TIPO[p.tipo]+(p.ruolo?' · Ruolo: '+esc(p.ruolo):'')+'</p></div><span class="pill '+(done(i)===25?'ok':'warn')+'">'+done(i)+' / 25 voti</span></div>'+(p.tipo==='AUTO'?'<p class="small">Rispondi pensando a <b>te stesso</b>: dove la domanda dice "il dipendente", leggi "io".</p>':'')+'</div>';
-  D.PS.forEach(P=>{
-    h+='<div class="ph"><b>'+P.k+' – '+esc(P.n)+'</b><span>'+esc(P.d)+'</span></div>';
-    D.ITEMS.filter(it=>it[0][0]===P.k).forEach(it=>{
-      const c=it[0],v=a.scores[c],an=anchors(it[3]),b=v?band(v):null;
-      h+='<div class="item'+(v?' done':'')+'" id="it-'+c+'"><div class="ih"><span class="code">'+c+'</span><span class="area">'+esc(it[1])+'</span></div><div class="q">'+esc(it[2])+'</div>'+
-      '<div class="bar" role="radiogroup" aria-label="Voto '+c+'">'+[1,2,3,4,5,6,7,8,9,10].map(n=>'<button role="radio" aria-checked="'+(v===n)+'" data-c="'+c+'" data-v="'+n+'" class="'+(v&&n<=v?'lv'+Math.ceil(n/2)+' ':'')+(v===n?'on':v&&n<v?'fill':'')+'">'+n+'</button>').join('')+'</div>'+
+  const p=D.persone[i];if(!p)return '<div class="card"><p>Nessuna persona da valutare.</p></div>';
+  const a=rec(i),n=NI(),d=done(i),miss=missing(i);
+  const G={DIR:"Valuti come <b>responsabile</b>. Considera risultati e comportamenti degli ultimi 12 mesi, non solo gli episodi più recenti. Il tuo voto viene unito a quello dei colleghi in un'unica media.",
+    PEER:'Valuti come <b>collega</b>. Basati su ciò che hai visto lavorando insieme. Se una domanda riguarda aspetti che non vedi, per esempio gli obiettivi aziendali o la formazione, premi <b>Non so valutare</b>. Il tuo voto resta anonimo.',
+    AUTO:"Rispondi pensando a <b>te stesso</b>: dove la domanda dice “il dipendente”, leggi “io”, e lo stesso vale per i suggerimenti. L'autovalutazione non entra nella media: serve a confrontare come ti vedi con come ti vedono gli altri. Più sei sincero, più il confronto ti sarà utile."};
+  let h='<div class="card"><div class="row" style="justify-content:space-between"><div><h2>'+esc(p.tipo==='AUTO'?'Autovalutazione · '+p.valutato:p.valutato)+'</h2><p class="muted small">'+TIPO[p.tipo]+(p.ruolo?' · Ruolo: '+esc(p.ruolo):'')+'</p></div><span class="pill '+(d===n?'ok':'warn')+'">'+d+' / '+n+' risposte</span></div>'+
+  '<p class="small">'+(G[p.tipo]||'')+'</p>'+
+  '<div class="row">'+(miss.length?'<button class="btn xs" data-jump="'+miss[0]+'">Vai alla prima domanda senza risposta</button>':'<span class="pill ok">Completa</span>')+'<button class="btn xs" data-hints="1">'+(HINTS?'Nascondi i suggerimenti':'Mostra i suggerimenti')+'</button></div></div>';
+  D.PS.forEach(P=>{const its=D.ITEMS.filter(it=>it[0][0]===P.k),pd=its.filter(it=>(it[0] in a.scores)||a.no[it[0]]).length;
+    h+='<div class="ph"><b>'+P.k+' – '+esc(P.n)+'</b><span>'+esc(P.d)+'</span><span class="pc'+(pd===its.length?' ok':'')+'">'+pd+'/'+its.length+'</span></div>';
+    its.forEach(it=>{
+      const c=it[0],v=a.scores[c],no=!!a.no[c],an=anchors(it[3]),b=v?band(v):null,hi=HINT[c];
+      h+='<div class="item'+(v||no?' done':'')+(no?' na':'')+'" id="it-'+c+'"><div class="ih"><span class="code">'+c+'</span><span class="area">'+esc(it[1])+'</span></div><div class="q">'+esc(it[2])+'</div>'+
+      (HINTS&&hi?'<div class="hint"><b>Cosa osservare</b><ul>'+hi.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>':'')+
+      '<div class="bar" role="radiogroup" aria-label="Voto '+c+'">'+[1,2,3,4,5,6,7,8,9,10].map(k=>'<button role="radio" aria-checked="'+(v===k)+'" data-c="'+c+'" data-v="'+k+'" class="'+(v&&k<=v?lvc(k)+' ':'')+(v===k?'on':v&&k<v?'fill':'')+'">'+k+'</button>').join('')+'</div>'+
       '<div class="anch"><div><b>1</b> · '+esc(an[0])+'</div><div><b>5</b> · '+esc(an[1])+'</div><div><b>10</b> · '+esc(an[2])+'</div></div>'+
-      '<div class="sel">'+(b?'Voto <b>'+v+'</b> · '+b[2]+' — <span class="muted">'+b[3]+'</span> <button class="btn" style="padding:2px 8px;font-size:12px" data-clr="'+c+'">Togli voto</button>':'<span class="muted">Nessun voto</span>')+'</div>'+
-      '<textarea placeholder="Note: esempio concreto che giustifica il voto (facoltativo)" data-n="'+c+'" aria-label="Note '+c+'">'+esc(a.notes[c]||'')+'</textarea></div>';
+      '<div class="sel">'+(b?'Voto <b>'+v+'</b> · '+b[2]+' — <span class="muted">'+b[3]+'</span> <button class="btn xs" data-clr="'+c+'">Togli voto</button>':
+        no?'<span class="pill">Non so valutare</span> <span class="muted">La domanda non entra nella media.</span> <button class="btn xs" data-no="'+c+'">Annulla</button>':
+        '<span class="muted">Nessun voto</span> · <button class="lnk" data-no="'+c+'">Non so valutare</button>')+'</div>'+
+      '<textarea placeholder="'+(no?'Note: perché non puoi valutare (facoltativo)':'Note: un fatto concreto che giustifica il voto (facoltativo)')+'" data-n="'+c+'" aria-label="Note '+c+'">'+esc(a.notes[c]||'')+'</textarea></div>';
     });
   });
   const nx=i+1<D.persone.length?i+1:'fine';
-  h+='<div class="nav"><button class="btn" data-go="'+(i>0?i-1:'istr')+'">← Indietro</button><button class="btn pri" data-go="'+nx+'">'+(nx==='fine'?'Concludi e invia →':'Persona successiva →')+'</button></div>';
-  return h;
-}
-function payload(){return{format:'sv5p-risposte',v:1,pianoId:D.pianoId,azienda:D.azienda,valutatore:D.valutatore,creato:new Date().toISOString(),valutazioni:D.persone.map((p,i)=>({valutato:p.valutato,tipo:p.tipo,ruolo:p.ruolo||'',scores:A[ak(i)].scores,notes:A[ak(i)].notes})).filter(x=>Object.keys(x.scores).length)}}
-function fine(){
-  const miss=D.persone.map((p,i)=>({p,i,d:done(i)})).filter(x=>x.d<25);
-  return '<div class="card"><h2>Concludi e invia</h2>'+
-  (miss.length?'<p><span class="pill warn">Mancano dei voti</span> Puoi inviare lo stesso: le domande senza voto non vengono contate. Se puoi, completale.</p>':'<p><span class="pill ok">Completo</span> Hai dato tutti i '+total()+' voti. Grazie.</p>')+
-  '<div class="tw"><table><tr><th>Persona</th><th>Tipo</th><th>Voti</th></tr>'+D.persone.map((p,i)=>'<tr><td><a href="#" data-go="'+i+'">'+esc(p.tipo==='AUTO'?'Me stesso/a':p.valutato)+'</a></td><td>'+TIPO[p.tipo]+'</td><td>'+done(i)+' / 25</td></tr>').join('')+'</table></div></div>'+
-  '<div class="card"><h3>1. Scarica il file delle risposte</h3><p>Viene creato il file <b>'+esc(fname())+'</b>.</p><div class="row"><button class="btn pri" id="dl">Scarica file risposte</button>'+(window.parent!==window?'<button class="btn" id="send">Invia al sistema (anteprima)</button>':'')+'</div>'+
-  '<h3>2. Invialo</h3><p>Allega il file a un\'email '+(D.emailHR?'indirizzata a <b>'+esc(D.emailHR)+'</b>':'per l\'ufficio HR')+'. Non devi aprirlo né modificarlo.</p>'+
-  '<details><summary class="small">Il download non funziona?</summary><p class="small muted" style="margin:8px 0">Copia questo codice e incollalo nel testo dell\'email: contiene le stesse risposte.</p><textarea class="code-box" id="code" readonly></textarea><div class="row" style="margin-top:6px"><button class="btn" id="copy">Copia codice</button></div></details></div>';
-}
+  h+='<div class="nav"><button class="btn" data-go="'+(i>0?i-1:'faq')+'">← Indietro</button><button class="btn pri" data-go="'+nx+'">'+(nx==='fine'?'Concludi e invia →':'Persona successiva →')+'</button></div>';
+  return h}
+function payload(){return{format:'sv5p-risposte',v:1,pianoId:D.pianoId,azienda:D.azienda,valutatore:D.valutatore,creato:new Date().toISOString(),valutazioni:D.persone.map((p,i)=>{const a=rec(i);return{valutato:p.valutato,tipo:p.tipo,ruolo:p.ruolo||'',scores:a.scores,notes:a.notes,no:Object.keys(a.no)}}).filter(x=>Object.keys(x.scores).length||x.no.length)}}
 function fname(){return 'Risposte_5P_'+String(D.valutatore).replace(/[^\w]+/g,'_')+'.json'}
+function mailto(){return 'mailto:'+D.emailHR+'?subject='+encodeURIComponent('Valutazione 5P – '+D.valutatore)+'&body='+encodeURIComponent('Buongiorno,\n\nin allegato il file con le mie risposte alla valutazione 5P ('+fname()+').\n\nCordiali saluti\n'+D.valutatore)}
+function fine(){
+  const n=NI(),miss=D.persone.reduce((s,_,i)=>s+missing(i).length,0);
+  return '<div class="card"><h2>Concludi e invia</h2>'+
+  (miss?'<p><span class="pill warn">'+(miss===1?'Manca 1 risposta':'Mancano '+miss+' risposte')+'</span> Puoi inviare lo stesso: le domande senza risposta non vengono contate. Se puoi, completale.</p>':'<p><span class="pill ok">Completo</span> Hai risposto a tutte le '+total()+' domande.</p>')+
+  '<div class="tw"><table><tr><th>Persona</th><th>Tipo</th><th>Voti</th><th>Non so valutare</th><th>Da completare</th></tr>'+D.persone.map((p,i)=>{const m=missing(i);return '<tr><td><a href="#" data-go="'+i+'">'+esc(p.tipo==='AUTO'?'Me stesso/a':p.valutato)+'</a></td><td>'+TIPO[p.tipo]+'</td><td>'+nV(i)+' / '+n+'</td><td>'+(nN(i)||'—')+'</td><td>'+(m.length?m.slice(0,6).map(c=>'<a href="#" data-jump="'+i+'|'+c+'">'+c+'</a>').join(' ')+(m.length>6?' +'+(m.length-6):''):'<span class="ok-t">✓</span>')+'</td></tr>'}).join('')+'</table></div></div>'+
+  '<div class="card"><h3>1. Scarica il file delle risposte</h3><p>Viene creato il file <b>'+esc(fname())+'</b>. Contiene solo i tuoi voti e le tue note.</p><div class="row"><button class="btn pri" id="dl">Scarica file risposte</button>'+(window.parent!==window?'<button class="btn" id="send">Invia al sistema (anteprima)</button>':'')+'</div>'+
+  "<h3>2. Invialo</h3><p>Allega il file a un'email "+(D.emailHR?'indirizzata a <b>'+esc(D.emailHR)+'</b>':"per l'ufficio HR")+'. Non devi aprirlo né modificarlo.</p>'+
+  (D.emailHR?"<div class=\"row\"><a class=\"btn\" href=\""+esc(mailto())+"\">Scrivi l'email</a><span class=\"small muted\">Si apre il tuo programma di posta con indirizzo e oggetto già pronti: allega il file appena scaricato.</span></div>":'')+
+  "<details><summary class=\"small\">Il download non funziona?</summary><p class=\"small muted\" style=\"margin:8px 0\">Copia questo codice e incollalo nel testo dell'email: contiene le stesse risposte.</p><textarea class=\"code-box\" id=\"code\" readonly></textarea><div class=\"row\" style=\"margin-top:8px\"><button class=\"btn\" id=\"copy\">Copia codice</button></div></details></div>"+
+  '<div class="card"><h3>Che cosa succede dopo</h3><p>Chi gestisce la valutazione raccoglie le schede di tutti i valutatori e calcola le medie. Con questi dati si prepara un report per ogni persona, da discutere con il proprio responsabile.</p><p class="small muted">Grazie per il tempo che hai dedicato: una valutazione fatta con cura è il contributo più utile alla crescita dei colleghi.</p></div>'}
 function render(){
   side();
   $('#who').textContent='Valutatore: '+D.valutatore+(D.azienda?' · '+D.azienda:'')+(D.scadenza?' · entro il '+D.scadenza:'');
-  $('#main').innerHTML=cur==='istr'?istr():cur==='fine'?fine():person(cur);
+  const PG={istr:pgIstr,mod:pgMod,voto:pgVoto,faq:()=>pgFaq(false),fine:fine};
+  $('#main').innerHTML=typeof cur==='number'?person(cur):(PG[cur]||pgIstr)();
   if(cur==='fine'){const json=JSON.stringify(payload());$('#code').value='SV5P:'+btoa(unescape(encodeURIComponent(json)));
     $('#dl').onclick=()=>{const b=new Blob([json],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=fname();document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},1500);toast('File scaricato: '+fname())};
     $('#copy').onclick=()=>{const t=$('#code');t.select();(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast('Codice copiato'),()=>{document.execCommand&&document.execCommand('copy');toast('Codice selezionato: premi Ctrl+C')})};
     const s=$('#send');if(s)s.onclick=()=>{parent.postMessage({sv5p:payload()},'*');toast('Risposte inviate al sistema')};}
 }
+function keep(){const y=window.scrollY;render();window.scrollTo(0,y)}
+function printGuide(){const m=$('#main');m.innerHTML=pgIstr()+pgMod()+pgVoto()+pgFaq(true);
+  const back=()=>{window.removeEventListener('afterprint',back);render();window.scrollTo(0,0)};window.addEventListener('afterprint',back);window.print()}
 document.addEventListener('click',e=>{
   const g=e.target.closest('[data-go]');if(g){e.preventDefault();const v=g.dataset.go;cur=isNaN(+v)?v:+v;render();window.scrollTo(0,0);return}
-  const b=e.target.closest('[data-v]');if(b&&typeof cur==='number'){A[ak(cur)].scores[b.dataset.c]=+b.dataset.v;save();const y=window.scrollY;render();window.scrollTo(0,y);return}
-  const c=e.target.closest('[data-clr]');if(c){delete A[ak(cur)].scores[c.dataset.clr];save();const y=window.scrollY;render();window.scrollTo(0,y)}
+  const j=e.target.closest('[data-jump]');if(j){e.preventDefault();const s=j.dataset.jump,k=s.indexOf('|');let c=s;if(k>0){cur=+s.slice(0,k);c=s.slice(k+1)}render();const el=document.getElementById('it-'+c);if(el){el.scrollIntoView({block:'center'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1600)}return}
+  const sc=e.target.closest('[data-scroll]');if(sc){const el=document.getElementById(sc.dataset.scroll);if(el)el.scrollIntoView({block:'start'});return}
+  const b=e.target.closest('[data-v]');if(b&&typeof cur==='number'){const a=rec(cur);a.scores[b.dataset.c]=+b.dataset.v;delete a.no[b.dataset.c];save();keep();return}
+  const c=e.target.closest('[data-clr]');if(c&&typeof cur==='number'){delete rec(cur).scores[c.dataset.clr];save();keep();return}
+  const no=e.target.closest('[data-no]');if(no&&typeof cur==='number'){const a=rec(cur),k=no.dataset.no;if(a.no[k])delete a.no[k];else{a.no[k]=true;delete a.scores[k]}save();keep();return}
+  const hb=e.target.closest('[data-hints]');if(hb){HINTS=!HINTS;try{localStorage.setItem('sv5p_hints',HINTS?'1':'0')}catch(err){}keep();return}
+  if(e.target.closest('[data-print]'))printGuide();
 });
-document.addEventListener('input',e=>{const n=e.target.dataset&&e.target.dataset.n;if(n&&typeof cur==='number'){const t=e.target.value.trim();if(t)A[ak(cur)].notes[n]=t;else delete A[ak(cur)].notes[n];save()}});
+document.addEventListener('input',e=>{const n=e.target.dataset&&e.target.dataset.n;if(n&&typeof cur==='number'){const t=e.target.value.trim();if(t)rec(cur).notes[n]=t;else delete rec(cur).notes[n];save()}});
 render();
+if(cur!=='istr')toast('Risposte ritrovate: riprendi da dove eri rimasto');
 </script>
 </body></html>

@@ -4,9 +4,10 @@
 // del file Excel che l'utente apre in Excel: non appartengono all'interfaccia.
 type JSZipCtor = typeof import('jszip')
 
-export type XCell = { v: string | number | null; s?: number }
+export type XCell = { v?: string | number | null; s?: number; f?: string }
 export type XSheet = {
   name: string
+  hidden?: boolean
   rows: (XCell | null | undefined)[][]
   cols?: number[]
   heights?: Record<number, number>
@@ -74,7 +75,8 @@ function sheetXml(sh: XSheet, first: boolean): string {
       if (c == null) return
       const ref = colL(ci) + r
       const st = c.s != null ? ` s="${c.s}"` : ''
-      if (c.v == null || c.v === '') x += `<c r="${ref}"${st}/>`
+      if (c.f) x += `<c r="${ref}"${st} t="str"><f>${xesc(c.f)}</f></c>`
+      else if (c.v == null || c.v === '') x += `<c r="${ref}"${st}/>`
       else if (typeof c.v === 'number' && Number.isFinite(c.v)) x += `<c r="${ref}"${st}><v>${c.v}</v></c>`
       else x += `<c r="${ref}"${st} t="inlineStr"><is><t xml:space="preserve">${xesc(c.v)}</t></is></c>`
     })
@@ -96,7 +98,7 @@ export async function buildXlsx(sheets: XSheet[], names: { name: string; ref: st
   const H = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
   z.file('[Content_Types].xml', `${H}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`)
   z.file('_rels/.rels', `${H}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`)
-  z.file('xl/workbook.xml', `${H}<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><bookViews><workbookView/></bookViews><sheets>${sheets.map((s, i) => `<sheet name="${xesc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets>${names.length ? `<definedNames>${names.map((d) => `<definedName name="${d.name}">${xesc(d.ref)}</definedName>`).join('')}</definedNames>` : ''}</workbook>`)
+  z.file('xl/workbook.xml', `${H}<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><bookViews><workbookView/></bookViews><sheets>${sheets.map((s, i) => `<sheet name="${xesc(s.name)}" sheetId="${i + 1}"${s.hidden ? ' state="hidden"' : ''} r:id="rId${i + 1}"/>`).join('')}</sheets>${names.length ? `<definedNames>${names.map((d) => `<definedName name="${d.name}">${xesc(d.ref)}</definedName>`).join('')}</definedNames>` : ''}<calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>`)
   z.file('xl/_rels/workbook.xml.rels', `${H}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}<Relationship Id="rId${n + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`)
   z.file('xl/styles.xml', STYLES_XML)
   sheets.forEach((s, i) => z.file(`xl/worksheets/sheet${i + 1}.xml`, sheetXml(s, i === 0)))
@@ -105,7 +107,7 @@ export async function buildXlsx(sheets: XSheet[], names: { name: string; ref: st
 }
 
 // Foglio semplice: titolo, intestazione, righe.
-export function simpleSheet(name: string, title: string, header: string[], rows: (string | number)[][], widths: number[]): XSheet {
+export function simpleSheet(name: string, title: string, header: string[], rows: (string | number)[][], widths: number[], o?: Partial<XSheet>): XSheet {
   const n = header.length
   const full = (v: string, s: number): XCell[] => Array.from({ length: n }, (_, i) => ({ v: i ? '' : v, s }))
   return {
@@ -116,5 +118,6 @@ export function simpleSheet(name: string, title: string, header: string[], rows:
     freeze: { r: 2, c: 0 },
     landscape: true,
     rows: [full(title, XS.title), header.map((h) => ({ v: h, s: XS.head })), ...rows.map((r) => r.map((v, i) => ({ v, s: i === 0 ? XS.cellB : typeof v === 'number' ? XS.num : XS.wrap })))],
+    ...o,
   }
 }

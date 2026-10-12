@@ -26,7 +26,7 @@ export function PersonDashboard({ payload, onExport }: { payload: Dash5pPayload;
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <h3 className="text-app-title text-foreground">{person.name}</h3>
-          <Note>{[person.role ? `Mansione: ${person.role}` : '', person.group ? `Reparto: ${person.group}` : ''].filter(Boolean).join(' · ') || 'Mansione e reparto non indicati'}</Note>
+          <Note>{[person.role ? `Mansione: ${person.role}` : '', person.group ? `Gruppo: ${person.group}` : ''].filter(Boolean).join(' · ') || 'Mansione e gruppo non indicati'}</Note>
           <p className="mt-2 flex flex-wrap gap-3">
             <SourceTag source="DIR" count={raters.dir} long />
             <SourceTag source="PEER" count={raters.peer} long />
@@ -44,8 +44,8 @@ export function PersonDashboard({ payload, onExport }: { payload: Dash5pPayload;
       {!raters.hasScore ? (
         <InlineAlert tone="warning">
           {raters.self
-            ? 'Per questa persona c’è solo l’autovalutazione: senza le schede di Dirigente o Peer non c’è un voto. Carica le schede mancanti nella pagina Caricamento.'
-            : 'Nessuna scheda caricata per questa persona. Carica le risposte dei valutatori nella pagina Caricamento.'}
+            ? 'Per questa persona c’è solo l’autovalutazione: senza le valutazioni di dirigente o colleghi non c’è un voto finale. Carica le schede mancanti nella pagina Raccolta.'
+            : 'Nessuna scheda caricata per questa persona. Carica le risposte dei valutatori nella pagina Raccolta.'}
         </InlineAlert>
       ) : (
         <>
@@ -70,7 +70,7 @@ export function PersonDashboard({ payload, onExport }: { payload: Dash5pPayload;
             <StatCard
               label="Valore atteso"
               value={fmtScore(sm.target)}
-              note={sm.target == null ? 'Non definito per tutte le P' : tp.group ? `Reparto ${tp.group}` : 'Valore di base'}
+              note={sm.target == null ? 'Non definito per tutte le P' : tp.group ? `Gruppo ${tp.group}` : 'Valore di base'}
             />
             <StatCard
               label="Skill gap"

@@ -1,36 +1,92 @@
 import { useState } from 'react'
 
-import { Input } from '@/components/ui/input'
+import { CategoryBars } from '@/components/patterns/CategoryBars'
+import { Note } from '@/components/patterns/Note'
+import { SelectField } from '@/components/patterns/SelectField'
 import { StatCard } from '@/components/patterns/StatCard'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { cn } from '@/lib/utils'
+import { GAP_LABEL, PERCEPTION_LABEL } from '@/modules/assessment/gestione5p/dashboard/gap-style'
 import { exportResults } from '@/modules/assessment/gestione5p/files'
-import { LEVEL_TONE } from '@/modules/assessment/gestione5p/level-style'
-import { PS, type State5p, compute, fmt100, gapOf, level, mean, rd } from '@/modules/assessment/gestione5p/model'
-import { NineBox } from '@/modules/assessment/gestione5p/NineBox'
+import { CODES, PS, THR, type ResMode, type Result, type State5p, allResults, dd, edit, fmt100, fmtSigned, gapState, groups, mean, perceptionOf, rd } from '@/modules/assessment/gestione5p/model'
 import { ScoreCell } from '@/modules/assessment/gestione5p/ScoreCell'
-import { SourceTag } from '@/modules/assessment/gestione5p/SourceTag'
 
-// 5 · Risultati: il voto per ogni P, la media aziendale, la matrice
-// Competenze × Potenziale a nove quadranti, e la tabella delle persone con
-// livello. Il voto è quello di tutte le schede: media piatta di Dirigente e
-// Peer, autovalutazione esclusa, scala 0–100 (voto 1–10 × 10). Un clic su una
-// riga apre la scheda.
-export function RisultatiTab({ state, toast, onOpen }: { state: State5p; toast: (m: string) => void; onOpen: (key: string) => void }) {
+const MODES: [ResMode, string][] = [
+  ['voto', 'Voto'],
+  ['gap', 'Skill gap'],
+  ['auto', 'Diff. autovalutazione'],
+]
+const CAPTION: Record<ResMode, string> = {
+  voto: 'Voto ottenuto (media di dirigente e colleghi), scala 0–100',
+  gap: 'Skill gap = voto − valore atteso. Da 0 in su livello raggiunto, da −1 a −9 vicino al livello, da −10 da sviluppare',
+  auto: 'Differenza = autovalutazione − voto. Entro ±9 percezione allineata, da +10 si sopravvaluta, da −10 si sottovaluta',
+}
+const GAP_CELL = { raggiunto: 'surface-success', vicino: 'surface-warning', 'da-sviluppare': 'surface-danger' } as const
+
+// 5 · Risultati. Voto di ogni P = media di tutte le valutazioni di dirigente e
+// colleghi; l'autovalutazione è a parte. La tabella mostra, a scelta, il voto,
+// lo skill gap o la differenza con l'autovalutazione. Un clic su una riga apre
+// il report della persona.
+export function RisultatiTab({ state, update, toast, onOpen }: { state: State5p; update: (fn: (s: State5p) => State5p) => void; toast: (m: string) => void; onOpen: (id: string) => void }) {
+  const mode = state.set.mode
+  const G = groups(state)
   const [q, setQ] = useState('')
-  const st = state.set
-  const R = compute(state).filter((r) => r.ev.length)
-  const Rf = (q.trim() ? R.filter((r) => `${r.nome} ${r.reparto}`.toLowerCase().includes(q.trim().toLowerCase())) : R).sort((a, b) => (b.score ?? -1) - (a.score ?? -1))
-  const all = mean(R.map((r) => r.score))
+  const [gf, setGf] = useState('')
+  const setMode = (v: ResMode) => update((s) => edit(s, (d) => { d.set.mode = v }))
+  const R0 = allResults(state).filter((r) => (!q.trim() || r.name.toLowerCase().includes(q.trim().toLowerCase())) && (!gf || (r.p.gruppo || '') === gf))
+  const withV = R0.filter((r) => r.T.o != null)
+  let below = 0
+  let tot = 0
+  R0.forEach((r) =>
+    CODES.forEach((c) => {
+      const d = dd(r.it[c].o, r.it[c].x)
+      if (d != null) {
+        tot++
+        if (d < 0) below++
+      }
+    }),
+  )
+  const over = R0.filter((r) => {
+    const d = dd(r.T.a, r.T.o)
+    return d != null && d >= THR
+  }).length
+  const onlyAuto = R0.filter((r) => !r.oth.length).length
+  const key = (r: Result) => (mode === 'gap' ? (dd(r.T.o, r.T.x) ?? 999) : mode === 'auto' ? -(dd(r.T.a, r.T.o) ?? -999) : -(r.T.o ?? -1))
+  const R = [...R0].sort((a, b) => key(a) - key(b))
+  const bars = PS.map((P) => ({ label: `${P.k} · ${P.n}`, values: { actual: rd(mean(withV.map((r) => r.P[P.k].o))), target: rd(mean(withV.map((r) => r.P[P.k].x))) } }))
+  const withTarget = bars.every((b) => b.values.target != null)
+
+  const cell = (k: string, x: { o: number | null; a: number | null; x: number | null }) => {
+    if (mode === 'voto') return <ScoreCell key={k} value={x.o} />
+    if (mode === 'gap') {
+      const d = dd(x.o, x.x)
+      const st = gapState(d)
+      return (
+        <TableCell key={k} title={`voto ${fmt100(x.o)} · atteso ${fmt100(x.x)}${st ? ` · ${GAP_LABEL[st]}` : ''}`} className={cn('text-center font-mono font-semibold tabular-nums', st && GAP_CELL[st])}>
+          {fmtSigned(d)}
+        </TableCell>
+      )
+    }
+    const d = dd(x.a, x.o)
+    const p = perceptionOf(d)
+    return (
+      <TableCell key={k} title={`autovalutazione ${fmt100(x.a)} · voto ${fmt100(x.o)}${p ? ` · ${PERCEPTION_LABEL[p]}` : ''}`} className={cn('text-center font-mono font-semibold tabular-nums', p === 'sopravvaluta' && 'text-warning')}>
+        {fmtSigned(d)}
+      </TableCell>
+    )
+  }
 
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h3 className="text-app-section text-foreground">Voto per ogni P</h3>
-            <p className="max-w-3xl text-app-small text-muted-foreground">Per ogni P: media di tutte le schede di Dirigente e Peer, una per una. L&apos;autovalutazione non entra nel voto. Scala 0–100 (voto 1–10 × 10).</p>
+          <div className="min-w-0 flex-1 basis-96">
+            <h3 className="text-app-section text-foreground">Risultati</h3>
+            <Note className="mt-1 max-w-3xl">Voto di ogni P = media di tutte le valutazioni ricevute da dirigente e colleghi. L&apos;autovalutazione è mostrata a parte e non entra nella media.</Note>
           </div>
           <Button
             onClick={async () => {
@@ -40,91 +96,81 @@ export function RisultatiTab({ state, toast, onOpen }: { state: State5p; toast: 
             Esporta risultati (Excel)
           </Button>
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <StatCard label="Persone valutate" value={R.length} />
-        <StatCard label="Schede elaborate" value={state.evals.length} />
-        <StatCard label="Voto 5P medio" value={fmt100(all)} />
-        <StatCard label="Sotto 50 (in sviluppo o meno)" value={R.filter((r) => r.score != null && (rd(r.score) as number) < 50).length} />
-        <StatCard label={`Gap auto ≥ ${Math.round(st.gap * 10)}`} value={R.filter((r) => gapOf(state, r).flag).length} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
-          <h3 className="text-app-section text-foreground">Media aziendale per P</h3>
-          <div className="flex flex-col gap-2.5">
-            {PS.map((p) => {
-              const v = mean(R.map((r) => r.fin[p.k]))
-              return (
-                <div key={p.k} className="grid grid-cols-[9.5rem_1fr_2.75rem] items-center gap-3 text-app-small">
-                  <span>
-                    {p.k} · {p.n}
-                  </span>
-                  <div className="h-3 overflow-hidden rounded-full bg-muted" role="img" aria-label={`${p.n}: ${fmt100(v)} su 100`}>
-                    <div className="h-full rounded-full bg-(--chart-mono)" style={{ width: `${rd(v) ?? 0}%` }} />
-                  </div>
-                  <span className="text-right font-mono font-semibold tabular-nums">{fmt100(v)}</span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-        <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
-          <h3 className="text-app-section text-foreground">Matrice Competenze × Potenziale</h3>
-          <p className="text-app-caption text-muted-foreground">Asse orizzontale: media di Professionalità, Performance, Predisposizione, Pensiero. Asse verticale: Potenziale. Soglie 50 e 70 su 100.</p>
-          <NineBox rows={R} onOpen={onOpen} />
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <Input aria-label="Cerca nome o reparto" placeholder="Cerca nome o reparto" className="w-64" value={q} onChange={(e) => setQ(e.target.value)} />
-        <span className="text-app-small text-muted-foreground">Clicca una riga per aprire la scheda individuale.</span>
-      </div>
-      <Table frame minWidth="lg">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Valutato</TableHead>
-            <TableHead>Reparto</TableHead>
-            <TableHead>Schede</TableHead>
-            {PS.map((p) => (
-              <TableHead key={p.k} className="text-center" title={p.d}>
-                {p.k} {p.n}
-              </TableHead>
+        <div className="flex flex-wrap items-center gap-3">
+          <Input aria-label="Cerca nome" placeholder="Cerca nome" className="w-56" value={q} onChange={(e) => setQ(e.target.value)} />
+          <SelectField aria-label="Filtra per gruppo" className="w-56" value={gf} onValueChange={(v) => setGf(String(v))}>
+            <option value="">Tutti i gruppi</option>
+            {G.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
             ))}
-            <TableHead className="text-center">Voto 5P</TableHead>
-            <TableHead>Livello</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Rf.map((r) => {
-            const l = level(r.score)
-            return (
-              <TableRow key={r.k} onClick={() => onOpen(r.k)}>
-                <TableCell>
-                  <b className="font-semibold">{r.nome}</b>
-                  <div className="text-app-caption text-muted-foreground">{r.ruolo}</div>
-                </TableCell>
-                <TableCell>{r.reparto}</TableCell>
-                <TableCell>
-                  <span className="flex gap-2">
-                    <SourceTag source="DIR" count={r.cnt.DIR} />
-                    <SourceTag source="PEER" count={r.cnt.PEER} />
-                    <SourceTag source="AUTO" count={r.cnt.AUTO} />
-                  </span>
-                </TableCell>
-                {PS.map((p) => (
-                  <ScoreCell key={p.k} value={r.fin[p.k]} />
+          </SelectField>
+          <span className="text-app-small text-muted-foreground">Mostra</span>
+          <ToggleGroup type="single" aria-label="Cosa mostrare" value={mode} onValueChange={(v) => v && setMode(v as ResMode)}>
+            {MODES.map(([m, l]) => (
+              <ToggleGroupItem key={m} value={m}>
+                {l}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatCard label="Persone con un voto" value={withV.length} note={onlyAuto ? `${onlyAuto} con sola autovalutazione` : undefined} />
+        <StatCard label="Voto medio 5P" value={fmt100(mean(withV.map((r) => r.T.o)))} tone="accent" note="su 100" />
+        <StatCard label="Voci sotto il valore atteso" value={tot ? `${Math.round((below / tot) * 100)}%` : '–'} tone={tot && below / tot > 0.5 ? 'destructive' : 'neutral'} note={tot ? `${below} su ${tot}` : 'imposta i valori attesi'} />
+        <StatCard label="Si sopravvalutano" value={over} tone={over ? 'warning' : 'neutral'} note={`autovalutazione ≥ ${THR} sopra il voto`} />
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
+        <h3 className="text-app-section text-foreground">Media per P</h3>
+        <Note size="caption">{withTarget ? 'Voto medio e valore atteso medio delle persone mostrate, scala 0–100.' : 'Voto medio delle persone mostrate, scala 0–100. Il valore atteso non è definito per tutte le P: non si disegna.'}</Note>
+        <CategoryBars title="Media per P" rows={bars} series={[{ key: 'actual', label: 'Voto medio' }, ...(withTarget ? [{ key: 'target', label: 'Valore atteso medio', reference: true }] : [])]} valueMax={100} orientation="horizontal" height="md" format={(n) => String(Math.round(n))} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Note size="caption">{CAPTION[mode]}. Clicca una riga per aprire il report della persona.</Note>
+        <div className="max-h-[75vh] overflow-auto rounded-sm border border-border">
+          <Table minWidth="lg">
+            <TableHeader className="sticky top-0 z-10">
+              <TableRow>
+                <TableHead>Persona</TableHead>
+                <TableHead>Gruppo</TableHead>
+                <TableHead className="text-center">Valutazioni</TableHead>
+                {PS.map((P) => (
+                  <TableHead key={P.k} className="text-center" title={P.d}>
+                    {P.k} {P.n}
+                  </TableHead>
                 ))}
-                <ScoreCell value={r.score} />
-                <TableCell>
-                  <Badge tone={LEVEL_TONE[l.c]}>{l.t}</Badge>
-                </TableCell>
+                <TableHead className="text-center">5P</TableHead>
               </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody>
+              {R.map((r) => (
+                <TableRow key={r.p.id} className="cursor-pointer" tabIndex={0} onClick={() => onOpen(r.p.id)} onKeyDown={(e) => e.key === 'Enter' && onOpen(r.p.id)}>
+                  <TableCell className="font-semibold">{r.name}</TableCell>
+                  <TableCell className="text-app-caption">{r.p.gruppo}</TableCell>
+                  <TableCell className="text-center font-mono text-app-caption whitespace-nowrap">
+                    {r.oth.length ? `${r.nDir ? `D${r.nDir} ` : ''}P${r.nPeer}` : <Badge tone="warning">Solo auto</Badge>}
+                    {r.nAuto ? ' · A' : ''}
+                  </TableCell>
+                  {PS.map((P) => cell(P.k, r.P[P.k]))}
+                  {cell('T', r.T)}
+                </TableRow>
+              ))}
+              {!R.length ? (
+                <TableRow>
+                  <TableCell colSpan={9} className="py-4 text-muted-foreground">
+                    Nessun risultato: carica le valutazioni nella pagina Raccolta.
+                  </TableCell>
+                </TableRow>
+              ) : null}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </section>
   )
 }

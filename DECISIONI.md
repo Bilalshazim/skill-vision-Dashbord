@@ -1238,3 +1238,25 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - Importazione dei valori attesi da Excel: **non fatta, per scelta**. Resta
   l'inserimento a mano; da riprendere solo se serve.
 
+
+## Valutazione 5P sul modello «Multi-Fonte v5» · 2026-10-12
+- Contesto: il cliente chiede di sostituire l'area Valutazione 5P con il suo nuovo file
+  HTML, tenendo l'interfaccia della piattaforma.
+- Opzioni: (a) portare la logica del file e ricomporla sulle primitive e i pattern
+  esistenti; (b) incorporare l'HTML così com'è.
+- Cosa cambia: (b) porterebbe colori, ombre e caratteri fuori sistema; (a) richiede la
+  riscrittura di modello e schede.
+- Raccomandazione e scelta: **(a)**.
+- Funzioni del modulo precedente tolte, perché il nuovo modello le sostituisce e il
+  cliente ha chiesto la sostituzione: Anagrafica con responsabile, tabella delle
+  assegnazioni per dipendente ed Excel delle assegnazioni (ora un unico piano Excel a
+  4 fogli), Matrice 9 riquadri, tabelle per fonte della Scheda individuale (ora
+  Report persona). Se il cliente rivuole la Matrice, si riprende da git (`NineBox.tsx`).
+- Mantenuto dalla decisione del 2026-10-09: scala 0–100 = voto × 10, nessun interruttore
+  1–10; media piatta di dirigente e colleghi, autovalutazione fuori.
+- Cambiato secondo il nuovo modello: soglia della differenza di percezione **10 punti**
+  (prima 15), uguale a quella dello skill gap.
+- Report persona: riusa il profilo della persona (barre e radar Bklit) al posto della
+  traccia a punti dell'HTML, che non è un grafico Bklit.
+- Valori attesi: ora si possono importare dal foglio facoltativo VALORI ATTESI del
+  piano (il 2026-10-09 era stato rimandato: il nuovo modello lo prevede).

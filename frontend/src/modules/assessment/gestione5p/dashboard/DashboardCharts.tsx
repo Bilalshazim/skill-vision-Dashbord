@@ -24,7 +24,7 @@ export function DashboardCharts({ payload }: { payload: Dash5pPayload }) {
       <div>
         <h3 className="text-app-section text-foreground">Profilo 5P</h3>
         <Note className="mt-1">
-          Voto: media di Dirigente e Peer, scala 0–100. {withTarget ? 'Il valore atteso è quello del reparto o, dove manca, quello di base.' : 'Il valore atteso non è definito per tutte le P: non si disegna.'}
+          Voto: media di dirigente e colleghi, scala 0–100. {withTarget ? 'Il valore atteso è quello del gruppo o, dove manca, quello di base.' : 'Il valore atteso non è definito per tutte le P: non si disegna.'}
         </Note>
       </div>
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">

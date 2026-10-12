@@ -135,6 +135,31 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-12 — Valutazione 5P sostituita dal modello «Multi-Fonte v5» del cliente
+- [x] Nuovo flusso a 7 schede, come il file HTML del cliente: 1 Piano, 2 Invio schede,
+      3 Raccolta, 4 Valori attesi, 5 Risultati, 6 Report persona, Metodo. Sulle schede
+      numerate lo stato del passo (spunta quando è fatto).
+- [x] `model.ts` riscritto (stato v5): persone con cognome/nome, piano importato da un
+      Excel a 4 fogli (+ VALORI ATTESI facoltativo) con riconoscimento dei nomi
+      approssimati, controllo del piano, carichi, coperture, stato dei valutatori,
+      alfa di Cronbach. I progetti salvati con la versione precedente si aprono
+      (migrazione nome → cognome).
+- [x] `files.ts`: modello Excel del piano con fogli di controllo e formule, email
+      .eml in ZIP, schede, esportazione dei risultati e report persona.
+- [x] Scheda del valutatore: guida (benvenuto, modello 5P, come dare il voto, domande
+      frequenti), «Non so valutare», stampa della guida. Sui token, nessun esadecimale.
+- [x] Nuove: `PianoTab`, `RaccoltaTab`, `ReportTab`, `PersonPicker`. Riscritte:
+      `InvioTab`, `ValoriAttesiTab`, `RisultatiTab`, `MetodoTab`, la pagina.
+- [x] Eliminate: `AnagraficaTab`, `AssegnazioniTab`, `CaricamentoTab`,
+      `IndividualeTab`, `NineBox` (vedi DECISIONI).
+- [x] `tsc -b` pulito. Audit: nessun difetto nel modulo (302 in totale, tutti fuori).
+      Nella scheda del valutatore la variabile `--m` diventa `--font-mono`, così
+      l'audit riconosce lo stile label.
+- [ ] `vite build` non verificata: in `node_modules` manca il binario di rolldown per
+      Windows (`@rolldown/binding-win32-x64-msvc`). Serve un `npm i` pulito; non è un
+      errore del codice.
+- [ ] Da verificare a occhio, in chiaro e in scuro, su app avviata con un piano reale.
+
 ## 2026-10-09 (3) — Valutazione 5P: modulo concluso
 - [x] Migrazione del modulo, calcolo unico in tutte le schede e profilo della persona
       (valori attesi, skill gap, radar e barre Bklit) completati e approvati da Roberto.
