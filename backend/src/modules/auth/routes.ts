@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { clearRefreshCookie, cookieRequestOriginAllowed, readRefreshCookie, setRefreshCookie } from '../../lib/authCookie.js'
 import { ForbiddenError, TooManyRequestsError, UnauthorizedError } from '../../lib/errors.js'
+import { env } from '../../lib/env.js'
 import { generateRefreshToken, hashToken, signAccessToken } from '../../lib/jwt.js'
 import { verifyPassword } from '../../lib/password.js'
 import { prisma } from '../../lib/prisma.js'
@@ -35,6 +36,15 @@ export function resetLoginLimiters(): void {
   loginEmailLimiter.clear()
 }
 
+// Refresh token nuovo, valido fino a `expiresAt`: la fine della sessione,
+// fissata al login (login + env.sessionTtlSec) e mai spostata dai rinnovi.
+async function issueRefreshToken(userId: string, expiresAt: Date): Promise<string> {
+  const token = generateRefreshToken()
+  await prisma.refreshToken.create({ data: { userId, tokenHash: hashToken(token), expiresAt } })
+  return token
+}
+const secondsLeft = (until: Date) => (until.getTime() - Date.now()) / 1000
+
 // POST /api/v1/auth/login — Blueprint §4.1.
 authRouter.post('/login', validateBody(loginSchema), async (req, res, next) => {
   try {
@@ -62,15 +72,14 @@ authRouter.post('/login', validateBody(loginSchema), async (req, res, next) => {
     loginFailLimiter.reset(failKey)
     loginEmailLimiter.reset(emailKey)
 
-    const accessToken = signAccessToken({ sub: user.id, role: user.role, companyId: user.companyId })
-    const refreshToken = generateRefreshToken()
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    await prisma.refreshToken.create({ data: { userId: user.id, tokenHash: hashToken(refreshToken), expiresAt } })
+    const sessionEnd = new Date(Date.now() + env.sessionTtlSec * 1000)
+    const accessToken = signAccessToken({ sub: user.id, role: user.role, companyId: user.companyId }, env.sessionTtlSec)
+    const refreshToken = await issueRefreshToken(user.id, sessionEnd)
     await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } })
 
     // Il refresh token va anche nel cookie httpOnly (modalità `backend` del
     // frontend). Resta nel corpo per il ponte del guscio legacy, finché c'è.
-    setRefreshCookie(res, refreshToken)
+    setRefreshCookie(res, refreshToken, sessionEnd)
     res.json({
       accessToken,
       refreshToken,
@@ -95,17 +104,55 @@ function refreshTokenFrom(req: import('express').Request): string {
   return fromCookie
 }
 
+// Il rinnovo serve a non perdere la sessione ricaricando la pagina (il token
+// d'accesso sta in memoria), non ad allungarla: dopo env.sessionTtlSec dal
+// login il refresh token è scaduto e si rifà l'accesso.
+// Rotazione: ogni rinnovo sostituisce il refresh token con uno nuovo e
+// revoca il vecchio (rotatedAt). Un token già sostituito che si ripresenta:
+//  - entro ROTATION_GRACE_MS è una corsa legittima (due schede, due richieste
+//    partite insieme): riceve solo un token d'accesso, il cookie nuovo il
+//    browser ce l'ha già;
+//  - dopo, è un riuso — qualcuno ha una copia del token: si revocano tutte le
+//    sessioni dell'utente, che deve rifare l'accesso.
+// Un token revocato da logout (revokedAt senza rotatedAt) è rifiutato e basta.
+export const ROTATION_GRACE_MS = 60 * 1000
+
 authRouter.post('/refresh', validateBody(refreshSchema), async (req, res, next) => {
   try {
     const refreshToken = refreshTokenFrom(req)
     const tokenHash = hashToken(refreshToken)
     const stored = await prisma.refreshToken.findUnique({ where: { tokenHash }, include: { user: true } })
-    if (!stored || stored.revokedAt || stored.expiresAt < new Date()) throw new UnauthorizedError('Refresh token expired or revoked')
+    const now = new Date()
+    if (!stored || stored.expiresAt < now) throw new UnauthorizedError('Refresh token expired or revoked')
     // Un account disattivato non rinnova più: senza questo controllo un refresh
-    // token ancora valido (30 giorni) continuerebbe a emettere token d'accesso.
+    // token ancora valido continuerebbe a emettere token d'accesso.
     if (stored.user.status === 'DISABLED') throw new UnauthorizedError('Account disabled')
-    const accessToken = signAccessToken({ sub: stored.user.id, role: stored.user.role, companyId: stored.user.companyId })
-    res.json({ accessToken })
+    // Il token d'accesso nuovo scade al più tardi con la sessione.
+    const accessToken = signAccessToken({ sub: stored.user.id, role: stored.user.role, companyId: stored.user.companyId }, secondsLeft(stored.expiresAt))
+
+    if (stored.revokedAt) {
+      if (stored.rotatedAt && now.getTime() - stored.rotatedAt.getTime() <= ROTATION_GRACE_MS) {
+        res.json({ accessToken })
+        return
+      }
+      if (stored.rotatedAt) {
+        await prisma.refreshToken.updateMany({ where: { userId: stored.userId, revokedAt: null }, data: { revokedAt: now } })
+      }
+      throw new UnauthorizedError('Refresh token expired or revoked')
+    }
+
+    // Revoca condizionata: se una richiesta parallela l'ha già ruotato, questa
+    // ricade nella finestra di tolleranza invece di emettere un secondo token.
+    const { count } = await prisma.refreshToken.updateMany({ where: { id: stored.id, revokedAt: null }, data: { revokedAt: now, rotatedAt: now } })
+    if (count === 0) {
+      res.json({ accessToken })
+      return
+    }
+    // Il token nuovo eredita la scadenza della sessione: ruotare non la allunga.
+    const rotated = await issueRefreshToken(stored.userId, stored.expiresAt)
+    setRefreshCookie(res, rotated, stored.expiresAt)
+    // Nel corpo per il ponte del guscio legacy, che tiene il token in localStorage.
+    res.json({ accessToken, refreshToken: rotated })
   } catch (err) {
     next(err)
   }

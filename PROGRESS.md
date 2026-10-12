@@ -135,6 +135,26 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-12 (2) — Sessione fissa di 3 ore dal login, refresh token con rotazione
+- [x] Correzione dopo il chiarimento di Bilal: non 3h di inattività ma **3h dal login**,
+      poi si rifà l'accesso. La prima versione (refresh 7 giorni dall'ultimo uso)
+      teneva aperta la sessione per giorni: sostituita prima di ogni commit.
+- [x] Backend: `SESSION_TTL_HOURS` (3). Refresh token e cookie scadono a login + 3h;
+      la rotazione eredita la scadenza; il token d'accesso è limitato alla fine della
+      sessione. `/auth/refresh` ruota il token, tolleranza di 60 s, riuso → revoca
+      di tutte le sessioni. Colonna `RefreshToken.rotatedAt` con la sua migrazione.
+- [x] Frontend: timer in `lib/auth/session.ts` alla scadenza del token → logout →
+      `/login`, anche a pagina ferma. Nel ponte legacy `tryRefresh` salva il refresh
+      token ruotato. Interceptor 401 → rinnovo → nuovo tentativo c'era già.
+- [x] Nuovi test in `backend/tests/auth.test.ts`: 3h, cookie e token scadono a
+      login + 3h, il rinnovo non allunga, rotazione, tolleranza, riuso, scadenza.
+- [x] `tsc` pulito in backend e frontend.
+- [ ] Test del backend **non eseguiti**: su questo PC non c'è Postgres (`localhost:5432`).
+      Vanno lanciati prima del deploy.
+- [x] Pubblicato su richiesta di Bilal. La migrazione porta anche i refresh token
+      già emessi a 3 ore dalla loro emissione: chi era entrato da più di 3 ore rifà
+      l'accesso.
+
 ## 2026-10-12 — Valutazione 5P sostituita dal modello «Multi-Fonte v5» del cliente
 - [x] Nuovo flusso a 7 schede, come il file HTML del cliente: 1 Piano, 2 Invio schede,
       3 Raccolta, 4 Valori attesi, 5 Risultati, 6 Report persona, Metodo. Sulle schede

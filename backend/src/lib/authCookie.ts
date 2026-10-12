@@ -9,15 +9,16 @@ import { env } from './env.js'
 // proprio server (`/api/*`, vedi frontend/scripts/serve-combined.mjs).
 export const REFRESH_COOKIE = 'sv_refresh'
 const PATH = '/api/v1/auth'
-const MAX_AGE_SEC = 30 * 24 * 60 * 60
 
 function cookieAttrs(maxAge: number): string {
   const secure = env.nodeEnv === 'production' ? '; Secure' : ''
   return `; Path=${PATH}; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${secure}`
 }
 
-export function setRefreshCookie(res: Response, token: string): void {
-  res.append('Set-Cookie', `${REFRESH_COOKIE}=${encodeURIComponent(token)}${cookieAttrs(MAX_AGE_SEC)}`)
+/** Il cookie scade con la sessione: `expiresAt` è la fine della sessione. */
+export function setRefreshCookie(res: Response, token: string, expiresAt: Date): void {
+  const maxAge = Math.max(1, Math.floor((expiresAt.getTime() - Date.now()) / 1000))
+  res.append('Set-Cookie', `${REFRESH_COOKIE}=${encodeURIComponent(token)}${cookieAttrs(maxAge)}`)
 }
 
 export function clearRefreshCookie(res: Response): void {

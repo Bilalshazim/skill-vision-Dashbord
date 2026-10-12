@@ -11,8 +11,13 @@ export type AccessTokenClaims = {
   companyId: string | null
 }
 
-export function signAccessToken(claims: AccessTokenClaims): string {
-  return jwt.sign(claims, env.jwtAccessSecret, { expiresIn: env.jwtAccessTtl as jwt.SignOptions['expiresIn'] })
+/** `maxSec`: il token non dura oltre la fine della sessione (secondi che restano). */
+export function signAccessToken(claims: AccessTokenClaims, maxSec?: number): string {
+  const token = jwt.sign(claims, env.jwtAccessSecret, { expiresIn: env.jwtAccessTtl as jwt.SignOptions['expiresIn'] })
+  if (maxSec == null) return token
+  const { exp } = jwt.decode(token) as { exp: number }
+  const cap = Math.floor(Date.now() / 1000) + Math.max(1, Math.floor(maxSec))
+  return exp <= cap ? token : jwt.sign({ ...claims, exp: cap }, env.jwtAccessSecret)
 }
 
 export function verifyAccessToken(token: string): AccessTokenClaims {

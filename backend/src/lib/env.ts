@@ -13,8 +13,11 @@ export const env = {
   databaseUrl: required('DATABASE_URL'),
   jwtAccessSecret: required('JWT_ACCESS_SECRET'),
   jwtRefreshSecret: required('JWT_REFRESH_SECRET'),
-  jwtAccessTtl: process.env.JWT_ACCESS_TTL || '15m',
-  jwtRefreshTtlDays: 30,
+  jwtAccessTtl: process.env.JWT_ACCESS_TTL || '3h',
+  // Durata massima di una sessione, dal login: scaduta, si rifà l'accesso.
+  // Il rinnovo non la allunga (né il refresh token né il token d'accesso
+  // vanno oltre questa scadenza). In ore.
+  sessionTtlSec: Number(process.env.SESSION_TTL_HOURS || 3) * 60 * 60,
   cvStorageRoot: process.env.CV_STORAGE_ROOT || './storage/files',
   fileUrlSecret: required('FILE_URL_SECRET'),
   fileUrlTtlSeconds: Number(process.env.FILE_URL_TTL_SECONDS || 300),

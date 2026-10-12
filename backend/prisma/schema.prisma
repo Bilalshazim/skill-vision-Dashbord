@@ -75,6 +75,9 @@ model RefreshToken {
   tokenHash String    @unique
   expiresAt DateTime
   revokedAt DateTime?
+  // Impostato quando il token è stato sostituito da un rinnovo (rotazione),
+  // non quando è stato revocato da un logout: distingue le due revoche.
+  rotatedAt DateTime?
   createdAt DateTime  @default(now())
 
   @@index([userId])

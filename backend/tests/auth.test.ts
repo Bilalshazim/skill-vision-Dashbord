@@ -139,3 +139,81 @@ describe('Fase 8 — limite ai tentativi e cookie di refresh', () => {
     expect(again.status).toBe(401)
   })
 })
+
+describe('rotazione del refresh token e durata dei token', () => {
+  beforeEach(resetDb)
+  afterAll(async () => prisma.$disconnect())
+
+  const login = async () => {
+    const fx = await seedFixture()
+    const res = await api.post('/api/v1/auth/login').send({ email: fx.recruiter.email, password: 'pw123456' })
+    return { fx, token: res.body.refreshToken as string, access: res.body.accessToken as string }
+  }
+
+  it('issues a 3-hour access token', async () => {
+    const { access } = await login()
+    const { iat, exp } = JSON.parse(Buffer.from(access.split('.')[1], 'base64url').toString()) as { iat: number; exp: number }
+    expect(exp - iat).toBe(3 * 60 * 60)
+  })
+
+  it('rotates the refresh token: a new one in the body and in the cookie, the old one revoked', async () => {
+    const { token } = await login()
+    const r = await api.post('/api/v1/auth/refresh').send({ refreshToken: token })
+    expect(r.status).toBe(200)
+    expect(r.body.refreshToken).toBeTruthy()
+    expect(r.body.refreshToken).not.toBe(token)
+    expect(([] as string[]).concat(r.headers['set-cookie'] ?? []).some((c) => c.startsWith(`sv_refresh=${encodeURIComponent(r.body.refreshToken)}`))).toBe(true)
+    const next = await api.post('/api/v1/auth/refresh').send({ refreshToken: r.body.refreshToken })
+    expect(next.status).toBe(200)
+  })
+
+  it('within the grace window, the replaced token still gets an access token but no new refresh token', async () => {
+    const { token } = await login()
+    await api.post('/api/v1/auth/refresh').send({ refreshToken: token })
+    const race = await api.post('/api/v1/auth/refresh').send({ refreshToken: token })
+    expect(race.status).toBe(200)
+    expect(race.body.accessToken).toBeTruthy()
+    expect(race.body.refreshToken).toBeUndefined()
+  })
+
+  it('reuse of a replaced token after the grace window revokes every session of the user', async () => {
+    const { fx, token } = await login()
+    const r = await api.post('/api/v1/auth/refresh').send({ refreshToken: token })
+    await prisma.refreshToken.updateMany({ where: { userId: fx.recruiter.id, rotatedAt: { not: null } }, data: { rotatedAt: new Date(Date.now() - 5 * 60 * 1000) } })
+    const reuse = await api.post('/api/v1/auth/refresh').send({ refreshToken: token })
+    expect(reuse.status).toBe(401)
+    const current = await api.post('/api/v1/auth/refresh').send({ refreshToken: r.body.refreshToken })
+    expect(current.status).toBe(401)
+  })
+
+  it('the session ends 3 hours after login: the cookie and the refresh token expire then', async () => {
+    const fx = await seedFixture()
+    const res = await api.post('/api/v1/auth/login').send({ email: fx.recruiter.email, password: 'pw123456' })
+    const cookie = ([] as string[]).concat(res.headers['set-cookie'] ?? []).find((c) => c.startsWith('sv_refresh='))!
+    const maxAge = Number(/Max-Age=(d+)/.exec(cookie)![1])
+    expect(maxAge).toBeGreaterThan(3 * 60 * 60 - 10)
+    expect(maxAge).toBeLessThanOrEqual(3 * 60 * 60)
+    const stored = await prisma.refreshToken.findFirstOrThrow({ where: { userId: fx.recruiter.id } })
+    expect(Math.abs(stored.expiresAt.getTime() - (Date.now() + 3 * 60 * 60 * 1000))).toBeLessThan(10_000)
+  })
+
+  it('a refresh does not extend the session: same end, access token capped to it', async () => {
+    const { fx, token } = await login()
+    // Sessione iniziata 2h50 fa: restano 10 minuti.
+    const end = new Date(Date.now() + 10 * 60 * 1000)
+    await prisma.refreshToken.updateMany({ where: { userId: fx.recruiter.id }, data: { expiresAt: end } })
+    const r = await api.post('/api/v1/auth/refresh').send({ refreshToken: token })
+    expect(r.status).toBe(200)
+    const { exp } = JSON.parse(Buffer.from(r.body.accessToken.split('.')[1], 'base64url').toString()) as { exp: number }
+    expect(exp).toBeLessThanOrEqual(Math.ceil(end.getTime() / 1000))
+    const rotated = await prisma.refreshToken.findFirstOrThrow({ where: { userId: fx.recruiter.id, revokedAt: null } })
+    expect(rotated.expiresAt.getTime()).toBe(end.getTime())
+  })
+
+  it('a refresh token older than its lifetime is refused', async () => {
+    const { fx, token } = await login()
+    await prisma.refreshToken.updateMany({ where: { userId: fx.recruiter.id }, data: { expiresAt: new Date(Date.now() - 1000) } })
+    const r = await api.post('/api/v1/auth/refresh').send({ refreshToken: token })
+    expect(r.status).toBe(401)
+  })
+})

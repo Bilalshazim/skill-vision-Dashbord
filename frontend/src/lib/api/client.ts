@@ -160,8 +160,18 @@ async function tryRefresh(): Promise<boolean> {
           body: JSON.stringify(refreshToken ? { refreshToken } : {}),
         })
         if (!res.ok) return false
-        const data = (await res.json()) as { accessToken: string }
+        const data = (await res.json()) as { accessToken: string; refreshToken?: string }
         setBackendAccessToken(data.accessToken)
+        // Il server ruota il refresh token a ogni rinnovo. In modalità
+        // `backend` arriva come cookie nuovo; nel ponte legacy va salvato qui,
+        // altrimenti il prossimo rinnovo userebbe quello già sostituito.
+        if (data.refreshToken && !isBackendAuth()) {
+          try {
+            localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken)
+          } catch {
+            /* ignore */
+          }
+        }
         return true
       } catch {
         return false

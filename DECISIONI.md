@@ -1260,3 +1260,36 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   traccia a punti dell'HTML, che non è un grafico Bklit.
 - Valori attesi: ora si possono importare dal foglio facoltativo VALORI ATTESI del
   piano (il 2026-10-09 era stato rimandato: il nuovo modello lo prevede).
+
+## Durata dei token e rotazione del refresh token · 2026-10-12
+- Richiesta: token d'accesso da 3 ore, refresh token lungo in cookie httpOnly,
+  rinnovo automatico e nuovo tentativo della richiesta fallita, ritorno a `/login`
+  se il rinnovo non riesce.
+- Già presenti dalla Fase 8, quindi non riscritti: cookie `sv_refresh` (HttpOnly,
+  SameSite=Strict, Secure in produzione, solo sulle rotte `/api/v1/auth`),
+  `POST /api/v1/auth/refresh` con difesa CSRF sull'origine, token d'accesso solo in
+  memoria, interceptor in `lib/api/client.ts` (401 → un solo rinnovo condiviso fra
+  le richieste parallele → nuovo tentativo), `logout()` + `AuthGuard` → `/login`.
+- Non adottato: un secondo endpoint `/api/refresh-token` (doppione di quello che
+  c'è) e il rinnovo anche sui 403. Il backend risponde 401 al token scaduto; il 403
+  vuol dire "autenticato ma non autorizzato" e ha già la sua gestione
+  (`role_forbidden`). Rinnovare su un 403 non lo risolve e raddoppia le chiamate.
+- Cambiato:
+  - **sessione fissa di 3 ore dal login** (precisato da Bilal: "ogni login scade
+    dopo 3 ore, poi si rifà l'accesso"). `SESSION_TTL_HOURS`, predefinito 3. Il
+    refresh token scade a login + 3h e la rotazione non sposta la scadenza; il
+    token d'accesso (`JWT_ACCESS_TTL` 3h) non va mai oltre la fine della sessione.
+    Il rinnovo serve solo a non perdere la sessione ricaricando la pagina. Nel
+    frontend un timer porta al login alla scadenza anche se la pagina è ferma.
+    Prima: accesso 15m, refresh 30 giorni.
+  - conseguenza: un account disattivato o con ruolo cambiato tiene l'accesso fino
+    alla fine della sessione (al massimo 3 ore), perché `requireAuth` non
+    interroga il database;
+  - **rotazione**: ogni rinnovo emette un refresh token nuovo e revoca il vecchio
+    (`rotatedAt`, migrazione `20261012170000_refresh_token_rotation`). Un token
+    sostituito che ritorna entro 60 secondi riceve solo il token d'accesso (due
+    schede o due richieste partite insieme). Dopo i 60 secondi è un riuso: si
+    revocano tutte le sessioni dell'utente.
+- Rischio noto: se la risposta del rinnovo si perde dopo la rotazione (rete che
+  cade), il browser tiene il token vecchio e dopo 60 secondi l'utente deve rifare
+  l'accesso. Raro, e sicuro dalla parte giusta.

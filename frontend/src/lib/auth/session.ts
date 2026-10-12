@@ -26,6 +26,23 @@ export function useSession(): Snapshot {
   )
 }
 
+// La sessione dura un tempo fisso dal login (backend: SESSION_TTL_HOURS, 3
+// ore). Il token d'accesso scade insieme a lei, quindi alla sua scadenza si
+// esce e si torna al login, anche se la pagina è ferma e non chiama l'API.
+let expiryTimer: ReturnType<typeof setTimeout> | null = null
+function scheduleExpiry() {
+  if (expiryTimer) clearTimeout(expiryTimer)
+  expiryTimer = null
+  const token = getAccessToken()
+  if (!token) return
+  try {
+    const { exp } = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as { exp?: number }
+    if (exp) expiryTimer = setTimeout(() => void logout(), Math.max(0, exp * 1000 - Date.now()))
+  } catch {
+    /* token illeggibile: ci pensa il 401 alla prossima chiamata */
+  }
+}
+
 let ensuring: Promise<boolean> | null = null
 
 /** Apre (o conferma) la sessione: token in memoria, oppure rinnovo col cookie. */
@@ -50,6 +67,7 @@ export function ensureSession(): Promise<boolean> {
         const user = (await res.json()) as BackendUser
         setBackendUser(user)
         set({ status: 'authenticated', user })
+        scheduleExpiry()
         return true
       } catch {
         set({ status: 'anonymous', user: null })
@@ -87,6 +105,7 @@ export async function login(email: string, password: string): Promise<LoginResul
   // Il refresh token del corpo si ignora: in questa modalità vale il cookie.
   setBackendSession(data.accessToken, '', data.user)
   set({ status: 'authenticated', user: data.user })
+  scheduleExpiry()
   return { ok: true, user: data.user }
 }
 
@@ -97,6 +116,8 @@ export async function logout(): Promise<void> {
   } catch {
     /* anche senza rete si esce dall'interfaccia; il token scade da solo */
   }
+  if (expiryTimer) clearTimeout(expiryTimer)
+  expiryTimer = null
   clearBackendSession()
   set({ status: 'anonymous', user: null })
 }
