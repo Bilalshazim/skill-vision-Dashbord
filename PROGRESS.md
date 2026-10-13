@@ -135,6 +135,17 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-13 (6) — Assistente IA di Assessment a tutto schermo
+- [x] La chat era una colonna fissa di 45rem e riempiva l'altezza solo da `lg`:
+      ora prende tutta la larghezza accanto alle domande e l'altezza dello schermo
+      a ogni larghezza (`100dvh`). Messaggi e campo centrati a `max-w-3xl`
+      (colonna di lettura). Su telefono le domande sono una fascia che scorre
+      (`max-h-48`) e la chat prende il resto. `ChatMessage` invariato.
+- [x] Verificata con Chrome a 1600×900 e 390×844, in scuro. `tsc -b` pulito,
+      audit invariato.
+- [ ] Visto di passaggio, non toccato: su telefono la barra superiore va a capo
+      (selettore IT/EN su due righe).
+
 ## 2026-10-13 (5) — Finestra 2: pannello accanto alla card; mappa delle sedi ritirata
 - [x] `SkillVisionCard` `panelSide`: le card a destra restano a destra e aprono il
       pannello a sinistra (La mappa dei valori, Le decisioni).

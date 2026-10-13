@@ -74,8 +74,15 @@ export default function AssessmentAiPage() {
       {/* Legacy renderAI() has no in-page title/header of its own —
           the Topbar's h1/sub (from PAGE_META_TEXT_EN/IT.ai, already wired
           in AssessmentLayout) is the only heading for this screen. */}
-      <div className="grid min-h-[28rem] grid-cols-1 gap-4 lg:h-[calc(100vh-12rem)] lg:grid-cols-[18rem_minmax(0,45rem)]">
-        <div className="flex flex-col gap-2 overflow-y-auto">
+      {/* La pagina occupa l'altezza dello schermo a ogni larghezza e la chat
+          tutta la larghezza accanto alle domande (richiesta di Bilal,
+          2026-10-13: prima la colonna era fissa a 45rem e restava una casella
+          piccola). Messaggi e campo restano centrati alla colonna di lettura
+          (max-w-3xl, CLAUDE.md cap. 6): le risposte lunghe non diventano
+          righe da un capo all'altro dello schermo. Su schermi stretti le
+          domande scorrono in una fascia bassa e la chat prende il resto. */}
+      <div className="grid h-[calc(100dvh-12rem)] min-h-96 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-4 lg:grid-cols-[18rem_minmax(0,1fr)] lg:grid-rows-1">
+        <div className="flex max-h-48 flex-col gap-2 overflow-y-auto lg:max-h-none">
           <div className="mb-2 flex flex-col gap-2 border-b border-border pb-4">
             <CardLabel>{ui.aiQuickQuestions}</CardLabel>
             {featured.map((q, i) => (
@@ -92,7 +99,8 @@ export default function AssessmentAiPage() {
           ))}
         </div>
         <Card padding="none" className="min-h-0">
-          <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-6" aria-live="polite">
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-6" aria-live="polite">
+            <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
             {log.map((m, i) => (
               <ChatMessage from={m.role === 'user' ? 'user' : 'assistant'} key={i}>
                 {m.role === 'bot'
@@ -110,8 +118,10 @@ export default function AssessmentAiPage() {
                   : m.text}
               </ChatMessage>
             ))}
+            </div>
           </div>
-          <div className="flex gap-3 border-t border-border p-4">
+          <div className="border-t border-border p-4">
+            <div className="mx-auto flex w-full max-w-3xl gap-3">
             <Input
               type="text"
               aria-label={ui.aiInputPh}
@@ -125,6 +135,7 @@ export default function AssessmentAiPage() {
             <Button variant="default" onClick={send}>
               {ui.aiSendBtn}
             </Button>
+            </div>
           </div>
         </Card>
       </div>
