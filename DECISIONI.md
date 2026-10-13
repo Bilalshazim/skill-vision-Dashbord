@@ -1348,3 +1348,41 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   (regola 10): il rosso delle perdite non è uno stato.
 - Supera "le quattro card restano neutre" (Fase 2): aggiornato CLAUDE.md, cap. 7.
 - Da verificare a schermo: il testo secondario sulle tinte, in chiaro e in scuro.
+
+## Finestra 2 «La mappa dei valori»: pannello accanto e mappa delle sedi · 2026-10-13
+- Richiesta del cliente: (1) la pagina che si apre va allineata a quella
+  interrogata; (2) un grafico spettacolare che mostri dove si trova ogni
+  dipendente, come la mappa del mondo con i segnaposti della piattaforma
+  precedente; segnaposti con una scheda minima al passaggio del mouse.
+- (1) Presa: prop `panelSide` di `SkillVisionCard`. Le card della colonna destra
+  (La mappa dei valori, Le decisioni) restano nella loro colonna e aprono il
+  pannello a sinistra, invece di saltare a sinistra con il pannello al loro posto.
+- (2) Il dato non c'era: il dipendente non ha una sede, le sedi di Dati aziendali
+  sono nome, indirizzo e città senza coordinate. Opzioni proposte a Bilal: sede per
+  dipendente + tabella città → coordinate; solo le sedi aziendali; leggerla come
+  posizione nella matrice dei valori. **Scelta di Bilal: sede per dipendente.**
+  - `Employee.sede` (facoltativo): il nome di una sede di Dati aziendali, scelto
+    in Aggiungi / Modifica dipendente (`SedeField`). Nessuna migrazione: chi non ce
+    l'ha non compare, e con una sola sede aziendale va lì.
+  - Coordinate da una tabella nel codice (`lib/city-coordinates.ts`): capoluoghi
+    italiani e grandi città estere. Nessun servizio esterno, gli indirizzi non
+    escono dal browser. Una città non in tabella resta fuori e la pagina lo dice.
+  - Grafico: Bklit ha solo il choropleth (paesi colorati per valore, niente
+    segnaposti, 5 dipendenze in più). Come prevede CLAUDE.md quando Bklit non
+    copre il grafico, il pattern `LocationMap` è costruito su `d3-geo` (già nel
+    progetto tramite le dipendenze di Bklit, ora diretto) con `topojson-client` e
+    `world-atlas` (geometria dei paesi 1:110M). Due dipendenze nuove, piccole.
+  - Aspetto: vista adattata alle sedi (Italia se sono in Italia, il mondo se sono
+    su più continenti); terre `foreground` in chiaro come nel riferimento del
+    cliente, `border-strong` in scuro; segnaposti `primary` con bordo scuro e il
+    numero di persone scritto; scheda: sede, città, persone, punteggio medio /10,
+    i primi cinque nomi. Due segnaposti troppo vicini si scostano. Tastiera: ogni
+    segnaposto ha il fuoco e apre la stessa scheda. Nessuna scala sequenziale:
+    il colore non codifica valori.
+  - Riquadro con il rilievo come gli altri del pannello: +1 all'audit (ombra),
+    stessa eccezione delle folder card.
+  - Demo: cinque sedi (Milano, Torino, Roma, Napoli, Monaco) assegnate a
+    rotazione senza toccare i punteggi. Vale per i dati demo nuovi ("Reset demo"):
+    i dati già nel browser restano come sono.
+- **Scelta di Bilal: la matrice dei valori resta**, sotto la mappa: nessuna
+  funzione tolta.

@@ -21,6 +21,7 @@ import { lastSixMonthLabels } from '@/modules/assessment/lib/months'
 import { TrendChart } from '@/components/patterns/TrendChart'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { ModeSwitch } from '@/modules/assessment/components/ModeSwitch'
+import { SitesMap } from '@/modules/assessment/components/SitesMap'
 import { ValoreCard } from '@/modules/assessment/components/ValoreCard'
 import { ValueMap, type MapPerson } from '@/modules/assessment/components/ValueMap'
 import { homeCardLayout } from '@/lib/home-card-layout'
@@ -243,9 +244,11 @@ export default function AssessmentHomePage() {
           open={openCapitale}
           onOpenChange={setOpenCapitale}
           tint={HOME_TINT.capitale}
+          panelSide="start"
           style={cardLayout.capitale}
           panel={
             <div className="flex flex-col gap-3">
+              <SitesMap state={state} people={mapPeople} ui={ui} />
               {both ? (
                 <ValueMap
                   ui={ui}
@@ -408,6 +411,7 @@ export default function AssessmentHomePage() {
           open={openDecisioni}
           onOpenChange={setOpenDecisioni}
           tint={HOME_TINT.decisioni}
+          panelSide="start"
           style={cardLayout.decisioni}
           panel={
             <div className="flex flex-col gap-3 rounded-md border-2 border-primary bg-card p-4 shadow-[0_8px_16px_0_var(--border-strong)]">

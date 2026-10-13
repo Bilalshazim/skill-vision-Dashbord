@@ -16,6 +16,9 @@ import { cn } from '@/lib/utils'
 // comincia sopra la parte visibile, la pagina scorre fino al suo inizio.
 // `tint`: il colore della card (FolderCard), ripetuto sul riquadro del
 // pannello, così si vede quale pannello appartiene a quale card.
+// `panelSide`: da che parte si apre il pannello. Le card della colonna destra
+// lo aprono a sinistra (`start`), così restano nella loro colonna e il
+// pannello compare accanto, non al loro posto. Nel DOM la card resta prima.
 export function SkillVisionCard({
   icon,
   iconSide,
@@ -30,6 +33,7 @@ export function SkillVisionCard({
   onOpenChange,
   labels = { today: 'oggi', skillVision: 'Skill Vision' },
   tint,
+  panelSide = 'end',
   style,
 }: {
   icon: IconComponent
@@ -47,6 +51,7 @@ export function SkillVisionCard({
   onOpenChange: (open: boolean) => void
   labels?: { today: string; skillVision: string }
   tint?: FolderTint
+  panelSide?: 'start' | 'end'
   style?: CSSProperties
 }) {
   const panelId = useId()
@@ -70,7 +75,7 @@ export function SkillVisionCard({
       data-slot="skill-vision-card"
       data-state={open ? 'open' : 'closed'}
       style={style}
-      className={cn('flex min-w-0 flex-col', open && 'col-span-full grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]')}
+      className={cn('flex min-w-0 flex-col', open && 'col-span-full grid items-start gap-6', open && (panelSide === 'start' ? 'lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]' : 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]'))}
     >
       <FolderCard
         icon={icon}
@@ -78,7 +83,7 @@ export function SkillVisionCard({
         tint={tint}
         title={title}
         kicker={subtitle}
-        className="flex-1"
+        className={cn('flex-1', open && panelSide === 'start' && 'lg:order-2')}
         aside={
           <ToggleGroup
             type="single"
