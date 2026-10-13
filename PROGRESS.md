@@ -135,6 +135,12 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-13 (2) — Scelta CT / CP / Completo: compatta
+- [x] Dopo la verifica in produzione: niente riquadri, controllo a segmenti su una
+      riga con un colore per area (CT petrolio, CP magenta, Completo neutro) e la
+      voce scelta piena del suo colore, con spunta. Tolti i testi non più usati.
+- [x] `tsc -b` pulito, audit invariato.
+
 ## 2026-10-13 — Home di Assessment: scelta CT / CP / Completo in evidenza
 - [x] `ModeSwitch` dalla barra superiore a un pannello a tutta riga sotto l'intestazione:
       titolo «Quale area vuoi analizzare?», tre riquadri con codice, nome e una riga

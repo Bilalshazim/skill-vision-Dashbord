@@ -1310,3 +1310,8 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   segnale: spunta e «Selezionata».
 - Comportamento invariato: stessa ToggleGroup (tastiera, focus, ARIA), stessa
   funzione `setModuleExclusive`, stesso effetto sull'indice a sinistra.
+- Rettifica dello stesso giorno (Bilal, dopo averlo visto in produzione): i tre
+  riquadri grandi erano troppo. Ora è un controllo a segmenti compatto su una
+  riga, sotto l'intestazione: etichetta «Seleziona la vista», pallino colorato e
+  codice nel colore dell'area, voce scelta piena del suo colore con la spunta.
+  Tolte le descrizioni e il titolo del pannello.
