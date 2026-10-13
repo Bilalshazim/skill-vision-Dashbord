@@ -135,6 +135,16 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-13 (4) — Home di Assessment: finestre allineate e colorate (B.2, B.3)
+- [x] `SkillVisionCard`: tolto `sticky` dalla card aperta, che con la pagina scorsa
+      la disallineava dal pannello; aprendo, la pagina scorre all'inizio del blocco
+      se serve.
+- [x] Prop `tint` in `FolderCard` / `SkillVisionCard` / `ValoreCard`: tinta al 10%
+      sulla card e sul riquadro del pannello (viola, magenta, rosso, verde). Nel
+      catalogo.
+- [x] `tsc -b` pulito, audit invariato (304).
+- [ ] Verifica a occhio in chiaro e in scuro dopo il deploy.
+
 ## 2026-10-13 (3) — Scelta CT / CP / Completo accanto al titolo
 - [x] A destra di «Home», con l'aspetto delle folder card (bordo lime, rilievo che
       diventa lime al passaggio del mouse). CT petrolio, CP ambra, Completo lime

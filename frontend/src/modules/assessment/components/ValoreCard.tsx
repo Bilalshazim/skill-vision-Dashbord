@@ -5,6 +5,7 @@ import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { HouseValueIcon } from '@/components/patterns/CardIcons'
 import { CompletionRing } from '@/components/patterns/CompletionRing'
 import { ScoreGauge } from '@/components/patterns/ScoreGauge'
+import type { FolderTint } from '@/components/patterns/FolderCard'
 import { SkillVisionCard } from '@/components/patterns/SkillVisionCard'
 import { StatCard } from '@/components/patterns/StatCard'
 import type { getUI } from '@/modules/assessment/lib/legacy-utils'
@@ -26,6 +27,7 @@ type Props = {
   panelActions: ReactNode
   open: boolean
   onOpenChange: (open: boolean) => void
+  tint?: FolderTint
   style?: CSSProperties
 }
 
@@ -38,10 +40,11 @@ const signed = (n: number) => `${n > 0 ? '+' : ''}${fmt1it(n)}`
 // accanto, i riquadri hanno bordo e rilievo, e in fondo ci sono i tre pulsanti
 // che prima stavano sulla card. Tutti i numeri arrivano da AssessmentHomePage
 // (homeStats()).
-export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgGapPct, breakdown, panelActions, open, onOpenChange, style }: Props) {
+export function ValoreCard({ ui, overallPct, roleCovPct, benchmark, avgGap, avgGapPct, breakdown, panelActions, open, onOpenChange, tint, style }: Props) {
   return (
     <SkillVisionCard
       iconSide="end"
+      tint={tint}
       icon={HouseValueIcon}
       title={ui.homeQ1Title}
       subtitle={ui.homeQ1Kicker}

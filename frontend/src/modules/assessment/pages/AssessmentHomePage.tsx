@@ -55,6 +55,11 @@ import { EmptyState } from '@/components/patterns/EmptyState'
 // La finestra a fondo pagina "una sola lettura" è parcheggiata (Foglio 3).
 const SHOW_CROSS_MODULE_BANNER = false
 
+// Un colore leggero per ogni card, ripetuto sul suo pannello (richiesta del
+// cliente, 2026-10-13). Dalla famiglia dei grafici, senza petrolio e ambra
+// (chart-1, chart-3), che nella scelta CT / CP indicano le due aree.
+const HOME_TINT = { valore: 'chart-4', capitale: 'chart-2', perdite: 'chart-5', decisioni: 'chart-6' } as const
+
 export default function AssessmentHomePage() {
   const { state, setState, lang, ui, canEdit } = useAssessment()
   const navigate = useNavigate()
@@ -206,6 +211,7 @@ export default function AssessmentHomePage() {
           breakdown={valoreBreakdown}
           open={openValore}
           onOpenChange={setOpenValore}
+          tint={HOME_TINT.valore}
           style={cardLayout.valore}
           panelActions={
             <>
@@ -236,6 +242,7 @@ export default function AssessmentHomePage() {
           labels={skillVisionLabels}
           open={openCapitale}
           onOpenChange={setOpenCapitale}
+          tint={HOME_TINT.capitale}
           style={cardLayout.capitale}
           panel={
             <div className="flex flex-col gap-3">
@@ -296,6 +303,7 @@ export default function AssessmentHomePage() {
           labels={skillVisionLabels}
           open={openPerdite}
           onOpenChange={setOpenPerdite}
+          tint={HOME_TINT.perdite}
           style={cardLayout.perdite}
           panel={
             <div className="flex flex-col gap-3">
@@ -399,6 +407,7 @@ export default function AssessmentHomePage() {
           labels={skillVisionLabels}
           open={openDecisioni}
           onOpenChange={setOpenDecisioni}
+          tint={HOME_TINT.decisioni}
           style={cardLayout.decisioni}
           panel={
             <div className="flex flex-col gap-3 rounded-md border-2 border-primary bg-card p-4 shadow-[0_8px_16px_0_var(--border-strong)]">

@@ -519,7 +519,15 @@ function HomeCardsDemo() {
       <FolderCard icon={ListChecks} iconSide="end" title="Le Decisioni — icona a destra (Assessment)">
         <p className="mt-4 text-app-body font-medium">Stessa card, icona dall'altra parte</p>
       </FolderCard>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {(['chart-4', 'chart-2', 'chart-5', 'chart-6'] as const).map((t) => (
+          <FolderCard key={t} icon={ListChecks} iconSide="end" tint={t} title={`tint="${t}"`}>
+            <p className="mt-4 text-app-body font-medium">Tinta leggera della card della Home, ripetuta sul pannello</p>
+          </FolderCard>
+        ))}
+      </div>
       <SkillVisionCard
+        tint="chart-4"
         icon={CircleDollarSign}
         title="Il Valore"
         subtitle="quello che devi sapere"

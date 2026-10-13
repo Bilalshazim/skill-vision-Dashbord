@@ -793,7 +793,10 @@ dove veniva.
   e la struttura che li gestisce **restano**: serviranno se un giorno si
   tradurrà tutta la piattaforma. I testi nuovi si scrivono passando dalla
   stessa struttura, non scritti a mano nei componenti.
-- **Home di Assessment**: le quattro card restano neutre, come deciso in Fase 2.
+- **Home di Assessment**: ~~le quattro card restano neutre~~ — superata dal
+  cliente il 2026-10-13: ogni card ha una tinta leggera (chart-4, chart-2,
+  chart-5, chart-6, al 10% su `card`), ripetuta sul pannello che apre. Petrolio
+  e ambra restano alla scelta CT / CP. Vedi DECISIONI.
 
 **Di prodotto — non decidere da solo**
 

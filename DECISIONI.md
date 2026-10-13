@@ -1325,3 +1325,26 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   magenta), Completo scelto **lime** (`primary` + `primary-foreground`). Il
   lime qui segna la scelta che comprende tutto, come chiede il cliente.
   Contrasto del testo sulle voci piene ≥ 5:1 nelle due modalità.
+
+## Home di Assessment: card allineate al pannello e un colore per card · 2026-10-13
+- Richiesta del cliente (B. Le finestre, punti 2 e 3): aprendo una card diversa
+  dalla prima, il pannello non si apre in linea con la card; e un colore
+  leggermente diverso per ognuna delle quattro card, uguale nel suo pannello.
+- Punto 2, causa: la card aperta era `sticky` (`lg:top-20`). Per aprire le card
+  più in basso la pagina è scorsa, quindi la card scendeva a 80px dall'alto
+  mentre il pannello restava al suo posto: le due non partivano più dalla stessa
+  altezza. La prima card non lo mostrava perché in cima la pagina non è scorsa.
+- Presa: tolto `sticky`; card e pannello partono sempre dalla stessa riga. Aprendo,
+  se il blocco comincia sopra la parte visibile, la pagina scorre fino al suo
+  inizio. Vale anche per Recruiting (stesso pattern `SkillVisionCard`).
+- Punto 3, opzioni: (a) bordo del colore al posto del lime; (b) tinta leggera del
+  fondo, lime invariato; (c) solo un segno colorato.
+- Presa: **(b)**, prop `tint` di `FolderCard` / `SkillVisionCard`: colore al 10%
+  mescolato con `card` (opaco, perché la linguetta copre il bordo del corpo);
+  stessa tinta e bordo lime sul riquadro del pannello. Il Valore `chart-4` viola,
+  La mappa dei valori `chart-2` magenta, Le perdite `chart-5` rosso, Le
+  decisioni `chart-6` verde. Esclusi petrolio e ambra, che nella scelta CT / CP
+  indicano le due aree. Il colore identifica la card e non significa niente
+  (regola 10): il rosso delle perdite non è uno stato.
+- Supera "le quattro card restano neutre" (Fase 2): aggiornato CLAUDE.md, cap. 7.
+- Da verificare a schermo: il testo secondario sulle tinte, in chiaro e in scuro.

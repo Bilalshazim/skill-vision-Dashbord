@@ -1,7 +1,7 @@
 import type { IconComponent } from '@/components/patterns/CompositeIcon'
-import { type CSSProperties, type ReactNode, useId } from 'react'
+import { type CSSProperties, type ReactNode, useEffect, useId, useRef } from 'react'
 
-import { FolderCard } from '@/components/patterns/FolderCard'
+import { FolderCard, type FolderTint, folderTintStyle } from '@/components/patterns/FolderCard'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 
@@ -10,6 +10,12 @@ import { cn } from '@/lib/utils'
 // accanto, e allora il blocco prende tutta la riga della griglia.
 // Aperto/chiuso lo decide chi la usa (di solito ricordato nel browser).
 // `style`: solo il posto nella griglia (order, grid-column), deciso dalla pagina.
+// La card e il suo pannello partono sempre dalla stessa altezza (richiesta del
+// cliente, 2026-10-13): la card non è più `sticky`, che con la pagina
+// scorsa la spostava in basso rispetto al pannello; aprendo, se il blocco
+// comincia sopra la parte visibile, la pagina scorre fino al suo inizio.
+// `tint`: il colore della card (FolderCard), ripetuto sul riquadro del
+// pannello, così si vede quale pannello appartiene a quale card.
 export function SkillVisionCard({
   icon,
   iconSide,
@@ -23,6 +29,7 @@ export function SkillVisionCard({
   open,
   onOpenChange,
   labels = { today: 'oggi', skillVision: 'Skill Vision' },
+  tint,
   style,
 }: {
   icon: IconComponent
@@ -39,11 +46,27 @@ export function SkillVisionCard({
   open: boolean
   onOpenChange: (open: boolean) => void
   labels?: { today: string; skillVision: string }
+  tint?: FolderTint
   style?: CSSProperties
 }) {
   const panelId = useId()
+  const rootRef = useRef<HTMLDivElement>(null)
+  const wasOpen = useRef(open)
+  useEffect(() => {
+    const opened = open && !wasOpen.current
+    wasOpen.current = open
+    if (!opened) return
+    const id = requestAnimationFrame(() => {
+      const el = rootRef.current
+      if (!el) return
+      const top = el.getBoundingClientRect().top
+      if (top < 96) window.scrollBy({ top: top - 96, behavior: 'smooth' })
+    })
+    return () => cancelAnimationFrame(id)
+  }, [open])
   return (
     <div
+      ref={rootRef}
       data-slot="skill-vision-card"
       data-state={open ? 'open' : 'closed'}
       style={style}
@@ -52,9 +75,10 @@ export function SkillVisionCard({
       <FolderCard
         icon={icon}
         iconSide={iconSide}
+        tint={tint}
         title={title}
         kicker={subtitle}
-        className={cn('flex-1', open && 'lg:sticky lg:top-20')}
+        className="flex-1"
         aside={
           <ToggleGroup
             type="single"
@@ -82,7 +106,7 @@ export function SkillVisionCard({
       </FolderCard>
 
       {open ? (
-        <div id={panelId} className="flex min-w-0 flex-col gap-3">
+        <div id={panelId} className={cn('flex min-w-0 flex-col gap-3', tint && 'rounded-lg border-2 border-primary p-4')} style={folderTintStyle(tint)}>
           {panel}
         </div>
       ) : null}
