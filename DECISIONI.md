@@ -1315,3 +1315,13 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   riga, sotto l'intestazione: etichetta «Seleziona la vista», pallino colorato e
   codice nel colore dell'area, voce scelta piena del suo colore con la spunta.
   Tolte le descrizioni e il titolo del pannello.
+- Seconda rettifica (Bilal, stesso giorno): il selettore va a destra del titolo
+  «Home» (slot delle azioni dell'intestazione del modulo) e prende l'aspetto delle
+  folder card: bordo 2px `primary`, fondo `card`, rilievo
+  `0 8px 16px var(--border-strong)` che diventa `var(--primary)` al passaggio
+  del mouse. È la stessa eccezione alla regola 3 delle folder card (Fase 3),
+  estesa a questo controllo: l'audit sale da 302 a 304 per queste due classi,
+  voluto. Colori: CT `chart-1` (petrolio), CP `chart-3` (ambra, al posto del
+  magenta), Completo scelto **lime** (`primary` + `primary-foreground`). Il
+  lime qui segna la scelta che comprende tutto, come chiede il cliente.
+  Contrasto del testo sulle voci piene ≥ 5:1 nelle due modalità.

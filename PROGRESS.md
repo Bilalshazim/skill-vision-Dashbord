@@ -135,6 +135,13 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-13 (3) — Scelta CT / CP / Completo accanto al titolo
+- [x] A destra di «Home», con l'aspetto delle folder card (bordo lime, rilievo che
+      diventa lime al passaggio del mouse). CT petrolio, CP ambra, Completo lime
+      quando è scelto.
+- [x] `tsc -b` pulito. Audit 304 (+2: le classi del rilievo, eccezione voluta,
+      vedi DECISIONI).
+
 ## 2026-10-13 (2) — Scelta CT / CP / Completo: compatta
 - [x] Dopo la verifica in produzione: niente riquadri, controllo a segmenti su una
       riga con un colore per area (CT petrolio, CP magenta, Completo neutro) e la

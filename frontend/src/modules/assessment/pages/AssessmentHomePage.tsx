@@ -24,7 +24,7 @@ import { ModeSwitch } from '@/modules/assessment/components/ModeSwitch'
 import { ValoreCard } from '@/modules/assessment/components/ValoreCard'
 import { ValueMap, type MapPerson } from '@/modules/assessment/components/ValueMap'
 import { homeCardLayout } from '@/lib/home-card-layout'
-import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
+import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import {
   bothActive,
   computeAvgMetric,
@@ -64,10 +64,13 @@ export default function AssessmentHomePage() {
   const totalEmp = state.employees.length
   const both = bothActive(state)
 
-  // La scelta CT / CP / Completo sta nella pagina, subito sotto
-  // l'intestazione e a tutta riga (richiesta del cliente, 2026-10-13: prima
-  // era nella barra superiore e non si notava). "Sistema Attivo" non c'è più:
-  // non corrispondeva a uno stato reale (CLAUDE.md, capitolo 7).
+  // La scelta CT / CP / Completo sta a destra del titolo «Home» (slot delle
+  // azioni dell'intestazione del modulo), con l'aspetto delle folder card
+  // (richiesta del cliente, 2026-10-13). "Sistema Attivo" non c'è più: non
+  // corrispondeva a uno stato reale (CLAUDE.md, capitolo 7).
+  // setModuleExclusive è una dichiarazione di funzione (più in basso), quindi
+  // si può usare qui.
+  useTopbarActions(<ModeSwitch value={both ? 'AB' : f.A ? 'A' : 'B'} onChange={setModuleExclusive} ui={ui} />, [ui, both, f.A, f.B])
 
   // Phase 3: no real monthly history exists anywhere in demo-data.ts, so
   // this is the same "illustrative walk anchored to today's real number"
@@ -187,8 +190,6 @@ export default function AssessmentHomePage() {
   return (
     <div>
       <PageHeader title={ui.homeStatusTitle} description={ui.homeStatusSub} />
-
-      <ModeSwitch value={both ? 'AB' : f.A ? 'A' : 'B'} onChange={setModuleExclusive} ui={ui} />
 
       <div className="mb-6 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
         {/* Foglio 3 (Roberto Feliciani): le quattro card mostrano solo titolo,

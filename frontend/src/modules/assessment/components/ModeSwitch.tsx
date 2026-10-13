@@ -8,17 +8,18 @@ type UI = ReturnType<typeof getUI>
 export type ModuleMode = 'A' | 'B' | 'AB'
 
 // La scelta fra Competenze trasversali (CT), Competenze professionali (CP) e
-// Completo (CT + CP) della Home di Assessment. Il cliente (2026-10-13) la
-// vuole più in evidenza e chiede che si veda che CT e CP sono due aree
-// diverse: controllo a segmenti compatto, su una riga sotto l'intestazione,
-// con un colore per area — lo stesso della scelta del modulo (chart-1
-// petrolio per CT, chart-2 magenta per CP, Completo neutro con i due
-// pallini). La voce scelta si riempie del suo colore; il colore non è l'unico
-// segnale: c'è la spunta. La scelta guida anche l'indice a sinistra.
+// Completo (CT + CP) della Home di Assessment, a destra del titolo «Home».
+// Richiesta del cliente (2026-10-13): in evidenza, CT e CP riconoscibili
+// come due aree diverse, con un colore ciascuna. Aspetto delle folder card
+// della Home: bordo 2px `primary`, fondo `card`, rilievo che diventa lime al
+// passaggio del mouse (stessa eccezione alla regola 3, DECISIONI.md). Voce
+// scelta piena del colore dell'area: CT `chart-1` petrolio, CP `chart-3`
+// ambra, Completo lime (`primary`). Il colore non è l'unico segnale: c'è la
+// spunta. La scelta guida anche l'indice a sinistra (AssessmentNav).
 const AREA = {
-  A: { dots: ['bg-chart-1'], code: 'text-chart-1', on: 'data-[state=on]:bg-chart-1' },
-  B: { dots: ['bg-chart-2'], code: 'text-chart-2', on: 'data-[state=on]:bg-chart-2' },
-  AB: { dots: ['bg-chart-1', 'bg-chart-2'], code: 'text-foreground', on: 'data-[state=on]:bg-foreground' },
+  A: { dots: ['bg-chart-1'], code: 'text-chart-1', on: 'data-[state=on]:bg-chart-1 data-[state=on]:text-background' },
+  B: { dots: ['bg-chart-3'], code: 'text-chart-3', on: 'data-[state=on]:bg-chart-3 data-[state=on]:text-background' },
+  AB: { dots: ['bg-chart-1', 'bg-chart-3'], code: 'text-foreground', on: 'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground' },
 } as const
 
 export function ModeSwitch({ value, onChange, ui }: { value: ModuleMode; onChange: (mode: ModuleMode) => void; ui: UI }) {
@@ -28,39 +29,30 @@ export function ModeSwitch({ value, onChange, ui }: { value: ModuleMode; onChang
     { value: 'AB', label: ui.f3ModeBoth },
   ]
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-3">
-      <span id="mode-switch-label" className="label-mono text-muted-foreground">
-        {ui.f3ModeLabel}
-      </span>
-      <ToggleGroup
-        type="single"
-        value={value}
-        onValueChange={(v) => v && onChange(v as ModuleMode)}
-        aria-labelledby="mode-switch-label"
-        className="border-border-strong"
-      >
-        {items.map((it) => {
-          const a = AREA[it.value]
-          const on = value === it.value
-          const [code, ...rest] = it.label.split(' · ')
-          return (
-            <ToggleGroupItem
-              key={it.value}
-              value={it.value}
-              className={cn('h-9 px-3 text-foreground hover:bg-muted hover:text-foreground data-[state=on]:text-background', a.on)}
-            >
-              <span className="flex items-center gap-1" aria-hidden="true">
-                {a.dots.map((d) => (
-                  <span key={d} className={cn('size-2 rounded-full', d, on && 'ring-2 ring-background')} />
-                ))}
-              </span>
-              <span className={cn('font-mono font-semibold', on ? 'text-background' : a.code)}>{code}</span>
-              <span>{rest.join(' · ')}</span>
-              {on ? <Check aria-hidden="true" /> : null}
-            </ToggleGroupItem>
-          )
-        })}
-      </ToggleGroup>
-    </div>
+    <ToggleGroup
+      type="single"
+      value={value}
+      onValueChange={(v) => v && onChange(v as ModuleMode)}
+      aria-label={ui.f3ModeLabel}
+      className="rounded-lg border-2 border-primary bg-card p-1 shadow-[0_8px_16px_0_var(--border-strong)] transition-shadow hover:shadow-[0_8px_16px_0_var(--primary)]"
+    >
+      {items.map((it) => {
+        const a = AREA[it.value]
+        const on = value === it.value
+        const [code, ...rest] = it.label.split(' · ')
+        return (
+          <ToggleGroupItem key={it.value} value={it.value} className={cn('h-9 rounded-md px-3 text-foreground hover:bg-muted hover:text-foreground', a.on)}>
+            <span className="flex items-center gap-1" aria-hidden="true">
+              {a.dots.map((d) => (
+                <span key={d} className={cn('size-2 rounded-full', d, on && 'ring-2 ring-background')} />
+              ))}
+            </span>
+            <span className={cn('font-mono font-semibold', !on && a.code)}>{code}</span>
+            <span>{rest.join(' · ')}</span>
+            {on ? <Check aria-hidden="true" /> : null}
+          </ToggleGroupItem>
+        )
+      })}
+    </ToggleGroup>
   )
 }
