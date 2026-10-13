@@ -243,7 +243,6 @@ export default function AssessmentHomePage() {
           open={openCapitale}
           onOpenChange={setOpenCapitale}
           tint={HOME_TINT.capitale}
-          panelSide="start"
           style={cardLayout.capitale}
           panel={
             <div className="flex flex-col gap-3">
@@ -409,7 +408,6 @@ export default function AssessmentHomePage() {
           open={openDecisioni}
           onOpenChange={setOpenDecisioni}
           tint={HOME_TINT.decisioni}
-          panelSide="start"
           style={cardLayout.decisioni}
           panel={
             <div className="flex flex-col gap-3 rounded-md border-2 border-primary bg-card p-4 shadow-[0_8px_16px_0_var(--border-strong)]">

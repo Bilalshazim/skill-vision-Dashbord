@@ -135,6 +135,10 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-13 (7) — Finestra 2: pannello di nuovo a destra
+- [x] Tolto `panelSide` (interpretazione sbagliata): «La mappa dei valori» e «Le
+      decisioni» aprono il pannello a destra, come prima. `tsc -b` pulito.
+
 ## 2026-10-13 (6) — Assistente IA di Assessment a tutto schermo
 - [x] La chat era una colonna fissa di 45rem e riempiva l'altezza solo da `lg`:
       ora prende tutta la larghezza accanto alle domande e l'altezza dello schermo

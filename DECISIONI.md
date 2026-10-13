@@ -1360,3 +1360,7 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   Bilal dopo averla vista in produzione** (revert): niente mappa, niente campo
   Sede, niente dipendenze geografiche, demo con la sola sede di Milano. Se il
   cliente la richiede di nuovo, il lavoro si riprende da quel commit.
+- Rettifica (Bilal, stesso giorno): `panelSide` era un'interpretazione sbagliata
+  del punto (1). Il pannello deve aprirsi **a destra, come prima**: tolti
+  `panelSide` e il suo uso, `SkillVisionCard` torna al comportamento di c13b3e1
+  (card a sinistra della riga, pannello a destra).
