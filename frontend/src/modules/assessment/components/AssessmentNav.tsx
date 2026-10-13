@@ -1,4 +1,4 @@
-import { Brain, ClipboardList, Coins, FileText, Home, type LucideIcon, MessageSquareText, RotateCcw, Sparkles, Users, Wrench } from 'lucide-react'
+import { ArrowLeftRight, Brain, ClipboardList, Coins, FileText, Home, type LucideIcon, MessageSquareText, RotateCcw, Sparkles, Users, Wrench } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
@@ -34,6 +34,7 @@ const ICONS: Record<string, LucideIcon> = {
   feedback: MessageSquareText,
   ai: Sparkles,
   refresh: RotateCcw,
+  transfer: ArrowLeftRight,
 }
 const iconFor = (name?: string) => (name && ICONS[name]) || ClipboardList
 
@@ -49,9 +50,9 @@ export function AssessmentNav() {
   const location = useLocation()
   const navigate = useNavigate()
   const currentPage = location.pathname.split('/')[2] || 'home'
-  // "Area Valutazioni" parte aperta: le sue due voci si vedono subito sotto
-  // (richiesta del cliente, 2026-10-13). Si può chiudere.
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ valutazioni: true })
+  // "Area Valutazioni" e "Area Risultati" partono aperte: le loro voci si
+  // vedono subito sotto (richiesta del cliente, 2026-10-13). Si possono chiudere.
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ valutazioni: true, risultati: true })
   const [showMethodology, setShowMethodology] = useState(false)
   const demo = isDemoMode()
   const nav = getNavConfig(lang)

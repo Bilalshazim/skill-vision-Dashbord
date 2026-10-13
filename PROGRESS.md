@@ -135,6 +135,29 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-13 (10) — Nuova pagina «Cambio ruolo e trasferimenti» (Assessment)
+- [x] Passo 1 — calcolo `lib/role-change.ts`: requisiti del ruolo (trasversali dal
+      censimento, professionali al livello di chi lascia o al benchmark), stato per
+      requisito, compatibilità pesata, punti di forza, gap, facilità di inserimento,
+      le 3 persone più compatibili.
+- [x] Passo 2 — componenti di dominio in `modules/assessment/components/role-change/`:
+      `ReqStatusBadge`, `CandidateCard`, `CompatibilityDetail` (Sheet), `LeaverSummary`,
+      `BestChoice`. Testi IT/EN nella struttura esistente.
+- [x] Passo 3 — pagina `/assessment/cambio-ruolo`, voce di menu dopo «Valori
+      Complessivi», titolo di pagina.
+- [x] Passo 4 — verificata con Chrome in chiaro e in scuro (scelta della persona,
+      tre card, dettaglio). Corretti dopo la verifica: formula troppo generosa,
+      righe dei gap sovrapposte, nomi delle competenze in stile label, etichetta
+      della casella in maiuscolo.
+- [x] `tsc -b` e `vite build` puliti, audit invariato.
+- [ ] Da confermare col cliente: requisiti professionali al livello di chi lascia
+      (DECISIONI), soglie di stato e di facilità.
+
+## 2026-10-13 (9) — Indice di Assessment: Area Risultati aperta
+- [x] Anche «Area Risultati» parte aperta, con «Risultati Valutazioni Trasversali» e
+      «Risultati Valutazioni Professionali» subito sotto (i nomi c'erano già).
+      `tsc -b` pulito.
+
 ## 2026-10-13 (8) — Indice di Assessment: Area Valutazioni sotto Dati Aziendali
 - [x] Gruppo «Area Valutazioni» subito sotto «Dati Aziendali», aperto di default, con
       «Valutazioni Soft Skill» e «Valutazioni Hard Skill» (ex «Gestione valutazioni»,

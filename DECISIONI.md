@@ -1374,3 +1374,43 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   «Valutazioni Soft Skill». Le rotte non cambiano (`/assessment/soft`,
   `/assessment/gestione-valutazioni`). Il titolo della pagina soft («Area
   Valutazioni Trasversali») resta com'è: non era nella richiesta.
+
+## Cambio ruolo e trasferimenti: requisiti e compatibilità · 2026-10-13
+- Richiesta del cliente (documento «Role change / transfers»): pagina nuova che
+  risponde a «se questa persona lascia il ruolo, chi abbiamo già in azienda che
+  potrebbe sostituirla nel modo più efficace?», con le 3 persone più compatibili,
+  e per ognuna nome e ruolo, % di compatibilità, punti di forza, gap, motivazione,
+  dettaglio REQUISITI DEL RUOLO ↔ COMPETENZE DELLA PERSONA (verde / giallo / nero).
+- Dati: nessun dato nuovo, nessun salvataggio. Il calcolo è in
+  `lib/role-change.ts`, puro.
+- Requisiti del ruolo:
+  - trasversali: il censimento del ruolo (peso essenziale 3 / importante 2 /
+    utile 1, valore atteso);
+  - professionali: il censimento non ha attese per le cinque P. Opzioni: (a) il
+    livello a cui la persona che lascia svolge oggi il ruolo; (b) il benchmark
+    aziendale 7/10 per tutti; (c) i valori attesi del modulo 5P, che però vivono
+    in un archivio separato, per nome. Presa: **(a), con (b) se la persona non ha
+    una valutazione professionale**: è il dato più vicino a «sostituirla nel modo
+    più efficace». Peso importante (2). La pagina dice quale dei due si usa.
+- Stato di un requisito: posseduta (≥ richiesto), da sviluppare (fino a 2 punti
+  sotto), mancante (oltre), non valutata (nessun voto: conta come mancante).
+  Colori del documento sui token di stato: verde `success`, giallo `warning`, nero
+  `strong`, sempre con icona e parola.
+- Compatibilità: quota pesata delle competenze richieste possedute, come la frase
+  del documento («ha il 92% delle competenze richieste»): posseduta 1, da
+  sviluppare 1 − gap/4, mancante 0; trasversali e professionali metà ciascuna.
+  Prima versione (quota del livello, valore/richiesto) scartata dopo la verifica:
+  dava 98–100% quasi a tutti.
+- Facilità di inserimento: «Inserimento rapido» (nessuna mancante, ≤ 3 punti da
+  sviluppare), «Con un piano di sviluppo» (nessuna essenziale mancante), «Percorso
+  lungo» (altrimenti). È il «quanto è facile» del documento; non si stimano mesi,
+  che i dati non dicono.
+- Input: persona che lascia (obbligatoria), ruolo, attività principali, area,
+  livello di responsabilità, precompilati dalla sua scheda e modificabili. Il
+  ruolo decide i requisiti; l'area può restringere i candidati («Solo persone
+  della stessa area»); attività e livello descrivono il ruolo in testa ai
+  risultati e il livello di ogni candidato è mostrato accanto al ruolo. Non
+  entrano nel punteggio: non c'è un dato confrontabile su cui calcolarli.
+- La scelta migliore: la persona più compatibile; se un'alternativa richiede
+  meno sviluppo, lo si dice («se il ruolo va coperto in fretta…»).
+- Nessun grafico nuovo (CLAUDE.md: i grafici si propongono prima).

@@ -47,6 +47,7 @@ const AssessmentSoftOverviewPage = lazy(() => import('@/modules/assessment/pages
 const AssessmentSoftPage = lazy(() => import('@/modules/assessment/pages/AssessmentSoftPage'))
 const AssessmentSoftRisultatiPage = lazy(() => import('@/modules/assessment/pages/AssessmentSoftRisultatiPage'))
 const AssessmentValorePage = lazy(() => import('@/modules/assessment/pages/AssessmentValorePage'))
+const AssessmentRoleChangePage = lazy(() => import('@/modules/assessment/pages/AssessmentRoleChangePage'))
 
 // Catalogo dei componenti: in sviluppo sempre; in una build solo con
 // l'impostazione esplicita VITE_ENABLE_COMPONENT_CATALOG=true (l'anteprima su
@@ -125,6 +126,7 @@ function App() {
             <Route path="soft-risultati" element={<AssessmentSoftRisultatiPage />} />
             <Route path="hard-risultati" element={<AssessmentHardRisultatiPage />} />
             <Route path="valore" element={<AssessmentValorePage />} />
+            <Route path="cambio-ruolo" element={<AssessmentRoleChangePage />} />
             {/* Removed from the nav menu per the client's 14-item list, but
                 the page itself stays reachable by direct URL — no
                 functionality deleted, only unlisted. */}
