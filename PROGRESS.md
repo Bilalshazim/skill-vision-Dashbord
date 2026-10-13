@@ -135,6 +135,16 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-13 — Home di Assessment: scelta CT / CP / Completo in evidenza
+- [x] `ModeSwitch` dalla barra superiore a un pannello a tutta riga sotto l'intestazione:
+      titolo «Quale area vuoi analizzare?», tre riquadri con codice, nome e una riga
+      che dice cosa contiene l'area. Riquadro scelto pieno del colore dell'area (CT
+      petrolio, CP magenta, Completo neutro), spunta e «Selezionata». Testi IT/EN
+      nella struttura esistente.
+- [x] `tsc -b` pulito, audit invariato (nessun difetto nei file toccati).
+- [ ] Verifica a occhio in chiaro e in scuro: il server di sviluppo non parte su
+      questo PC (manca il binario di rolldown), da fare dopo il deploy.
+
 ## 2026-10-12 (2) — Sessione fissa di 3 ore dal login, refresh token con rotazione
 - [x] Correzione dopo il chiarimento di Bilal: non 3h di inattività ma **3h dal login**,
       poi si rifà l'accesso. La prima versione (refresh 7 giorni dall'ultimo uso)

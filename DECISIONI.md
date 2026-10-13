@@ -1293,3 +1293,20 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - Rischio noto: se la risposta del rinnovo si perde dopo la rotazione (rete che
   cade), il browser tiene il token vecchio e dopo 60 secondi l'utente deve rifare
   l'accesso. Raro, e sicuro dalla parte giusta.
+
+## Home di Assessment: scelta CT / CP / Completo in evidenza · 2026-10-13
+- Richiesta del cliente: la scelta fra CT, CP e CT + CP va evidenziata molto di
+  più, deve far capire che sono due aree diverse e i riquadri devono cambiare
+  colore quando si sceglie.
+- Opzioni: (a) lasciarla nella barra superiore, più grande; (b) pannello a tutta
+  riga sotto l'intestazione, tre riquadri con una riga di descrizione.
+- Presa: **(b)**. È un'eccezione voluta a "le schermate non si riprogettano",
+  chiesta dal cliente; il resto della Home non cambia.
+- Colori: ogni area il suo, lo stesso della scelta del modulo (2026-10-08):
+  CT `chart-1` (petrolio), CP `chart-2` (magenta), Completo neutro pieno
+  (`foreground`) con i due pallini. Il riquadro scelto si riempie del colore con
+  testo `background` (contrasto calcolato ≥ 5:1 in chiaro e in scuro). Il lime
+  resta fuori: è il colore dell'azione, non di un'area. Il colore non è l'unico
+  segnale: spunta e «Selezionata».
+- Comportamento invariato: stessa ToggleGroup (tastiera, focus, ARIA), stessa
+  funzione `setModuleExclusive`, stesso effetto sull'indice a sinistra.
