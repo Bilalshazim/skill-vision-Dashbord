@@ -83,6 +83,8 @@ export type RoleChangeResult = {
   noSoftProfile: boolean
   pool: number
   top: Candidate[]
+  /** Tutte le persone confrontate, in ordine di compatibilità. */
+  ranked: Candidate[]
 }
 
 const active = (s: AssessmentState) => s.employees.filter((e) => !e.archived)
@@ -176,5 +178,5 @@ export function computeRoleChange(state: AssessmentState, brief: RoleBrief, lang
       }
     })
     .sort((a, b) => b.compat - a.compat || a.devPoints - b.devPoints || b.overall - a.overall)
-  return { ...base, pool: pool.length, top: ranked.slice(0, count) }
+  return { ...base, pool: pool.length, top: ranked.slice(0, count), ranked }
 }

@@ -1414,3 +1414,14 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - La scelta migliore: la persona più compatibile; se un'alternativa richiede
   meno sviluppo, lo si dice («se il ruolo va coperto in fretta…»).
 - Nessun grafico nuovo (CLAUDE.md: i grafici si propongono prima).
+
+## Cambio ruolo: persona scelta dall'azienda · 2026-10-13
+- Richiesta del cliente: poter inserire nel confronto un nominativo scelto
+  dall'azienda, oltre alle tre proposte.
+- Opzioni: (a) una sezione a parte sotto la scelta migliore, con una card per la
+  persona scelta e la sua posizione in classifica; (b) sostituire una delle tre
+  proposte con la persona scelta; (c) una tabella con tutta la classifica.
+- (b) nasconde una proposta del calcolo; (c) cambia l'impianto della pagina.
+  Raccomandata e presa: **(a)**, una persona alla volta, stessa card e stesso
+  dettaglio delle tre, nessun salvataggio. La «scelta migliore» non cambia: resta
+  quella del calcolo.

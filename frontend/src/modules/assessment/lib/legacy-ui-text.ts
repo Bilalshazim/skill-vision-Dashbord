@@ -508,7 +508,7 @@ export const UI_EN = {
   rcBestChoice: 'The best choice for the company',
   rcJustify: (o: { name: string; rank: number; compat: number; strong: string[]; limited: string[]; missing: string[] }) => {
     const L = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`)
-    const lead = o.rank === 0 ? `${o.name} is the most compatible internal candidate` : o.rank === 1 ? `${o.name} is the second alternative` : `${o.name} is the third alternative`
+    const lead = o.rank === 0 ? `${o.name} is the most compatible internal candidate` : o.rank === 1 ? `${o.name} is the second alternative` : o.rank === 2 ? `${o.name} is the third alternative` : `${o.name} ranks ${o.rank + 1} for compatibility`
     let t = `${lead}: they hold ${o.compat}% of what the role requires${o.strong.length ? `, with particular alignment on ${L(o.strong)}` : ''}.`
     if (o.limited.length) t += ` Limited gap on ${L(o.limited)}.`
     if (o.missing.length) t += ` To acquire: ${L(o.missing)}.`
@@ -522,8 +522,16 @@ export const UI_EN = {
   rcReq: 'Role requirement',
   rcKind: { soft: 'Soft skill', hard: 'Hard skill' },
   rcWeight: 'Weight',
-  rcRequired: 'Required',
+  rcRequired: 'Expected value',
   rcPerson: 'Person',
+  rcValueOf: (name: string) => `${name}'s value`,
+  rcExpectedNote: (person: string, hardFrom: string | null) =>
+    `Expected value: what the role requires. For soft skills it is the expected value from the role census; for hard skills it is ${hardFrom ? `the level at which ${hardFrom} performs the role today` : 'the company benchmark (7/10)'}. ${person}'s value: their current evaluation.`,
+  rcPickTitle: 'Compare with a person chosen by the company',
+  rcPickSub: 'Besides the three proposals, you can see how compatible any other person is with the role.',
+  rcPickLabel: 'Person to compare',
+  rcPickNone: 'None',
+  rcPickedRank: (pos: number, n: number) => `Chosen by the company · ${pos} of ${n}`,
   rcStatus: 'Status',
   rcStatusLabel: { posseduta: 'Fully held', 'da-sviluppare': 'To develop', mancante: 'Missing', 'non-valutata': 'Not evaluated' },
   rcSoftPct: 'Soft skills',
@@ -1627,7 +1635,7 @@ export const UI_IT = {
   rcBestChoice: "La scelta migliore per l'azienda",
   rcJustify: (o: { name: string; rank: number; compat: number; strong: string[]; limited: string[]; missing: string[] }) => {
     const L = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} e ${xs[xs.length - 1]}`)
-    const lead = o.rank === 0 ? `${o.name} è la soluzione interna più compatibile` : o.rank === 1 ? `${o.name} è la seconda alternativa` : `${o.name} è la terza alternativa`
+    const lead = o.rank === 0 ? `${o.name} è la soluzione interna più compatibile` : o.rank === 1 ? `${o.name} è la seconda alternativa` : o.rank === 2 ? `${o.name} è la terza alternativa` : `${o.name} è al ${o.rank + 1}° posto per compatibilità`
     let t = `${lead}: possiede il ${o.compat}% di quanto richiesto dal ruolo${o.strong.length ? `, con un allineamento particolare su ${L(o.strong)}` : ''}.`
     if (o.limited.length) t += ` Ha un gap limitato su ${L(o.limited)}.`
     if (o.missing.length) t += ` Da acquisire: ${L(o.missing)}.`
@@ -1641,8 +1649,16 @@ export const UI_IT = {
   rcReq: 'Requisito del ruolo',
   rcKind: { soft: 'Trasversale', hard: 'Professionale' },
   rcWeight: 'Peso',
-  rcRequired: 'Richiesto',
+  rcRequired: 'Valore atteso',
   rcPerson: 'Persona',
+  rcValueOf: (name: string) => `Valore di ${name}`,
+  rcExpectedNote: (person: string, hardFrom: string | null) =>
+    `Valore atteso: quello che il ruolo richiede. Per le trasversali è il valore atteso del censimento delle mansioni; per le professionali ${hardFrom ? `è il livello a cui ${hardFrom} svolge oggi il ruolo` : 'è il benchmark aziendale (7/10)'}. Valore di ${person}: la sua valutazione attuale.`,
+  rcPickTitle: "Confronta con una persona scelta dall'azienda",
+  rcPickSub: 'Oltre alle tre proposte, puoi vedere la compatibilità di qualunque altra persona con il ruolo.',
+  rcPickLabel: 'Persona da confrontare',
+  rcPickNone: 'Nessuna',
+  rcPickedRank: (pos: number, n: number) => `Scelta dall'azienda · ${pos}° su ${n}`,
   rcStatus: 'Stato',
   rcStatusLabel: { posseduta: 'Posseduta', 'da-sviluppare': 'Da sviluppare', mancante: 'Mancante', 'non-valutata': 'Non valutata' },
   rcSoftPct: 'Trasversali',

@@ -135,6 +135,20 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-13 (11) — Cambio ruolo: persona scelta dall'azienda, dettaglio più chiaro
+Dai messaggi del cliente sulla pagina nuova.
+- [x] «Inserire un nominativo che sceglie l'azienda»: sotto la scelta migliore,
+      sezione «Confronta con una persona scelta dall'azienda» con un elenco di tutte
+      le altre persone confrontate; la persona scelta compare con la stessa card delle
+      tre proposte, etichetta «Scelta dall'azienda · n° su N», e apre lo stesso
+      dettaglio. `computeRoleChange` restituisce anche la classifica intera (`ranked`).
+- [x] Dettaglio: il cliente chiedeva se «Richiesto» e «Persona» fossero il valore
+      atteso e quello della persona. Sì: le colonne ora si chiamano «Valore atteso» e
+      «Valore di <nome>», e una nota dice da dove viene l'atteso (censimento per le
+      trasversali, livello di chi lascia o benchmark per le professionali).
+- [x] `tsc -b` e `vite build` puliti, audit invariato (305).
+- [ ] Non verificata a schermo in questa sessione: da guardare in chiaro e in scuro.
+
 ## 2026-10-13 (10) — Nuova pagina «Cambio ruolo e trasferimenti» (Assessment)
 - [x] Passo 1 — calcolo `lib/role-change.ts`: requisiti del ruolo (trasversali dal
       censimento, professionali al livello di chi lascia o al benchmark), stato per

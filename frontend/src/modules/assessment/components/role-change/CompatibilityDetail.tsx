@@ -15,7 +15,12 @@ const ORDER: ReqStatus[] = ['posseduta', 'da-sviluppare', 'mancante', 'non-valut
 // COMPETENZE DELLA PERSONA, un requisito per riga con il livello richiesto,
 // quello della persona e lo stato (posseduta, da sviluppare, mancante). In
 // testa il conteggio per stato, che si legge subito, e la motivazione.
-export function CompatibilityDetail({ candidate: c, rank, ui, lang, onClose }: { candidate: Candidate | null; rank: number; ui: UI; lang: AssessmentLang; onClose: () => void }) {
+// Le due colonne di valori dicono di chi sono — «Valore atteso» (il ruolo) e
+// «Valore di <nome>» (la persona) — e sotto la motivazione una nota dice da
+// dove viene l'atteso: censimento per le trasversali, livello di chi lascia
+// (o benchmark) per le professionali. `hardFrom`: il nome di chi lascia, o
+// `null` se si usa il benchmark.
+export function CompatibilityDetail({ candidate: c, rank, hardFrom, ui, lang, onClose }: { candidate: Candidate | null; rank: number; hardFrom: string | null; ui: UI; lang: AssessmentLang; onClose: () => void }) {
   return (
     <Sheet open={!!c} onOpenChange={(open) => !open && onClose()}>
       {c ? (
@@ -32,6 +37,7 @@ export function CompatibilityDetail({ candidate: c, rank, ui, lang, onClose }: {
           </SheetHeader>
           <SheetBody className="flex flex-col gap-6">
             <p className="text-app-small">{justification(c, rank, ui)}</p>
+            <p className="text-app-caption text-muted-foreground">{ui.rcExpectedNote(c.emp.nome, hardFrom)}</p>
             <div className="grid grid-cols-2 gap-3">
               {ORDER.filter((s) => s !== 'non-valutata' || c.results.some((r) => r.status === s)).map((s) => (
                 <StatCard key={s} size="sm" label={ui.rcStatusLabel[s]} value={c.results.filter((r) => r.status === s).length} tone={s === 'posseduta' ? 'success' : s === 'da-sviluppare' ? 'warning' : s === 'mancante' ? 'strong' : 'neutral'} />
@@ -42,7 +48,7 @@ export function CompatibilityDetail({ candidate: c, rank, ui, lang, onClose }: {
                 <TableRow>
                   <TableHead>{ui.rcReq}</TableHead>
                   <TableHead className="text-right">{ui.rcRequired}</TableHead>
-                  <TableHead className="text-right">{ui.rcPerson}</TableHead>
+                  <TableHead className="text-right">{ui.rcValueOf(c.emp.nome)}</TableHead>
                   <TableHead>{ui.rcStatus}</TableHead>
                 </TableRow>
               </TableHeader>

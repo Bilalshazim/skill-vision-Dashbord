@@ -27,23 +27,35 @@ const EMPTY: RoleBrief = { leaverId: '', role: '', tasks: '', area: '', level: '
 // compilano dalla sua scheda e si possono correggere. Poi, dall'alto in
 // basso: chi lascia → le 3 migliori soluzioni interne (chi, perché, cosa
 // manca, quanto è facile) → la scelta migliore. Ogni persona apre il
-// dettaglio REQUISITI DEL RUOLO ↔ COMPETENZE DELLA PERSONA. Il calcolo è in
+// dettaglio REQUISITI DEL RUOLO ↔ COMPETENZE DELLA PERSONA. Sotto le tre,
+// l'azienda può aggiungere al confronto una persona scelta da lei (richiesta
+// del cliente, 2026-10-13), con la sua posizione in classifica. Il calcolo è in
 // lib/role-change.ts; questa pagina compone e non salva niente.
 export default function AssessmentRoleChangePage() {
   const { state, ui, lang } = useAssessment()
   const [brief, setBrief] = useState<RoleBrief>(EMPTY)
-  const [openRank, setOpenRank] = useState<number | null>(null)
+  const [openId, setOpenId] = useState<string | null>(null)
+  const [pickedId, setPickedId] = useState('')
   const people = useMemo(() => state.employees.filter((e) => !e.archived).sort((a, b) => `${a.cognome} ${a.nome}`.localeCompare(`${b.cognome} ${b.nome}`)), [state.employees])
   const roles = useMemo(() => allRolesKnown(state), [state])
   const areas = useMemo(() => areasList(state).filter(Boolean), [state])
   const leaver = people.find((e) => e.id === brief.leaverId)
   const result = useMemo(() => (leaver && brief.role ? computeRoleChange(state, brief, lang) : null), [state, brief, lang, leaver])
+  // Le persone fuori dalle tre proposte, in ordine alfabetico, per la scelta
+  // dell'azienda; la posizione in classifica resta quella del calcolo.
+  const top = new Set(result?.top.map((c) => c.emp.id))
+  const others = (result?.ranked ?? []).filter((c) => !top.has(c.emp.id)).sort((a, b) => `${a.emp.cognome} ${a.emp.nome}`.localeCompare(`${b.emp.cognome} ${b.emp.nome}`))
+  const pickedRank = result?.ranked.findIndex((c) => c.emp.id === pickedId && !top.has(c.emp.id)) ?? -1
+  const picked = pickedRank >= 0 ? result!.ranked[pickedRank] : null
+  const openedRank = result?.ranked.findIndex((c) => c.emp.id === openId) ?? -1
+  const opened = openedRank >= 0 ? result!.ranked[openedRank] : null
   const set = (patch: Partial<RoleBrief>) => setBrief((b) => ({ ...b, ...patch }))
 
   function pickLeaver(id: string) {
     const e = people.find((p) => p.id === id)
     setBrief((b) => (e ? { ...b, leaverId: id, role: e.ruolo, tasks: e.mansione, area: e.area, level: e.livelloCcnl } : { ...EMPTY, sameArea: b.sameArea }))
-    setOpenRank(null)
+    setOpenId(null)
+    setPickedId('')
   }
 
   return (
@@ -115,7 +127,7 @@ export default function AssessmentRoleChangePage() {
             {result.top.length ? (
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 {result.top.map((c, i) => (
-                  <CandidateCard key={c.emp.id} candidate={c} rank={i} ui={ui} onOpen={() => setOpenRank(i)} />
+                  <CandidateCard key={c.emp.id} candidate={c} rank={i} ui={ui} onOpen={() => setOpenId(c.emp.id)} />
                 ))}
               </div>
             ) : (
@@ -128,7 +140,32 @@ export default function AssessmentRoleChangePage() {
               <BestChoice top={result.top} ui={ui} />
             </>
           ) : null}
-          <CompatibilityDetail candidate={openRank != null ? (result.top[openRank] ?? null) : null} rank={openRank ?? 0} ui={ui} lang={lang} onClose={() => setOpenRank(null)} />
+          {result.ranked.length > result.top.length ? (
+            <section className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <h2 className="text-app-section text-foreground">{ui.rcPickTitle}</h2>
+                <Note size="caption">{ui.rcPickSub}</Note>
+              </div>
+              <FieldGrid columns={3}>
+                <Field label={ui.rcPickLabel}>
+                  <SelectField value={picked ? pickedId : ''} onValueChange={setPickedId}>
+                    <option value="">{ui.rcPickNone}</option>
+                    {others.map((c) => (
+                      <option key={c.emp.id} value={c.emp.id}>
+                        {c.emp.cognome} {c.emp.nome} · {c.emp.ruolo}
+                      </option>
+                    ))}
+                  </SelectField>
+                </Field>
+              </FieldGrid>
+              {picked ? (
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                  <CandidateCard candidate={picked} rank={pickedRank} label={ui.rcPickedRank(pickedRank + 1, result.ranked.length)} ui={ui} onOpen={() => setOpenId(picked.emp.id)} />
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+          <CompatibilityDetail candidate={opened} rank={openedRank} hardFrom={result.hardSource === 'persona' ? `${leaver.nome} ${leaver.cognome}` : null} ui={ui} lang={lang} onClose={() => setOpenId(null)} />
         </>
       )}
     </div>

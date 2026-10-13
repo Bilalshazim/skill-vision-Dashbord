@@ -33,15 +33,15 @@ export function justification(c: Candidate, rank: number, ui: UI): string {
 // motivazione), cosa manca (gap e quanto sviluppo serve), quanto è facile
 // (inserimento), con la valutazione già fatta. La prima ha il bordo lime:
 // è la proposta. Tutta la card apre il dettaglio; da tastiera, il bottone.
-export function CandidateCard({ candidate: c, rank, ui, onOpen }: { candidate: Candidate; rank: number; ui: UI; onOpen: () => void }) {
+// `label` sostituisce l'etichetta di posizione: si usa per la persona scelta
+// dall'azienda, che non è fra le tre proposte.
+export function CandidateCard({ candidate: c, rank, label, ui, onOpen }: { candidate: Candidate; rank: number; label?: string; ui: UI; onOpen: () => void }) {
   const missing = c.gaps.filter((g) => g.status === 'mancante' || g.status === 'non-valutata').length
   return (
     <Card padding="lg" className={cn('h-full cursor-pointer gap-6', rank === 0 && 'border-2 border-primary')} onClick={onOpen}>
       <div className="flex flex-col gap-2">
         <CardHeader className="pb-0">
-          <CardLabel>
-            ({rank + 1}) {ui.rcRanks[rank]}
-          </CardLabel>
+          <CardLabel>{label ?? `(${rank + 1}) ${ui.rcRanks[rank]}`}</CardLabel>
         </CardHeader>
         <CardTitle>
           {c.emp.nome} {c.emp.cognome}
