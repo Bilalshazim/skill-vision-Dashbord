@@ -48,8 +48,6 @@ export type Employee = {
   softSkillOverrides?: string[]
   /** Responsabile diretto (id di un altro dipendente): è il valutatore della fonte Dirigente nel piano 5P (lib/evaluation-plan.ts). */
   responsabileId?: string
-  /** Sede di lavoro: il nome di una sede di Dati aziendali (company.locations). Per la mappa delle sedi della Home. */
-  sede?: string
   /** Note ed esempi concreti per voce APEX 5D, per fonte: `{ resp: { A1: '…' } }`. */
   hardNotes?: Partial<Record<ApexSourceKey, Record<string, string>>>
   /** ISO timestamp of the last successful "INVIA LINK TEST" send to this employee — see components/SurveyLinkModal.tsx. */

@@ -211,17 +211,6 @@ export function exiBlankData(companyName: string): ExiData {
 // Same deterministic seed as legacy — a fresh React install generates the
 // exact same demo population, byte-for-byte, as a fresh legacy install.
 export function generateDemoData(): AssessmentState {
-  // Le sedi della demo, per la mappa delle sedi della Home. Assegnate a
-  // rotazione dopo la generazione, senza consumare numeri casuali: i
-  // punteggi dei dipendenti restano quelli di sempre.
-  const DEMO_SITES = [
-    { name: 'Sede Centrale', address: 'Via Roma 12', city: 'Milano' },
-    { name: 'Stabilimento Torino', address: 'Corso Francia 210', city: 'Torino' },
-    { name: 'Filiale Roma', address: 'Via Nazionale 45', city: 'Roma' },
-    { name: 'Filiale Napoli', address: 'Via Toledo 156', city: 'Napoli' },
-    { name: 'Ufficio Monaco', address: 'Leopoldstraße 18', city: 'Monaco' },
-  ]
-  const DEMO_SITE_CYCLE = ['Sede Centrale', 'Sede Centrale', 'Stabilimento Torino', 'Filiale Roma', 'Sede Centrale', 'Filiale Napoli', 'Stabilimento Torino', 'Sede Centrale', 'Filiale Roma', 'Ufficio Monaco']
   const rnd = seedRandom(20260724)
   const evaluators = ['Giulia Bianchi', 'Marco Rossi', 'Elena Ferrari', 'Davide Conti']
   const employees: Employee[] = []
@@ -290,14 +279,14 @@ export function generateDemoData(): AssessmentState {
       emailApiEndpoint: '',
       emailApiKey: '',
     },
-    employees: employees.map((e, i) => ({ ...e, sede: DEMO_SITE_CYCLE[i % DEMO_SITE_CYCLE.length] })),
+    employees,
     evaluators,
     roleProfiles,
     evalAssignments: [],
     evalPeriods: [{ id: uid('period'), label: 'Periodo corrente', date: new Date().toISOString().slice(0, 10) }],
     analisiIniziale: exiDefaultData(),
     company: {
-      locations: DEMO_SITES,
+      locations: [{ name: 'Sede Centrale', address: 'Via Roma 12', city: 'Milano' }],
       contacts: [{ label: 'Risorse Umane', name: 'Laura Moretti', email: 'hr@democompany.com', phone: '+39 02 1234567' }],
       referente: { name: 'Laura Moretti', email: 'hr@democompany.com', phone: '+39 02 1234567' },
       ceo: { name: 'Alberto Colombo', email: 'ceo@democompany.com' },

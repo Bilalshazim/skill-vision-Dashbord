@@ -21,7 +21,6 @@ import { lastSixMonthLabels } from '@/modules/assessment/lib/months'
 import { TrendChart } from '@/components/patterns/TrendChart'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { ModeSwitch } from '@/modules/assessment/components/ModeSwitch'
-import { SitesMap } from '@/modules/assessment/components/SitesMap'
 import { ValoreCard } from '@/modules/assessment/components/ValoreCard'
 import { ValueMap, type MapPerson } from '@/modules/assessment/components/ValueMap'
 import { homeCardLayout } from '@/lib/home-card-layout'
@@ -248,7 +247,6 @@ export default function AssessmentHomePage() {
           style={cardLayout.capitale}
           panel={
             <div className="flex flex-col gap-3">
-              <SitesMap state={state} people={mapPeople} ui={ui} />
               {both ? (
                 <ValueMap
                   ui={ui}

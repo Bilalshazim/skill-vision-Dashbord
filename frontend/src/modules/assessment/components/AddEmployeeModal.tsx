@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { Note } from '@/components/patterns/Note'
 import { Separator } from '@/components/ui/separator'
 import { useDirty } from '@/hooks/use-dirty'
-import { SedeField } from '@/modules/assessment/components/SedeField'
 import { RoleCombobox } from '@/components/patterns/RoleCombobox'
 import { ROLE_CATALOG } from '@/lib/role-catalog'
 import { SelectField } from '@/components/patterns/SelectField'
@@ -40,7 +39,6 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState('')
   const [area, setArea] = useState('')
   const [reparto, setReparto] = useState('')
-  const [sede, setSede] = useState(() => (state.company.locations.length === 1 ? state.company.locations[0].name.trim() : ''))
   const [ruolo, setRuolo] = useState('')
   const [responsabileId, setResponsabileId] = useState('')
   const [mansione, setMansione] = useState('')
@@ -50,7 +48,7 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
   const [benefit, setBenefit] = useState('')
   const [tipoContratto, setTipoContratto] = useState<Employee['tipoContratto']>('dipendente')
   const [absences, setAbsences] = useState<Absence[]>([])
-  const dirty = useDirty({ nome, cognome, email, area, reparto, sede, ruolo, responsabileId, mansione, sesso, ccnl, ral, benefit, tipoContratto, absences })
+  const dirty = useDirty({ nome, cognome, email, area, reparto, ruolo, responsabileId, mansione, sesso, ccnl, ral, benefit, tipoContratto, absences })
 
   function submit() {
     const n = nome.trim()
@@ -81,7 +79,6 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
         email: email.trim(),
         area: area.trim() || 'Unassigned',
         reparto: reparto.trim(),
-        sede: sede || undefined,
         ruolo: ruolo.trim(),
         responsabileId: responsabileId || undefined,
         mansione: mansione.trim(),
@@ -154,7 +151,6 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
           </datalist>
         </Field>
       </FieldGrid>
-      <SedeField value={sede} onChange={setSede} />
       {/* Foglio 6: tutte le posizioni preconfigurate, per area, oltre alle
           mansioni già nel censimento; si può anche scriverne una nuova (il
           suo profilo si crea al salvataggio, con le attese di base). */}

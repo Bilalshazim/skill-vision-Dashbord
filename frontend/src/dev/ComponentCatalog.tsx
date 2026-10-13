@@ -22,7 +22,6 @@ import { EmptyState } from '@/components/patterns/EmptyState'
 import { FilterBar } from '@/components/patterns/FilterBar'
 import { FilterToggle } from '@/components/patterns/FilterToggle'
 import { FolderCard } from '@/components/patterns/FolderCard'
-import { LocationMap } from '@/components/patterns/LocationMap'
 import { LoadingState } from '@/components/patterns/LoadingState'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { PersonRow } from '@/components/patterns/PersonRow'
@@ -1171,34 +1170,6 @@ const ENTRIES: Entry[] = [
         />
         <PageHeader eyebrow="Customer care" title="Logica competenze Customer Care" description="Carico ticket, soddisfazione e competenze." />
         <PageHeader level="subsection" title="Sedi" description="Sedi operative dell'azienda" />
-      </div>
-    ),
-  },
-  {
-    name: 'LocationMap',
-    level: 'Pattern',
-    source: 'components/patterns/LocationMap.tsx',
-    render: () => (
-      <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-        <LocationMap
-          label="Sedi in Italia e Germania"
-          points={[
-            { id: 'mi', label: 'Sede Centrale', sub: 'Milano · 9 persone', coords: [9.19, 45.4642], count: 9, lines: ['Punteggio medio 6,4 /10', 'Anna Rossi, Luca Bianchi'] },
-            { id: 'to', label: 'Stabilimento Torino', sub: 'Torino · 5 persone', coords: [7.6869, 45.0703], count: 5 },
-            { id: 'rm', label: 'Filiale Roma', sub: 'Roma · 4 persone', coords: [12.4964, 41.9028], count: 4 },
-            { id: 'na', label: 'Filiale Napoli', sub: 'Napoli · 2 persone', coords: [14.2681, 40.8518], count: 2 },
-            { id: 'mu', label: 'Ufficio Monaco', sub: 'Monaco · 1 persona', coords: [11.582, 48.1351], count: 1 },
-          ]}
-        />
-        <LocationMap
-          label="Sedi su più continenti"
-          points={[
-            { id: 'mi', label: 'Milano', coords: [9.19, 45.4642], count: 40 },
-            { id: 'ny', label: 'New York', coords: [-74.006, 40.7128], count: 12 },
-            { id: 'sg', label: 'Singapore', coords: [103.8198, 1.3521], count: 6 },
-            { id: 'sp', label: 'San Paolo', coords: [-46.6333, -23.5505], count: 3 },
-          ]}
-        />
       </div>
     ),
   },

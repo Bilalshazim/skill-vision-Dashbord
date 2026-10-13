@@ -135,21 +135,13 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
-## 2026-10-13 (5) — Finestra 2: pannello accanto alla card e mappa delle sedi
-- [x] `SkillVisionCard` `panelSide`: le card a destra aprono il pannello a sinistra
-      e restano nella loro colonna (La mappa dei valori, Le decisioni).
-- [x] `Employee.sede` facoltativo, scelto fra le sedi di Dati aziendali (`SedeField`
-      in Aggiungi e Modifica dipendente).
-- [x] `lib/city-coordinates.ts`: coordinate di capoluoghi italiani e grandi città
-      estere, senza servizi esterni.
-- [x] Pattern `LocationMap` (d3-geo + topojson-client + world-atlas), nel catalogo;
-      dominio `SitesMap` in cima al pannello di «La mappa dei valori», la matrice
-      resta sotto. Verificata con Chrome nel catalogo, in chiaro e in scuro.
-- [x] Demo: cinque sedi assegnate ai dipendenti (solo dopo "Reset demo").
-- [x] `tsc -b` pulito, `vite build` di nuovo funzionante (npm install ha
-      ripristinato il binario di rolldown). Audit +1 (ombra del riquadro, voluta).
-- [ ] Nei dati demo già nel browser i dipendenti non hanno una sede: la mappa
-      mostra le persone solo dopo "Reset demo" o assegnando la sede a mano.
+## 2026-10-13 (5) — Finestra 2: pannello accanto alla card; mappa delle sedi ritirata
+- [x] `SkillVisionCard` `panelSide`: le card a destra restano a destra e aprono il
+      pannello a sinistra (La mappa dei valori, Le decisioni).
+- [x] Mappa delle sedi pubblicata (1453cc8) e ritirata su richiesta di Bilal: revert
+      di mappa, campo Sede, tabella delle città, dipendenze `d3-geo` /
+      `topojson-client` / `world-atlas` e sedi demo. Si riprende da quel commit.
+- [x] `tsc -b` e `vite build` puliti.
 
 ## 2026-10-13 (4) — Home di Assessment: finestre allineate e colorate (B.2, B.3)
 - [x] `SkillVisionCard`: tolto `sticky` dalla card aperta, che con la pagina scorsa

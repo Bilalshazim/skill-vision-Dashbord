@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { AbsencesEditor } from '@/modules/assessment/components/AbsencesEditor'
-import { SedeField } from '@/modules/assessment/components/SedeField'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { allRolesKnown, areasList, repartiList } from '@/modules/assessment/lib/calculations'
 import type { Absence, Employee } from '@/modules/assessment/lib/types'
@@ -41,7 +40,6 @@ export function EmployeeEditForm({
   const [email, setEmail] = useState(emp.email)
   const [area, setArea] = useState(emp.area)
   const [reparto, setReparto] = useState(emp.reparto)
-  const [sede, setSede] = useState(emp.sede ?? '')
   const [ruolo, setRuolo] = useState(emp.ruolo)
   const [responsabileId, setResponsabileId] = useState(emp.responsabileId || '')
   const [mansione, setMansione] = useState(emp.mansione)
@@ -51,7 +49,7 @@ export function EmployeeEditForm({
   const [benefit, setBenefit] = useState(emp.benefit)
   const [tipoContratto, setTipoContratto] = useState<Employee['tipoContratto']>(emp.tipoContratto)
   const [absences, setAbsences] = useState<Absence[]>(emp.assenzeProgrammate)
-  const dirty = useDirty({ nome, cognome, email, area, reparto, sede, ruolo, responsabileId, mansione, sesso, ccnl, ral, benefit, tipoContratto, absences })
+  const dirty = useDirty({ nome, cognome, email, area, reparto, ruolo, responsabileId, mansione, sesso, ccnl, ral, benefit, tipoContratto, absences })
   useEffect(() => {
     onDirtyChange?.(dirty)
   }, [dirty, onDirtyChange])
@@ -69,7 +67,6 @@ export function EmployeeEditForm({
       email: email.trim(),
       area: area.trim() || 'Unassigned',
       reparto: reparto.trim(),
-      sede: sede || undefined,
       responsabileId: responsabileId || undefined,
       ruolo: ruolo.trim() || 'Unassigned',
       mansione: mansione.trim(),
@@ -113,7 +110,6 @@ export function EmployeeEditForm({
           </datalist>
         </Field>
       </FieldGrid>
-      <SedeField value={sede} onChange={setSede} />
       <Field label={ui.addEmpRole}>
         <Input type="text" list="dl-ruoli-edit" value={ruolo} onChange={(e) => setRuolo(e.target.value)} />
         <datalist id="dl-ruoli-edit">
