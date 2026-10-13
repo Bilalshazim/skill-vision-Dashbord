@@ -49,7 +49,9 @@ export function AssessmentNav() {
   const location = useLocation()
   const navigate = useNavigate()
   const currentPage = location.pathname.split('/')[2] || 'home'
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
+  // "Area Valutazioni" parte aperta: le sue due voci si vedono subito sotto
+  // (richiesta del cliente, 2026-10-13). Si può chiudere.
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ valutazioni: true })
   const [showMethodology, setShowMethodology] = useState(false)
   const demo = isDemoMode()
   const nav = getNavConfig(lang)

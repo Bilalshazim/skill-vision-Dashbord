@@ -135,6 +135,12 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-13 (8) — Indice di Assessment: Area Valutazioni sotto Dati Aziendali
+- [x] Gruppo «Area Valutazioni» subito sotto «Dati Aziendali», aperto di default, con
+      «Valutazioni Soft Skill» e «Valutazioni Hard Skill» (ex «Gestione valutazioni»,
+      anche nel titolo della pagina). IT ed EN. Rotte invariate.
+- [x] Verificato con Chrome (indice in scuro). `tsc -b` pulito.
+
 ## 2026-10-13 (7) — Finestra 2: pannello di nuovo a destra
 - [x] Tolto `panelSide` (interpretazione sbagliata): «La mappa dei valori» e «Le
       decisioni» aprono il pannello a destra, come prima. `tsc -b` pulito.

@@ -1364,3 +1364,13 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   del punto (1). Il pannello deve aprirsi **a destra, come prima**: tolti
   `panelSide` e il suo uso, `SkillVisionCard` torna al comportamento di c13b3e1
   (card a sinistra della riga, pannello a destra).
+
+## Indice di Assessment: Area Valutazioni sotto Dati Aziendali · 2026-10-13
+- Richiesta del cliente: «Area Valutazioni» nell'indice subito sotto «Dati
+  Aziendali», con le voci «Valutazioni Soft Skill» e «Valutazioni Hard Skill».
+- Presa: gruppo spostato prima di «Anagrafica», aperto di default (si può
+  chiudere). «Gestione valutazioni» (la Valutazione 5P) diventa «Valutazioni Hard
+  Skill», anche come titolo della pagina; «Valutazioni delle Soft Skill» diventa
+  «Valutazioni Soft Skill». Le rotte non cambiano (`/assessment/soft`,
+  `/assessment/gestione-valutazioni`). Il titolo della pagina soft («Area
+  Valutazioni Trasversali») resta com'è: non era nella richiesta.
