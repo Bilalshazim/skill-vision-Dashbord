@@ -18,6 +18,7 @@ import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { bothActive, classifyPopulation, computeHardSummary, computeSoftSummary, primaryScore, primaryScoreLabel, tierFor } from '@/modules/assessment/lib/calculations'
 import { fmt1, fmt1csv, getTierDefs, round1 } from '@/modules/assessment/lib/legacy-utils'
+import { CSV_TYPE, downloadText } from '@/lib/download'
 
 // I colori delle cinque fasce di performance, sui token (CLAUDE.md cap. 7,
 // "Colore di severità"): la fascia più alta non è uno stato ed è neutra
@@ -55,13 +56,7 @@ function exportValoreCsv(rows: { e: { cognome: string; nome: string; area: strin
   rows.forEach((r) => {
     csv += [r.e.cognome, r.e.nome, r.e.area, r.e.ruolo, fmt1csv(r.soft), fmt1csv(r.hard), fmt1csv(r.combined), r.tier.label].join(';') + '\n'
   })
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'overall_value.csv'
-  a.click()
-  URL.revokeObjectURL(url)
+  downloadText('overall_value.csv', csv, CSV_TYPE)
 }
 
 // Migrated from renderValore()/exportValoreCsv() (js/assessment.js

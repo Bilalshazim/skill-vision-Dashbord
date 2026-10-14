@@ -1,4 +1,3 @@
-import { fmtDec } from '@/lib/format'
 import { ArrowDown, ArrowUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -17,118 +16,16 @@ import { Button } from '@/components/ui/button'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
-import { avg, fmt1, fmt1csv, getSoftSkills, round1 } from '@/modules/assessment/lib/legacy-utils'
-import type { Employee } from '@/modules/assessment/lib/types'
+import { CC_COMPETENCY_IDS, type CustomerCareModel, ccDeltaBadge, ccGapTag, customerCareModel, exportCustomerCareCsv } from '@/modules/assessment/lib/customer-care'
+import { avg, fmt1, getSoftSkills, round1 } from '@/modules/assessment/lib/legacy-utils'
 import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { TrendChart } from '@/components/patterns/TrendChart'
 
-const CC_COMPETENCY_IDS = ['so2', 'so3', 'in1', 'ps8', 'ps2']
-const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v))
-
-// Ported verbatim from ccHashId()/customerCareModel() (js/assessment.js
-// ~7602-7690) — a seeded-per-agent demo model (ticket volume, FRT, CSAT,
-// resolution %, and the 5 Customer Care competencies), same formulas, same
-// deterministic seed per agent id. Legacy's own explicit UI.ccDemoNote
-// already tells the user this view is illustrative/demo data, not live
-// support-desk data.
-function ccHashId(str: string): number {
-  let h = 2166136261
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return h >>> 0
-}
-function seedRandom(seed: number) {
-  let t = seed
-  return function () {
-    t |= 0
-    t = (t + 0x6d2b79f5) | 0
-    let r = Math.imul(t ^ (t >>> 15), 1 | t)
-    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r
-    return ((r ^ (r >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-function ccGapTag(obtained: number, expected: number): 'gap-ok' | 'gap-warn' | 'gap-bad' {
-  const g = obtained - expected
-  if (g >= -0.3) return 'gap-ok'
-  if (g >= -1.5) return 'gap-warn'
-  return 'gap-bad'
-}
-function ccChipClass(obtained: number, expected: number): string {
+// Il modello (dati illustrativi, scarti, CSV) sta in lib/customer-care.ts: qui
+// solo la composizione delle tre viste.
+const ccChipClass = (obtained: number, expected: number) => {
   const t = ccGapTag(obtained, expected)
   return t === 'gap-ok' ? 'chip-green' : t === 'gap-warn' ? 'chip-amber' : 'chip-red'
-}
-function ccDeltaBadge(cur: number, prev: number, opts: { eps?: number; lowerIsBetter?: boolean; dec?: number; unit?: string; label?: string } = {}) {
-  const d = round1(cur - prev)
-  const cls = Math.abs(d) < (opts.eps ?? 0.05) ? 'flat' : (opts.lowerIsBetter ? d < 0 : d > 0) ? 'up' : 'down'
-  const mag = fmtDec(Math.abs(d), opts.dec == null ? 1 : opts.dec) + (opts.unit || '')
-  return { cls, mag }
-}
-
-function customerCareModel(employees: Employee[], ui: { ccWeekPrefix: string }) {
-  // «Customer Service» resta per i dati demo salvati prima della traduzione.
-  let agents = employees.filter((e) => e.area === 'Assistenza clienti' || e.area === 'Customer Service')
-  if (agents.length < 2) agents = [...employees].slice(0, 6)
-  agents = [...agents].sort((a, b) => a.cognome.localeCompare(b.cognome))
-
-  const rows = agents.map((a) => {
-    const r = seedRandom(ccHashId(a.id))
-    const tickets = Math.round(60 + r() * 170)
-    const frt = round1(6 + r() * 30)
-    const frtPrev = round1(clamp(frt + (r() * 8 - 3.2), 4, 48))
-    const csat = Math.round(clamp(78 + r() * 20, 60, 100))
-    const csatPrev = Math.round(clamp(csat + (r() * 10 - 5.5), 60, 100))
-    const resolution = Math.round(clamp(84 + r() * 14, 70, 100))
-    const comps = CC_COMPETENCY_IDS.map((id) => {
-      const s = (a.soft && a.soft[id]) || { ottenuto: round1(5 + r() * 3.4), atteso: 7 }
-      return { id, ottenuto: round1(s.ottenuto || 0), atteso: round1(s.atteso || 7) }
-    })
-    const compOtt = round1(avg(comps.map((c) => c.ottenuto)))
-    const compAtt = round1(avg(comps.map((c) => c.atteso)))
-    const matchPct = Math.round(clamp(compAtt ? (compOtt / compAtt) * 100 : 0, 0, 145))
-    return { emp: a, tickets, frt, frtPrev, csat, csatPrev, resolution, comps, compOtt, compAtt, matchPct }
-  })
-
-  const org = {
-    frt: round1(avg(rows.map((r) => r.frt))),
-    frtPrev: round1(avg(rows.map((r) => r.frtPrev))),
-    csat: round1(avg(rows.map((r) => r.csat))),
-    csatPrev: round1(avg(rows.map((r) => r.csatPrev))),
-    volume: rows.reduce((s, r) => s + r.tickets, 0),
-    match: round1(avg(rows.map((r) => r.matchPct))),
-  }
-
-  const tr = seedRandom(ccHashId('cc-trend-v1'))
-  const weeks: string[] = []
-  const csatSeries: number[] = []
-  const resolvedSeries: number[] = []
-  let csatWalk = org.csat - 3.5
-  const weeklyBase = org.volume / 4
-  for (let i = 0; i < 8; i++) {
-    weeks.push(`${ui.ccWeekPrefix} ${i + 1}`)
-    csatWalk = clamp(csatWalk + (tr() * 2.6 - 1.0), 70, 99)
-    csatSeries.push(round1(csatWalk))
-    resolvedSeries.push(Math.round(weeklyBase * (0.82 + tr() * 0.3)))
-  }
-
-  return { rows, org, weeks, csatSeries, resolvedSeries }
-}
-
-function exportCustomerCareCsv(model: ReturnType<typeof customerCareModel>, competencyName: (id: string) => string) {
-  const head = ['Agent', 'Ruolo', 'Ticket', 'FRT_min', 'CSAT_%', 'Resolution_%', 'Match_%', ...CC_COMPETENCY_IDS.map(competencyName)]
-  let csv = head.join(';') + '\n'
-  model.rows.forEach((r) => {
-    csv += [`${r.emp.cognome} ${r.emp.nome}`, r.emp.ruolo, r.tickets, fmt1csv(r.frt), Math.round(r.csat), Math.round(r.resolution), r.matchPct, ...r.comps.map((c) => fmt1csv(c.ottenuto))].join(';') + '\n'
-  })
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'customer_care_logic.csv'
-  a.click()
-  URL.revokeObjectURL(url)
 }
 
 type CCView = 'overview' | 'agents' | 'matrix'
@@ -205,7 +102,7 @@ function ccDelta(cur: number, prev: number, fallbackLabel: string, opts?: { eps?
   }
 }
 
-function CCOverview({ model, onOpenDrawer }: { model: ReturnType<typeof customerCareModel>; onOpenDrawer: (id: string) => void }) {
+function CCOverview({ model, onOpenDrawer }: { model: CustomerCareModel; onOpenDrawer: (id: string) => void }) {
   const { ui } = useAssessment()
   const o = model.org
   return (
@@ -289,7 +186,7 @@ function CCOverview({ model, onOpenDrawer }: { model: ReturnType<typeof customer
   )
 }
 
-function CCAgents({ model, competencyName, onOpenDrawer }: { model: ReturnType<typeof customerCareModel>; competencyName: (id: string) => string; onOpenDrawer: (id: string) => void }) {
+function CCAgents({ model, competencyName, onOpenDrawer }: { model: CustomerCareModel; competencyName: (id: string) => string; onOpenDrawer: (id: string) => void }) {
   const { ui } = useAssessment()
   const compNames = CC_COMPETENCY_IDS.map(competencyName)
   return (
@@ -361,7 +258,7 @@ function CCAgents({ model, competencyName, onOpenDrawer }: { model: ReturnType<t
   )
 }
 
-function CCMatrix({ model, competencyName, onOpenDrawer }: { model: ReturnType<typeof customerCareModel>; competencyName: (id: string) => string; onOpenDrawer: (id: string) => void }) {
+function CCMatrix({ model, competencyName, onOpenDrawer }: { model: CustomerCareModel; competencyName: (id: string) => string; onOpenDrawer: (id: string) => void }) {
   const { ui } = useAssessment()
   return (
     <>

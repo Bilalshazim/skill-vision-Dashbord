@@ -1,5 +1,5 @@
 import { DEFAULT_FLAGS, DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
-import { downloadFile } from '@/modules/recruiting/lib/download'
+import { downloadText as downloadFile } from '@/lib/download'
 import { type AhiResult, ci, fasce, skillTierSums } from '@/modules/recruiting/lib/scoring'
 import type { Candidate } from '@/modules/recruiting/lib/types'
 

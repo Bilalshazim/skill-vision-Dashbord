@@ -30,6 +30,7 @@ import {
   today,
 } from '@/modules/assessment/gestione5p/model'
 import schedaTemplate from '@/modules/assessment/gestione5p/scheda-valutatore.template.html?raw'
+import { downloadBlob } from '@/lib/download'
 
 // Download e lettura dei file della Valutazione 5P: modello del piano e piano
 // corretto (Excel a più fogli, menu a tendina dei nomi), schede HTML dei
@@ -39,17 +40,7 @@ import schedaTemplate from '@/modules/assessment/gestione5p/scheda-valutatore.te
 type XlsxMod = typeof import('xlsx')
 const loadXlsx = () => import('xlsx')
 
-export function saveFile(name: string, data: Blob) {
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(data)
-  a.download = name
-  document.body.appendChild(a)
-  a.click()
-  setTimeout(() => {
-    URL.revokeObjectURL(a.href)
-    a.remove()
-  }, 2000)
-}
+export const saveFile = downloadBlob
 export async function readWorkbook(file: File) {
   const X = await loadXlsx()
   const wb = X.read(await file.arrayBuffer(), { type: 'array' })

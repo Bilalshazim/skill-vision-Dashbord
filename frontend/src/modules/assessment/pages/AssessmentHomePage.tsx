@@ -46,6 +46,8 @@ import type { AssessmentState } from '@/modules/assessment/lib/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/patterns/EmptyState'
+import { CSV_TYPE, downloadText } from '@/lib/download'
+import { seedRandom } from '@/modules/assessment/lib/seeded-random'
 
 // Migrated from renderHome() (js/assessment.js ~4464-4726) — same 4 KPI
 // quadrants (Q1 status / Q2 problem areas / Q3 talent classification / Q4
@@ -521,20 +523,6 @@ const ACTION_TONE: Record<'warning' | 'success' | 'danger' | 'accent', DecisionT
   accent: 'neutral',
 }
 
-// Same seeded-PRNG shape as AssessmentCustomerCarePage.tsx's seedRandom()
-// — deterministic per fixed seed so the trend doesn't reshuffle on every
-// render/reload.
-function seedRandom(seed: number) {
-  let t = seed
-  return function () {
-    t |= 0
-    t = (t + 0x6d2b79f5) | 0
-    let r = Math.imul(t ^ (t >>> 15), 1 | t)
-    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r
-    return ((r ^ (r >>> 14)) >>> 0) / 4294967296
-  }
-}
-
 // Builds backward from the real live org average so the series always
 // ends exactly on today's real number (see orgTrendSeries above) — the 5
 // months before it are an illustrative bounded walk, not real history.
@@ -567,13 +555,7 @@ function exportActionPlan(state: AssessmentState, lang: AssessmentLang, ui: Retu
   rows.forEach((r) => {
     csv += r.join(';') + '\n'
   })
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'action_plan.csv'
-  a.click()
-  URL.revokeObjectURL(url)
+  downloadText('action_plan.csv', csv, CSV_TYPE)
 }
 
 // "Esporta Report" on the new always-expanded Il Valore card (Phase 2) —
@@ -590,12 +572,6 @@ function exportValoreReport(state: AssessmentState, lang: AssessmentLang, ui: Re
   state.employees.forEach((e) => {
     csv += [e.cognome, e.nome, e.ruolo, e.area, fmt1csv(primaryScore(e, state, lang))].join(';') + '\n'
   })
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'report_valore.csv'
-  a.click()
-  URL.revokeObjectURL(url)
+  downloadText('report_valore.csv', csv, CSV_TYPE)
 }
 

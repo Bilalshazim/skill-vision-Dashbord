@@ -21,6 +21,7 @@ import type { ExiData } from '@/modules/assessment/lib/types'
 import { assessmentAiApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
 import type { getUI } from '@/modules/assessment/lib/legacy-utils'
+import { JSON_TYPE, downloadText } from '@/lib/download'
 
 // The exact Q&A pairs sent to POST /assessment-ai/expert-review (real,
 // server-side Claude call — see backend/src/modules/assessmentAi/routes.ts).
@@ -171,11 +172,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
       decisioni: (a.decisioni || []).map((i) => (decisions[i] ? decisions[i].nm : '')),
       q7c: a.q7c,
     }
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = `executive_interview_${(a.azienda || 'azienda').replace(/[^a-z0-9]/gi, '_')}.json`
-    link.click()
+    downloadText(`executive_interview_${(a.azienda || 'azienda').replace(/[^a-z0-9]/gi, '_')}.json`, JSON.stringify(data, null, 2), JSON_TYPE)
     toast(ui.toastExiSaved, 'ok')
   }
 

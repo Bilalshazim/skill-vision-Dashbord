@@ -135,6 +135,24 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-14 — Riordino del progetto, passo 5: logica fuori dai componenti
+- [x] Testi di Assessment divisi per lingua: `lib/ui-text/en.ts` e `it.ts` (1.059
+      chiavi ciascuno). `legacy-ui-text.ts` resta l'ingresso e controlla che le
+      chiavi siano le stesse: una chiave in una lingua sola non compila (provato).
+- [x] Customer Care: modello illustrativo, scarti, variazioni e CSV in
+      `lib/customer-care.ts`; la pagina compone soltanto. Stesse formule e stesso seme.
+- [x] `seedRandom` era in due pagine: ora `lib/seeded-random.ts` (con `hashSeed`).
+- [x] Scaricamento dei file: cinque copie (Home ×2, Valore, Analisi, Customer Care,
+      più `recruiting/lib/download.ts` e `saveFile` del 5P) → `src/lib/download.ts`
+      (`downloadBlob`, `downloadText`). Tre copie liberavano il file subito dopo il
+      clic: ora sempre dopo 2 secondi. Nomi dei file e contenuti invariati.
+- [ ] Lasciati come sono: `gestione5p/model.ts`, `recruiting/lib/pipeline.ts`,
+      `backend-sync.ts` sono grandi ma già solo logica in `lib/`: dividerli non
+      separa niente. Si dividono quando si toccano per altro.
+- [x] `tsc -b`, `vite build` puliti; audit invariato.
+- [ ] Da verificare a schermo: un CSV da Home, Valore e Customer Care, e il JSON
+      dell'intervista executive, si scaricano come prima.
+
 ## 2026-10-14 — Riordino del progetto, passo 4: gestione degli errori
 - [x] Pattern `ErrorBoundary` (`components/patterns/ErrorBoundary.tsx`): una pagina che
       si rompe mostra «Questa pagina non si è aperta» e «Ricarica la pagina» dentro il

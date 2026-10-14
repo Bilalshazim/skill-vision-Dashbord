@@ -15,7 +15,7 @@ import { OpeningsList } from '@/modules/recruiting/components/OpeningsList'
 import { QualityStackedBar } from '@/modules/recruiting/components/QualityStackedBar'
 import { SelectionFunnel } from '@/modules/recruiting/components/SelectionFunnel'
 import { UpcomingList } from '@/modules/recruiting/components/UpcomingList'
-import { downloadFile } from '@/modules/recruiting/lib/download'
+import { downloadText as downloadFile } from '@/lib/download'
 import { useRecruitingHomeData, type RecruitingHomeData } from '@/modules/recruiting/lib/use-recruiting-home-data'
 
 const csvEsc = (v: unknown) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`
