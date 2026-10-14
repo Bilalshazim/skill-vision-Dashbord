@@ -1425,3 +1425,15 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
   Raccomandata e presa: **(a)**, una persona alla volta, stessa card e stesso
   dettaglio delle tre, nessun salvataggio. La «scelta migliore» non cambia: resta
   quella del calcolo.
+
+## Pesi delle 35 competenze: modifica in ambra annullata · 2026-10-14
+- Contesto: nella copia di lavoro c'era una modifica non registrata che passava
+  «Importante» a oliva (`accent-600`) e «Utile» ad ambra (`warning`).
+- Opzioni: (a) tenerla e registrarla; (b) tornare alla decisione del 2026-10-08
+  (lime pieno / lime tenue / neutro); (c) colori più distinti ma nel sistema.
+- Cosa cambia: (a) fa leggere «Utile» come un avviso (token di stato su una
+  categoria), usa fondi fuori sistema e non cambia in modo corretto fra le
+  modalità; (b) resta nel sistema; (c) richiede una scelta del cliente.
+- Raccomandazione e presa: **(b)**. La modifica è salvata in
+  `docs/patches/2026-10-14-softskill-pesi-ambra.patch`. Se Roberto chiede colori
+  più distinti, si sceglie (c) con lui.

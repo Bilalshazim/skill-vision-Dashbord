@@ -17,11 +17,9 @@ const TILE_TONE = {
   2: 'surface-accent text-foreground',
   1: 'border-border-strong bg-muted text-foreground',
 } as const
-const BADGE_TONE = {
-  3: 'border-transparent bg-foreground text-background',
-  2: 'surface-accent text-foreground',
-  1: 'border-border-strong bg-muted text-foreground',
-} as const
+// Il badge usa i toni della primitiva, non classi: essenziale neutro pieno,
+// importante lime tenue, utile neutro.
+const BADGE_TONE = { 3: 'strong', 2: 'accent', 1: 'neutral' } as const
 
 export function SoftSkillSection() {
   const flags = useSkillFlags()
@@ -65,7 +63,7 @@ export function SoftSkillSection() {
               lime (pieno, tenue, neutro) e sempre la parola accanto (regola 10). */}
           {([3, 2, 1] as const).map((lv) => (
             <span key={lv} className="inline-flex items-center gap-1.5">
-              <Badge className={BADGE_TONE[lv]}>{W[lv].label}</Badge>
+              <Badge tone={BADGE_TONE[lv]}>{W[lv].label}</Badge>
               {CLICKS[lv]}
             </span>
           ))}
@@ -88,7 +86,7 @@ export function SoftSkillSection() {
                       className={`rounded-sm border px-2 py-1.5 text-left text-app-caption leading-snug transition-colors outline-none hover:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${lv ? TILE_TONE[lv] : 'border-border text-foreground'}`}
                     >
                       {sk}
-                      {lv && <Badge className={`ml-1.5 align-middle ${BADGE_TONE[lv]}`}>{W[lv].label}</Badge>}
+                      {lv && <Badge tone={BADGE_TONE[lv]} className="ml-1.5 align-middle">{W[lv].label}</Badge>}
                     </button>
                   )
                 })}

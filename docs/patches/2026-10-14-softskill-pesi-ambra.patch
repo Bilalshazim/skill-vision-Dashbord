@@ -1,0 +1,33 @@
+diff --git a/frontend/src/modules/recruiting/profile-hub/SoftSkillSection.tsx b/frontend/src/modules/recruiting/profile-hub/SoftSkillSection.tsx
+index ff91961..980787c 100644
+--- a/frontend/src/modules/recruiting/profile-hub/SoftSkillSection.tsx
++++ b/frontend/src/modules/recruiting/profile-hub/SoftSkillSection.tsx
+@@ -14,13 +14,13 @@ import { cycleSkillFlag, resetSkillFlags, useSkillFlags } from '@/modules/recrui
+ const CLICKS = { 3: '1 clic', 2: '2 clic', 1: '3 clic' } as const
+ const TILE_TONE = {
+   3: 'border-primary bg-primary text-primary-foreground',
+-  2: 'surface-accent text-foreground',
+-  1: 'border-border-strong bg-muted text-foreground',
++  2: 'border-accent-600/60 bg-accent-600/25 text-foreground',
++  1: 'border-warning/50 bg-warning/15 text-foreground',
+ } as const
+ const BADGE_TONE = {
+   3: 'border-transparent bg-foreground text-background',
+-  2: 'surface-accent text-foreground',
+-  1: 'border-border-strong bg-muted text-foreground',
++  2: 'border-accent-600/60 bg-accent-600/25 text-foreground',
++  1: 'border-warning/50 bg-warning/15 text-foreground',
+ } as const
+ 
+ export function SoftSkillSection() {
+@@ -61,8 +61,8 @@ export function SoftSkillSection() {
+         </p>
+ 
+         <div className="flex flex-wrap items-center gap-3 text-app-caption text-muted-foreground">
+-          {/* Il peso è una categoria, non uno stato: scala di intensità sul
+-              lime (pieno, tenue, neutro) e sempre la parola accanto (regola 10). */}
++          {/* Il peso è una categoria, non uno stato: scala di gialli: lime
++              pieno, oliva spento, ambra spento e sempre la parola accanto (regola 10). */}
+           {([3, 2, 1] as const).map((lv) => (
+             <span key={lv} className="inline-flex items-center gap-1.5">
+               <Badge className={BADGE_TONE[lv]}>{W[lv].label}</Badge>

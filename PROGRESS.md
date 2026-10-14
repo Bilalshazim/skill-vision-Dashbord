@@ -135,6 +135,15 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-14 — Riordino del progetto, passo 1: pesi delle 35 competenze
+- [x] Annullata la modifica non salvata in `SoftSkillSection.tsx` (importante oliva
+      `accent-600`, utile ambra `warning`): usava un token di stato per una
+      categoria, contro DECISIONI 2026-10-08, e fondi fuori sistema. La modifica è
+      conservata in `docs/patches/2026-10-14-softskill-pesi-ambra.patch`.
+- [x] Badge dei pesi sui `tone` della primitiva (strong / accent / neutral) invece
+      che con classi. `tsc -b` pulito.
+- [ ] Da chiedere a Roberto se vuole colori più distinti (vedi DECISIONI).
+
 ## 2026-10-13 (11) — Cambio ruolo: persona scelta dall'azienda, dettaglio più chiaro
 Dai messaggi del cliente sulla pagina nuova.
 - [x] «Inserire un nominativo che sceglie l'azienda»: sotto la scelta migliore,
