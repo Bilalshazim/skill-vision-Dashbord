@@ -4,3 +4,16 @@
 .DS_Store
 *.log
 node_modules/
+
+# Strumenti locali degli sviluppatori: restano sulla propria macchina.
+.agents/
+.aider-desk/
+.claude/settings.local.json
+.claude/launch.json
+skills-lock.json
+
+# Documenti personali (CV di persone reali) e mappe generate: mai nel repository.
+Cv *.md
+CV *.md
+PROJECT-MAP*.html
+PROJECT-MAP*.pdf

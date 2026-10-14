@@ -53,7 +53,9 @@ const AssessmentRoleChangePage = lazy(() => import('@/modules/assessment/pages/A
 // l'impostazione esplicita VITE_ENABLE_COMPONENT_CATALOG=true (l'anteprima su
 // Railway, finché la produzione è solo interna — CLAUDE.md, Fase 3). Senza,
 // la condizione è falsa già in compilazione e il modulo non entra nella build.
-// Va tolta prima del primo cliente reale (Fase 8).
+// Va tolta prima del primo cliente reale (Fase 8). Resta scritta qui per
+// esteso, e non come `env.componentCatalog` (lib/env.ts), perché solo così
+// Vite la valuta in compilazione e toglie il catalogo dalla build.
 const ComponentCatalog = import.meta.env.DEV || import.meta.env.VITE_ENABLE_COMPONENT_CATALOG === 'true' ? lazy(() => import('@/dev/ComponentCatalog')) : null
 
 function App() {

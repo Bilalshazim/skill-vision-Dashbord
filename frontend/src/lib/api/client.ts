@@ -13,12 +13,10 @@
 // not a replacement for it. See authBridge.ts for exactly how the two co-exist.
 
 import { isBackendAuth } from '@/lib/auth/auth-mode'
-
-const DEFAULT_BASE_URL = 'http://localhost:4000/api/v1'
+import { env } from '@/lib/env'
 
 export function apiBaseUrl(): string {
-  const fromEnv = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_API_BASE_URL
-  return fromEnv || DEFAULT_BASE_URL
+  return env.apiBaseUrl
 }
 
 const ACCESS_TOKEN_KEY = 'sv_backend_access_token'

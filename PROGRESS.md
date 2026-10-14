@@ -135,6 +135,19 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-14 — Riordino del progetto, passo 2: ambiente e radice
+- [x] `src/lib/env.ts`: unico punto che legge le variabili VITE_, tipizzate in
+      `src/vite-env.d.ts`. Passano di qui `client.ts` (base API), `auth-mode.ts`,
+      `demo-mode.ts`, `staff.ts`. Restano fuori, di proposito: la condizione del
+      catalogo in `App.tsx` (scritta per esteso perché Vite la valuti in
+      compilazione: verificato che il catalogo non entra nella build) e
+      `authBridge.ts` (autenticazione, esce con il guscio legacy in Fase 8).
+- [x] `.env.example`: aggiunta `VITE_STAFF_EMAILS`, che mancava.
+- [x] `.gitignore` della radice: strumenti locali (`.agents/`, `.aider-desk/`, file
+      locali di `.claude/`, `skills-lock.json`), CV e mappe PROJECT-MAP. I file
+      restano sul disco, non sono stati spostati né cancellati.
+- [x] `tsc -b`, `vite build` puliti; audit invariato (305).
+
 ## 2026-10-14 — Riordino del progetto, passo 1: pesi delle 35 competenze
 - [x] Annullata la modifica non salvata in `SoftSkillSection.tsx` (importante oliva
       `accent-600`, utile ambra `warning`): usava un token di stato per una

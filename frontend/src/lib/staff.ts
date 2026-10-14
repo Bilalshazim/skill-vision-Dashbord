@@ -1,4 +1,5 @@
 import { getBackendUser } from '@/lib/api/client'
+import { env } from '@/lib/env'
 
 // Chi lavora sulla piattaforma (non un cliente): lo staff vede contenuti che
 // ai clienti e alla demo restano chiusi, come la pagina Metodo di Recruiting.
@@ -11,9 +12,5 @@ export function isPlatformStaff(): boolean {
   const user = getBackendUser()
   if (!user) return false
   if (user.role === 'PLATFORM_ADMIN') return true
-  const list = ((import.meta.env.VITE_STAFF_EMAILS as string | undefined) ?? '')
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-  return list.includes(user.email.toLowerCase())
+  return env.staffEmails.includes(user.email.toLowerCase())
 }

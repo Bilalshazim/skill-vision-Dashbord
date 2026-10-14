@@ -1,3 +1,5 @@
+import { env } from '@/lib/env'
+
 // Fase 8 — come si entra nell'applicazione.
 //  - 'legacy' (default): il guscio statico fa il login (index.html) e i
 //    moduli leggono sessionStorage.sv_shell_auth; il ponte authBridge.ts
@@ -9,6 +11,6 @@
 // tornare indietro è togliere la variabile e rifare la build.
 export type AuthMode = 'legacy' | 'backend'
 
-export const AUTH_MODE: AuthMode = import.meta.env.VITE_AUTH_MODE === 'backend' ? 'backend' : 'legacy'
+export const AUTH_MODE: AuthMode = env.authMode
 
 export const isBackendAuth = (): boolean => AUTH_MODE === 'backend'
