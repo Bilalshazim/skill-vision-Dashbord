@@ -15,7 +15,7 @@ import { CandidateCard } from '@/modules/assessment/components/role-change/Candi
 import { CompatibilityDetail } from '@/modules/assessment/components/role-change/CompatibilityDetail'
 import { LeaverSummary } from '@/modules/assessment/components/role-change/LeaverSummary'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
-import { allRolesKnown, areasList } from '@/modules/assessment/lib/calculations'
+import { activeEmployees, allRolesKnown, areasList } from '@/modules/assessment/lib/calculations'
 import { type RoleBrief, computeRoleChange } from '@/modules/assessment/lib/role-change'
 
 const EMPTY: RoleBrief = { leaverId: '', role: '', tasks: '', area: '', level: '', sameArea: false }
@@ -36,7 +36,7 @@ export default function AssessmentRoleChangePage() {
   const [brief, setBrief] = useState<RoleBrief>(EMPTY)
   const [openId, setOpenId] = useState<string | null>(null)
   const [pickedId, setPickedId] = useState('')
-  const people = useMemo(() => state.employees.filter((e) => !e.archived).sort((a, b) => `${a.cognome} ${a.nome}`.localeCompare(`${b.cognome} ${b.nome}`)), [state.employees])
+  const people = useMemo(() => activeEmployees(state).sort((a, b) => `${a.cognome} ${a.nome}`.localeCompare(`${b.cognome} ${b.nome}`)), [state])
   const roles = useMemo(() => allRolesKnown(state), [state])
   const areas = useMemo(() => areasList(state).filter(Boolean), [state])
   const leaver = people.find((e) => e.id === brief.leaverId)

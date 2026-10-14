@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { AbsencesEditor } from '@/modules/assessment/components/AbsencesEditor'
 import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
-import { areasList, censusRolesList, repartiList } from '@/modules/assessment/lib/calculations'
+import { activeEmployees, areasList, censusRolesList, repartiList } from '@/modules/assessment/lib/calculations'
 import { getApex5dDimensions, getApexSources, getSoftSkills, uid } from '@/modules/assessment/lib/legacy-utils'
 import { ensureRoleProfile } from '@/modules/assessment/lib/role-census'
 import type { Absence, ApexSourceKey, Employee } from '@/modules/assessment/lib/types'
@@ -165,7 +165,7 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
       <Field label={ui.f6ManagerLabel}>
         <SelectField value={responsabileId} onValueChange={setResponsabileId}>
           <option value="">{ui.f6ManagerNone}</option>
-          {state.employees.filter((e) => !e.archived).map((e) => (
+          {activeEmployees(state).map((e) => (
             <option key={e.id} value={e.id}>
               {e.cognome} {e.nome} — {e.ruolo}
             </option>

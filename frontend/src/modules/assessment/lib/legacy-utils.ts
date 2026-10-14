@@ -71,7 +71,6 @@ export const fmt1csv = (n: number) => (isFinite(n) ? round1(n).toFixed(1) : '–
 // is explicitly meant to read "-0,8" rather than "-0.8" (e.g. the Benchmark Gap card).
 export const fmt1it = (n: number) => (isFinite(n) ? round1(n).toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '–')
 export const fmtCurrency = (n: number) => (isFinite(n) ? '€ ' + Math.round(n).toLocaleString('it-IT') : '–')
-export const initials = (nome: string, cognome: string) => ((nome || ' ')[0] + (cognome || ' ')[0]).toUpperCase()
 
 export function genderDisplayLabel(sesso: string, lang: AssessmentLang): string {
   const UI = getUI(lang)

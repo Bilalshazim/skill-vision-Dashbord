@@ -23,7 +23,7 @@ import { Icon } from '@/modules/assessment/components/Icon'
 import { RoleCensusModal } from '@/modules/assessment/components/RoleCensusModal'
 import { SurveyLinkModal } from '@/modules/assessment/components/SurveyLinkModal'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
-import { areasList, primaryScore, primaryScoreLabel } from '@/modules/assessment/lib/calculations'
+import { activeEmployees, areasList, primaryScore, primaryScoreLabel } from '@/modules/assessment/lib/calculations'
 import { fmtCurrency, fmt1, genderDisplayLabel, getSoftSkills, semanticChip } from '@/modules/assessment/lib/legacy-utils'
 
 const PAGE_SIZE = 10
@@ -60,7 +60,7 @@ export default function AssessmentAnagraficaPage() {
   const SOFT_SKILLS = getSoftSkills(lang)
 
   const list = useMemo(() => {
-    let l = showArchived ? state.employees.filter((e) => e.archived) : state.employees.filter((e) => !e.archived)
+    let l = showArchived ? state.employees.filter((e) => e.archived) : activeEmployees(state)
     if (areaFilter !== 'all') l = l.filter((e) => e.area === areaFilter)
     if (search.trim()) {
       const q = search.trim().toLowerCase()

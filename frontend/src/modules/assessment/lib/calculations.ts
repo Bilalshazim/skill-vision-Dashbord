@@ -61,19 +61,6 @@ export function computeBigFive(emp: Employee, lang: AssessmentLang) {
   out.overall = round1(avg(BIGFIVE_ORDER.map((d) => out[d])))
   return out
 }
-export function computeBigFiveExpected(emp: Employee, lang: AssessmentLang) {
-  const SOFT_SKILLS = getSoftSkills(lang)
-  const out: Record<string, number> = {}
-  const BIGFIVE_ORDER = ['O', 'C', 'E', 'A', 'S']
-  BIGFIVE_ORDER.forEach((dim) => {
-    const ids = SOFT_SKILLS.filter((s) => s.dim === dim).map((s) => s.id)
-    const vals = ids.map((id) => (emp.soft[id] || { atteso: 6 }).atteso)
-    out[dim] = round1(avg(vals))
-  })
-  out.overall = round1(avg(BIGFIVE_ORDER.map((d) => out[d])))
-  return out
-}
-
 export function computeHardSummary(emp: Employee, lang: AssessmentLang) {
   const APEX5D_DIMENSIONS = getApex5dDimensions(lang)
   const APEX_SOURCES = [
@@ -136,6 +123,7 @@ export function primaryScoreLabel(state: AssessmentState, lang: AssessmentLang):
   return UI.primaryScoreOverall
 }
 
+/** Chi conta come in organico: le persone non archiviate. Una regola sola. */
 export function activeEmployees(state: AssessmentState): Employee[] {
   return state.employees.filter((e) => !e.archived)
 }

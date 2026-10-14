@@ -5,7 +5,6 @@
 // `note` = punto distintivo ("Perché sì"); `note2` = dubbio o rischio ("Perché no").
 export type IvCompareRow = { rank: string; code: string; score: string; note: string; note2?: string }
 
-export const IV_COMPARE_ROW_EMPTY: IvCompareRow = { rank: '', code: '', score: '', note: '', note2: '' }
 
 // ── Scheda Intervista Strutturata (verbale) ──
 // `livello`: livello dichiarato dal candidato (Base / Medio / Alto).

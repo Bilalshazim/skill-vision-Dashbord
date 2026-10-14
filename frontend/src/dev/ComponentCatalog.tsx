@@ -301,7 +301,7 @@ function DisclosureDemo() {
         </Card>
       </div>
       <div className="flex flex-col gap-3">
-        <div className="label-mono text-muted-foreground">Collapsible — un solo riquadro (MasterCard, Subcard)</div>
+        <div className="label-mono text-muted-foreground">Collapsible — un solo riquadro (MasterCard)</div>
         <Collapsible className="overflow-hidden rounded-sm border border-border">
           <CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2 text-left outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
             <span className="flex-1 text-app-body font-medium">Scheda intervista strutturata</span>

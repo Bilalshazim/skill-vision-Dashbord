@@ -62,7 +62,6 @@ export const SRC: Record<SourceKey, { lab: string; as: string; sh: string }> = {
   PEER: { lab: 'Collega', as: 'come collega', sh: 'P' },
   AUTO: { lab: 'Autovalutazione', as: 'sé stesso', sh: 'A' },
 }
-export const SOURCES: SourceKey[] = ['DIR', 'PEER', 'AUTO']
 export const STORAGE_KEY = 'sv5p_state_v1'
 /** Sotto questo numero di colleghi la loro media è riconoscibile. */
 export const PEER_MIN = 3

@@ -135,6 +135,23 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-14 — Riordino del progetto, passo 3: codice morto e duplicati
+- [x] Cercato con `knip` e con un controllo degli import (file che nessuno importa).
+- [x] Tolti: `profile-hub/Subcard.tsx` (nessun import), `computeBigFiveExpected`,
+      `initials`, `SOURCES` (5P), il doppione di `IV_COMPARE_ROW_EMPTY` in
+      `interview-protocol-types.ts` (si usa quello di `interview-protocol.ts`).
+- [x] «Chi è in organico» era scritto a mano in 8 punti: ora `activeEmployees` in
+      `calculations.ts`, usata in `AddEmployeeModal`, Anagrafica, Cambio ruolo e
+      `role-change.ts`. Restano scritti a mano tre punti che filtrano un elenco già
+      ordinato (`SurveyLinkModal`, `EvaluationManagerModal`, `AssessmentCompanyPage`)
+      e `evaluation-plan.ts`: stesso risultato, da allineare quando si toccano.
+- [ ] Lasciati di proposito: i file di Bklit in `components/charts/` non usati
+      (sono la libreria dal registro: si aggiornano interi) e `ui/form.tsx`
+      (primitiva shadcn); `ROLE_LABEL` in `lib/auth/roles.ts` (autenticazione,
+      Fase 8). Circa 70 funzioni sono esportate ma usate solo nel proprio file:
+      innocue, non toccate.
+- [x] `tsc -b`, `vite build` puliti; audit invariato.
+
 ## 2026-10-14 — Riordino del progetto, passo 2: ambiente e radice
 - [x] `src/lib/env.ts`: unico punto che legge le variabili VITE_, tipizzate in
       `src/vite-env.d.ts`. Passano di qui `client.ts` (base API), `auth-mode.ts`,

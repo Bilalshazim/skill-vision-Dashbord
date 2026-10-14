@@ -1,4 +1,4 @@
-import { computeHardSummary, primaryScore, tierFor } from '@/modules/assessment/lib/calculations'
+import { activeEmployees, computeHardSummary, primaryScore, tierFor } from '@/modules/assessment/lib/calculations'
 import type { AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import { getApex5dDimensions, getSoftSkills, round1 } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentState, Employee } from '@/modules/assessment/lib/types'
@@ -87,7 +87,6 @@ export type RoleChangeResult = {
   ranked: Candidate[]
 }
 
-const active = (s: AssessmentState) => s.employees.filter((e) => !e.archived)
 const hasHard = (e: Employee) => Object.values(e.hard || {}).some((src) => Object.values(src || {}).some((v) => v > 0))
 const hasSoft = (e: Employee, id: string) => e.soft[id] != null && e.soft[id].ottenuto > 0
 
@@ -149,7 +148,7 @@ export function computeRoleChange(state: AssessmentState, brief: RoleBrief, lang
   const base = roleRequirements(state, brief, lang)
   const leaver = state.employees.find((e) => e.id === brief.leaverId)
   const area = (brief.area || leaver?.area || '').trim().toLowerCase()
-  const pool = active(state).filter((e) => e.id !== brief.leaverId && (!brief.sameArea || !area || e.area.trim().toLowerCase() === area))
+  const pool = activeEmployees(state).filter((e) => e.id !== brief.leaverId && (!brief.sameArea || !area || e.area.trim().toLowerCase() === area))
   const ranked = pool
     .map((emp): Candidate => {
       const results = evaluate(emp, base.requirements, lang)
