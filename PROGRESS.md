@@ -135,6 +135,25 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-14 — Riordino del progetto, passo 4: gestione degli errori
+- [x] Pattern `ErrorBoundary` (`components/patterns/ErrorBoundary.tsx`): una pagina che
+      si rompe mostra «Questa pagina non si è aperta» e «Ricarica la pagina» dentro il
+      guscio, invece della pagina bianca. Si azzera a ogni cambio di pagina. Copre
+      anche il pezzo di pagina che non si carica dopo un deploy. Montato attorno
+      all'`Outlet` dei due moduli e attorno a tutte le rotte in `App.tsx`. Nel
+      catalogo, sezione Avvisi (`PageErrorFallback`).
+- [x] Errori ingoiati: in Configurazione email gli elenchi di società e campagne
+      che non si caricano ora lo dicono (prima sembravano vuoti). Copia del link in
+      Gestione valutazioni: lasciata silenziosa di proposito (il link resta a
+      schermo), con il motivo nel codice.
+- [x] Apertura del progetto 5P: un file illeggibile dà un messaggio in italiano
+      invece dell'errore tecnico.
+- [x] Verificato: le altre letture di dati salvati (`JSON.parse`) sono già dentro
+      `try`; le chiamate al server passano tutte da `ApiError` in `lib/api/client.ts`.
+- [x] `tsc -b`, `vite build` puliti; audit invariato.
+- [ ] Non verificato a schermo (nessun browser in questa sessione): la prossima
+      verifica con Chrome guarda il riquadro d'errore nel catalogo, in chiaro e scuro.
+
 ## 2026-10-14 — Riordino del progetto, passo 3: codice morto e duplicati
 - [x] Cercato con `knip` e con un controllo degli import (file che nessuno importa).
 - [x] Tolti: `profile-hub/Subcard.tsx` (nessun import), `computeBigFiveExpected`,

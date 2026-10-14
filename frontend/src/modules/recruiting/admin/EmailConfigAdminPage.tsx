@@ -72,10 +72,16 @@ export default function EmailConfigAdminPage() {
   const [apiKeySecretRef, setApiKeySecretRef] = useState('')
   const [servicePending, setServicePending] = useState(false)
   const [serviceError, setServiceError] = useState('')
+  // Società e campagne che non si caricano: senza un avviso i due elenchi
+  // sembrerebbero solo vuoti.
+  const [listError, setListError] = useState('')
 
   useEffect(() => {
     if (backend.status !== 'connected' || !canSeeCompanyConfig) return
-    if (isPlatformAdmin) companiesApi.list().then(setCompanies).catch(() => {})
+    if (isPlatformAdmin) companiesApi
+        .list()
+        .then(setCompanies)
+        .catch((err) => setListError(`Elenco delle società non caricato: ${apiErrorMessage(err)}`))
   }, [backend.status, canSeeCompanyConfig, isPlatformAdmin])
 
   useEffect(() => {
@@ -87,7 +93,7 @@ export default function EmailConfigAdminPage() {
     campaignsApi
       .list(companyId)
       .then(setCampaigns)
-      .catch(() => {})
+      .catch((err) => setListError(`Elenco delle campagne non caricato: ${apiErrorMessage(err)}`))
   }, [backend.status, companyId, canSeeCompanyConfig])
 
   useEffect(() => {
@@ -190,6 +196,7 @@ export default function EmailConfigAdminPage() {
         </Card>
       ) : (
         <>
+          {listError ? <InlineAlert>{listError}</InlineAlert> : null}
           <Card>
             <CardHeader>
               <CardTitle>A. Configurazione mittente (Società/HR o amministratore Skill Vision)</CardTitle>

@@ -112,7 +112,9 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
     if (!assignment) return
     const link = buildAssignmentLink(assignment.token)
     if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(link).then(() => toast(ui.toastLinkCopied, 'ok')).catch(() => {})
+      // Se la copia non riesce (permesso negato), il link resta comunque
+      // visibile nella finestra qui sotto: nessun avviso in più.
+      navigator.clipboard.writeText(link).then(() => toast(ui.toastLinkCopied, 'ok')).catch(() => undefined)
     }
     setLinkModal(link)
   }

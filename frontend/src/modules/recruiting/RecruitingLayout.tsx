@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 
 import { ModuleLockGate } from '@/components/ModuleLockGate'
+import { ErrorBoundary } from '@/components/patterns/ErrorBoundary'
 import { AppShell } from '@/layouts/AppShell'
 import { AuthGuard } from '@/layouts/AuthGuard'
 import { RecruitingHeader } from '@/modules/recruiting/components/RecruitingHeader'
@@ -32,7 +33,9 @@ export default function RecruitingLayout() {
           <div className="mb-4">
             <RecruitingHeader key={`h-${contextVersion}`} />
           </div>
-          <Outlet key={contextVersion} />
+          <ErrorBoundary>
+            <Outlet key={contextVersion} />
+          </ErrorBoundary>
         </ModuleLockGate>
       </AppShell>
     </AuthGuard>

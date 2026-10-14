@@ -39,6 +39,7 @@ import { ConfirmDialog } from '@/components/patterns/ConfirmDialog'
 import { Field } from '@/components/patterns/Field'
 import { FieldGrid } from '@/components/patterns/FieldGrid'
 import { Hint } from '@/components/patterns/Hint'
+import { PageErrorFallback } from '@/components/patterns/ErrorBoundary'
 import { InlineAlert } from '@/components/patterns/InlineAlert'
 import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { SelectField } from '@/components/patterns/SelectField'
@@ -914,6 +915,9 @@ const ENTRIES: Entry[] = [
         </Row>
         <Row label="Riga di testo sotto un'azione">
           <InlineAlert layout="text">Invio non riuscito: l'indirizzo email del candidato manca.</InlineAlert>
+        </Row>
+        <Row label="Errore di pagina — ErrorBoundary (patterns/ErrorBoundary.tsx), al posto di una pagina che si rompe">
+          <PageErrorFallback onReload={() => undefined} />
         </Row>
       </>
     ),

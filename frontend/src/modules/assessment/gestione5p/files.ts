@@ -433,7 +433,12 @@ export function saveProject(S: State5p) {
   saveFile(`Progetto_5P_${slug(S.company)}_${today()}.json`, new Blob([JSON.stringify({ format: 'sv5p-progetto', v: 5, salvato: new Date().toISOString(), stato: S })], { type: 'application/json' }))
 }
 export async function openProject(f: File): Promise<State5p> {
-  const o = JSON.parse(await f.text()) as { format?: string; stato?: Partial<State5p> }
+  let o: { format?: string; stato?: Partial<State5p> }
+  try {
+    o = JSON.parse(await f.text()) as typeof o
+  } catch {
+    throw new Error('il file non si legge: scegli il file .json salvato con «Salva progetto»')
+  }
   if (o && o.format === 'sv5p-risposte') throw new Error('questo è il file risposte di un valutatore: caricalo nella pagina Raccolta')
   if (!o || o.format !== 'sv5p-progetto' || !o.stato) throw new Error('non è un file progetto 5P')
   const s = normalizeState(o.stato)

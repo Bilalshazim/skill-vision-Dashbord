@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom'
 
 import { ModuleLockGate } from '@/components/ModuleLockGate'
+import { ErrorBoundary } from '@/components/patterns/ErrorBoundary'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { AppShell } from '@/layouts/AppShell'
 import { AuthGuard } from '@/layouts/AuthGuard'
@@ -26,7 +27,9 @@ function AssessmentShell() {
       <div data-module="assessment" data-portal-scope>
         <PageHeader level="page" title={meta.title} description={meta.sub} actions={topbarActions} className="mb-6" />
         <ModuleLockGate module="ASSESSMENT">
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </ModuleLockGate>
         <div id="report-print-container" className="report-print-only" />
       </div>
