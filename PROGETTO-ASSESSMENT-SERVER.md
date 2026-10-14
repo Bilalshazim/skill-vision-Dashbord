@@ -108,3 +108,37 @@ oggi — il **selettore di società** nel guscio, costruito per gruppo →
 società anche con una sola società, e la **colonna di selezione con "Invia
 link test (N)"** come pattern della libreria. In Assessment l'invio continua
 a passare dal meccanismo attuale finché questo progetto non c'è.
+
+## 7. Stato e API nel frontend — proposta (2026-10-14, da approvare)
+
+Nata dal riordino del progetto. **Non è implementata**: tocca il salvataggio
+dei dati e aggiunge una dipendenza, quindi si decide prima (CLAUDE.md §5, §12).
+
+**Oggi.** Recruiting: `localStorage` più il backend, con `lib/api/client.ts`
+(token, `ApiError`) e `lib/api/endpoints.ts` (un gruppo per risorsa:
+`candidatesApi`, `campaignsApi`…). Assessment: un contesto React che legge e
+scrive `localStorage`. Non serve uno store globale (Redux, Zustand): lo stato
+condiviso fra pagine è poco ed è già nei contesti e negli hook.
+
+**Proposta, quando Assessment passa al server:**
+
+1. **Dati del server con TanStack Query** (`@tanstack/react-query`). Dà
+   caricamento, errore, cache, nuovo tentativo e aggiornamento dopo una
+   modifica, che oggi ogni schermata di Recruiting rifà a mano con
+   `useEffect` e tre `useState`. Una dipendenza nuova: va in `DECISIONI.md`.
+   Alternativa senza dipendenze: un hook nostro `useApiQuery` in `src/hooks/`;
+   costa meno all'inizio ma rifà cache e invalidazione.
+2. **`AssessmentContext` resta la porta**: dentro passa dalle letture di
+   `localStorage` agli hook delle query; le 17 schermate non cambiano (§3).
+3. **Lo stato d'interfaccia resta locale** (`useState`, contesti): schede
+   aperte, filtri, dialog. Solo i dati del server vanno nella cache.
+4. **API per dominio**: `lib/api/endpoints.ts` si divide in un file per area
+   quando arriva Assessment (`lib/api/recruiting.ts`, `lib/api/assessment.ts`,
+   `lib/api/platform.ts`), con i tipi in `lib/api/types.ts`. Stesso
+   `client.ts`, stesso `ApiError`, stessi permessi dal ruolo (Fase 8).
+5. **Recruiting dopo**: le schermate che leggono dal backend passano agli
+   stessi hook una alla volta, quando si toccano. `localStorage` resta solo
+   per le preferenze.
+
+Stima: 1–2 giorni per l'impianto (provider, primo dominio, modello di errore
+nel pattern), il resto dentro le voci della stima del §4.

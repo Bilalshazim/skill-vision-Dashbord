@@ -135,6 +135,20 @@ Fase 8): valutatore esterno, invio link test in Assessment, holding → società
 
 ## Registro
 
+## 2026-10-14 — Riordino del progetto, passi 6–8: struttura, guida, proposta
+- [x] Passo 6 — cartelle di Recruiting: **non spostate**. Sono già per funzione
+      (`pipeline/`, `ranking/`, `match/`…, pagina e componenti insieme), la forma che
+      cresce meglio; riportarle a pages/components/lib come Assessment spostava
+      decine di file senza guadagno. Scelta in DECISIONI.
+- [x] Passo 7 — `frontend/README.md`, sezione Structure riscritta (era superata):
+      i tre livelli, dove va il codice nuovo, logica e UI, nomi, testi, stato e
+      dati, errori, ambiente, regole.
+- [x] Passo 8 — stato e API: proposta in `PROGETTO-ASSESSMENT-SERVER.md` §7
+      (TanStack Query per i dati del server quando Assessment va sul server,
+      `AssessmentContext` resta la porta, API divise per dominio). **Non
+      implementata**: tocca il salvataggio dei dati e aggiunge una dipendenza.
+- [ ] Da approvare: la proposta del §7.
+
 ## 2026-10-14 — Riordino del progetto, passo 5: logica fuori dai componenti
 - [x] Testi di Assessment divisi per lingua: `lib/ui-text/en.ts` e `it.ts` (1.059
       chiavi ciascuno). `legacy-ui-text.ts` resta l'ingresso e controlla che le

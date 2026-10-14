@@ -1437,3 +1437,22 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - Raccomandazione e presa: **(b)**. La modifica è salvata in
   `docs/patches/2026-10-14-softskill-pesi-ambra.patch`. Se Roberto chiede colori
   più distinti, si sceglie (c) con lui.
+
+## Struttura delle cartelle: Recruiting per funzione, Assessment per tipo · 2026-10-14
+- Contesto: riordino del progetto chiesto da Bilal; i due moduli sono organizzati
+  in modo diverso.
+- Opzioni: (a) Recruiting come Assessment (pages/components/lib); (b) Assessment
+  come Recruiting (una cartella per funzione); (c) tenere le due forme e scrivere
+  la regola.
+- Cosa cambia: (a) separa pagina e componenti della stessa funzione, peggio
+  quando si aggiunge una funzione; (b) è la forma migliore ma sposta ~60 file di
+  Assessment e ne cambia tutti gli import, senza effetti a schermo; (c) nessuno
+  spostamento, la regola nel README.
+- Raccomandazione e presa: **(c)**. Funzioni nuove di Recruiting in una cartella
+  propria; in Assessment si può raggruppare per funzione quando una funzione
+  cresce (come `gestione5p/`). Scritto in `frontend/README.md`.
+
+## Un solo scaricamento di file, liberato dopo 2 secondi · 2026-10-14
+- Cinque copie del codice di download; tre liberavano il file subito dopo il clic,
+  le altre dopo 2 secondi. Presa la versione con il ritardo (più sicura su alcuni
+  browser) in `src/lib/download.ts`. Nomi e contenuti dei file invariati.
