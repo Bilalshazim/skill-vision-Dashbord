@@ -37,13 +37,15 @@ Detailed technical version, in Italian: `PROGETTO-ASSESSMENT-SERVER.md` §8.
 - If a colleague saved 5P in the meantime, their work is kept and you get a clear message.
 - Names from the Excel file that aren't in the employee list are added to it (your answer, 15 October).
 
-### ⬜ Part 5: Check everything (1–2 hours)
-- Test every Assessment screen, in light and dark mode.
+### ✅ Part 5: Check everything (done 15 October)
+- All 16 Assessment screens checked in light and dark mode: they open with server data, no errors.
+- Every kind of save checked from the screens and confirmed on the server.
+- All 149 backend tests pass; the production build works.
 
 ### ⬜ Part 6: Go live (when you decide)
 - Push to Railway. Each company clicks "Import data" once.
 
-**Total remaining: about 1–2 hours (checking everything), plus going live.**
+**Remaining: only going live, when you decide.**
 
 ---
 

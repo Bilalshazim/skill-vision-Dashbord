@@ -190,7 +190,7 @@ describe('rotazione del refresh token e durata dei token', () => {
     const fx = await seedFixture()
     const res = await api.post('/api/v1/auth/login').send({ email: fx.recruiter.email, password: 'pw123456' })
     const cookie = ([] as string[]).concat(res.headers['set-cookie'] ?? []).find((c) => c.startsWith('sv_refresh='))!
-    const maxAge = Number(/Max-Age=(d+)/.exec(cookie)![1])
+    const maxAge = Number(/Max-Age=(\d+)/.exec(cookie)![1])
     expect(maxAge).toBeGreaterThan(3 * 60 * 60 - 10)
     expect(maxAge).toBeLessThanOrEqual(3 * 60 * 60)
     const stored = await prisma.refreshToken.findFirstOrThrow({ where: { userId: fx.recruiter.id } })

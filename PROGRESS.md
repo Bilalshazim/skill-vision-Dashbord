@@ -139,10 +139,35 @@ link test in Assessment, holding → società. Piano di esecuzione al §8
 - [x] Parte 2: valutatore esterno sul token del server (2026-10-15)
 - [x] Parte 3: invio link test dal server (2026-10-15)
 - [x] Parte 4: 5P sul server, persone = dipendenti (2026-10-15)
-- [ ] Parte 5: verifica di tutte le schermate, chiaro e scuro
+- [x] Parte 5: verifica di tutte le schermate, chiaro e scuro (2026-10-15)
 - [ ] Parte 6: Railway
 
 ## Registro
+
+## 2026-10-15 — Assessment sul server: Parte 5, verifica
+- [x] Giro automatico in modalità `server`, come COMPANY_ADMIN: 16 schermate
+      di Assessment × chiaro e scuro = 32 controlli, tutti a posto. Ogni
+      schermata si apre con i dati del server; nessun errore in console,
+      nessuna pagina rotta, nessuna ombra, nessun bianco o nero puro.
+- [x] Salvataggio verificato dall'interfaccia, ricontrollato sul server:
+      vista della Home (impostazioni), archivia e ripristina, profilo
+      aziendale, intervista, requisiti per mansione, valutazione soft,
+      valutazione APEX inserita dall'HR, piano di sviluppo. Prima, nelle Parti
+      1–4: modifica del dipendente, assegnazioni, link del valutatore, invio
+      del link al test, 5P.
+- [x] Stessi dati per due utenti della stessa società (HR e Recruiter);
+      un'altra società → 403 (test del backend).
+- [x] Build di produzione del frontend con `VITE_ASSESSMENT_STORAGE=server`:
+      riuscita (l'avviso sulla dimensione dei pacchetti c'era già).
+- [x] Audit d'identità: 305, come prima del lavoro; nessun difetto nei file nuovi.
+- [x] Backend: 149/149. Corretto `auth.test.ts:193` (`(d+)` → `(\d+)`), il
+      test rotto da prima segnato il 2026-10-14: era un errore del test, non
+      dell'applicazione.
+- [ ] Contrasto reale con lo snippet dell'audit: resta da fare a mano, come
+      per la Fase 7.
+- [ ] Dati di prova lasciati nel database **locale** (sede "Sede di prova",
+      note "prova", Paolo Verdi, voti di Nicola Leone): solo su questo
+      computer, non vanno su Railway.
 
 ## 2026-10-15 — Assessment sul server: Parte 4, Valutazione 5P
 - [x] Risposta di Roberto: chi è nell'Excel e non in anagrafica **si aggiunge**
