@@ -150,9 +150,10 @@ function ServerAssessmentProvider({ children }: { children: ReactNode }) {
   const pending = useRef(false)
 
   // Dati nuovi dal server (primo caricamento, cambio di società, ricarica dopo
-  // un errore o un import): diventano lo stato delle schermate.
+  // un errore o un import, ritorno sulla scheda): diventano lo stato delle
+  // schermate. Non durante un salvataggio, che li renderebbe già vecchi.
   useEffect(() => {
-    if (!q.data || !org.company) return
+    if (!q.data || !org.company || syncing.current) return
     const { state: next, baseline } = fromServer(q.data, org.company.name)
     stateRef.current = next
     baselineRef.current = baseline
@@ -185,6 +186,7 @@ function ServerAssessmentProvider({ children }: { children: ReactNode }) {
       // dice cosa non è andato e si torna ai dati salvati.
       toast(ui.serverSaveFailed(errorReason(err, ui.serverOffline)), 'err')
       pending.current = false
+      syncing.current = false
       await refetch()
     } finally {
       syncing.current = false
@@ -202,6 +204,21 @@ function ServerAssessmentProvider({ children }: { children: ReactNode }) {
     [canEdit, flush],
   )
   const persist = useCallback((next: AssessmentState) => setState(() => next), [setState])
+
+  // Tornando sulla scheda si rilegge il server: un valutatore esterno o un
+  // collega può aver salvato nel frattempo, e salvare un dipendente sopra una
+  // copia vecchia cancellerebbe il suo lavoro. Si salta se un salvataggio è in corso.
+  useEffect(() => {
+    const onReturn = () => {
+      if (document.visibilityState === 'visible' && !syncing.current) void refetch()
+    }
+    window.addEventListener('focus', onReturn)
+    document.addEventListener('visibilitychange', onReturn)
+    return () => {
+      window.removeEventListener('focus', onReturn)
+      document.removeEventListener('visibilitychange', onReturn)
+    }
+  }, [refetch])
 
   // Chiudere la pagina durante un salvataggio lo interromperebbe: il browser chiede conferma.
   useEffect(() => {

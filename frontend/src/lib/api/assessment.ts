@@ -2,8 +2,8 @@
 // rotta di backend/src/modules/assessment/routes.ts. Le risorse viaggiano nella
 // forma del browser (AssessmentState): la traduzione verso le tabelle la fa il
 // backend (shape.ts).
-import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api/client'
-import type { AssessmentSettings, AssessmentState, CompanyProfile, EvalAssignment, EvalPeriod, Employee, ExiData, RoleProfile } from '@/modules/assessment/lib/types'
+import { apiDelete, apiGet, apiGetAnonymous, apiPost, apiPostAnonymous, apiPut } from '@/lib/api/client'
+import type { ApexSourceKey, AssessmentSettings, AssessmentState, CompanyProfile, EvalAssignment, EvalPeriod, Employee, ExiData, RoleProfile } from '@/modules/assessment/lib/types'
 
 /** Lo stato come lo restituisce il server: le parti mai salvate sono `null`. */
 export type ServerAssessmentState = Omit<AssessmentState, 'settings' | 'analisiIniziale' | 'company'> & {
@@ -20,6 +20,23 @@ export type AssessmentImportReport = {
   assignments: number
   skipped: { what: string; id: string; reason: string }[]
 }
+
+/** Il link del valutatore esterno: solo ciò che serve al modulo. */
+export type PublicEvaluation =
+  | { status: 'completed'; completedAt: string | null }
+  | {
+      status: 'pending'
+      completedAt: null
+      source: ApexSourceKey
+      evaluatorName: string
+      periodLabel: string
+      employee: { nome: string; cognome: string }
+      scores: Record<string, number>
+      notes: Record<string, string>
+    }
+
+/** Il token di un'assegnazione emesso dal server (32 byte in base64url). Quello del browser non apre il link. */
+export const isServerToken = (token: string) => /^[A-Za-z0-9_-]{43}$/.test(token)
 
 const base = (companyId: string) => `/assessment/companies/${encodeURIComponent(companyId)}`
 const id = (s: string) => encodeURIComponent(s)
@@ -38,4 +55,8 @@ export const assessmentApi = {
   putInterview: (companyId: string, data: ExiData) => apiPut<void>(`${base(companyId)}/interview`, data),
   importState: (companyId: string, state: AssessmentState, dryRun: boolean) => apiPost<AssessmentImportReport>(`${base(companyId)}/import`, { state, dryRun }),
   resetDemo: (companyId: string) => apiPost<void>(`${base(companyId)}/reset`),
+  // Pubbliche, senza accesso: il token è la credenziale.
+  publicEvaluation: (token: string) => apiGetAnonymous<PublicEvaluation>(`/public/assessment-evaluations/${id(token)}`),
+  submitPublicEvaluation: (token: string, scores: Record<string, number>, notes: Record<string, string>) =>
+    apiPostAnonymous<{ status: 'completed'; completedAt: string }>(`/public/assessment-evaluations/${id(token)}`, { scores, notes }),
 }

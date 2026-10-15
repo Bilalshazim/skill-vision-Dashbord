@@ -136,13 +136,40 @@ link test in Assessment, holding → società. Piano di esecuzione al §8
 `ASSESSMENT-BACKEND-PLAN.md`.
 - [x] Passi 1–2: schema, migrazione, API (2026-10-14)
 - [x] Passo 3 / Parte 1: schermate sul backend, import, assenze, RAL (2026-10-15)
-- [ ] Parte 2: valutatore esterno sul token del server
+- [x] Parte 2: valutatore esterno sul token del server (2026-10-15)
 - [ ] Parte 3: invio link test dal server
 - [ ] Parte 4: 5P sul server (una risposta aperta)
 - [ ] Parte 5: verifica di tutte le schermate, chiaro e scuro
 - [ ] Parte 6: Railway
 
 ## Registro
+
+## 2026-10-15 — Assessment sul server: Parte 2, il link del valutatore esterno
+- [x] Backend: `modules/publicAssessment` su `/api/v1/public/assessment-evaluations/:token`,
+      senza accesso, con limite di richieste. `GET` dà solo nome del dipendente,
+      fonte, periodo, valutatore e i voti di quella fonte; `POST` vuole le 25
+      voci (1–10), salva voti e note, chi ha valutato, il valutatore fra quelli
+      noti, una riga di storico con il punteggio APEX ricalcolato sul server
+      (`assessment/apex.ts`, stesso calcolo di `computeHardSummary`), e chiude
+      il link (un secondo invio → 409).
+- [x] Frontend: `AssessmentEvaluatePage` con il modulo in comune e due fonti
+      dei dati (`local` invariata, `server` dalle rotte pubbliche).
+- [x] "Copia link" e "Invia e-mail" aspettano il token del server (messaggio
+      se l'assegnazione non è ancora salvata).
+- [x] Tornando sulla scheda, Assessment rilegge il server (se non sta
+      salvando): senza, l'HR che salva un dipendente su una copia vecchia
+      cancellerebbe i voti appena inviati da un valutatore.
+- [x] Test: 4 nuovi in `assessment.test.ts`; `protected-routes.test.ts` torna
+      verde (mancavano le rotte pubbliche, fra cui quella degli annunci, rotta
+      da prima). 32/32 nei due file.
+- [x] Verificato nel browser: assegnazione creata dall'HR, link con il token
+      del server, aperto in un'altra scheda senza dati locali, 25 voti inviati,
+      link riaperto → "già inviata", l'HR vede "Completata"; punteggio APEX del
+      server = quello del frontend (4,7).
+- [x] Corretto quanto scritto ieri: il token in chiaro **è voluto** (commento
+      nello schema: l'HR ricopia il link quando vuole). Non va cambiato.
+- [ ] Resta: due persone che modificano lo stesso dipendente insieme → vince
+      l'ultima (vedi DECISIONI). Rilettura al ritorno sulla scheda la riduce.
 
 ## 2026-10-15 — Assessment sul server: passo 3 (Parte 1), le schermate sul backend
 - [x] Interruttore `VITE_ASSESSMENT_STORAGE` (`local` di default, invariato;
@@ -170,8 +197,8 @@ link test in Assessment, holding → società. Piano di esecuzione al §8
       (Parte 5).
 - [ ] Ancora nel browser: valutatore esterno (Parte 2), invio link ed
       `emailApiKey` (Parte 3), 5P (Parte 4).
-- [ ] Per la Parte 2: il server salva il token delle assegnazioni in chiaro
-      (`accessToken`), mentre il §8.3 diceva `accessTokenHash`. Da sistemare lì.
+- [x] ~~Per la Parte 2: token in chiaro da sistemare~~ — sbagliato: è voluto,
+      vedi registro della Parte 2.
 - [ ] Non fatto: commit e push.
 
 ## 2026-10-14 — Sviluppo tutto in locale, Railway dopo

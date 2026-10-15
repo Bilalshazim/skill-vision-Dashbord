@@ -1163,4 +1163,6 @@ export const UI_EN = {
   importConfirmBtn: 'Import',
   importDone: (n) => 'Data imported: ' + n + (n === 1 ? ' employee.' : ' employees.'),
   importFailed: (reason) => 'Import failed: ' + reason + '.',
+  linkNotReady: 'The link is being saved on the server: try again in a moment.',
+  reSubmitFailed: (reason) => 'Evaluation not sent: ' + reason + '. Your scores are still here: try again.',
 };

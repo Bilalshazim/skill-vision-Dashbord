@@ -49,6 +49,9 @@ const PUBLIC = new Map<string, string>([
   ['POST /api/v1/auth/refresh', 'refresh token (corpo o cookie con controllo d’origine)'],
   ['POST /api/v1/auth/logout', 'refresh token (corpo o cookie con controllo d’origine)'],
   [`GET /api/v1/cv/${FAKE_ID}/file`, 'URL firmato a tempo'],
+  [`GET /api/v1/public/job-postings/${FAKE_ID}`, 'codice dell’annuncio approvato, limite di richieste'],
+  [`GET /api/v1/public/assessment-evaluations/${FAKE_ID}`, 'token dell’assegnazione, limite di richieste'],
+  [`POST /api/v1/public/assessment-evaluations/${FAKE_ID}`, 'token dell’assegnazione, si chiude con l’invio'],
 ])
 const isWebhook = (r: RouteInfo) => r.url.startsWith('/api/v1/webhooks')
 // /health risponde solo «vivo / database raggiungibile», senza dati: serve a Railway.

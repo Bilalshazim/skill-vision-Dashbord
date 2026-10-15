@@ -1545,3 +1545,26 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
 - Ferie, Permesso, Formazione, Congedo, Altro, come il server. Un motivo
   scritto a mano nei dati di prima si mostra come la sua categoria, con la
   stessa regola del server; al primo salvataggio diventa la categoria.
+
+## Valutatore esterno sul server: cosa vede e chi calcola il punteggio · 2026-10-15
+- Il link pubblico mostra solo nome del dipendente, fonte, periodo, nome del
+  valutatore e i voti già dati da quella fonte, come il modulo di prima. Non
+  i voti delle altre fonti né l'anagrafica.
+- Il punteggio APEX dello storico lo calcola il server (`assessment/apex.ts`):
+  per calcolarlo nel browser servirebbero i voti delle altre fonti, che il
+  valutatore non deve vedere. Stessa formula di `computeHardSummary`;
+  verificato che danno lo stesso numero. Le due vanno cambiate insieme.
+- Il token resta in chiaro, come già deciso nello schema (l'HR ricopia il link
+  quando vuole). Vale per un'assegnazione e si chiude con l'invio.
+
+## Due persone sullo stesso dipendente · 2026-10-15
+- Opzioni: (a) l'ultimo che salva vince; (b) una versione per dipendente e un
+  409 a chi salva su una copia vecchia; (c) (a) più la rilettura del server
+  quando si torna sulla scheda.
+- Cosa cambia: (b) è la soluzione completa ma tocca API, schema e ogni
+  schermata che salva un dipendente (va gestito il conflitto). (c) costa
+  poche righe e copre il caso frequente: l'HR con la pagina aperta mentre un
+  valutatore esterno invia.
+- Raccomandazione: (c) ora; (b) se due HR della stessa società lavorano
+  davvero in contemporanea.
+- Presa: **(c)**.

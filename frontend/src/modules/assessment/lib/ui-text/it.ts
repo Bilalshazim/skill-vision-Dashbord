@@ -1153,4 +1153,6 @@ export const UI_IT = {
   importConfirmBtn: 'Importa',
   importDone: (n) => 'Dati importati: ' + n + (n === 1 ? ' dipendente.' : ' dipendenti.'),
   importFailed: (reason) => 'Import non riuscito: ' + reason + '.',
+  linkNotReady: 'Il link si sta salvando sul server: riprova fra un attimo.',
+  reSubmitFailed: (reason) => 'Valutazione non inviata: ' + reason + '. I voti restano qui: riprova.',
 };

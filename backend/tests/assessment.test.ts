@@ -182,6 +182,65 @@ describe('Assessment sul server', () => {
       expect((await api.delete(`${base(fx.company.id)}/assignments/${assignment.id}`).set(authHeader(admin))).status).toBe(204)
       expect((await api.delete(`${base(fx.company.id)}/periods/period_q1`).set(authHeader(admin))).status).toBe(204)
     })
+
+    describe('link pubblico del valutatore (Parte 2)', () => {
+      const pub = (token: string) => `/api/v1/public/assessment-evaluations/${token}`
+      const allSix = Object.fromEntries(['A', 'B', 'C', 'D', 'E'].flatMap((d) => [1, 2, 3, 4, 5].map((n) => [`${d}${n}`, 6])))
+      let token: string
+
+      beforeEach(async () => {
+        await api.put(`${base(fx.company.id)}/periods/period_q1`).set(authHeader(admin)).send({ label: 'Q1 2026', date: '2026-01-01' })
+        await putEmployee(admin, fx.company.id, legacyEmployee)
+        token = (await api.put(`${base(fx.company.id)}/assignments/${assignment.id}`).set(authHeader(admin)).send(assignment)).body.token
+      })
+
+      it('senza accesso mostra solo il dipendente da valutare e i voti della propria fonte', async () => {
+        const res = await api.get(pub(token))
+        expect(res.status).toBe(200)
+        expect(res.body).toEqual({
+          status: 'pending',
+          completedAt: null,
+          source: 'peer',
+          evaluatorName: 'Luca Verdi',
+          periodLabel: 'Q1 2026',
+          employee: { nome: 'Giulia', cognome: 'Rossi' },
+          scores: { A1: 6 },
+          notes: {},
+        })
+      })
+
+      it('l’invio salva voti, storico e valutatore, e chiude il link', async () => {
+        const res = await api.post(pub(token)).send({ scores: allSix, notes: { B2: 'Sempre preciso', C1: '  ' } })
+        expect(res.status).toBe(200)
+        const state = await api.get(`${base(fx.company.id)}/state`).set(authHeader(admin))
+        const emp = state.body.employees[0]
+        expect(emp.hard.peer).toEqual(allSix)
+        expect(emp.hard.resp).toEqual({ A1: 7, A2: 8 })
+        expect(emp.hardEvaluatedBy.peer).toBe('Luca Verdi')
+        expect(emp.hardNotes.peer).toEqual({ B2: 'Sempre preciso' })
+        // Stesso calcolo di computeHardSummary(): A = media(3, 6, 0) = 3, B…E = media(0, 6, 0) = 2.
+        expect(emp.hardHistory.at(-1)).toMatchObject({ periodId: 'period_q1', periodLabel: 'Q1 2026', source: 'peer', apexScore: 2.2 })
+        expect(emp.hardHistory.at(-1).dims[0]).toEqual({ code: 'A', name: 'Professionalità', score: 3 })
+        expect(state.body.evalAssignments[0]).toMatchObject({ status: 'completed' })
+        expect(state.body.evaluators).toContain('Luca Verdi')
+        expect((await api.get(pub(token))).body).toEqual({ status: 'completed', completedAt: expect.any(String) })
+        expect((await api.post(pub(token)).send({ scores: allSix })).status).toBe(409)
+      })
+
+      it('rifiuta un modulo incompleto o un voto fuori scala', async () => {
+        const { E5: _, ...missing } = allSix
+        expect((await api.post(pub(token)).send({ scores: missing })).status).toBe(400)
+        expect((await api.post(pub(token)).send({ scores: { ...allSix, A1: 11 } })).status).toBe(400)
+        expect((await api.get(pub(token))).body.status).toBe('pending')
+      })
+
+      it('un token sconosciuto o di una società senza Assessment non apre niente', async () => {
+        expect((await api.get(pub('x'.repeat(43)))).status).toBe(404)
+        expect((await api.get(pub('tok_weak123'))).status).toBe(404)
+        await prisma.company.update({ where: { id: fx.company.id }, data: { purchasedModules: ['RECRUITING'] } })
+        expect((await api.get(pub(token))).status).toBe(404)
+      })
+    })
   })
 
   it('profili di mansione: pesi assenti restano assenti, non {}', async () => {
