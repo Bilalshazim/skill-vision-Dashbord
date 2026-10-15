@@ -1,5 +1,6 @@
-import { ArrowLeftRight, Brain, ClipboardList, Coins, FileText, Home, type LucideIcon, MessageSquareText, RotateCcw, Sparkles, Users, Wrench } from 'lucide-react'
-import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { ArrowLeftRight, Brain, ClipboardList, Coins, FileText, Home, type LucideIcon, MessageSquareText, RotateCcw, Sparkles, Upload, Users, Wrench } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 import { CompanySwitcher } from '@/components/patterns/CompanySwitcher'
@@ -16,11 +17,14 @@ import {
   SidebarMenuSub,
 } from '@/components/ui/sidebar'
 import { useConfirm } from '@/hooks/use-confirm'
+import { assessmentApi } from '@/lib/api/assessment'
 import { isDemoMode } from '@/lib/demo-mode'
 import { MethodologyModal } from '@/modules/assessment/components/MethodologyModal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { generateDemoData } from '@/modules/assessment/lib/demo-data'
 import { getNavConfig } from '@/modules/assessment/lib/legacy-utils'
+import { errorReason } from '@/modules/assessment/lib/server-sync'
+import { readStoredAssessmentState } from '@/modules/assessment/lib/storage'
 
 // Le icone della navigazione di Assessment: erano SVG del vecchio modulo
 // iniettati come HTML (Icon.tsx); qui Lucide, per nome della voce.
@@ -45,7 +49,9 @@ const iconFor = (name?: string) => (name && ICONS[name]) || ClipboardList
 // società (struttura gruppo → società: oggi Assessment ne conosce una, il
 // nome dalle impostazioni del modulo); in fondo il conteggio dei dipendenti.
 export function AssessmentNav() {
-  const { lang, ui, state, persist, canEdit, toast } = useAssessment()
+  const { lang, ui, state, persist, canEdit, isAdmin, toast, storage, companies, company, setCompanyId, retry } = useAssessment()
+  const queryClient = useQueryClient()
+  const [busy, setBusy] = useState(false)
   const [confirm, confirmDialog] = useConfirm()
   const location = useLocation()
   const navigate = useNavigate()
@@ -84,8 +90,49 @@ export function AssessmentNav() {
       return
     }
     if (!(await confirm({ title: ui.resetDemo, description: ui.confirmResetDemo, confirmLabel: ui.resetDemo, cancelLabel: ui.confirmCancel, destructive: true }))) return
-    persist(generateDemoData())
+    if (storage === 'server' && company) {
+      // Sul server: si tolgono i dati della società demo e si importano quelli di prova.
+      setBusy(true)
+      try {
+        await assessmentApi.resetDemo(company.id)
+        await assessmentApi.importState(company.id, generateDemoData(), false)
+        await queryClient.invalidateQueries({ queryKey: ['assessment', 'state', company.id] })
+      } catch (err) {
+        toast(ui.serverSaveFailed(errorReason(err, ui.serverOffline)), 'err')
+        retry()
+        return
+      } finally {
+        setBusy(false)
+      }
+    } else persist(generateDemoData())
     navigate('/assessment/home')
+  }
+
+  // Sul server, una volta per società: i dati che finora stavano in questo
+  // browser vanno sul server (decisione 4 del 2026-10-14). Prima una prova
+  // che non salva niente e dice cosa entrerà, poi la conferma.
+  const browserData = useMemo(() => (storage === 'server' && isAdmin && company ? readStoredAssessmentState() : null), [storage, isAdmin, company])
+  async function importBrowserData() {
+    if (!company) return
+    const local = readStoredAssessmentState()
+    if (!local) {
+      toast(ui.importNothing)
+      return
+    }
+    setBusy(true)
+    try {
+      const preview = await assessmentApi.importState(company.id, local, true)
+      setBusy(false)
+      if (!(await confirm({ title: ui.importConfirmTitle, description: ui.importConfirmBody(preview, company.name), confirmLabel: ui.importConfirmBtn, cancelLabel: ui.confirmCancel }))) return
+      setBusy(true)
+      const done = await assessmentApi.importState(company.id, local, false)
+      await queryClient.invalidateQueries({ queryKey: ['assessment', 'state', company.id] })
+      toast(ui.importDone(done.employees), 'ok')
+    } catch (err) {
+      toast(ui.importFailed(errorReason(err, ui.serverOffline)), 'err')
+    } finally {
+      setBusy(false)
+    }
   }
 
   // Raggruppa per sezione: una voce `section` apre un gruppo con etichetta.
@@ -119,7 +166,7 @@ export function AssessmentNav() {
       const handler = entry.action === 'openMethodologyModal' ? () => setShowMethodology(true) : entry.action === 'confirmResetDemo' ? resetDemo : undefined
       return (
         <SidebarMenuItem key={entry.id}>
-          <SidebarMenuButton type="button" onClick={handler} disabled={!handler}>
+          <SidebarMenuButton type="button" onClick={handler} disabled={!handler || busy}>
             <Icon aria-hidden="true" />
             <span className="min-w-0 flex-1">{entry.label}</span>
           </SidebarMenuButton>
@@ -158,7 +205,11 @@ export function AssessmentNav() {
   return (
     <>
       <SidebarHeader>
-        <CompanySwitcher companies={[{ id: 'assessment', name: state.settings.companyName }]} activeId="assessment" />
+        {storage === 'server' ? (
+          <CompanySwitcher companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company?.id} onChange={setCompanyId} />
+        ) : (
+          <CompanySwitcher companies={[{ id: 'assessment', name: state.settings.companyName }]} activeId="assessment" />
+        )}
       </SidebarHeader>
       <SidebarContent>
         {groups.map((g, i) => {
@@ -171,6 +222,18 @@ export function AssessmentNav() {
             </SidebarGroup>
           )
         })}
+        {browserData ? (
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton type="button" onClick={importBrowserData} disabled={busy}>
+                  <Upload aria-hidden="true" />
+                  <span className="min-w-0 flex-1">{ui.importBrowserData}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        ) : null}
       </SidebarContent>
       <SidebarFooter>{ui.employeesRecorded ? ui.employeesRecorded(state.employees.length) : `${state.employees.length}`}</SidebarFooter>
       {showMethodology && <MethodologyModal onClose={() => setShowMethodology(false)} />}

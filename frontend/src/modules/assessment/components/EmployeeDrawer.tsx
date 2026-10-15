@@ -22,7 +22,8 @@ import { buildAssessmentReportPayload, renderAssessmentReportPrintHtml } from '@
 import { archiveReasonLabel, assessmentSourceLabel, contractTypeDisplayLabel, fmt1, fmtCurrency, genderDisplayLabel, getBigFiveDims } from '@/modules/assessment/lib/legacy-utils'
 import { printReportHtml } from '@/modules/assessment/lib/print'
 import { getEmployeeExpectedSkillIds, getEmployeeSkillWeight, weightLabel } from '@/modules/assessment/lib/role-census'
-import type { Employee } from '@/modules/assessment/lib/types'
+import { absenceCategoryOf } from '@/modules/assessment/lib/absences'
+import type { AbsenceCategory, Employee } from '@/modules/assessment/lib/types'
 
 const BF_ORDER = ['O', 'C', 'E', 'A', 'S'] as const
 
@@ -39,7 +40,7 @@ const BF_ORDER = ['O', 'C', 'E', 'A', 'S'] as const
 // included — hardHistory/softHistory are correctly recorded and drive
 // everything else here, just not yet exposed in a dedicated compare UI.
 export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; onClose: () => void }) {
-  const { state, setState, lang, ui, canEdit, toast } = useAssessment()
+  const { state, setState, lang, ui, canEdit, isAdmin, toast } = useAssessment()
   const [editMode, setEditMode] = useState(false)
   const [feedbackNeeded, setFeedbackNeeded] = useState<boolean | null>(null)
   const [devPlan, setDevPlan] = useState<Employee['developmentPlan'] | null>(null)
@@ -168,11 +169,17 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
               </div>
               <div className="mb-4 text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
                 <b>{ui.genderLabel}</b> {genderDisplayLabel(emp.sesso, lang) || '—'} {' · '} <b>{ui.contractTypeLabel}</b> {contractTypeDisplayLabel(emp.tipoContratto, lang)} {' · '} <b>{ui.ccnlLevelLabel}</b>{' '}
-                {emp.livelloCcnl || '—'} {' · '} <b>{ui.ralLabel}</b> {emp.ral ? fmtCurrency(emp.ral) : '—'} {' · '} <b>{ui.benefitLabel}</b> {emp.benefit || '—'}
+                {emp.livelloCcnl || '—'}
+                {isAdmin ? (
+                  <>
+                    {' · '} <b>{ui.ralLabel}</b> {emp.ral ? fmtCurrency(emp.ral) : '—'}
+                  </>
+                ) : null}
+                {' · '} <b>{ui.benefitLabel}</b> {emp.benefit || '—'}
               </div>
               {emp.assenzeProgrammate?.length > 0 && (
                 <div className="mb-4 text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
-                  <b>{ui.scheduledAbsencesLabel}</b> {emp.assenzeProgrammate.map((a) => `${a.dal || '—'} → ${a.al || '—'}${a.motivo ? ` (${a.motivo})` : ''}`).join('; ')}
+                  <b>{ui.scheduledAbsencesLabel}</b> {emp.assenzeProgrammate.map((a) => `${a.dal || '—'} → ${a.al || '—'}${absenceCategoryOf(a) ? ` (${ui.absenceCategories[absenceCategoryOf(a) as AbsenceCategory]})` : ''}`).join('; ')}
                 </div>
               )}
 

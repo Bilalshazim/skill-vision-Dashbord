@@ -17,6 +17,7 @@ import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { activeEmployees, areasList, censusRolesList, repartiList } from '@/modules/assessment/lib/calculations'
 import { getApex5dDimensions, getApexSources, getSoftSkills, uid } from '@/modules/assessment/lib/legacy-utils'
 import { ensureRoleProfile } from '@/modules/assessment/lib/role-census'
+import { isFilledAbsence } from '@/modules/assessment/lib/absences'
 import type { Absence, ApexSourceKey, Employee } from '@/modules/assessment/lib/types'
 
 // Migrated from openAddEmployeeModal()/submitAddEmployee() (js/assessment.js
@@ -26,7 +27,7 @@ import type { Absence, ApexSourceKey, Employee } from '@/modules/assessment/lib/
 // (not "fixed" into a free-text role field), since that's what seeds the
 // new employee's soft-skill expected values from the role's weighting.
 export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
-  const { state, setState, lang, ui, toast } = useAssessment()
+  const { state, setState, lang, ui, toast, isAdmin } = useAssessment()
   const areas = areasList(state)
   const reparti = repartiList(state)
   const censusRoles = censusRolesList(state)
@@ -86,9 +87,10 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
         sesso,
         tipoContratto,
         livelloCcnl: ccnl.trim(),
-        ral: Math.max(0, parseInt(ral, 10) || 0),
+        // La RAL la inserisce solo chi la vede (decisione 3 del 2026-10-14).
+        ral: isAdmin ? Math.max(0, parseInt(ral, 10) || 0) : null,
         benefit: benefit.trim(),
-        assenzeProgrammate: absences.filter((a) => a.dal || a.al || a.motivo.trim()),
+        assenzeProgrammate: absences.filter(isFilledAbsence),
         archived: null,
         soft,
         hard,
@@ -190,9 +192,11 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
         </Field>
       </FieldGrid>
       <FieldGrid>
-        <Field label={ui.ralLabel}>
-          <Input type="number" min={0} step={500} placeholder={ui.ralPh} value={ral} onChange={(e) => setRal(e.target.value)} />
-        </Field>
+        {isAdmin ? (
+          <Field label={ui.ralLabel}>
+            <Input type="number" min={0} step={500} placeholder={ui.ralPh} value={ral} onChange={(e) => setRal(e.target.value)} />
+          </Field>
+        ) : null}
         <Field label={ui.benefitLabel}>
           <Input type="text" placeholder={ui.benefitPh} value={benefit} onChange={(e) => setBenefit(e.target.value)} />
         </Field>

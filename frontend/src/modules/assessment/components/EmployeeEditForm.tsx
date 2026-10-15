@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { AbsencesEditor } from '@/modules/assessment/components/AbsencesEditor'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { allRolesKnown, areasList, repartiList } from '@/modules/assessment/lib/calculations'
+import { isFilledAbsence } from '@/modules/assessment/lib/absences'
 import type { Absence, Employee } from '@/modules/assessment/lib/types'
 
 // Migrated from buildEmployeeEditFormHtml()/saveEmployeeProfileEdit()
@@ -30,7 +31,7 @@ export function EmployeeEditForm({
   /** Avvisa il pannello che contiene il modulo: serve alla conferma di chiusura. */
   onDirtyChange?: (dirty: boolean) => void
 }) {
-  const { state, ui, toast } = useAssessment()
+  const { state, ui, toast, isAdmin } = useAssessment()
   const areas = areasList(state)
   const reparti = repartiList(state)
   const roles = allRolesKnown(state)
@@ -72,10 +73,11 @@ export function EmployeeEditForm({
       mansione: mansione.trim(),
       sesso,
       livelloCcnl: ccnl.trim(),
-      ral: Math.max(0, parseInt(ral, 10) || 0),
+      // La RAL la tocca solo chi la vede (decisione 3 del 2026-10-14).
+      ral: isAdmin ? Math.max(0, parseInt(ral, 10) || 0) : emp.ral,
       benefit: benefit.trim(),
       tipoContratto,
-      assenzeProgrammate: absences.filter((a) => a.dal || a.al || a.motivo.trim()),
+      assenzeProgrammate: absences.filter(isFilledAbsence),
     })
   }
 
@@ -146,9 +148,11 @@ export function EmployeeEditForm({
         </Field>
       </FieldGrid>
       <FieldGrid>
-        <Field label={ui.ralLabel}>
-          <Input type="number" min={0} step={500} value={ral} onChange={(e) => setRal(e.target.value)} />
-        </Field>
+        {isAdmin ? (
+          <Field label={ui.ralLabel}>
+            <Input type="number" min={0} step={500} value={ral} onChange={(e) => setRal(e.target.value)} />
+          </Field>
+        ) : null}
         <Field label={ui.benefitLabel}>
           <Input type="text" value={benefit} onChange={(e) => setBenefit(e.target.value)} />
         </Field>

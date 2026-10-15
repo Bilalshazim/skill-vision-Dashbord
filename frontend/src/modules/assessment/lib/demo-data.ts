@@ -225,7 +225,7 @@ export function generateDemoData(): AssessmentState {
         const scores = genEmployeeScores(rnd, archetype, roleFocus)
         const ralBase = archetype === 'top' ? 42000 : archetype === 'critical' ? 26000 : 30000
         const ral = Math.round((ralBase + rnd() * 20000) / 500) * 500
-        const assenzeProgrammate = rnd() < 0.2 ? [{ dal: '2026-08-10', al: '2026-08-24', motivo: 'Ferie estive' }] : []
+        const assenzeProgrammate = rnd() < 0.2 ? [{ dal: '2026-08-10', al: '2026-08-24', category: 'ferie' as const }] : []
         const tRand = rnd()
         const emp: Employee = {
           id: uid('emp'),

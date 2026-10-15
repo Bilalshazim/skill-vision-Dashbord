@@ -1,29 +1,34 @@
 import { isBackendAuth } from '@/lib/auth/auth-mode'
 import { canEditAssessment } from '@/lib/auth/roles'
 import { useSession } from '@/lib/auth/session'
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { toast as sonnerToast } from 'sonner'
 
 import { useSharedLang } from '@/hooks/use-shared-lang'
 import { useTheme } from '@/hooks/use-theme'
+import { assessmentApi } from '@/lib/api/assessment'
+import type { BackendCompany } from '@/lib/api/types'
+import { env } from '@/lib/env'
 import type { AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import { getUI } from '@/modules/assessment/lib/legacy-utils'
-import { readAssessmentState, writeAssessmentState } from '@/modules/assessment/lib/storage'
+import { errorReason, fromServer, runSync, type Baseline } from '@/modules/assessment/lib/server-sync'
+import { hydrate, readAssessmentState, writeAssessmentState } from '@/modules/assessment/lib/storage'
 import type { AssessmentState } from '@/modules/assessment/lib/types'
+import { useAssessmentCompanies } from '@/modules/assessment/lib/use-assessment-company'
 
 // Single React context replacing legacy's mutable globals (STATE, UI/lang,
 // theme) — see js/assessment.js ~2638 (`let STATE`), ~2059 (`let UI`), and
-// applyTheme()/initTheme() (~34-50). Same underlying persistence
-// (readAssessmentState/writeAssessmentState -> sv_assessment_state_v1),
-// same shared shell keys for theme/language (sv_theme/sv_language) — just
-// exposed as real React state instead of module-level `let`s.
+// applyTheme()/initTheme() (~34-50). Same shared shell keys for theme/language
+// (sv_theme/sv_language) — just exposed as real React state instead of
+// module-level `let`s.
 //
-// PHASE 24 — embedded-mode role: legacy's SPA-embed-hook (js/assessment.js
-// ~8246-8290) always auto-authenticates and never resolves a specific
-// CURRENT_USER_ROLE before calling applyRolePermissions(); CURRENT_USER_ROLE
-// simply keeps its module-level default of 'admin' (~2129). React Assessment
-// reproduces that exact embedded behavior: full (admin) permissions, no
-// second login, no role resolution UI.
+// Dove stanno i dati lo decide VITE_ASSESSMENT_STORAGE (lib/env.ts):
+// - `local` (default, come prima): `sv_assessment_state_v1` in localStorage;
+// - `server` (PROGETTO-ASSESSMENT-SERVER.md §8, passo 3): lo stato arriva dal
+//   backend per la società attiva e ogni modifica si salva lì. Le schermate non
+//   cambiano: restituiscono lo stato intero come prima, e il contesto manda al
+//   server le sole parti cambiate (server-sync.ts).
 type Ctx = {
   state: AssessmentState
   setState: (updater: (prev: AssessmentState) => AssessmentState) => void
@@ -34,54 +39,44 @@ type Ctx = {
   setTheme: (theme: 'light' | 'dark') => void
   ui: ReturnType<typeof getUI>
   canEdit: boolean
+  /** Amministratore (della società o della piattaforma): vede la RAL (decisione 3 del 2026-10-14) e importa i dati del browser. */
+  isAdmin: boolean
   topbarActions: ReactNode
   setTopbarActions: (node: ReactNode) => void
   toast: (msg: string, type?: '' | 'ok' | 'err') => void
+  /** Dove stanno i dati: nel browser o sul server. */
+  storage: 'local' | 'server'
+  /** `ready` quando `state` è quello vero; prima le pagine mostrano il caricamento. */
+  status: 'loading' | 'error' | 'empty' | 'ready'
+  error: string | null
+  retry: () => void
+  /** Solo `server`: le società fra cui scegliere e quella attiva. */
+  companies: BackendCompany[]
+  company: BackendCompany | null
+  setCompanyId: (id: string) => void
 }
 
 const AssessmentCtx = createContext<Ctx | null>(null)
 
-export function AssessmentProvider({ children }: { children: ReactNode }) {
-  const [state, setStateRaw] = useState<AssessmentState>(() => readAssessmentState())
+const ADMIN_ROLES = new Set(['PLATFORM_ADMIN', 'COMPANY_ADMIN'])
+
+// Ciò che non dipende da dove stanno i dati: lingua, tema, testi, permessi,
+// notifiche, azioni della pagina.
+function useShared() {
   // Global top bar's shared hooks — same sv_language/sv_theme keys as
   // before, now with same-tab instant sync (see use-theme.ts/use-shared-lang.ts),
   // so changing either from the top bar repaints Assessment immediately.
   const { lang, setLang } = useSharedLang()
   const { theme, setTheme } = useTheme()
-
-  const persist = useCallback((next: AssessmentState) => {
-    writeAssessmentState(next)
-    setStateRaw(next)
-  }, [])
-
-  // Ported from saveState()'s pattern: fresh-mutate-persist. Callers pass an
-  // updater over the PREVIOUS state (never a stale closed-over snapshot),
-  // then the result is both written to storage and set as the new state.
-  const setState = useCallback(
-    (updater: (prev: AssessmentState) => AssessmentState) => {
-      setStateRaw((prev) => {
-        const next = updater(prev)
-        writeAssessmentState(next)
-        return next
-      })
-    },
-    [],
-  )
-
   const ui = useMemo(() => getUI(lang), [lang])
 
   // Ported from setTopbarActions() (js/assessment.js ~3248) — each page sets
-  // its own topbar action button(s) (e.g. "Nuova valutazione", CSV export)
-  // on mount and clears them on unmount, exactly mirroring legacy's
-  // per-page renderX() always fully replacing #topbar-actions' previous
-  // content on navigation.
+  // its own topbar action button(s) on mount and clears them on unmount.
   const [topbarActions, setTopbarActions] = useState<ReactNode>(null)
 
   // Ported from toast() (js/assessment.js ~2477-2483): una notifica alla
-  // volta, in basso al centro, 3,2 s, varianti 'ok' / 'err'. Stessa firma di
-  // prima, così le chiamate del modulo non cambiano; ora la mostra Sonner
-  // (components/ui/sonner.tsx, montato una volta in App). La nuova sostituisce
-  // quella ancora visibile, come nel legacy.
+  // volta, 3,2 s, varianti 'ok' / 'err'. La mostra Sonner (components/ui/
+  // sonner.tsx, montato una volta in App); la nuova sostituisce la precedente.
   const toast = useCallback((msg: string, type: '' | 'ok' | 'err' = '') => {
     sonnerToast.dismiss()
     const opts = { duration: 3200 }
@@ -92,17 +87,160 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
 
   // Fase 8: in modalità `backend` chi può modificare lo decide il ruolo del
   // backend (lib/auth/roles.ts); EVALUATOR e READONLY leggono soltanto. In
-  // `legacy` resta `true` come prima: il guscio non conosce ruoli. I 62 punti
-  // del modulo leggono `canEdit` da qui.
+  // `legacy` resta `true` come prima: il guscio non conosce ruoli.
   const { user } = useSession()
   const canEdit = isBackendAuth() ? canEditAssessment(user?.role) : true
+  const isAdmin = isBackendAuth() ? ADMIN_ROLES.has(user?.role ?? '') : true
+
+  return useMemo(
+    () => ({ lang, setLang, theme, setTheme, ui, topbarActions, setTopbarActions, toast, canEdit, isAdmin }),
+    [lang, setLang, theme, setTheme, ui, topbarActions, toast, canEdit, isAdmin],
+  )
+}
+
+function LocalAssessmentProvider({ children }: { children: ReactNode }) {
+  const shared = useShared()
+  const [state, setStateRaw] = useState<AssessmentState>(() => readAssessmentState())
+
+  const persist = useCallback((next: AssessmentState) => {
+    writeAssessmentState(next)
+    setStateRaw(next)
+  }, [])
+
+  // Ported from saveState()'s pattern: fresh-mutate-persist. Callers pass an
+  // updater over the PREVIOUS state (never a stale closed-over snapshot),
+  // then the result is both written to storage and set as the new state.
+  const setState = useCallback((updater: (prev: AssessmentState) => AssessmentState) => {
+    setStateRaw((prev) => {
+      const next = updater(prev)
+      writeAssessmentState(next)
+      return next
+    })
+  }, [])
 
   const value = useMemo<Ctx>(
-    () => ({ state, setState, persist, lang, setLang, theme, setTheme, ui, canEdit, topbarActions, setTopbarActions, toast }),
-    [state, setState, persist, lang, setLang, theme, setTheme, ui, canEdit, topbarActions, toast],
+    () => ({ ...shared, state, setState, persist, storage: 'local', status: 'ready', error: null, retry: () => {}, companies: [], company: null, setCompanyId: () => {} }),
+    [shared, state, setState, persist],
   )
-
   return <AssessmentCtx.Provider value={value}>{children}</AssessmentCtx.Provider>
+}
+
+const EMPTY_STATE = hydrate({ employees: [] })
+
+function ServerAssessmentProvider({ children }: { children: ReactNode }) {
+  const shared = useShared()
+  const { ui, toast, canEdit } = shared
+  const org = useAssessmentCompanies(true)
+  const companyId = org.company?.id ?? null
+
+  const q = useQuery({
+    queryKey: ['assessment', 'state', companyId],
+    enabled: !!companyId,
+    queryFn: () => assessmentApi.state(companyId!),
+  })
+
+  const [state, setStateRaw] = useState<AssessmentState>(EMPTY_STATE)
+  // La società di cui `state` contiene i dati: finché non è quella attiva, si carica.
+  const [loadedFor, setLoadedFor] = useState<string | null>(null)
+  // `stateRef` è sempre l'ultimo stato delle schermate, `baselineRef` l'ultimo
+  // che il server ha confermato: il salvataggio manda la differenza.
+  const stateRef = useRef(state)
+  const baselineRef = useRef<Baseline | null>(null)
+  const syncing = useRef(false)
+  const pending = useRef(false)
+
+  // Dati nuovi dal server (primo caricamento, cambio di società, ricarica dopo
+  // un errore o un import): diventano lo stato delle schermate.
+  useEffect(() => {
+    if (!q.data || !org.company) return
+    const { state: next, baseline } = fromServer(q.data, org.company.name)
+    stateRef.current = next
+    baselineRef.current = baseline
+    setStateRaw(next)
+    setLoadedFor(org.company.id)
+  }, [q.data, q.dataUpdatedAt, org.company])
+
+  const refetch = q.refetch
+  const flush = useCallback(async () => {
+    if (!companyId || !baselineRef.current) return
+    if (syncing.current) {
+      pending.current = true
+      return
+    }
+    syncing.current = true
+    try {
+      do {
+        pending.current = false
+        const target = stateRef.current
+        const tokens = await runSync(companyId, baselineRef.current, target)
+        baselineRef.current = target
+        // Il link di un'assegnazione nuova usa il token del server.
+        if (tokens.size) {
+          stateRef.current = { ...stateRef.current, evalAssignments: stateRef.current.evalAssignments.map((a) => (tokens.has(a.id) ? { ...a, token: tokens.get(a.id)! } : a)) }
+          setStateRaw(stateRef.current)
+        }
+      } while (pending.current)
+    } catch (err) {
+      // Il server resta la verità: niente salvataggi silenziosi a metà, si
+      // dice cosa non è andato e si torna ai dati salvati.
+      toast(ui.serverSaveFailed(errorReason(err, ui.serverOffline)), 'err')
+      pending.current = false
+      await refetch()
+    } finally {
+      syncing.current = false
+    }
+  }, [companyId, refetch, toast, ui])
+
+  const setState = useCallback(
+    (updater: (prev: AssessmentState) => AssessmentState) => {
+      const next = updater(stateRef.current)
+      stateRef.current = next
+      setStateRaw(next)
+      // Chi legge soltanto non salva: le schermate glielo dicono già.
+      if (canEdit) void flush()
+    },
+    [canEdit, flush],
+  )
+  const persist = useCallback((next: AssessmentState) => setState(() => next), [setState])
+
+  // Chiudere la pagina durante un salvataggio lo interromperebbe: il browser chiede conferma.
+  useEffect(() => {
+    const onUnload = (e: BeforeUnloadEvent) => {
+      if (syncing.current) e.preventDefault()
+    }
+    window.addEventListener('beforeunload', onUnload)
+    return () => window.removeEventListener('beforeunload', onUnload)
+  }, [])
+
+  const failure = org.status === 'error' ? org.error : q.isError ? q.error : null
+  const status: Ctx['status'] =
+    failure ? 'error' : org.status === 'loading' ? 'loading' : !org.company ? 'empty' : loadedFor === companyId ? 'ready' : 'loading'
+  const retry = useCallback(() => {
+    if (org.status === 'error') org.retry()
+    else void refetch()
+  }, [org, refetch])
+
+  const value = useMemo<Ctx>(
+    () => ({
+      ...shared,
+      state,
+      setState,
+      persist,
+      storage: 'server',
+      status,
+      error: failure ? errorReason(failure, ui.serverOffline) : null,
+      retry,
+      companies: org.companies,
+      company: org.company,
+      setCompanyId: org.setCompanyId,
+    }),
+    [shared, state, setState, persist, status, failure, ui, retry, org.companies, org.company, org.setCompanyId],
+  )
+  return <AssessmentCtx.Provider value={value}>{children}</AssessmentCtx.Provider>
+}
+
+export function AssessmentProvider({ children }: { children: ReactNode }) {
+  return env.assessmentStorage === 'server' ? <ServerAssessmentProvider>{children}</ServerAssessmentProvider> : <LocalAssessmentProvider>{children}</LocalAssessmentProvider>
 }
 
 export function useAssessment(): Ctx {

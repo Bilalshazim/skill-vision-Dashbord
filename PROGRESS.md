@@ -130,10 +130,100 @@ insieme allo spegnimento del catalogo in produzione.
       di `js/app.js`, nello stesso passaggio — unico punto ancora aperto di
       questa fase.
 ### Progetto separato — Assessment sul server
-Analisi e stima in PROGETTO-ASSESSMENT-SERVER.md (20–30 giornate, dopo la
-Fase 8): valutatore esterno, invio link test in Assessment, holding → società.
+Analisi e stima in PROGETTO-ASSESSMENT-SERVER.md: valutatore esterno, invio
+link test in Assessment, holding → società. Piano di esecuzione al §8
+(2026-10-14), decisioni del §8.5 prese. Riassunto per Roberto:
+`ASSESSMENT-BACKEND-PLAN.md`.
+- [x] Passi 1–2: schema, migrazione, API (2026-10-14)
+- [x] Passo 3 / Parte 1: schermate sul backend, import, assenze, RAL (2026-10-15)
+- [ ] Parte 2: valutatore esterno sul token del server
+- [ ] Parte 3: invio link test dal server
+- [ ] Parte 4: 5P sul server (una risposta aperta)
+- [ ] Parte 5: verifica di tutte le schermate, chiaro e scuro
+- [ ] Parte 6: Railway
 
 ## Registro
+
+## 2026-10-15 — Assessment sul server: passo 3 (Parte 1), le schermate sul backend
+- [x] Interruttore `VITE_ASSESSMENT_STORAGE` (`local` di default, invariato;
+      `server` sul backend). In locale `frontend/.env.local` è su `server`.
+- [x] `lib/api/assessment.ts` (una funzione per rotta), `apiPut` nel client,
+      TanStack Query 5 installato, un solo `QueryClient` in `App.tsx`.
+- [x] `AssessmentContext`: due provider. `local` identico a prima; `server`
+      carica lo stato della società e salva le sole parti cambiate
+      (`server-sync.ts`). Le schermate non sono state toccate per salvare.
+- [x] Caricamento ed errore: `AssessmentDataGate` (`LoadingState`,
+      `EmptyState` con "Riprova"). Salvataggio fallito → messaggio e ritorno ai
+      dati del server; chiudere la pagina durante un salvataggio chiede conferma.
+- [x] Società: quella dell'utente; lo staff sceglie dal selettore della barra.
+- [x] "Importa dati del browser" (solo amministratori): prova senza salvare,
+      conferma con i conti, import. "Reset demo" sul server: reset + dati di prova.
+- [x] Motivo delle assenze → scelta fra 5 categorie. RAL nascosta ai non
+      amministratori (tabella, scheda, modifica, nuovo dipendente).
+- [x] Verificato in locale nel browser: import di 23 dipendenti; dati letti
+      dal server con il browser vuoto; una modifica = una sola chiamata,
+      ritrovata dopo il ricaricamento; Recruiter senza RAL e senza import;
+      backend spento → messaggio chiaro, "Riprova" riporta i dati salvati.
+      `tsc` pulito.
+- [ ] Non verificati: "Reset demo" sul server (serve
+      `ASSESSMENT_DEMO_COMPANY_IDS`); tutte le schermate in chiaro e scuro
+      (Parte 5).
+- [ ] Ancora nel browser: valutatore esterno (Parte 2), invio link ed
+      `emailApiKey` (Parte 3), 5P (Parte 4).
+- [ ] Per la Parte 2: il server salva il token delle assegnazioni in chiaro
+      (`accessToken`), mentre il §8.3 diceva `accessTokenHash`. Da sistemare lì.
+- [ ] Non fatto: commit e push.
+
+## 2026-10-14 — Sviluppo tutto in locale, Railway dopo
+- [x] `backend/local-db/`: PostgreSQL locale senza installazione (embedded-postgres,
+      UTF-8 come Railway, solo localhost). Pacchetto a sé: Railway non lo vede.
+- [x] Database locale: migrazioni applicate a sviluppo e test, seed caricato.
+      Acme Corp ha Assessment attivo in locale (codice del seed riscattato).
+- [x] `frontend/.env.local` (ignorato da git): login del backend come in
+      produzione, API via proxy di Vite verso `localhost:4000`.
+- [x] `.claude/launch.json`: `backend-dev` accanto a `frontend-dev`.
+- [x] Verificato: login React → backend locale → database locale; l'API di
+      Assessment risponde (403 senza modulo, 200 dopo). Test Assessment: 21/21.
+- [x] `node_modules` del frontend reinstallati per Windows (`npm ci`, lockfile
+      invariato): erano quelli di macOS.
+- Regola da qui: passi 3–8 si fanno e si provano in locale; commit e push su
+  Railway quando si decide (il push applica la migrazione in produzione).
+- Riassunto in inglese per Roberto: `ASSESSMENT-BACKEND-PLAN.md` (radice).
+  Va aggiornato insieme a questo file a ogni parte chiusa.
+
+## 2026-10-14 — Assessment sul server: passi 1 e 2 (schema e API)
+- [x] Decisioni del §8.5 prese da Roberto e registrate in DECISIONI.
+- [x] Schema Prisma per Assessment + migrazione `20261014120000_assessment_server`
+      (solo tabelle nuove; `TestInvitation` con `employeeId` e vincolo "un solo
+      destinatario"). Due punti di Recruiting adattati a `shortlistId` facoltativo:
+      `GET /shortlist/invitations/:id` e il webhook dei test.
+- [x] API `/api/v1/assessment` (stato, dipendenti, periodi, mansioni,
+      assegnazioni, impostazioni, profilo, Intervista, 5P con versione, import
+      con anteprima, reset demo). RAL solo ad admin; motivo assenze → categoria.
+- [x] Verificato su un Postgres locale temporaneo: migrazione applicata da zero,
+      nessuna differenza con lo schema, vincolo attivo. Test: 140 passano;
+      21 nuovi in `tests/assessment.test.ts`.
+- [ ] **Rotti da prima, non toccati**: `auth.test.ts:193` (regex `(d+)` invece
+      di `(\d+)`) e `protected-routes.test.ts` (manca la rotta pubblica delle
+      job posting nell'elenco `PUBLIC`).
+- [ ] Non fatto: commit e push. Railway applica la migrazione in produzione al
+      primo deploy del backend (`preDeployCommand`).
+- [ ] Prossimo: passo 3, frontend dietro `VITE_ASSESSMENT_STORAGE`.
+- Nota d'ambiente: `backend/node_modules` era installato su macOS; aggiunti
+  senza salvare (`--no-save`) i binari Windows di rollup ed esbuild per i test.
+
+## 2026-10-14 — Assessment sul server: piano di esecuzione
+- [x] Verificato sul codice: backend PostgreSQL + Prisma 6 + Express (quello di
+      Recruiting), Assessment tutto in `localStorage` su **due** chiavi
+      (`sv_assessment_state_v1` e `sv5p_state_v1`, la seconda mancava
+      nell'analisi del 30/09).
+- [x] Trovati: valutatore esterno che funziona solo nel browser dell'HR,
+      `emailApiKey` salvata nel browser, 34 scritture a blob intero in 19 file,
+      dati sensibili in anagrafica (RAL, sesso, motivo assenze).
+- [x] Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8: schema misto (tabelle +
+      JSONB), modello Prisma, API, 8 passi dietro `VITE_ASSESSMENT_STORAGE`,
+      17–24 giornate. **Nessuna riga di codice toccata.**
+- [ ] Da decidere prima di partire: le sei domande del §8.5.
 
 ## 2026-10-14 — Riordino del progetto, passi 6–8: struttura, guida, proposta
 - [x] Passo 6 — cartelle di Recruiting: **non spostate**. Sono già per funzione

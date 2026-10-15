@@ -113,7 +113,7 @@ export class ApiError extends Error {
 }
 
 type RequestOptions = {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   body?: unknown
   /** multipart/form-data body — mutually exclusive with `body` */
   form?: FormData
@@ -283,6 +283,9 @@ export function apiGet<T>(path: string, query?: RequestOptions['query']): Promis
 /** `evaluatorToken`, when given, sends X-Evaluator-Token instead of the bearer JWT (OD-9's accountless path). */
 export function apiPost<T>(path: string, body?: unknown, evaluatorToken?: string): Promise<T> {
   return apiRequest<T>(path, { method: 'POST', body, headers: evaluatorToken ? { 'X-Evaluator-Token': evaluatorToken } : undefined })
+}
+export function apiPut<T>(path: string, body?: unknown): Promise<T> {
+  return apiRequest<T>(path, { method: 'PUT', body })
 }
 export function apiPatch<T>(path: string, body?: unknown): Promise<T> {
   return apiRequest<T>(path, { method: 'PATCH', body })

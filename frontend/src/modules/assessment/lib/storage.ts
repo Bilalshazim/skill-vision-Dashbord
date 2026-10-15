@@ -15,7 +15,7 @@ const STORAGE_KEY = 'sv_assessment_state_v1'
 // record saved by an older build of the legacy app (or by a React build
 // before some field existed) gets exactly these defaults patched in, field
 // by field, never wholesale-replaced.
-function hydrate(parsed: Partial<AssessmentState> & { employees: AssessmentState['employees'] }): AssessmentState {
+export function hydrate(parsed: Partial<AssessmentState> & { employees: AssessmentState['employees'] }): AssessmentState {
   if (!Array.isArray(parsed.evaluators)) parsed.evaluators = []
   if (!Array.isArray(parsed.evalAssignments)) parsed.evalAssignments = []
   if (!Array.isArray(parsed.evalPeriods) || !parsed.evalPeriods.length) {
@@ -78,6 +78,19 @@ export function readAssessmentState(): AssessmentState {
   const demo = generateDemoData()
   writeAssessmentState(demo)
   return demo
+}
+
+// I dati di Assessment rimasti in questo browser, per portarli sul server
+// ("Importa dati del browser"). A differenza di readAssessmentState() non
+// genera la demo e non scrive niente: se non c'è nulla, `null`.
+export function readStoredAssessmentState(): AssessmentState | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    const parsed = raw ? JSON.parse(raw) : null
+    return parsed && Array.isArray(parsed.employees) ? hydrate(parsed) : null
+  } catch {
+    return null
+  }
 }
 
 // Ported verbatim from saveState() (~2931-2943) — the whole state blob,

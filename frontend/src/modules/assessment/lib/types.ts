@@ -6,7 +6,12 @@ export type SoftScore = { ottenuto: number; atteso: number }
 export type ApexSourceKey = 'resp' | 'peer' | 'auto'
 export type HardScores = Record<ApexSourceKey, Record<string, number>>
 
-export type Absence = { dal: string; al: string; motivo: string }
+// Il motivo di un'assenza è una categoria, mai testo libero (decisione 3 del
+// 2026-10-14: un motivo scritto a mano può essere un dato sanitario). `motivo`
+// resta solo per leggere i dati salvati prima nel browser.
+export const ABSENCE_CATEGORIES = ['ferie', 'permesso', 'formazione', 'congedo', 'altro'] as const
+export type AbsenceCategory = (typeof ABSENCE_CATEGORIES)[number]
+export type Absence = { dal: string; al: string; category?: AbsenceCategory; motivo?: string }
 
 export type DevelopmentPlan = { azioni: string; formazione: string; coaching: string; obiettivi: string }
 
@@ -25,7 +30,8 @@ export type Employee = {
   tipoContratto: 'dipendente' | 'cocopro' | 'partitaIva' | 'esterno'
   sesso: string
   livelloCcnl: string
-  ral: number
+  /** `null`: nascosta a chi la legge (sul server la RAL la vedono solo gli amministratori). */
+  ral: number | null
   benefit: string
   assenzeProgrammate: Absence[]
   archived: ArchiveInfo

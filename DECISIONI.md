@@ -1456,3 +1456,92 @@ S.R.L., che è proprio l'account API: aggiunta alla mappa come chiave
 - Cinque copie del codice di download; tre liberavano il file subito dopo il clic,
   le altre dopo 2 secondi. Presa la versione con il ritardo (più sicura su alcuni
   browser) in `src/lib/download.ts`. Nomi e contenuti dei file invariati.
+
+## Assessment sul server: le sei decisioni del §8.5 · 2026-10-14
+Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
+1. **Schema misto** (opzione C): tabelle per quello che il server deve
+   conoscere (dipendenti, periodi, punteggi, assegnazioni, mansioni), JSONB per
+   i documenti letti solo dall'interfaccia. Scartati il blob unico (non sblocca
+   valutatore, invio link, società) e il tutto-normalizzato (tabelle inutili).
+2. **Le persone del 5P sono i dipendenti dell'anagrafica.** Sul server il 5P
+   punta a `Employee`, non tiene un elenco suo. Conseguenza da chiudere al
+   passo 6: l'import Excel del piano abbina i nomi ai dipendenti; chi non c'è
+   va aggiunto all'anagrafica — è un cambio di flusso, si propone prima di farlo.
+3. **Dati sensibili approvati**: RAL sul server, visibile solo a
+   `COMPANY_ADMIN` e `PLATFORM_ADMIN`; il motivo delle assenze ridotto a una
+   categoria non sanitaria. L'informativa resta a carico del cliente.
+4. **I dati di oggi si importano.** Supera, per l'import, la frase del
+   2026-10-02 "con i dati veri si riparte da zero": il passo 7 (script di
+   import dal browser, `--dry-run`, idempotente) entra nel progetto.
+5. **TanStack Query** (`@tanstack/react-query`) entra nel frontend per i dati
+   del server (proposta §7 approvata). Lo stato d'interfaccia resta locale.
+6. **Confronto fra società fuori** da questo progetto. Lo schema lo permette
+   dopo (`companyId` + `equivalenceClass` su `JobRoleProfile`).
+
+## Database locale per lo sviluppo · 2026-10-14
+- Richiesta: lavorare al backend in locale e portarlo su Railway dopo.
+- Opzioni: (a) PostgreSQL installato nel sistema; (b) Docker; (c)
+  `embedded-postgres`, i binari di PostgreSQL scaricati con npm.
+- Cosa cambia: (a) chiede un'installazione e un servizio su ogni macchina; (b)
+  Docker non c'è sulla macchina di sviluppo; (c) parte da una cartella, senza
+  privilegi, su Windows e macOS.
+- Presa **(c)**, in `backend/local-db/` con un `package.json` suo: non entra
+  nelle dipendenze del backend né nella build di Railway. Solo strumento di
+  sviluppo, nessun effetto sul prodotto.
+
+## Assessment sul server: tre scostamenti dal piano nei passi 1–2 · 2026-10-14
+- **Token del valutatore esterno in chiaro, non come hash.** Opzioni: (a) hash
+  come `Evaluator.accessTokenHash`, il link si vede una volta; (b) token
+  conservato. Con (a) sparisce "Copia link" in Gestione valutazioni
+  (`EvaluationManagerModal.copyLink`), che oggi l'HR usa quando vuole: è una
+  funzione che si perde. Presa **(b)**: 32 byte casuali generati dal server
+  (quello del browser, `uid('tok')`, ha ~36 bit), il token smette di valere a
+  valutazione inviata. Il rischio in più (furto del database) è lo stesso dei
+  dati che il link apre.
+- **Id del browser come `clientId` per società, non come chiave.** Gli id del
+  browser (`uid()`: prefisso + 7 caratteri da `Math.random`) sono corti e
+  possono ripetersi fra società. Il database ha i suoi uuid; l'API parla in
+  `clientId`, unico per società. Responsabile diretto e periodo nello storico
+  restano riferimenti `clientId` senza chiave esterna, come nel browser.
+- **L'import dal browser è una rotta, non uno script da riga di comando.**
+  I dati stanno nel browser dell'HR, non sul server: un comando chiedeva di
+  esportarli a mano e passarli a chi ha accesso a Railway. `POST
+  /assessment/companies/:id/import` con `dryRun` (anteprima, poi conferma),
+  idempotente sul `clientId`; il frontend lo chiamerà al passo 3. La stessa
+  rotta serve il "Reset demo": `POST …/reset` (solo società elencate in
+  `ASSESSMENT_DEMO_COMPANY_IDS`) seguito dall'import dei dati di prova.
+
+## Assessment sul server, passo 3: come il frontend salva · 2026-10-15
+- Opzioni: (a) riscrivere le 34 scritture delle schermate in azioni
+  (`updateEmployee`, `archiveEmployee`…); (b) lasciare le schermate come sono
+  e far confrontare al contesto lo stato prima e dopo, mandando al server le
+  sole parti cambiate.
+- Cosa cambia: (a) tocca 19 file e ogni schermata; (b) tocca solo il contesto
+  (`AssessmentContext`, `server-sync.ts`) e il comportamento delle schermate
+  resta identico.
+- Raccomandazione: (b), già indicata in PROGETTO §8.7.
+- Presa: **(b)**. Le modifiche si salvano una alla volta, in ordine (periodi →
+  dipendenti → mansioni → assegnazioni → documenti, poi le cancellazioni).
+  Se un salvataggio fallisce non si riprova in silenzio: un messaggio dice che
+  la modifica non è salvata e lo stato torna quello del server. TanStack Query
+  (decisione 5 del 2026-10-14) carica lo stato e lo ricarica.
+
+## RAL e import: chi è amministratore · 2026-10-15
+- La RAL si nasconde a chi non è `COMPANY_ADMIN` o `PLATFORM_ADMIN` in
+  **entrambe** le modalità di salvataggio, non solo sul server: la decisione 3
+  è sui ruoli, non su dove sta il dato. Con il login legacy (nessun ruolo)
+  resta visibile come prima.
+- "Importa dati del browser" lo vede solo un amministratore, perché solo lui
+  può chiamare l'import sul server. Compare nella barra laterale quando questo
+  browser ha dati di Assessment; non cancella niente dal browser.
+
+## Società attiva di Assessment per lo staff · 2026-10-15
+- Chi lavora in una società vede la sua. `PLATFORM_ADMIN` non ha società:
+  sceglie fra quelle con Assessment attivo dal selettore in testa alla barra
+  laterale (`CompanySwitcher`, già esistente). La scelta resta in questo
+  browser (`sv_assessment_company`): è una preferenza, non un dato.
+
+## Motivo delle assenze: le categorie · 2026-10-15
+- Ferie, Permesso, Formazione, Congedo, Altro, come il server. Un motivo
+  scritto a mano nei dati di prima si mostra come la sua categoria, con la
+  stessa regola del server; al primo salvataggio diventa la categoria.

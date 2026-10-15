@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@/components/patterns/ErrorBoundary'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { AppShell } from '@/layouts/AppShell'
 import { AuthGuard } from '@/layouts/AuthGuard'
+import { AssessmentDataGate } from '@/modules/assessment/components/AssessmentDataGate'
 import { AssessmentNav } from '@/modules/assessment/components/AssessmentNav'
 import { AssessmentProvider, useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { getPageMeta } from '@/modules/assessment/lib/legacy-utils'
@@ -28,7 +29,9 @@ function AssessmentShell() {
         <PageHeader level="page" title={meta.title} description={meta.sub} actions={topbarActions} className="mb-6" />
         <ModuleLockGate module="ASSESSMENT">
           <ErrorBoundary>
-            <Outlet />
+            <AssessmentDataGate>
+              <Outlet />
+            </AssessmentDataGate>
           </ErrorBoundary>
         </ModuleLockGate>
         <div id="report-print-container" className="report-print-only" />

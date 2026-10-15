@@ -1,8 +1,10 @@
+import { QueryClientProvider } from '@tanstack/react-query'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { ErrorBoundary } from '@/components/patterns/ErrorBoundary'
 import { Toaster } from '@/components/ui/sonner'
+import { queryClient } from '@/lib/query-client'
 import AssessmentLayout from '@/modules/assessment/AssessmentLayout'
 import RecruitingLayout from '@/modules/recruiting/RecruitingLayout'
 
@@ -61,6 +63,7 @@ const ComponentCatalog = import.meta.env.DEV || import.meta.env.VITE_ENABLE_COMP
 
 function App() {
   return (
+    <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <Toaster />
       <ErrorBoundary>
@@ -147,6 +150,7 @@ function App() {
         </Suspense>
       </ErrorBoundary>
     </BrowserRouter>
+    </QueryClientProvider>
   )
 }
 

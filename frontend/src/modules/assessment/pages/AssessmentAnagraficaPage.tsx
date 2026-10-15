@@ -25,6 +25,7 @@ import { SurveyLinkModal } from '@/modules/assessment/components/SurveyLinkModal
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { activeEmployees, areasList, primaryScore, primaryScoreLabel } from '@/modules/assessment/lib/calculations'
 import { fmtCurrency, fmt1, genderDisplayLabel, getSoftSkills, semanticChip } from '@/modules/assessment/lib/legacy-utils'
+import type { Employee } from '@/modules/assessment/lib/types'
 
 const PAGE_SIZE = 10
 
@@ -34,7 +35,7 @@ const PAGE_SIZE = 10
 // ANAG_AREA_FILTER/ANAG_SORT/ANAG_PAGE/ANAG_SHOW_ARCHIVED are local
 // component state here.
 export default function AssessmentAnagraficaPage() {
-  const { state, setState, lang, ui, canEdit } = useAssessment()
+  const { state, setState, lang, ui, canEdit, isAdmin } = useAssessment()
   const [search, setSearch] = useState('')
   const [areaFilter, setAreaFilter] = useState('all')
   const [sort, setSort] = useState<'cognome' | 'area' | 'score'>('cognome')
@@ -194,7 +195,8 @@ export default function AssessmentAnagraficaPage() {
           { key: 'mansione', header: ui.anagColDuties, emphasis: 'muted', truncate: 'md', cell: (e) => e.mansione },
           { key: 'sesso', header: ui.anagColGender, nowrap: true, emphasis: 'muted', cell: (e) => genderDisplayLabel(e.sesso, lang) || '—' },
           { key: 'livello', header: ui.anagColLevel, nowrap: true, emphasis: 'muted', cell: (e) => e.livelloCcnl || '—' },
-          { key: 'ral', header: ui.anagColRal, emphasis: 'muted', nowrap: true, align: 'end', cell: (e) => (e.ral ? fmtCurrency(e.ral) : '—') },
+          // La RAL solo agli amministratori (decisione 3 del 2026-10-14).
+          ...(isAdmin ? [{ key: 'ral', header: ui.anagColRal, emphasis: 'muted' as const, nowrap: true, align: 'end' as const, cell: (e: Employee) => (e.ral ? fmtCurrency(e.ral) : '—') }] : []),
           { key: 'benefit', header: ui.anagColBenefit, emphasis: 'muted', truncate: 'sm', cell: (e) => e.benefit || '—' },
           {
             key: 'soft',
