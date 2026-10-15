@@ -49,12 +49,12 @@ model User {
 
   refreshTokens             RefreshToken[]
   evaluatorRecord           Evaluator?
-  cipsGenerated             Cip[]                       @relation("CipGeneratedBy")
-  campaignsGeneratedCip     Cip[]                        @relation("CipVoidedBy")
+  cipsGenerated             Cip[]                @relation("CipGeneratedBy")
+  campaignsGeneratedCip     Cip[]                @relation("CipVoidedBy")
   cvsUploaded               Cv[]
   storedFilesUploaded       StoredFile[]
-  jobProfilesCreated        JobProfile[]                @relation("JobProfileCreatedBy")
-  jobProfilesApproved       JobProfile[]                @relation("JobProfileApprovedBy")
+  jobProfilesCreated        JobProfile[]         @relation("JobProfileCreatedBy")
+  jobProfilesApproved       JobProfile[]         @relation("JobProfileApprovedBy")
   shortlistEntriesAdded     Shortlist[]
   testInvitationsCreated    TestInvitation[]
   interviewsCreated         Interview[]
@@ -145,6 +145,16 @@ model Company {
   emailTemplates EmailTemplate[]
   redeemedCodes  AccessCode[]
 
+  // Assessment (PROGETTO-ASSESSMENT-SERVER.md §8)
+  employees                 Employee[]
+  assessmentPeriods         AssessmentPeriod[]
+  jobRoleProfiles           JobRoleProfile[]
+  employeeEvaluationAssigns EmployeeEvaluationAssignment[]
+  assessmentSettings        AssessmentSettings?
+  assessmentCompanyProfile  AssessmentCompanyProfile?
+  executiveInterview        ExecutiveInterview?
+  valutazione5p             Valutazione5p?
+
   @@index([platformId])
 }
 
@@ -186,12 +196,12 @@ model Campaign {
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
-  jobProfiles         JobProfile[]
-  candidates          CampaignCandidate[]
-  cvMatchResults      CvMatchResult[]
+  jobProfiles          JobProfile[]
+  candidates           CampaignCandidate[]
+  cvMatchResults       CvMatchResult[]
   evaluatorAssignments CampaignEvaluatorAssignment[]
-  emailTemplates      EmailTemplate[]
-  cvs                 Cv[]
+  emailTemplates       EmailTemplate[]
+  cvs                  Cv[]
 
   @@index([companyId])
 }
@@ -228,29 +238,29 @@ enum CipStatus {
 // is intentionally polymorphic (no hard FK) so this table needs no schema
 // change once those two questions are answered.
 model Cip {
-  id           String       @id @default(uuid())
-  code         String       @unique
-  year2        Int
-  sellerCodeId String
-  sellerCode   SellerCode   @relation(fields: [sellerCodeId], references: [id])
-  month2       Int
-  sequence     Int
-  ownerType    CipOwnerType
-  ownerId      String
-  status       CipStatus    @default(ACTIVE)
+  id            String       @id @default(uuid())
+  code          String       @unique
+  year2         Int
+  sellerCodeId  String
+  sellerCode    SellerCode   @relation(fields: [sellerCodeId], references: [id])
+  month2        Int
+  sequence      Int
+  ownerType     CipOwnerType
+  ownerId       String
+  status        CipStatus    @default(ACTIVE)
   generatedById String
-  generatedBy   User        @relation("CipGeneratedBy", fields: [generatedById], references: [id])
-  generatedAt   DateTime    @default(now())
+  generatedBy   User         @relation("CipGeneratedBy", fields: [generatedById], references: [id])
+  generatedAt   DateTime     @default(now())
   voidedAt      DateTime?
   voidedById    String?
-  voidedBy      User?       @relation("CipVoidedBy", fields: [voidedById], references: [id])
+  voidedBy      User?        @relation("CipVoidedBy", fields: [voidedById], references: [id])
   voidReason    String?
 
   // Fase 2 (2026-10-05): referente del cliente e advisor del fornitore, scelti
   // alla generazione. Opzionali; il CIP resta immutabile (OD-1): per
   // cambiarli si annulla e si riemette.
-  referent      String?
-  advisor       String?
+  referent String?
+  advisor  String?
 
   // Sequence scope assumed here: (year, seller, month) — this is the
   // recommended-but-unconfirmed reading from OD-1 ("progressive number of
@@ -283,22 +293,22 @@ enum CandidateSource {
 }
 
 model Candidate {
-  id                     String             @id @default(uuid())
-  fullName               String
-  email                  String?
+  id                   String             @id @default(uuid())
+  fullName             String
+  email                String?
   // Lowercased/trimmed mirror of `email`, used only for OD-4's suggestion
   // matching — never written to directly by API consumers.
-  normalizedEmail        String?
-  phone                  String?
-  consentStatus          ConsentStatus?
-  cvRetentionChoice      CvRetentionChoice?
-  cvRetentionExpiresAt   DateTime?
-  source                 CandidateSource?
-  createdAt              DateTime           @default(now())
-  updatedAt              DateTime           @updatedAt
+  normalizedEmail      String?
+  phone                String?
+  consentStatus        ConsentStatus?
+  cvRetentionChoice    CvRetentionChoice?
+  cvRetentionExpiresAt DateTime?
+  source               CandidateSource?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 
-  campaigns  CampaignCandidate[]
-  cvs        Cv[]
+  campaigns   CampaignCandidate[]
+  cvs         Cv[]
   storedFiles StoredFile[]
 
   @@index([normalizedEmail])
@@ -323,16 +333,16 @@ enum CampaignCandidateStatus {
 }
 
 model CampaignCandidate {
-  id          String                   @id @default(uuid())
+  id          String                  @id @default(uuid())
   campaignId  String
-  campaign    Campaign                 @relation(fields: [campaignId], references: [id])
+  campaign    Campaign                @relation(fields: [campaignId], references: [id])
   candidateId String
-  candidate   Candidate                @relation(fields: [candidateId], references: [id])
+  candidate   Candidate               @relation(fields: [candidateId], references: [id])
   roleApplied String?
   icvScore    Float?
-  status      CampaignCandidateStatus  @default(IN_POOL)
-  createdAt   DateTime                 @default(now())
-  updatedAt   DateTime                 @updatedAt
+  status      CampaignCandidateStatus @default(IN_POOL)
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
 
   shortlist   Shortlist?
   interviews  Interview[]
@@ -351,17 +361,17 @@ enum CvStatus {
 }
 
 model Cv {
-  id           String    @id @default(uuid())
+  id           String     @id @default(uuid())
   candidateId  String
-  candidate    Candidate @relation(fields: [candidateId], references: [id])
+  candidate    Candidate  @relation(fields: [candidateId], references: [id])
   campaignId   String?
-  campaign     Campaign? @relation(fields: [campaignId], references: [id])
-  fileId       String    @unique
+  campaign     Campaign?  @relation(fields: [campaignId], references: [id])
+  fileId       String     @unique
   file         StoredFile @relation(fields: [fileId], references: [id])
-  status       CvStatus  @default(UPLOADED)
+  status       CvStatus   @default(UPLOADED)
   uploadedById String
-  uploadedBy   User      @relation(fields: [uploadedById], references: [id])
-  uploadedAt   DateTime  @default(now())
+  uploadedBy   User       @relation(fields: [uploadedById], references: [id])
+  uploadedAt   DateTime   @default(now())
 
   matchResults CvMatchResult[]
 
@@ -373,19 +383,19 @@ model Cv {
 // §2.7 recommends consolidating today's disconnected JdState/JobOpening.jobProfile
 // domains; that consolidation happens here, not as two separate tables.
 model JobProfile {
-  id              String   @id @default(uuid())
-  campaignId      String
-  campaign        Campaign @relation(fields: [campaignId], references: [id])
-  title           String?
-  header          Json     @default("{}")
-  sections        Json     @default("{}")
-  hardSkillGroups Json     @default("[]")
-  extraRequirements Json   @default("[]")
-  salaryBenefits  Json     @default("{}")
-  createdById     String
-  createdBy       User     @relation("JobProfileCreatedBy", fields: [createdById], references: [id])
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(uuid())
+  campaignId        String
+  campaign          Campaign @relation(fields: [campaignId], references: [id])
+  title             String?
+  header            Json     @default("{}")
+  sections          Json     @default("{}")
+  hardSkillGroups   Json     @default("[]")
+  extraRequirements Json     @default("[]")
+  salaryBenefits    Json     @default("{}")
+  createdById       String
+  createdBy         User     @relation("JobProfileCreatedBy", fields: [createdById], references: [id])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   // Client §3 (Pagina Scheda Professionale) — "Approvata" toggle that
   // generates a publication link on final save. Deliberately a plain
@@ -419,19 +429,19 @@ enum Fascia {
 // unchanged into src/lib/scoring.ts and covered by tests/scoring.test.ts
 // against fixtures — see the final report for the verification method.
 model CvMatchResult {
-  id                 String      @id @default(uuid())
-  cvId               String
-  cv                 Cv          @relation(fields: [cvId], references: [id])
-  campaignId         String
-  campaign           Campaign    @relation(fields: [campaignId], references: [id])
-  jobProfileId       String?
-  jobProfile         JobProfile? @relation(fields: [jobProfileId], references: [id])
-  matchScorePercent  Float
-  matchBreakdown     Json        @default("{}")
-  ahiScore           Float?
-  fascia             Fascia?
-  hardRedFlag        Boolean     @default(false)
-  computedAt         DateTime    @default(now())
+  id                String      @id @default(uuid())
+  cvId              String
+  cv                Cv          @relation(fields: [cvId], references: [id])
+  campaignId        String
+  campaign          Campaign    @relation(fields: [campaignId], references: [id])
+  jobProfileId      String?
+  jobProfile        JobProfile? @relation(fields: [jobProfileId], references: [id])
+  matchScorePercent Float
+  matchBreakdown    Json        @default("{}")
+  ahiScore          Float?
+  fascia            Fascia?
+  hardRedFlag       Boolean     @default(false)
+  computedAt        DateTime    @default(now())
 
   @@unique([cvId, campaignId])
   @@index([campaignId])
@@ -494,27 +504,35 @@ enum SentStatus {
   FAILED
 }
 
+// Un solo meccanismo d'invio per i due moduli (deciso dal cliente il
+// 2026-09-30): il destinatario è un candidato in shortlist (Recruiting) OPPURE
+// un dipendente (Assessment). Esattamente uno dei due — vincolo CHECK
+// "TestInvitation_one_recipient" scritto a mano nella migrazione, Prisma non
+// lo esprime.
 model TestInvitation {
-  id                 String         @id @default(uuid())
-  shortlistId        String
-  shortlist          Shortlist      @relation(fields: [shortlistId], references: [id])
-  testLink            String
-  messageTemplateId  String?
-  messageTemplate    EmailTemplate? @relation(fields: [messageTemplateId], references: [id])
-  senderConfigId     String
-  senderConfig       SenderConfig   @relation(fields: [senderConfigId], references: [id])
-  sentStatus         SentStatus     @default(PENDING)
-  sentAt             DateTime?
-  failureReason      String?
-  provider           String?
-  providerMessageId  String?
-  createdById        String
-  createdBy          User           @relation(fields: [createdById], references: [id])
-  createdAt          DateTime       @default(now())
+  id                String         @id @default(uuid())
+  shortlistId       String?
+  shortlist         Shortlist?     @relation(fields: [shortlistId], references: [id], onDelete: Restrict)
+  employeeId        String?
+  employee          Employee?      @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  testLink          String
+  messageTemplateId String?
+  messageTemplate   EmailTemplate? @relation(fields: [messageTemplateId], references: [id])
+  senderConfigId    String
+  senderConfig      SenderConfig   @relation(fields: [senderConfigId], references: [id])
+  sentStatus        SentStatus     @default(PENDING)
+  sentAt            DateTime?
+  failureReason     String?
+  provider          String?
+  providerMessageId String?
+  createdById       String
+  createdBy         User           @relation(fields: [createdById], references: [id])
+  createdAt         DateTime       @default(now())
 
   response TestResponse?
 
   @@index([shortlistId])
+  @@index([employeeId])
 }
 
 enum ReceivedVia {
@@ -523,17 +541,17 @@ enum ReceivedVia {
 }
 
 model TestResponse {
-  id                 String         @id @default(uuid())
-  testInvitationId   String         @unique
-  testInvitation     TestInvitation @relation(fields: [testInvitationId], references: [id])
-  completedAt        DateTime?
-  score              Float?
-  rawResult          Json?
-  receivedVia        ReceivedVia
+  id               String         @id @default(uuid())
+  testInvitationId String         @unique
+  testInvitation   TestInvitation @relation(fields: [testInvitationId], references: [id])
+  completedAt      DateTime?
+  score            Float?
+  rawResult        Json?
+  receivedVia      ReceivedVia
   // Idempotency key from the provider's webhook event — a replayed webhook
   // with the same id is a no-op, never a duplicate row (§11, §19).
-  webhookEventId     String?        @unique
-  createdAt          DateTime       @default(now())
+  webhookEventId   String?        @unique
+  createdAt        DateTime       @default(now())
 }
 
 // §11 — the integration boundary for an external test provider. No real
@@ -584,18 +602,18 @@ enum EvaluatorRole {
 // src/modules/evaluators for how the token path authorizes without ever
 // widening what that evaluator can see beyond their own assignment.
 model Evaluator {
-  id                  String    @id @default(uuid())
-  userId              String?   @unique
-  user                User?     @relation(fields: [userId], references: [id])
-  fullName            String
-  email               String
-  role                EvaluatorRole
-  altroLabel          String?
-  companyId           String?
-  company             Company?  @relation(fields: [companyId], references: [id])
-  accessTokenHash     String?   @unique
+  id                   String        @id @default(uuid())
+  userId               String?       @unique
+  user                 User?         @relation(fields: [userId], references: [id])
+  fullName             String
+  email                String
+  role                 EvaluatorRole
+  altroLabel           String?
+  companyId            String?
+  company              Company?      @relation(fields: [companyId], references: [id])
+  accessTokenHash      String?       @unique
   accessTokenExpiresAt DateTime?
-  createdAt           DateTime  @default(now())
+  createdAt            DateTime      @default(now())
 
   assignments CampaignEvaluatorAssignment[]
   evaluations Evaluation[]
@@ -638,7 +656,7 @@ model Evaluation {
   recommendation      EvaluationRecommendation?
   notes               String?
   signedAt            DateTime?
-  submittedAt          DateTime?
+  submittedAt         DateTime?
   createdAt           DateTime                  @default(now())
   updatedAt           DateTime                  @updatedAt
 
@@ -658,21 +676,21 @@ enum CandidateProfileStatus {
 }
 
 model CandidateProfile {
-  id                  String                  @id @default(uuid())
-  campaignCandidateId String                  @unique
-  campaignCandidate   CampaignCandidate       @relation(fields: [campaignCandidateId], references: [id])
-  status              CandidateProfileStatus  @default(DRAFT)
+  id                  String                 @id @default(uuid())
+  campaignCandidateId String                 @unique
+  campaignCandidate   CampaignCandidate      @relation(fields: [campaignCandidateId], references: [id])
+  status              CandidateProfileStatus @default(DRAFT)
   // The single stored document both the preview endpoint and the published
   // page read — see src/modules/candidateProfiles: there is exactly one
   // GET path for content, reused before and after publish (§13).
-  content             Json                    @default("{}")
+  content             Json                   @default("{}")
   approvedById        String?
-  approvedBy          User?                   @relation(fields: [approvedById], references: [id])
+  approvedBy          User?                  @relation(fields: [approvedById], references: [id])
   approvedAt          DateTime?
   publicationLink     String?
   publishedAt         DateTime?
-  createdAt           DateTime                @default(now())
-  updatedAt           DateTime                @updatedAt
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
 }
 
 // =====================================================================
@@ -685,16 +703,16 @@ enum SenderType {
 }
 
 model SenderConfig {
-  id            String     @id @default(uuid())
-  companyId     String
-  company       Company    @relation(fields: [companyId], references: [id])
-  senderType    SenderType
-  displayName   String
-  replyToEmail  String
-  createdById   String
-  createdBy     User       @relation(fields: [createdById], references: [id])
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id           String     @id @default(uuid())
+  companyId    String
+  company      Company    @relation(fields: [companyId], references: [id])
+  senderType   SenderType
+  displayName  String
+  replyToEmail String
+  createdById  String
+  createdBy    User       @relation(fields: [createdById], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   testInvitations TestInvitation[]
 
@@ -749,8 +767,8 @@ model EmailServiceConfig {
 // =====================================================================
 
 model StoredFile {
-  id                 String    @id @default(uuid())
-  storageKey         String    @unique
+  id                 String     @id @default(uuid())
+  storageKey         String     @unique
   originalFilename   String
   mimeType           String
   sizeBytes          Int
@@ -759,14 +777,14 @@ model StoredFile {
   candidate          Candidate? @relation(fields: [candidateId], references: [id])
   campaignId         String?
   uploadedById       String
-  uploadedBy         User      @relation(fields: [uploadedById], references: [id])
+  uploadedBy         User       @relation(fields: [uploadedById], references: [id])
   // OD-10: retention is TRACKED here; nothing reads this field to delete,
   // anonymize, or otherwise act on an expired file. See
   // src/modules/cv/retention.ts for the explicit no-op + the flag-for-review
   // report it produces instead (§12/§21).
   retentionExpiresAt DateTime?
   deletedAt          DateTime?
-  createdAt          DateTime  @default(now())
+  createdAt          DateTime   @default(now())
 
   cv Cv?
 
@@ -779,15 +797,317 @@ model StoredFile {
 // =====================================================================
 
 model AuditLog {
-  id            String   @id @default(uuid())
-  actorUserId   String?
-  actorUser     User?    @relation(fields: [actorUserId], references: [id])
-  action        String
-  entityType    String
-  entityId      String?
-  metadata      Json?
-  occurredAt    DateTime @default(now())
+  id          String   @id @default(uuid())
+  actorUserId String?
+  actorUser   User?    @relation(fields: [actorUserId], references: [id])
+  action      String
+  entityType  String
+  entityId    String?
+  metadata    Json?
+  occurredAt  DateTime @default(now())
 
   @@index([entityType, entityId])
   @@index([occurredAt])
+}
+
+// =====================================================================
+// Assessment — PROGETTO-ASSESSMENT-SERVER.md §8 (decisioni del 2026-10-14)
+//
+// Schema misto: tabelle per quello che il server deve conoscere (dipendenti,
+// periodi, punteggi, assegnazioni, mansioni); JSONB per i documenti che legge
+// solo l'interfaccia (Intervista, profilo aziendale, piano di sviluppo, 5P).
+// Prima vivevano in localStorage: `sv_assessment_state_v1` e `sv5p_state_v1`.
+// `clientId` è l'id che il browser dà a un record (es. `emp_k3j9x2a`): le
+// schermate e i riferimenti interni (responsabile, periodo, dipendente
+// valutato) lo usano. È unico per società, non globale — gli id del browser
+// sono corti e due società possono averne uno uguale. L'import dal browser
+// lo conserva, così si può rifare senza doppioni.
+// =====================================================================
+
+enum AssessmentSource {
+  RESP
+  PEER
+  AUTO
+}
+
+enum EmployeeContractType {
+  DIPENDENTE
+  COCOPRO
+  PARTITA_IVA
+  ESTERNO
+}
+
+enum EmployeeArchiveReason {
+  PENSIONE
+  LICENZIAMENTO
+  PROBATION
+  ALTRO
+}
+
+// Decisione 3 del 2026-10-14: il motivo di un'assenza è una categoria, mai
+// testo libero — un testo libero può contenere dati sanitari (GDPR art. 9).
+enum AbsenceCategory {
+  FERIE
+  PERMESSO
+  FORMAZIONE
+  CONGEDO
+  ALTRO
+}
+
+enum EvaluationAssignmentStatus {
+  PENDING
+  COMPLETED
+}
+
+enum AssessmentModulo {
+  A
+  B
+  AB
+}
+
+enum SurveySenderMode {
+  REFERENTE
+  ADMIN
+}
+
+model Employee {
+  id                   String                 @id @default(uuid())
+  companyId            String
+  company              Company                @relation(fields: [companyId], references: [id])
+  clientId             String
+  nome                 String
+  cognome              String
+  email                String?
+  sesso                String                 @default("")
+  area                 String                 @default("")
+  reparto              String                 @default("")
+  ruolo                String                 @default("")
+  mansione             String                 @default("")
+  tipoProfilo          String                 @default("Employee")
+  tipoContratto        EmployeeContractType   @default(DIPENDENTE)
+  livelloCcnl          String                 @default("")
+  // Decisione 3: visibile solo a COMPANY_ADMIN e PLATFORM_ADMIN — il filtro
+  // sta nelle rotte (src/modules/assessment), non qui.
+  ral                  Decimal?               @db.Decimal(12, 2)
+  benefit              String                 @default("")
+  feedbackNeeded       Boolean                @default(false)
+  // { azioni, formazione, coaching, obiettivi }
+  developmentPlan      Json                   @default("{}")
+  // null = vale l'elenco della mansione; un array (anche vuoto) = elenco
+  // proprio della persona. Json e non String[]: la differenza fra "assente"
+  // e "vuoto" conta, e una lista Prisma non può essere null.
+  softSkillOverrides   Json?
+  // clientId del responsabile diretto, senza chiave esterna: è un riferimento
+  // del browser (valutatore Dirigente nel piano 5P) e si salva così com'è.
+  responsabileClientId String?
+  archivedAt           DateTime?
+  archiveReason        EmployeeArchiveReason?
+  archiveNote          String?
+  surveySentAt         DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  absences        EmployeeAbsence[]
+  softScores      EmployeeSoftScore[]
+  hardSources     EmployeeHardSource[]
+  softSnapshots   SoftAssessmentSnapshot[]
+  hardSnapshots   HardAssessmentSnapshot[]
+  evaluationsOf   EmployeeEvaluationAssignment[]
+  testInvitations TestInvitation[]
+
+  @@unique([companyId, clientId])
+  @@index([companyId])
+}
+
+model EmployeeAbsence {
+  id         String          @id @default(uuid())
+  employeeId String
+  employee   Employee        @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  dal        DateTime?       @db.Date
+  al         DateTime?       @db.Date
+  category   AbsenceCategory @default(ALTRO)
+  createdAt  DateTime        @default(now())
+
+  @@index([employeeId])
+}
+
+model AssessmentPeriod {
+  id        String   @id @default(uuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  clientId  String
+  label     String
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignments EmployeeEvaluationAssignment[]
+
+  @@unique([companyId, clientId])
+  @@index([companyId])
+}
+
+// Valori soft correnti, una riga per competenza (oggi `employee.soft`).
+model EmployeeSoftScore {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  skillId    String
+  ottenuto   Float
+  atteso     Float
+  updatedAt  DateTime @updatedAt
+
+  @@unique([employeeId, skillId])
+}
+
+// Valutazione hard corrente per fonte (oggi `employee.hard[source]`,
+// `hardEvaluatedBy[source]`, `hardNotes[source]`): i punteggi per voce APEX
+// in un JSON { codice: punteggio }, perché il server non interroga la voce.
+model EmployeeHardSource {
+  id          String           @id @default(uuid())
+  employeeId  String
+  employee    Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  source      AssessmentSource
+  evaluatedBy String           @default("")
+  scores      Json             @default("{}")
+  notes       Json             @default("{}")
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([employeeId, source])
+}
+
+model SoftAssessmentSnapshot {
+  id              String   @id @default(uuid())
+  employeeId      String
+  employee        Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date            DateTime
+  source          String   @default("manual")
+  overallOttenuto Float
+  overallAtteso   Float
+  createdAt       DateTime @default(now())
+
+  @@index([employeeId, date])
+}
+
+model HardAssessmentSnapshot {
+  id             String           @id @default(uuid())
+  employeeId     String
+  employee       Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  // clientId del periodo, senza chiave esterna: è storico.
+  periodClientId String           @default("")
+  // Copia dell'etichetta al momento dell'invio, come oggi: il periodo può
+  // cambiare nome dopo.
+  periodLabel    String           @default("")
+  date           DateTime
+  source         AssessmentSource
+  apexScore      Float
+  // [{ code, name, score }]
+  dims           Json             @default("[]")
+  createdAt      DateTime         @default(now())
+
+  @@index([employeeId, date])
+}
+
+// Oggi `roleProfiles[roleName]`. `equivalenceClass` serve al confronto fra
+// società ("pari valore"), fuori da questo progetto: resta vuoto.
+model JobRoleProfile {
+  id               String   @id @default(uuid())
+  companyId        String
+  company          Company  @relation(fields: [companyId], references: [id])
+  roleName         String
+  requiredSkills   String[] @default([])
+  // null = assente nel browser, che non è come {} (pesi non impostati).
+  skillWeights     Json?
+  skillExpected    Json?
+  equivalenceClass String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([companyId, roleName])
+}
+
+// Chi valuta chi (oggi `evalAssignments`). Il token del valutatore esterno è
+// la sola credenziale del link `/assessment/evaluate?evalToken=`.
+model EmployeeEvaluationAssignment {
+  id               String                     @id @default(uuid())
+  companyId        String
+  company          Company                    @relation(fields: [companyId], references: [id])
+  clientId         String
+  periodId         String
+  period           AssessmentPeriod           @relation(fields: [periodId], references: [id])
+  targetEmployeeId String
+  targetEmployee   Employee                   @relation(fields: [targetEmployeeId], references: [id], onDelete: Cascade)
+  source           AssessmentSource
+  evaluatorName    String
+  evaluatorEmail   String                     @default("")
+  // Generato dal server (32 byte casuali). Conservato in chiaro e non come
+  // hash: l'HR ricopia il link quando vuole (EvaluationManagerModal), e un
+  // hash lo impedirebbe. Smette di valere quando la valutazione è inviata.
+  accessToken      String                     @unique
+  tokenExpiresAt   DateTime?
+  status           EvaluationAssignmentStatus @default(PENDING)
+  completedAt      DateTime?
+  createdAt        DateTime                   @default(now())
+
+  @@unique([companyId, clientId])
+  @@index([companyId])
+  @@index([targetEmployeeId])
+}
+
+// Oggi `settings` + `evaluators[]`. Niente `emailApiEndpoint`/`emailApiKey`:
+// l'invio passa dal mailer del server (EmailServiceConfig).
+model AssessmentSettings {
+  id                 String           @id @default(uuid())
+  companyId          String           @unique
+  company            Company          @relation(fields: [companyId], references: [id])
+  modulo             AssessmentModulo @default(AB)
+  companyName        String           @default("")
+  testsAcquired      Int              @default(0)
+  testsDispatched    Int              @default(0)
+  surveyLink         String           @default("")
+  softSkillTargets   Json             @default("{}")
+  surveySenderMode   SurveySenderMode @default(REFERENTE)
+  adminSenderEmail   String           @default("")
+  actionNotes        Json             @default("{}")
+  preTestLetter      String           @default("")
+  surveyEmailSubject String           @default("")
+  surveyEmailBody    String           @default("")
+  evaluators         String[]         @default([])
+  updatedAt          DateTime         @updatedAt
+}
+
+// Oggi `company`: sedi, contatti, referente, CEO, CFO.
+model AssessmentCompanyProfile {
+  id        String   @id @default(uuid())
+  companyId String   @unique
+  company   Company  @relation(fields: [companyId], references: [id])
+  locations Json     @default("[]")
+  contacts  Json     @default("[]")
+  referente Json     @default("{}")
+  ceo       Json     @default("{}")
+  cfo       Json     @default("{}")
+  updatedAt DateTime @updatedAt
+}
+
+// Oggi `analisiIniziale` (ExiData): un documento letto solo dall'interfaccia.
+model ExecutiveInterview {
+  id        String   @id @default(uuid())
+  companyId String   @unique
+  company   Company  @relation(fields: [companyId], references: [id])
+  completed Boolean  @default(false)
+  data      Json     @default("{}")
+  updatedAt DateTime @updatedAt
+}
+
+// Oggi `sv5p_state_v1`. Documento con versione: un salvataggio con una
+// versione vecchia riceve 409 invece di sovrascrivere. Decisione 2 del
+// 2026-10-14: le persone del 5P sono i dipendenti — dentro `state` ogni
+// persona porta `employeeId` (passo 6 del piano).
+model Valutazione5p {
+  id        String   @id @default(uuid())
+  companyId String   @unique
+  company   Company  @relation(fields: [companyId], references: [id])
+  state     Json
+  version   Int      @default(1)
+  updatedAt DateTime @updatedAt
 }

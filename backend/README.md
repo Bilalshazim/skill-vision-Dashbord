@@ -8,6 +8,14 @@ reflects the backend's current state, not that one phase.
 
 ## Setup
 
+**Without installing PostgreSQL** (any OS, Windows included): start the local
+database from [`local-db/`](local-db/README.md) — `cd local-db && npm install &&
+npm start` — and keep it running. It creates `sv_recruiting` and
+`sv_recruiting_test` from the `DATABASE_URL`s in `.env` / `.env.test`. Then
+run the `cd backend` block below.
+
+With a system PostgreSQL instead (macOS):
+
 ```bash
 brew install postgresql@16        # if not already installed
 brew services start postgresql@16

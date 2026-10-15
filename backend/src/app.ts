@@ -3,6 +3,7 @@ import express from 'express'
 import { pinoHttp } from 'pino-http'
 
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
+import { assessmentRouter } from './modules/assessment/routes.js'
 import { assessmentAiRouter } from './modules/assessmentAi/routes.js'
 import { authRouter } from './modules/auth/routes.js'
 import { campaignsRouter } from './modules/campaigns/routes.js'
@@ -114,6 +115,7 @@ export function createApp() {
   app.use('/api/v1/public/job-postings', publicJobPostingsRouter)
   app.use('/api/v1/webhooks', webhooksRouter)
   app.use('/api/v1/assessment-ai', assessmentAiRouter)
+  app.use('/api/v1/assessment', assessmentRouter)
   app.use('/api/v1/original-skills', originalSkillsRouter)
 
   app.use(notFoundHandler)

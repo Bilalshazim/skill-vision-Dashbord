@@ -70,7 +70,9 @@ webhooksRouter.post('/test-provider', async (req, res, next) => {
           webhookEventId: body.eventId,
         },
       })
-      const shortlist = await tx.shortlist.findUnique({ where: { id: invitation.shortlistId } })
+      // Un invito di Assessment (employeeId) non ha shortlist da aggiornare:
+      // la risposta resta in TestResponse.
+      const shortlist = invitation.shortlistId ? await tx.shortlist.findUnique({ where: { id: invitation.shortlistId } }) : null
       if (shortlist) {
         await tx.shortlist.update({ where: { id: shortlist.id }, data: { status: 'HA_RISPOSTO' } })
         await tx.campaignCandidate.update({ where: { id: shortlist.campaignCandidateId }, data: { status: 'TEST_HA_RISPOSTO' } })

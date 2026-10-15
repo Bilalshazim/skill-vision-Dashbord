@@ -203,7 +203,8 @@ shortlistRouter.post('/:id/mark-sent', requireRole('RECRUITER', 'COMPANY_ADMIN')
 shortlistRouter.get('/invitations/:id', requireRole('RECRUITER', 'COMPANY_ADMIN'), async (req, res, next) => {
   try {
     const invitation = await prisma.testInvitation.findUnique({ where: { id: req.params.id }, include: { response: true } })
-    if (!invitation) throw new NotFoundError('Test invitation not found')
+    // Un invito senza shortlist è di Assessment: da questa rotta non si vede.
+    if (!invitation?.shortlistId) throw new NotFoundError('Test invitation not found')
     await requireShortlistCompanyScope(req, invitation.shortlistId)
     res.json(invitation)
   } catch (err) {

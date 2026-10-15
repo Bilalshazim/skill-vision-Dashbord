@@ -59,6 +59,10 @@ export const env = {
   // da virgole, es. https://app.esempio.it. Vuoto: solo la stessa origine.
   trustProxyHops: Number(process.env.TRUST_PROXY_HOPS || 1),
   authCookieOrigins: (process.env.AUTH_COOKIE_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean),
+  // Assessment sul server — le sole società i cui dati di Assessment si possono
+  // azzerare ("Reset demo"). id separati da virgole. Vuoto: nessuna, il reset
+  // risponde 403. Una società reale non va mai in questo elenco.
+  assessmentDemoCompanyIds: (process.env.ASSESSMENT_DEMO_COMPANY_IDS || '').split(',').map((s) => s.trim()).filter(Boolean),
 }
 
 // Name kept as `smtpConfigured` — shortlist/routes.ts and emailConfig/routes.ts
