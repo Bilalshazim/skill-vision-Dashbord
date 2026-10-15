@@ -1165,4 +1165,7 @@ export const UI_EN = {
   importFailed: (reason) => 'Import failed: ' + reason + '.',
   linkNotReady: 'The link is being saved on the server: try again in a moment.',
   reSubmitFailed: (reason) => 'Evaluation not sent: ' + reason + '. Your scores are still here: try again.',
+  fivePConflict: 'A colleague saved the 5P evaluation in the meantime: you now see their version. Redo your last change.',
+  fivePPeopleAdded: (n) => n + (n === 1 ? ' person from the 5P plan added' : ' people from the 5P plan added') + ' to the employee list.',
+  importConfirm5p: ' The 5P evaluation in this browser also goes to the server, if there is none there yet.',
 };

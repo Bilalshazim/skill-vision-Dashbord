@@ -15,10 +15,9 @@ import { AbsencesEditor } from '@/modules/assessment/components/AbsencesEditor'
 import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { activeEmployees, areasList, censusRolesList, repartiList } from '@/modules/assessment/lib/calculations'
-import { getApex5dDimensions, getApexSources, getSoftSkills, uid } from '@/modules/assessment/lib/legacy-utils'
-import { ensureRoleProfile } from '@/modules/assessment/lib/role-census'
+import { addNewEmployee } from '@/modules/assessment/lib/new-employee'
 import { isFilledAbsence } from '@/modules/assessment/lib/absences'
-import type { Absence, ApexSourceKey, Employee } from '@/modules/assessment/lib/types'
+import type { Absence, Employee } from '@/modules/assessment/lib/types'
 
 // Migrated from openAddEmployeeModal()/submitAddEmployee() (js/assessment.js
 // ~5355-5444) — a new employee can only be created against a role that
@@ -31,9 +30,6 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
   const areas = areasList(state)
   const reparti = repartiList(state)
   const censusRoles = censusRolesList(state)
-  const SOFT_SKILLS = getSoftSkills(lang)
-  const APEX5D_DIMENSIONS = getApex5dDimensions(lang)
-  const APEX_SOURCES = getApexSources(lang)
 
   const [nome, setNome] = useState('')
   const [cognome, setCognome] = useState('')
@@ -64,17 +60,7 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
     }
     setState((prev) => {
       const next = structuredClone(prev)
-      const rp = ensureRoleProfile(next, ruolo.trim())
-      const soft: Employee['soft'] = {}
-      SOFT_SKILLS.forEach((s) => {
-        const weighted = rp.skillWeights?.[s.id]
-        const atteso = weighted ? (rp.skillExpected?.[s.id] ?? 8) : 6
-        soft[s.id] = { ottenuto: 0, atteso }
-      })
-      const hard: Employee['hard'] = { resp: {}, peer: {}, auto: {} }
-      APEX5D_DIMENSIONS.forEach((d) => d.items.forEach((it) => APEX_SOURCES.forEach((src) => (hard[src.key as ApexSourceKey][it.cod] = 0))))
-      const emp: Employee = {
-        id: uid('emp'),
+      addNewEmployee(next, {
         nome: n,
         cognome: c,
         email: email.trim(),
@@ -83,7 +69,6 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
         ruolo: ruolo.trim(),
         responsabileId: responsabileId || undefined,
         mansione: mansione.trim(),
-        tipoProfilo: 'Employee',
         sesso,
         tipoContratto,
         livelloCcnl: ccnl.trim(),
@@ -91,17 +76,7 @@ export function AddEmployeeModal({ onClose }: { onClose: () => void }) {
         ral: isAdmin ? Math.max(0, parseInt(ral, 10) || 0) : null,
         benefit: benefit.trim(),
         assenzeProgrammate: absences.filter(isFilledAbsence),
-        archived: null,
-        soft,
-        hard,
-        hardEvaluatedBy: { resp: '', peer: '', auto: '' },
-        hardHistory: [],
-        softHistory: [],
-        feedbackNeeded: false,
-        developmentPlan: { azioni: '', formazione: '', coaching: '', obiettivi: '' },
-        createdAt: new Date().toISOString(),
-      }
-      next.employees.push(emp)
+      })
       return next
     })
     toast(ui.toastEmployeeAdded, 'ok')

@@ -1155,4 +1155,7 @@ export const UI_IT = {
   importFailed: (reason) => 'Import non riuscito: ' + reason + '.',
   linkNotReady: 'Il link si sta salvando sul server: riprova fra un attimo.',
   reSubmitFailed: (reason) => 'Valutazione non inviata: ' + reason + '. I voti restano qui: riprova.',
+  fivePConflict: 'Un collega ha salvato la Valutazione 5P nel frattempo: ora vedi la sua versione. Rifai l\'ultima modifica.',
+  fivePPeopleAdded: (n) => n + (n === 1 ? ' persona del piano 5P aggiunta' : ' persone del piano 5P aggiunte') + ' all\'elenco dei dipendenti.',
+  importConfirm5p: ' Anche la Valutazione 5P di questo browser va sul server, se sul server non ce n\'è già una.',
 };

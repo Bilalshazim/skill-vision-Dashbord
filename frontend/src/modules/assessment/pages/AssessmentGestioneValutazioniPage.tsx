@@ -1,11 +1,14 @@
-import { Check } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { Check, CloudOff } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
+import { EmptyState } from '@/components/patterns/EmptyState'
+import { LoadingState } from '@/components/patterns/LoadingState'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useConfirm } from '@/hooks/use-confirm'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
+import { linkPeopleToEmployees } from '@/modules/assessment/gestione5p/employees'
 import { InvioTab } from '@/modules/assessment/gestione5p/InvioTab'
 import { MetodoTab } from '@/modules/assessment/gestione5p/MetodoTab'
 import { openProject, saveProject } from '@/modules/assessment/gestione5p/files'
@@ -52,9 +55,11 @@ function stepStatus(s: State5p): Partial<Record<TabId, { text: string; done: boo
 // schede, Raccolta, Valori attesi, Risultati, Report persona, Metodo. Sta
 // nell'Area Valutazioni professionali. I dati restano nel browser, come nel
 // modello; il progetto si salva in un file e si riapre anche da un altro PC.
+// Con i dati sul server il 5P si salva lì (use5pState), e le sue persone sono i
+// dipendenti dell'anagrafica (gestione5p/employees.ts).
 export default function AssessmentGestioneValutazioniPage() {
-  const { toast } = useAssessment()
-  const { state, update, replace } = use5pState()
+  const { toast, ui, canEdit, state: assessment, setState: setAssessment } = useAssessment()
+  const { state, update, replace, status: loadStatus, error, retry } = use5pState()
   const [tab, setTab] = useState<TabId>(() => {
     try {
       const t = localStorage.getItem(TAB_KEY) as TabId | null
@@ -68,6 +73,20 @@ export default function AssessmentGestioneValutazioniPage() {
   const projRef = useRef<HTMLInputElement>(null)
   const say = (m: string) => toast(m, 'ok')
   const status = stepStatus(state)
+
+  // Le persone del piano diventano dipendenti: si collegano a quelli che ci
+  // sono già (email o nome) e chi manca si aggiunge all'elenco.
+  useEffect(() => {
+    if (loadStatus !== 'ready' || !canEdit) return
+    const r = linkPeopleToEmployees(state, assessment)
+    if (!r) return
+    if (r.added) {
+      setAssessment(() => r.assessment)
+      toast(ui.fivePPeopleAdded(r.added), 'ok')
+    }
+    update(() => r.s5)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadStatus, canEdit, state.people, assessment.employees])
 
   function go(t: TabId) {
     setTab(t)
@@ -84,6 +103,21 @@ export default function AssessmentGestioneValutazioniPage() {
       go('piano')
     }
   }
+
+  if (loadStatus === 'loading') return <LoadingState label={ui.serverLoading} rows={6} />
+  if (loadStatus === 'error')
+    return (
+      <EmptyState
+        icon={CloudOff}
+        title={ui.serverLoadFailedTitle}
+        description={ui.serverLoadFailed(error ?? ui.serverOffline)}
+        action={
+          <Button type="button" variant="outline" onClick={retry}>
+            {ui.serverRetry}
+          </Button>
+        }
+      />
+    )
 
   return (
     <div className="flex flex-col gap-4">

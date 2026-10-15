@@ -58,6 +58,9 @@ export const assessmentApi = {
   /** Invio del link al test: il testo con {{NOME}} e {{LINK}}, li riempie il server per ogni destinatario. */
   sendInvitations: (companyId: string, employeeIds: string[], subject: string, body: string) =>
     apiPost<{ results: { id: string; email: string; success: boolean; error?: string }[] }>(`${base(companyId)}/invitations`, { employeeIds, subject, body }),
+  /** Valutazione 5P: un documento per società con una versione; un salvataggio su una versione vecchia riceve 409. */
+  get5p: (companyId: string) => apiGet<{ state: Record<string, unknown> | null; version: number }>(`${base(companyId)}/valutazione-5p`),
+  put5p: (companyId: string, state: object, version: number) => apiPut<{ version: number }>(`${base(companyId)}/valutazione-5p`, { state, version }),
   // Pubbliche, senza accesso: il token è la credenziale.
   publicEvaluation: (token: string) => apiGetAnonymous<PublicEvaluation>(`/public/assessment-evaluations/${id(token)}`),
   submitPublicEvaluation: (token: string, scores: Record<string, number>, notes: Record<string, string>) =>

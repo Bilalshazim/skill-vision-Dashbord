@@ -32,10 +32,10 @@ Detailed technical version, in Italian: `PROGETTO-ASSESSMENT-SERVER.md` §8.
   the same way Recruiting does. Each person shows sent or failed, with the reason.
 - No email key is kept in the browser anymore. On Railway it uses Recruiting's existing email settings.
 
-### ⬜ Part 4: Valutazione 5P (about 1 hour)
+### ✅ Part 4: Valutazione 5P (done 15 October, tested on the local computer)
 - 5P saves to the backend and uses the same employees as the employee list.
-- **Needs one answer:** names from the Excel file that aren't in the employee list
-  get added as new employees?
+- If a colleague saved 5P in the meantime, their work is kept and you get a clear message.
+- Names from the Excel file that aren't in the employee list are added to it (your answer, 15 October).
 
 ### ⬜ Part 5: Check everything (1–2 hours)
 - Test every Assessment screen, in light and dark mode.
@@ -43,7 +43,7 @@ Detailed technical version, in Italian: `PROGETTO-ASSESSMENT-SERVER.md` §8.
 ### ⬜ Part 6: Go live (when you decide)
 - Push to Railway. Each company clicks "Import data" once.
 
-**Total remaining: about 2–3 hours, plus going live.**
+**Total remaining: about 1–2 hours (checking everything), plus going live.**
 
 ---
 

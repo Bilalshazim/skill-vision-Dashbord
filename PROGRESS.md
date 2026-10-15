@@ -138,11 +138,33 @@ link test in Assessment, holding → società. Piano di esecuzione al §8
 - [x] Passo 3 / Parte 1: schermate sul backend, import, assenze, RAL (2026-10-15)
 - [x] Parte 2: valutatore esterno sul token del server (2026-10-15)
 - [x] Parte 3: invio link test dal server (2026-10-15)
-- [ ] Parte 4: 5P sul server (una risposta aperta)
+- [x] Parte 4: 5P sul server, persone = dipendenti (2026-10-15)
 - [ ] Parte 5: verifica di tutte le schermate, chiaro e scuro
 - [ ] Parte 6: Railway
 
 ## Registro
+
+## 2026-10-15 — Assessment sul server: Parte 4, Valutazione 5P
+- [x] Risposta di Roberto: chi è nell'Excel e non in anagrafica **si aggiunge**
+      all'elenco dei dipendenti (DECISIONI).
+- [x] `use5pState`: in `server` il 5P è il documento con versione già previsto
+      dal backend (`GET/PUT …/valutazione-5p`). Salvataggio 600 ms dopo l'ultima
+      modifica, uno alla volta; 409 → messaggio e versione del collega; senza
+      documento si parte vuoti (dati di esempio solo in demo) e non si salva
+      finché non si modifica. `local` invariato.
+- [x] Persone = dipendenti: `gestione5p/employees.ts` collega ogni persona al
+      dipendente (email, poi nome, prima chi è in organico) con `empId`; chi
+      manca si crea con `lib/new-employee.ts`, lo stesso di "Aggiungi
+      dipendente" (che ora lo usa). Mai con i dati di esempio del 5P.
+- [x] "Importa dati del browser" porta anche il 5P del browser, solo se sul
+      server non ce n'è già uno.
+- [x] Verificato nel browser: 3 persone → Bianchi collegato per nome, Colombo
+      per email, Verdi aggiunto (23 → 24 dipendenti, messaggio); ricaricando
+      nessun doppione; una modifica = un salvataggio; salvataggio di un collega
+      nel frattempo → la sua versione resta, messaggio chiaro. `tsc` pulito.
+- [ ] Non verificato: l'import di un vero file Excel del piano (il
+      collegamento parte da qualunque modifica delle persone, quindi anche da lì).
+- Backend non toccato in questa parte.
 
 ## 2026-10-15 — Assessment sul server: Parte 3, invio del link al test dal server
 - [x] Backend: `POST /assessment/companies/:id/invitations` ({ employeeIds,

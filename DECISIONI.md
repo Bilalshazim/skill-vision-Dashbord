@@ -1588,3 +1588,22 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
 - Presa: la colonna diventa facoltativa (migrazione additiva). Il vincolo resta
   `Restrict`, come prima, perché il valore predefinito di Prisma per un campo
   facoltativo (`SET NULL`) avrebbe cambiato il comportamento di Recruiting.
+
+## 5P: nomi dell'Excel che non sono in anagrafica · 2026-10-15
+- Domanda aperta della Parte 4 (le persone del 5P sono i dipendenti,
+  decisione 2 del 2026-10-14): una persona del file Excel che non c'è
+  nell'elenco dei dipendenti si aggiunge o si salta?
+- Presa (Roberto, 2026-10-15): **si aggiunge** all'elenco dei dipendenti.
+
+## 5P sul server: come si salva e come si collega l'anagrafica · 2026-10-15
+- Salvataggio: documento intero con versione (già nello schema), 600 ms dopo
+  l'ultima modifica perché i campi salvano a ogni tasto. In caso di conflitto
+  vince chi ha salvato prima: l'altro vede la sua versione e un messaggio.
+  Più semplice di un salvataggio per parti, e il 5P lo usa di solito una
+  persona alla volta.
+- Collegamento: ogni persona ha `empId`. Si cerca per email, poi per nome
+  (cognome e nome in qualunque ordine, senza accenti), prima fra i dipendenti
+  in organico e poi fra gli archiviati, così un nome che torna non crea un
+  doppione. Chi manca si aggiunge con area = gruppo e mansione = mansione del
+  piano. Vale anche con i dati nel browser: la decisione è sulle persone, non
+  su dove stanno i dati.

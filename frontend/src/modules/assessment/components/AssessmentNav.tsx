@@ -22,6 +22,7 @@ import { isDemoMode } from '@/lib/demo-mode'
 import { MethodologyModal } from '@/modules/assessment/components/MethodologyModal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { generateDemoData } from '@/modules/assessment/lib/demo-data'
+import { loadState as load5pState } from '@/modules/assessment/gestione5p/model'
 import { getNavConfig } from '@/modules/assessment/lib/legacy-utils'
 import { errorReason } from '@/modules/assessment/lib/server-sync'
 import { readStoredAssessmentState } from '@/modules/assessment/lib/storage'
@@ -111,23 +112,33 @@ export function AssessmentNav() {
   // Sul server, una volta per società: i dati che finora stavano in questo
   // browser vanno sul server (decisione 4 del 2026-10-14). Prima una prova
   // che non salva niente e dice cosa entrerà, poi la conferma.
-  const browserData = useMemo(() => (storage === 'server' && isAdmin && company ? readStoredAssessmentState() : null), [storage, isAdmin, company])
+  // Il 5P del browser (sv5p_state_v1) si porta solo se è un progetto vero, non i dati di esempio.
+  const readLocal5p = () => {
+    const s = load5pState()
+    return s && !s.demo && s.people.length ? s : null
+  }
+  const browserData = useMemo(() => (storage === 'server' && isAdmin && company ? readStoredAssessmentState() || readLocal5p() : null), [storage, isAdmin, company])
   async function importBrowserData() {
     if (!company) return
     const local = readStoredAssessmentState()
-    if (!local) {
+    const local5p = readLocal5p()
+    if (!local && !local5p) {
       toast(ui.importNothing)
       return
     }
     setBusy(true)
     try {
-      const preview = await assessmentApi.importState(company.id, local, true)
+      const preview = local ? await assessmentApi.importState(company.id, local, true) : null
       setBusy(false)
-      if (!(await confirm({ title: ui.importConfirmTitle, description: ui.importConfirmBody(preview, company.name), confirmLabel: ui.importConfirmBtn, cancelLabel: ui.confirmCancel }))) return
+      const description = ((preview ? ui.importConfirmBody(preview, company.name) : '') + (local5p ? ui.importConfirm5p : '')).trim()
+      if (!(await confirm({ title: ui.importConfirmTitle, description, confirmLabel: ui.importConfirmBtn, cancelLabel: ui.confirmCancel }))) return
       setBusy(true)
-      const done = await assessmentApi.importState(company.id, local, false)
+      const done = local ? await assessmentApi.importState(company.id, local, false) : null
+      // Il 5P va sul server solo se lì non ce n'è ancora uno: non si sovrascrive il lavoro di un collega.
+      if (local5p && (await assessmentApi.get5p(company.id)).version === 0) await assessmentApi.put5p(company.id, local5p, 0)
       await queryClient.invalidateQueries({ queryKey: ['assessment', 'state', company.id] })
-      toast(ui.importDone(done.employees), 'ok')
+      await queryClient.invalidateQueries({ queryKey: ['assessment', '5p', company.id] })
+      toast(ui.importDone(done?.employees ?? 0), 'ok')
     } catch (err) {
       toast(ui.importFailed(errorReason(err, ui.serverOffline)), 'err')
     } finally {

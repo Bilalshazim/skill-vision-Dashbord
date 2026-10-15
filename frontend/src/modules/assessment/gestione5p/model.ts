@@ -10,7 +10,18 @@ import { ITEMS_5P } from '@/modules/assessment/gestione5p/items'
 // La logica sta qui, pura, senza React. Lo stato resta nel browser.
 
 export type SourceKey = 'DIR' | 'PEER' | 'AUTO'
-export type Person = { id: string; cog: string; nom: string; email: string; gruppo: string; mans: string; roles: { dir: boolean; peer: boolean }; auto: boolean }
+export type Person = {
+  id: string
+  cog: string
+  nom: string
+  email: string
+  gruppo: string
+  mans: string
+  roles: { dir: boolean; peer: boolean }
+  auto: boolean
+  /** Il dipendente dell'anagrafica di Assessment (decisione 2 del 2026-10-14: le persone del 5P sono i dipendenti). */
+  empId?: string
+}
 export type PlanItem = { valutatore: string; tipo: SourceKey; valutato: string }
 export type Eval5p = {
   id: string
