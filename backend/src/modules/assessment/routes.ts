@@ -6,7 +6,8 @@ import { z } from 'zod'
 
 import { audit } from '../../lib/audit.js'
 import { env } from '../../lib/env.js'
-import { ConflictError, ForbiddenError, NotFoundError } from '../../lib/errors.js'
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from '../../lib/errors.js'
+import { sendMail, smtpConfigured } from '../../lib/mailer.js'
 import { prisma } from '../../lib/prisma.js'
 import { requireAuth, requireCompanyScope, requireRole } from '../../middleware/auth.js'
 import { validateBody } from '../../middleware/validate.js'
@@ -275,6 +276,75 @@ assessmentRouter.put('/companies/:companyId/valutazione-5p', requireRole(...WRIT
     })
     await log(req, 'assessment.valutazione5p.saved', 'Valutazione5p', saved.id, { version: saved.version })
     res.json({ version: saved.version })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ---------- invio del link al test (Parte 3) ----------
+
+// Un solo meccanismo per i due moduli (deciso dal cliente il 2026-09-30):
+// l'HR spunta i dipendenti e il server manda l'email, come in Recruiting
+// (lib/mailer.ts, un TestInvitation per persona). Il testo lo compone il
+// browser come prima (lettera + corpo, con {{NOME}} e {{LINK}}); il server
+// sceglie i destinatari, mette il link delle impostazioni e risponde al
+// mittente scelto (referente o amministratore). Nessuna chiave email nel browser.
+const invitationsSchema = z.object({
+  employeeIds: z.array(clientIdSchema).min(1).max(500),
+  subject: z.string().trim().min(1).max(300),
+  body: z.string().trim().min(1).max(20_000),
+})
+const EMAIL = z.string().email()
+
+type InviteResult = { id: string; email: string; success: boolean; error?: string }
+
+assessmentRouter.post('/companies/:companyId/invitations', requireRole(...WRITE_ROLES), validateBody(invitationsSchema), async (req, res, next) => {
+  try {
+    const company = await companyFor(req)
+    const { employeeIds, subject, body } = req.body as z.infer<typeof invitationsSchema>
+    const [settings, profile] = await Promise.all([
+      prisma.assessmentSettings.findUnique({ where: { companyId: company.id } }),
+      prisma.assessmentCompanyProfile.findUnique({ where: { companyId: company.id } }),
+    ])
+    const link = settings?.surveyLink.trim() ?? ''
+    if (!link) throw new BadRequestError('Manca il link al questionario: inseriscilo prima di inviare')
+    const referente = (profile?.referente ?? {}) as { email?: string }
+    const replyTo = (settings?.surveySenderMode === 'ADMIN' ? settings.adminSenderEmail : referente.email ?? '').trim()
+    if (!EMAIL.safeParse(replyTo).success) throw new BadRequestError('Manca l’email del mittente: impostala prima di inviare')
+
+    const employees = await prisma.employee.findMany({ where: { companyId: company.id, clientId: { in: employeeIds }, archivedAt: null } })
+    const byClientId = new Map(employees.map((e) => [e.clientId, e]))
+    const results: InviteResult[] = []
+    for (const id of new Set(employeeIds)) {
+      const emp = byClientId.get(id)
+      const email = emp?.email?.trim() ?? ''
+      if (!emp) {
+        results.push({ id, email: '', success: false, error: 'Dipendente non trovato o archiviato' })
+        continue
+      }
+      if (!EMAIL.safeParse(email).success) {
+        results.push({ id, email, success: false, error: 'Email del dipendente mancante o non valida' })
+        continue
+      }
+      const fill = (t: string) => t.replace(/\{\{NOME\}\}/g, `${emp.nome} ${emp.cognome}`).replace(/\{\{LINK\}\}/g, link)
+      // Prima la riga, poi l'invio fuori da ogni transazione, poi l'esito vero (come Recruiting).
+      const invitation = await prisma.testInvitation.create({ data: { employeeId: emp.id, testLink: link, sentStatus: 'PENDING', createdById: req.auth!.sub } })
+      const sent = await sendMail({ to: email, subject: fill(subject), text: fill(body), replyTo })
+      if (sent.ok) {
+        const now = new Date()
+        await prisma.$transaction([
+          prisma.testInvitation.update({ where: { id: invitation.id }, data: { sentStatus: 'SENT', sentAt: now, provider: 'smtp', providerMessageId: sent.messageId } }),
+          prisma.employee.update({ where: { id: emp.id }, data: { surveySentAt: now } }),
+        ])
+        results.push({ id, email, success: true })
+      } else {
+        await prisma.testInvitation.update({ where: { id: invitation.id }, data: { sentStatus: 'FAILED', failureReason: sent.reason, provider: smtpConfigured ? 'smtp' : 'smtp (not configured)' } })
+        results.push({ id, email, success: false, error: sent.reason })
+      }
+    }
+    const ok = results.filter((r) => r.success).length
+    await log(req, 'assessment.invitations.sent', 'Company', company.id, { requested: employeeIds.length, sent: ok, failed: results.length - ok })
+    res.json({ results })
   } catch (err) {
     next(err)
   }

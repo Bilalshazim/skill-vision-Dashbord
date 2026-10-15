@@ -243,6 +243,48 @@ describe('Assessment sul server', () => {
     })
   })
 
+  describe('invio del link al test (Parte 3)', () => {
+    const send = (token: string, companyId: string, employeeIds: string[]) =>
+      api.post(`${base(companyId)}/invitations`).set(authHeader(token)).send({ employeeIds, subject: 'Questionario per {{NOME}}', body: 'Ciao {{NOME}}, ecco il link: {{LINK}}' })
+    const settings = { modulo: 'AB', surveyLink: 'https://questionario.test.local/abc', surveySenderMode: 'admin', adminSenderEmail: 'hr@test.local' }
+
+    beforeEach(async () => {
+      await putEmployee(admin, fx.company.id, legacyEmployee)
+      await putEmployee(admin, fx.company.id, { ...legacyEmployee, id: 'emp_noemail', email: '' })
+      await putEmployee(admin, fx.company.id, { ...legacyEmployee, id: 'emp_archived', email: 'old@test.local', archived: { reason: 'pensione', note: '', date: '2026-01-01' } })
+    })
+
+    it('invia solo ai selezionati con email, registra l’invito e la data', async () => {
+      await api.put(`${base(fx.company.id)}/settings`).set(authHeader(admin)).send(settings)
+      const res = await send(recruiter, fx.company.id, [legacyEmployee.id, 'emp_noemail', 'emp_archived'])
+      expect(res.status).toBe(200)
+      expect(res.body.results).toEqual([
+        { id: legacyEmployee.id, email: legacyEmployee.email, success: true },
+        { id: 'emp_noemail', email: '', success: false, error: 'Email del dipendente mancante o non valida' },
+        { id: 'emp_archived', email: '', success: false, error: 'Dipendente non trovato o archiviato' },
+      ])
+      const invitations = await prisma.testInvitation.findMany({ include: { employee: true } })
+      expect(invitations).toHaveLength(1)
+      expect(invitations[0]).toMatchObject({ sentStatus: 'SENT', testLink: settings.surveyLink, shortlistId: null, senderConfigId: null })
+      expect(invitations[0].employee?.clientId).toBe(legacyEmployee.id)
+      const state = await api.get(`${base(fx.company.id)}/state`).set(authHeader(admin))
+      expect(state.body.employees.find((e: { id: string }) => e.id === legacyEmployee.id).surveySentAt).not.toBe(legacyEmployee.surveySentAt)
+    })
+
+    it('senza link o senza mittente non parte niente', async () => {
+      expect((await send(admin, fx.company.id, [legacyEmployee.id])).status).toBe(400)
+      await api.put(`${base(fx.company.id)}/settings`).set(authHeader(admin)).send({ ...settings, adminSenderEmail: '' })
+      expect((await send(admin, fx.company.id, [legacyEmployee.id])).status).toBe(400)
+      expect(await prisma.testInvitation.count()).toBe(0)
+    })
+
+    it('un utente di un’altra società non invia ai dipendenti di questa', async () => {
+      await api.put(`${base(fx.company.id)}/settings`).set(authHeader(admin)).send(settings)
+      expect((await send(other, fx.company.id, [legacyEmployee.id])).status).toBe(403)
+      expect(await prisma.testInvitation.count()).toBe(0)
+    })
+  })
+
   it('profili di mansione: pesi assenti restano assenti, non {}', async () => {
     await api.put(`${base(fx.company.id)}/role-profiles/${encodeURIComponent('Account manager')}`).set(authHeader(admin)).send({ requiredSkills: ['ma1', 'so2'] })
     await api.put(`${base(fx.company.id)}/role-profiles/Buyer`).set(authHeader(admin)).send({ requiredSkills: ['ma6'], skillWeights: { ma6: 3 }, skillExpected: { ma6: 8 } })

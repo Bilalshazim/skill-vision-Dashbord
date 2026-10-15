@@ -12,8 +12,11 @@ import { Hint } from '@/components/patterns/Hint'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ModalDialog } from '@/components/patterns/ModalDialog'
+import { SendTestLinkBar } from '@/components/patterns/SendTestLinkBar'
+import { assessmentApi } from '@/lib/api/assessment'
 import { COLLABORATOR_LETTER_TEMPLATE } from '@/modules/assessment/lib/demo-data'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
+import { errorReason } from '@/modules/assessment/lib/server-sync'
 import type { AssessmentState, Employee } from '@/modules/assessment/lib/types'
 
 function resolveSurveySender(state: AssessmentState, ui: Record<string, unknown>) {
@@ -55,8 +58,15 @@ type SendResult = { id: string; email: string; success: boolean; error?: string 
 // optional bearer token), falling back to a real per-recipient mailto:
 // compose when no endpoint is configured. NEVER claims success without a
 // real 2xx response, exactly like legacy — no fake "sent" state.
+//
+// Con i dati sul server (Parte 3) l'invio lo fa il server, come in Recruiting:
+// "Invia link test (N)" con la conferma (SendTestLinkBar), nessuna chiave
+// email nel browser. Il testo resta quello di qui (lettera + corpo), con
+// {{NOME}} e {{LINK}} che il server riempie per ogni persona. Il mailto resta
+// come ripiego.
 export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
-  const { state, setState, ui, canEdit, toast } = useAssessment()
+  const { state, setState, ui, canEdit, toast, storage, company, retry } = useAssessment()
+  const onServer = storage === 'server'
   const uiRec = ui as unknown as Record<string, unknown>
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [sending, setSending] = useState(false)
@@ -126,6 +136,30 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
       return { id: e.id, nome: e.nome, cognome: e.cognome, name, email: e.email.trim(), subject, body }
     })
     return { link, sender, recipients }
+  }
+
+  async function submitServerSend() {
+    if (!canEdit || !company) return
+    const prepared = prepareRecipients()
+    if (!prepared) return
+    const { recipients } = prepared
+    // Il testo con i segnaposto: nome e link li mette il server.
+    const template = fillSurveyEmailTemplate(state, uiRec, '{{NOME}}', '{{LINK}}')
+    setSending(true)
+    toast(ui.toastSurveySending(recipients.length), 'ok')
+    try {
+      const { results: sent } = await assessmentApi.sendInvitations(company.id, recipients.map((r) => r.id), template.subject, template.body)
+      const okCount = sent.filter((r) => r.success).length
+      if (okCount === 0) toast(ui.toastSurveySendAllFailed, 'err')
+      else if (okCount === sent.length) toast(ui.toastSurveySendAllOk(okCount), 'ok')
+      setResults({ recipients, results: sent })
+      // La data dell'invio la scrive il server: si rileggono i dati.
+      retry()
+    } catch (err) {
+      toast(ui.toastSurveyApiError(errorReason(err, ui.serverOffline)), 'err')
+    } finally {
+      setSending(false)
+    }
   }
 
   async function submitSend() {
@@ -306,21 +340,30 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="flex justify-end items-center gap-3 mt-4 flex-wrap">
-        {!apiConfigured && (
+        {!onServer && !apiConfigured && (
           <InlineAlert tone="warning" layout="text">
             {ui.toastSurveyApiNotConfigured}
           </InlineAlert>
         )}
-        {!apiConfigured && (
+        {(onServer || !apiConfigured) && (
           <Hint label={ui.surveyMailtoFallbackHint}>
             <Button variant="outline" size="sm" onClick={mailtoFallback}>
               {ui.surveyMailtoFallbackBtn}
             </Button>
           </Hint>
         )}
-        <Button variant="default" disabled={sending} onClick={submitSend}>
-          {sending ? ui.toastSurveySending(selected.size) : ui.surveyInviaBtn}
-        </Button>
+        {onServer ? (
+          <SendTestLinkBar
+            selectedNames={employees.filter((e) => selected.has(e.id)).map((e) => `${e.nome} ${e.cognome}`)}
+            onSend={submitServerSend}
+            onClear={() => toggleAll(false)}
+            sending={sending}
+          />
+        ) : (
+          <Button variant="default" disabled={sending} onClick={submitSend}>
+            {sending ? ui.toastSurveySending(selected.size) : ui.surveyInviaBtn}
+          </Button>
+        )}
       </div>
     </ModalDialog>
   )

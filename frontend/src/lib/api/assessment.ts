@@ -55,6 +55,9 @@ export const assessmentApi = {
   putInterview: (companyId: string, data: ExiData) => apiPut<void>(`${base(companyId)}/interview`, data),
   importState: (companyId: string, state: AssessmentState, dryRun: boolean) => apiPost<AssessmentImportReport>(`${base(companyId)}/import`, { state, dryRun }),
   resetDemo: (companyId: string) => apiPost<void>(`${base(companyId)}/reset`),
+  /** Invio del link al test: il testo con {{NOME}} e {{LINK}}, li riempie il server per ogni destinatario. */
+  sendInvitations: (companyId: string, employeeIds: string[], subject: string, body: string) =>
+    apiPost<{ results: { id: string; email: string; success: boolean; error?: string }[] }>(`${base(companyId)}/invitations`, { employeeIds, subject, body }),
   // Pubbliche, senza accesso: il token è la credenziale.
   publicEvaluation: (token: string) => apiGetAnonymous<PublicEvaluation>(`/public/assessment-evaluations/${id(token)}`),
   submitPublicEvaluation: (token: string, scores: Record<string, number>, notes: Record<string, string>) =>

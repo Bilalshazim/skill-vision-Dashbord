@@ -27,9 +27,10 @@ Detailed technical version, in Italian: `PROGETTO-ASSESSMENT-SERVER.md` §8.
 - The link sent to an outside evaluator works on any computer, not only the HR person's.
 - The link closes once the evaluation is sent; HR sees it as completed.
 
-### ⬜ Part 3: Sending test links (about 1 hour)
+### ✅ Part 3: Sending test links (done 15 October, tested on the local computer)
 - HR ticks employees and clicks "Invia link test", and the backend sends the emails,
-  the same way Recruiting does.
+  the same way Recruiting does. Each person shows sent or failed, with the reason.
+- No email key is kept in the browser anymore. On Railway it uses Recruiting's existing email settings.
 
 ### ⬜ Part 4: Valutazione 5P (about 1 hour)
 - 5P saves to the backend and uses the same employees as the employee list.
@@ -42,7 +43,7 @@ Detailed technical version, in Italian: `PROGETTO-ASSESSMENT-SERVER.md` §8.
 ### ⬜ Part 6: Go live (when you decide)
 - Push to Railway. Each company clicks "Import data" once.
 
-**Total remaining: about 3–4 hours, plus going live.**
+**Total remaining: about 2–3 hours, plus going live.**
 
 ---
 

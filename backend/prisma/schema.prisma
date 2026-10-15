@@ -518,8 +518,10 @@ model TestInvitation {
   testLink          String
   messageTemplateId String?
   messageTemplate   EmailTemplate? @relation(fields: [messageTemplateId], references: [id])
-  senderConfigId    String
-  senderConfig      SenderConfig   @relation(fields: [senderConfigId], references: [id])
+  // Recruiting: la configurazione mittente della società. Assessment non ne ha
+  // una: il mittente è il referente o l'amministratore delle sue impostazioni.
+  senderConfigId    String?
+  senderConfig      SenderConfig?  @relation(fields: [senderConfigId], references: [id], onDelete: Restrict)
   sentStatus        SentStatus     @default(PENDING)
   sentAt            DateTime?
   failureReason     String?

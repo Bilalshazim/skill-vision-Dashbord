@@ -137,12 +137,39 @@ link test in Assessment, holding → società. Piano di esecuzione al §8
 - [x] Passi 1–2: schema, migrazione, API (2026-10-14)
 - [x] Passo 3 / Parte 1: schermate sul backend, import, assenze, RAL (2026-10-15)
 - [x] Parte 2: valutatore esterno sul token del server (2026-10-15)
-- [ ] Parte 3: invio link test dal server
+- [x] Parte 3: invio link test dal server (2026-10-15)
 - [ ] Parte 4: 5P sul server (una risposta aperta)
 - [ ] Parte 5: verifica di tutte le schermate, chiaro e scuro
 - [ ] Parte 6: Railway
 
 ## Registro
+
+## 2026-10-15 — Assessment sul server: Parte 3, invio del link al test dal server
+- [x] Backend: `POST /assessment/companies/:id/invitations` ({ employeeIds,
+      subject, body }). Il server sceglie i destinatari (solo dipendenti attivi
+      della società, con email valida), mette il link delle impostazioni,
+      risponde al mittente scelto (referente o amministratore), un
+      `TestInvitation` per persona (PENDING → SENT/FAILED, come Recruiting) e
+      `surveySentAt` solo sugli inviati. Esito per persona, mai un successo finto.
+- [x] Migrazione `20261015120000_assessment_invitations`: `senderConfigId` di
+      `TestInvitation` facoltativo (Assessment non ha una configurazione
+      mittente di Recruiting). Vincolo `Restrict` invariato: per Recruiting
+      non cambia niente. Applicata al database locale e a quello dei test.
+- [x] Frontend: in modalità `server` la finestra "Invia link del
+      questionario" usa `SendTestLinkBar` ("Invia link test (N)" + conferma
+      con i nomi); il testo resta lettera + corpo, con {{NOME}} e {{LINK}}
+      riempiti dal server. Nessuna chiave email nel browser; il mailto resta
+      come ripiego. In `local` tutto come prima.
+- [x] Test: 3 nuovi; `assessment.test.ts` 28/28, `shortlist`,
+      `mailer-not-configured`, `protected-routes` verdi.
+- [x] Verificato nel browser: selezione di 2 persone, conferma, chiamata al
+      server, esito per persona. In locale non c'è `RESEND_API_KEY`, quindi
+      l'esito è "fallita" con il motivo: nessuna email partita. L'invio
+      riuscito è coperto dai test.
+- [ ] Il motivo di un errore del servizio email arriva in inglese dal mailer
+      (`lib/mailer.ts`, lo stesso di Recruiting). Non toccato.
+- [ ] Su Railway: l'invio funziona solo con `RESEND_API_KEY` e `MAIL_FROM`
+      già usati da Recruiting.
 
 ## 2026-10-15 — Assessment sul server: Parte 2, il link del valutatore esterno
 - [x] Backend: `modules/publicAssessment` su `/api/v1/public/assessment-evaluations/:token`,

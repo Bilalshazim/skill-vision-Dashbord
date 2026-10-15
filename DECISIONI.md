@@ -1568,3 +1568,23 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
 - Raccomandazione: (c) ora; (b) se due HR della stessa società lavorano
   davvero in contemporanea.
 - Presa: **(c)**.
+
+## Invio del link al test di Assessment: chi compone l'email · 2026-10-15
+- Opzioni: (a) il server compone tutto il testo (lettera predefinita compresa);
+  (b) il browser manda il testo con i segnaposto {{NOME}} e {{LINK}}, il server
+  sceglie destinatari, link e mittente e riempie i segnaposto.
+- Cosa cambia: (a) duplica sul server la lettera predefinita
+  (`COLLABORATOR_LETTER_TEMPLATE`) e la sua logica; (b) lascia il testo in un
+  posto solo, quello che l'HR vede già nell'anteprima. In (b) l'utente sceglie
+  il testo, ma solo verso i dipendenti attivi della sua società e con il link
+  salvato nelle impostazioni: è lo stesso potere che ha già modificando le
+  impostazioni.
+- Raccomandazione e presa: **(b)**.
+
+## `TestInvitation.senderConfigId` facoltativo · 2026-10-15
+- Assessment non ha una `SenderConfig` di Recruiting: il mittente è il
+  referente o l'amministratore delle sue impostazioni. Crearne una apposta la
+  farebbe comparire nella configurazione email di Recruiting.
+- Presa: la colonna diventa facoltativa (migrazione additiva). Il vincolo resta
+  `Restrict`, come prima, perché il valore predefinito di Prisma per un campo
+  facoltativo (`SET NULL`) avrebbe cambiato il comportamento di Recruiting.
