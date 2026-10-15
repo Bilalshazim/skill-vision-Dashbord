@@ -144,6 +144,22 @@ link test in Assessment, holding → società. Piano di esecuzione al §8
 
 ## Registro
 
+## 2026-10-15 — Assessment sul server: Parte 6, in produzione (codice)
+- [x] `assessment-server` unito a `main` (fast-forward) e inviato su GitHub. Verificato in produzione: backend nuovo attivo in ~80 s (le rotte di Assessment rispondono 401 senza accesso, /health 200), frontend nuovo servito
+      (`1a458a8..c911c3e`). Railway ricostruisce dai push su `main`; il backend
+      applica le due migrazioni nuove prima di partire (`preDeployCommand`).
+- [x] Ordine scelto: prima il codice, poi la variabile. Senza
+      `VITE_ASSESSMENT_STORAGE` il frontend resta su `local`, quindi per gli
+      utenti non cambia niente finché la variabile non si mette.
+- [ ] **Da fare sul pannello di Railway** (su questo computer non c'è la CLI
+      né l'accesso): `VITE_ASSESSMENT_STORAGE=server` sul servizio
+      "Skill Vision" e nuovo deploy. Facoltativo: `ASSESSMENT_DEMO_COMPANY_IDS`
+      sul Backend per il "Reset demo" della società demo.
+- [ ] Poi: un amministratore per società usa "Importa dati del browser".
+- Nota: `.railway/railway.ts` non è allineato a Railway (non elenca
+      `VITE_AUTH_MODE`, che in produzione c'è): non usarlo con `config apply`
+      senza prima un `config pull`.
+
 ## 2026-10-15 — Assessment sul server: Parte 5, verifica
 - [x] Giro automatico in modalità `server`, come COMPANY_ADMIN: 16 schermate
       di Assessment × chiaro e scuro = 32 controlli, tutti a posto. Ogni
