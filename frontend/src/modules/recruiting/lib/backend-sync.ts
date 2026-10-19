@@ -649,8 +649,17 @@ export async function loadJobProfileFromBackend(openingId: string): Promise<Load
 export type SaveJobProfileResult = { ok: true; profileId: string } | { ok: false; reason: 'no-link' | 'error'; message?: string }
 
 export async function saveJobProfileToBackend(openingId: string, jdState: JdState): Promise<SaveJobProfileResult> {
-  const link = getCachedBackendLink(openingId)
-  if (!link) return { ok: false, reason: 'no-link' }
+  // Salvare la scheda collega la posizione al server (come fa il primo CV):
+  // senza, la scheda restava solo nel browser e "Conferma" e il link
+  // dell'annuncio non comparivano finché non si caricava un CV.
+  let link = getCachedBackendLink(openingId)
+  if (!link) {
+    const { company, opening } = getActiveOpening(readCvMatchingState())
+    if (!company || !opening || opening.id !== openingId) return { ok: false, reason: 'no-link' }
+    const resolved = await resolveBackendLink(company.name, opening.id, opening.title)
+    if (!resolved.ok) return { ok: false, reason: 'error', message: resolved.message }
+    link = { companyId: resolved.companyId, campaignId: resolved.campaignId }
+  }
   try {
     const profile = await jobProfilesApi.save(link.campaignId, jdStateToBackendPayload(jdState))
     return { ok: true, profileId: profile.id }

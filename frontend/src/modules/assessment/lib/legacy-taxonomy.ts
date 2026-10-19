@@ -57,7 +57,7 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
   { type:'link', id:'company', label:'Company Data', icon:'users', requires:null },
   { type:'group', groupId:'valutazioni', label:'Evaluation Area', icon:'soft', items:[
     { id:'soft', label:'Soft Skill Evaluations', requires:'A' },
-    { id:'gestione-valutazioni', label:'Hard Skill Evaluations', requires:'B' },
+    { id:'gestione-valutazioni', label:'Professional Evaluations', requires:'B' },
   ] },
   { type:'link', id:'anagrafica', label:'Employee Directory', icon:'users', requires:null },
   { type:'group', groupId:'risultati', label:'Results Area', icon:'value', items:[
@@ -80,7 +80,7 @@ export const NAV_CONFIG_IT: NavConfigEntry[] = [
   { type:'link', id:'company', label:'Dati Aziendali', icon:'users', requires:null },
   { type:'group', groupId:'valutazioni', label:'Area Valutazioni', icon:'soft', items:[
     { id:'soft', label:'Valutazioni Soft Skill', requires:'A' },
-    { id:'gestione-valutazioni', label:'Valutazioni Hard Skill', requires:'B' },
+    { id:'gestione-valutazioni', label:'Valutazioni Professionali', requires:'B' },
   ] },
   { type:'link', id:'anagrafica', label:'Anagrafica', icon:'users', requires:null },
   { type:'group', groupId:'risultati', label:'Area Risultati', icon:'value', items:[
@@ -345,11 +345,11 @@ export const PAGE_META_TEXT_EN: Record<string, { title: string; sub: string }> =
   anagrafica: { title: 'Employee Directory', sub: 'Employee list, roles, duties, and role requirements' },
   analisi: { title: 'Interview', sub: 'Executive Human Capital Interview — Leadership perception before the objective Assessment' },
   soft: { title: 'Cross-Functional Evaluation Area', sub: 'Soft Skills & Big Five — data entry' },
-  'gestione-valutazioni': { title: 'Hard Skill Evaluations', sub: '5P multi-source evaluation: Manager, Peer, Self-assessment' },
+  'gestione-valutazioni': { title: 'Professional Evaluations', sub: '5P multi-source evaluation: Manager, Peer, Self-assessment' },
   hard: { title: 'Professional Evaluation Area', sub: 'Multi-source APEX 5D Protocol — data entry' },
   'soft-risultati': { title: 'Cross-Functional Evaluation Results', sub: 'Soft Skills & Big Five — reporting' },
   'hard-risultati': { title: 'Professional Evaluation Results', sub: 'Multi-source APEX 5D Protocol — reporting' },
-  valore: { title: 'Overall Individual Value', sub: 'Integration of Soft Skills + Hard Skills' },
+  valore: { title: 'Overall Individual Value', sub: 'Integration of Soft Skills + Professional Competencies' },
   'cambio-ruolo': { title: 'Role Change and Transfers', sub: 'Who can replace a person leaving a role, before looking outside' },
   customercare: { title: 'Customer Care Logic', sub: 'Customer Care competency management and analysis' },
   feedback: { title: 'Development Plans', sub: 'Individual debrief and growth actions' },
@@ -363,7 +363,7 @@ export const PAGE_META_TEXT_IT: Record<string, { title: string; sub: string }> =
   anagrafica: { title: 'Anagrafica Risorse', sub: 'Elenco dipendenti, mansioni, attività e requisiti di mansione' },
   analisi: { title: 'Intervista', sub: 'Intervista alla Direzione sul capitale umano — la percezione della Direzione prima della misurazione oggettiva' },
   soft: { title: 'Area Valutazioni Trasversali', sub: 'Competenze trasversali e Big Five — inserimento dati' },
-  'gestione-valutazioni': { title: 'Valutazioni Hard Skill', sub: 'Valutazione 5P multi-fonte: dirigente, colleghi, autovalutazione' },
+  'gestione-valutazioni': { title: 'Valutazioni Professionali', sub: 'Valutazione 5P multi-fonte: dirigente, colleghi, autovalutazione' },
   hard: { title: 'Area Valutazioni Professionali', sub: 'Protocollo APEX 5D a più fonti — inserimento dati' },
   'soft-risultati': { title: 'Risultati Valutazioni Trasversali', sub: 'Competenze trasversali e Big Five — reportistica' },
   'hard-risultati': { title: 'Risultati Valutazioni Professionali', sub: 'Protocollo APEX 5D a più fonti — reportistica' },

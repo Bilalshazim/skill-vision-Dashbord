@@ -1,14 +1,16 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
-import { AlertTriangle, CheckCircle2, Copy, FileText, Pencil, Save } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, FileText, Pencil, Save } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 
 import { useConfirm } from '@/hooks/use-confirm'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
+import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { JobPostingLink } from '@/modules/recruiting/components/JobPostingLink'
 import { jobProfilesApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
-import { buildJdStateFromPreset, buildSoftSkillItems, loadJdTemplate, publicJobPostingUrl, saveJdTemplate } from '@/modules/recruiting/lib/jd'
+import { buildJdStateFromPreset, buildSoftSkillItems, loadJdTemplate, saveJdTemplate } from '@/modules/recruiting/lib/jd'
 import { loadJobProfileFromBackend, saveJobProfileToBackend } from '@/modules/recruiting/lib/backend-sync'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
@@ -20,7 +22,6 @@ import { JdHeaderFields } from '@/modules/recruiting/job-profile/JdHeaderFields'
 import { JdPreview } from '@/modules/recruiting/job-profile/JdPreview'
 import { JdSalaryBenefits } from '@/modules/recruiting/job-profile/JdSalaryBenefits'
 import { JdSection } from '@/modules/recruiting/job-profile/JdSection'
-import { Hint } from '@/components/patterns/Hint'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -193,9 +194,14 @@ export default function JobProfilePage() {
     }
     setInvioCvError('')
     const { opening } = getActiveOpening(readCvMatchingState())
+    const when = new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+    // Senza server (o se non risponde) la scheda resta solo in questo browser:
+    // lo si dice, perché "Salva" da solo non spiega dove finisce.
+    let where = `Salvata solo in questo browser · ${when}. Per confermarla e avere il link dell’annuncio serve il salvataggio sul server.`
     if (opening) {
       const backendResult = await saveJobProfileToBackend(opening.id, jdState)
       if (backendResult.ok) {
+        where = `Salvata sul server · ${when}. La trovi da qualunque computer, per la posizione «${opening.title}».`
         setBackendNote('')
         // A fresh save always creates a NEW JobProfile row (see
         // jobProfiles/routes.ts — no upsert, versioned by design), so it
@@ -213,7 +219,7 @@ export default function JobProfilePage() {
       // exactly like every other feature gated on a backend link.
     }
     saveJdTemplate(DEFAULT_ROLE, jdState)
-    setSaveMessage(`JD salvata per la posizione "${DEFAULT_ROLE}"`)
+    setSaveMessage(where)
     setMode('preview')
   }
 
@@ -253,24 +259,35 @@ export default function JobProfilePage() {
         title="Configura la Scheda Professionale per la ricerca in corso"
         description={mode === 'preview' ? 'Anteprima pulita della scheda salvata — pronta per essere approvata e condivisa. Usa "Modifica" per tornare all\'editor.' : undefined}
         actions={
-          <Button
-            type="button"
-            onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')}
-            variant="outline"
-            size="sm"
-          >
-            {mode === 'edit' ? (
-              <>
-                <FileText className="size-4 shrink-0" aria-hidden="true" />
-                Vedi anteprima
-              </>
-            ) : (
-              <>
-                <Pencil className="size-4 shrink-0" aria-hidden="true" />
-                Modifica
-              </>
-            )}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')} variant="outline" size="sm">
+              {mode === 'edit' ? (
+                <>
+                  <FileText className="size-4 shrink-0" aria-hidden="true" />
+                  Vedi anteprima
+                </>
+              ) : (
+                <>
+                  <Pencil className="size-4 shrink-0" aria-hidden="true" />
+                  Modifica
+                </>
+              )}
+            </Button>
+            {/* Nell'anteprima, accanto a "Modifica": confermare la scheda la
+                approva sul server e genera il link dell'annuncio. */}
+            {mode === 'preview' ? (
+              approved ? (
+                <Button type="button" variant="outline" size="sm" onClick={() => handleToggleApproval()} disabled={approvalPending}>
+                  Annulla conferma
+                </Button>
+              ) : (
+                <Button type="button" size="sm" onClick={() => handleToggleApproval()} disabled={!backendProfileId || approvalPending}>
+                  <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
+                  Conferma
+                </Button>
+              )
+            ) : null}
+          </div>
         }
       />
 
@@ -339,46 +356,26 @@ export default function JobProfilePage() {
             <JdPreview jd={jdState} />
           </Card>
 
-          <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
-            <label className="flex items-center gap-2 text-app-small font-semibold">
-              <Checkbox checked={approved} disabled={!backendProfileId || approvalPending} onCheckedChange={() => handleToggleApproval()} />
+          <div className="flex flex-col gap-3 border-t border-border pt-4">
+            <div className="flex flex-wrap items-center gap-3">
               {approved ? (
-                <span className="flex items-center gap-1.5 text-success">
-                  <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
-                  Approvata
-                </span>
+                <Badge tone="success" dot>
+                  Confermata
+                </Badge>
               ) : (
-                'Approvata'
+                <Badge>Da confermare</Badge>
               )}
-            </label>
-            {!backendProfileId && (
-              <span className="text-app-caption text-muted-foreground">Salva sul server (carica un CV per collegare la posizione) prima di approvare.</span>
-            )}
-            {approvalError && <span className="text-app-caption font-medium text-destructive">{approvalError}</span>}
-            {approved && publicationLink && (
-              <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-app-caption text-muted-foreground">
-                <span>Link di pubblicazione:</span>
-                <a
-                  href={publicJobPostingUrl(publicationLink)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="truncate rounded bg-secondary px-1.5 py-0.5 font-mono text-foreground underline-offset-2 hover:underline"
-                >
-                  {publicJobPostingUrl(publicationLink)}
-                </a>
-                <Hint label="Copia link">
-                  <Button
-                    type="button"
-                    onClick={() => navigator.clipboard?.writeText(publicJobPostingUrl(publicationLink))}
-                    aria-label="Copia link"
-                    variant="outline"
-                    size="icon-sm"
-                  >
-                    <Copy className="size-3 shrink-0" aria-hidden="true" />
-                  </Button>
-                </Hint>
-              </div>
-            )}
+              {saveMessage ? <span className="text-app-small text-muted-foreground">{saveMessage}</span> : null}
+            </div>
+            {!backendProfileId ? (
+              <InlineAlert tone="warning" layout="text">
+                La scheda non è ancora sul server: torna in «Modifica» e salvala. Dopo il salvataggio puoi confermarla e avere il link dell’annuncio.
+              </InlineAlert>
+            ) : null}
+            {backendNote ? <span className="text-app-caption text-muted-foreground">{backendNote}</span> : null}
+            {approvalError ? <InlineAlert layout="text">{approvalError}</InlineAlert> : null}
+            {approved && publicationLink ? <JobPostingLink publicationLink={publicationLink} positionTitle={getActiveOpening(readCvMatchingState()).opening?.title || DEFAULT_ROLE} /> : null}
+            {!approved && backendProfileId ? <span className="text-app-caption text-muted-foreground">Premi «Conferma» in alto: la scheda viene approvata e si genera il link dell’annuncio da copiare o inviare.</span> : null}
           </div>
         </>
       )}

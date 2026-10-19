@@ -1,5 +1,6 @@
 import { Megaphone } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { useDirty } from '@/hooks/use-dirty'
 import { Input } from '@/components/ui/input'
@@ -8,6 +9,10 @@ import { buttonVariants } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
+import { JobPostingLink } from '@/modules/recruiting/components/JobPostingLink'
+import { loadJobProfileFromBackend } from '@/modules/recruiting/lib/backend-sync'
+import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
+import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import { generateJobPostingPreview, isValidUrl, loadJobPostingSummary, saveJobPostingSummary } from '@/modules/recruiting/lib/profile-hub'
 
 const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
@@ -44,6 +49,21 @@ export function JobPostingSection() {
   const [publishError, setPublishError] = useState('')
   const [message, setMessage] = useState('')
   const dirty = useDirty({ urlDraft, summaryDraft }, open)
+  // Il link dell'annuncio della piattaforma: compare da solo quando la
+  // scheda professionale della posizione è confermata.
+  const opening = getActiveOpening(readCvMatchingState()).opening
+  const openingId = opening?.id
+  const [platformLink, setPlatformLink] = useState<string | null>(null)
+  useEffect(() => {
+    if (!openingId) return
+    let cancelled = false
+    void loadJobProfileFromBackend(openingId).then((r) => {
+      if (!cancelled) setPlatformLink(r.ok && r.approved ? r.publicationLink : null)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [openingId])
 
   function handleOpenChange(next: boolean) {
     setOpen(next)
@@ -94,7 +114,19 @@ export function JobPostingSection() {
   const teaserValue = hasUrl ? url.replace(/^https?:\/\//, '').slice(0, 32) + '…' : summary ? summary.trim().slice(0, 48) + '…' : 'Non configurato'
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-3">
+      {platformLink ? (
+        <JobPostingLink publicationLink={platformLink} positionTitle={opening?.title || DEFAULT_ROLE} />
+      ) : (
+        <p className="text-app-caption text-muted-foreground">
+          Il link dell’annuncio compare qui quando confermi la{' '}
+          <Link to="/recruiting/job-profile" className="font-medium text-foreground underline-offset-2 hover:underline">
+            scheda professionale
+          </Link>
+          .
+        </p>
+      )}
+      <span className="label-mono text-muted-foreground">Annuncio su altri siti</span>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>
           <button

@@ -127,7 +127,7 @@ details.faq p{margin-top:8px}
 </style></head><body>
 <div class="top"><div class="wrap">
   <div><h1>Scheda di valutazione 5P</h1><div class="who" id="who"></div></div>
-  <div class="prog"><span id="progT"></span><div class="t"><i id="progB" style="width:0"></i></div></div>
+  <div class="prog"><span id="progT"></span><div class="t"><i id="progB" style="width:0"></i></div><span id="embSend"></span></div>
 </div></div>
 <div class="wrap layout">
   <aside id="side"></aside>
@@ -137,6 +137,9 @@ details.faq p{margin-top:8px}
 <script>
 const D=/*SVDATA*/null;
 const KEY='sv5p_ans2_'+D.pianoId+'_'+D.valutatore;
+// Aperta dentro la piattaforma (il responsabile la compila per il valutatore):
+// l'invio va direttamente alla Raccolta, senza file né email.
+const EMB=window.parent!==window;
 let A={};try{A=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){A={}}
 const ak=i=>D.persone[i].tipo+'|'+D.persone[i].valutato;
 D.persone.forEach((p,i)=>{const k=ak(i);A[k]=A[k]||{};A[k].scores=A[k].scores||{};A[k].notes=A[k].notes||{};A[k].no=A[k].no||{}});
@@ -320,20 +323,22 @@ function fine(){
   return '<div class="card"><h2>Concludi e invia</h2>'+
   (miss?'<p><span class="pill warn">'+(miss===1?'Manca 1 risposta':'Mancano '+miss+' risposte')+'</span> Puoi inviare lo stesso: le domande senza risposta non vengono contate. Se puoi, completale.</p>':'<p><span class="pill ok">Completo</span> Hai risposto a tutte le '+total()+' domande.</p>')+
   '<div class="tw"><table><tr><th>Persona</th><th>Tipo</th><th>Voti</th><th>Non so valutare</th><th>Da completare</th></tr>'+D.persone.map((p,i)=>{const m=missing(i);return '<tr><td><a href="#" data-go="'+i+'">'+esc(p.tipo==='AUTO'?'Me stesso/a':p.valutato)+'</a></td><td>'+TIPO[p.tipo]+'</td><td>'+nV(i)+' / '+n+'</td><td>'+(nN(i)||'—')+'</td><td>'+(m.length?m.slice(0,6).map(c=>'<a href="#" data-jump="'+i+'|'+c+'">'+c+'</a>').join(' ')+(m.length>6?' +'+(m.length-6):''):'<span class="ok-t">✓</span>')+'</td></tr>'}).join('')+'</table></div></div>'+
-  '<div class="card"><h3>1. Scarica il file delle risposte</h3><p>Viene creato il file <b>'+esc(fname())+'</b>. Contiene solo i tuoi voti e le tue note.</p><div class="row"><button class="btn pri" id="dl">Scarica file risposte</button>'+(window.parent!==window?'<button class="btn" id="send">Invia al sistema (anteprima)</button>':'')+'</div>'+
+  (EMB?'<div class="card"><h3>Invia la scheda compilata</h3><p>Le risposte entrano subito nella Raccolta della piattaforma, a nome di <b>'+esc(D.valutatore)+'</b>.</p><div class="row"><button class="btn pri" id="send">Invia scheda compilata</button></div></div>':'')+
+  (EMB?'':'<div class="card"><h3>1. Scarica il file delle risposte</h3><p>Viene creato il file <b>'+esc(fname())+'</b>. Contiene solo i tuoi voti e le tue note.</p><div class="row"><button class="btn pri" id="dl">Scarica file risposte</button></div>'+
   "<h3>2. Invialo</h3><p>Allega il file a un'email "+(D.emailHR?'indirizzata a <b>'+esc(D.emailHR)+'</b>':"per l'ufficio HR")+'. Non devi aprirlo né modificarlo.</p>'+
   (D.emailHR?"<div class=\"row\"><a class=\"btn\" href=\""+esc(mailto())+"\">Scrivi l'email</a><span class=\"small muted\">Si apre il tuo programma di posta con indirizzo e oggetto già pronti: allega il file appena scaricato.</span></div>":'')+
-  "<details><summary class=\"small\">Il download non funziona?</summary><p class=\"small muted\" style=\"margin:8px 0\">Copia questo codice e incollalo nel testo dell'email: contiene le stesse risposte.</p><textarea class=\"code-box\" id=\"code\" readonly></textarea><div class=\"row\" style=\"margin-top:8px\"><button class=\"btn\" id=\"copy\">Copia codice</button></div></details></div>"+
+  "<details><summary class=\"small\">Il download non funziona?</summary><p class=\"small muted\" style=\"margin:8px 0\">Copia questo codice e incollalo nel testo dell'email: contiene le stesse risposte.</p><textarea class=\"code-box\" id=\"code\" readonly></textarea><div class=\"row\" style=\"margin-top:8px\"><button class=\"btn\" id=\"copy\">Copia codice</button></div></details></div>")+
   '<div class="card"><h3>Che cosa succede dopo</h3><p>Chi gestisce la valutazione raccoglie le schede di tutti i valutatori e calcola le medie. Con questi dati si prepara un report per ogni persona, da discutere con il proprio responsabile.</p><p class="small muted">Grazie per il tempo che hai dedicato: una valutazione fatta con cura è il contributo più utile alla crescita dei colleghi.</p></div>'}
 function render(){
   side();
   $('#who').textContent='Valutatore: '+D.valutatore+(D.azienda?' · '+D.azienda:'')+(D.scadenza?' · entro il '+D.scadenza:'');
   const PG={istr:pgIstr,mod:pgMod,voto:pgVoto,faq:()=>pgFaq(false),fine:fine};
   $('#main').innerHTML=typeof cur==='number'?person(cur):(PG[cur]||pgIstr)();
-  if(cur==='fine'){const json=JSON.stringify(payload());$('#code').value='SV5P:'+btoa(unescape(encodeURIComponent(json)));
-    $('#dl').onclick=()=>{const b=new Blob([json],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=fname();document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},1500);toast('File scaricato: '+fname())};
-    $('#copy').onclick=()=>{const t=$('#code');t.select();(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast('Codice copiato'),()=>{document.execCommand&&document.execCommand('copy');toast('Codice selezionato: premi Ctrl+C')})};
-    const s=$('#send');if(s)s.onclick=()=>{parent.postMessage({sv5p:payload()},'*');toast('Risposte inviate al sistema')};}
+  $('#embSend').innerHTML=EMB&&cur!=='fine'?'<button class="btn pri" data-go="fine">Invia scheda compilata →</button>':'';
+  if(cur==='fine'){const json=JSON.stringify(payload());if($('#code'))$('#code').value='SV5P:'+btoa(unescape(encodeURIComponent(json)));
+    if($('#dl'))$('#dl').onclick=()=>{const b=new Blob([json],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=fname();document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},1500);toast('File scaricato: '+fname())};
+    if($('#copy'))$('#copy').onclick=()=>{const t=$('#code');t.select();(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast('Codice copiato'),()=>{document.execCommand&&document.execCommand('copy');toast('Codice selezionato: premi Ctrl+C')})};
+    const s=$('#send');if(s)s.onclick=()=>{parent.postMessage({sv5p:payload()},'*');toast('Scheda inviata')};}
 }
 function keep(){const y=window.scrollY;render();window.scrollTo(0,y)}
 function printGuide(){const m=$('#main');m.innerHTML=pgIstr()+pgMod()+pgVoto()+pgFaq(true);

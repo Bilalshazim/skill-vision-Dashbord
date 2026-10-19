@@ -129,6 +129,20 @@ insieme allo spegnimento del catalogo in produzione.
 - [ ] Ritiro del guscio legacy e della sua copia, del ponte e delle coppie
       di `js/app.js`, nello stesso passaggio — unico punto ancora aperto di
       questa fase.
+### Richieste del documento "recruiting doc" (2026-10-19)
+Stima e ordine approvati: prima i punti veloci (1, 2, 5–7), poi Recruiting
+valutatori, poi i grafici dopo l'accordo con Alessio.
+- [x] 1 · "Hard skill" → "Professionali" in Assessment (menu, titoli, testi)
+- [x] 2 · 5P, Invio schede: «Prepara la scheda» per valutatore, «Invia
+      scheda compilata» sempre visibile nella scheda aperta in piattaforma
+- [x] 5–7 · Scheda professionale: si collega al server al salvataggio,
+      «Conferma» accanto a «Modifica», dove è salvata, link dell'annuncio
+      (copia, email, apri) anche nella card "Annuncio di lavoro"
+- [ ] 4 · "Intervistato" nell'elenco candidati + schede dei valutatori al clic
+- [ ] 4 · Sintesi IA che legge anche i file caricati (PDF, immagini, Word)
+- [ ] 3/8 · Assistente con caricamento di documenti (vero modello sul server)
+- [ ] Grafici: proposta per Risultati (soft / professionali contro l'atteso)
+      e Confronto interno (radar), da concordare con Alessio
 ### Area Valutatori — schede inviate e restituite come file (2026-10-19)
 Requisito: documento "RECRUITING — AREA VALUTATORI". Il file si aggiunge
 alla compilazione online, non la sostituisce (Roberto, 2026-10-19).
@@ -158,6 +172,37 @@ link test in Assessment, holding → società. Piano di esecuzione al §8
 - [ ] Parte 6: Railway
 
 ## Registro
+
+## 2026-10-19 — "recruiting doc": punti 1, 2, 5, 6, 7
+- [x] 1 · Assessment: "Valutazioni Hard Skill" → "Valutazioni Professionali"
+      (menu e titolo), tolto "(Hard Skill)" dalla pagina delle 5 P; anche il
+      dizionario inglese. Verificato: nessun "Hard" nel testo delle 16
+      pagine di Assessment.
+- [x] 2 · `InvioTab`: «Prepara la scheda» su ogni valutatore apre la sua
+      scheda 5P in un Dialog (costruita una volta all'apertura, conferma
+      prima di chiudere). Nel modello, se la scheda è aperta in piattaforma:
+      «Invia scheda compilata →» in alto su ogni pagina e una card d'invio in
+      «Concludi e invia» al posto di scarica/email. Verificato: il Dialog si
+      chiude, la Raccolta riceve le risposte, il valutatore risulta
+      restituito.
+- [x] 5–7 · `saveJobProfileToBackend`: senza collegamento, lo crea dalla
+      posizione attiva (`resolveBackendLink`, come il primo CV). Anteprima:
+      «Conferma» / «Annulla conferma» accanto a «Modifica» al posto della
+      casella in fondo; stato "Confermata / Da confermare" e dove è salvata
+      ("sul server" o "solo in questo browser", con data e ora). Nuovo
+      `JobPostingLink` (link, Copia, Invia per email, Apri), usato anche
+      nella card "Annuncio di lavoro", che ora mostra il link da sola; il
+      link esterno manuale resta. Verificato in locale: salvataggio →
+      campagna creata → Conferma → link → pagina pubblica 200.
+- [x] Typecheck pulito; audit 304 (era 305).
+- [ ] Non verificato a occhio: il clic dentro la scheda 5P (iframe isolato,
+      finestra nascosta); provata la consegna alla Raccolta col messaggio che
+      la scheda invia.
+- Nota: nella scheda aperta in piattaforma le risposte **non** restano
+  salvate se si chiude il Dialog (l'iframe isolato non ha memoria): per
+  questo la chiusura chiede conferma.
+- Dati di prova locali in più: campagna "Senior Frontend Engineer" creata
+  dal salvataggio, scheda confermata, un piano 5P (VERDI valuta BIANCHI).
 
 ## 2026-10-19 — Area Valutatori: schede restituite come file
 - [x] Backend: tabelle `EvaluatorFormSend` (un invio per valutatore e

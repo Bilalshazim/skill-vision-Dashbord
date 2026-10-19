@@ -1,8 +1,9 @@
-import { Mail } from 'lucide-react'
+import { Mail, NotebookPen } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Field } from '@/components/patterns/Field'
 import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { Note } from '@/components/patterns/Note'
 import { SelectField } from '@/components/patterns/SelectField'
 import { StatCard } from '@/components/patterns/StatCard'
@@ -38,6 +39,10 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
   const [sel, setSel] = useState('')
   const [q, setQ] = useState('')
   const [onlyTodo, setOnlyTodo] = useState(false)
+  // «Prepara la scheda»: il responsabile compila la scheda di un valutatore
+  // dentro la piattaforma. La scheda si costruisce una volta all'apertura, così
+  // un aggiornamento del piano non la ricarica a metà compilazione.
+  const [prep, setPrep] = useState<{ name: string; html: string } | null>(null)
   const who = evs.some((e) => e.name === sel) ? sel : evs[0]?.name || ''
   const dark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
   const html = useMemo(() => (who ? buildEval(state, who, dark ? 'dark' : 'light') : ''), [state, who, dark])
@@ -54,7 +59,9 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
   useEffect(() => {
     const h = (e: MessageEvent) => {
       const d = e.data as { sv5p?: { valutatore?: string } } | null
-      if (d && d.sv5p) onAnswers(new File([JSON.stringify(d.sv5p)], `anteprima_${(d.sv5p.valutatore || 'valutatore').replace(/\W+/g, '_')}.json`, { type: 'application/json' }))
+      if (!d || !d.sv5p) return
+      setPrep(null)
+      onAnswers(new File([JSON.stringify(d.sv5p)], `scheda_${(d.sv5p.valutatore || 'valutatore').replace(/\W+/g, '_')}.json`, { type: 'application/json' }))
     }
     window.addEventListener('message', h)
     return () => window.removeEventListener('message', h)
@@ -216,6 +223,10 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-nowrap gap-2">
+                        <Button variant="outline" size="sm" onClick={() => setPrep({ name: ev.name, html: buildEval(state, ev.name, dark ? 'dark' : 'light') })}>
+                          <NotebookPen aria-hidden="true" />
+                          Prepara la scheda
+                        </Button>
                         <Button variant="outline" size="sm" onClick={() => saveFile(evalFile(ev.name), new Blob([buildEval(state, ev.name)], { type: 'text/html' }))}>
                           Scheda
                         </Button>
@@ -267,7 +278,7 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
             <p className="p-5 text-app-small text-muted-foreground">Nessun valutatore: prepara prima il piano.</p>
           )}
         </div>
-        <Note size="caption">L&apos;anteprima si può compilare davvero: in fondo, «Concludi e invia» → «Invia al sistema (anteprima)» carica le risposte nella Raccolta, così vedi tutto il giro.</Note>
+        <Note size="caption">L&apos;anteprima si può compilare davvero: «Invia scheda compilata» carica le risposte nella Raccolta. Per compilare la scheda di un valutatore usa «Prepara la scheda» nella sua riga.</Note>
       </div>
 
       <Accordion type="single" collapsible className="rounded-lg border border-border px-4">
@@ -290,6 +301,18 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+
+      {prep ? (
+        <ModalDialog
+          title={`Scheda 5P di ${prep.name}`}
+          sub="Compilala per il valutatore. In fondo, o in alto, «Invia scheda compilata» porta le risposte nella Raccolta."
+          size="xl"
+          dirty
+          onClose={() => setPrep(null)}
+        >
+          <iframe title={`Scheda di ${prep.name}`} sandbox="allow-scripts allow-downloads allow-modals allow-popups" srcDoc={prep.html} className="block h-[70vh] w-full rounded-sm border border-border bg-background" />
+        </ModalDialog>
+      ) : null}
     </section>
   )
 }

@@ -1641,3 +1641,27 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
 - Rimozione logica (`deletedAt`): la riga esce dal quadro, il file resta
   nello storage. Nessuna cancellazione definitiva dalla piattaforma.
 
+## La scheda professionale si collega al server al salvataggio · 2026-10-19
+- Prima la posizione si collegava al server solo al primo CV caricato: fino
+  ad allora "Salva" scriveva solo nel browser, "Approvata" era spenta e il
+  link dell'annuncio non compariva (punti 5, 6, 7 del documento).
+- Opzioni: (a) collegare al salvataggio, creando la campagna se manca;
+  (b) lasciare com'è e spiegarlo a schermo.
+- Raccomandazione e presa: **(a)**. È la stessa azione che fa già il primo
+  CV (`resolveBackendLink`, una campagna con il nome della posizione), solo
+  anticipata. Se l'azienda non esiste sul server, si salva nel browser e lo
+  si dice.
+
+## «Conferma» al posto della casella "Approvata" · 2026-10-19
+- Stessa azione di prima (approva la scheda e genera il link). Diventa un
+  bottone accanto a «Modifica», dove il cliente lo cercava; la parola segue
+  il documento.
+
+## Scheda 5P compilata dal responsabile · 2026-10-19
+- La scheda si apre in un iframe isolato (`sandbox` senza
+  `allow-same-origin`, come l'anteprima di prima): sicuro, ma senza memoria.
+  Le risposte si perdono se si chiude prima di inviare, quindi il Dialog
+  chiede conferma. Dare memoria all'iframe vorrebbe dire togliere
+  l'isolamento: non vale il rischio per una compilazione che si fa in una
+  volta.
+
