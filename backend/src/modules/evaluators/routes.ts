@@ -3,6 +3,7 @@ import crypto from 'node:crypto'
 import type { Prisma } from '@prisma/client'
 import type { Request } from 'express'
 import { Router } from 'express'
+import multer from 'multer'
 import { z } from 'zod'
 
 import { askClaude } from '../../lib/ai.js'
@@ -13,6 +14,7 @@ import { hashToken } from '../../lib/jwt.js'
 import { sendMail } from '../../lib/mailer.js'
 import { prisma } from '../../lib/prisma.js'
 import { createLimiter } from '../../lib/rateLimit.js'
+import { checksumSha256, makeStorageKey, signFileToken, storage, verifyFileToken } from '../../lib/storage.js'
 import { optionalAuth, requireAuth, requireCompanyScope, requireRole } from '../../middleware/auth.js'
 import { validateBody } from '../../middleware/validate.js'
 
@@ -254,14 +256,22 @@ const ACCESS_TOKEN_TTL_MS = 14 * 24 * 60 * 60 * 1000
 // da cui il responsabile sta lavorando: `appUrl` deve coincidere con l'header
 // Origin della richiesta, così nessuno può far partire email con un link
 // verso un sito qualunque.
+const FORM_KINDS = ['INTERVISTA', 'VALUTAZIONE'] as const
+
 const sendFormsSchema = z.object({
   evaluatorIds: z.array(z.string().uuid()).min(1).max(20),
   appUrl: z.string().url(),
+  // Le schede da mandare: una, l'altra o tutte e due (default, come prima).
+  kinds: z.array(z.enum(FORM_KINDS)).min(1).max(2).default([...FORM_KINDS]),
 })
 
 evaluatorsRouter.post('/campaigns/:campaignId/send-forms', requireAuth, requireRole('COMPANY_ADMIN', 'PLATFORM_ADMIN'), validateBody(sendFormsSchema), async (req, res, next) => {
   try {
     const { evaluatorIds, appUrl } = req.body as z.infer<typeof sendFormsSchema>
+    const kinds = [...new Set((req.body as z.infer<typeof sendFormsSchema>).kinds)]
+    // Chi risponde all'email (per rimandare la scheda come file) scrive al
+    // responsabile che l'ha mandata.
+    const manager = await prisma.user.findUnique({ where: { id: req.auth!.sub }, select: { email: true } })
     const origin = req.header('origin')
     const appOrigin = new URL(appUrl).origin
     if (!origin || origin !== appOrigin) throw new BadRequestError('Indirizzo dell’applicazione non valido.')
@@ -290,9 +300,12 @@ evaluatorsRouter.post('/campaigns/:campaignId/send-forms', requireAuth, requireR
         campaignName: campaign.name,
         link,
         expiresOn: expiresAt.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+        forms: kinds,
+        replyToManager: Boolean(manager?.email),
       })
       const sent = await sendMail({
         to: evaluator.email,
+        replyTo: manager?.email,
         subject: rendered.subject,
         text: rendered.text,
         html: rendered.html,
@@ -305,10 +318,165 @@ evaluatorsRouter.post('/campaigns/:campaignId/send-forms', requireAuth, requireR
         continue
       }
       await prisma.evaluator.update({ where: { id: evaluator.id }, data: { accessTokenHash: hashToken(token), accessTokenExpiresAt: expiresAt } })
-      await audit(prisma, { actorUserId: req.auth!.sub, action: 'evaluator.forms_sent', entityType: 'Evaluator', entityId: evaluator.id, metadata: { campaignId: campaign.id } })
+      await prisma.evaluatorFormSend.createMany({ data: kinds.map((kind) => ({ campaignId: campaign.id, evaluatorId: evaluator.id, kind, sentById: req.auth!.sub })) })
+      await audit(prisma, { actorUserId: req.auth!.sub, action: 'evaluator.forms_sent', entityType: 'Evaluator', entityId: evaluator.id, metadata: { campaignId: campaign.id, kinds } })
       results.push({ evaluatorId, ok: true })
     }
     res.json({ results })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── Schede restituite come file (documento "RECRUITING — AREA VALUTATORI") ──
+// Il valutatore che preferisce un file rimanda la scheda compilata al
+// responsabile, che la carica qui per nome del candidato, indicando chi l'ha
+// compilata e quale delle due schede è. Il file resta nello storage dei CV
+// (stessa conservazione del candidato); si legge solo con un link firmato e
+// a scadenza, come il CV.
+const FORM_FILE_MIME = new Set([
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/jpeg',
+  'image/png',
+])
+const formUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } })
+const formUploadSchema = z.object({ kind: z.enum(FORM_KINDS), evaluatorId: z.string().uuid() })
+const READ_ROLES = ['RECRUITER', 'COMPANY_ADMIN', 'PLATFORM_ADMIN'] as const
+
+evaluatorsRouter.post('/campaign-candidates/:id/form-uploads', requireAuth, requireRole(...READ_ROLES), formUpload.single('file'), async (req, res, next) => {
+  try {
+    const file = req.file
+    if (!file) throw new BadRequestError('Nessun file allegato.')
+    if (!FORM_FILE_MIME.has(file.mimetype)) throw new BadRequestError('Formato non accettato: carica un PDF, un documento Word o un’immagine (JPG, PNG).')
+    const parsed = formUploadSchema.safeParse(req.body)
+    if (!parsed.success) throw new BadRequestError('Indica il valutatore e la scheda.')
+    const { kind, evaluatorId } = parsed.data
+
+    const cc = await prisma.campaignCandidate.findUnique({ where: { id: req.params.id }, include: { campaign: true, candidate: true } })
+    if (!cc) throw new NotFoundError('Campaign candidate not found')
+    requireCompanyScope(req, cc.campaign.companyId)
+    const assignment = await prisma.campaignEvaluatorAssignment.findUnique({ where: { campaignId_evaluatorId: { campaignId: cc.campaignId, evaluatorId } } })
+    if (!assignment) throw new BadRequestError('Il valutatore non è assegnato a questa selezione.')
+
+    const upload = await prisma.$transaction(async (tx) => {
+      const fileRow = await tx.storedFile.create({
+        data: {
+          storageKey: `pending-${crypto.randomUUID()}`,
+          originalFilename: file.originalname,
+          mimeType: file.mimetype,
+          sizeBytes: file.size,
+          checksumSha256: checksumSha256(file.buffer),
+          candidateId: cc.candidateId,
+          campaignId: cc.campaignId,
+          uploadedById: req.auth!.sub,
+          retentionExpiresAt: cc.candidate.cvRetentionExpiresAt,
+        },
+      })
+      const key = `evaluator-forms/${makeStorageKey(cc.candidateId, fileRow.id, file.originalname)}`
+      await tx.storedFile.update({ where: { id: fileRow.id }, data: { storageKey: key } })
+      await storage.save(key, file.buffer)
+      return tx.evaluatorFormUpload.create({
+        data: { campaignCandidateId: cc.id, evaluatorId, kind, fileId: fileRow.id, uploadedById: req.auth!.sub },
+        include: { file: true },
+      })
+    })
+    await audit(prisma, { actorUserId: req.auth!.sub, action: 'evaluator.form_uploaded', entityType: 'EvaluatorFormUpload', entityId: upload.id, metadata: { campaignCandidateId: cc.id, evaluatorId, kind } })
+    res.status(201).json(toUploadDto(upload))
+  } catch (err) {
+    next(err)
+  }
+})
+
+function toUploadDto(u: { id: string; campaignCandidateId: string; evaluatorId: string; kind: string; createdAt: Date; file: { originalFilename: string; mimeType: string; sizeBytes: number } }) {
+  return {
+    id: u.id,
+    campaignCandidateId: u.campaignCandidateId,
+    evaluatorId: u.evaluatorId,
+    kind: u.kind,
+    uploadedAt: u.createdAt,
+    originalFilename: u.file.originalFilename,
+    mimeType: u.file.mimeType,
+    sizeBytes: u.file.sizeBytes,
+  }
+}
+
+// Il quadro completo di una selezione, in una richiesta sola: per ogni
+// valutatore e scheda quando è stata inviata, e per ogni candidato le schede
+// compilate online e i file caricati.
+evaluatorsRouter.get('/campaigns/:campaignId/form-tracking', requireAuth, requireRole(...READ_ROLES), async (req, res, next) => {
+  try {
+    const campaign = await prisma.campaign.findUnique({ where: { id: req.params.campaignId } })
+    if (!campaign) throw new NotFoundError('Campaign not found')
+    requireCompanyScope(req, campaign.companyId)
+    const [sends, uploads, evaluations] = await Promise.all([
+      prisma.evaluatorFormSend.findMany({ where: { campaignId: campaign.id }, orderBy: { sentAt: 'asc' } }),
+      prisma.evaluatorFormUpload.findMany({ where: { campaignCandidate: { campaignId: campaign.id }, deletedAt: null }, include: { file: true }, orderBy: { createdAt: 'asc' } }),
+      prisma.evaluation.findMany({ where: { campaignCandidate: { campaignId: campaign.id }, status: 'SUBMITTED' } }),
+    ])
+    res.json({
+      sends: sends.map((s) => ({ evaluatorId: s.evaluatorId, kind: s.kind, sentAt: s.sentAt })),
+      uploads: uploads.map(toUploadDto),
+      // Quali delle due schede contiene ogni valutazione inviata online.
+      online: evaluations.map((e) => {
+        const scores = asRecord(e.scores)
+        return {
+          campaignCandidateId: e.campaignCandidateId,
+          evaluatorId: e.evaluatorId,
+          submittedAt: e.submittedAt,
+          INTERVISTA: Object.keys(asRecord(scores.verbale)).length > 0,
+          VALUTAZIONE: Object.keys(asRecord(scores.valutazione)).length > 0,
+        }
+      }),
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+async function loadScopedUpload(req: Request, id: string) {
+  const upload = await prisma.evaluatorFormUpload.findUnique({ where: { id }, include: { file: true, campaignCandidate: { include: { campaign: true } } } })
+  if (!upload || upload.deletedAt) throw new NotFoundError('File non trovato')
+  requireCompanyScope(req, upload.campaignCandidate.campaign.companyId)
+  return upload
+}
+
+// Link firmato e a scadenza per aprire il file, come per il CV.
+evaluatorsRouter.get('/form-uploads/:id', requireAuth, requireRole(...READ_ROLES), async (req, res, next) => {
+  try {
+    const upload = await loadScopedUpload(req, req.params.id)
+    const { token, expiresAt } = signFileToken(upload.fileId)
+    res.json({ ...toUploadDto(upload), download: { url: `/api/v1/evaluators/form-uploads/${upload.id}/file?token=${token}`, expiresAt } })
+  } catch (err) {
+    next(err)
+  }
+})
+
+evaluatorsRouter.get('/form-uploads/:id/file', async (req, res, next) => {
+  try {
+    const upload = await prisma.evaluatorFormUpload.findUnique({ where: { id: req.params.id }, include: { file: true } })
+    if (!upload || upload.deletedAt || upload.file.deletedAt) throw new NotFoundError('File non più disponibile')
+    const token = req.query.token as string | undefined
+    if (!token || !verifyFileToken(upload.fileId, token)) throw new ForbiddenError('Link scaduto o non valido')
+    const buffer = await storage.read(upload.file.storageKey)
+    res.setHeader('Content-Type', upload.file.mimeType)
+    const inline = upload.file.mimeType === 'application/pdf' || upload.file.mimeType.startsWith('image/')
+    res.setHeader('Content-Disposition', `${inline ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeURIComponent(upload.file.originalFilename)}`)
+    res.send(buffer)
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Per correggere un caricamento sbagliato (candidato, valutatore o scheda):
+// la riga esce dal quadro, il file resta nello storage.
+evaluatorsRouter.delete('/form-uploads/:id', requireAuth, requireRole(...READ_ROLES), async (req, res, next) => {
+  try {
+    const upload = await loadScopedUpload(req, req.params.id)
+    await prisma.evaluatorFormUpload.update({ where: { id: upload.id }, data: { deletedAt: new Date() } })
+    await audit(prisma, { actorUserId: req.auth!.sub, action: 'evaluator.form_upload_removed', entityType: 'EvaluatorFormUpload', entityId: upload.id })
+    res.status(204).end()
   } catch (err) {
     next(err)
   }

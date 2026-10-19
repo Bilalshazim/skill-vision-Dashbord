@@ -29,6 +29,8 @@ export async function resetDb() {
     prisma.executiveInterview.deleteMany(),
     prisma.valutazione5p.deleteMany(),
     prisma.shortlist.deleteMany(),
+    prisma.evaluatorFormUpload.deleteMany(),
+    prisma.evaluatorFormSend.deleteMany(),
     prisma.evaluation.deleteMany(),
     prisma.campaignEvaluatorAssignment.deleteMany(),
     prisma.evaluator.deleteMany(),

@@ -202,6 +202,7 @@ model Campaign {
   evaluatorAssignments CampaignEvaluatorAssignment[]
   emailTemplates       EmailTemplate[]
   cvs                  Cv[]
+  evaluatorFormSends   EvaluatorFormSend[]
 
   @@index([companyId])
 }
@@ -348,6 +349,7 @@ model CampaignCandidate {
   interviews  Interview[]
   evaluations Evaluation[]
   profile     CandidateProfile?
+  formUploads EvaluatorFormUpload[]
 
   @@unique([campaignId, candidateId])
   @@index([campaignId, status])
@@ -619,6 +621,8 @@ model Evaluator {
 
   assignments CampaignEvaluatorAssignment[]
   evaluations Evaluation[]
+  formSends   EvaluatorFormSend[]
+  formUploads EvaluatorFormUpload[]
 
   @@index([companyId])
 }
@@ -663,6 +667,49 @@ model Evaluation {
   updatedAt           DateTime                  @updatedAt
 
   @@unique([campaignCandidateId, evaluatorId])
+}
+
+// Area Valutatori — le due schede che il responsabile manda ai valutatori e
+// che può ricevere indietro come file (documento "RECRUITING — AREA
+// VALUTATORI", 2026-10-19). Chi compila online passa da Evaluation; chi
+// preferisce un file lo rimanda al responsabile, che lo carica qui per nome
+// del candidato.
+enum EvaluatorFormKind {
+  INTERVISTA
+  VALUTAZIONE
+}
+
+// Un invio per (campagna, valutatore, scheda): registra quando è partita
+// l'email. Un nuovo invio aggiunge una riga, così resta la storia.
+model EvaluatorFormSend {
+  id          String            @id @default(uuid())
+  campaignId  String
+  campaign    Campaign          @relation(fields: [campaignId], references: [id])
+  evaluatorId String
+  evaluator   Evaluator         @relation(fields: [evaluatorId], references: [id])
+  kind        EvaluatorFormKind
+  sentById    String
+  sentAt      DateTime          @default(now())
+
+  @@index([campaignId, evaluatorId])
+}
+
+// Una scheda compilata restituita come file e caricata dal responsabile.
+// Si toglie solo logicamente (deletedAt): il file resta nello storage.
+model EvaluatorFormUpload {
+  id                  String            @id @default(uuid())
+  campaignCandidateId String
+  campaignCandidate   CampaignCandidate @relation(fields: [campaignCandidateId], references: [id])
+  evaluatorId         String
+  evaluator           Evaluator         @relation(fields: [evaluatorId], references: [id])
+  kind                EvaluatorFormKind
+  fileId              String            @unique
+  file                StoredFile        @relation(fields: [fileId], references: [id])
+  uploadedById        String
+  createdAt           DateTime          @default(now())
+  deletedAt           DateTime?
+
+  @@index([campaignCandidateId])
 }
 
 // =====================================================================
@@ -788,7 +835,8 @@ model StoredFile {
   deletedAt          DateTime?
   createdAt          DateTime   @default(now())
 
-  cv Cv?
+  cv                  Cv?
+  evaluatorFormUpload EvaluatorFormUpload?
 
   @@index([candidateId])
   @@index([retentionExpiresAt])

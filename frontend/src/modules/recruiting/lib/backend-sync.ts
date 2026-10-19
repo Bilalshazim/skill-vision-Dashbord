@@ -25,7 +25,7 @@ import type { Candidate, PrescreenedEntry, PrescreenStatus } from '@/modules/rec
 import type { JdState } from '@/modules/recruiting/lib/jd-types'
 import { convertJdState } from '@/modules/recruiting/lib/jd-preset-translations'
 import { candidatesApi, cvApi, jobProfilesApi, shortlistApi } from '@/lib/api/endpoints'
-import { apiBaseUrl, ApiError } from '@/lib/api/client'
+import { ApiError, apiFileUrl } from '@/lib/api/client'
 import type { BackendShortlistStatus } from '@/lib/api/types'
 
 const NEUTRAL_BIG_FIVE = { Estroversione: 50, Coscienziosità: 50, Apertura: 50, Amicalità: 50, 'Stabilità emotiva': 50 }
@@ -344,7 +344,7 @@ export async function resolveCandidateCvUrl(backendCvId: string | undefined): Pr
     // (a leading "/" path always replaces the base's own path per URL
     // resolution rules), so this is correct whether or not the configured
     // base URL itself already ends in "/api/v1".
-    return { ok: true, url: new URL(cv.download.url, apiBaseUrl()).toString() }
+    return { ok: true, url: apiFileUrl(cv.download.url) }
   } catch (err) {
     return { ok: false, reason: 'error', message: apiErrorMessage(err) }
   }

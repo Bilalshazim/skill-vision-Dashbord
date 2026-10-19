@@ -129,6 +129,20 @@ insieme allo spegnimento del catalogo in produzione.
 - [ ] Ritiro del guscio legacy e della sua copia, del ponte e delle coppie
       di `js/app.js`, nello stesso passaggio — unico punto ancora aperto di
       questa fase.
+### Area Valutatori — schede inviate e restituite come file (2026-10-19)
+Requisito: documento "RECRUITING — AREA VALUTATORI". Il file si aggiunge
+alla compilazione online, non la sostituisce (Roberto, 2026-10-19).
+- [x] Invio: il responsabile sceglie quali schede mandare (Intervista
+      strutturata, Valutazione candidato o tutte e due); risposta all'email
+      verso il responsabile
+- [x] Caricamento delle schede restituite come file, per candidato:
+      "Carica schede intervista" / "Carica schede valutazione"
+- [x] Quadro per candidato e valutatore: inviata → compilata online o file
+      caricato → in attesa
+- [ ] Migrazione `20261019100420_evaluator_form_uploads` da applicare su
+      Railway (parte da sola al deploy, `preDeployCommand`)
+- [ ] Domanda aperta: allegare all'email i modelli vuoti delle schede (Word
+      del cliente)?
 ### Progetto separato — Assessment sul server
 Analisi e stima in PROGETTO-ASSESSMENT-SERVER.md: valutatore esterno, invio
 link test in Assessment, holding → società. Piano di esecuzione al §8
@@ -143,6 +157,40 @@ link test in Assessment, holding → società. Piano di esecuzione al §8
 - [ ] Parte 6: Railway
 
 ## Registro
+
+## 2026-10-19 — Area Valutatori: schede restituite come file
+- [x] Backend: tabelle `EvaluatorFormSend` (un invio per valutatore e
+      scheda) e `EvaluatorFormUpload` (file caricato, su `StoredFile`, nello
+      storage dei CV: volume di Railway già esistente). Migrazione solo
+      additiva.
+- [x] `send-forms` accetta `kinds` (default tutte e due, come prima);
+      l'email nomina solo le schede scelte, ha `replyTo` = responsabile e
+      dice che la scheda si può rimandare come file con il nome del candidato.
+- [x] Rotte nuove: `POST campaign-candidates/:id/form-uploads` (PDF, Word,
+      JPG, PNG, 15 MB; valutatore assegnato alla selezione; scopo società),
+      `GET campaigns/:id/form-tracking`, `GET form-uploads/:id` (link
+      firmato), `GET form-uploads/:id/file` (solo col token, dichiarata in
+      `protected-routes.test.ts`), `DELETE form-uploads/:id` (logica: il
+      file resta).
+- [x] Frontend: scelta delle schede sopra "Invia le schede via email";
+      sezione "Schede per candidato" (`EvaluatorFormsTracking`, dominio) con
+      filtro per candidato, i due pulsanti di caricamento, Dialog con
+      candidato / compilata da / scheda / file, "Apri" e "Togli" sul file.
+- [x] **Corretto un difetto che c'era già**: con `VITE_API_BASE_URL=/api/v1`
+      (modalità backend) `new URL(link, '/api/v1')` lancia un errore, quindi
+      il pulsante "CV" non apriva il file. Nuovo `apiFileUrl()` in
+      `client.ts`, usato dal CV e dalle schede.
+- [x] Verifica: backend 153/153 (4 test nuovi in `evaluatorForms.test.ts`);
+      typecheck dei due lati; audit 305, invariato. A schermo, in locale:
+      caricamento, validazione dei campi, quadro aggiornato, file aperto
+      (200, PDF inline); chiaro e scuro senza ombre né bianco/nero puri;
+      nessuno scorrimento orizzontale nel riquadro.
+- [ ] Dati di prova solo nel database **locale**: valutatori Sara Colombo /
+      Elena Ferrari (`*.prova@acme.example`) sulla campagna "Sales Account
+      Manager — Q1", un file caricato per Marco Neri, due invii finti.
+- Nota: l'invio vero dell'email con le schede scelte non è stato provato a
+  mano (niente SMTP verso indirizzi finti); è coperto dai test con il mailer
+  simulato.
 
 ## 2026-10-15 — Assessment sul server: Parte 6, in produzione (codice)
 - [x] `assessment-server` unito a `main` (fast-forward) e inviato su GitHub. Verificato in produzione: backend nuovo attivo in ~80 s (le rotte di Assessment rispondono 401 senza accesso, /health 200), frontend nuovo servito

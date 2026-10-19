@@ -1607,3 +1607,37 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
   doppione. Chi manca si aggiunge con area = gruppo e mansione = mansione del
   piano. Vale anche con i dati nel browser: la decisione è sulle persone, non
   su dove stanno i dati.
+
+## Schede dei valutatori restituite come file · 2026-10-19
+- Opzioni: (a) il caricamento del file si aggiunge alla compilazione
+  online; (b) lo sostituisce.
+- Cosa cambia: con (b) si perdono il confronto fra valutatori e la sintesi
+  IA, che non leggono un Word o una scansione.
+- Raccomandazione: (a). Presa: **(a)**, confermata da Roberto il 2026-10-19:
+  chi preferisce il file lo rimanda al responsabile, che lo carica. Il file
+  si salva sul server.
+
+## Punteggi delle schede caricate come file · 2026-10-19
+- Opzioni: (a) il file si conserva e si apre e basta; (b) il responsabile
+  ricopia anche i punteggi, così la scheda entra nel confronto e nella sintesi.
+- Cosa cambia: (b) costa circa 6 ore e un modulo di inserimento in più.
+- Raccomandazione e presa: **(a)** per ora, perché la risposta del cliente
+  parla solo di salvare il file. Si aggiunge (b) se lo chiede.
+
+## Il passo "Form returned" del quadro · 2026-10-19
+- Il documento elenca: inviata → valutatore → compilata → restituita →
+  caricata. La restituzione avviene per email, fuori dalla piattaforma, e
+  non si può osservare: nel quadro "restituita" e "caricata" sono un solo
+  stato, "File caricato · data". Senza scheda né file la riga dice
+  "In attesa" se la scheda è stata inviata, "Non inviata" altrimenti.
+
+## Chi compila la scheda caricata · 2026-10-19
+- Il caricamento chiede candidato **e** valutatore (fra quelli assegnati
+  alla selezione): senza il valutatore il quadro non può dire di chi è la
+  scheda. Se il file arriva da qualcuno che non è in elenco, prima lo si
+  aggiunge con "Aggiungi e assegna".
+
+## Togliere una scheda caricata per errore · 2026-10-19
+- Rimozione logica (`deletedAt`): la riga esce dal quadro, il file resta
+  nello storage. Nessuna cancellazione definitiva dalla piattaforma.
+

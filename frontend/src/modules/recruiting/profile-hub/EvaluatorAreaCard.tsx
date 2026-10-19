@@ -83,7 +83,7 @@ export function EvaluatorAreaCard() {
           <Users className="size-5 text-muted-foreground" aria-hidden="true" />
           <h4 className="text-app-section text-card-foreground">Valutatori esterni</h4>
         </div>
-        <p className="text-app-small text-muted-foreground">Inserisci l&apos;email di ciascun valutatore e invia il link: compilano le due schede direttamente sulla piattaforma, senza allegati.</p>
+        <p className="text-app-small text-muted-foreground">Inserisci l&apos;email di ciascun valutatore e invia il link: compilano le schede direttamente sulla piattaforma, oppure te le rimandano come file e le carichi qui, per nome del candidato.</p>
         <EvaluatorsBackendPanel onReportChanged={() => setReportSavedAt(loadIvReportRecord(role)?.savedAt ?? null)} />
       </section>
     </div>

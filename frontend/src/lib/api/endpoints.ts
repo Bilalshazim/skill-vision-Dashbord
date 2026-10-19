@@ -133,6 +133,26 @@ export const cipApi = {
   void: (id: string, reason: string) => apiPost<BackendCip>(`/cip/${id}/void`, { reason }),
 }
 
+// Le due schede dell'Area Valutatori.
+export type EvaluatorFormKind = 'INTERVISTA' | 'VALUTAZIONE'
+
+export type EvaluatorFormUploadDto = {
+  id: string
+  campaignCandidateId: string
+  evaluatorId: string
+  kind: EvaluatorFormKind
+  uploadedAt: string
+  originalFilename: string
+  mimeType: string
+  sizeBytes: number
+}
+
+export type EvaluatorFormTracking = {
+  sends: { evaluatorId: string; kind: EvaluatorFormKind; sentAt: string }[]
+  uploads: EvaluatorFormUploadDto[]
+  online: ({ campaignCandidateId: string; evaluatorId: string; submittedAt: string | null } & Record<EvaluatorFormKind, boolean>)[]
+}
+
 export type BackendMyAssignment = {
   campaignCandidateId: string
   campaignId: string
@@ -155,8 +175,20 @@ export const evaluatorsApi = {
   finalizeEvaluation: (evaluationId: string, evaluatorToken?: string) => apiPost<BackendEvaluation>(`/evaluators/evaluations/${evaluationId}/submit`, undefined, evaluatorToken),
   listForCampaignCandidate: (campaignCandidateId: string) => apiGet<BackendEvaluation[]>(`/evaluators/campaign-candidates/${campaignCandidateId}/evaluations`),
   // Invio via email del link alle schede a più valutatori (Area Valutatore).
-  sendForms: (campaignId: string, evaluatorIds: string[]) =>
-    apiPost<{ results: { evaluatorId: string; ok: boolean; reason?: string }[] }>(`/evaluators/campaigns/${campaignId}/send-forms`, { evaluatorIds, appUrl: window.location.origin }),
+  sendForms: (campaignId: string, evaluatorIds: string[], kinds?: EvaluatorFormKind[]) =>
+    apiPost<{ results: { evaluatorId: string; ok: boolean; reason?: string }[] }>(`/evaluators/campaigns/${campaignId}/send-forms`, { evaluatorIds, appUrl: window.location.origin, kinds }),
+  // Schede restituite come file: caricamento per candidato, quadro della
+  // selezione, link firmato per aprirle, rimozione di un caricamento sbagliato.
+  uploadForm: (campaignCandidateId: string, input: { kind: EvaluatorFormKind; evaluatorId: string; file: File }) => {
+    const form = new FormData()
+    form.append('kind', input.kind)
+    form.append('evaluatorId', input.evaluatorId)
+    form.append('file', input.file)
+    return apiUpload<EvaluatorFormUploadDto>(`/evaluators/campaign-candidates/${campaignCandidateId}/form-uploads`, form)
+  },
+  formTracking: (campaignId: string) => apiGet<EvaluatorFormTracking>(`/evaluators/campaigns/${campaignId}/form-tracking`),
+  formUploadLink: (uploadId: string) => apiGet<EvaluatorFormUploadDto & { download: { url: string; expiresAt: number } }>(`/evaluators/form-uploads/${uploadId}`),
+  removeFormUpload: (uploadId: string) => apiDelete<void>(`/evaluators/form-uploads/${uploadId}`),
   // Sintesi IA di tutte le valutazioni inviate per un candidato.
   synthesis: (campaignCandidateId: string) =>
     apiPost<{ sections: { rilevanti: string; convergenze: string; divergenze: string; criticita: string }; evaluationsUsed: number; generatedAt: string }>(

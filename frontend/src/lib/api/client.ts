@@ -19,6 +19,14 @@ export function apiBaseUrl(): string {
   return env.apiBaseUrl
 }
 
+// Un link del server ("/api/v1/…/file?token=…") come indirizzo assoluto da
+// aprire in una scheda. La base può essere relativa (`/api/v1`, stessa
+// origine, in modalità backend): si risolve prima sulla pagina, altrimenti
+// `new URL(path, '/api/v1')` lancia un errore.
+export function apiFileUrl(path: string): string {
+  return new URL(path, new URL(apiBaseUrl(), window.location.origin)).toString()
+}
+
 const ACCESS_TOKEN_KEY = 'sv_backend_access_token'
 const REFRESH_TOKEN_KEY = 'sv_backend_refresh_token'
 const USER_KEY = 'sv_backend_user'

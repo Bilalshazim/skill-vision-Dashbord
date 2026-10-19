@@ -213,11 +213,22 @@ export type EvaluatorInvitationVars = {
   campaignName: string
   link: string
   expiresOn: string
+  // Le schede scelte dal responsabile (senza: tutte e due).
+  forms?: ('INTERVISTA' | 'VALUTAZIONE')[]
+  // Con un indirizzo di risposta, chi preferisce un file sa a chi rimandarlo.
+  replyToManager?: boolean
 }
+
+const FORM_NAME = { INTERVISTA: 'la Scheda Intervista Strutturata', VALUTAZIONE: 'la Scheda Valutazione Candidato' } as const
 
 export function renderEvaluatorInvitation(vars: EvaluatorInvitationVars): RenderedEmail {
   const { evaluatorName, companyName, campaignName, link, expiresOn } = vars
-  const intro = `Sei stato indicato come valutatore per la selezione "${campaignName}" di ${companyName}.\n\nTramite il link qui sotto puoi compilare la Scheda Intervista Strutturata e la Scheda Valutazione Candidato per i candidati che ti sono stati assegnati. Quando premi "Invia valutazione" la scheda arriva direttamente al responsabile della selezione: non devi rispondere a questa email.\n\nIl link è personale e valido fino al ${expiresOn}.`
+  const forms = vars.forms?.length ? vars.forms : (['INTERVISTA', 'VALUTAZIONE'] as const)
+  const one = forms.length === 1
+  const fileNote = vars.replyToManager
+    ? `\n\nSe preferisci compilare ${one ? 'la scheda' : 'le schede'} su file, ${one ? 'rimandala compilata' : 'rimandale compilate'} rispondendo a questa email, con il nome del candidato: il responsabile della selezione ${one ? 'la caricherà' : 'le caricherà'} sulla piattaforma.`
+    : ''
+  const intro = `Sei stato indicato come valutatore per la selezione "${campaignName}" di ${companyName}.\n\nTramite il link qui sotto puoi compilare ${forms.map((f) => FORM_NAME[f]).join(' e ')} per i candidati che ti sono stati assegnati. Quando premi "Invia valutazione" la scheda arriva direttamente al responsabile della selezione.${fileNote}\n\nIl link è personale e valido fino al ${expiresOn}.`
   const subject = `Schede di valutazione — ${campaignName}`
   const text = [
     `Ciao ${evaluatorName},`,

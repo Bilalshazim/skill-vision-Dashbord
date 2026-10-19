@@ -12,7 +12,8 @@ import { useConfirm } from '@/hooks/use-confirm'
 import { cn } from '@/lib/utils'
 import { candidatesApi, campaignsApi, evaluatorsApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
-import type { BackendCampaignEvaluator } from '@/lib/api/endpoints'
+import type { BackendCampaignEvaluator, EvaluatorFormKind } from '@/lib/api/endpoints'
+import { EvaluatorFormsTracking, FORM_KIND_LABEL } from '@/modules/recruiting/profile-hub/EvaluatorFormsTracking'
 import type { BackendCampaignCandidate, BackendEvaluation, BackendEvaluatorRole } from '@/lib/api/types'
 import { getCachedBackendLink } from '@/modules/recruiting/lib/backend-link'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
@@ -68,6 +69,18 @@ export function EvaluatorsBackendPanel({ onReportChanged }: { onReportChanged?: 
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [sending, setSending] = useState(false)
   const [sendResults, setSendResults] = useState<Record<string, { ok: boolean; reason?: string }>>({})
+  // Quali schede mandare: di partenza tutte e due, come prima.
+  const [sendKinds, setSendKinds] = useState<Set<EvaluatorFormKind>>(() => new Set(['INTERVISTA', 'VALUTAZIONE']))
+  const [trackingKey, setTrackingKey] = useState(0)
+
+  function toggleKind(kind: EvaluatorFormKind, on: boolean) {
+    setSendKinds((prev) => {
+      const next = new Set(prev)
+      if (on) next.add(kind)
+      else next.delete(kind)
+      return next
+    })
+  }
 
   function toggleSelected(id: string, on: boolean) {
     setSelected((prev) => {
@@ -81,15 +94,25 @@ export function EvaluatorsBackendPanel({ onReportChanged }: { onReportChanged?: 
   // Invia via email il link alle schede (Intervista strutturata + Valutazione
   // candidato) ai valutatori spuntati. A chi non è spuntato non parte niente.
   async function handleSendForms() {
-    if (!backendCampaignId || sending || selected.size === 0) return
+    if (!backendCampaignId || sending || selected.size === 0 || sendKinds.size === 0) return
     const n = selected.size
-    if (!(await confirm({ title: `Inviare le schede a ${n} ${n === 1 ? 'valutatore' : 'valutatori'}?`, description: 'Ognuno riceve un’email con il suo link personale, valido 14 giorni. Se ne aveva già uno, quello precedente smette di funzionare.', confirmLabel: 'Invia email' }))) return
+    const kinds = (['INTERVISTA', 'VALUTAZIONE'] as const).filter((k) => sendKinds.has(k))
+    const what = kinds.length === 2 ? 'le due schede' : `la scheda ${FORM_KIND_LABEL[kinds[0]]}`
+    if (
+      !(await confirm({
+        title: `Inviare ${what} a ${n} ${n === 1 ? 'valutatore' : 'valutatori'}?`,
+        description: 'Ognuno riceve un’email con il suo link personale, valido 14 giorni: può compilare online o rimandarti la scheda come file rispondendo all’email. Se aveva già un link, quello precedente smette di funzionare.',
+        confirmLabel: 'Invia email',
+      }))
+    )
+      return
     setSending(true)
     setError('')
     try {
-      const { results } = await evaluatorsApi.sendForms(backendCampaignId, [...selected])
+      const { results } = await evaluatorsApi.sendForms(backendCampaignId, [...selected], kinds)
       setSendResults(Object.fromEntries(results.map((r) => [r.evaluatorId, { ok: r.ok, reason: r.reason }])))
       setSelected(new Set(results.filter((r) => !r.ok).map((r) => r.evaluatorId)))
+      setTrackingKey((k) => k + 1)
       await refreshRoster()
     } catch (err) {
       setError(apiErrorMessage(err))
@@ -276,14 +299,33 @@ export function EvaluatorsBackendPanel({ onReportChanged }: { onReportChanged?: 
       )}
 
       {roster.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3">
-          <button type="button" onClick={handleSendForms} disabled={sending || selected.size === 0} className={btnClass}>
-            {sending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Mail className="size-3.5 shrink-0" aria-hidden="true" />}
-            Invia le schede via email{selected.size ? ` (${selected.size})` : ''}
-          </button>
-          <span className="text-app-caption text-muted-foreground">Spunta i valutatori: ricevono il link alla Scheda Intervista Strutturata e alla Scheda Valutazione Candidato.</span>
+        <div className="flex flex-col gap-2">
+          <fieldset className="flex flex-wrap items-center gap-4">
+            <legend className="label-mono mb-2 text-muted-foreground">Schede da inviare</legend>
+            {(['INTERVISTA', 'VALUTAZIONE'] as const).map((k) => (
+              <label key={k} className="flex items-center gap-2 text-app-small text-foreground">
+                <Checkbox checked={sendKinds.has(k)} onCheckedChange={(c) => toggleKind(k, c === true)} disabled={sending} />
+                {FORM_KIND_LABEL[k]}
+              </label>
+            ))}
+          </fieldset>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" onClick={handleSendForms} disabled={sending || selected.size === 0 || sendKinds.size === 0} className={btnClass}>
+              {sending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <Mail className="size-3.5 shrink-0" aria-hidden="true" />}
+              Invia le schede via email{selected.size ? ` (${selected.size})` : ''}
+            </button>
+            <span className="text-app-caption text-muted-foreground">
+              {sendKinds.size === 0 ? 'Scegli almeno una scheda da inviare.' : 'Spunta i valutatori: ricevono il link alle schede scelte e possono rimandartele anche come file.'}
+            </span>
+          </div>
         </div>
       )}
+
+      <div className="flex flex-col gap-2 border-t border-border pt-3">
+        <h5 className="text-app-small font-semibold text-foreground">Schede per candidato</h5>
+        <p className="text-app-caption text-muted-foreground">Per ogni valutatore: quando è stata inviata la scheda, se è stata compilata online o se è tornata come file. Le schede rimandate come file si caricano qui, per nome del candidato.</p>
+        <EvaluatorFormsTracking campaignId={backendCampaignId} roster={roster} refreshKey={trackingKey} />
+      </div>
 
       <EvaluatorResultsSection campaignId={backendCampaignId} roster={roster} onReportChanged={onReportChanged} />
       {confirmDialog}
