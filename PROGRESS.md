@@ -139,8 +139,9 @@ alla compilazione online, non la sostituisce (Roberto, 2026-10-19).
       "Carica schede intervista" / "Carica schede valutazione"
 - [x] Quadro per candidato e valutatore: inviata → compilata online o file
       caricato → in attesa
-- [ ] Migrazione `20261019100420_evaluator_form_uploads` da applicare su
-      Railway (parte da sola al deploy, `preDeployCommand`)
+- [x] In produzione il 2026-10-19 (`ea0fb38`): backend nuovo attivo, la rotta
+      `form-tracking` risponde 401 senza accesso, /health 200; migrazione
+      applicata dal `preDeployCommand`
 - [ ] Domanda aperta: allegare all'email i modelli vuoti delle schede (Word
       del cliente)?
 ### Progetto separato — Assessment sul server
