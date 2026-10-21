@@ -15,8 +15,6 @@ export const env = {
   authMode: raw.VITE_AUTH_MODE === 'backend' ? 'backend' : 'legacy',
   /** Catalogo `/dev/components` anche nella build. */
   componentCatalog: IS_DEV || raw.VITE_ENABLE_COMPONENT_CATALOG === 'true',
-  /** Dove Assessment salva i dati: `server` (backend) oppure `local` (browser, come prima). */
-  assessmentStorage: raw.VITE_ASSESSMENT_STORAGE === 'server' ? 'server' : 'local',
   /** Versione demo: mostra "Reset demo". */
   demoMode: IS_DEV || raw.VITE_DEMO_MODE === 'true',
   /** Email dello staff di Skill Vision, minuscole. */

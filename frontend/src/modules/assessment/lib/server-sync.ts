@@ -35,9 +35,7 @@ const same = (a: unknown, b: unknown) => a === b || JSON.stringify(a) === JSON.s
 // Il token lo decide il server: non conta come modifica.
 const assignmentBody = ({ token: _token, ...rest }: EvalAssignment) => rest
 const settingsBody = (s: AssessmentState['settings'] | null, evaluators: string[]) => {
-  if (!s) return null
-  const { emailApiKey: _k, emailApiEndpoint: _e, ...rest } = s
-  return { ...rest, evaluators }
+  return s ? { ...s, evaluators } : null
 }
 
 type Op = { label: string; run: (companyId: string) => Promise<unknown> }

@@ -1665,3 +1665,20 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
   l'isolamento: non vale il rischio per una compilazione che si fa in una
   volta.
 
+## Niente nel browser, in modo rigoroso · 2026-10-21
+- Richiesta di Roberto: tutto sul server, nessun `localStorage`,
+  `sessionStorage` o IndexedDB, nemmeno per le preferenze. Piano in
+  `PROGETTO-TUTTO-SUL-SERVER.md` (10 parti, 38–50 ore).
+- Superata la decisione del 2026-10-15 "RAL e import" sul punto delle due
+  modalità: la modalità `local` di Assessment e `VITE_ASSESSMENT_STORAGE`
+  spariscono (non c'è più un ritorno al browser).
+- Superato "Società attiva di Assessment per lo staff" (2026-10-15): la scelta
+  va nelle preferenze dell'utente sul server, non nel browser.
+- Eccezione unica: il cookie httpOnly della sessione. Opzioni: (a) tenerlo;
+  (b) toglierlo, e chiedere la password a ogni ricaricamento della pagina.
+  Lo imposta il server, il codice non lo legge e non contiene dati.
+  Raccomandazione e presa: **(a)**.
+- Stato d'interfaccia da ricordare fra un ricaricamento e l'altro (la scheda
+  aperta) va nell'indirizzo (`?tab=`): non è un archivio del browser.
+- Aperta, da decidere con Roberto: la scheda 5P del valutatore (file HTML che
+  salva nel browser del valutatore) diventa un link online?

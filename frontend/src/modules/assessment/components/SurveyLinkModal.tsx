@@ -53,20 +53,16 @@ type SendResult = { id: string; email: string; success: boolean; error?: string 
 // Migrated from openSurveyLinkModal()/renderSurveyLinkBodyHtml()/
 // prepareSurveySendRecipients()/submitSendSurveyLinks()/
 // sendSurveyLinksViaMailtoFallback()/openSurveySendResultsModal()
-// (js/assessment.js ~5085-5307) — sends the Soft Skills survey link to
-// selected employees via the user-configured emailApiEndpoint (with
-// optional bearer token), falling back to a real per-recipient mailto:
-// compose when no endpoint is configured. NEVER claims success without a
-// real 2xx response, exactly like legacy — no fake "sent" state.
+// (js/assessment.js ~5085-5307). NEVER claims success without a real
+// confirmation from the sender — no fake "sent" state.
 //
-// Con i dati sul server (Parte 3) l'invio lo fa il server, come in Recruiting:
+// L'invio lo fa il server, come in Recruiting:
 // "Invia link test (N)" con la conferma (SendTestLinkBar), nessuna chiave
 // email nel browser. Il testo resta quello di qui (lettera + corpo), con
 // {{NOME}} e {{LINK}} che il server riempie per ogni persona. Il mailto resta
 // come ripiego.
 export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
-  const { state, setState, ui, canEdit, toast, storage, company, retry } = useAssessment()
-  const onServer = storage === 'server'
+  const { state, setState, ui, canEdit, toast, company, retry } = useAssessment()
   const uiRec = ui as unknown as Record<string, unknown>
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [sending, setSending] = useState(false)
@@ -74,7 +70,6 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
 
   const link = (state.settings.surveyLink || '').trim()
   const sender = resolveSurveySender(state, uiRec)
-  const apiConfigured = !!(state.settings.emailApiEndpoint || '').trim()
   const employees = employeesOrderedByRecency(state).filter((e) => !e.archived)
   const allSelected = employees.length > 0 && employees.every((e) => selected.has(e.id))
 
@@ -160,52 +155,6 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
     } finally {
       setSending(false)
     }
-  }
-
-  async function submitSend() {
-    if (!canEdit) return
-    const endpoint = (state.settings.emailApiEndpoint || '').trim()
-    if (!endpoint) {
-      toast(ui.toastSurveyApiNotConfigured, 'err')
-      return
-    }
-    const prepared = prepareRecipients()
-    if (!prepared) return
-    const { sender: s, link: l, recipients } = prepared
-    setSending(true)
-    toast(ui.toastSurveySending(recipients.length), 'ok')
-
-    let outcome: { ok: boolean; results: SendResult[]; networkError?: boolean }
-    try {
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-      const apiKey = (state.settings.emailApiKey || '').trim()
-      if (apiKey) headers.Authorization = `Bearer ${apiKey}`
-      const res = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify({ sender: s, surveyLink: l, recipients }) })
-      let payload: { results?: SendResult[]; error?: string } | null = null
-      try {
-        payload = await res.json()
-      } catch {
-        /* non-JSON or empty body */
-      }
-      if (!res.ok) {
-        outcome = { ok: false, results: recipients.map((r) => ({ id: r.id, email: r.email, success: false, error: payload?.error || `HTTP ${res.status}` })) }
-      } else if (payload && Array.isArray(payload.results)) {
-        outcome = { ok: true, results: payload.results }
-      } else {
-        outcome = { ok: true, results: recipients.map((r) => ({ id: r.id, email: r.email, success: true })) }
-      }
-    } catch (err) {
-      outcome = { ok: false, networkError: true, results: recipients.map((r) => ({ id: r.id, email: r.email, success: false, error: err instanceof Error ? err.message : String(err) })) }
-    }
-    setSending(false)
-
-    const okCount = outcome.results.filter((r) => r.success).length
-    const failCount = outcome.results.length - okCount
-    if (outcome.networkError) toast(ui.toastSurveyApiError(outcome.results[0]?.error || ''), 'err')
-    else if (okCount === 0) toast(ui.toastSurveySendAllFailed, 'err')
-    else if (failCount === 0) toast(ui.toastSurveySendAllOk(okCount), 'ok')
-    markDispatched(outcome.results.filter((r) => r.success).map((r) => r.id))
-    setResults({ recipients, results: outcome.results })
   }
 
   function markDispatched(ids: string[]) {
@@ -340,30 +289,17 @@ export function SurveyLinkModal({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="flex justify-end items-center gap-3 mt-4 flex-wrap">
-        {!onServer && !apiConfigured && (
-          <InlineAlert tone="warning" layout="text">
-            {ui.toastSurveyApiNotConfigured}
-          </InlineAlert>
-        )}
-        {(onServer || !apiConfigured) && (
-          <Hint label={ui.surveyMailtoFallbackHint}>
-            <Button variant="outline" size="sm" onClick={mailtoFallback}>
-              {ui.surveyMailtoFallbackBtn}
-            </Button>
-          </Hint>
-        )}
-        {onServer ? (
-          <SendTestLinkBar
-            selectedNames={employees.filter((e) => selected.has(e.id)).map((e) => `${e.nome} ${e.cognome}`)}
-            onSend={submitServerSend}
-            onClear={() => toggleAll(false)}
-            sending={sending}
-          />
-        ) : (
-          <Button variant="default" disabled={sending} onClick={submitSend}>
-            {sending ? ui.toastSurveySending(selected.size) : ui.surveyInviaBtn}
+        <Hint label={ui.surveyMailtoFallbackHint}>
+          <Button variant="outline" size="sm" onClick={mailtoFallback}>
+            {ui.surveyMailtoFallbackBtn}
           </Button>
-        )}
+        </Hint>
+        <SendTestLinkBar
+          selectedNames={employees.filter((e) => selected.has(e.id)).map((e) => `${e.nome} ${e.cognome}`)}
+          onSend={submitServerSend}
+          onClear={() => toggleAll(false)}
+          sending={sending}
+        />
       </div>
     </ModalDialog>
   )

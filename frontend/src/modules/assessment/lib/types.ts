@@ -112,8 +112,6 @@ export type AssessmentSettings = {
   preTestLetter: string
   surveyEmailSubject: string
   surveyEmailBody: string
-  emailApiEndpoint: string
-  emailApiKey: string
 }
 
 export type CompanyContact = { label: string; name: string; email: string; phone: string }

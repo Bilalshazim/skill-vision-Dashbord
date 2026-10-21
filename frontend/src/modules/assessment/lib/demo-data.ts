@@ -276,8 +276,6 @@ export function generateDemoData(): AssessmentState {
       preTestLetter: COLLABORATOR_LETTER_TEMPLATE,
       surveyEmailSubject: 'Questionario di valutazione delle competenze',
       surveyEmailBody: 'Ciao {{NOME}},\n\n[Testo standard da inserire — verrà fornito dal cliente]\n\nPer completare il questionario di valutazione delle Competenze Trasversali, utilizza il link seguente:\n\n{{LINK}}\n\nGrazie.',
-      emailApiEndpoint: '',
-      emailApiKey: '',
     },
     employees,
     evaluators,

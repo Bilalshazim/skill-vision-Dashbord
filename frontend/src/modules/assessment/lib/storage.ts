@@ -1,15 +1,11 @@
-import { exiDefaultData, generateDemoData } from '@/modules/assessment/lib/demo-data'
+import { exiDefaultData } from '@/modules/assessment/lib/demo-data'
 import { uid } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentState } from '@/modules/assessment/lib/types'
 
-// Data-access boundary for Assessment — the ONLY place that touches
-// `sv_assessment_state_v1`, mirroring loadState()/saveState() (js/assessment.js
-// ~2877-2944) exactly: same key, same JSON shape, same defensive per-field
-// defaults for records saved by an older version of the app. Completely
-// independent of every Recruiting key (apex5d_*, skillvision_candidates_data) —
-// verified via Phase 22's cross-key audit; nothing in Assessment ever reads
-// or writes those.
-const STORAGE_KEY = 'sv_assessment_state_v1'
+// La forma completa dello stato di Assessment: le parti mancanti (record
+// salvati da versioni più vecchie, o mai salvati sul server) prendono i loro
+// valori predefiniti, campo per campo. I dati stanno sul server; questo file
+// non legge né scrive l'archivio del browser (vedi browser-import.ts).
 
 // Ported verbatim from loadState()'s per-field back-fill (~2877-2925) — a
 // record saved by an older build of the legacy app (or by a React build
@@ -43,8 +39,6 @@ export function hydrate(parsed: Partial<AssessmentState> & { employees: Assessme
   if (s.surveyEmailSubject === undefined) s.surveyEmailSubject = 'Questionario di valutazione delle competenze'
   if (s.surveyEmailBody === undefined)
     s.surveyEmailBody = 'Ciao {{NOME}},\n\n[Testo standard da inserire — verrà fornito dal cliente]\n\nPer completare il questionario di valutazione delle Competenze Trasversali, utilizza il link seguente:\n\n{{LINK}}\n\nGrazie.'
-  if (s.emailApiEndpoint === undefined) s.emailApiEndpoint = ''
-  if (s.emailApiKey === undefined) s.emailApiKey = ''
   if (!s.actionNotes) s.actionNotes = {}
   if (!s.softSkillTargets) s.softSkillTargets = {}
   if (!parsed.analisiIniziale || (parsed.analisiIniziale as { q1?: number }).q1 === undefined) parsed.analisiIniziale = exiDefaultData()
@@ -58,45 +52,4 @@ export function hydrate(parsed: Partial<AssessmentState> & { employees: Assessme
     if (a.evaluatorEmail === undefined) a.evaluatorEmail = ''
   })
   return parsed as AssessmentState
-}
-
-// Ported from loadState() (~2877-2929) — on first run (nothing in storage,
-// or a corrupted/unparseable record), legacy falls back to generateDemoData()
-// AND immediately persists it (unlike Recruiting's read-only seed fallback,
-// which only writes on the first real mutation). Reproduced exactly: a
-// fresh Assessment install writes `sv_assessment_state_v1` right away.
-export function readAssessmentState(): AssessmentState {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      if (parsed && Array.isArray(parsed.employees)) return hydrate(parsed)
-    }
-  } catch {
-    /* corrupted or missing — fall through to demo data */
-  }
-  const demo = generateDemoData()
-  writeAssessmentState(demo)
-  return demo
-}
-
-// I dati di Assessment rimasti in questo browser, per portarli sul server
-// ("Importa dati del browser"). A differenza di readAssessmentState() non
-// genera la demo e non scrive niente: se non c'è nulla, `null`.
-export function readStoredAssessmentState(): AssessmentState | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    const parsed = raw ? JSON.parse(raw) : null
-    return parsed && Array.isArray(parsed.employees) ? hydrate(parsed) : null
-  } catch {
-    return null
-  }
-}
-
-// Ported verbatim from saveState() (~2931-2943) — the whole state blob,
-// re-serialized. Throws on failure instead of swallowing it (matches this
-// migration's established writer discipline) — callers decide how to
-// surface that.
-export function writeAssessmentState(state: AssessmentState): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
 }

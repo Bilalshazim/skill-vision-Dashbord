@@ -22,10 +22,9 @@ import { isDemoMode } from '@/lib/demo-mode'
 import { MethodologyModal } from '@/modules/assessment/components/MethodologyModal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { generateDemoData } from '@/modules/assessment/lib/demo-data'
-import { loadState as load5pState } from '@/modules/assessment/gestione5p/model'
 import { getNavConfig } from '@/modules/assessment/lib/legacy-utils'
 import { errorReason } from '@/modules/assessment/lib/server-sync'
-import { readStoredAssessmentState } from '@/modules/assessment/lib/storage'
+import { clearBrowserAssessment, readBrowser5p, readBrowserAssessment } from '@/modules/assessment/lib/browser-import'
 
 // Le icone della navigazione di Assessment: erano SVG del vecchio modulo
 // iniettati come HTML (Icon.tsx); qui Lucide, per nome della voce.
@@ -50,7 +49,7 @@ const iconFor = (name?: string) => (name && ICONS[name]) || ClipboardList
 // società (struttura gruppo → società: oggi Assessment ne conosce una, il
 // nome dalle impostazioni del modulo); in fondo il conteggio dei dipendenti.
 export function AssessmentNav() {
-  const { lang, ui, state, persist, canEdit, isAdmin, toast, storage, companies, company, setCompanyId, retry } = useAssessment()
+  const { lang, ui, state, canEdit, isAdmin, toast, companies, company, setCompanyId, retry } = useAssessment()
   const queryClient = useQueryClient()
   const [busy, setBusy] = useState(false)
   const [confirm, confirmDialog] = useConfirm()
@@ -91,37 +90,34 @@ export function AssessmentNav() {
       return
     }
     if (!(await confirm({ title: ui.resetDemo, description: ui.confirmResetDemo, confirmLabel: ui.resetDemo, cancelLabel: ui.confirmCancel, destructive: true }))) return
-    if (storage === 'server' && company) {
-      // Sul server: si tolgono i dati della società demo e si importano quelli di prova.
-      setBusy(true)
-      try {
-        await assessmentApi.resetDemo(company.id)
-        await assessmentApi.importState(company.id, generateDemoData(), false)
-        await queryClient.invalidateQueries({ queryKey: ['assessment', 'state', company.id] })
-      } catch (err) {
-        toast(ui.serverSaveFailed(errorReason(err, ui.serverOffline)), 'err')
-        retry()
-        return
-      } finally {
-        setBusy(false)
-      }
-    } else persist(generateDemoData())
+    if (!company) return
+    // Si tolgono i dati della società demo sul server e si importano quelli di prova.
+    setBusy(true)
+    try {
+      await assessmentApi.resetDemo(company.id)
+      await assessmentApi.importState(company.id, generateDemoData(), false)
+      await queryClient.invalidateQueries({ queryKey: ['assessment', 'state', company.id] })
+    } catch (err) {
+      toast(ui.serverSaveFailed(errorReason(err, ui.serverOffline)), 'err')
+      retry()
+      return
+    } finally {
+      setBusy(false)
+    }
     navigate('/assessment/home')
   }
 
-  // Sul server, una volta per società: i dati che finora stavano in questo
-  // browser vanno sul server (decisione 4 del 2026-10-14). Prima una prova
-  // che non salva niente e dice cosa entrerà, poi la conferma.
-  // Il 5P del browser (sv5p_state_v1) si porta solo se è un progetto vero, non i dati di esempio.
-  const readLocal5p = () => {
-    const s = load5pState()
-    return s && !s.demo && s.people.length ? s : null
-  }
-  const browserData = useMemo(() => (storage === 'server' && isAdmin && company ? readStoredAssessmentState() || readLocal5p() : null), [storage, isAdmin, company])
+  // Una volta per società: i dati che le versioni precedenti tenevano in questo
+  // browser vanno sul server (decisione 4 del 2026-10-14) e poi si cancellano
+  // dal browser (PROGETTO-TUTTO-SUL-SERVER.md). Prima una prova che non salva
+  // niente e dice cosa entrerà, poi la conferma.
+  // `cleared` nasconde la voce appena il browser è stato svuotato.
+  const [cleared, setCleared] = useState(false)
+  const browserData = useMemo(() => (!cleared && isAdmin && company ? readBrowserAssessment() || readBrowser5p() : null), [cleared, isAdmin, company])
   async function importBrowserData() {
     if (!company) return
-    const local = readStoredAssessmentState()
-    const local5p = readLocal5p()
+    const local = readBrowserAssessment()
+    const local5p = readBrowser5p()
     if (!local && !local5p) {
       toast(ui.importNothing)
       return
@@ -129,13 +125,16 @@ export function AssessmentNav() {
     setBusy(true)
     try {
       const preview = local ? await assessmentApi.importState(company.id, local, true) : null
+      // Il 5P va sul server solo se lì non ce n'è ancora uno: non si sovrascrive il lavoro di un collega.
+      const server5pExists = local5p ? (await assessmentApi.get5p(company.id)).version > 0 : false
       setBusy(false)
-      const description = ((preview ? ui.importConfirmBody(preview, company.name) : '') + (local5p ? ui.importConfirm5p : '')).trim()
+      const description = ((preview ? ui.importConfirmBody(preview, company.name) : '') + (local5p ? (server5pExists ? ui.importConfirm5pSkipped : ui.importConfirm5p) : '')).trim()
       if (!(await confirm({ title: ui.importConfirmTitle, description, confirmLabel: ui.importConfirmBtn, cancelLabel: ui.confirmCancel }))) return
       setBusy(true)
       const done = local ? await assessmentApi.importState(company.id, local, false) : null
-      // Il 5P va sul server solo se lì non ce n'è ancora uno: non si sovrascrive il lavoro di un collega.
-      if (local5p && (await assessmentApi.get5p(company.id)).version === 0) await assessmentApi.put5p(company.id, local5p, 0)
+      if (local5p && !server5pExists) await assessmentApi.put5p(company.id, local5p, 0)
+      clearBrowserAssessment()
+      setCleared(true)
       await queryClient.invalidateQueries({ queryKey: ['assessment', 'state', company.id] })
       await queryClient.invalidateQueries({ queryKey: ['assessment', '5p', company.id] })
       toast(ui.importDone(done?.employees ?? 0), 'ok')
@@ -216,11 +215,7 @@ export function AssessmentNav() {
   return (
     <>
       <SidebarHeader>
-        {storage === 'server' ? (
-          <CompanySwitcher companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company?.id} onChange={setCompanyId} />
-        ) : (
-          <CompanySwitcher companies={[{ id: 'assessment', name: state.settings.companyName }]} activeId="assessment" />
-        )}
+        <CompanySwitcher companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company?.id} onChange={setCompanyId} />
       </SidebarHeader>
       <SidebarContent>
         {groups.map((g, i) => {

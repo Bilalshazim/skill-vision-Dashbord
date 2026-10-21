@@ -169,9 +169,43 @@ link test in Assessment, holding → società. Piano di esecuzione al §8
 - [x] Parte 3: invio link test dal server (2026-10-15)
 - [x] Parte 4: 5P sul server, persone = dipendenti (2026-10-15)
 - [x] Parte 5: verifica di tutte le schermate, chiaro e scuro (2026-10-15)
-- [ ] Parte 6: Railway
+- [x] Parte 6: codice su Railway (2026-10-15); dal 2026-10-21 non serve più
+      la variabile: Assessment è solo sul server (progetto sotto, Parte 1)
+
+### Progetto — tutto sul server, niente nel browser (dal 2026-10-21)
+Piano in PROGETTO-TUTTO-SUL-SERVER.md (10 parti, 38–50 ore). Riassunto per
+Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
+- [x] Parte 1: Assessment solo server, import che svuota il browser (2026-10-21)
+- [ ] Parte 2: preferenze sul server
+- [ ] Parte 3: ritiro della modalità `legacy` e del guscio statico
+- [ ] Parti 4–9: Recruiting sul server
+- [ ] Parte 10: verifica e controllo "zero archivio del browser"
+- [ ] Da decidere con Roberto: scheda 5P del valutatore come link online?
 
 ## Registro
+
+## 2026-10-21 — Tutto sul server: piano e Parte 1 (Assessment solo server)
+- [x] Inventario di ciò che sta nel browser, verificato sul codice e sul
+      pacchetto servito in produzione: **in produzione Assessment è ancora nel
+      browser** (`VITE_ASSESSMENT_STORAGE` mai impostata); Recruiting in gran
+      parte nel browser. Piano in `PROGETTO-TUTTO-SUL-SERVER.md`.
+- [x] Tolta la modalità `local` di Assessment: un solo `AssessmentProvider`
+      (server), `use5pState` solo server, pagina del valutatore solo server,
+      invio dei link solo dal server (via l'invio dal browser con chiave email),
+      tolte `VITE_ASSESSMENT_STORAGE` (env, tipi, `.env.example`, `.env.local`)
+      e i campi `emailApiKey`/`emailApiEndpoint` (anche dalla risposta del
+      backend; li accetta ancora dagli import vecchi e li scarta).
+- [x] `lib/browser-import.ts`: l'unico punto che legge le chiavi vecchie
+      (`sv_assessment_state_v1`, `sv5p_state_v1`, `sv5p_state_v1_tab`), solo
+      per l'import; a import riuscito le cancella. Se sul server c'è già un 5P,
+      quello del browser non si importa e la conferma lo dice prima.
+- [x] Verifica: backend `assessment.test.ts` 28/28; typecheck pulito; nel
+      browser import di 2 dipendenti → archivio del browser vuoto, voce
+      "Importa" sparita; giro delle 16 schermate di Assessment senza errori e
+      con `localStorage`/`sessionStorage` vuoti.
+- Effetto in produzione al prossimo push: Assessment passa al server senza
+  impostare niente su Railway. Ogni società poi usa "Importa dati del browser".
+
 
 ## 2026-10-19 — "recruiting doc": punti 1, 2, 5, 6, 7
 - [x] 1 · Assessment: "Valutazioni Hard Skill" → "Valutazioni Professionali"

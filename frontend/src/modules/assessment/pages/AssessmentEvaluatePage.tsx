@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { Logo } from '@/layouts/Logo'
@@ -9,13 +9,10 @@ import { Card, CardTitle, CardLabel } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { assessmentApi } from '@/lib/api/assessment'
 import { ApiError } from '@/lib/api/client'
-import { env } from '@/lib/env'
 import { ApexItemRow } from '@/modules/assessment/components/ApexItemRow'
-import { computeHardSummary } from '@/modules/assessment/lib/calculations'
 import { getApex5dDimensions, getApexSources, getUI, type AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import { errorReason } from '@/modules/assessment/lib/server-sync'
 import { readSharedLang } from '@/modules/assessment/lib/shell-bridge'
-import { readAssessmentState, writeAssessmentState } from '@/modules/assessment/lib/storage'
 import type { ApexSourceKey } from '@/modules/assessment/lib/types'
 import '@/modules/assessment/styles/assessment-print.css'
 
@@ -28,12 +25,9 @@ import '@/modules/assessment/styles/assessment-print.css'
 // external evaluator opening this link has no login at all; the
 // per-assignment token IS the credential.
 //
-// Dove stanno i dati (VITE_ASSESSMENT_STORAGE):
-// - `local`: come prima, l'assegnazione si cerca in `sv_assessment_state_v1`,
-//   quindi il link funziona solo nel browser dell'HR;
-// - `server` (Parte 2): la pagina chiede al server il minimo per il modulo
-//   (backend/src/modules/publicAssessment) e invia lì; il link funziona su
-//   qualunque computer e si chiude con l'invio.
+// I dati stanno sul server: la pagina chiede il minimo per il modulo
+// (backend/src/modules/publicAssessment) e invia lì; il link funziona su
+// qualunque computer e si chiude con l'invio.
 export default function AssessmentEvaluatePage() {
   const [params] = useSearchParams()
   const token = params.get('evalToken') ?? ''
@@ -47,7 +41,7 @@ export default function AssessmentEvaluatePage() {
             <Logo size="lg" />
             <div className="label-mono text-muted-foreground">{ui.brandTagline}</div>
           </div>
-          {env.assessmentStorage === 'server' ? <ServerEvaluation token={token} lang={lang} /> : <LocalEvaluation token={token} lang={lang} />}
+          <ServerEvaluation token={token} lang={lang} />
         </div>
       </div>
     </div>
@@ -216,65 +210,4 @@ function ServerEvaluation({ token, lang }: { token: string; lang: AssessmentLang
       onSubmit={submit}
     />
   )
-}
-
-function LocalEvaluation({ token, lang }: { token: string; lang: AssessmentLang }) {
-  const [state, setState] = useState(() => readAssessmentState())
-  const [submitted, setSubmitted] = useState(false)
-
-  const assignment = state.evalAssignments.find((a) => a.token === token) || null
-  const emp = assignment ? state.employees.find((e) => e.id === assignment.targetEmployeeId) : undefined
-
-  function submit({ values, notes }: Answers) {
-    if (!assignment || !emp) return
-    const source = assignment.templateType
-    const nextState = structuredClone(state)
-    const nEmp = nextState.employees.find((e) => e.id === emp.id)!
-    if (!nEmp.hard[source]) nEmp.hard[source] = {}
-    Object.entries(values).forEach(([cod, v]) => {
-      nEmp.hard[source][cod] = v
-    })
-    nEmp.hardNotes = { ...(nEmp.hardNotes || {}), [source]: { ...((nEmp.hardNotes || {})[source] || {}), ...Object.fromEntries(Object.entries(notes).filter(([, t]) => t.trim())) } }
-    if (!nEmp.hardEvaluatedBy) nEmp.hardEvaluatedBy = { resp: '', peer: '', auto: '' }
-    nEmp.hardEvaluatedBy[source] = source === 'auto' ? `${nEmp.nome} ${nEmp.cognome}` : assignment.evaluatorName || ''
-    if (source !== 'auto' && assignment.evaluatorName) {
-      if (!nextState.evaluators) nextState.evaluators = []
-      if (!nextState.evaluators.some((n) => n.toLowerCase() === assignment.evaluatorName.toLowerCase())) nextState.evaluators.push(assignment.evaluatorName)
-    }
-    const period = nextState.evalPeriods.find((p) => p.id === assignment.periodId)
-    if (!Array.isArray(nEmp.hardHistory)) nEmp.hardHistory = []
-    const hsm = computeHardSummary(nEmp, lang)
-    nEmp.hardHistory.push({
-      module: 'professional',
-      periodId: assignment.periodId,
-      periodLabel: period ? period.label : '',
-      date: new Date().toISOString(),
-      source,
-      apexScore: hsm.apexScore,
-      dims: hsm.dims.map((d) => ({ code: d.code, name: d.name, score: d.mediaTotale })),
-    })
-    const nAssignment = nextState.evalAssignments.find((a) => a.id === assignment.id)!
-    nAssignment.status = 'completed'
-    nAssignment.completedAt = new Date().toISOString()
-    writeAssessmentState(nextState)
-    setState(nextState)
-    setSubmitted(true)
-  }
-
-  let body: ReactNode
-  if (!assignment || !emp) body = <InvalidLink lang={lang} />
-  else if (submitted) body = <ThankYou lang={lang} date={new Date().toISOString().slice(0, 10)} />
-  else if (assignment.status === 'completed') body = <ThankYou lang={lang} date={assignment.completedAt ? assignment.completedAt.slice(0, 10) : ''} />
-  else
-    body = (
-      <EvaluationForm
-        lang={lang}
-        employeeName={`${emp.nome} ${emp.cognome}`}
-        source={assignment.templateType}
-        initialValues={emp.hard[assignment.templateType] || {}}
-        initialNotes={emp.hardNotes?.[assignment.templateType] || {}}
-        onSubmit={submit}
-      />
-    )
-  return body
 }

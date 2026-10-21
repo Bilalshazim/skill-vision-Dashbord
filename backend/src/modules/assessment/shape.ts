@@ -268,8 +268,6 @@ export async function readState(tx: Tx, companyId: string, canSeeRal: boolean) {
           preTestLetter: settings.preTestLetter,
           surveyEmailSubject: settings.surveyEmailSubject,
           surveyEmailBody: settings.surveyEmailBody,
-          emailApiEndpoint: '',
-          emailApiKey: '',
         }
       : null,
     employees: employees.map((e) => employeeOut(e, canSeeRal)),

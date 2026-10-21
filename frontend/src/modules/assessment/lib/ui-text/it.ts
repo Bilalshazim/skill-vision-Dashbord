@@ -1149,7 +1149,7 @@ export const UI_IT = {
   importBrowserData: 'Importa dati del browser',
   importNothing: 'In questo browser non ci sono dati di Assessment da importare.',
   importConfirmTitle: 'Importare i dati del browser?',
-  importConfirmBody: (r, company) => 'Per ' + company + ' verranno salvati sul server ' + r.employees + ' dipendenti, ' + r.periods + ' periodi, ' + r.roleProfiles + ' mansioni e ' + r.assignments + ' assegnazioni.' + (r.skipped.length ? ' ' + r.skipped.length + ' elementi non validi verranno saltati.' : '') + ' Un elemento già presente viene aggiornato, non duplicato. I dati restano anche in questo browser.',
+  importConfirmBody: (r, company) => 'Per ' + company + ' verranno salvati sul server ' + r.employees + ' dipendenti, ' + r.periods + ' periodi, ' + r.roleProfiles + ' mansioni e ' + r.assignments + ' assegnazioni.' + (r.skipped.length ? ' ' + r.skipped.length + ' elementi non validi verranno saltati.' : '') + ' Un elemento già presente viene aggiornato, non duplicato. Dopo l\'import i dati vengono cancellati da questo browser.',
   importConfirmBtn: 'Importa',
   importDone: (n) => 'Dati importati: ' + n + (n === 1 ? ' dipendente.' : ' dipendenti.'),
   importFailed: (reason) => 'Import non riuscito: ' + reason + '.',
@@ -1157,5 +1157,6 @@ export const UI_IT = {
   reSubmitFailed: (reason) => 'Valutazione non inviata: ' + reason + '. I voti restano qui: riprova.',
   fivePConflict: 'Un collega ha salvato la Valutazione 5P nel frattempo: ora vedi la sua versione. Rifai l\'ultima modifica.',
   fivePPeopleAdded: (n) => n + (n === 1 ? ' persona del piano 5P aggiunta' : ' persone del piano 5P aggiunte') + ' all\'elenco dei dipendenti.',
-  importConfirm5p: ' Anche la Valutazione 5P di questo browser va sul server, se sul server non ce n\'è già una.',
+  importConfirm5p: ' Anche la Valutazione 5P di questo browser va sul server.',
+  importConfirm5pSkipped: ' Sul server c\'è già una Valutazione 5P: quella di questo browser non si importa, per non sovrascrivere il lavoro di un collega.',
 };

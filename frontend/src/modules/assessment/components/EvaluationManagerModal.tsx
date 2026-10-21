@@ -31,7 +31,7 @@ import type { ApexSourceKey } from '@/modules/assessment/lib/types'
 // ?evalToken= link the restricted AssessmentEvaluatePage route consumes),
 // list/copy/email/complete/delete them, and manage evaluation periods.
 export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
-  const { state, setState, lang, ui, toast, storage } = useAssessment()
+  const { state, setState, lang, ui, toast } = useAssessment()
   const [confirm, confirmDialog] = useConfirm()
   const APEX_SOURCES = getApexSources(lang)
   const periods = state.evalPeriods
@@ -111,7 +111,7 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
   // Sul server il link vale solo con il token del server, che arriva appena
   // l'assegnazione è salvata: prima di allora si chiede di aspettare.
   function linkReady(token: string) {
-    if (storage !== 'server' || isServerToken(token)) return true
+    if (isServerToken(token)) return true
     toast(ui.linkNotReady, 'err')
     return false
   }

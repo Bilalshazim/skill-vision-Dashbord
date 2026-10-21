@@ -9,11 +9,10 @@ import { useSharedLang } from '@/hooks/use-shared-lang'
 import { useTheme } from '@/hooks/use-theme'
 import { assessmentApi } from '@/lib/api/assessment'
 import type { BackendCompany } from '@/lib/api/types'
-import { env } from '@/lib/env'
 import type { AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import { getUI } from '@/modules/assessment/lib/legacy-utils'
 import { errorReason, fromServer, runSync, type Baseline } from '@/modules/assessment/lib/server-sync'
-import { hydrate, readAssessmentState, writeAssessmentState } from '@/modules/assessment/lib/storage'
+import { hydrate } from '@/modules/assessment/lib/storage'
 import type { AssessmentState } from '@/modules/assessment/lib/types'
 import { useAssessmentCompanies } from '@/modules/assessment/lib/use-assessment-company'
 
@@ -23,12 +22,10 @@ import { useAssessmentCompanies } from '@/modules/assessment/lib/use-assessment-
 // (sv_theme/sv_language) — just exposed as real React state instead of
 // module-level `let`s.
 //
-// Dove stanno i dati lo decide VITE_ASSESSMENT_STORAGE (lib/env.ts):
-// - `local` (default, come prima): `sv_assessment_state_v1` in localStorage;
-// - `server` (PROGETTO-ASSESSMENT-SERVER.md §8, passo 3): lo stato arriva dal
-//   backend per la società attiva e ogni modifica si salva lì. Le schermate non
-//   cambiano: restituiscono lo stato intero come prima, e il contesto manda al
-//   server le sole parti cambiate (server-sync.ts).
+// I dati stanno solo sul server (PROGETTO-TUTTO-SUL-SERVER.md, Parte 1): lo
+// stato arriva dal backend per la società attiva e ogni modifica si salva lì.
+// Le schermate restituiscono lo stato intero come quando stava nel browser, e
+// il contesto manda al server le sole parti cambiate (server-sync.ts).
 type Ctx = {
   state: AssessmentState
   setState: (updater: (prev: AssessmentState) => AssessmentState) => void
@@ -44,13 +41,11 @@ type Ctx = {
   topbarActions: ReactNode
   setTopbarActions: (node: ReactNode) => void
   toast: (msg: string, type?: '' | 'ok' | 'err') => void
-  /** Dove stanno i dati: nel browser o sul server. */
-  storage: 'local' | 'server'
   /** `ready` quando `state` è quello vero; prima le pagine mostrano il caricamento. */
   status: 'loading' | 'error' | 'empty' | 'ready'
   error: string | null
   retry: () => void
-  /** Solo `server`: le società fra cui scegliere e quella attiva. */
+  /** Le società fra cui scegliere (lo staff ne vede più d'una) e quella attiva. */
   companies: BackendCompany[]
   company: BackendCompany | null
   setCompanyId: (id: string) => void
@@ -98,36 +93,9 @@ function useShared() {
   )
 }
 
-function LocalAssessmentProvider({ children }: { children: ReactNode }) {
-  const shared = useShared()
-  const [state, setStateRaw] = useState<AssessmentState>(() => readAssessmentState())
-
-  const persist = useCallback((next: AssessmentState) => {
-    writeAssessmentState(next)
-    setStateRaw(next)
-  }, [])
-
-  // Ported from saveState()'s pattern: fresh-mutate-persist. Callers pass an
-  // updater over the PREVIOUS state (never a stale closed-over snapshot),
-  // then the result is both written to storage and set as the new state.
-  const setState = useCallback((updater: (prev: AssessmentState) => AssessmentState) => {
-    setStateRaw((prev) => {
-      const next = updater(prev)
-      writeAssessmentState(next)
-      return next
-    })
-  }, [])
-
-  const value = useMemo<Ctx>(
-    () => ({ ...shared, state, setState, persist, storage: 'local', status: 'ready', error: null, retry: () => {}, companies: [], company: null, setCompanyId: () => {} }),
-    [shared, state, setState, persist],
-  )
-  return <AssessmentCtx.Provider value={value}>{children}</AssessmentCtx.Provider>
-}
-
 const EMPTY_STATE = hydrate({ employees: [] })
 
-function ServerAssessmentProvider({ children }: { children: ReactNode }) {
+export function AssessmentProvider({ children }: { children: ReactNode }) {
   const shared = useShared()
   const { ui, toast, canEdit } = shared
   const org = useAssessmentCompanies(true)
@@ -243,7 +211,6 @@ function ServerAssessmentProvider({ children }: { children: ReactNode }) {
       state,
       setState,
       persist,
-      storage: 'server',
       status,
       error: failure ? errorReason(failure, ui.serverOffline) : null,
       retry,
@@ -254,10 +221,6 @@ function ServerAssessmentProvider({ children }: { children: ReactNode }) {
     [shared, state, setState, persist, status, failure, ui, retry, org.companies, org.company, org.setCompanyId],
   )
   return <AssessmentCtx.Provider value={value}>{children}</AssessmentCtx.Provider>
-}
-
-export function AssessmentProvider({ children }: { children: ReactNode }) {
-  return env.assessmentStorage === 'server' ? <ServerAssessmentProvider>{children}</ServerAssessmentProvider> : <LocalAssessmentProvider>{children}</LocalAssessmentProvider>
 }
 
 export function useAssessment(): Ctx {

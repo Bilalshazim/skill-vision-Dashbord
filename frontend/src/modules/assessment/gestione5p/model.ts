@@ -7,7 +7,7 @@ import { ITEMS_5P } from '@/modules/assessment/gestione5p/items'
 // responsabile in anagrafica: si importa da un Excel a quattro fogli (ELENCO
 // NOMINATIVI, VALUTATORI DIRIGENTI, VALUTATORI PEER, AUTOVALUTAZIONI, più
 // VALORI ATTESI facoltativo), con i nomi corretti e un controllo del piano.
-// La logica sta qui, pura, senza React. Lo stato resta nel browser.
+// La logica sta qui, pura, senza React. Lo stato sta sul server (use5pState).
 
 export type SourceKey = 'DIR' | 'PEER' | 'AUTO'
 export type Person = {
@@ -73,7 +73,6 @@ export const SRC: Record<SourceKey, { lab: string; as: string; sh: string }> = {
   PEER: { lab: 'Collega', as: 'come collega', sh: 'P' },
   AUTO: { lab: 'Autovalutazione', as: 'sé stesso', sh: 'A' },
 }
-export const STORAGE_KEY = 'sv5p_state_v1'
 /** Sotto questo numero di colleghi la loro media è riconoscibile. */
 export const PEER_MIN = 3
 /** Soglia in punti 0–100 per lo skill gap («da sviluppare» da −10) e per la percezione (allineata entro ±9). */
@@ -211,23 +210,6 @@ export function normalizeState(o: Partial<State5p> | OldState): State5p {
   })
   return s
 }
-export function loadState(): State5p | null {
-  try {
-    const r = localStorage.getItem(STORAGE_KEY)
-    if (r) return normalizeState(JSON.parse(r) as Partial<State5p>)
-  } catch {
-    /* archivio non disponibile */
-  }
-  return null
-}
-export function saveState(s: State5p) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s))
-  } catch {
-    /* archivio non disponibile */
-  }
-}
-
 // ---------- persone e nomi ----------
 /** Il nome come si scrive ovunque: COGNOME Nome (o il nome intero, se il nome non c'è). */
 export const dn = (p: Pick<Person, 'cog' | 'nom'>) => (p.nom ? `${String(p.cog).trim().toUpperCase()} ${cap(String(p.nom).trim())}` : String(p.cog).trim())

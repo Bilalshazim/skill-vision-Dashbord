@@ -85,9 +85,9 @@ Detailed technical version, in Italian: `PROGETTO-ASSESSMENT-SERVER.md` §8.
 
 ## Good to know
 
-- **Nothing is on Railway yet.** All work is on the local computer until you
-  decide to push.
 - **Pushing to Railway updates the production database automatically.** The
   change only adds new tables; no existing Recruiting data is touched.
-- **There is a switch back.** Until everything is confirmed, the app can be put
-  back on browser storage with one setting (`VITE_ASSESSMENT_STORAGE=local`).
+- **Update 21 October:** the browser mode and its setting
+  (`VITE_ASSESSMENT_STORAGE`) are gone. Assessment is on the server only, and
+  "Importa dati del browser" deletes the browser copy once imported. The next
+  plan is `BACKEND-ONLY-PLAN.md`.

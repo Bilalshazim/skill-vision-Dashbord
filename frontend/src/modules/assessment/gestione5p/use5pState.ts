@@ -4,8 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { assessmentApi } from '@/lib/api/assessment'
 import { ApiError } from '@/lib/api/client'
 import { isDemoMode } from '@/lib/demo-mode'
-import { env } from '@/lib/env'
-import { type State5p, blank, demoState, loadState, normalizeState, saveState } from '@/modules/assessment/gestione5p/model'
+import { type State5p, blank, demoState, normalizeState } from '@/modules/assessment/gestione5p/model'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { errorReason } from '@/modules/assessment/lib/server-sync'
 
@@ -19,25 +18,6 @@ export type Use5pState = {
   retry: () => void
 }
 
-// Lo stato del modulo, salvato nel browser a ogni modifica. Come nel modello:
-// se non c'è niente di salvato si parte dai dati di esempio, con l'avviso e il
-// pulsante "Nuovo progetto vuoto".
-function useLocal5pState(): Use5pState {
-  const [state, setState] = useState<State5p>(() => loadState() ?? demoState())
-  const update = useCallback((fn: (s: State5p) => State5p) => {
-    setState((prev) => {
-      const next = fn(prev)
-      saveState(next)
-      return next
-    })
-  }, [])
-  const replace = useCallback((s: State5p) => {
-    saveState(s)
-    setState(s)
-  }, [])
-  return { state, update, replace, status: 'ready', error: null, retry: () => {} }
-}
-
 // Parte 4 (PROGETTO-ASSESSMENT-SERVER.md §8): sul server il 5P è un documento
 // per società con una versione. Le modifiche si salvano poco dopo l'ultima
 // (si scrive nei campi a ogni tasto), una alla volta; se nel frattempo un
@@ -46,7 +26,7 @@ function useLocal5pState(): Use5pState {
 // esempio solo nella versione demo), e niente si salva finché non si modifica.
 const SAVE_DELAY = 600
 
-function useServer5pState(): Use5pState {
+export function use5pState(): Use5pState {
   const { company, toast, ui, canEdit } = useAssessment()
   const companyId = company?.id ?? null
   const q = useQuery({
@@ -141,4 +121,3 @@ function useServer5pState(): Use5pState {
   }
 }
 
-export const use5pState = env.assessmentStorage === 'server' ? useServer5pState : useLocal5pState

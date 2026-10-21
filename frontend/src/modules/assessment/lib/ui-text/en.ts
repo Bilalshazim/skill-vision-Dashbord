@@ -1159,7 +1159,7 @@ export const UI_EN = {
   importBrowserData: 'Import browser data',
   importNothing: 'There is no Assessment data in this browser to import.',
   importConfirmTitle: 'Import browser data?',
-  importConfirmBody: (r, company) => 'For ' + company + ', ' + r.employees + ' employees, ' + r.periods + ' periods, ' + r.roleProfiles + ' job roles and ' + r.assignments + ' assignments will be saved on the server.' + (r.skipped.length ? ' ' + r.skipped.length + ' invalid items will be skipped.' : '') + ' An item already there is updated, not duplicated. The data also stays in this browser.',
+  importConfirmBody: (r, company) => 'For ' + company + ', ' + r.employees + ' employees, ' + r.periods + ' periods, ' + r.roleProfiles + ' job roles and ' + r.assignments + ' assignments will be saved on the server.' + (r.skipped.length ? ' ' + r.skipped.length + ' invalid items will be skipped.' : '') + ' An item already there is updated, not duplicated. After the import the data is deleted from this browser.',
   importConfirmBtn: 'Import',
   importDone: (n) => 'Data imported: ' + n + (n === 1 ? ' employee.' : ' employees.'),
   importFailed: (reason) => 'Import failed: ' + reason + '.',
@@ -1167,5 +1167,6 @@ export const UI_EN = {
   reSubmitFailed: (reason) => 'Evaluation not sent: ' + reason + '. Your scores are still here: try again.',
   fivePConflict: 'A colleague saved the 5P evaluation in the meantime: you now see their version. Redo your last change.',
   fivePPeopleAdded: (n) => n + (n === 1 ? ' person from the 5P plan added' : ' people from the 5P plan added') + ' to the employee list.',
-  importConfirm5p: ' The 5P evaluation in this browser also goes to the server, if there is none there yet.',
+  importConfirm5p: ' The 5P evaluation in this browser also goes to the server.',
+  importConfirm5pSkipped: ' There is already a 5P evaluation on the server: the one in this browser is not imported, so a colleague\'s work is not overwritten.',
 };
