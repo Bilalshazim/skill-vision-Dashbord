@@ -1,24 +1,8 @@
-import { useState } from 'react'
+import { usePreference } from '@/lib/preferences'
 
-// Un sì/no ricordato nel browser (localStorage), con i due valori scritti
-// come stringhe (`on` / `off`) per restare compatibile con quello che è già
-// salvato. Lo storage può lanciare (navigazione privata, dati bloccati):
-// si ripiega su `off` e l'interruttore funziona lo stesso per la sessione.
-export function usePersistedFlag(storageKey: string, on: string, off: string): [boolean, (value: boolean) => void] {
-  const [value, setValue] = useState(() => {
-    try {
-      return window.localStorage.getItem(storageKey) === on
-    } catch {
-      return false
-    }
-  })
-  function set(next: boolean) {
-    setValue(next)
-    try {
-      window.localStorage.setItem(storageKey, next ? on : off)
-    } catch {
-      // non salvato: vale solo per questa sessione
-    }
-  }
-  return [value, set]
+// Un sì/no ricordato fra una visita e l'altra — per esempio la vista
+// "oggi / Skill Vision" di una card. Sta nelle preferenze dell'utente sul
+// server (lib/preferences.ts), non nel browser. Predefinito: no.
+export function usePersistedFlag(key: string): [boolean, (value: boolean) => void] {
+  return usePreference<boolean>(key, false)
 }

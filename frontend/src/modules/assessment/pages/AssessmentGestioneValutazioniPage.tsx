@@ -1,5 +1,6 @@
 import { Check, CloudOff } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import { EmptyState } from '@/components/patterns/EmptyState'
 import { LoadingState } from '@/components/patterns/LoadingState'
@@ -30,7 +31,6 @@ const TABS = [
   ['met', '', 'Metodo'],
 ] as const
 type TabId = (typeof TABS)[number][0]
-const TAB_KEY = 'sv5p_state_v1_tab'
 
 // Stato di ogni passo, sotto il nome della scheda: dice a che punto si è
 // senza aprirla. `done` accende la spunta.
@@ -60,14 +60,11 @@ function stepStatus(s: State5p): Partial<Record<TabId, { text: string; done: boo
 export default function AssessmentGestioneValutazioniPage() {
   const { toast, ui, canEdit, state: assessment, setState: setAssessment } = useAssessment()
   const { state, update, replace, status: loadStatus, error, retry } = use5pState()
-  const [tab, setTab] = useState<TabId>(() => {
-    try {
-      const t = localStorage.getItem(TAB_KEY) as TabId | null
-      return t && TABS.some((x) => x[0] === t) ? t : 'piano'
-    } catch {
-      return 'piano'
-    }
-  })
+  // La scheda aperta sta nell'indirizzo (?tab=), non nel browser: ricaricando
+  // si torna lì, e il link si può mandare a un collega.
+  const [params, setParams] = useSearchParams()
+  const fromUrl = params.get('tab') as TabId | null
+  const tab: TabId = fromUrl && TABS.some((x) => x[0] === fromUrl) ? fromUrl : 'piano'
   const [incoming, setIncoming] = useState<File[] | null>(null)
   const [confirm, confirmDialog] = useConfirm()
   const projRef = useRef<HTMLInputElement>(null)
@@ -89,12 +86,14 @@ export default function AssessmentGestioneValutazioniPage() {
   }, [loadStatus, canEdit, state.people, assessment.employees])
 
   function go(t: TabId) {
-    setTab(t)
-    try {
-      localStorage.setItem(TAB_KEY, t)
-    } catch {
-      /* archivio non disponibile */
-    }
+    setParams(
+      (p) => {
+        const next = new URLSearchParams(p)
+        next.set('tab', t)
+        return next
+      },
+      { replace: true },
+    )
     window.scrollTo(0, 0)
   }
   async function newProject(msg: string) {

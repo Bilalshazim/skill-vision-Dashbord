@@ -45,10 +45,10 @@ export default function RecruitingHome() {
   const [interviewsTab, setInterviewsTab] = useState<'arrivo' | 'completati'>('arrivo')
   // Aperto/chiuso di ogni finestra, ricordato nel browser come in Assessment;
   // all'inizio sono tutte chiuse (solo il titolo).
-  const [openCandidati, setOpenCandidati] = usePersistedFlag('sv-recruiting-home-candidati-view', 'skillvision', 'oggi')
-  const [openImbuto, setOpenImbuto] = usePersistedFlag('sv-recruiting-home-imbuto-view', 'skillvision', 'oggi')
-  const [openPosizioni, setOpenPosizioni] = usePersistedFlag('sv-recruiting-home-posizioni-view', 'skillvision', 'oggi')
-  const [openColloqui, setOpenColloqui] = usePersistedFlag('sv-recruiting-home-colloqui-view', 'skillvision', 'oggi')
+  const [openCandidati, setOpenCandidati] = usePersistedFlag('sv-recruiting-home-candidati-view')
+  const [openImbuto, setOpenImbuto] = usePersistedFlag('sv-recruiting-home-imbuto-view')
+  const [openPosizioni, setOpenPosizioni] = usePersistedFlag('sv-recruiting-home-posizioni-view')
+  const [openColloqui, setOpenColloqui] = usePersistedFlag('sv-recruiting-home-colloqui-view')
   const cardLayout = homeCardLayout(
     [
       ['candidati', 'imbuto'],

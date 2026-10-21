@@ -6,21 +6,13 @@
 // ~165-196):
 //   sessionStorage.sv_shell_auth  — '1' once the shell's login form succeeds
 //   sessionStorage.sv_shell_user  — the logged-in username
-//   localStorage.sv_theme         — 'light'|'dark', written by
-//                                    GlobalSettings.persist() and read by
-//                                    both modules on boot
-//   localStorage.sv_language      — 'it'|'en', shared the same way
 //
-// React Assessment reads these; it never writes sv_shell_auth/sv_shell_user
-// (only the shell's own login form does that) and only writes sv_theme/
-// sv_language when the user operates Assessment's OWN theme/language
-// controls — exactly mirroring how legacy's embed-hook lets the module
-// apply local changes that flow back through the same shared keys.
+// React reads these and never writes sv_shell_auth/sv_shell_user (only the
+// shell's own login form does that). Tema e lingua non passano più da qui:
+// stanno nelle preferenze dell'utente sul server (lib/preferences.ts).
 
 const SHELL_AUTH_KEY = 'sv_shell_auth'
 const SHELL_USER_KEY = 'sv_shell_user'
-const THEME_KEY = 'sv_theme'
-const LANG_KEY = 'sv_language'
 
 export function isShellAuthenticated(): boolean {
   try {
@@ -70,38 +62,4 @@ export function logoutFromShell(): void {
 // link points there explicitly rather than reusing location.pathname.
 export function buildAssignmentLink(token: string): string {
   return `${window.location.origin}/assessment/evaluate?evalToken=${token}`
-}
-
-export function readSharedTheme(): 'light' | 'dark' {
-  try {
-    return localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light'
-  } catch {
-    return 'light'
-  }
-}
-export function writeSharedTheme(theme: 'light' | 'dark'): void {
-  try {
-    localStorage.setItem(THEME_KEY, theme)
-  } catch {
-    /* ignore */
-  }
-}
-
-// La lingua scelta nel selettore del guscio (chiave `sv_language`). Il
-// predefinito è l'italiano (CLAUDE.md cap. 7); il selettore è tornato in
-// Topbar su richiesta di Roberto Feliciani (Fase 1 Entry Page, 2026-10-05):
-// vedi DECISIONI.md, "Selettore lingua e impostazioni nella barra superiore".
-export function readSharedLang(): 'it' | 'en' {
-  try {
-    return localStorage.getItem(LANG_KEY) === 'en' ? 'en' : 'it'
-  } catch {
-    return 'it'
-  }
-}
-export function writeSharedLang(lang: 'it' | 'en'): void {
-  try {
-    localStorage.setItem(LANG_KEY, lang)
-  } catch {
-    /* ignore */
-  }
 }

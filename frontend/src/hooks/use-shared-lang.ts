@@ -1,37 +1,11 @@
-import { useEffect, useState } from 'react'
-
-import { readSharedLang, writeSharedLang } from '@/modules/assessment/lib/shell-bridge'
+import { usePreference } from '@/lib/preferences'
 
 export type Lang = 'it' | 'en'
 
-// Mirrors use-theme.ts's pattern: ONE shared sv_language key (shell-bridge.ts),
-// read by both the global top bar and Assessment's own AssessmentContext,
-// with an in-memory listener set for same-tab instant sync (a same-tab
-// localStorage write never fires the native `storage` event).
-type Listener = (lang: Lang) => void
-const listeners = new Set<Listener>()
-
+// La lingua scelta nel selettore della barra superiore: una sola per tutta
+// l'applicazione, nelle preferenze dell'utente sul server (lib/preferences.ts).
+// Predefinito l'italiano (CLAUDE.md cap. 7).
 export function useSharedLang() {
-  const [lang, setLangState] = useState<Lang>(() => readSharedLang())
-
-  useEffect(() => {
-    const onExternal: Listener = (next) => setLangState(next)
-    listeners.add(onExternal)
-    function onStorage(e: StorageEvent) {
-      if (e.key === 'sv_language') setLangState(readSharedLang())
-    }
-    window.addEventListener('storage', onStorage)
-    return () => {
-      listeners.delete(onExternal)
-      window.removeEventListener('storage', onStorage)
-    }
-  }, [])
-
-  function setLang(next: Lang) {
-    writeSharedLang(next)
-    setLangState(next)
-    listeners.forEach((l) => l(next))
-  }
-
+  const [lang, setLang] = usePreference<Lang>('lang', 'it')
   return { lang, setLang }
 }

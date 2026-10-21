@@ -12,7 +12,7 @@ import { ApiError } from '@/lib/api/client'
 import { ApexItemRow } from '@/modules/assessment/components/ApexItemRow'
 import { getApex5dDimensions, getApexSources, getUI, type AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import { errorReason } from '@/modules/assessment/lib/server-sync'
-import { readSharedLang } from '@/modules/assessment/lib/shell-bridge'
+
 import type { ApexSourceKey } from '@/modules/assessment/lib/types'
 import '@/modules/assessment/styles/assessment-print.css'
 
@@ -31,7 +31,8 @@ import '@/modules/assessment/styles/assessment-print.css'
 export default function AssessmentEvaluatePage() {
   const [params] = useSearchParams()
   const token = params.get('evalToken') ?? ''
-  const lang = readSharedLang()
+  // Pagina pubblica, senza accesso: nessuna preferenza dell'utente, vale l'italiano.
+  const lang: AssessmentLang = 'it'
   const ui = getUI(lang)
   return (
     <div data-module="assessment" data-portal-scope>

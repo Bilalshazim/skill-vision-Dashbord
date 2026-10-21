@@ -44,6 +44,9 @@ model User {
   company      Company?   @relation(fields: [companyId], references: [id])
   status       UserStatus @default(ACTIVE)
   lastLoginAt  DateTime?
+  // Preferenze dell'interfaccia (tema, lingua, viste aperte, società scelta):
+  // sul server e non nel browser (PROGETTO-TUTTO-SUL-SERVER.md, Parte 2).
+  preferences  Json       @default("{}")
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 

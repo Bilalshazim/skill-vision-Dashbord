@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card'
 import { AlertTriangle } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 
-import { readSharedTheme } from '@/modules/assessment/lib/shell-bridge'
+import { systemTheme } from '@/hooks/use-theme'
 import { EvaluatorWorkspace } from '@/modules/recruiting/evaluate/EvaluatorWorkspace'
 
 // Phase 33 §4/§5 — the accountless evaluator entry point (OD-9's scoped-
@@ -20,7 +20,8 @@ import { EvaluatorWorkspace } from '@/modules/recruiting/evaluate/EvaluatorWorks
 export default function EvaluateStandalonePage() {
   const [params] = useSearchParams()
   const token = params.get('evaluatorToken')
-  const theme = readSharedTheme()
+  // Pagina pubblica, senza accesso: il tema del sistema operativo.
+  const theme = systemTheme()
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10" data-theme={theme}>

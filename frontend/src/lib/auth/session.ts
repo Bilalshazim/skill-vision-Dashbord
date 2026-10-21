@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 
 import { buildApiUrl, clearBackendSession, getAccessToken, getBackendUser, refreshAccessToken, setBackendSession, setBackendUser, type BackendUser } from '@/lib/api/client'
+import { loadPreferences, resetPreferences } from '@/lib/preferences'
 
 // Fase 8, modalità `backend` — la sessione dell'utente. Il token di accesso
 // vive in memoria (lib/api/client.ts); al ricaricamento della pagina si
@@ -12,7 +13,12 @@ type Snapshot = { status: SessionStatus; user: BackendUser | null }
 let snapshot: Snapshot = { status: 'unknown', user: null }
 const listeners = new Set<() => void>()
 function set(next: Snapshot) {
+  const was = snapshot.status
   snapshot = next
+  // Le preferenze dell'utente arrivano dal server quando la sessione si apre
+  // e si azzerano quando si chiude (lib/preferences.ts).
+  if (next.status === 'authenticated' && was !== 'authenticated') void loadPreferences()
+  if (next.status === 'anonymous' && was === 'authenticated') resetPreferences()
   for (const l of listeners) l()
 }
 

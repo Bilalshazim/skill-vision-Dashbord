@@ -24,10 +24,10 @@ import { SurveyLinkSection } from '@/modules/recruiting/profile-hub/SurveyLinkSe
 // quello che prima stava dentro la card (identico: stesse sezioni, stessi
 // dialog). Aperto/chiuso è ricordato nel browser; all'inizio sono tutte chiuse.
 export default function ProfileHubPage() {
-  const [openProfilo, setOpenProfilo] = usePersistedFlag('sv-recruiting-profile-profilo-view', 'skillvision', 'oggi')
-  const [openSoft, setOpenSoft] = usePersistedFlag('sv-recruiting-profile-soft-view', 'skillvision', 'oggi')
-  const [openAnnuncio, setOpenAnnuncio] = usePersistedFlag('sv-recruiting-profile-annuncio-view', 'skillvision', 'oggi')
-  const [openValutatore, setOpenValutatore] = usePersistedFlag('sv-recruiting-profile-valutatore-view', 'skillvision', 'oggi')
+  const [openProfilo, setOpenProfilo] = usePersistedFlag('sv-recruiting-profile-profilo-view')
+  const [openSoft, setOpenSoft] = usePersistedFlag('sv-recruiting-profile-soft-view')
+  const [openAnnuncio, setOpenAnnuncio] = usePersistedFlag('sv-recruiting-profile-annuncio-view')
+  const [openValutatore, setOpenValutatore] = usePersistedFlag('sv-recruiting-profile-valutatore-view')
   const cardLayout = homeCardLayout(
     [
       ['profilo', 'soft'],

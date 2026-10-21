@@ -156,10 +156,10 @@ export default function AssessmentHomePage() {
 
   // Skill Vision open state per card (remembered per browser) and the grid
   // placement that follows from it — see homeCardLayout().
-  const [openValore, setOpenValore] = usePersistedFlag('sv-assessment-home-valore-view', 'skillvision', 'oggi')
-  const [openCapitale, setOpenCapitale] = usePersistedFlag('sv-assessment-home-capitale-view', 'skillvision', 'oggi')
-  const [openPerdite, setOpenPerdite] = usePersistedFlag('sv-assessment-home-perdite-view', 'skillvision', 'oggi')
-  const [openDecisioni, setOpenDecisioni] = usePersistedFlag('sv-assessment-home-decisioni-view', 'skillvision', 'oggi')
+  const [openValore, setOpenValore] = usePersistedFlag('sv-assessment-home-valore-view')
+  const [openCapitale, setOpenCapitale] = usePersistedFlag('sv-assessment-home-capitale-view')
+  const [openPerdite, setOpenPerdite] = usePersistedFlag('sv-assessment-home-perdite-view')
+  const [openDecisioni, setOpenDecisioni] = usePersistedFlag('sv-assessment-home-decisioni-view')
   const cardLayout = homeCardLayout(
     [
       ['valore', 'capitale'],

@@ -176,13 +176,36 @@ link test in Assessment, holding → società. Piano di esecuzione al §8
 Piano in PROGETTO-TUTTO-SUL-SERVER.md (10 parti, 38–50 ore). Riassunto per
 Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 - [x] Parte 1: Assessment solo server, import che svuota il browser (2026-10-21)
-- [ ] Parte 2: preferenze sul server
+- [x] Parte 2: preferenze sul server (2026-10-21)
 - [ ] Parte 3: ritiro della modalità `legacy` e del guscio statico
 - [ ] Parti 4–9: Recruiting sul server
 - [ ] Parte 10: verifica e controllo "zero archivio del browser"
 - [ ] Da decidere con Roberto: scheda 5P del valutatore come link online?
 
 ## Registro
+
+## 2026-10-21 — Tutto sul server, Parte 2: preferenze sul server
+- [x] Backend: colonna `User.preferences` (JSON, migrazione
+      `20261021120000_user_preferences`, solo additiva); `GET` e `PATCH
+      /auth/me/preferences` (unione delle chiavi, `null` toglie; 16 KB e 100
+      chiavi al massimo). Test nuovi `preferences.test.ts` 3/3;
+      `protected-routes` e `auth` verdi.
+- [x] Frontend: `lib/preferences.ts` (si caricano all'apertura della
+      sessione, si azzerano all'uscita, salvataggio unito 400 ms dopo).
+      Sopra: tema (`useTheme`; prima dell'accesso quello del sistema
+      operativo), lingua (`useSharedLang`), viste "oggi / Skill Vision" delle
+      card (`usePersistedFlag(chiave)`), società scelta dallo staff in
+      Assessment. Scheda aperta del 5P nell'indirizzo (`?tab=`).
+- [x] Tolti tema e lingua da `shell-bridge.ts`; pagine pubbliche (valutatore
+      esterno, valutatore di Recruiting): italiano e tema del sistema.
+- [x] `lib/browser-cleanup.ts`, all'avvio: cancella le chiavi vecchie delle
+      preferenze (`sv_theme`, `sv_language`, `sv-*-view`, …). Solo
+      cancellazioni.
+- [x] Verificato nel browser: chiavi vecchie cancellate all'avvio; tema e
+      vista salvati sul server e ritrovati dopo il ricaricamento; scheda 5P
+      dall'indirizzo; `localStorage` e `sessionStorage` vuoti.
+- [ ] Rimandato: "schede viste" in `EvaluatorsBackendPanel.tsx` (lavoro non
+      ancora salvato dell'altra sessione nello stesso file): con Recruiting.
 
 ## 2026-10-21 — Tutto sul server: piano e Parte 1 (Assessment solo server)
 - [x] Inventario di ciò che sta nel browser, verificato sul codice e sul

@@ -1,8 +1,9 @@
+import type { Prisma } from '@prisma/client'
 import { Router } from 'express'
 import { z } from 'zod'
 
 import { clearRefreshCookie, cookieRequestOriginAllowed, readRefreshCookie, setRefreshCookie } from '../../lib/authCookie.js'
-import { ForbiddenError, TooManyRequestsError, UnauthorizedError } from '../../lib/errors.js'
+import { BadRequestError, ForbiddenError, TooManyRequestsError, UnauthorizedError } from '../../lib/errors.js'
 import { env } from '../../lib/env.js'
 import { generateRefreshToken, hashToken, signAccessToken } from '../../lib/jwt.js'
 import { verifyPassword } from '../../lib/password.js'
@@ -174,6 +175,40 @@ authRouter.get('/me', requireAuth, async (req, res, next) => {
     const user = await prisma.user.findUnique({ where: { id: req.auth!.sub } })
     if (!user || user.status === 'DISABLED') throw new UnauthorizedError()
     res.json({ id: user.id, email: user.email, fullName: user.fullName, role: user.role, companyId: user.companyId })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Preferenze dell'interfaccia dell'utente (PROGETTO-TUTTO-SUL-SERVER.md,
+// Parte 2): tema, lingua, viste aperte, società scelta. Stanno qui e non nel
+// browser. Un PATCH unisce le chiavi date a quelle salvate; `null` toglie una
+// chiave. Limiti di dimensione perché non diventino un archivio di dati.
+const PREFS_MAX_BYTES = 16_384
+const prefsPatchSchema = z.record(z.string().min(1).max(100), z.unknown()).refine((o) => Object.keys(o).length <= 100, 'troppe chiavi')
+
+authRouter.get('/me/preferences', requireAuth, async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.auth!.sub }, select: { preferences: true } })
+    if (!user) throw new UnauthorizedError()
+    res.json(user.preferences)
+  } catch (err) {
+    next(err)
+  }
+})
+
+authRouter.patch('/me/preferences', requireAuth, validateBody(prefsPatchSchema), async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.auth!.sub }, select: { preferences: true } })
+    if (!user) throw new UnauthorizedError()
+    const merged = { ...(user.preferences as Record<string, unknown>) }
+    for (const [k, v] of Object.entries(req.body as Record<string, unknown>)) {
+      if (v === null) delete merged[k]
+      else merged[k] = v
+    }
+    if (Buffer.byteLength(JSON.stringify(merged)) > PREFS_MAX_BYTES) throw new BadRequestError('Preferenze troppo grandi')
+    await prisma.user.update({ where: { id: req.auth!.sub }, data: { preferences: merged as Prisma.InputJsonValue } })
+    res.json(merged)
   } catch (err) {
     next(err)
   }
