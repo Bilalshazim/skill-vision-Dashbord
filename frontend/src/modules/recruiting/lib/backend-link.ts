@@ -26,6 +26,7 @@
 import { campaignsApi, companiesApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
 import type { BackendCampaign, BackendCompany } from '@/lib/api/types'
+import { recruitingStore } from '@/modules/recruiting/lib/recruiting-store'
 
 const LINK_MAP_KEY = 'apex5d_backend_link_map'
 
@@ -33,7 +34,7 @@ type LinkMap = Record<string, { companyId: string; campaignId: string } | undefi
 
 function readLinkMap(): LinkMap {
   try {
-    const raw = localStorage.getItem(LINK_MAP_KEY)
+    const raw = recruitingStore.getItem(LINK_MAP_KEY)
     return raw ? (JSON.parse(raw) as LinkMap) : {}
   } catch {
     return {}
@@ -41,7 +42,7 @@ function readLinkMap(): LinkMap {
 }
 function writeLinkMap(map: LinkMap): void {
   try {
-    localStorage.setItem(LINK_MAP_KEY, JSON.stringify(map))
+    recruitingStore.setItem(LINK_MAP_KEY, JSON.stringify(map))
   } catch {
     /* non-fatal — resolution just runs again next time */
   }

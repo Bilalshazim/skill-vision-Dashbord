@@ -12,13 +12,23 @@ type Snapshot = { status: SessionStatus; user: BackendUser | null }
 
 let snapshot: Snapshot = { status: 'unknown', user: null }
 const listeners = new Set<() => void>()
+// Chi tiene dati in memoria (es. Recruiting) li svuota quando la sessione si
+// chiude, così l'utente successivo nella stessa scheda non li vede.
+const sessionEndCallbacks = new Set<() => void>()
+export function onSessionEnd(cb: () => void): void {
+  sessionEndCallbacks.add(cb)
+}
+
 function set(next: Snapshot) {
   const was = snapshot.status
   snapshot = next
   // Le preferenze dell'utente arrivano dal server quando la sessione si apre
   // e si azzerano quando si chiude (lib/preferences.ts).
   if (next.status === 'authenticated' && was !== 'authenticated') void loadPreferences()
-  if (next.status === 'anonymous' && was === 'authenticated') resetPreferences()
+  if (next.status === 'anonymous' && was === 'authenticated') {
+    resetPreferences()
+    for (const cb of sessionEndCallbacks) cb()
+  }
   for (const l of listeners) l()
 }
 

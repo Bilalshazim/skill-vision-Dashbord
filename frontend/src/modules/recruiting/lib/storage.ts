@@ -3,7 +3,15 @@ import cvMatchingStateSeed from '@/modules/recruiting/data/cv-matching-state-see
 import type { InterviewProtocolState } from '@/modules/recruiting/lib/interview-protocol-types'
 import type { JdState, SalaryBenefitsRecord } from '@/modules/recruiting/lib/jd-types'
 import type { Candidate, CvMatchingState, SurveyState } from '@/modules/recruiting/lib/types'
+import { getPreference, setPreference } from '@/lib/preferences'
+import { recruitingStore } from '@/modules/recruiting/lib/recruiting-store'
 
+// I DATI STANNO SUL SERVER (PROGETTO-TUTTO-SUL-SERVER.md, Parti 4–9): le
+// chiavi qui sotto sono i documenti del server (recruiting-store.ts), letti e
+// scritti in memoria con la stessa interfaccia che aveva l'archivio del
+// browser. Nel browser non si scrive più niente. Le note che seguono
+// descrivono la forma dei dati, che non è cambiata.
+//
 // Data-access boundary for Recruiting. Reads the exact same keys the
 // legacy app persists to (see modules/recruiting.html
 // _candidatesStateKey()/_cvStateKey()), so a recruiter's real saved data
@@ -70,7 +78,7 @@ const INTERVIEW_PROTOCOL_KEY = 'apex5d_interview_protocol'
 
 export function readCandidates(): Candidate[] {
   try {
-    const raw = localStorage.getItem(CANDIDATES_KEY)
+    const raw = recruitingStore.getItem(CANDIDATES_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       if (Array.isArray(parsed)) return parsed as Candidate[]
@@ -81,22 +89,32 @@ export function readCandidates(): Candidate[] {
   return candidatesSeed as unknown as Candidate[]
 }
 
+// La società e la posizione attive sono una scelta di chi lavora, non un dato
+// condiviso: stanno nelle preferenze dell'utente sul server
+// (`recruiting.activeContext`). Quando i dati erano nel browser stavano nel
+// documento, che ora è comune ai colleghi: lì resta solo come valore di
+// partenza per chi non ha ancora scelto.
+const ACTIVE_CONTEXT_PREF = 'recruiting.activeContext'
+type ActiveContext = CvMatchingState['activeContext']
+
 export function readCvMatchingState(): CvMatchingState {
+  const mine = getPreference<ActiveContext | null>(ACTIVE_CONTEXT_PREF, null)
   try {
-    const raw = localStorage.getItem(CV_STATE_KEY)
+    const raw = recruitingStore.getItem(CV_STATE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       if (parsed && Array.isArray(parsed.companies) && parsed.companies.length) {
         return {
           companies: parsed.companies,
-          activeContext: parsed.activeContext || cvMatchingStateSeed.activeContext,
+          activeContext: mine || parsed.activeContext || cvMatchingStateSeed.activeContext,
         }
       }
     }
   } catch {
     /* fall through to seed */
   }
-  return cvMatchingStateSeed as CvMatchingState
+  const seed = cvMatchingStateSeed as CvMatchingState
+  return mine ? { ...seed, activeContext: mine } : seed
 }
 
 // Ported verbatim from persistCvMatchingState() (modules/recruiting.html
@@ -105,7 +123,18 @@ export function readCvMatchingState(): CvMatchingState {
 // swallowing it, per Phase 7's error-handling requirement — the caller
 // decides how to surface that to the user.
 export function writeCvMatchingState(state: CvMatchingState): void {
-  localStorage.setItem(CV_STATE_KEY, JSON.stringify({ companies: state.companies, activeContext: state.activeContext }))
+  const mine = getPreference<ActiveContext | null>(ACTIVE_CONTEXT_PREF, null)
+  if (!mine || mine.companyId !== state.activeContext.companyId || mine.openingId !== state.activeContext.openingId) setPreference(ACTIVE_CONTEXT_PREF, state.activeContext)
+  // Il documento comune tiene il contesto che aveva: cambiare società o
+  // posizione non cambia i dati dei colleghi.
+  let shared: ActiveContext = state.activeContext
+  try {
+    const prev = recruitingStore.getItem(CV_STATE_KEY)
+    if (prev) shared = (JSON.parse(prev) as Partial<CvMatchingState>).activeContext ?? shared
+  } catch {
+    /* documento illeggibile: si usa quello nuovo */
+  }
+  recruitingStore.setItem(CV_STATE_KEY, JSON.stringify({ companies: state.companies, activeContext: shared }))
 }
 
 // Ported verbatim from persistCandidates() (modules/recruiting.html
@@ -113,12 +142,12 @@ export function writeCvMatchingState(state: CvMatchingState): void {
 // re-serialized). Throws on failure instead of swallowing it, same as
 // writeCvMatchingState() above — the caller decides how to surface that.
 export function writeCandidates(candidates: Candidate[]): void {
-  localStorage.setItem(CANDIDATES_KEY, JSON.stringify(candidates))
+  recruitingStore.setItem(CANDIDATES_KEY, JSON.stringify(candidates))
 }
 
 export function readJdTemplates(): Record<string, JdState> {
   try {
-    const raw = localStorage.getItem(JD_TEMPLATES_KEY)
+    const raw = recruitingStore.getItem(JD_TEMPLATES_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       if (parsed && typeof parsed === 'object') return parsed as Record<string, JdState>
@@ -129,16 +158,16 @@ export function readJdTemplates(): Record<string, JdState> {
   return {}
 }
 
-// Ported verbatim from the `localStorage.setItem('apex5d_jd_templates', ...)`
+// Ported verbatim from the `recruitingStore.setItem('apex5d_jd_templates', ...)`
 // call inside saveJdTemplateForRole() (modules/recruiting.html line 5635) —
 // same key, same shape (the whole per-role template map, re-serialized).
 export function writeJdTemplates(templates: Record<string, JdState>): void {
-  localStorage.setItem(JD_TEMPLATES_KEY, JSON.stringify(templates))
+  recruitingStore.setItem(JD_TEMPLATES_KEY, JSON.stringify(templates))
 }
 
 export function readJobPostingSummaries(): Record<string, string> {
   try {
-    const raw = localStorage.getItem(JOB_POSTING_SUMMARIES_KEY)
+    const raw = recruitingStore.getItem(JOB_POSTING_SUMMARIES_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       if (parsed && typeof parsed === 'object') return parsed as Record<string, string>
@@ -149,16 +178,16 @@ export function readJobPostingSummaries(): Record<string, string> {
   return {}
 }
 
-// Ported verbatim from the `localStorage.setItem('apex5d_job_postings_summaries', ...)`
+// Ported verbatim from the `recruitingStore.setItem('apex5d_job_postings_summaries', ...)`
 // call inside saveJdTemplateForRole() (modules/recruiting.html line 5640) —
 // JD's own real cross-write, see lib/jd.ts saveJdTemplate().
 export function writeJobPostingSummaries(summaries: Record<string, string>): void {
-  localStorage.setItem(JOB_POSTING_SUMMARIES_KEY, JSON.stringify(summaries))
+  recruitingStore.setItem(JOB_POSTING_SUMMARIES_KEY, JSON.stringify(summaries))
 }
 
 export function readSalaryBenefits(): Record<string, SalaryBenefitsRecord> {
   try {
-    const raw = localStorage.getItem(SALARY_BENEFITS_KEY)
+    const raw = recruitingStore.getItem(SALARY_BENEFITS_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       if (parsed && typeof parsed === 'object') return parsed as Record<string, SalaryBenefitsRecord>
@@ -173,12 +202,12 @@ export function readSalaryBenefits(): Record<string, SalaryBenefitsRecord> {
 // ~4411-4413) — same key, same shape (the whole per-role salary/benefits
 // map). A separate sub-feature from JD templates — never merge the two.
 export function writeSalaryBenefits(records: Record<string, SalaryBenefitsRecord>): void {
-  localStorage.setItem(SALARY_BENEFITS_KEY, JSON.stringify(records))
+  recruitingStore.setItem(SALARY_BENEFITS_KEY, JSON.stringify(records))
 }
 
 export function readSurveyState(): SurveyState {
   try {
-    const raw = localStorage.getItem(SURVEY_STATE_KEY)
+    const raw = recruitingStore.getItem(SURVEY_STATE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       if (parsed && typeof parsed === 'object') {
@@ -194,7 +223,7 @@ export function readSurveyState(): SurveyState {
 // Ported verbatim from persistSurveyLinkState() (modules/recruiting.html
 // ~2704-2709) — same key, same {surveyLink, surveyLinks} shape.
 export function writeSurveyState(state: SurveyState): void {
-  localStorage.setItem(SURVEY_STATE_KEY, JSON.stringify(state))
+  recruitingStore.setItem(SURVEY_STATE_KEY, JSON.stringify(state))
 }
 
 // PHASE 21 (Protocollo di Intervista) — mirrors loadInterviewProtocolState()/
@@ -206,7 +235,7 @@ export function writeSurveyState(state: SurveyState): void {
 // these two primitives, never localStorage directly.
 export function readInterviewProtocol(): InterviewProtocolState {
   try {
-    const raw = localStorage.getItem(INTERVIEW_PROTOCOL_KEY)
+    const raw = recruitingStore.getItem(INTERVIEW_PROTOCOL_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       if (parsed && typeof parsed === 'object') {
@@ -224,5 +253,5 @@ export function readInterviewProtocol(): InterviewProtocolState {
 }
 
 export function writeInterviewProtocol(state: InterviewProtocolState): void {
-  localStorage.setItem(INTERVIEW_PROTOCOL_KEY, JSON.stringify(state))
+  recruitingStore.setItem(INTERVIEW_PROTOCOL_KEY, JSON.stringify(state))
 }

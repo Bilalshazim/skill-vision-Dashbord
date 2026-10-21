@@ -16,13 +16,13 @@ Detailed technical version, in Italian: `PROGETTO-TUTTO-SUL-SERVER.md`.
 | 1 ✅ | Assessment on the server only (no browser mode left). Importing browser data also deletes it from the browser. | 2–3 |
 | 2 ✅ | Preferences (theme, language, open panels, chosen company) saved on the user's account | 3–4 |
 | 3 ✅ | Remove the old login page and its browser session | 3–4 |
-| 4 | Recruiting: companies and job openings from the server | 5–7 |
-| 5 | Recruiting: candidates and ranking from the server | 7–9 |
-| 6 | Recruiting: pipeline (shortlist, test results, interviews, chosen candidate) | 6–8 |
-| 7 | Recruiting: job description templates, ad summaries, salary and benefits | 4–5 |
-| 8 | Recruiting: questionnaire links, interview protocol, skill priorities | 3–4 |
-| 9 | Recruiting: import today's browser data, then delete it from the browser | 3 |
-| 10 | Full check, plus an automatic check that fails if browser storage comes back | 2–3 |
+| 4 ✅ | Recruiting: companies and job openings from the server | 5–7 |
+| 5 ✅ | Recruiting: candidates and ranking from the server | 7–9 |
+| 6 ✅ | Recruiting: pipeline (shortlist, test results, interviews, chosen candidate) | 6–8 |
+| 7 ✅ | Recruiting: job description templates, ad summaries, salary and benefits | 4–5 |
+| 8 ✅ | Recruiting: questionnaire links, interview protocol, skill priorities | 3–4 |
+| 9 ✅ | Recruiting: import today's browser data, then delete it from the browser | 3 |
+| 10 ✅ | Full check, plus an automatic check that fails if browser storage comes back | 2–3 |
 | | **Total** | **38–50** |
 
 ## Needs one answer
@@ -37,3 +37,20 @@ on the server. This changes how the 5P process works for the client. Yes or no?
 
 The **login cookie**. The server sets it, the app's code cannot read it, and
 without it every page reload would ask for the password again. It holds no data.
+
+## Status (21 October)
+
+All 10 parts done and tested locally:
+
+- Nothing is written to the browser anymore. Login, preferences, Assessment
+  and Recruiting all live on the server.
+- Recruiting is shared and live: two people at the same company see the same
+  data, and a colleague's change appears within about 10 seconds (straight
+  away when you come back to the tab). If two people save the same thing at
+  once, the first save wins and the second person sees a clear message.
+- Each company's existing browser data moves to the server with one click,
+  "Importa dati del browser" (in Assessment and in Recruiting), then the
+  browser copy is deleted.
+- An automatic check (`node scripts/audit-storage.mjs`) fails if anyone adds
+  browser storage again.
+- Still open: the 5P evaluator form (needs your yes/no above).

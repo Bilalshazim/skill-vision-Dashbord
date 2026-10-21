@@ -1682,3 +1682,23 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
   aperta) va nell'indirizzo (`?tab=`): non è un archivio del browser.
 - Aperta, da decidere con Roberto: la scheda 5P del valutatore (file HTML che
   salva nel browser del valutatore) diventa un link online?
+
+## Recruiting sul server: documenti per area, non tabelle nuove · 2026-10-21
+- Opzioni: (a) riscrivere le 17.000 righe di Recruiting perché leggano dalle
+  tabelle (Campaign, Candidate, Shortlist…) in modo asincrono; (b) portare sul
+  server, un documento per area con versione, gli stessi dati che stavano nel
+  browser, e tenerne in pagina solo una copia in memoria con la stessa
+  interfaccia.
+- Cosa cambia: (a) 30–40 ore e un rischio alto di cambiare il comportamento
+  delle schermate; (b) le schermate non cambiano, niente resta nel browser,
+  i colleghi vedono gli stessi dati in tempo reale. Le tabelle che Recruiting
+  già usa (CV, shortlist, invio test, valutatori) restano come sono.
+- Raccomandazione e presa: **(b)**. Portare un'area alla volta nelle tabelle
+  vere resta possibile dopo, schermata per schermata.
+- Conflitti: un salvataggio su una versione vecchia riceve 409; vince chi ha
+  salvato prima, l'altro vede la sua versione e un avviso (come il 5P).
+- Tempo reale: versioni ogni 10 s e al ritorno sulla scheda; la pagina si
+  ridisegna, ma non con una finestra di dialogo aperta.
+- Società e posizione attive: erano nel documento, che ora è comune; sono una
+  scelta di chi lavora, quindi vanno nelle preferenze dell'utente. Cambiare
+  posizione non cambia i dati dei colleghi.

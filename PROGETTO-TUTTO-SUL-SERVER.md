@@ -43,13 +43,13 @@ decide. Stime realistiche.
 | 1 ✅ | **Assessment solo server**: tolta la modalità `local` (e la variabile); l'import dei dati del browser li cancella dal browser quando è riuscito | 2–3 |
 | 2 ✅ | **Preferenze sul server**: `User.preferences` (JSON); tema, lingua, viste, società scelta, schede viste. Scheda 5P aperta nell'indirizzo. Prima dell'accesso: tema del sistema | 3–4 |
 | 3 ✅ | **Ritiro della modalità `legacy`** e del guscio statico (le due copie, il ponte, `sessionStorage`) — il punto aperto della Fase 8 | 3–4 |
-| 4 | Recruiting · **società e posizioni** dal server (`Company`/`Campaign`); posizione attiva nelle preferenze; via la mappa dei collegamenti | 5–7 |
-| 5 | Recruiting · **candidati e classifica** dal server (`Candidate`, `CampaignCandidate`, punteggi, Big Five) | 7–9 |
-| 6 | Recruiting · **pipeline**: preselezionati, risultati dei test, colloqui (`Interview` con le sue rotte), vincitore | 6–8 |
-| 7 | Recruiting · **descrizione del ruolo**: modelli, sintesi degli annunci, RAL e benefit | 4–5 |
-| 8 | Recruiting · **impostazioni**: link dei questionari, protocollo d'intervista, flag delle competenze | 3–4 |
-| 9 | Recruiting · **import dei dati del browser** e loro cancellazione | 3 |
-| 10 | Verifica completa + controllo "zero archivio del browser" | 2–3 |
+| 4 ✅ | Recruiting · **società e posizioni** dal server (`Company`/`Campaign`); posizione attiva nelle preferenze; via la mappa dei collegamenti | 5–7 |
+| 5 ✅ | Recruiting · **candidati e classifica** dal server (`Candidate`, `CampaignCandidate`, punteggi, Big Five) | 7–9 |
+| 6 ✅ | Recruiting · **pipeline**: preselezionati, risultati dei test, colloqui (`Interview` con le sue rotte), vincitore | 6–8 |
+| 7 ✅ | Recruiting · **descrizione del ruolo**: modelli, sintesi degli annunci, RAL e benefit | 4–5 |
+| 8 ✅ | Recruiting · **impostazioni**: link dei questionari, protocollo d'intervista, flag delle competenze | 3–4 |
+| 9 ✅ | Recruiting · **import dei dati del browser** e loro cancellazione | 3 |
+| 10 ✅ | Verifica completa + controllo "zero archivio del browser" | 2–3 |
 | | **Totale** | **38–50** |
 
 ## 4. Da decidere (blocca solo la sua parte)
@@ -59,3 +59,12 @@ decide. Stime realistiche.
   link online (come il valutatore esterno di Assessment), con le risposte sul
   server. È un cambio del flusso del modello 5P del cliente: lo decide
   Roberto. Stima se sì: 5–7 ore.
+
+## 5. Come è stato fatto Recruiting (2026-10-21)
+
+Un documento per area sul server (`RecruitingDocument`, le stesse 9 chiavi e
+lo stesso testo JSON che stavano nel browser), con versione e 409 sui
+salvataggi vecchi. In pagina ne vive solo una copia in memoria con
+l'interfaccia dell'archivio del browser (`recruiting/lib/recruiting-store.ts`),
+così le schermate non sono cambiate. Tempo reale: versioni ogni 10 s e al
+ritorno sulla scheda. Scelta motivata in DECISIONI.

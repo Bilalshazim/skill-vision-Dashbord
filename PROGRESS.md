@@ -178,11 +178,55 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 - [x] Parte 1: Assessment solo server, import che svuota il browser (2026-10-21)
 - [x] Parte 2: preferenze sul server (2026-10-21)
 - [x] Parte 3: ritiro della modalità `legacy` e del guscio statico (2026-10-21)
-- [ ] Parti 4–9: Recruiting sul server
-- [ ] Parte 10: verifica e controllo "zero archivio del browser"
+- [x] Parti 4–9: Recruiting sul server, in tempo reale (2026-10-21)
+- [x] Parte 10: verifica e controllo "zero archivio del browser" (2026-10-21)
 - [ ] Da decidere con Roberto: scheda 5P del valutatore come link online?
 
 ## Registro
+
+## 2026-10-21 — Tutto sul server, Parti 4–10: Recruiting sul server, tempo reale, controllo
+- [x] Backend: tabella `RecruitingDocument` (migrazione
+      `20261021140000_recruiting_documents`, solo additiva) e modulo
+      `recruitingStore` su `/api/v1/recruiting-store`: `GET /` (tutti o
+      `?keys=`), `GET /versions`, `PUT /:key` con versione (409 se vecchia),
+      `DELETE /:key`. Un documento per area (le 9 chiavi che Recruiting usava
+      nel browser), con lo stesso testo JSON; spazio = società dell'utente,
+      "platform" per lo staff. Limite 10 MB solo qui (app.ts salta il lettore
+      generale da 2 MB). Ogni salvataggio passa da `audit()`. Test
+      `recruitingStore.test.ts` 6/6.
+- [x] Frontend: `recruiting/lib/recruiting-store.ts`, copia in memoria con
+      l'interfaccia dell'archivio del browser (`getItem/setItem/removeItem`):
+      `storage.ts`, `backend-link.ts`, `skill-flags.ts` cambiano solo il
+      bersaglio, le schermate niente. Salvataggio subito (250 ms), uno alla
+      volta; 409 → versione del collega e avviso; server giù → avviso, la
+      modifica resta in memoria e si riprova, chiudere la pagina chiede conferma.
+- [x] Tempo reale: ogni 10 s (e tornando sulla scheda) si leggono le versioni
+      e si scaricano i documenti cambiati; il layout ridisegna la pagina, ma non
+      con una finestra di dialogo aperta (aspetta che si chiuda). Verificato:
+      modifica di un "collega" vista in 0,5 s al ritorno e in 9 s da sola.
+- [x] `RecruitingLayout`: pagine solo a dati arrivati (caricamento, errore con
+      "Riprova", avviso se un salvataggio non è riuscito). Dati svuotati alla
+      chiusura della sessione (`onSessionEnd` in session.ts).
+- [x] Società e posizione attive: scelta di chi lavora, ora nelle preferenze
+      (`recruiting.activeContext`); il documento comune non cambia quando si
+      cambia posizione. Pesi delle competenze: dai dati del server dopo il
+      caricamento e a ogni modifica di un collega.
+- [x] Area Valutatori, schede viste: nelle preferenze (`evalSeen.<campagna>`),
+      cambiate solo quelle righe del file dell'altra sessione.
+- [x] Parte 9: "Importa dati del browser" nella barra di Recruiting (chi può
+      scrivere): porta sul server solo le aree che lì non ci sono, poi svuota
+      il browser. Verificato: 3 aree importate, browser vuoto.
+- [x] Parte 10: `scripts/audit-storage.mjs` fallisce se l'archivio del browser
+      compare fuori da 4 file ammessi (svuotano e basta, più la scheda 5P in
+      attesa di decisione); provato anche che un uso nuovo lo fa fallire.
+- [x] Verifica: 14 pagine di Recruiting senza errori e con
+      `localStorage`/`sessionStorage` vuoti; conflitto → versione del
+      collega e avviso; posizione attiva solo nelle preferenze; peso di una
+      competenza salvato sul server. Backend 163/163; typecheck e build puliti.
+- [ ] Resta nel browser solo la scheda 5P del valutatore (file HTML), in
+      attesa della decisione di Roberto.
+- Nota: i lavori non salvati dell'altra sessione (Area Valutatori, sintesi IA)
+  restano nella copia di lavoro, fuori da questi commit.
 
 ## 2026-10-21 — Tutto sul server, Parte 3: ritiro del login legacy e del guscio statico
 - [x] Tolta la modalità `legacy`: via `auth-mode.ts`, `authBridge.ts` (il

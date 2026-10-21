@@ -17,7 +17,7 @@ describe('preferenze dell’utente', () => {
   afterAll(async () => prisma.$disconnect())
 
   const get = (t: string) => api.get('/api/v1/auth/me/preferences').set(authHeader(t))
-  const patch = (t: string, body: unknown) => api.patch('/api/v1/auth/me/preferences').set(authHeader(t)).send(body)
+  const patch = (t: string, body: object) => api.patch('/api/v1/auth/me/preferences').set(authHeader(t)).send(body)
 
   it('parte vuoto, unisce le chiavi e toglie con null', async () => {
     expect((await get(admin)).body).toEqual({})

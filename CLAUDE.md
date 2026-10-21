@@ -929,6 +929,16 @@ node scripts/audit-identita.mjs
 
 Va eseguito alla fine di ogni fase, non solo alla fine del lavoro.
 
+**Niente dati nel browser** (deciso da Roberto il 2026-10-21): tutto sta sul
+server, anche le preferenze. `scripts/audit-storage.mjs` fallisce se
+`localStorage`, `sessionStorage` o IndexedDB compaiono fuori dai file che
+svuotano il browser. Un dato nuovo va sul server (preferenze dell'utente in
+`lib/preferences.ts`, dati in API o in `recruiting-store.ts`), mai nel browser.
+
+```
+node scripts/audit-storage.mjs
+```
+
 Lo script non vede il contrasto reale, perché dipende dal fondo su cui il testo
 appoggia davvero e non da quello della pagina. Quel controllo si fa a
 applicazione avviata, con lo snippet in coda allo script, incollato nella

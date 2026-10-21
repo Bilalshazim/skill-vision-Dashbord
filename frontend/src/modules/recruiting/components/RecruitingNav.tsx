@@ -6,6 +6,7 @@ import { CompanySwitcher } from '@/components/patterns/CompanySwitcher'
 import { SelectField } from '@/components/patterns/SelectField'
 import { SidebarContent, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { getBackendUser } from '@/lib/api/client'
+import { BrowserImportEntry } from '@/modules/recruiting/components/BrowserImportEntry'
 import { RECRUITING_NAV_ITEMS } from '@/modules/recruiting/nav-config'
 import { getActiveOpening, setActiveContext } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
@@ -81,6 +82,7 @@ export function RecruitingNav({ onCompanyChange }: { onCompanyChange: () => void
             })}
           </SidebarMenu>
         </SidebarGroup>
+        <BrowserImportEntry />
       </SidebarContent>
     </>
   )

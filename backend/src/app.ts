@@ -20,6 +20,7 @@ import { originalSkillsRouter } from './modules/originalSkills/routes.js'
 import { platformsRouter } from './modules/platforms/routes.js'
 import { publicAssessmentRouter } from './modules/publicAssessment/routes.js'
 import { publicJobPostingsRouter } from './modules/publicJobPostings/routes.js'
+import { recruitingStoreRouter } from './modules/recruitingStore/routes.js'
 import { shortlistRouter } from './modules/shortlist/routes.js'
 import { webhooksRouter } from './modules/webhooks/routes.js'
 import { env } from './lib/env.js'
@@ -90,14 +91,14 @@ export function createApp() {
   // can differ from what the sender actually signed (key order, spacing),
   // which would make every real signature fail — this is what "verify
   // against the exact bytes" means in practice, not just in principle.
-  app.use(
-    express.json({
-      limit: '2mb',
-      verify: (req, _res, buf) => {
-        ;(req as express.Request).rawBody = buf
-      },
-    }),
-  )
+  const jsonBody = express.json({
+    limit: '2mb',
+    verify: (req, _res, buf) => {
+      ;(req as express.Request).rawBody = buf
+    },
+  })
+  // I documenti di Recruiting hanno un limite loro (recruitingStore/routes.ts).
+  app.use((req, res, next) => (req.path.startsWith('/api/v1/recruiting-store') ? next() : jsonBody(req, res, next)))
 
   app.use('/health', healthRouter)
   app.use('/api/v1/auth', authRouter)
@@ -118,6 +119,7 @@ export function createApp() {
   app.use('/api/v1/webhooks', webhooksRouter)
   app.use('/api/v1/assessment-ai', assessmentAiRouter)
   app.use('/api/v1/assessment', assessmentRouter)
+  app.use('/api/v1/recruiting-store', recruitingStoreRouter)
   app.use('/api/v1/original-skills', originalSkillsRouter)
 
   app.use(notFoundHandler)

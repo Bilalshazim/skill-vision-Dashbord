@@ -1164,3 +1164,23 @@ model Valutazione5p {
   version   Int      @default(1)
   updatedAt DateTime @updatedAt
 }
+
+// ---------------------------------------------------------------------------
+// Recruiting sul server (PROGETTO-TUTTO-SUL-SERVER.md, Parti 4–9).
+// I dati che Recruiting teneva nel browser, uno per area (società e
+// posizioni, candidati, modelli JD, …), salvati qui con la stessa forma.
+// `scope` è la società dell'utente, oppure "platform" per lo staff di Skill
+// Vision (che lavora per più clienti). `version` sale a ogni salvataggio: un
+// salvataggio su una versione vecchia riceve 409 e non sovrascrive il lavoro
+// di un collega.
+model RecruitingDocument {
+  id          String   @id @default(uuid())
+  scope       String
+  key         String
+  data        String
+  version     Int      @default(1)
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+
+  @@unique([scope, key])
+}

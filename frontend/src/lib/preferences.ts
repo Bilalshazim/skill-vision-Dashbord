@@ -37,17 +37,28 @@ async function flush() {
 }
 
 /** Alla sessione aperta: le preferenze salvate dall'utente. */
-export async function loadPreferences(): Promise<void> {
-  try {
-    prefs = await apiGet<Prefs>('/auth/me/preferences')
-  } catch {
-    prefs = {}
-  }
-  emit()
+let loaded: Promise<void> | null = null
+
+export function loadPreferences(): Promise<void> {
+  loaded = (async () => {
+    try {
+      prefs = await apiGet<Prefs>('/auth/me/preferences')
+    } catch {
+      prefs = {}
+    }
+    emit()
+  })()
+  return loaded
+}
+
+/** Si risolve quando le preferenze dell'utente sono arrivate (subito se la sessione non è aperta). */
+export function whenPreferencesLoaded(): Promise<void> {
+  return loaded ?? Promise.resolve()
 }
 
 /** All'uscita: si torna ai predefiniti. */
 export function resetPreferences(): void {
+  loaded = null
   if (timer) clearTimeout(timer)
   timer = null
   pending = {}

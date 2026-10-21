@@ -22,6 +22,7 @@ import { EmptyState } from '@/components/patterns/EmptyState'
 import { EvaluationCompare } from '@/modules/recruiting/evaluate/EvaluationCompare'
 import { EvaluationFormsView, receivedForms, type FormKind } from '@/modules/recruiting/evaluate/EvaluationFormsView'
 import { RECOMMENDATION_LABEL } from '@/modules/recruiting/lib/evaluation-forms'
+import { usePreference } from '@/lib/preferences'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { importSynthesisIntoReport, ivReportHasSynthesisText } from '@/modules/recruiting/lib/interview-protocol'
 import type { SynthesisSections } from '@/modules/recruiting/lib/interview-protocol'
@@ -351,14 +352,9 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
   // Quante valutazioni inviate ha ogni candidato (per il badge nella lista) e
   // quante ne aveva già viste il responsabile (per "Nuova valutazione ricevuta").
   const [counts, setCounts] = useState<Record<string, number>>({})
-  const seenKey = `sv-eval-seen-${campaignId}`
-  const [seen, setSeen] = useState<Record<string, number>>(() => {
-    try {
-      return JSON.parse(localStorage.getItem(`sv-eval-seen-${campaignId}`) || '{}') as Record<string, number>
-    } catch {
-      return {}
-    }
-  })
+  // Le valutazioni già viste stanno nelle preferenze dell'utente sul server,
+  // non nel browser (PROGETTO-TUTTO-SUL-SERVER.md).
+  const [seen, setSeen] = usePreference<Record<string, number>>(`evalSeen.${campaignId}`, {})
 
   useEffect(() => {
     if (!open) return
@@ -380,17 +376,9 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
   // Aprendo un candidato, le sue valutazioni diventano "viste".
   useEffect(() => {
     if (!selectedId || counts[selectedId] == null) return
-    setSeen((prev) => {
-      if (prev[selectedId] === counts[selectedId]) return prev
-      const next = { ...prev, [selectedId]: counts[selectedId] }
-      try {
-        localStorage.setItem(seenKey, JSON.stringify(next))
-      } catch {
-        /* non disponibile: il badge "Nuova" resterà acceso */
-      }
-      return next
-    })
-  }, [selectedId, counts, seenKey])
+    if (seen[selectedId] === counts[selectedId]) return
+    setSeen({ ...seen, [selectedId]: counts[selectedId] })
+  }, [selectedId, counts, seen, setSeen])
 
   useEffect(() => {
     setOpenDetail(null)
