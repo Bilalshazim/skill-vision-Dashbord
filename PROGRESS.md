@@ -184,6 +184,22 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-10-21 — Tutto sul server: inviato su GitHub, Railway non ha deployato
+- [x] `main` portato a `34848de` (fast-forward da `c76f11f`, senza toccare
+      i file non salvati dell'altra sessione) e inviato su GitHub.
+- [x] Il codice esatto del commit, in una copia pulita: build del backend e
+      del frontend riuscite.
+- [ ] **Railway non ha avviato nessun deploy** per `34848de`: su GitHub c'è
+      solo il deploy di GitHub Pages, mentre i push precedenti avevano anche
+      "zesty-victory / production". Dopo 20 minuti la produzione è ancora la
+      versione di prima (backend senza `/recruiting-store`, frontend con il
+      pacchetto del mattino): niente di rotto, ma niente di nuovo. Da
+      controllare sul pannello di Railway (collegamento con GitHub, progetto in
+      pausa o limiti del piano) e avviare il deploy dell'ultimo commit.
+- Nota: GitHub Pages pubblica la radice del repository; con questo commit
+  `index.html`, `js/app.js` e `css/` della radice non ci sono più (il
+  vecchio login con le password nel codice non è più pubblicato lì).
+
 ## 2026-10-21 — Tutto sul server, Parti 4–10: Recruiting sul server, tempo reale, controllo
 - [x] Backend: tabella `RecruitingDocument` (migrazione
       `20261021140000_recruiting_documents`, solo additiva) e modulo
