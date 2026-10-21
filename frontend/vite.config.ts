@@ -1,74 +1,13 @@
-import fs from 'node:fs'
 import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig, type Plugin } from 'vite'
-
-// The legacy static shell (login/landing) lives one level up from this Vite
-// project — see legacyShellDevServer() below for why that matters in dev.
-const shellRoot = path.resolve(import.meta.dirname, '..')
-
-const SHELL_MIME: Record<string, string> = {
-  '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.ico': 'image/x-icon',
-}
-
-// Vite's project root is this frontend/ folder, so by default it resolves
-// "/" and "/index.html" to ITS OWN index.html (the React SPA shell) — never
-// to the real legacy shell at <repo root>/index.html, which sits outside
-// this root entirely. That's why the dev server used to open the React Home
-// directly at "/" and render blank at "/index.html" (index.html loads, but
-// no React Route matches that literal pathname).
-//
-// shell-bridge.ts's SHELL_ENTRY_URL ('/index.html') and both module auth
-// guards already assume the legacy shell answers at that URL, so the fix is
-// to make the dev server actually serve it there — a pre-hook middleware
-// that answers the legacy shell's own document + its css/js/assets requests
-// from <repo root>, and defers everything else (React routes, HMR, module
-// requests) to Vite as usual.
-function legacyShellDevServer(): Plugin {
-  return {
-    name: 'legacy-shell-dev-server',
-    configureServer(server) {
-      server.middlewares.use((req, res, next) => {
-        if (req.method !== 'GET' || !req.url) return next()
-        const urlPath = req.url.split('?')[0]
-
-        // Fase 4: la radice `/` è l'app React (scelta del modulo); il guscio
-        // legacy (login) risponde solo su /index.html, come in produzione.
-        const isShellDocument = urlPath === '/index.html'
-        const isShellAsset = /^\/(?:css|js|assets)\//.test(urlPath)
-        if (!isShellDocument && !isShellAsset) return next()
-
-        const relPath = isShellDocument ? 'index.html' : urlPath.slice(1)
-        const filePath = path.join(shellRoot, relPath)
-        if (
-          !filePath.startsWith(shellRoot + path.sep) && filePath !== shellRoot ||
-          !fs.existsSync(filePath) ||
-          fs.statSync(filePath).isDirectory()
-        ) {
-          return next()
-        }
-
-        res.setHeader('Content-Type', SHELL_MIME[path.extname(filePath)] || 'application/octet-stream')
-        fs.createReadStream(filePath).pipe(res)
-      })
-    },
-  }
-}
+import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [legacyShellDevServer(), react(), tailwindcss()],
-  // Fase 8, modalità `backend` in sviluppo: /api va al backend locale, come
-  // farà serve-combined in produzione, così il cookie httpOnly è della stessa
-  // origine. Con VITE_API_BASE_URL assoluto (modalità `legacy`) non entra in gioco.
+  plugins: [react(), tailwindcss()],
+  // In sviluppo /api va al backend locale, come fa serve-combined in
+  // produzione, così il cookie httpOnly della sessione è della stessa origine.
   server: {
     proxy: { '/api': { target: process.env.BACKEND_DEV_URL || 'http://localhost:4000', changeOrigin: false, xfwd: true } },
   },

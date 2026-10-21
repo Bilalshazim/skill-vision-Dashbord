@@ -15,7 +15,7 @@ Detailed technical version, in Italian: `PROGETTO-TUTTO-SUL-SERVER.md`.
 |---|---|---|
 | 1 ✅ | Assessment on the server only (no browser mode left). Importing browser data also deletes it from the browser. | 2–3 |
 | 2 ✅ | Preferences (theme, language, open panels, chosen company) saved on the user's account | 3–4 |
-| 3 | Remove the old login page and its browser session | 3–4 |
+| 3 ✅ | Remove the old login page and its browser session | 3–4 |
 | 4 | Recruiting: companies and job openings from the server | 5–7 |
 | 5 | Recruiting: candidates and ranking from the server | 7–9 |
 | 6 | Recruiting: pipeline (shortlist, test results, interviews, chosen candidate) | 6–8 |

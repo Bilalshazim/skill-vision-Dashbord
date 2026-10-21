@@ -11,8 +11,6 @@ export const IS_DEV = raw.DEV
 export const env = {
   /** Base dell'API del backend. In locale il backend di sviluppo. */
   apiBaseUrl: raw.VITE_API_BASE_URL || 'http://localhost:4000/api/v1',
-  /** `backend`: login React sul backend; altrimenti il login del guscio legacy. */
-  authMode: raw.VITE_AUTH_MODE === 'backend' ? 'backend' : 'legacy',
   /** Catalogo `/dev/components` anche nella build. */
   componentCatalog: IS_DEV || raw.VITE_ENABLE_COMPONENT_CATALOG === 'true',
   /** Versione demo: mostra "Reset demo". */

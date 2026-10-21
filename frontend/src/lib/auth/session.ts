@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 
-import { buildApiUrl, clearBackendSession, getAccessToken, getBackendUser, refreshAccessToken, setBackendSession, setBackendUser, type BackendUser } from '@/lib/api/client'
+import { buildApiUrl, clearBackendSession, getAccessToken, getBackendUser, onUnauthorized, refreshAccessToken, setBackendSession, setBackendUser, type BackendUser } from '@/lib/api/client'
 import { loadPreferences, resetPreferences } from '@/lib/preferences'
 
 // Fase 8, modalità `backend` — la sessione dell'utente. Il token di accesso
@@ -109,7 +109,7 @@ export async function login(email: string, password: string): Promise<LoginResul
   if (!res.ok) return { ok: false, reason: 'network' }
   const data = (await res.json()) as { accessToken: string; user: BackendUser }
   // Il refresh token del corpo si ignora: in questa modalità vale il cookie.
-  setBackendSession(data.accessToken, '', data.user)
+  setBackendSession(data.accessToken, data.user)
   set({ status: 'authenticated', user: data.user })
   scheduleExpiry()
   return { ok: true, user: data.user }
@@ -127,3 +127,7 @@ export async function logout(): Promise<void> {
   clearBackendSession()
   set({ status: 'anonymous', user: null })
 }
+
+// Una chiamata che resta non autorizzata anche dopo il rinnovo (sessione
+// scaduta o revocata): si esce, e la guardia rimanda a /login.
+onUnauthorized(() => void logout())

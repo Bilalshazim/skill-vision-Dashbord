@@ -75,6 +75,8 @@ function App() {
                 Assessment rendono ciascuno lo stesso AppShell dal proprio
                 layout, dentro i propri provider — vedi AppShell.tsx. */}
             <Route path="/login" element={<LoginPage />} />
+            {/* I vecchi segnalibri del login legacy (ritirato) portano all'app. */}
+            <Route path="/index.html" element={<Navigate to="/" replace />} />
             {/* L'annuncio pubblicato: pubblico, fuori dalla guardia d'accesso. */}
             <Route path="/jd/:token" element={<JobPostingPublicPage />} />
             <Route path="/" element={<ModuleChooserPage />} />

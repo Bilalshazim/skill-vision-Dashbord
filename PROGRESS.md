@@ -126,9 +126,9 @@ insieme allo spegnimento del catalogo in produzione.
       del gruppo di lavoro e la società demo esistono oggi; gli account delle
       due società reali di Original Skills restano da creare con loro,
       d'accordo (CLAUDE.md, Fase 8) — non ancora fatto.
-- [ ] Ritiro del guscio legacy e della sua copia, del ponte e delle coppie
-      di `js/app.js`, nello stesso passaggio — unico punto ancora aperto di
-      questa fase.
+- [x] Ritiro del guscio legacy e della sua copia, del ponte e delle coppie
+      di `js/app.js`, nello stesso passaggio (2026-10-21, "Tutto sul server"
+      Parte 3).
 ### Richieste del documento "recruiting doc" (2026-10-19)
 Stima e ordine approvati: prima i punti veloci (1, 2, 5–7), poi Recruiting
 valutatori, poi i grafici dopo l'accordo con Alessio.
@@ -177,12 +177,40 @@ Piano in PROGETTO-TUTTO-SUL-SERVER.md (10 parti, 38–50 ore). Riassunto per
 Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 - [x] Parte 1: Assessment solo server, import che svuota il browser (2026-10-21)
 - [x] Parte 2: preferenze sul server (2026-10-21)
-- [ ] Parte 3: ritiro della modalità `legacy` e del guscio statico
+- [x] Parte 3: ritiro della modalità `legacy` e del guscio statico (2026-10-21)
 - [ ] Parti 4–9: Recruiting sul server
 - [ ] Parte 10: verifica e controllo "zero archivio del browser"
 - [ ] Da decidere con Roberto: scheda 5P del valutatore come link online?
 
 ## Registro
+
+## 2026-10-21 — Tutto sul server, Parte 3: ritiro del login legacy e del guscio statico
+- [x] Tolta la modalità `legacy`: via `auth-mode.ts`, `authBridge.ts` (il
+      ponte con la password dell'account "operatore"), `shell-bridge.ts`
+      (sessione del guscio in `sessionStorage`); `VITE_AUTH_MODE` e
+      `VITE_OPERATORE_BRIDGE_PASSWORD` tolte da env, tipi e `.env.example`.
+      L'unico accesso è `/login` (`lib/auth/session.ts`): una guardia sola,
+      uscita dal server, sessione scaduta → uscita.
+- [x] `lib/api/client.ts`: token di accesso e utente solo in memoria (via i
+      rami `localStorage`), rinnovo solo col cookie httpOnly; tolto il
+      "re-bridge" sul 403 `role_forbidden`, che serviva solo al ponte.
+- [x] Ritirato il guscio statico **nelle due copie, nello stesso passaggio**:
+      `index.html`, `js/app.js`, `css/style.css` della radice e
+      `frontend/legacy-shell/`. Resta `assets/` della radice (materiali
+      d'identità, CLAUDE.md §10).
+- [x] `scripts/serve-combined.mjs` serve solo la build React (ogni rotta →
+      `index.html`, file mancanti → 404, percorsi fuori dalla build → 404),
+      passa `/api` al backend e rimanda `/index.html` a `/`. `npm start`
+      → `node scripts/serve-combined.mjs dist $PORT` (su Railway non cambia
+      il comando). Tolto il server del guscio dal dev server di Vite; rotta
+      `/index.html` → `/` anche nell'app.
+- [x] Verificato in locale con la build di produzione e lo script di
+      Railway: rotte dell'app 200, `/index.html` 302, file e marchio 200,
+      file mancanti e `..` 404, `/api` passato (401 senza accesso); uscita
+      e nuovo accesso da `/login`; tema del sistema prima dell'accesso, quello
+      dell'utente dopo; `localStorage`/`sessionStorage` vuoti. Typecheck pulito.
+- Su Railway le variabili `VITE_AUTH_MODE` e quella della password del ponte
+  (se c'è ancora) non servono più: si possono togliere, non danno fastidio.
 
 ## 2026-10-21 — Tutto sul server, Parte 2: preferenze sul server
 - [x] Backend: colonna `User.preferences` (JSON, migrazione

@@ -12,9 +12,7 @@ import { useTheme } from '@/hooks/use-theme'
 import { Logo } from '@/layouts/Logo'
 // Ponte verso la sessione del guscio legacy (non specifico di Assessment
 // malgrado il percorso): l'accesso di oggi resta com'è fino alla Fase 8.
-import { isBackendAuth } from '@/lib/auth/auth-mode'
 import { logout } from '@/lib/auth/session'
-import { logoutFromShell } from '@/modules/assessment/lib/shell-bridge'
 
 // La barra superiore del guscio unico: marchio (porta alla `/`, la scelta
 // del modulo), il
@@ -28,10 +26,9 @@ export function Topbar({ menuTrigger }: { menuTrigger?: ReactNode }) {
   const modules = usePurchasedModules()
   const both = !!modules && modules.includes('RECRUITING') && modules.includes('ASSESSMENT')
 
-  // Fase 8: in modalità `backend` il server revoca il refresh token e
-  // cancella il cookie, poi si torna a /login. In `legacy`, come prima.
+  // Fase 8: il server revoca il refresh token e cancella il cookie, poi si
+  // torna a /login.
   async function handleLogout() {
-    if (!isBackendAuth()) return logoutFromShell()
     await logout()
     window.location.replace('/login')
   }

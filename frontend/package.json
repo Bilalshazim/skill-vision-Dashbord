@@ -8,8 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "start": "node scripts/serve-combined.mjs ./legacy-shell dist $PORT",
-    "serve:combined": "node scripts/serve-combined.mjs .. dist 8300"
+    "start": "node scripts/serve-combined.mjs dist $PORT",
+    "serve:combined": "node scripts/serve-combined.mjs dist 8300"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

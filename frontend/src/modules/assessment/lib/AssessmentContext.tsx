@@ -1,4 +1,3 @@
-import { isBackendAuth } from '@/lib/auth/auth-mode'
 import { canEditAssessment } from '@/lib/auth/roles'
 import { useSession } from '@/lib/auth/session'
 import { useQuery } from '@tanstack/react-query'
@@ -80,12 +79,11 @@ function useShared() {
     else sonnerToast(msg, opts)
   }, [])
 
-  // Fase 8: in modalità `backend` chi può modificare lo decide il ruolo del
-  // backend (lib/auth/roles.ts); EVALUATOR e READONLY leggono soltanto. In
-  // `legacy` resta `true` come prima: il guscio non conosce ruoli.
+  // Fase 8: chi può modificare lo decide il ruolo del backend
+  // (lib/auth/roles.ts); EVALUATOR e READONLY leggono soltanto.
   const { user } = useSession()
-  const canEdit = isBackendAuth() ? canEditAssessment(user?.role) : true
-  const isAdmin = isBackendAuth() ? ADMIN_ROLES.has(user?.role ?? '') : true
+  const canEdit = canEditAssessment(user?.role)
+  const isAdmin = ADMIN_ROLES.has(user?.role ?? '')
 
   return useMemo(
     () => ({ lang, setLang, theme, setTheme, ui, topbarActions, setTopbarActions, toast, canEdit, isAdmin }),

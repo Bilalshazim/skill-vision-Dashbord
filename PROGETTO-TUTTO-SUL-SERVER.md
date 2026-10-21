@@ -42,7 +42,7 @@ decide. Stime realistiche.
 |---|---|---|
 | 1 ✅ | **Assessment solo server**: tolta la modalità `local` (e la variabile); l'import dei dati del browser li cancella dal browser quando è riuscito | 2–3 |
 | 2 ✅ | **Preferenze sul server**: `User.preferences` (JSON); tema, lingua, viste, società scelta, schede viste. Scheda 5P aperta nell'indirizzo. Prima dell'accesso: tema del sistema | 3–4 |
-| 3 | **Ritiro della modalità `legacy`** e del guscio statico (le due copie, il ponte, `sessionStorage`) — il punto aperto della Fase 8 | 3–4 |
+| 3 ✅ | **Ritiro della modalità `legacy`** e del guscio statico (le due copie, il ponte, `sessionStorage`) — il punto aperto della Fase 8 | 3–4 |
 | 4 | Recruiting · **società e posizioni** dal server (`Company`/`Campaign`); posizione attiva nelle preferenze; via la mappa dei collegamenti | 5–7 |
 | 5 | Recruiting · **candidati e classifica** dal server (`Candidate`, `CampaignCandidate`, punteggi, Big Five) | 7–9 |
 | 6 | Recruiting · **pipeline**: preselezionati, risultati dei test, colloqui (`Interview` con le sue rotte), vincitore | 6–8 |

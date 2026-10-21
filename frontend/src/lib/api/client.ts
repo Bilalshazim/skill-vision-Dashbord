@@ -6,13 +6,9 @@
 // call `fetch()` directly against the backend — see api/index.ts for the
 // per-domain functions built on top of this file.
 //
-// Token storage is deliberately namespaced away from the legacy shell's own
-// sessionStorage keys (sv_shell_auth/sv_shell_user, see
-// modules/assessment/lib/shell-bridge.ts) — this is a SEPARATE session the
-// backend knows about, bridged from the shell session by lib/api/authBridge.ts,
-// not a replacement for it. See authBridge.ts for exactly how the two co-exist.
+// La sessione è quella del login React (lib/auth/session.ts); qui solo il
+// token in memoria.
 
-import { isBackendAuth } from '@/lib/auth/auth-mode'
 import { env } from '@/lib/env'
 
 export function apiBaseUrl(): string {
@@ -27,69 +23,27 @@ export function apiFileUrl(path: string): string {
   return new URL(path, new URL(apiBaseUrl(), window.location.origin)).toString()
 }
 
-const ACCESS_TOKEN_KEY = 'sv_backend_access_token'
-const REFRESH_TOKEN_KEY = 'sv_backend_refresh_token'
-const USER_KEY = 'sv_backend_user'
-
 export type BackendUser = { id: string; email: string; fullName: string; role: string; companyId: string | null }
 
-// Fase 8, modalità `backend` (lib/auth/auth-mode.ts): il token di accesso e
-// l'utente stanno solo in memoria — niente localStorage, che uno script può
-// leggere — e il refresh token non passa mai da JavaScript: è un cookie
-// httpOnly che il server imposta e legge. In modalità `legacy` tutto resta
-// in localStorage come prima (ponte del guscio).
+// Fase 8: il token di accesso e l'utente stanno solo in memoria — mai
+// nell'archivio del browser, che uno script può leggere — e il refresh token
+// non passa mai da JavaScript: è un cookie httpOnly che il server imposta e
+// legge. Ricaricando la pagina si rinnova col cookie (lib/auth/session.ts).
 let memoryAccessToken: string | null = null
 let memoryUser: BackendUser | null = null
 
 export function getAccessToken(): string | null {
-  if (isBackendAuth()) return memoryAccessToken
-  try {
-    return localStorage.getItem(ACCESS_TOKEN_KEY)
-  } catch {
-    return null
-  }
-}
-export function getRefreshToken(): string | null {
-  if (isBackendAuth()) return null
-  try {
-    return localStorage.getItem(REFRESH_TOKEN_KEY)
-  } catch {
-    return null
-  }
+  return memoryAccessToken
 }
 export function getBackendUser(): BackendUser | null {
-  if (isBackendAuth()) return memoryUser
-  try {
-    const raw = localStorage.getItem(USER_KEY)
-    return raw ? (JSON.parse(raw) as BackendUser) : null
-  } catch {
-    return null
-  }
+  return memoryUser
 }
-export function setBackendSession(accessToken: string, refreshToken: string, user: BackendUser): void {
-  if (isBackendAuth()) {
-    memoryAccessToken = accessToken
-    memoryUser = user
-    return
-  }
-  try {
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
-    localStorage.setItem(USER_KEY, JSON.stringify(user))
-  } catch {
-    /* storage unavailable — the caller's request will simply fail auth and surface an error */
-  }
+export function setBackendSession(accessToken: string, user: BackendUser): void {
+  memoryAccessToken = accessToken
+  memoryUser = user
 }
 export function setBackendAccessToken(accessToken: string): void {
-  if (isBackendAuth()) {
-    memoryAccessToken = accessToken
-    return
-  }
-  try {
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
-  } catch {
-    /* ignore */
-  }
+  memoryAccessToken = accessToken
 }
 export function setBackendUser(user: BackendUser | null): void {
   memoryUser = user
@@ -97,13 +51,6 @@ export function setBackendUser(user: BackendUser | null): void {
 export function clearBackendSession(): void {
   memoryAccessToken = null
   memoryUser = null
-  try {
-    localStorage.removeItem(ACCESS_TOKEN_KEY)
-    localStorage.removeItem(REFRESH_TOKEN_KEY)
-    localStorage.removeItem(USER_KEY)
-  } catch {
-    /* ignore */
-  }
 }
 
 export class ApiError extends Error {
@@ -152,32 +99,20 @@ let refreshInFlight: Promise<boolean> | null = null
 // SAME in-flight refresh promise instead of each firing its own
 // POST /auth/refresh (which would race to rotate/revoke tokens).
 async function tryRefresh(): Promise<boolean> {
-  const refreshToken = getRefreshToken()
-  if (!refreshToken && !isBackendAuth()) return false
   if (!refreshInFlight) {
     refreshInFlight = (async () => {
       try {
-        // In modalità `backend` il refresh token è il cookie httpOnly: il
-        // corpo è vuoto e il browser manda il cookie da solo.
+        // Il refresh token è il cookie httpOnly: il corpo è vuoto e il browser
+        // manda il cookie da solo; il server lo ruota con un cookie nuovo.
         const res = await fetch(buildUrl('/auth/refresh'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify(refreshToken ? { refreshToken } : {}),
+          body: '{}',
         })
         if (!res.ok) return false
-        const data = (await res.json()) as { accessToken: string; refreshToken?: string }
+        const data = (await res.json()) as { accessToken: string }
         setBackendAccessToken(data.accessToken)
-        // Il server ruota il refresh token a ogni rinnovo. In modalità
-        // `backend` arriva come cookie nuovo; nel ponte legacy va salvato qui,
-        // altrimenti il prossimo rinnovo userebbe quello già sostituito.
-        if (data.refreshToken && !isBackendAuth()) {
-          try {
-            localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken)
-          } catch {
-            /* ignore */
-          }
-        }
         return true
       } catch {
         return false
@@ -190,34 +125,13 @@ async function tryRefresh(): Promise<boolean> {
 }
 
 // Fired whenever a request fails auth even after a refresh attempt — lets
-// the auth bridge re-establish a session (§3) instead of every call site
+// the session close (lib/auth/session.ts) instead of every call site
 // having to know what "unauthorized" should do next.
 type UnauthorizedListener = () => void
 const unauthorizedListeners = new Set<UnauthorizedListener>()
 export function onUnauthorized(listener: UnauthorizedListener): () => void {
   unauthorizedListeners.add(listener)
   return () => unauthorizedListeners.delete(listener)
-}
-
-// Fired on a 403 specifically coded 'role_forbidden' (see backend
-// RoleForbiddenError, middleware/auth.ts's requireRole) — the JWT
-// authenticates fine but its role isn't allowed here. Distinct from a
-// generic 'forbidden' (e.g. requireCompanyScope's company mismatch),
-// which must NEVER trigger this: re-bridging as the same shell user would
-// hit the exact same company boundary again. A role mismatch, by
-// contrast, is exactly what a STALE dev/authBridge session looks like — a
-// role_forbidden 403 in what the user believes is now a RECRUITER/
-// COMPANY_ADMIN session almost certainly means the bridged session
-// predates a later shell-login switch. The listener re-establishes the
-// bridge against the CURRENT shell login and reports whether that
-// actually changed anything worth retrying for; returning a boolean
-// (unlike onUnauthorized's void) lets apiRequest retry the ORIGINAL
-// request once, in place, rather than only fixing things for next time.
-type RoleForbiddenListener = () => Promise<boolean>
-const roleForbiddenListeners = new Set<RoleForbiddenListener>()
-export function onRoleForbidden(listener: RoleForbiddenListener): () => void {
-  roleForbiddenListeners.add(listener)
-  return () => roleForbiddenListeners.delete(listener)
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -268,14 +182,6 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   }
 
   const errShape = payload as { error?: { code?: string; message?: string } } | undefined
-
-  if (res.status === 403 && errShape?.error?.code === 'role_forbidden' && !options.anonymous && !options._retried) {
-    let recovered = false
-    for (const listener of roleForbiddenListeners) {
-      if (await listener()) recovered = true
-    }
-    if (recovered) return apiRequest<T>(path, { ...options, _retried: true })
-  }
 
   if (!res.ok) {
     const message = errShape?.error?.message || res.statusText || `Richiesta fallita (${res.status})`

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { ensureBackendSession } from '@/lib/api/authBridge'
+import { ensureSession } from '@/lib/auth/session'
 import { getBackendUser } from '@/lib/api/client'
 import { companiesApi } from '@/lib/api/endpoints'
 import type { BackendCompany } from '@/lib/api/types'
@@ -26,8 +26,7 @@ export function useAssessmentCompanies(enabled: boolean): AssessmentCompanies {
     queryKey: ['assessment', 'companies'],
     enabled,
     queryFn: async () => {
-      // In modalità `legacy` il token del backend arriva dal ponte del guscio.
-      await ensureBackendSession()
+      await ensureSession()
       const user = getBackendUser()
       if (user?.role === 'PLATFORM_ADMIN') return (await companiesApi.list()).filter((c) => c.purchasedModules.includes('ASSESSMENT'))
       if (!user?.companyId) return []

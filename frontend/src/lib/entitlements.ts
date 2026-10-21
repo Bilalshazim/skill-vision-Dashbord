@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react'
 import { companiesApi } from '@/lib/api/endpoints'
 import { ApiError, getBackendUser } from '@/lib/api/client'
 import type { PlatformModule } from '@/lib/api/types'
-import { ensureBackendSession, wasLastBridgeFailureConnectivity } from '@/lib/api/authBridge'
+import { ensureSession } from '@/lib/auth/session'
 
 // Dev-only escape hatch: `import.meta.env.DEV` is baked in at build time and
 // is always false in a production build, so this can never soften the real,
@@ -35,15 +35,9 @@ export function useModuleEntitlement(module: PlatformModule): EntitlementState {
   useEffect(() => {
     let cancelled = false
     async function check() {
-      const bridged = await ensureBackendSession()
-      if (!bridged) {
-        if (cancelled) return
-        if (DEV_FAILS_OPEN && wasLastBridgeFailureConnectivity()) {
-          console.warn(`[entitlements] Backend unreachable while checking the "${module}" module — failing OPEN because this is a dev build. This will fail closed in production.`)
-          setState({ status: 'unlocked' })
-        } else {
-          setState({ status: 'error', message: 'Impossibile verificare i moduli attivi — riprova più tardi.' })
-        }
+      // Senza sessione la guardia porta già a /login; qui solo per sicurezza.
+      if (!(await ensureSession())) {
+        if (!cancelled) setState({ status: 'error', message: 'Impossibile verificare i moduli attivi — riprova più tardi.' })
         return
       }
       const user = getBackendUser()

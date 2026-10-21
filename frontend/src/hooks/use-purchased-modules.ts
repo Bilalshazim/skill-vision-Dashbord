@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { ensureBackendSession, wasLastBridgeFailureConnectivity } from '@/lib/api/authBridge'
+import { ensureSession } from '@/lib/auth/session'
 import { ApiError, getBackendUser } from '@/lib/api/client'
 import { companiesApi } from '@/lib/api/endpoints'
 import type { PlatformModule } from '@/lib/api/types'
@@ -16,8 +16,7 @@ const ALL: PlatformModule[] = ['RECRUITING', 'ASSESSMENT']
 let cached: Promise<PlatformModule[]> | null = null
 
 async function load(): Promise<PlatformModule[]> {
-  const bridged = await ensureBackendSession()
-  if (!bridged) return import.meta.env.DEV && wasLastBridgeFailureConnectivity() ? ALL : []
+  if (!(await ensureSession())) return []
   const user = getBackendUser()
   if (user?.role === 'PLATFORM_ADMIN') return ALL
   if (!user?.companyId) return []

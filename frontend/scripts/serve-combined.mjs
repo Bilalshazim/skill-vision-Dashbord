@@ -3,21 +3,15 @@ import https from 'node:https'
 import fs from 'node:fs'
 import path from 'node:path'
 
-// Combined local server: legacy static site (index.html, js/, css/,
-// assets/) at the repo root, React build mounted under /assessment and
-// /recruiting — all on ONE origin, so sessionStorage/localStorage set by
-// index.html's login is visible to the React app, matching how this must
-// be deployed in production (see the "Deep links" / SPA-fallback finding
-// in the backend's production-readiness notes).
+// Il server del frontend in produzione (Railway, npm start) e in prova
+// locale: serve la build React e passa /api al backend (stessa origine, così
+// il cookie httpOnly della sessione è di prima parte). Il guscio statico
+// legacy (index.html, js/, css/) è stato ritirato (Fase 8,
+// PROGETTO-TUTTO-SUL-SERVER.md Parte 3): ogni pagina è l'app React.
 //
-// Usage (from frontend/, after `npm run build`):
-//   npm run serve:combined
-// then open http://localhost:8300/
-//
-// Args: ROOT (repo root, relative to this script) DIST (React build dir) PORT
-const ROOT = process.argv[2]
-const DIST = process.argv[3]
-const PORT = Number(process.argv[4] || 8300)
+// Uso (da frontend/, dopo npm run build): node scripts/serve-combined.mjs dist 8300
+const DIST = process.argv[2]
+const PORT = Number(process.argv[3] || 8300)
 
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.pdf': 'application/pdf', '.ico': 'image/x-icon', '.woff2': 'font/woff2' }
 
@@ -28,16 +22,7 @@ function send(res, filePath) {
   res.end(body)
 }
 
-const CATALOG_ENABLED = process.env.VITE_ENABLE_COMPONENT_CATALOG === 'true'
-const REACT_PREFIXES = ['/login', '/jd', '/recruiting', '/assessment', '/evaluate', ...(CATALOG_ENABLED ? ['/dev/components'] : [])]
-
-function isReactRoute(urlPath) {
-  const p = urlPath.length > 1 ? urlPath.replace(/\/+$/, '') : urlPath
-  if (p === '/' || p === '') return true
-  return REACT_PREFIXES.some((prefix) => p === prefix || p.startsWith(prefix + '/'))
-}
-
-// Fase 8, modalità `backend`: l'API passa da qui (/api/* → backend), così
+// L'API passa da qui (/api/* → backend), così
 // browser e API hanno la stessa origine e il cookie httpOnly del refresh è
 // di prima parte (SameSite=Strict). Acceso solo con BACKEND_INTERNAL_URL
 // (es. l'indirizzo privato del servizio Backend su Railway); senza, /api
@@ -84,40 +69,26 @@ const server = http.createServer((req, res) => {
 
     const urlPath = decodeURIComponent(req.url.split('?')[0])
 
-    if (urlPath.startsWith('/assets/') || urlPath.startsWith('/brand/')) {
-      const legacy = path.join(ROOT, urlPath)
-      if (fs.existsSync(legacy) && fs.statSync(legacy).isFile()) return send(res, legacy)
-      const distAsset = path.join(DIST, urlPath)
-      if (fs.existsSync(distAsset) && fs.statSync(distAsset).isFile()) return send(res, distAsset)
+    // I vecchi segnalibri del login legacy portano all'app.
+    if (urlPath === '/index.html') {
+      res.writeHead(302, { Location: '/' })
+      return res.end()
     }
 
-    // Rotte dell'app React: si serve sempre index.html della build e
-    // l'instradamento lo fa React Router. Barra finale ammessa
-    // (/dev/components/ = /dev/components). La radice è l'app React (scelta
-    // del modulo); il login legacy resta su /index.html e dopo l'accesso
-    // rimanda qui. Il catalogo è servito solo se l'ambiente lo accende in
-    // modo esplicito, con la stessa variabile che lo compila nel bundle.
-    if (isReactRoute(urlPath)) {
-      return send(res, path.join(DIST, 'index.html'))
+    // File della build (asset, favicon, marchio).
+    const root = path.resolve(DIST)
+    const filePath = path.resolve(root, '.' + urlPath)
+    if (filePath.startsWith(root + path.sep) && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) return send(res, filePath)
+
+    // Un file che non c'è: 404, non la pagina dell'app.
+    if (path.extname(urlPath)) {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' })
+      return res.end('Not found: ' + urlPath)
     }
 
-    let filePath = path.join(ROOT, urlPath === '/' ? 'index.html' : urlPath)
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) filePath = path.join(filePath, 'index.html')
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) return send(res, filePath)
-
-    // Not in the legacy shell root — fall back to the React build's own
-    // top-level static files (favicon.svg, etc.) before giving up. Vite
-    // copies frontend/public/* verbatim to dist/'s root, but the ROOT-only
-    // lookup above never checked there, so a bare request like
-    // /favicon.svg (which every browser makes regardless of which page
-    // loaded) 404'd even though the file genuinely exists in dist/.
-    if (urlPath !== '/') {
-      const distFallback = path.join(DIST, urlPath)
-      if (fs.existsSync(distFallback) && fs.statSync(distFallback).isFile()) return send(res, distFallback)
-    }
-
-    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' })
-    res.end('Not found: ' + urlPath)
+    // Ogni altra rotta è dell'app React: index.html della build, e
+    // l'instradamento lo fa React Router.
+    return send(res, path.join(DIST, 'index.html'))
   } catch (err) {
     res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' })
     res.end(String(err))

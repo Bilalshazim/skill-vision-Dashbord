@@ -2,33 +2,19 @@ import { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { LoginForm, type LoginFormError } from '@/components/patterns/LoginForm'
-import { isBackendAuth } from '@/lib/auth/auth-mode'
 import { ensureSession, login, useSession } from '@/lib/auth/session'
 import { Logo } from '@/layouts/Logo'
-import { SHELL_ENTRY_URL } from '@/modules/assessment/lib/shell-bridge'
 
-// /login (Fase 8, modalità `backend`): l'accesso contro il backend. Dopo
-// l'accesso torna alla pagina da cui si veniva (`next`, solo percorsi
-// interni) o alla scelta del modulo. In modalità `legacy` il login resta
-// quello del guscio (index.html): questa rotta ci rimanda.
-export default function LoginPage() {
-  if (!isBackendAuth()) return <LegacyRedirect />
-  return <BackendLogin />
-}
-
-function LegacyRedirect() {
-  useEffect(() => {
-    window.location.replace(SHELL_ENTRY_URL)
-  }, [])
-  return null
-}
+// /login (Fase 8): l'accesso contro il backend, l'unico. Dopo l'accesso torna
+// alla pagina da cui si veniva (`next`, solo percorsi interni) o alla
+// scelta del modulo.
 
 // Solo percorsi interni: `next=https://altro.sito` non porta fuori.
 function safeNext(raw: string | null): string {
   return raw && raw.startsWith('/') && !raw.startsWith('//') ? raw : '/'
 }
 
-function BackendLogin() {
+export default function LoginPage() {
   const [params] = useSearchParams()
   const next = safeNext(params.get('next'))
   const navigate = useNavigate()

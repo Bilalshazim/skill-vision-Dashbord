@@ -14,7 +14,6 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { ApiError, getBackendUser } from '@/lib/api/client'
-import { isBackendAuth } from '@/lib/auth/auth-mode'
 import { originalSkillsApi, type OriginalSkillsCompany, type OriginalSkillsPerson, type OriginalSkillsResults } from '@/lib/api/endpoints'
 import { useBackendSession } from '@/lib/api/useBackendSession'
 
@@ -57,7 +56,7 @@ export default function OriginalSkillsPreviewPage() {
   // si aggiorna quando la sessione è pronta.
   const backend = useBackendSession()
   // CLAUDE.md: dati di persone reali solo dietro il login vero, mai col ponte legacy.
-  const isPlatformAdmin = isBackendAuth() && getBackendUser()?.role === 'PLATFORM_ADMIN'
+  const isPlatformAdmin = getBackendUser()?.role === 'PLATFORM_ADMIN'
 
   const [companies, setCompanies] = useState<OriginalSkillsCompany[]>([])
   const [maxDays, setMaxDays] = useState(89)

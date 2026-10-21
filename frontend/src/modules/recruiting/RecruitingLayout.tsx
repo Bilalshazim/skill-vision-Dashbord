@@ -18,10 +18,8 @@ import { useBackendSession } from '@/lib/api/useBackendSession'
 // barra laterale: la pagina aperta si ridisegna sulla nuova società (le
 // pagine leggono il contesto attivo al render, non si abbonano).
 export default function RecruitingLayout() {
-  // Phase 31 §3 — establishes the backend session for this shell user as
-  // soon as Recruiting mounts (see lib/api/authBridge.ts for what "shell
-  // session -> backend JWT" actually means here). Non-blocking: the shell
-  // auth guard above is still the ONLY thing that gates rendering — a
+  // Phase 31 §3 — checks the backend session as soon as Recruiting mounts.
+  // Non-blocking: the auth guard is the ONLY thing that gates rendering — a
   // backend outage shows the banner below, it never hides the app.
   const backend = useBackendSession()
   const [contextVersion, setContextVersion] = useState(0)

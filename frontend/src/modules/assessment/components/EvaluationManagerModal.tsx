@@ -19,7 +19,7 @@ import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { DEFAULT_PEERS, buildEvaluationPlan } from '@/modules/assessment/lib/evaluation-plan'
 import { isServerToken } from '@/lib/api/assessment'
-import { buildAssignmentLink } from '@/modules/assessment/lib/shell-bridge'
+import { buildAssignmentLink } from '@/modules/assessment/lib/links'
 import { getApexSources, uid } from '@/modules/assessment/lib/legacy-utils'
 import type { ApexSourceKey } from '@/modules/assessment/lib/types'
 
