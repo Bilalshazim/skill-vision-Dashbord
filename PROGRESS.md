@@ -184,6 +184,44 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-10-22 — Prova pulita di frontend e backend (codice di `main`, prima del deploy)
+- [x] Copia pulita di `origin/main` (`fcbf631`), senza i file non salvati
+      dell'altra sessione; database vuoto `sv_cleantest` costruito dalle 10
+      migrazioni come farà Railway: nessuna differenza con lo schema.
+- [x] Backend: build ok, 162/162 test. Frontend: build di produzione ok,
+      `audit-storage` ok (425 file). Audit d'identità 32: nessuno nei file
+      toccati da questo lavoro (vedi sotto).
+- [x] App avviata come su Railway (backend da `dist`, `serve-combined` con
+      `BACKEND_INTERNAL_URL`): rotte 200, `/index.html` 302, `/js/app.js`
+      404, `/api` passato (401 senza accesso).
+- [x] Nel browser: accesso; 14 pagine di Recruiting e 16 di Assessment senza
+      errori; caricamento di un CV (righe Candidate/Cv/CvMatchResult + dati di
+      Recruiting sul server, 57 CV dopo il ricaricamento); salvataggio del
+      profilo di lavoro (JobProfile + modelli e sintesi sul server);
+      sblocco di Assessment col codice; nuovo dipendente salvato e ritrovato;
+      secondo utente (recruiter) con gli stessi dati e senza RAL; uscita;
+      `localStorage`/`sessionStorage` sempre vuoti.
+- [x] **Corretto un difetto**: dopo lo sblocco di Assessment col codice la
+      pagina diceva "Dati non caricati" (la richiesta fatta col modulo ancora
+      bloccato restava in errore). Ora lo sblocco ricarica la pagina una volta.
+      Verificato rifacendo lo sblocco sulla copia pulita.
+- [x] **Corretti testi non più veri**: "salvata solo in questo browser /
+      localmente" (profilo di lavoro, CV, scheda candidato), pesi delle
+      competenze "si salva in questo browser", nota sul link del valutatore
+      ("funziona solo in questo browser"), Metodo del 5P e nota
+      sull'archiviazione dati di Assessment; tolto `emailApiKeyHint`, non
+      più usato. Restano veri i testi dell'import e della scheda 5P del
+      valutatore (che è ancora un file).
+- [ ] Da sapere: `npm start` del frontend usa `$PORT`, che il terminale di
+      Windows non espande. Su Railway (Linux) funziona come prima; in locale
+      su Windows si lancia `node scripts/serve-combined.mjs dist <porta>`.
+- [ ] Audit d'identità: 32 voci rimaste, da altri lavori recenti (ombre in
+      AssessmentHomePage, FolderCard, ModeSwitch…; 15 nei modelli email del
+      backend). Non toccate qui.
+- [ ] Non inviato su GitHub: deploy di Railway in pausa (Roberto, 2026-10-21).
+- Nota: resta la cartella `C:svclean` (copia di prova, già scollegata da
+  git e dalle librerie): si può cancellare a mano.
+
 ## 2026-10-21 — Tutto sul server: inviato su GitHub, Railway non ha deployato
 - [x] `main` portato a `34848de` (fast-forward da `c76f11f`, senza toccare
       i file non salvati dell'altra sessione) e inviato su GitHub.

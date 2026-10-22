@@ -195,9 +195,10 @@ export default function JobProfilePage() {
     setInvioCvError('')
     const { opening } = getActiveOpening(readCvMatchingState())
     const when = new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
-    // Senza server (o se non risponde) la scheda resta solo in questo browser:
-    // lo si dice, perché "Salva" da solo non spiega dove finisce.
-    let where = `Salvata solo in questo browser · ${when}. Per confermarla e avere il link dell’annuncio serve il salvataggio sul server.`
+    // La scheda si salva sempre come modello (dati di Recruiting sul server).
+    // Se non si registra anche come annuncio, lo si dice: senza, niente
+    // conferma e niente link.
+    let where = `Salvata come modello · ${when}. Non è ancora un annuncio: per confermarla e avere il link serve una posizione aperta collegata al server.`
     if (opening) {
       const backendResult = await saveJobProfileToBackend(opening.id, jdState)
       if (backendResult.ok) {
@@ -212,7 +213,7 @@ export default function JobProfilePage() {
         setApproved(false)
         setPublicationLink(null)
       } else if (backendResult.reason === 'error') {
-        setBackendNote(`Salvato solo localmente — impossibile salvare sul server (${backendResult.message}).`)
+        setBackendNote(`Salvata come modello — impossibile registrarla come annuncio sul server (${backendResult.message}).`)
       }
       // 'no-link' — this opening has no backend Campaign yet (no CV
       // uploaded through the backend flow for it) — silently local-only,

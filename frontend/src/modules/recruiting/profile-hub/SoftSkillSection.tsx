@@ -46,7 +46,7 @@ export function SoftSkillSection() {
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-app-small text-muted-foreground">
-            Clicca su una competenza per darle un peso: 1 clic essenziale, 2 clic importante, 3 clic utile, 4 clic la toglie. La scelta si salva in questo browser.
+            Clicca su una competenza per darle un peso: 1 clic essenziale, 2 clic importante, 3 clic utile, 4 clic la toglie. La scelta si salva sul server e vale per tutti i colleghi della società.
           </p>
           <Button type="button" variant="outline" size="sm" onClick={resetSkillFlags}>
             <RotateCcw aria-hidden="true" />

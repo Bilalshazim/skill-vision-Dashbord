@@ -183,7 +183,7 @@ export default function CvExportPage() {
       setUploadFeedback({ kind: 'error', message })
       return
     }
-    const localNote = ` (salvato solo localmente — ${backendResult.message})`
+    const localNote = ` (registrazione del CV sul server non riuscita — ${backendResult.message})`
     setUploadFeedback({
       kind: 'success',
       message: (result.autoSent

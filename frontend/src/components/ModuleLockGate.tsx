@@ -24,6 +24,11 @@ function LockedScreen({ module, companyId, onUnlocked }: { module: PlatformModul
     try {
       await companiesApi.redeemAccessCode(companyId, code.trim())
       onUnlocked()
+      // Le risposte del server chieste mentre il modulo era bloccato (es. i
+      // dati di Assessment: "modulo non attivo") e il commutatore dei moduli
+      // nella barra in alto vanno rifatti da capo: si ricarica la pagina, una
+      // volta sola, invece di far premere "Riprova".
+      window.location.reload()
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Codice non valido')
     } finally {

@@ -78,7 +78,7 @@ export function MetodoTab({ state }: { state: State5p }) {
             ))}
           </ol>
           <p className="text-app-caption">
-            <B>Per chi gestisce la piattaforma.</B> Il lavoro resta salvato nel browser di questo computer. A fine sessione premi <B>Salva progetto</B> in alto: ottieni un file per ogni azienda cliente, da riaprire con <B>Apri progetto</B> anche da un altro PC.
+            <B>Per chi gestisce la piattaforma.</B> Il lavoro si salva da solo sul server: lo ritrovi da qualunque computer, e i colleghi della stessa società vedono gli stessi dati. <B>Salva progetto</B> in alto ne fa anche una copia in un file, da riaprire con <B>Apri progetto</B>.
           </p>
         </Panel>
         <Panel title="Come si calcola">
@@ -198,7 +198,7 @@ export function MetodoTab({ state }: { state: State5p }) {
             <li>Il Valore Atteso non compare nelle schede dei valutatori: non orienta il giudizio.</li>
             <li>Informativa privacy ai dipendenti (GDPR art. 13) prima della raccolta: scopo, tempi di conservazione, chi vede i dati.</li>
             <li>Il punteggio è un supporto. Decisioni su retribuzione o carriera non vanno prese solo su di esso (GDPR art. 22) e vanno discusse nel colloquio.</li>
-            <li>I file compilati contengono dati personali: vanno tenuti in una cartella con accesso solo HR. Questo strumento lavora nel browser e non invia i dati a nessun server.</li>
+            <li>I file compilati contengono dati personali: vanno tenuti in una cartella con accesso solo HR. I dati del progetto stanno sul server della piattaforma e li vede solo chi lavora nella società.</li>
           </ul>
         </Panel>
       </div>

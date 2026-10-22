@@ -169,7 +169,7 @@ export const PaginaACandidateRow = memo(function PaginaACandidateRow({
       return
     }
     if (result.backendSync === 'failed') {
-      setState({ kind: 'warning', message: `Salvato localmente — sincronizzazione col server non riuscita: ${result.backendMessage}` })
+      setState({ kind: 'warning', message: `Salvato — aggiornamento della scheda candidato sul server non riuscito: ${result.backendMessage}` })
       onMutated()
       return
     }
