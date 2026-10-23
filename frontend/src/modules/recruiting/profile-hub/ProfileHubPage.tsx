@@ -5,8 +5,7 @@ import { SkillVisionCard } from '@/components/patterns/SkillVisionCard'
 import { Compass } from 'lucide-react'
 
 import { Card, CardDescription } from '@/components/ui/card'
-import { usePersistedFlag } from '@/hooks/use-persisted-flag'
-import { homeCardLayout } from '@/lib/home-card-layout'
+import { usePreference } from '@/lib/preferences'
 import { RECRUITING_NAV_GROUPS } from '@/modules/recruiting/nav-config'
 
 // "Profilo della ricerca": le tre card dei primi tre livelli del percorso
@@ -16,10 +15,10 @@ import { RECRUITING_NAV_GROUPS } from '@/modules/recruiting/nav-config'
 // le competenze trasversali e l'annuncio stanno ora nel Profilo Candidato,
 // l'Area Valutatori è il quarto livello, nella barra laterale.
 //
-// Ogni card è una SkillVisionCard con il solo titolo e l'icona a sinistra;
-// "Skill Vision" apre sulla destra le pagine del livello, le stesse voci
-// della barra laterale (nav-config.ts). Aperto/chiuso è ricordato; all'inizio
-// sono tutte chiuse.
+// Le tre card stanno sempre in una riga (richiesta del 2026-10-23). Se ne
+// apre una alla volta: "Skill Vision" mostra sotto la riga le pagine del
+// livello, le stesse voci della barra laterale (nav-config.ts). La card
+// aperta è ricordata nelle preferenze sul server; all'inizio nessuna.
 const LEVELS = [
   { key: 'cerchiamo', title: 'Chi cerchiamo', group: 'Chi cerchiamo · Livello 1', icon: HouseValueIcon, description: 'Livello 1 · Il profilo del candidato, i CV e la preselezione' },
   { key: 'adatto', title: 'Chi è più adatto', group: 'Chi è più adatto · Livello 2', icon: LightbulbGemIcon, description: 'Livello 2 · Risultati, confronto e stato della selezione' },
@@ -27,15 +26,9 @@ const LEVELS = [
 ] as const
 
 export default function ProfileHubPage() {
-  const [openCerchiamo, setOpenCerchiamo] = usePersistedFlag('sv-recruiting-profile-cerchiamo-view')
-  const [openAdatto, setOpenAdatto] = usePersistedFlag('sv-recruiting-profile-adatto-view')
-  const [openScegliamo, setOpenScegliamo] = usePersistedFlag('sv-recruiting-profile-scegliamo-view')
-  const state = {
-    cerchiamo: [openCerchiamo, setOpenCerchiamo],
-    adatto: [openAdatto, setOpenAdatto],
-    scegliamo: [openScegliamo, setOpenScegliamo],
-  } as const
-  const cardLayout = homeCardLayout([['cerchiamo', 'adatto'], ['scegliamo']] as const, { cerchiamo: openCerchiamo, adatto: openAdatto, scegliamo: openScegliamo })
+  const [openKey, setOpenKey] = usePreference<string>('sv-recruiting-profile-open-level', '')
+  const openLevel = LEVELS.find((l) => l.key === openKey)
+  const items = openLevel ? (RECRUITING_NAV_GROUPS.find((g) => g.label === openLevel.group)?.items ?? []) : []
 
   return (
     <div className="flex flex-col gap-4">
@@ -46,32 +39,30 @@ export default function ProfileHubPage() {
         Area Operativa
       </div>
 
-      <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-        {LEVELS.map((level) => {
-          const [open, setOpen] = state[level.key]
-          const items = RECRUITING_NAV_GROUPS.find((g) => g.label === level.group)?.items ?? []
-          return (
-            <SkillVisionCard
-              key={level.key}
-              icon={level.icon}
-              title={level.title}
-              open={open}
-              onOpenChange={setOpen}
-              style={cardLayout[level.key]}
-              panel={
-                <Card className="gap-3">
-                  <CardDescription>{level.description}</CardDescription>
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    {items.map((item) => (
-                      <NavCard key={item.screen} to={item.to} icon={item.icon} title={item.label} />
-                    ))}
-                  </div>
-                </Card>
-              }
-            />
-          )
-        })}
+      <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-3">
+        {LEVELS.map((level) => (
+          <SkillVisionCard
+            key={level.key}
+            icon={level.icon}
+            title={level.title}
+            open={openKey === level.key}
+            onOpenChange={(open) => setOpenKey(open ? level.key : '')}
+            panelPlacement="below"
+            panel={null}
+          />
+        ))}
       </div>
+
+      {openLevel ? (
+        <Card className="gap-3">
+          <CardDescription>{openLevel.description}</CardDescription>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {items.map((item) => (
+              <NavCard key={item.screen} to={item.to} icon={item.icon} title={item.label} />
+            ))}
+          </div>
+        </Card>
+      ) : null}
     </div>
   )
 }

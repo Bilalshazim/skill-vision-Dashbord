@@ -184,6 +184,13 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-10-23 — Profilo della ricerca: tre card in una riga
+- [x] Le tre card sempre affiancate (`md:grid-cols-3`). Se ne apre una alla
+      volta e le sue pagine compaiono sotto la riga. `SkillVisionCard` ha
+      `panelPlacement="below"` per questo; la card aperta è una preferenza
+      sul server (`sv-recruiting-profile-open-level`).
+- [x] Verificato in locale; build, audit-identita (27), audit-storage ok.
+
 ## 2026-10-23 — Recruiting: indice a quattro livelli (documento "Recruiting Module")
 - [x] Barra laterale a gruppi: Profilo della ricerca · Chi cerchiamo (L1) ·
       Chi è più adatto (L2) · Chi scegliamo (L3) · Area valutatori (L4) ·

@@ -31,6 +31,7 @@ export function SkillVisionCard({
   labels = { today: 'oggi', skillVision: 'Skill Vision' },
   tint,
   style,
+  panelPlacement = 'inline',
 }: {
   icon: IconComponent
   iconSide?: 'start' | 'end'
@@ -48,7 +49,11 @@ export function SkillVisionCard({
   labels?: { today: string; skillVision: string }
   tint?: FolderTint
   style?: CSSProperties
+  /** `below`: la card resta nella sua cella e il pannello lo mostra la
+   *  pagina, sotto la riga (Profilo della ricerca di Recruiting). */
+  panelPlacement?: 'inline' | 'below'
 }) {
+  const inline = panelPlacement === 'inline'
   const panelId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
   const wasOpen = useRef(open)
@@ -70,7 +75,7 @@ export function SkillVisionCard({
       data-slot="skill-vision-card"
       data-state={open ? 'open' : 'closed'}
       style={style}
-      className={cn('flex min-w-0 flex-col', open && 'col-span-full grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]')}
+      className={cn('flex min-w-0 flex-col', inline && open && 'col-span-full grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]')}
     >
       <FolderCard
         icon={icon}
@@ -87,7 +92,7 @@ export function SkillVisionCard({
             aria-label={typeof title === 'string' ? title : undefined}
           >
             <ToggleGroupItem value="oggi">{labels.today}</ToggleGroupItem>
-            <ToggleGroupItem value="skillvision" aria-controls={open ? panelId : undefined}>
+            <ToggleGroupItem value="skillvision" aria-controls={inline && open ? panelId : undefined}>
               {labels.skillVision}
             </ToggleGroupItem>
           </ToggleGroup>
@@ -105,7 +110,7 @@ export function SkillVisionCard({
         {actions ? <div className="mt-auto flex flex-wrap justify-center gap-2 pt-6">{actions}</div> : null}
       </FolderCard>
 
-      {open ? (
+      {inline && open ? (
         <div id={panelId} className={cn('flex min-w-0 flex-col gap-3', tint && 'rounded-lg border-2 border-primary p-4')} style={folderTintStyle(tint)}>
           {panel}
         </div>
