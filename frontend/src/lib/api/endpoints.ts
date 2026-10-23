@@ -191,7 +191,7 @@ export const evaluatorsApi = {
   removeFormUpload: (uploadId: string) => apiDelete<void>(`/evaluators/form-uploads/${uploadId}`),
   // Sintesi IA di tutte le valutazioni inviate per un candidato.
   synthesis: (campaignCandidateId: string) =>
-    apiPost<{ sections: { rilevanti: string; convergenze: string; divergenze: string; criticita: string }; evaluationsUsed: number; generatedAt: string }>(
+    apiPost<{ sections: { rilevanti: string; convergenze: string; divergenze: string; criticita: string }; evaluationsUsed: number; filesUsed: number; filesSkipped: string[]; generatedAt: string }>(
       `/evaluators/campaign-candidates/${campaignCandidateId}/synthesis`,
     ),
   // Phase 33 §4/§5 — the evaluator-facing reads (new backend routes).

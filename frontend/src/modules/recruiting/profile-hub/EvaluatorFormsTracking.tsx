@@ -11,15 +11,12 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useConfirm } from '@/hooks/use-confirm'
-import { ApiError, apiFileUrl } from '@/lib/api/client'
+import { ApiError } from '@/lib/api/client'
+import { FORM_KIND_LABEL, openFormUpload } from '@/modules/recruiting/lib/evaluator-forms'
 import { candidatesApi, evaluatorsApi } from '@/lib/api/endpoints'
 import type { BackendCampaignEvaluator, EvaluatorFormKind, EvaluatorFormTracking, EvaluatorFormUploadDto } from '@/lib/api/endpoints'
 import type { BackendCampaignCandidate } from '@/lib/api/types'
 
-export const FORM_KIND_LABEL: Record<EvaluatorFormKind, string> = {
-  INTERVISTA: 'Intervista strutturata',
-  VALUTAZIONE: 'Valutazione candidato',
-}
 const KINDS: EvaluatorFormKind[] = ['INTERVISTA', 'VALUTAZIONE']
 const ACCEPT = '.pdf,.doc,.docx,.jpg,.jpeg,.png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png'
 const ALL = '__all__'
@@ -44,7 +41,7 @@ type Row = {
 // VALUTATORI"): per ogni candidato e valutatore, a che punto è ciascuna delle
 // due schede — inviata, compilata online o restituita come file e caricata.
 // Le schede che tornano come file si caricano da qui, per nome del candidato.
-export function EvaluatorFormsTracking({ campaignId, roster, refreshKey }: { campaignId: string; roster: BackendCampaignEvaluator[]; refreshKey: number }) {
+export function EvaluatorFormsTracking({ campaignId, roster, refreshKey, onChanged }: { campaignId: string; roster: BackendCampaignEvaluator[]; refreshKey: number; onChanged?: () => void }) {
   const [candidates, setCandidates] = useState<BackendCampaignCandidate[] | null>(null)
   const [tracking, setTracking] = useState<EvaluatorFormTracking | null>(null)
   const [error, setError] = useState('')
@@ -80,18 +77,8 @@ export function EvaluatorFormsTracking({ campaignId, roster, refreshKey }: { cam
   }, [candidates, roster, filter])
 
   async function openFile(upload: EvaluatorFormUploadDto) {
-    // La scheda si apre in una scheda nuova aperta subito, dentro il clic:
-    // dopo l'attesa del link il browser la bloccherebbe (come per il CV).
-    const tab = window.open('', '_blank')
-    try {
-      const { download } = await evaluatorsApi.formUploadLink(upload.id)
-      const url = apiFileUrl(download.url)
-      if (tab) tab.location.href = url
-      else window.open(url, '_blank')
-    } catch (err) {
-      tab?.close()
-      setError(`Impossibile aprire il file: ${errorMessage(err)}`)
-    }
+    const err = await openFormUpload(upload)
+    if (err) setError(err)
   }
 
   async function removeFile(upload: EvaluatorFormUploadDto, row: Row) {
@@ -105,6 +92,7 @@ export function EvaluatorFormsTracking({ campaignId, roster, refreshKey }: { cam
     try {
       await evaluatorsApi.removeFormUpload(upload.id)
       await reload()
+      onChanged?.()
     } catch (err) {
       setError(errorMessage(err))
     }
@@ -216,6 +204,7 @@ export function EvaluatorFormsTracking({ campaignId, roster, refreshKey }: { cam
           onUploaded={async () => {
             setUploading(null)
             await reload()
+            onChanged?.()
           }}
         />
       ) : null}

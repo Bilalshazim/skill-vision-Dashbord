@@ -3,6 +3,9 @@ import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 // L'email "parte" sempre: qui interessa cosa si registra, non l'SMTP.
 const sendMail = vi.fn(async (_input: unknown) => ({ ok: true as const }))
 vi.mock('../src/lib/mailer.js', () => ({ sendMail: (input: unknown) => sendMail(input) }))
+// La sintesi IA: si controlla che cosa arriva al modello, senza chiamarlo.
+const askClaude = vi.fn(async (_input: unknown) => '{"rilevanti":"r","convergenze":"c","divergenze":"d","criticita":"k"}')
+vi.mock('../src/lib/ai.js', () => ({ askClaude: (input: unknown) => askClaude(input) }))
 
 const { api, authHeader, loginAs, prisma, resetDb, seedFixture } = await import('./helpers.js')
 
@@ -11,6 +14,7 @@ const { api, authHeader, loginAs, prisma, resetDb, seedFixture } = await import(
 describe('Area Valutatori — schede inviate e restituite come file', () => {
   beforeEach(async () => {
     sendMail.mockClear()
+    askClaude.mockClear()
     await resetDb()
   })
   afterAll(async () => prisma.$disconnect())
@@ -116,4 +120,54 @@ describe('Area Valutatori — schede inviate e restituite come file', () => {
     const blockedTracking = await api.get(`/api/v1/evaluators/campaigns/${fx.campaign.id}/form-tracking`).set(authHeader(otherToken))
     expect(blockedTracking.status).toBe(403)
   })
+  it('la sintesi IA legge anche le schede caricate: PDF come documento, Word come testo', async () => {
+    const { token, ccId, evaluatorId } = await setup()
+    const empty = await api.post(`/api/v1/evaluators/campaign-candidates/${ccId}/synthesis`).set(authHeader(token))
+    expect(empty.status).toBe(400)
+
+    await api
+      .post(`/api/v1/evaluators/campaign-candidates/${ccId}/form-uploads`)
+      .set(authHeader(token))
+      .field('kind', 'INTERVISTA')
+      .field('evaluatorId', evaluatorId)
+      .attach('file', Buffer.from('%PDF-1.4 scheda'), { filename: 'i.pdf', contentType: 'application/pdf' })
+    await api
+      .post(`/api/v1/evaluators/campaign-candidates/${ccId}/form-uploads`)
+      .set(authHeader(token))
+      .field('kind', 'VALUTAZIONE')
+      .field('evaluatorId', evaluatorId)
+      .attach('file', makeDocx('Punteggio finale 4 su 5'), { filename: 'v.docx', contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+
+    const res = await api.post(`/api/v1/evaluators/campaign-candidates/${ccId}/synthesis`).set(authHeader(token))
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({ evaluationsUsed: 0, filesUsed: 2, filesSkipped: [] })
+    const sent = (askClaude.mock.calls[0][0] as { user: Array<{ type: string; text?: string; source?: { media_type: string } }> }).user
+    expect(sent.some((b) => b.type === 'document' && b.source?.media_type === 'application/pdf')).toBe(true)
+    expect(sent.some((b) => b.type === 'text' && b.text?.includes('Punteggio finale 4 su 5'))).toBe(true)
+  })
 })
+
+// Un .docx minimo: uno ZIP "stored" con word/document.xml.
+function makeDocx(text: string): Buffer {
+  const name = Buffer.from('word/document.xml')
+  const data = Buffer.from(`<w:document><w:body><w:p><w:r><w:t>${text}</w:t></w:r></w:p></w:body></w:document>`)
+  const local = Buffer.alloc(30)
+  local.writeUInt32LE(0x04034b50, 0)
+  local.writeUInt32LE(data.length, 18)
+  local.writeUInt32LE(data.length, 22)
+  local.writeUInt16LE(name.length, 26)
+  const central = Buffer.alloc(46)
+  central.writeUInt32LE(0x02014b50, 0)
+  central.writeUInt32LE(data.length, 20)
+  central.writeUInt32LE(data.length, 24)
+  central.writeUInt16LE(name.length, 28)
+  central.writeUInt32LE(0, 42)
+  const cdOffset = 30 + name.length + data.length
+  const eocd = Buffer.alloc(22)
+  eocd.writeUInt32LE(0x06054b50, 0)
+  eocd.writeUInt16LE(1, 8)
+  eocd.writeUInt16LE(1, 10)
+  eocd.writeUInt32LE(46 + name.length, 12)
+  eocd.writeUInt32LE(cdOffset, 16)
+  return Buffer.concat([local, name, data, central, name, eocd])
+}

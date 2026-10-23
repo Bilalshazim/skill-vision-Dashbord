@@ -12,8 +12,9 @@ import { useConfirm } from '@/hooks/use-confirm'
 import { cn } from '@/lib/utils'
 import { candidatesApi, campaignsApi, evaluatorsApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
-import type { BackendCampaignEvaluator, EvaluatorFormKind } from '@/lib/api/endpoints'
-import { EvaluatorFormsTracking, FORM_KIND_LABEL } from '@/modules/recruiting/profile-hub/EvaluatorFormsTracking'
+import type { BackendCampaignEvaluator, EvaluatorFormKind, EvaluatorFormTracking } from '@/lib/api/endpoints'
+import { EvaluatorFormsTracking } from '@/modules/recruiting/profile-hub/EvaluatorFormsTracking'
+import { FORM_KIND_LABEL, openFormUpload } from '@/modules/recruiting/lib/evaluator-forms'
 import type { BackendCampaignCandidate, BackendEvaluation, BackendEvaluatorRole } from '@/lib/api/types'
 import { getCachedBackendLink } from '@/modules/recruiting/lib/backend-link'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
@@ -325,10 +326,10 @@ export function EvaluatorsBackendPanel({ onReportChanged }: { onReportChanged?: 
       <div className="flex flex-col gap-2 border-t border-border pt-3">
         <h5 className="text-app-small font-semibold text-foreground">Schede per candidato</h5>
         <p className="text-app-caption text-muted-foreground">Per ogni valutatore: quando è stata inviata la scheda, se è stata compilata online o se è tornata come file. Le schede rimandate come file si caricano qui, per nome del candidato.</p>
-        <EvaluatorFormsTracking campaignId={backendCampaignId} roster={roster} refreshKey={trackingKey} />
+        <EvaluatorFormsTracking campaignId={backendCampaignId} roster={roster} refreshKey={trackingKey} onChanged={() => setTrackingKey((k) => k + 1)} />
       </div>
 
-      <EvaluatorResultsSection campaignId={backendCampaignId} roster={roster} onReportChanged={onReportChanged} />
+      <EvaluatorResultsSection campaignId={backendCampaignId} roster={roster} refreshKey={trackingKey} onReportChanged={onReportChanged} />
       {confirmDialog}
     </div>
   )
@@ -340,8 +341,11 @@ export function EvaluatorsBackendPanel({ onReportChanged }: { onReportChanged?: 
 // due schede un "Apri le schede" con il contenuto — più la sintesi IA, che il
 // responsabile verifica, modifica e riporta nel Report finale valutativo.
 // Lettura già limitata alla società del chiamante (evaluatorsApi.listForCampaignCandidate).
-function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { campaignId: string; roster: BackendCampaignEvaluator[]; onReportChanged?: () => void }) {
-  const [open, setOpen] = useState(false)
+function EvaluatorResultsSection({ campaignId, roster, refreshKey, onReportChanged }: { campaignId: string; roster: BackendCampaignEvaluator[]; refreshKey: number; onReportChanged?: () => void }) {
+  // Aperta di partenza: è qui che il responsabile cerca chi è stato intervistato.
+  const [open, setOpen] = useState(true)
+  // Schede online e file caricati di tutta la selezione, in una richiesta.
+  const [tracking, setTracking] = useState<EvaluatorFormTracking | null>(null)
   const [candidates, setCandidates] = useState<BackendCampaignCandidate[]>([])
   const [selectedId, setSelectedId] = useState('')
   const [evaluations, setEvaluations] = useState<BackendEvaluation[] | null>(null)
@@ -358,20 +362,19 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
 
   useEffect(() => {
     if (!open) return
-    candidatesApi
-      .campaignRoster(campaignId)
-      .then((list) => {
+    Promise.all([candidatesApi.campaignRoster(campaignId), evaluatorsApi.formTracking(campaignId)])
+      .then(([list, t]) => {
         setCandidates(list)
-        // Un conteggio per candidato: una richiesta ciascuno, in parallelo.
-        list.forEach((c) =>
-          evaluatorsApi
-            .listForCampaignCandidate(c.id)
-            .then((evs) => setCounts((prev) => ({ ...prev, [c.id]: evs.filter((e) => e.status === 'SUBMITTED').length })))
-            .catch(() => undefined),
-        )
+        setTracking(t)
+        // Per candidato: valutazioni inviate online più schede caricate come file.
+        setCounts(Object.fromEntries(list.map((c) => [c.id, t.online.filter((o) => o.campaignCandidateId === c.id).length + t.uploads.filter((u) => u.campaignCandidateId === c.id).length])))
       })
       .catch(() => setCandidates([]))
-  }, [open, campaignId])
+  }, [open, campaignId, refreshKey])
+
+  // "Intervistato": c'è almeno una scheda intervista, online o caricata.
+  const interviewed = (ccId: string) => Boolean(tracking && (tracking.online.some((o) => o.campaignCandidateId === ccId && o.INTERVISTA) || tracking.uploads.some((u) => u.campaignCandidateId === ccId && u.kind === 'INTERVISTA')))
+  const filesOf = (ccId: string, evaluatorId?: string) => (tracking?.uploads ?? []).filter((u) => u.campaignCandidateId === ccId && (!evaluatorId || u.evaluatorId === evaluatorId))
 
   // Aprendo un candidato, le sue valutazioni diventano "viste".
   useEffect(() => {
@@ -393,7 +396,7 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
       .then(setEvaluations)
       .catch((err) => setError(apiErrorMessage(err)))
       .finally(() => setLoading(false))
-  }, [selectedId])
+  }, [selectedId, refreshKey])
 
   const selectedCandidate = candidates.find((c) => c.id === selectedId)
   const submittedCount = evaluations?.filter((e) => e.status === 'SUBMITTED').length ?? 0
@@ -429,12 +432,19 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
                       className={cn('flex w-full flex-wrap items-center gap-2 rounded-sm border px-3 py-2 text-left text-app-small transition-colors hover:border-primary', c.id === selectedId ? 'border-2 border-primary' : 'border-border')}
                     >
                       <span className="min-w-0 flex-1 font-medium text-foreground">{c.candidate?.fullName || c.id}</span>
-                      {isNew ? (
+                      {interviewed(c.id) ? (
                         <Badge tone="success" dot>
-                          Nuova valutazione ricevuta
+                          Intervistato
+                        </Badge>
+                      ) : (
+                        <Badge>Non intervistato</Badge>
+                      )}
+                      {isNew ? (
+                        <Badge tone="accent" dot>
+                          Nuova scheda ricevuta
                         </Badge>
                       ) : null}
-                      <Badge>{n == null ? '…' : n === 0 ? 'Nessuna scheda ricevuta' : `${n} ${n === 1 ? 'valutazione ricevuta' : 'valutazioni ricevute'}`}</Badge>
+                      <Badge>{n == null ? '…' : n === 0 ? 'Nessuna scheda ricevuta' : `${n} ${n === 1 ? 'scheda ricevuta' : 'schede ricevute'}`}</Badge>
                     </button>
                   </li>
                 )
@@ -452,12 +462,13 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
 
           {evaluations && !loading && (
             <div className="mt-3 flex flex-col gap-2">
-              {!evaluations.length ? (
-                <EmptyState size="sm" icon={Users} description="Nessuna valutazione ancora inserita per questo candidato." />
+              {!evaluations.length && !filesOf(selectedId).length ? (
+                <EmptyState size="sm" icon={Users} description="Nessuna scheda ancora ricevuta per questo candidato: compare qui quando un valutatore la compila online o quando carichi il file che ti ha rimandato." />
               ) : (
                 roster.map((r, i) => {
                   const evalu = evaluations.find((e) => e.evaluatorId === r.id)
                   const submitted = evalu?.status === 'SUBMITTED'
+                  const files = filesOf(selectedId, r.id)
                   return (
                     <div key={r.id} className="flex flex-col gap-2 rounded-sm border border-border px-3 py-2 text-app-caption">
                       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -476,9 +487,30 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
                             {submitted && evalu.recommendation && <span className="text-foreground">{RECOMMENDATION_LABEL[evalu.recommendation]}</span>}
                           </span>
                         ) : (
-                          <span className="text-app-caption text-muted-foreground">Non ancora compilata</span>
+                          <span className="text-app-caption text-muted-foreground">{files.length ? 'Schede ricevute come file' : 'Non ancora compilata'}</span>
                         )}
                       </div>
+                      {files.length ? (
+                        <div className="flex flex-wrap items-center gap-2 border-t border-border pt-2">
+                          {files.map((f) => (
+                            <span key={f.id} className="inline-flex items-center gap-2">
+                              <Badge tone="success" dot>
+                                {f.kind === 'INTERVISTA' ? 'Intervista' : 'Valutazione'}: file caricato
+                              </Badge>
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const err = await openFormUpload(f)
+                                  if (err) setError(err)
+                                }}
+                                className="font-semibold text-foreground hover:underline"
+                              >
+                                Apri il file →
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
                       {submitted && (
                         <div className="flex flex-wrap items-center gap-2 border-t border-border pt-2">
                           {(
@@ -538,8 +570,8 @@ function EvaluatorResultsSection({ campaignId, roster, onReportChanged }: { camp
                   ) : null
                 })()
               ) : null}
-              {evaluations.length > 0 && submittedCount > 0 && selectedCandidate && (
-                <SynthesisPanel campaignCandidateId={selectedId} candidateName={selectedCandidate.candidate?.fullName || ''} submittedCount={submittedCount} onReportChanged={onReportChanged} />
+              {(submittedCount > 0 || filesOf(selectedId).length > 0) && selectedCandidate && (
+                <SynthesisPanel campaignCandidateId={selectedId} candidateName={selectedCandidate.candidate?.fullName || ''} submittedCount={submittedCount} fileCount={filesOf(selectedId).length} onReportChanged={onReportChanged} />
               )}
             </div>
           )}
@@ -559,9 +591,10 @@ const SYNTHESIS_FIELDS: { key: keyof SynthesisSections; label: string }[] = [
 // Sintesi IA di tutte le valutazioni inviate. Non si salva da sola: compare in
 // quattro campi modificabili e solo "Riporta nel Report finale" la porta nella
 // scheda del Report finale valutativo.
-function SynthesisPanel({ campaignCandidateId, candidateName, submittedCount, onReportChanged }: { campaignCandidateId: string; candidateName: string; submittedCount: number; onReportChanged?: () => void }) {
+function SynthesisPanel({ campaignCandidateId, candidateName, submittedCount, fileCount, onReportChanged }: { campaignCandidateId: string; candidateName: string; submittedCount: number; fileCount: number; onReportChanged?: () => void }) {
   const [sections, setSections] = useState<SynthesisSections | null>(null)
   const [used, setUsed] = useState(0)
+  const [skipped, setSkipped] = useState<string[]>([])
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState('')
   const [imported, setImported] = useState(false)
@@ -583,7 +616,8 @@ function SynthesisPanel({ campaignCandidateId, candidateName, submittedCount, on
     try {
       const r = await evaluatorsApi.synthesis(campaignCandidateId)
       setSections(r.sections)
-      setUsed(r.evaluationsUsed)
+      setUsed(r.evaluationsUsed + r.filesUsed)
+      setSkipped(r.filesSkipped)
     } catch (err) {
       setError(apiErrorMessage(err))
     } finally {
@@ -608,7 +642,7 @@ function SynthesisPanel({ campaignCandidateId, candidateName, submittedCount, on
             Sintesi delle valutazioni
           </div>
           <p className="text-app-caption text-muted-foreground">
-            Generata dall’IA sulle {submittedCount} {submittedCount === 1 ? 'valutazione inviata' : 'valutazioni inviate'}: verificala prima di usarla. All’IA non vanno il nome del candidato né quelli dei valutatori.
+            Generata dall’IA su {[submittedCount ? `${submittedCount} ${submittedCount === 1 ? 'scheda compilata online' : 'schede compilate online'}` : '', fileCount ? `${fileCount} ${fileCount === 1 ? 'file caricato' : 'file caricati'}` : ''].filter(Boolean).join(' e ')}: verificala prima di usarla. Dalle schede online non vanno all’IA i nomi del candidato e dei valutatori; i file invece si inviano così come sono, con quello che c’è scritto.
           </p>
         </div>
         <button type="button" onClick={handleGenerate} disabled={generating} className={btnClass}>
@@ -624,7 +658,8 @@ function SynthesisPanel({ campaignCandidateId, candidateName, submittedCount, on
       )}
       {sections && (
         <>
-          {used < submittedCount && <p className="text-app-caption text-muted-foreground">La sintesi è basata su {used} valutazioni.</p>}
+          {used < submittedCount + fileCount && <p className="text-app-caption text-muted-foreground">La sintesi è basata su {used} schede.</p>}
+          {skipped.length ? <p className="text-app-caption text-warning">Non letti (Word vecchio formato .doc o troppo grandi): {skipped.join(', ')}. Caricali in PDF per includerli.</p> : null}
           {SYNTHESIS_FIELDS.map((f) => (
             <label key={f.key} className="flex flex-col gap-1">
               <span className="label-mono text-muted-foreground">{f.label}</span>

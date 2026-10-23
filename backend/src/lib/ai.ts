@@ -5,7 +5,15 @@ import { env } from './env.js'
 // browser e non viene mai registrata né restituita. Usata dalla sintesi delle
 // valutazioni (modules/evaluators). Senza ANTHROPIC_API_KEY risponde con un
 // errore chiaro invece di far fallire l'avvio del server.
-export async function askClaude(input: { system: string; user: string; maxTokens?: number }): Promise<string> {
+// Un blocco del messaggio: testo, PDF (base64) o immagine (base64). PDF e
+// immagini arrivano al modello così come sono: le schede scansionate o
+// compilate a mano si leggono senza convertirle.
+export type AiContentBlock =
+  | { type: 'text'; text: string }
+  | { type: 'document'; source: { type: 'base64'; media_type: 'application/pdf'; data: string }; title?: string }
+  | { type: 'image'; source: { type: 'base64'; media_type: 'image/jpeg' | 'image/png'; data: string } }
+
+export async function askClaude(input: { system: string; user: string | AiContentBlock[]; maxTokens?: number; timeoutMs?: number }): Promise<string> {
   if (!env.anthropicApiKey) {
     throw new BadRequestError("La sintesi IA non è attiva su questo server: manca la configurazione (ANTHROPIC_API_KEY).")
   }
@@ -20,7 +28,7 @@ export async function askClaude(input: { system: string; user: string; maxTokens
         system: input.system,
         messages: [{ role: 'user', content: input.user }],
       }),
-      signal: AbortSignal.timeout(60_000),
+      signal: AbortSignal.timeout(input.timeoutMs ?? 60_000),
     })
   } catch {
     throw new BadGatewayError('Il servizio di intelligenza artificiale non risponde.')

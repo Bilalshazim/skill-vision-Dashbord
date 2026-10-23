@@ -6,8 +6,9 @@ import { Router } from 'express'
 import multer from 'multer'
 import { z } from 'zod'
 
-import { askClaude } from '../../lib/ai.js'
+import { type AiContentBlock, askClaude } from '../../lib/ai.js'
 import { audit } from '../../lib/audit.js'
+import { docxToText } from '../../lib/docx-text.js'
 import { LOGO_CID, readLogoBuffer, renderEvaluatorInvitation } from '../../lib/emailTemplates.js'
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, TooManyRequestsError, UnauthorizedError } from '../../lib/errors.js'
 import { hashToken } from '../../lib/jwt.js'
@@ -494,6 +495,9 @@ evaluatorsRouter.delete('/form-uploads/:id', requireAuth, requireRole(...READ_RO
 // "Valutatore N — Ruolo". I testi liberi possono comunque contenere nomi
 // scritti dai valutatori: non si possono filtrare.
 const synthesisLimiter = createLimiter({ max: 20, windowMs: 10 * 60_000 })
+// Tetto ai file inviati in una sintesi: in base64 crescono di un terzo, e la
+// richiesta al servizio non deve superare 32 MB.
+const FILES_BUDGET_BYTES = 20 * 1024 * 1024
 
 const clip = (v: unknown, max = 1500): string => (typeof v === 'string' ? v.trim().slice(0, max) : '')
 const asRecord = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {})
@@ -559,6 +563,7 @@ function describeEvaluation(index: number, evaluator: { role: string; altroLabel
 
 const SYNTHESIS_SYSTEM = `Sei un consulente HR che prepara la sintesi delle valutazioni di un candidato per il responsabile della selezione.
 Scrivi in italiano, in modo sintetico e concreto. Usa SOLO quello che è scritto nelle schede: non inventare dati, non dedurre fatti che non ci sono. Se un punto non emerge dalle schede, dillo.
+Le schede arrivano in due forme: compilate online (in testo) e caricate come file (PDF, immagini di schede compilate a mano, testo di documenti Word). Leggile tutte allo stesso modo; ogni scheda indica il numero del valutatore, che è lo stesso nelle due forme. Se una parte di un file non è leggibile, dillo invece di indovinarla. Non riportare nomi di persone che compaiono nei file: indica i valutatori come "Valutatore N".
 Rispondi esclusivamente con un oggetto JSON, senza testo prima o dopo e senza blocchi di codice, con queste quattro chiavi di tipo stringa:
 - "rilevanti": gli elementi più rilevanti emersi (punti di forza, risultati, raccomandazioni) in 3-6 frasi o punti;
 - "convergenze": in cosa i valutatori concordano; se c'è un solo valutatore scrivi che il confronto non è possibile;
@@ -585,21 +590,76 @@ evaluatorsRouter.post('/campaign-candidates/:id/synthesis', requireAuth, require
     const cc = await prisma.campaignCandidate.findUnique({ where: { id: req.params.id }, include: { campaign: true } })
     if (!cc) throw new NotFoundError('Campaign candidate not found')
     requireCompanyScope(req, cc.campaign.companyId)
-    const evaluations = await prisma.evaluation.findMany({
-      where: { campaignCandidateId: cc.id, status: 'SUBMITTED' },
-      include: { evaluator: true },
-      orderBy: { submittedAt: 'asc' },
-    })
-    if (!evaluations.length) throw new BadRequestError('Non ci sono ancora valutazioni inviate da sintetizzare.')
+    const [evaluations, uploads] = await Promise.all([
+      prisma.evaluation.findMany({
+        where: { campaignCandidateId: cc.id, status: 'SUBMITTED' },
+        include: { evaluator: true },
+        orderBy: { submittedAt: 'asc' },
+      }),
+      prisma.evaluatorFormUpload.findMany({
+        where: { campaignCandidateId: cc.id, deletedAt: null },
+        include: { evaluator: true, file: true },
+        orderBy: { createdAt: 'asc' },
+      }),
+    ])
+    if (!evaluations.length && !uploads.length) throw new BadRequestError('Non ci sono ancora valutazioni inviate né schede caricate da sintetizzare.')
 
-    const body = evaluations.map((e, i) => describeEvaluation(i + 1, e.evaluator, e)).join('\n\n')
-    const raw = await askClaude({ system: SYNTHESIS_SYSTEM, user: `Valutazioni inviate: ${evaluations.length}.\n\n${body}`.slice(0, 40_000) })
+    // Un numero per valutatore, lo stesso per la scheda online e per i file:
+    // così il modello riconosce lo stesso valutatore nelle due forme.
+    const evaluatorNo = new Map<string, number>()
+    const noOf = (id: string) => {
+      if (!evaluatorNo.has(id)) evaluatorNo.set(id, evaluatorNo.size + 1)
+      return evaluatorNo.get(id)!
+    }
+    const onlineText = evaluations.map((e) => describeEvaluation(noOf(e.evaluatorId), e.evaluator, e)).join('\n\n')
+
+    // Le schede restituite come file: PDF e immagini vanno al modello così
+    // come sono, i Word come testo. Un tetto sul totale tiene la richiesta
+    // sotto il limite del servizio; quello che resta fuori si dice.
+    const blocks: AiContentBlock[] = []
+    const skipped: string[] = []
+    let budget = FILES_BUDGET_BYTES
+    for (const u of uploads) {
+      const label = `Scheda caricata — Valutatore ${noOf(u.evaluatorId)} — ${ROLE_LABEL[u.evaluator.role] ?? u.evaluator.role} — ${u.kind === 'INTERVISTA' ? 'Scheda intervista strutturata' : 'Scheda valutazione candidato'}`
+      let buf: Buffer
+      try {
+        buf = await storage.read(u.file.storageKey)
+      } catch {
+        skipped.push(u.file.originalFilename)
+        continue
+      }
+      const mime = u.file.mimeType
+      if (mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        const text = docxToText(buf)
+        if (!text) {
+          skipped.push(u.file.originalFilename)
+          continue
+        }
+        blocks.push({ type: 'text', text: `### ${label}\n${text.slice(0, 20_000)}` })
+        continue
+      }
+      if ((mime === 'application/pdf' || mime === 'image/jpeg' || mime === 'image/png') && buf.length <= budget) {
+        budget -= buf.length
+        blocks.push({ type: 'text', text: `### ${label} (documento qui sotto)` })
+        if (mime === 'application/pdf') blocks.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: buf.toString('base64') } })
+        else blocks.push({ type: 'image', source: { type: 'base64', media_type: mime, data: buf.toString('base64') } })
+        continue
+      }
+      // .doc (Word vecchio formato) o oltre il tetto.
+      skipped.push(u.file.originalFilename)
+    }
+    const filesUsed = uploads.length - skipped.length
+    if (!evaluations.length && !filesUsed) throw new BadRequestError('Le schede caricate non si possono leggere (formato .doc o file troppo grandi): caricale in PDF.')
+
+    const intro = `Valutazioni inviate online: ${evaluations.length}. Schede caricate come file: ${filesUsed}.`
+    const content: AiContentBlock[] = [{ type: 'text', text: `${intro}\n\n${onlineText}`.slice(0, 40_000) }, ...blocks]
+    const raw = await askClaude({ system: SYNTHESIS_SYSTEM, user: content, maxTokens: 2500, timeoutMs: 150_000 })
     // Se il modello non rispetta il formato, il testo non va perso: finisce
     // nella prima parte e il responsabile lo sistema a mano.
     const sections = parseSections(raw) ?? { rilevanti: raw.trim(), convergenze: '', divergenze: '', criticita: '' }
 
-    await audit(prisma, { actorUserId: req.auth!.sub, action: 'evaluation.synthesis_generated', entityType: 'CampaignCandidate', entityId: cc.id, metadata: { evaluations: evaluations.length } })
-    res.json({ sections, evaluationsUsed: evaluations.length, generatedAt: new Date().toISOString() })
+    await audit(prisma, { actorUserId: req.auth!.sub, action: 'evaluation.synthesis_generated', entityType: 'CampaignCandidate', entityId: cc.id, metadata: { evaluations: evaluations.length, files: filesUsed } })
+    res.json({ sections, evaluationsUsed: evaluations.length, filesUsed, filesSkipped: skipped, generatedAt: new Date().toISOString() })
   } catch (err) {
     next(err)
   }

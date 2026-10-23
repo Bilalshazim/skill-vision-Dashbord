@@ -138,8 +138,8 @@ valutatori, poi i grafici dopo l'accordo con Alessio.
 - [x] 5–7 · Scheda professionale: si collega al server al salvataggio,
       «Conferma» accanto a «Modifica», dove è salvata, link dell'annuncio
       (copia, email, apri) anche nella card "Annuncio di lavoro"
-- [ ] 4 · "Intervistato" nell'elenco candidati + schede dei valutatori al clic
-- [ ] 4 · Sintesi IA che legge anche i file caricati (PDF, immagini, Word)
+- [x] 4 · "Intervistato" nell'elenco candidati + schede dei valutatori al clic
+- [x] 4 · Sintesi IA che legge anche i file caricati (PDF, immagini, Word)
 - [ ] 3/8 · Assistente con caricamento di documenti (vero modello sul server)
 - [ ] Grafici: proposta per Risultati (soft / professionali contro l'atteso)
       e Confronto interno (radar), da concordare con Alessio
@@ -355,6 +355,23 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 - Effetto in produzione al prossimo push: Assessment passa al server senza
   impostare niente su Railway. Ogni società poi usa "Importa dati del browser".
 
+## 2026-10-19 — "recruiting doc": punto 4 (Area Valutatori)
+- [x] "Valutazioni ricevute per candidato" aperta di partenza; per ogni
+      candidato "Intervistato / Non intervistato" (automatico: c'è almeno una
+      scheda intervista, online o caricata) e quante schede ha. Al clic, la
+      card di ogni valutatore mostra anche i file caricati, con «Apri il
+      file». Conteggi da `form-tracking` in una richiesta (prima: una per
+      candidato). Si aggiorna dopo ogni caricamento o rimozione.
+- [x] Sintesi IA: legge anche i file caricati. PDF e immagini vanno al
+      modello come documenti (base64), i Word .docx come testo
+      (`lib/docx-text.ts`, lettura ZIP senza dipendenze, provata su un .docx
+      vero); .doc vecchio formato e file oltre il tetto di 20 MB in totale
+      restano fuori e la schermata li elenca. Stesso numero di valutatore fra
+      scheda online e file. Si genera anche senza schede online.
+- [x] Test: `evaluatorForms.test.ts` 5/5 (nuovo: cosa arriva al modello, con
+      `askClaude` simulato); typecheck dei due lati; audit 304.
+- [ ] Non provata la chiamata vera al modello con un file: in locale c'è solo
+      un PDF finto. Da provare in produzione con una scheda vera.
 
 ## 2026-10-19 — "recruiting doc": punti 1, 2, 5, 6, 7
 - [x] 1 · Assessment: "Valutazioni Hard Skill" → "Valutazioni Professionali"

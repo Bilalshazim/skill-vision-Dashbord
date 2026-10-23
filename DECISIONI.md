@@ -1665,6 +1665,23 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
   l'isolamento: non vale il rischio per una compilazione che si fa in una
   volta.
 
+## "Intervistato" automatico · 2026-10-19
+- Opzioni: (a) automatico, quando arriva almeno una scheda intervista
+  (online o file); (b) una casella che il responsabile spunta.
+- Raccomandazione e presa: **(a)** — proposta il 2026-10-19, nessuna
+  obiezione. Non si dimentica e non può contraddire le schede.
+
+## Sintesi IA sui file caricati · 2026-10-19
+- PDF e immagini al modello così come sono (anche schede scritte a mano);
+  .docx come testo estratto in casa, senza dipendenze nuove; .doc no.
+- **Minimizzazione:** dalle schede online il server toglie i nomi; dai file
+  non si può. Il prompt chiede di non riportare nomi e di indicare
+  "Valutatore N", e la schermata lo dice. Da sapere per il trattamento dei
+  dati del candidato.
+- Si resta su `fetch` diretto in `lib/ai.ts` invece dell'SDK Anthropic:
+  è il codice che c'era, il cambio esce dal compito.
+
+
 ## Niente nel browser, in modo rigoroso · 2026-10-21
 - Richiesta di Roberto: tutto sul server, nessun `localStorage`,
   `sessionStorage` o IndexedDB, nemmeno per le preferenze. Piano in
