@@ -1,4 +1,5 @@
 import { FileCheck2, Loader2, Plus, Trash2 } from 'lucide-react'
+import { fmtScore10 } from '@/modules/recruiting/lib/format'
 import { useState } from 'react'
 
 import { InlineAlert } from '@/components/patterns/InlineAlert'
@@ -78,11 +79,14 @@ export function TestResultList({
     if (addPending) return
     setAddState({ kind: 'pending' })
 
+    // Il punteggio si scrive su 10 (come si legge) e si salva su 100, come
+    // sempre: 7,5 → 75. Il server e i dati salvati non cambiano.
+    const score100 = String(Number(scoreInput.trim().replace(',', '.')) * 10)
     const selectedEntry = prescreened.find((r) => r.id === candidateId)
     if (selectedEntry?.backendShortlistId) {
-      const score = Math.max(0, Math.min(100, Math.round(Number(scoreInput))))
+      const score = Math.max(0, Math.min(100, Math.round(Number(score100))))
       if (!Number.isFinite(score)) {
-        setAddState({ kind: 'error', message: 'Inserisci un punteggio valido (0-100).' })
+        setAddState({ kind: 'error', message: 'Inserisci un punteggio valido (da 0 a 10).' })
         return
       }
       const backendResult = await recordManualResponseViaBackend(selectedEntry.backendShortlistId, score, noteInput.trim() || undefined)
@@ -92,7 +96,7 @@ export function TestResultList({
       }
     }
 
-    const result = addTestResult(candidateId, scoreInput, noteInput, target)
+    const result = addTestResult(candidateId, score100, noteInput, target)
     if (!result.ok) {
       const message =
         result.reason === 'no-active-opening'
@@ -100,7 +104,7 @@ export function TestResultList({
           : result.reason === 'candidate-not-found'
             ? 'Seleziona un candidato preselezionato.'
             : result.reason === 'invalid-score'
-              ? 'Inserisci un punteggio valido (0-100).'
+              ? 'Inserisci un punteggio valido (da 0 a 10).'
               : `Impossibile salvare: ${result.message}`
       setAddState({ kind: 'error', message })
       return
@@ -153,11 +157,12 @@ export function TestResultList({
           <Input
             type="number"
             min={0}
-            max={100}
+            max={10}
+            step={0.1}
             value={scoreInput}
             onChange={(e) => setScoreInput(e.target.value)}
             disabled={addPending}
-            placeholder="Punteggio 0-100"
+            placeholder="Punteggio da 0 a 10"
             size="sm" className="w-32"
  />
           <Input
@@ -196,7 +201,7 @@ export function TestResultList({
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className="font-mono text-app-small font-semibold text-foreground tabular-nums dark:text-primary">{r.score}/100</span>
+                    <span className="font-mono text-app-small font-semibold text-foreground tabular-nums">{fmtScore10(r.score)}</span>
                     <button
                       type="button"
                       onClick={() => handleRemove(r.id)}

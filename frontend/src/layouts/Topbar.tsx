@@ -3,7 +3,6 @@ import { type ReactNode, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Hint } from '@/components/patterns/Hint'
-import { LanguageSwitch } from '@/components/patterns/LanguageSwitch'
 import { ModuleSwitcher } from '@/components/patterns/ModuleSwitcher'
 import { SettingsDialog } from '@/components/patterns/SettingsDialog'
 import { Button } from '@/components/ui/button'
@@ -17,7 +16,8 @@ import { logout } from '@/lib/auth/session'
 // La barra superiore del guscio unico: marchio (porta alla `/`, la scelta
 // del modulo), il
 // commutatore Recruiting / Assessment — solo se la società ha tutti e due i
-// moduli —, selettore della lingua, impostazioni, tema e uscita.
+// moduli —, impostazioni, tema e uscita. Nessun selettore della lingua:
+// l'interfaccia è solo in italiano (CLAUDE.md cap. 7).
 // `menuTrigger`: il bottone che apre la barra laterale su mobile.
 export function Topbar({ menuTrigger }: { menuTrigger?: ReactNode }) {
   const { theme, setTheme } = useTheme()
@@ -41,7 +41,6 @@ export function Topbar({ menuTrigger }: { menuTrigger?: ReactNode }) {
       </Link>
       {both ? <ModuleSwitcher className="ml-2" /> : null}
       <div className="ml-auto flex items-center gap-2">
-        <LanguageSwitch />
         <Hint label="Impostazioni">
           <Button variant="outline" size="icon" onClick={() => setSettingsOpen(true)} aria-label="Impostazioni">
             <Settings />

@@ -50,9 +50,10 @@ Ne discendono due lavori, che si tengono:
    instradamento. Il login rifatto sul backend chiude il lavoro (Fase 8).
 
 **Le schermate non si riprogettano.** Tengono impianto e contenuti di oggi —
-compresa la nuova Home di Assessment, che segue un concept del cliente e resta
-così com'è. Cambia quello di cui sono fatte, non come sono disposte. I difetti
-di impaginazione si correggono solo dove il componente nuovo li risolve da sé.
+tranne le due pagine d'ingresso, che diventano panoramiche (Fase 6,
+"Panoramica"). Cambia quello di cui sono fatte, non come sono disposte. I
+difetti di impaginazione si correggono solo dove il componente nuovo li
+risolve da sé.
 
 **Il comportamento funzionale non cambia.** Nessuna funzione sparisce
 nell'unificazione: quello che le due dashboard fanno oggi, l'applicazione unica
@@ -571,6 +572,46 @@ confrontare due punti dello schermo.
   sovrapposizioni. Se il riquadro è piccolo, si accorciano le etichette o si
   allarga il riquadro, non si rimpicciolisce il radar.
 
+**Bklit si usa come è fatto** — verificato in produzione il 2026-10-23:
+
+- **Un grafico Bklit non si ritaglia e non si smonta.** Il Gauge del
+  punteggio complessivo è dentro un contenitore `h-36 overflow-hidden` (144px)
+  mentre il grafico ne misura 229: l'arco è tagliato. Il numero è fuori
+  ("60 /100%") invece che in `centerValue`, e la traccia è `--muted` invece del
+  default `--border`. Si torna all'uso documentato: arco intero (135°–405°),
+  `centerValue` con `defaultLabel` al centro, `suffix` per l'unità, traccia di
+  default. Ogni scostamento da una prop di default va in DECISIONI con il
+  motivo.
+- **Niente sfumature, neanche quelle di Bklit.** L'area dell'Andamento usa di
+  nuovo `area-gradient`, e la griglia `grid-rows-fade`: riempimento piatto e
+  griglia senza dissolvenza (regola 4). Era già stato corretto: è una
+  regressione.
+- **La card di un grafico è una card.** Superficie `card`, bordo sottile.
+  Non `surface-accent` (è il fondo dei riquadri di evidenza, non dei grafici),
+  non `surface-success/warning/danger` (sono fondi di avviso), non bordo di 2px,
+  non `hover:border-primary` su una card che non si clicca. **Nessuna ombra**:
+  oggi i pannelli hanno `shadow-[0_8px_16px_0_var(--border-strong)]`, e
+  l'audit non l'ha segnalata — va verificato perché.
+
+**Una fascia dice chi c'è dentro.** "Livello ottimale 17%" da solo non si
+capisce: di cosa, di chi, rispetto a cosa. Ogni fascia mostra:
+
+1. il nome e una riga che dice cosa significa, con la soglia ("punteggio
+   complessivo da X a Y su 10");
+2. quante persone e che quota del totale ("4 persone · 17%");
+3. le prime tre persone, ordinate per punteggio, con mansione e punteggio;
+   un clic apre il pannello della persona; "Vedi tutte" porta all'elenco
+   filtrato su quella fascia.
+
+**Una classificazione sola.** Oggi la stessa pagina usa tre livelli (Ottimale
+17%, Moderato 52%, Critico 31%) e cinque fasce (Alto valore 0%, Alto
+potenziale 17%, Nella norma 52%, Da potenziare 22%, Critici 9%). Le somme
+coincidono: i tre livelli sembrano un raggruppamento delle cinque fasce (è un
+riscontro sui numeri, da verificare nel codice). Due nomi per le stesse
+persone confondono: si usano le cinque fasce, che hanno già i loro nomi
+(cap. 7), e i tre livelli spariscono, salvo che il codice dimostri che misurano
+un'altra cosa.
+
 **Un buco del sistema, da non improvvisare.** La famiglia categorica serve a
 distinguere serie diverse, non a rappresentare un'intensità. Heatmap, choropleth
 e sunburst hanno bisogno di una **scala sequenziale**, che il design system non
@@ -588,9 +629,70 @@ Il criterio di fine per ogni schermata: la pagina non contiene più stile
 proprio, solo composizione. È questo che rende la dashboard modulare — una
 schermata nuova si fa con quello che c'è.
 
-**La Home di Assessment** resta il concept del cliente: griglia di folder card
-e pannello Skill Vision. Si ricompone sui pattern nati in Fase 3, con lo stesso
-aspetto ma sui token.
+**Panoramica** — deciso il 2026-10-23 dopo la verifica in produzione.
+Sostituisce la Home di Assessment a folder card e l'ingresso di Recruiting
+(oggi `/recruiting` apre Profilo della ricerca). Vale per i due moduli, con lo
+stesso schema.
+
+Cosa si è visto il 2026-10-23 e non si ripete: i dati stavano dietro un
+pulsante "Skill Vision" che nessuno capisce, chiusi in partenza; testo centrato
+nelle card; fondi tinti con i colori dei grafici scritti nella pagina
+(`color-mix` di `chart-*` in `style`); bordo lime di 2px nel componente
+FolderCard; icone grandi composte che non rappresentano un'azione; lo stesso
+numero in tre unità ("60 /100%", "6,0", "6,0/10"); "/100%" come unità; una
+pagina di 4500px; scorrimento orizzontale.
+
+Regole:
+
+- **Tutto visibile all'apertura.** Nessun contenuto dietro un interruttore.
+  Il selettore "oggi / Skill Vision" e le folder card spariscono dalla
+  Panoramica; il pattern FolderCard perde il bordo lime ovunque resti.
+- **Testo sempre allineato a sinistra.** Nessuna dashboard ha testo al
+  centro: vale per titoli, card, StatCard, righe.
+- **Niente icone decorative.** Un'icona solo se riconoscibile come l'azione o
+  l'oggetto della riga, Lucide a 16–20px accanto al testo. Via le icone
+  composte (casa con moneta, lampadina con gemma…).
+- **Superfici neutre, bordo sottile.** Lime solo sul selettore attivo e
+  sull'azione principale della pagina. Colori di stato solo sulle fasce, con la
+  parola.
+- **Ogni numero una volta, con un'unità sola.** Il punteggio è su 10, i conteggi
+  sono persone, le quote percentuali.
+- **La Panoramica riassume e rimanda.** Grafici di analisi completi (matrice,
+  barre per mansione, elenchi di persone lunghi) restano nelle loro pagine; qui
+  al massimo due grafici, ognuno con il link alla pagina che lo sviluppa.
+
+Schema, dall'alto, in sezioni con `PageHeader` di sezione:
+
+1. **Intestazione** — `PageHeader` "Panoramica", società attiva, data
+   dell'ultimo aggiornamento dei dati. In Assessment il selettore CT / CP /
+   Completo sta nelle azioni dell'intestazione, come ToggleGroup normale.
+2. **Stato attuale** — una riga di 4 StatCard.
+3. **Da fare adesso** — elenco di righe (testo a sinistra, conteggio, link
+   alla pagina dove si fa la cosa), ordinate per urgenza. Ogni riga è
+   un'azione che l'utente compie, non un indicatore.
+4. **In programma** — prossimi eventi con data, se il modulo ne ha.
+5. **Dove guardare** — due card affiancate, ognuna con un grafico di sintesi e
+   il link all'analisi.
+
+Contenuti, solo da dati che l'applicazione ha già (verificati il 2026-10-23 sui
+dati di prova):
+
+| Sezione | Assessment | Recruiting |
+|---|---|---|
+| Stato attuale | punteggio complessivo contro benchmark (su 10); copertura mansioni; persone valutate; persone critiche | posizioni aperte; candidati in selezione; idonei; colloqui in programma |
+| Da fare adesso | colloqui di restituzione da fare (Piani di sviluppo); azioni di sviluppo per tipo con numero di persone (Formazione, Coaching, Riorganizzazione); schede 5P da inviare e valutazioni da raccogliere; persone critiche da seguire | candidati da valutare; link test da inviare; test completati da leggere; posizioni senza candidati |
+| In programma | **da verificare**: oggi non risultano date in Assessment (Piani di sviluppo non ha scadenze). Se non ci sono, la sezione non c'è — non si inventa un calendario | prossimi colloqui per data (esiste già) |
+| Dove guardare | distribuzione per fascia → Valori Complessivi; aree e mansioni sotto il benchmark → Competenze | candidati per fascia di idoneità → Candidati per fascia; imbuto di selezione → Imbuto |
+
+Stati vuoti: con i dati veri si parte da zero, quindi ogni sezione ha il suo
+EmptyState che dice cosa manca e da dove arriva (per esempio "Nessun test
+completato. I risultati arrivano da Original Skills ogni notte").
+
+Il punteggio complessivo resta "in attesa" finché il cliente non dà la formula
+di conversione sulla scala 1–10 (cap. 7, 2026-10-02).
+
+È un cambio del concept del cliente: Alessio lo porta a Roberto. Si sviluppa
+dietro la rotta di oggi, senza toccare le pagine di analisi.
 
 **La radice `/`** tiene la funzione di oggi — la scelta del modulo dopo
 l'accesso — portata in React nella Fase 4. Se l'azienda ha acquistato un solo
@@ -763,9 +865,12 @@ dove veniva.
 
 **Di prodotto — già decisi**
 
-- Le schermate non si riprogettano: tengono impianto e contenuti di oggi.
-- La nuova Home di Assessment resta: è un concept del cliente.
-- La radice `/` resta la scelta del modulo; nessuna dashboard nuova.
+- Le schermate non si riprogettano: tengono impianto e contenuti di oggi,
+  tranne le due pagine d'ingresso, che diventano Panoramica (Fase 6).
+- La Home di Assessment a folder card non resta (2026-10-23): diventa
+  Panoramica, come l'ingresso di Recruiting.
+- La radice `/` resta la scelta del modulo; nessuna dashboard trasversale ai
+  due moduli.
 - La voce di menu `Menu` prende il nome della destinazione.
 - **Valutatore esterno di Assessment**: resta il meccanismo attuale, ricomposto
   sulle primitive. Portarlo sul token backend di Recruiting richiede un modello
@@ -793,10 +898,8 @@ dove veniva.
   e la struttura che li gestisce **restano**: serviranno se un giorno si
   tradurrà tutta la piattaforma. I testi nuovi si scrivono passando dalla
   stessa struttura, non scritti a mano nei componenti.
-- **Home di Assessment**: ~~le quattro card restano neutre~~ — superata dal
-  cliente il 2026-10-13: ogni card ha una tinta leggera (chart-4, chart-2,
-  chart-5, chart-6, al 10% su `card`), ripetuta sul pannello che apre. Petrolio
-  e ambra restano alla scelta CT / CP. Vedi DECISIONI.
+- **Ingresso dei due moduli**: Panoramica (Fase 6). Superfici neutre, testo a
+  sinistra, niente contenuti nascosti dietro un interruttore.
 
 **Di prodotto — non decidere da solo**
 
@@ -820,13 +923,6 @@ dove veniva.
   tempo, e deve poter confrontare dipendenti di società diverse con ruolo uguale
   o di pari valore. Il guscio va costruito per la struttura gruppo → società
   anche quando la società è una sola.
-
-  > **Superata dal 2026-10-02, per le due società di Original Skills**: non
-  > sono un gruppo/holding, sono due `Company` distinte sotto `Platform` (vedi
-  > sotto). Questo caso — una vera holding che chiede il confronto fra le sue
-  > società — resta valido se e quando si presenta, ma non è il caso di
-  > Original Skills: lì niente ruolo di gruppo, niente vista "tutte le società
-  > del gruppo".
 
 **Queste ultime due non sono solo migrazione.** Le valutazioni e i dipendenti di
 Assessment oggi vivono nel browser: inviare il link dal server, gestire più

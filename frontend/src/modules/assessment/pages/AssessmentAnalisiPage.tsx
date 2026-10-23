@@ -322,7 +322,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
         </AnswerCard>
       </div>
 
-      <Card padding="lg" className="my-6 items-center text-center">
+      <Card padding="lg" className="my-6 items-start text-left">
         <CardTitle>{ui.exiCtaTitle}</CardTitle>
         <CardDescription className="mt-2 max-w-prose">{ui.exiCtaText}</CardDescription>
         <Button
@@ -359,7 +359,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
         )}
       </Card>
 
-      <Note as="div" size="caption" className="mt-6 text-center" dangerouslySetInnerHTML={{ __html: ui.exiFooterNote }} />
+      <Note as="div" size="caption" className="mt-6" dangerouslySetInnerHTML={{ __html: ui.exiFooterNote }} />
       {confirmDialog}
     </div>
   )

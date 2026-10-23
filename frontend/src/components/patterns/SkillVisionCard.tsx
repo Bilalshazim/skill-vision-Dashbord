@@ -1,24 +1,20 @@
-import type { IconComponent } from '@/components/patterns/CompositeIcon'
+import type { LucideIcon } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { type CSSProperties, type ReactNode, useEffect, useId, useRef } from 'react'
 
-import { FolderCard, type FolderTint, folderTintStyle } from '@/components/patterns/FolderCard'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { FolderCard } from '@/components/patterns/FolderCard'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-// Card della Home con la scelta "oggi" / "Skill Vision" del concept. La card
-// porta solo testo; ogni numero sta nel pannello che "Skill Vision" apre
-// accanto, e allora il blocco prende tutta la riga della griglia.
-// Aperto/chiuso lo decide chi la usa (di solito ricordato nel browser).
-// `style`: solo il posto nella griglia (order, grid-column), deciso dalla pagina.
-// La card e il suo pannello partono sempre dalla stessa altezza (richiesta del
-// cliente, 2026-10-13): la card non è più `sticky`, che con la pagina
-// scorsa la spostava in basso rispetto al pannello; aprendo, se il blocco
-// comincia sopra la parte visibile, la pagina scorre fino al suo inizio.
-// `tint`: il colore della card (FolderCard), ripetuto sul riquadro del
-// pannello, così si vede quale pannello appartiene a quale card.
+// Una card con un dettaglio che si apre. La card porta il testo; il dettaglio
+// compare accanto (`inline`, il blocco prende tutta la riga della griglia) o
+// lo mostra la pagina sotto la riga (`below`). Aperto/chiuso lo decide chi
+// la usa. Il controllo è un bottone che dice cosa fa ("Mostra il dettaglio"),
+// con `aria-expanded`: il vecchio selettore "oggi / Skill Vision" non si
+// capiva e nascondeva i dati (CLAUDE.md, Fase 6, 2026-10-23). Il nome resta
+// per non toccare chi la usa. `style`: solo il posto nella griglia.
 export function SkillVisionCard({
   icon,
-  iconSide,
   title,
   subtitle,
   lines = [],
@@ -28,27 +24,24 @@ export function SkillVisionCard({
   panel,
   open,
   onOpenChange,
-  labels = { today: 'oggi', skillVision: 'Skill Vision' },
-  tint,
+  labels = { open: 'Mostra il dettaglio', close: 'Nascondi il dettaglio' },
   style,
   panelPlacement = 'inline',
   size,
 }: {
-  icon: IconComponent
-  iconSide?: 'start' | 'end'
+  icon?: LucideIcon
   title: ReactNode
   subtitle?: ReactNode
   lines?: readonly string[]
-  /** La domanda in evidenza sotto il sottotitolo (Foglio 3 di Assessment). */
+  /** La domanda in evidenza sotto il sottotitolo. */
   headline?: ReactNode
-  /** Due righe di spiegazione, piccole, sotto la domanda. */
+  /** Una o due righe di spiegazione, sotto la domanda. */
   description?: ReactNode
   actions?: ReactNode
   panel: ReactNode
   open: boolean
   onOpenChange: (open: boolean) => void
-  labels?: { today: string; skillVision: string }
-  tint?: FolderTint
+  labels?: { open: string; close: string }
   style?: CSSProperties
   /** `below`: la card resta nella sua cella e il pannello lo mostra la
    *  pagina, sotto la riga (Profilo della ricerca di Recruiting). */
@@ -79,42 +72,34 @@ export function SkillVisionCard({
       style={style}
       className={cn('flex min-w-0 flex-col', inline && open && 'col-span-full grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]')}
     >
-      <FolderCard
-        icon={icon}
-        iconSide={iconSide}
-        tint={tint}
-        size={size}
-        title={title}
-        kicker={subtitle}
-        className="flex-1"
-        aside={
-          <ToggleGroup
-            type="single"
-            value={open ? 'skillvision' : 'oggi'}
-            onValueChange={(v) => onOpenChange(v === 'skillvision')}
-            aria-label={typeof title === 'string' ? title : undefined}
-          >
-            <ToggleGroupItem value="oggi">{labels.today}</ToggleGroupItem>
-            <ToggleGroupItem value="skillvision" aria-controls={inline && open ? panelId : undefined}>
-              {labels.skillVision}
-            </ToggleGroupItem>
-          </ToggleGroup>
-        }
-      >
-        {headline ? <p className="mt-4 text-app-body font-semibold text-card-foreground">{headline}</p> : null}
-        {description ? <p className={headline ? 'mt-2 text-app-caption text-muted-foreground' : 'mt-4 text-app-caption text-muted-foreground'}>{description}</p> : null}
+      <FolderCard icon={icon} size={size} title={title} kicker={subtitle} className="flex-1">
+        {headline ? <p className="mt-2 text-app-body font-semibold text-card-foreground">{headline}</p> : null}
+        {description ? <p className="text-app-small text-muted-foreground">{description}</p> : null}
         {lines.length ? (
-          <div className="mt-4 flex flex-col gap-1 text-app-body font-medium text-card-foreground">
+          <div className="mt-2 flex flex-col gap-1 text-app-body text-card-foreground">
             {lines.map((l) => (
               <p key={l}>{l}</p>
             ))}
           </div>
         ) : null}
-        {actions ? <div className="mt-auto flex flex-wrap justify-center gap-2 pt-6">{actions}</div> : null}
+        <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
+          <Button
+            type="button"
+            size="sm"
+            variant={open ? 'default' : 'outline'}
+            aria-expanded={open}
+            aria-controls={inline && open ? panelId : undefined}
+            onClick={() => onOpenChange(!open)}
+          >
+            {open ? labels.close : labels.open}
+            <ChevronDown className={cn('transition-transform', open && 'rotate-180')} aria-hidden="true" />
+          </Button>
+          {actions}
+        </div>
       </FolderCard>
 
       {inline && open ? (
-        <div id={panelId} className={cn('flex min-w-0 flex-col gap-3', tint && 'rounded-lg border-2 border-primary p-4')} style={folderTintStyle(tint)}>
+        <div id={panelId} className="flex min-w-0 flex-col gap-3">
           {panel}
         </div>
       ) : null}

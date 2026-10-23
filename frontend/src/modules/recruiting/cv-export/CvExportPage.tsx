@@ -1,4 +1,5 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
+import { fmtScore10 } from '@/modules/recruiting/lib/format'
 import { CheckCircle2, FileCheck2, Files, FileText, Loader2, Percent, Upload } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -156,8 +157,8 @@ export default function CvExportPage() {
           : {
               kind: 'success',
               message: backendResult.autoSent
-                ? `${backendResult.candidateName} salvato sul server e link test inviato automaticamente (corrispondenza ${backendResult.icv}%)`
-                : `${backendResult.candidateName} salvato sul server · corrispondenza CV/profilo: ${backendResult.icv}% · in Migliori Candidati`,
+                ? `${backendResult.candidateName} salvato sul server e link test inviato automaticamente (corrispondenza ${fmtScore10(backendResult.icv)})`
+                : `${backendResult.candidateName} salvato sul server · corrispondenza CV/profilo: ${fmtScore10(backendResult.icv)} · in Migliori Candidati`,
             },
       )
       void setCvRetentionChoice(backendResult.backendCandidateId, retentionChoice)
@@ -185,14 +186,14 @@ export default function CvExportPage() {
     setUploadFeedback({
       kind: 'success',
       message: (result.autoSent
-        ? `${result.candidateName} aggiunto e link test inviato automaticamente (corrispondenza ${result.icv}%)`
-        : `Profilo creato · corrispondenza CV/profilo: ${result.icv}% · in Migliori Candidati`) + localNote,
+        ? `${result.candidateName} aggiunto e link test inviato automaticamente (corrispondenza ${fmtScore10(result.icv)})`
+        : `Profilo creato · corrispondenza CV/profilo: ${fmtScore10(result.icv)} · in Migliori Candidati`) + localNote,
     })
     handleMutated()
   }
 
   const rk = ranking(candidates)
-  const avgIcv = candidates.length ? Math.round(candidates.reduce((sum, c) => sum + (c.icv ?? 0), 0) / candidates.length) : 0
+  const avgIcv = candidates.length ? candidates.reduce((sum, c) => sum + (c.icv ?? 0), 0) / candidates.length : 0
 
   return (
     <div className="flex flex-col gap-4">
@@ -203,7 +204,7 @@ export default function CvExportPage() {
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <StatCard icon={FileText} value={candidates.length} label="CV caricati" />
-        <StatCard icon={Percent} value={avgIcv} label="Corrispondenza media (ICV %)" />
+        <StatCard icon={Percent} value={fmtScore10(avgIcv, false)} unit="/10" label="Corrispondenza media (ICV)" />
         <StatCard icon={FileCheck2} value={rk.length} label="Pronti per la classifica" />
       </div>
 
@@ -215,7 +216,7 @@ export default function CvExportPage() {
               bulk import and export/transfer controls. */}
           <label
             className={cn(
-              'flex flex-col items-center gap-2 rounded-lg border-2 border-dashed border-border bg-secondary px-6 py-8 text-center transition-colors',
+              'flex flex-col items-start gap-2 rounded-lg border-2 border-dashed border-border bg-secondary px-6 py-8 text-left transition-colors',
               uploading ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-ring hover:bg-primary/5',
             )}
           >

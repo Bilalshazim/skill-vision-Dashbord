@@ -19,6 +19,7 @@ const ModuleChooserPage = lazy(() => import('@/pages/ModuleChooserPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const JobPostingPublicPage = lazy(() => import('@/modules/recruiting/public/JobPostingPublicPage'))
 const RecruitingHome = lazy(() => import('@/modules/recruiting/RecruitingHome'))
+const RecruitingPanoramicaPage = lazy(() => import('@/modules/recruiting/RecruitingPanoramicaPage'))
 const CipAdminPage = lazy(() => import('@/modules/recruiting/admin/CipAdminPage'))
 const EmailConfigAdminPage = lazy(() => import('@/modules/recruiting/admin/EmailConfigAdminPage'))
 const OriginalSkillsPreviewPage = lazy(() => import('@/modules/recruiting/admin/OriginalSkillsPreviewPage'))
@@ -49,7 +50,7 @@ const AssessmentHardOverviewPage = lazy(() => import('@/modules/assessment/pages
 const AssessmentGestioneValutazioniPage = lazy(() => import('@/modules/assessment/pages/AssessmentGestioneValutazioniPage'))
 const AssessmentHardPage = lazy(() => import('@/modules/assessment/pages/AssessmentHardPage'))
 const AssessmentHardRisultatiPage = lazy(() => import('@/modules/assessment/pages/AssessmentHardRisultatiPage'))
-const AssessmentHomePage = lazy(() => import('@/modules/assessment/pages/AssessmentHomePage'))
+const AssessmentPanoramicaPage = lazy(() => import('@/modules/assessment/pages/AssessmentPanoramicaPage'))
 const AssessmentSoftOverviewPage = lazy(() => import('@/modules/assessment/pages/AssessmentSoftOverviewPage'))
 const AssessmentSoftPage = lazy(() => import('@/modules/assessment/pages/AssessmentSoftPage'))
 const AssessmentSoftRisultatiPage = lazy(() => import('@/modules/assessment/pages/AssessmentSoftRisultatiPage'))
@@ -86,9 +87,12 @@ function App() {
             <Route path="/" element={<ModuleChooserPage />} />
             <Route>
               <Route path="recruiting" element={<RecruitingLayout />}>
-                {/* Entrando in Recruiting si apre "Profilo della ricerca", la prima
-                    pagina; "Stato dell'arte" (la vecchia home) ha un indirizzo suo. */}
-                <Route index element={<Navigate to="profile" replace />} />
+                {/* Entrando in Recruiting si apre la Panoramica (CLAUDE.md, Fase 6,
+                    2026-10-23), anche dal vecchio indirizzo /recruiting/home, come
+                    in Assessment. "Profilo della ricerca" resta a /recruiting/profile,
+                    "Stato dell'arte" (la vecchia home) a /recruiting/stato-dell-arte. */}
+                <Route index element={<RecruitingPanoramicaPage />} />
+                <Route path="home" element={<RecruitingPanoramicaPage />} />
                 <Route path="stato-dell-arte" element={<RecruitingHome />} />
                 <Route path="ranking" element={<RankingPage />} />
                 <Route path="pagina-a" element={<PaginaAPage />} />
@@ -134,8 +138,8 @@ function App() {
                 AssessmentLayout (inside AssessmentProvider, where its nav data
                 lives). */}
             <Route path="assessment" element={<AssessmentLayout />}>
-              <Route index element={<AssessmentHomePage />} />
-              <Route path="home" element={<AssessmentHomePage />} />
+              <Route index element={<AssessmentPanoramicaPage />} />
+              <Route path="home" element={<AssessmentPanoramicaPage />} />
               {/* "Competenze Trasversali/Professionali" (nav positions 2/3) —
                   new landing pages; "soft"/"hard" (evaluation entry, 7/8) and
                   "soft-risultati"/"hard-risultati" (results, 9/10) are the

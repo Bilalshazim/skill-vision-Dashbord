@@ -49,7 +49,7 @@ export function CompareRowsTable({
         <TableBody>
           {rows.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
+              <TableCell colSpan={6} className="text-muted-foreground">
                 Nessun candidato in confronto. Aggiungine uno con il pulsante qui sotto.
               </TableCell>
             </TableRow>

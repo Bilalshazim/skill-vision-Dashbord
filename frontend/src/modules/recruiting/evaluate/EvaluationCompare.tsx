@@ -83,11 +83,11 @@ export function EvaluationCompare({ columns }: { columns: CompareColumn[] }) {
                 <tr className="label-mono border-b border-border bg-muted text-left text-muted-foreground">
                   <th className="px-3 py-2 font-medium">Criterio</th>
                   {columns.map((c) => (
-                    <th key={c.id} className="px-3 py-2 text-center font-medium">
+                    <th key={c.id} className="px-3 py-2 text-left font-medium">
                       {c.label}
                     </th>
                   ))}
-                  <th className="px-3 py-2 text-center font-medium">Scarto</th>
+                  <th className="px-3 py-2 text-left font-medium">Scarto</th>
                 </tr>
               </thead>
               <tbody>
@@ -100,11 +100,11 @@ export function EvaluationCompare({ columns }: { columns: CompareColumn[] }) {
                         {r.label}
                       </th>
                       {columns.map((c, i) => (
-                        <td key={c.id} className="px-3 py-1.5 text-center font-mono tabular-nums text-foreground">
+                        <td key={c.id} className="px-3 py-1.5 text-left font-mono tabular-nums text-foreground">
                           {r.kind === 'text' ? <span className="font-sans">{r.texts?.[i]}</span> : r.values[i] != null ? `${fmtDec(r.values[i] as number, r.key === 'fin' ? 2 : 0)}/${r.max}` : '—'}
                         </td>
                       ))}
-                      <td className="px-3 py-1.5 text-center font-mono tabular-nums">
+                      <td className="px-3 py-1.5 text-left font-mono tabular-nums">
                         {r.kind === 'text' || spread == null ? '' : spread >= 2 ? <span className="font-sans font-semibold text-warning">Divergenza · {fmtDec(spread, r.key === 'fin' ? 2 : 0)}</span> : fmtDec(spread, r.key === 'fin' ? 2 : 0)}
                       </td>
                     </tr>

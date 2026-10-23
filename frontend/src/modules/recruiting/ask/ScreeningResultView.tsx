@@ -1,4 +1,5 @@
 import { Check, CircleHelp, Search, TriangleAlert, X } from 'lucide-react'
+import { fmtScore10 } from '@/modules/recruiting/lib/format'
 
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -74,7 +75,7 @@ export function ScreeningResultView({ result }: { result: ScreeningResult }) {
                 <span
                   className={cn(
                     'label-mono ml-2 rounded-full px-2 py-0.5',
-                    m.sourceTag === 'NEW_APPLICANT' ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground dark:text-secondary-foreground',
+                    m.sourceTag === 'NEW_APPLICANT' ? 'border border-foreground bg-secondary text-foreground' : 'bg-secondary text-muted-foreground dark:text-secondary-foreground',
                   )}
                 >
                   {m.sourceTag}
@@ -83,7 +84,7 @@ export function ScreeningResultView({ result }: { result: ScreeningResult }) {
                 {m.icv != null ? (
                   <>
                     {' '}
-                    · <span className="text-muted-foreground">ICV {m.icv}</span>
+                    · <span className="text-muted-foreground">ICV {fmtScore10(m.icv)}</span>
                   </>
                 ) : null}
               </div>

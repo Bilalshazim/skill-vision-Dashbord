@@ -11,7 +11,8 @@ import { cn } from '@/lib/utils'
 // sono qui: `loading` (scheletro), `empty` (cosa comparirà e come).
 // `surface="none"` quando il riquadro sta già dentro un'altra superficie.
 // Il grafico si passa come figlio: la palette la decide il grafico (Fase 5,
-// Bklit), non il riquadro.
+// Bklit), non il riquadro. La card di un grafico è una card: superficie
+// `card`, bordo sottile, nessuna ombra né bordo lime (CLAUDE.md, Fase 5).
 export function ChartCard({
   title,
   description,
@@ -22,7 +23,6 @@ export function ChartCard({
   loading = false,
   empty,
   surface = 'card',
-  elevated = false,
   className,
   children,
 }: {
@@ -31,13 +31,12 @@ export function ChartCard({
   headline?: ReactNode
   actions?: ReactNode
   footer?: ReactNode
-  height?: 'sm' | 'md' | 'lg'
+  /** `auto`: l'altezza del contenuto, per un grafico compatto (una barra a segmenti) che non deve lasciare un vuoto. */
+  height?: 'sm' | 'md' | 'lg' | 'auto'
   loading?: boolean
   /** Se dato, il grafico non si disegna e compare lo stato vuoto con questo testo. */
   empty?: { title: ReactNode; description?: ReactNode }
   surface?: 'card' | 'none'
-  /** Bordo `primary` di 2px e rilievo, come le card della Home (eccezione alla regola 3, DECISIONI). */
-  elevated?: boolean
   className?: string
   children?: ReactNode
 }) {
@@ -56,13 +55,13 @@ export function ChartCard({
       ) : empty ? (
         <EmptyState size="sm" title={empty.title} description={empty.description} />
       ) : (
-        <div className={cn('relative min-w-0', height === 'sm' ? 'h-40' : height === 'md' ? 'h-60' : 'h-80')}>{children}</div>
+        <div className={cn('relative min-w-0', height === 'sm' ? 'h-40' : height === 'md' ? 'h-60' : height === 'lg' ? 'h-80' : undefined)}>{children}</div>
       )}
-      {footer ? <div className="text-app-small text-muted-foreground">{footer}</div> : null}
+      {footer ? <div className="mt-auto text-app-small text-muted-foreground">{footer}</div> : null}
     </>
   )
   return surface === 'card' ? (
-    <Card data-slot="chart-card" className={cn('gap-4', elevated && 'border-2 border-primary shadow-[0_8px_16px_0_var(--border-strong)]', className)}>
+    <Card data-slot="chart-card" className={cn('gap-4', className)}>
       {body}
     </Card>
   ) : (

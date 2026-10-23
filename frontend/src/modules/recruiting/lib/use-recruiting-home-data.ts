@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
-import { ensurePipeline, pipelineStage, plDateFmt } from '@/modules/recruiting/lib/pipeline'
-import { pendingCandidates, ranking } from '@/modules/recruiting/lib/scoring'
+import { ensurePipeline, getActiveOpening, pipelineStage, plDateFmt } from '@/modules/recruiting/lib/pipeline'
+import { type AhiResult, pendingCandidates, ranking } from '@/modules/recruiting/lib/scoring'
 import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/storage'
-import type { Company, JobOpening } from '@/modules/recruiting/lib/types'
+import type { Candidate, Company, JobOpening } from '@/modules/recruiting/lib/types'
 
 export type KpiDatum = { key: string; value: number; label: string }
 
@@ -58,6 +58,23 @@ export type RecruitingHomeData = {
    *  a precise hire count, hence the `note`.
    */
   funnel: FunnelStage[]
+  /** I candidati in classifica di ogni fascia (stesso ordine di `buckets`), già per AHI decrescente. */
+  bucketCandidates: { c: Candidate; r: AhiResult }[][]
+  /** Panoramica (CLAUDE.md, Fase 6): i numeri di "Stato attuale" e "Da fare adesso". */
+  overview: {
+    companyName: string
+    /** La data più recente nei dati della selezione (preselezioni, risultati, decisioni). */
+    lastUpdate: Date | null
+    openings: number
+    /** Candidati preselezionati nelle posizioni aperte (una persona conta una volta). */
+    inSelection: number
+    suitable: number
+    interviewsScheduled: number
+    toEvaluate: number
+    linksToSend: number
+    testsToRead: number
+    openingsWithoutCandidates: number
+  }
 }
 
 // Faithful port of renderHomeDashboard() (modules/recruiting.html
@@ -158,6 +175,34 @@ export function useRecruitingHomeData(): RecruitingHomeData {
       { key: 'assunti', label: 'Assunti', count: openings.filter(({ opening }) => ensurePipeline(opening).winner).length, note: 'Posizioni con un vincitore selezionato — non un conteggio storico delle assunzioni' },
     ]
 
+    const bucketCandidates: { c: Candidate; r: AhiResult }[][] = [[], [], [], []]
+    for (const it of rk) {
+      const i = it.r.capped ? 3 : it.r.v >= 85 ? 0 : it.r.v >= 70 ? 1 : it.r.v >= 60 ? 2 : 3
+      bucketCandidates[i].push(it)
+    }
+
+    // Panoramica: link da inviare (in coda o pronto e non spedito), test
+    // completati senza ancora un colloquio, posizioni senza preselezionati.
+    const inSelection = new Set<string>()
+    let linksToSend = 0
+    let testsToRead = 0
+    let openingsWithoutCandidates = 0
+    const dates: string[] = []
+    for (const { opening } of openings) {
+      const p = ensurePipeline(opening)
+      if (!p.prescreened.length) openingsWithoutCandidates++
+      const interviewed = new Set(p.interviews.map((iv) => iv.candidateId).filter(Boolean))
+      for (const ps of p.prescreened) {
+        inSelection.add(ps.candidateId)
+        if (ps.status === 'da_inviare' || ps.status === 'link_pronto') linksToSend++
+        if ((ps.status === 'completato' || ps.status === 'ha_risposto') && !interviewed.has(ps.candidateId)) testsToRead++
+        dates.push(ps.addedAt)
+      }
+      p.testResults.forEach((t) => dates.push(t.addedAt))
+      if (p.winner) dates.push(p.winner.decidedAt)
+    }
+    const times = dates.map((d) => new Date(d).getTime()).filter((t) => Number.isFinite(t))
+
     const now = Date.now()
     const weekMs = 7 * 24 * 60 * 60 * 1000
     const thisWeek = allInterviews.filter((iv) => {
@@ -177,6 +222,19 @@ export function useRecruitingHomeData(): RecruitingHomeData {
       completed: completedRows,
       interviewsThisWeek,
       funnel,
+      bucketCandidates,
+      overview: {
+        companyName: getActiveOpening(state).company?.name ?? '',
+        lastUpdate: times.length ? new Date(Math.max(...times)) : null,
+        openings: openings.length,
+        inSelection: inSelection.size,
+        suitable: buckets[0].count,
+        interviewsScheduled: allInterviews.filter((iv) => !iv.completed).length,
+        toEvaluate: buckets[1].count + buckets[2].count,
+        linksToSend,
+        testsToRead,
+        openingsWithoutCandidates,
+      },
     }
   }, [])
 }

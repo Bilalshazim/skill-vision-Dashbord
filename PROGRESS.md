@@ -184,6 +184,73 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-10-23 — Punteggi su 10 (Recruiting e 5P), verifica a schermo, commit
+- [x] Recruiting a schermo su 10 (`fmtScore10`): AHI, sottopunteggi, ICV, CI,
+      risultati del test (inserimento su 10, salvataggio su 100 come prima),
+      fasce, assistente, report e classifica CSV. Metodo con formule e soglie
+      su 10 (8,5 / 7,0 / 6,0, sbarramento 5,9). Dati e soglie nel codice
+      invariati. DECISIONI "Punteggi di Recruiting e del 5P su 10".
+- [x] 5P su 10: tabelle, cruscotto, grafici, valori attesi (inserimento su
+      10), Metodo del 5P, Excel dei risultati e del report.
+- [x] Verifica a schermo delle due Panoramiche: chiaro, scuro, desktop,
+      mobile. Nessuno scorrimento orizzontale, contrasto a posto. Corretto il
+      vuoto della card "Distribuzione per fascia" (`ChartCard height="auto"`).
+- [x] Contrasto: tag "NEW_APPLICANT" (lime su chiaro) e punteggi lime in
+      scuro tolti.
+- [x] Regola "Niente dati nel browser" rimessa in CLAUDE.md §9 (era sparita
+      nell'aggiornamento); audit-storage ok.
+- [x] tsc, build, audit-identita `frontend/src` 0, audit-storage ok.
+- [ ] Non verificati a schermo con dati: le schermate del 5P (in locale nessun
+      piano 5P caricato) e la classifica con candidati nelle fasce alte.
+- [ ] Database locale: Acme ha ora anche ASSESSMENT (per la prova).
+- [ ] Non inviato su GitHub (solo commit locale su `server-only`).
+
+## 2026-10-23 — Panoramica nei due moduli, Fasi 5–6 riviste (CLAUDE.md aggiornato)
+- [x] Rotte: `/recruiting` e `/recruiting/home` aprono la Panoramica di
+      Recruiting (prima: Profilo della ricerca / nulla); `/assessment` e
+      `/assessment/home` quella di Assessment. Voce "Panoramica" in testa alle
+      due barre laterali. DECISIONI "Panoramica come pagina d'ingresso".
+- [x] Panoramica Assessment: Stato attuale (punteggio su 10 con benchmark,
+      copertura mansioni, persone valutate, persone critiche), Da fare adesso
+      (critiche, restituzioni, valutazioni 5P da raccogliere e da inviare, le
+      quattro azioni di sviluppo con la loro nota), Dove guardare
+      (distribuzione per fascia → Valori Complessivi, sotto il benchmark →
+      Competenze). Niente "In programma": nessuna data in Assessment. CT / CP /
+      Completo come ToggleGroup normale nelle azioni dell'intestazione.
+- [x] Panoramica Recruiting: posizioni aperte, candidati in selezione, idonei,
+      colloqui in programma; link test da inviare, test completati da leggere,
+      candidati da valutare, posizioni senza candidati; prossimi colloqui;
+      fasce di idoneità e imbuto con il link alle loro pagine.
+- [x] Pattern nuovi nel catalogo: `BandCard`, `ActionList`.
+- [x] Cinque fasce al posto dei tre livelli (che sparivano con la Home) e un
+      solo set di nomi in tutte le pagine; Valori Complessivi con le cinque
+      BandCard e "Vedi tutte" che filtra la tabella (`?fascia=`); Candidati per
+      fascia di idoneità con quattro BandCard e "Vedi tutti" → classifica
+      filtrata (`/recruiting/ranking?fascia=`).
+- [x] Gauge Bklit come documentato (arco intero, numero al centro, su 10,
+      traccia di default, niente ritaglio); niente riempimento sotto le linee
+      dell'andamento né dissolvenza della griglia; niente ombre né bordo lime
+      su card, StatCard, ChartCard, ModeSwitch, scelta del modulo; `Card`
+      senza `hover:border-primary`.
+- [x] FolderCard senza bordo lime, tinte, icona grande, testo al centro;
+      "oggi / Skill Vision" → "Mostra / Nascondi il dettaglio"; icone composte
+      tolte; switch IT/EN tolto da barra superiore e Impostazioni (era
+      tornato); testo al centro tolto in tutti e due i moduli.
+- [x] tsc, build, audit-identita `frontend/src` 0 (era 12; repository 15, solo
+      i modelli email del backend), audit-storage ok.
+- [ ] **Verifica a schermo parziale**: in locale la Panoramica di Recruiting
+      si apre su `/recruiting` e `/recruiting/home` con dati (scuro), ma il
+      browser di prova veniva chiuso da un'altra sessione e non ho le due
+      modalità complete. Assessment in locale non ha una società con il
+      modulo attivo: la sua Panoramica non è vista con dati. Da fare: chiaro
+      e scuro, mobile, su tutte e due.
+- [ ] **Da decidere col cliente**: AHI, test e 5P restano su 100 (DECISIONI
+      "Punteggi su 10: dove sì, dove no").
+- [ ] Non inviato su GitHub, niente deploy.
+- Nota: nel CLAUDE.md aggiornato manca il paragrafo "Niente dati nel browser"
+      e `audit-storage.mjs` (§9): l'ho seguito lo stesso. Se è sparito per
+      errore, va rimesso.
+
 ## 2026-10-23 — Profilo della ricerca: tre card in una riga
 - [x] Le tre card sempre affiancate (`md:grid-cols-3`). Se ne apre una alla
       volta e le sue pagine compaiono sotto la riga. `SkillVisionCard` ha

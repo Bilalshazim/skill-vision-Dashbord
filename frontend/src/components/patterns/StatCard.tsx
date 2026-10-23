@@ -52,7 +52,6 @@ export function StatCard({
   size = 'md',
   valueKind = 'number',
   surface = 'card',
-  elevated = false,
   emphasis = false,
   progress,
   progressTone,
@@ -70,8 +69,6 @@ export function StatCard({
   size?: 'sm' | 'md' | 'lg'
   valueKind?: 'number' | 'text'
   surface?: 'card' | 'none'
-  /** Bordo `primary` di 2px e rilievo, come le card della Home (eccezione alla regola 3, DECISIONI). */
-  elevated?: boolean
   /** Il numero in grande (metric-lg) anche in un riquadro di taglia normale. */
   emphasis?: boolean
   /** 0–100: una barra sotto il valore. */
@@ -101,9 +98,8 @@ export function StatCard({
       {...rootProps}
       className={cn(
         'flex min-w-0 flex-col gap-2 text-left text-card-foreground',
-        onClick && 'cursor-pointer outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-        surface === 'card' && ['rounded-md transition-colors hover:border-primary', SURFACE[tone], size === 'lg' ? 'gap-4 p-6' : 'p-4'],
-        surface === 'card' && elevated && 'border-2 border-primary shadow-[0_8px_16px_0_var(--border-strong)]',
+        onClick && 'cursor-pointer outline-none transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        surface === 'card' && ['rounded-md', SURFACE[tone], size === 'lg' ? 'gap-4 p-6' : 'p-4'],
         className,
       )}
     >

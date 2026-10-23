@@ -8,6 +8,7 @@ import {
   Files,
   FileText,
   Filter,
+  Home,
   IdCard,
   LayoutDashboard,
   ListChecks,
@@ -78,6 +79,8 @@ export type RecruitingNavGroup = {
 export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
   {
     items: [
+      // La pagina d'ingresso del modulo (CLAUDE.md, Fase 6, 2026-10-23).
+      { screen: 'panoramica', label: 'Panoramica', icon: Home, to: '/recruiting', end: true },
       // Era "Menu": la voce prende il nome della sua destinazione (CLAUDE.md, Fase 6).
       { screen: 'profilo', label: 'Profilo della ricerca', icon: FileBarChart, to: '/recruiting/profile' },
     ],

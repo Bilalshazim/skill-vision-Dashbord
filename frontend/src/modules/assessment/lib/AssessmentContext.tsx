@@ -30,7 +30,6 @@ type Ctx = {
   setState: (updater: (prev: AssessmentState) => AssessmentState) => void
   persist: (next: AssessmentState) => void
   lang: AssessmentLang
-  setLang: (lang: AssessmentLang) => void
   theme: 'light' | 'dark'
   setTheme: (theme: 'light' | 'dark') => void
   ui: ReturnType<typeof getUI>
@@ -39,6 +38,9 @@ type Ctx = {
   isAdmin: boolean
   topbarActions: ReactNode
   setTopbarActions: (node: ReactNode) => void
+  /** La riga sotto il titolo della pagina, quando la pagina la calcola (la Panoramica: società e data dei dati). */
+  pageDescription: ReactNode
+  setPageDescription: (node: ReactNode) => void
   toast: (msg: string, type?: '' | 'ok' | 'err') => void
   /** `ready` quando `state` è quello vero; prima le pagine mostrano il caricamento. */
   status: 'loading' | 'error' | 'empty' | 'ready'
@@ -60,13 +62,14 @@ function useShared() {
   // Global top bar's shared hooks — same sv_language/sv_theme keys as
   // before, now with same-tab instant sync (see use-theme.ts/use-shared-lang.ts),
   // so changing either from the top bar repaints Assessment immediately.
-  const { lang, setLang } = useSharedLang()
+  const { lang } = useSharedLang()
   const { theme, setTheme } = useTheme()
   const ui = useMemo(() => getUI(lang), [lang])
 
   // Ported from setTopbarActions() (js/assessment.js ~3248) — each page sets
   // its own topbar action button(s) on mount and clears them on unmount.
   const [topbarActions, setTopbarActions] = useState<ReactNode>(null)
+  const [pageDescription, setPageDescription] = useState<ReactNode>(null)
 
   // Ported from toast() (js/assessment.js ~2477-2483): una notifica alla
   // volta, 3,2 s, varianti 'ok' / 'err'. La mostra Sonner (components/ui/
@@ -86,8 +89,8 @@ function useShared() {
   const isAdmin = ADMIN_ROLES.has(user?.role ?? '')
 
   return useMemo(
-    () => ({ lang, setLang, theme, setTheme, ui, topbarActions, setTopbarActions, toast, canEdit, isAdmin }),
-    [lang, setLang, theme, setTheme, ui, topbarActions, toast, canEdit, isAdmin],
+    () => ({ lang, theme, setTheme, ui, topbarActions, setTopbarActions, pageDescription, setPageDescription, toast, canEdit, isAdmin }),
+    [lang, theme, setTheme, ui, topbarActions, pageDescription, toast, canEdit, isAdmin],
   )
 }
 
@@ -236,6 +239,17 @@ export function useTopbarActions(node: ReactNode, deps: unknown[]) {
   useEffect(() => {
     setTopbarActions(node)
     return () => setTopbarActions(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps)
+}
+
+// Come useTopbarActions, per la riga sotto il titolo: al posto del testo fisso
+// della pagina (getPageMeta) finché la pagina resta aperta.
+export function usePageDescription(node: ReactNode, deps: unknown[]) {
+  const { setPageDescription } = useAssessment()
+  useEffect(() => {
+    setPageDescription(node)
+    return () => setPageDescription(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
 }

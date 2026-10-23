@@ -4,15 +4,14 @@ import { Field } from '@/components/patterns/Field'
 import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { type Lang, useSharedLang } from '@/hooks/use-shared-lang'
 import { type Theme, useTheme } from '@/hooks/use-theme'
 
-// Le impostazioni del guscio: tema e lingua, i due valori condivisi fra i
-// moduli (`sv_theme`, `sv_language`). Si applicano subito, senza "Salva".
+// Le impostazioni del guscio: il tema, condiviso fra i moduli. Si applica
+// subito, senza "Salva". La lingua non si sceglie: solo italiano per ora
+// (CLAUDE.md cap. 7).
 // Le impostazioni proprie di Assessment restano nel modulo.
 export function SettingsDialog({ onClose }: { onClose: () => void }) {
   const { theme, setTheme } = useTheme()
-  const { lang, setLang } = useSharedLang()
   return (
     <ModalDialog
       title="Impostazioni"
@@ -31,12 +30,6 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
             <ToggleGroupItem value="dark">
               <Moon /> Scuro
             </ToggleGroupItem>
-          </ToggleGroup>
-        </Field>
-        <Field label="Lingua">
-          <ToggleGroup type="single" value={lang} onValueChange={(v) => v && setLang(v as Lang)} aria-label="Lingua">
-            <ToggleGroupItem value="it">Italiano</ToggleGroupItem>
-            <ToggleGroupItem value="en">English</ToggleGroupItem>
           </ToggleGroup>
         </Field>
       </div>

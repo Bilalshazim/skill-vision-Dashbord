@@ -1,4 +1,6 @@
 import { DEFAULT_FLAGS, DEFAULT_ROLE, ROLES, SKILLS, W } from '@/modules/recruiting/lib/constants'
+import { fmtScore10 } from '@/modules/recruiting/lib/format'
+import { fmtDec } from '@/lib/format'
 import { ci, ranking } from '@/modules/recruiting/lib/scoring'
 import type { Candidate, CvMatchingState } from '@/modules/recruiting/lib/types'
 
@@ -369,13 +371,13 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
           title(`Per la posizione ${DEFAULT_ROLE}: `, b(t.c.name), '.'),
           p(
             'AHI ',
-            b(`${t.r.v}/100`),
-            ` (Aderenza alle competenze ${t.r.fc} · Big Five ${t.r.ab} · CV ${t.r.icv}). Distacco sul secondo, ${s.c.name}: `,
-            b(`${(t.r.v - s.r.v).toFixed(1)} punti`),
+            b(fmtScore10(t.r.v)),
+            ` (Aderenza alle competenze ${fmtScore10(t.r.fc, false)} · Big Five ${fmtScore10(t.r.ab, false)} · CV ${fmtScore10(t.r.icv, false)}). Distacco sul secondo, ${s.c.name}: `,
+            b(`${fmtDec((t.r.v - s.r.v) / 10)} punti su 10`),
             '.',
           ),
           list([
-            [`Compatibilità con il vostro benchmark interno (${ROLES[DEFAULT_ROLE].bench.name}): `, b(`${ci(t.c)}%`)],
+            [`Compatibilità con il vostro benchmark interno (${ROLES[DEFAULT_ROLE].bench.name}): `, b(fmtScore10(ci(t.c)))],
             t.r.rf.length
               ? [`Attenzione: ${t.r.rf.map((x) => `${x.sk} sotto soglia (${x.s.toFixed(1)}/${x.t})`).join(', ')} — da verificare in colloquio.`]
               : ['Nessuna skill essenziale sotto soglia: profilo pulito.'],
@@ -401,10 +403,10 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
           p(
             'Il migliore esterno è ',
             b(t.c.name),
-            ` (AHI ${t.r.v}), il riferimento interno è `,
+            ` (AHI ${fmtScore10(t.r.v)}), il riferimento interno è `,
             b(bench.name),
             ` (APEX ${bench.apex}/31). Compatibilità tra i due profili: `,
-            b(`${civ}%`),
+            b(fmtScore10(civ)),
             '.',
           ),
           list([
@@ -450,7 +452,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
         blocks: [
           title('Perché la media inganna.'),
           p(
-            "Un candidato brillante su tutto ma carente su una skill essenziale fallirà proprio dove la posizione non perdona. Per questo, se un'essenziale è sotto il 60% del target, l'AHI viene bloccato a 59 a prescindere dal resto.",
+            "Un candidato brillante su tutto ma carente su una skill essenziale fallirà proprio dove la posizione non perdona. Per questo, se un'essenziale è sotto il 60% del target, l'AHI viene bloccato a 5,9 su 10 a prescindere dal resto.",
           ),
           flagged
             ? list([
@@ -464,7 +466,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
                 ],
               ])
             : p('Nella classifica attuale nessun candidato è bloccato.'),
-          source('Regola di sbarramento: essenziale < 60% del target → AHI ≤ 59'),
+          source('Regola di sbarramento: essenziale < 60% del target → AHI ≤ 5,9 su 10'),
         ],
       }
     },
@@ -507,7 +509,7 @@ export function composeAnswer(q: string, candidates: Candidate[]): AskAnswer {
   const ctxSummary = (): TextPart[] => [
     `Posizione: ${DEFAULT_ROLE}. Candidati: ${candidates.length}. Skill essenziali (${essentials.length}): ${essentials.join(', ') || '—'}. Top 5: ${rank
       .slice(0, 5)
-      .map((r, i) => `#${i + 1} ${r.c.name} (${r.r.v.toFixed(1)}pt)`)
+      .map((r, i) => `#${i + 1} ${r.c.name} (${fmtScore10(r.r.v)})`)
       .join('; ')}.`,
   ]
 
@@ -562,7 +564,7 @@ export function composeAnswer(q: string, candidates: Candidate[]): AskAnswer {
         list(
           rank.slice(0, 5).map((r) => {
             const cp = essentials.length ? Math.round((essentials.filter((s) => r.c.scores?.[s] != null).length / essentials.length) * 100) : null
-            return [b(r.c.name), ` — ${r.r.v.toFixed(1)}pt${cp !== null ? ` · ${cp}% ess.` : ''}`]
+            return [b(r.c.name), ` — ${fmtScore10(r.r.v)}${cp !== null ? ` · ${cp}% ess.` : ''}`]
           }),
         ),
       ],
@@ -595,7 +597,7 @@ export function composeAnswer(q: string, candidates: Candidate[]): AskAnswer {
         title('Confronto top 3'),
         ...rank.slice(0, 3).map((r, i) => {
           const cp = essentials.length ? Math.round((essentials.filter((s) => r.c.scores?.[s] != null).length / essentials.length) * 100) : null
-          return p(b(`#${i + 1} ${r.c.name}`), ` · ${r.r.v.toFixed(1)}pt${cp !== null ? ` · ${cp}% ess.` : ''}`)
+          return p(b(`#${i + 1} ${r.c.name}`), ` · ${fmtScore10(r.r.v)}${cp !== null ? ` · ${cp}% ess.` : ''}`)
         }),
       ],
     }
@@ -605,7 +607,7 @@ export function composeAnswer(q: string, candidates: Candidate[]): AskAnswer {
     blocks: [
       title('Panoramica'),
       p(...ctxSummary()),
-      p('Top 3: ', rank.slice(0, 3).map((r, i) => `#${i + 1} ${r.c.name} (${r.r.v.toFixed(1)})`).join(' · ')),
+      p('Top 3: ', rank.slice(0, 3).map((r, i) => `#${i + 1} ${r.c.name} (${fmtScore10(r.r.v)})`).join(' · ')),
       source('Prova: nome candidato · "chi è il migliore" · nome skill · "confronto" · "job profile"'),
     ],
   }

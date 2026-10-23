@@ -1,3 +1,4 @@
+import { fmtDec } from '@/lib/format'
 import { ITEMS_5P } from '@/modules/assessment/gestione5p/items'
 
 // Valutazione 5P Multi-Fonte (modello "VALUTAZONI 5P", versione 5, Roberto
@@ -149,16 +150,20 @@ export function typeOf(s: unknown): SourceKey | null {
 // Il voto sulla scala 0–100: voto 1–10 × 10, arrotondato all’intero (decisione del 2026-10-09).
 export const DASH_SCALE = 10
 export const rd = (v: number | null | undefined): number | null => (v == null || Number.isNaN(v) ? null : Math.round(v * DASH_SCALE + 1e-9))
-export const fmt100 = (v: number | null | undefined) => {
+// A schermo il voto si legge su 10 con un decimale (DECISIONI, "Punteggi di
+// Recruiting e del 5P su 10"): è lo stesso valore arrotondato di rd() diviso
+// per 10, quindi livelli, gap e percezione restano quelli di prima.
+export const fmt10 = (v: number | null | undefined) => {
   const r = rd(v)
-  return r == null ? '–' : String(r)
+  return r == null ? '–' : fmtDec(r / 10)
 }
 export const dd = (a: number | null | undefined, b: number | null | undefined): number | null => {
   const ra = rd(a)
   const rb = rd(b)
   return ra == null || rb == null ? null : ra - rb
 }
-export const fmtSigned = (d: number | null | undefined) => (d == null ? '–' : d > 0 ? `+${d}` : d < 0 ? `−${Math.abs(d)}` : '±0')
+/** Uno scarto (su 100, come dd()) letto su 10, con il segno: +1,8 / −0,8 / ±0. */
+export const fmtSigned = (d: number | null | undefined) => (d == null ? '–' : d > 0 ? `+${fmtDec(d / 10)}` : d < 0 ? `−${fmtDec(Math.abs(d) / 10)}` : '±0')
 export type GapState = 'raggiunto' | 'vicino' | 'da-sviluppare'
 export type Perception = 'allineata' | 'sopravvaluta' | 'sottovaluta'
 export const gapState = (d: number | null): GapState | null => (d == null ? null : d >= 0 ? 'raggiunto' : d <= -THR ? 'da-sviluppare' : 'vicino')

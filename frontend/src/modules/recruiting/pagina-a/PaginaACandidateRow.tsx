@@ -1,4 +1,4 @@
-import { sourceLabel } from '@/modules/recruiting/lib/format'
+import { fmtScore10, sourceLabel } from '@/modules/recruiting/lib/format'
 import { CheckCircle2, Clock3, Link2, Loader2, Send, SendHorizonal, XCircle } from 'lucide-react'
 import { memo, useState } from 'react'
 
@@ -195,8 +195,8 @@ export const PaginaACandidateRow = memo(function PaginaACandidateRow({
         </div>
       </div>
 
-      <div className="shrink-0 font-mono text-app-body font-semibold text-foreground dark:text-primary" title="Corrispondenza CV/profilo (solo CV)">
-        {candidate.icv}%
+      <div className="shrink-0 font-mono text-app-body font-semibold text-foreground" title="Corrispondenza CV/profilo (solo CV)">
+        {fmtScore10(candidate.icv)}
       </div>
 
       <div className="flex shrink-0 flex-col gap-1">

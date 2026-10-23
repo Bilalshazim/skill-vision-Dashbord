@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useConfirm } from '@/hooks/use-confirm'
 import { cn } from '@/lib/utils'
 import { readWorkbook } from '@/modules/assessment/gestione5p/files'
-import { CODES, PS, SRC, type Parsed, type ResponsesPayload, type State5p, allEvaluators, allResults, cap, codeToJson, edit, evStatus, fmt100, fromPayload, mean, mergeEvals, parseWorkbook, personByName, plural } from '@/modules/assessment/gestione5p/model'
+import { CODES, PS, SRC, type Parsed, type ResponsesPayload, type State5p, allEvaluators, allResults, cap, codeToJson, edit, evStatus, fmt10, fromPayload, mean, mergeEvals, parseWorkbook, personByName, plural } from '@/modules/assessment/gestione5p/model'
 import { SourceTag } from '@/modules/assessment/gestione5p/SourceTag'
 
 type Update = (fn: (s: State5p) => State5p) => void
@@ -96,7 +96,7 @@ export function RaccoltaTab({ state, update, toast, incoming, onConsumed }: { st
             onDragOver={(e) => { e.preventDefault(); setOver(true) }}
             onDragLeave={() => setOver(false)}
             onDrop={(e) => { e.preventDefault(); setOver(false); if (e.dataTransfer.files.length) void handle([...e.dataTransfer.files]) }}
-            className={cn('flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed bg-muted px-4 py-8 text-center outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring', over ? 'border-primary' : 'border-border')}
+            className={cn('flex cursor-pointer flex-col items-start gap-2 rounded-lg border-2 border-dashed bg-muted px-4 py-8 text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring', over ? 'border-primary' : 'border-border')}
           >
             <Upload className="size-6 text-muted-foreground" aria-hidden="true" />
             <b className="text-app-subtitle">Trascina qui i file ricevuti dai valutatori</b>
@@ -183,7 +183,7 @@ export function RaccoltaTab({ state, update, toast, incoming, onConsumed }: { st
                 <TableRow>
                   <TableHead>Valutatore</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead className="text-center">Ricevute</TableHead>
+                  <TableHead>Ricevute</TableHead>
                   <TableHead>Mancano</TableHead>
                   <TableHead />
                 </TableRow>
@@ -197,7 +197,7 @@ export function RaccoltaTab({ state, update, toast, incoming, onConsumed }: { st
                     <TableRow key={x.e.name}>
                       <TableCell className="font-semibold">{x.e.name}</TableCell>
                       <TableCell className="text-app-caption">{p?.email || '—'}</TableCell>
-                      <TableCell className="text-center font-mono tabular-nums">
+                      <TableCell className="font-mono tabular-nums">
                         {x.rec}/{x.exp}
                       </TableCell>
                       <TableCell className="text-app-caption">{x.miss.join(', ')}</TableCell>
@@ -254,11 +254,11 @@ export function RaccoltaTab({ state, update, toast, incoming, onConsumed }: { st
                     <TableHead>Tipo</TableHead>
                     <TableHead>Valutatore</TableHead>
                     {PS.map((p) => (
-                      <TableHead key={p.k} className="text-center">
+                      <TableHead key={p.k}>
                         {p.k}
                       </TableHead>
                     ))}
-                    <TableHead className="text-center">Voci</TableHead>
+                    <TableHead>Voci</TableHead>
                     <TableHead>Origine</TableHead>
                     <TableHead />
                   </TableRow>
@@ -272,11 +272,11 @@ export function RaccoltaTab({ state, update, toast, incoming, onConsumed }: { st
                       </TableCell>
                       <TableCell>{e.valutatore || '—'}</TableCell>
                       {PS.map((p) => (
-                        <TableCell key={p.k} className="text-center font-mono tabular-nums">
-                          {fmt100(mean(CODES.filter((c) => c[0] === p.k).map((c) => e.scores[c] ?? null)))}
+                        <TableCell key={p.k} className="font-mono tabular-nums">
+                          {fmt10(mean(CODES.filter((c) => c[0] === p.k).map((c) => e.scores[c] ?? null)))}
                         </TableCell>
                       ))}
-                      <TableCell className="text-center font-mono whitespace-nowrap tabular-nums">
+                      <TableCell className="font-mono whitespace-nowrap tabular-nums">
                         {Object.keys(e.scores).length}/25
                         {e.no?.length ? <span className="text-app-caption text-muted-foreground" title="non so valutare"> · {e.no.length} n.v.</span> : null}
                       </TableCell>

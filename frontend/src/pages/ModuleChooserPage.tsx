@@ -14,7 +14,6 @@ const MODULES = [
   {
     key: 'RECRUITING' as const,
     letter: 'R',
-    tone: 'bg-chart-1',
     name: 'Recruiting',
     to: '/recruiting',
     icon: Users,
@@ -25,7 +24,6 @@ const MODULES = [
   {
     key: 'ASSESSMENT' as const,
     letter: 'A',
-    tone: 'bg-chart-2',
     name: 'Assessment',
     to: '/assessment',
     icon: BarChart3,
@@ -67,14 +65,14 @@ function ModuleChooser() {
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {(available.length ? available : MODULES).map((m) => (
-                <Card key={m.key} padding="lg" className="gap-4 border-2 border-border-strong shadow-[0_8px_16px_0_var(--border-strong)] transition-colors hover:border-primary">
+                <Card key={m.key} padding="lg" className="gap-4">
                   <div className="flex items-center gap-3">
-                    <span aria-hidden="true" className={`flex size-14 shrink-0 items-center justify-center rounded-full font-mono text-app-title text-neutral-0 dark:text-neutral-950 ${m.tone}`}>
+                    <span aria-hidden="true" className="flex size-14 shrink-0 items-center justify-center rounded-full border border-border bg-secondary font-mono text-app-title text-foreground">
                       {m.letter}
                     </span>
                     <div className="flex min-w-0 flex-col gap-1">
                       <span className="label-mono text-muted-foreground">Modulo {m.letter}</span>
-                      <span className="flex items-center gap-2 text-app-title font-semibold tracking-wide text-foreground uppercase">
+                      <span className="flex items-center gap-2 text-app-title font-semibold text-foreground">
                         <m.icon className="size-5 text-muted-foreground" aria-hidden="true" />
                         {m.name}
                       </span>

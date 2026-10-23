@@ -1,4 +1,5 @@
 import { Initials } from '@/components/ui/avatar'
+import { fmtScore10 } from '@/modules/recruiting/lib/format'
 import { FilterBar } from '@/components/patterns/FilterBar'
 import { Card } from '@/components/ui/card'
 import { Search } from 'lucide-react'
@@ -50,7 +51,7 @@ export function CvArchiveList({ candidates }: { candidates: Candidate[] }) {
               <div className="min-w-0 flex-1">
                 <div className="truncate text-app-small font-semibold">{c.name}</div>
                 <div className="text-app-caption text-muted-foreground">
-                  {c.role || '—'} · ICV {c.icv ?? '—'}
+                  {c.role || '—'} · ICV {fmtScore10(c.icv)}
                 </div>
               </div>
               <CvMatchDialog candidate={c} />

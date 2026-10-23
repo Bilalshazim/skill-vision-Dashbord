@@ -62,7 +62,7 @@ function InvalidLink({ lang }: { lang: AssessmentLang }) {
 function ThankYou({ lang, date }: { lang: AssessmentLang; date: string }) {
   const ui = getUI(lang)
   return (
-    <Card className="text-center px-6 py-12">
+    <Card className="px-6 py-12">
       <CardTitle className="mb-2">{ui.reThankYouTitle}</CardTitle>
       <Note>{ui.reThankYouDesc(date)}</Note>
     </Card>

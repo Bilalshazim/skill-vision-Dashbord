@@ -542,13 +542,13 @@ function PeopleTable({ state, update, q, setQ }: { state: State5p; update: Updat
         <Table minWidth="lg">
           <TableHeader className="sticky top-0 z-10">
             <TableRow>
-              <TableHead className="text-center">#</TableHead>
+              <TableHead>#</TableHead>
               <TableHead>Cognome</TableHead>
               <TableHead>Nome</TableHead>
               <TableHead>Valuta come</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Area / gruppo</TableHead>
-              <TableHead className="text-center">Auto</TableHead>
+              <TableHead>Auto</TableHead>
               <TableHead>Valutato da</TableHead>
               <TableHead />
             </TableRow>
@@ -579,7 +579,7 @@ function PeopleTable({ state, update, q, setQ }: { state: State5p; update: Updat
               )
               return (
                 <TableRow key={p.id}>
-                  <TableCell className="text-center font-mono text-muted-foreground">{i + 1}</TableCell>
+                  <TableCell className="font-mono text-muted-foreground">{i + 1}</TableCell>
                   <TableCell className="min-w-36">{inp('cog', 'Cognome')}</TableCell>
                   <TableCell className="min-w-32">{inp('nom', 'Nome')}</TableCell>
                   <TableCell>
@@ -590,7 +590,7 @@ function PeopleTable({ state, update, q, setQ }: { state: State5p; update: Updat
                   </TableCell>
                   <TableCell className="min-w-52">{inp('email', 'Email', { type: 'email', placeholder: 'nome@azienda.it' })}</TableCell>
                   <TableCell className="min-w-40">{inp('gruppo', 'Area o gruppo', { list: 'dl5p-groups', placeholder: '—' })}</TableCell>
-                  <TableCell className="text-center">
+                  <TableCell>
                     <Checkbox aria-label={`Autovalutazione di ${n}`} checked={p.auto} onCheckedChange={(v) => patch(p.id, (d, x) => { x.auto = v === true; syncAuto(d) })} />
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-app-caption">

@@ -16,7 +16,7 @@ export function SkillTierSums({ sums }: { sums: SkillTierSumsData }) {
       {TIERS.map((t) => (
         <div
           key={t.key}
-          className="flex flex-col items-center justify-center rounded-sm border border-border bg-secondary px-3 py-3 text-center"
+          className="flex flex-col items-start justify-center rounded-sm border border-border bg-secondary px-3 py-3"
           title={`${fmtDec(sums[t.key].sum)} punti su ${sums[t.key].count * 31 || 0} disponibili`}
         >
           <div className="label-mono">{t.label}</div>
@@ -24,7 +24,7 @@ export function SkillTierSums({ sums }: { sums: SkillTierSumsData }) {
         </div>
       ))}
       <div
-        className="flex flex-col items-center justify-center rounded-sm border-2 border-foreground bg-secondary px-3 py-3 text-center"
+        className="flex flex-col items-start justify-center rounded-sm border-2 border-foreground bg-secondary px-3 py-3"
         title={`${fmtDec(sums.total.sum)} punti su ${sums.total.count * 31 || 0} disponibili`}
       >
         <div className="label-mono">Punteggio totale</div>

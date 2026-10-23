@@ -372,7 +372,7 @@ export function EvaluationManagerModal({ onClose }: { onClose: () => void }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={6}>
-                  <Note className="py-4 text-center">{ui.evalNoAssignments}</Note>
+                  <Note className="py-4">{ui.evalNoAssignments}</Note>
                 </TableCell>
               </TableRow>
             )}

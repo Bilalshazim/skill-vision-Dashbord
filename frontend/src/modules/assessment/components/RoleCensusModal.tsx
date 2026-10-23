@@ -169,7 +169,7 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
                       <Input
                         type="number"
                         size="sm"
-                        className="w-16 text-center tabular-nums"
+                        className="w-16 tabular-nums"
                         min={1}
                         max={10}
                         step={0.1}
@@ -179,7 +179,7 @@ export function RoleCensusModal({ onClose }: { onClose: () => void }) {
                         onChange={(e) => setExpected(selected, s.id, e.target.value)}
                       />
                     ) : (
-                      <span className="w-16 shrink-0 text-center text-app-caption text-muted-foreground">—</span>
+                      <span className="w-16 shrink-0 text-app-caption text-muted-foreground">—</span>
                     )}
                   </div>
                 )

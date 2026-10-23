@@ -1,4 +1,5 @@
 import { Note } from '@/components/patterns/Note'
+import { fmtDec } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -7,7 +8,7 @@ import { ITEMS_5P } from '@/modules/assessment/gestione5p/items'
 import { CODES, PS, type State5p, cap, dn, edit, expCount, groups, people, personByName, plural, same } from '@/modules/assessment/gestione5p/model'
 
 // 4 · Valori attesi: il livello che l'azienda considera necessario per ogni
-// voce, su scala 0–100 (si salva 1–10, come i voti). Non compare nelle schede
+// voce, su scala 0–10 (si salva 1–10, come i voti). Non compare nelle schede
 // dei valutatori, si può impostare anche dopo la raccolta e può essere diverso
 // per area o gruppo: la colonna Base vale per tutti, quelle dei gruppi solo
 // dove il valore è diverso. Nei risultati diventa lo skill gap (voto − atteso).
@@ -17,12 +18,12 @@ export function ValoriAttesiTab({ state, update, toast, onGoPeople }: { state: S
   const none = people(state).filter((p) => !(p.gruppo || '').trim()).length
   const cols: { id: string; label: string; group: string | null }[] = [{ id: 'base', label: 'Base', group: null }, ...G.map((g) => ({ id: g, label: g, group: g }))]
   const read = (group: string | null, c: string) => (group ? state.exp.groups[group]?.[c] : state.exp.base[c])
-  const show = (v: number | undefined) => (v == null ? '' : String(Math.round(v * 10)))
+  const show = (v: number | undefined) => (v == null ? '' : fmtDec(Math.round(v * 10) / 10))
 
   function setValues(group: string | null, codes: string[], raw: string) {
     const n = raw.trim() === '' ? null : Number(raw.replace(',', '.'))
-    if (n != null && (Number.isNaN(n) || n < 0 || n > 100)) {
-      toast('Scrivi un numero da 0 a 100')
+    if (n != null && (Number.isNaN(n) || n < 0 || n > 10)) {
+      toast('Scrivi un numero da 0 a 10')
       return
     }
     update((s) =>
@@ -30,7 +31,7 @@ export function ValoriAttesiTab({ state, update, toast, onGoPeople }: { state: S
         const b = group ? (d.exp.groups[group] ??= {}) : d.exp.base
         codes.forEach((c) => {
           if (n == null) delete b[c]
-          else b[c] = n / 10
+          else b[c] = n
         })
       }),
     )
@@ -61,13 +62,13 @@ export function ValoriAttesiTab({ state, update, toast, onGoPeople }: { state: S
     const value = codes.length === 1 ? show(vals[0]) : same5 ? show(def[0]) : ''
     const placeholder = codes.length === 1 ? (group ? show(state.exp.base[codes[0]]) || '–' : '–') : def.length ? 'misto' : group ? 'base' : '–'
     return (
-      <TableCell key={`${group}|${codes.join()}`} className="text-center">
+      <TableCell key={`${group}|${codes.join()}`}>
         <Input
           size="sm"
-          inputMode="numeric"
+          inputMode="decimal"
           aria-label={label}
           placeholder={placeholder}
-          className="mx-auto w-20 text-center font-mono tabular-nums"
+          className="w-20 font-mono tabular-nums"
           defaultValue={value}
           key={`${group}|${codes.join()}|${value}`}
           onBlur={(e) => {
@@ -83,7 +84,7 @@ export function ValoriAttesiTab({ state, update, toast, onGoPeople }: { state: S
       <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
         <h3 className="text-app-section text-foreground">Valore atteso aziendale</h3>
         <Note className="max-w-3xl">
-          Per ogni voce, il livello che l&apos;azienda considera necessario, da 0 a 100. <b className="font-semibold text-foreground">Non compare nelle schede dei valutatori</b>, si può impostare anche dopo la raccolta e può essere diverso per area o gruppo. Nei risultati diventa lo <b className="font-semibold text-foreground">skill gap</b>: voto ottenuto − valore atteso.
+          Per ogni voce, il livello che l&apos;azienda considera necessario, da 0 a 10. <b className="font-semibold text-foreground">Non compare nelle schede dei valutatori</b>, si può impostare anche dopo la raccolta e può essere diverso per area o gruppo. Nei risultati diventa lo <b className="font-semibold text-foreground">skill gap</b>: voto ottenuto − valore atteso.
         </Note>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-app-small text-muted-foreground">Gruppi:</span>
@@ -116,7 +117,7 @@ export function ValoriAttesiTab({ state, update, toast, onGoPeople }: { state: S
             <TableRow>
               <TableHead className="sticky left-0 z-20 bg-muted">Voce</TableHead>
               {cols.map((c) => (
-                <TableHead key={c.id} className="text-center">
+                <TableHead key={c.id}>
                   {c.label}
                   <span className="block font-sans normal-case tracking-normal">{c.group ? `${cnt(c.group)} pers.` : 'tutti'}</span>
                 </TableHead>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { fmtDec } from '@/lib/format'
 
 import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { Note } from '@/components/patterns/Note'
@@ -12,7 +13,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 import { GAP_LABEL, PERCEPTION_LABEL } from '@/modules/assessment/gestione5p/dashboard/gap-style'
 import { exportResults } from '@/modules/assessment/gestione5p/files'
-import { CODES, PS, THR, type ResMode, type Result, type State5p, allResults, dd, edit, fmt100, fmtSigned, gapState, groups, mean, perceptionOf, rd } from '@/modules/assessment/gestione5p/model'
+import { CODES, PS, THR, type ResMode, type Result, type State5p, allResults, dd, edit, fmt10, fmtSigned, gapState, groups, mean, perceptionOf, rd } from '@/modules/assessment/gestione5p/model'
 import { ScoreCell } from '@/modules/assessment/gestione5p/ScoreCell'
 
 const MODES: [ResMode, string][] = [
@@ -21,7 +22,7 @@ const MODES: [ResMode, string][] = [
   ['auto', 'Diff. autovalutazione'],
 ]
 const CAPTION: Record<ResMode, string> = {
-  voto: 'Voto ottenuto (media di dirigente e colleghi), scala 0–100',
+  voto: 'Voto ottenuto (media di dirigente e colleghi), scala 0–10',
   gap: 'Skill gap = voto − valore atteso. Da 0 in su livello raggiunto, da −1 a −9 vicino al livello, da −10 da sviluppare',
   auto: 'Differenza = autovalutazione − voto. Entro ±9 percezione allineata, da +10 si sopravvaluta, da −10 si sottovaluta',
 }
@@ -66,7 +67,7 @@ export function RisultatiTab({ state, update, toast, onOpen }: { state: State5p;
       const d = dd(x.o, x.x)
       const st = gapState(d)
       return (
-        <TableCell key={k} title={`voto ${fmt100(x.o)} · atteso ${fmt100(x.x)}${st ? ` · ${GAP_LABEL[st]}` : ''}`} className={cn('text-center font-mono font-semibold tabular-nums', st && GAP_CELL[st])}>
+        <TableCell key={k} title={`voto ${fmt10(x.o)} · atteso ${fmt10(x.x)}${st ? ` · ${GAP_LABEL[st]}` : ''}`} className={cn('font-mono font-semibold tabular-nums', st && GAP_CELL[st])}>
           {fmtSigned(d)}
         </TableCell>
       )
@@ -74,7 +75,7 @@ export function RisultatiTab({ state, update, toast, onOpen }: { state: State5p;
     const d = dd(x.a, x.o)
     const p = perceptionOf(d)
     return (
-      <TableCell key={k} title={`autovalutazione ${fmt100(x.a)} · voto ${fmt100(x.o)}${p ? ` · ${PERCEPTION_LABEL[p]}` : ''}`} className={cn('text-center font-mono font-semibold tabular-nums', p === 'sopravvaluta' && 'text-warning')}>
+      <TableCell key={k} title={`autovalutazione ${fmt10(x.a)} · voto ${fmt10(x.o)}${p ? ` · ${PERCEPTION_LABEL[p]}` : ''}`} className={cn('font-mono font-semibold tabular-nums', p === 'sopravvaluta' && 'text-warning')}>
         {fmtSigned(d)}
       </TableCell>
     )
@@ -119,15 +120,15 @@ export function RisultatiTab({ state, update, toast, onOpen }: { state: State5p;
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Persone con un voto" value={withV.length} note={onlyAuto ? `${onlyAuto} con sola autovalutazione` : undefined} />
-        <StatCard label="Voto medio 5P" value={fmt100(mean(withV.map((r) => r.T.o)))} tone="accent" note="su 100" />
+        <StatCard label="Voto medio 5P" value={fmt10(mean(withV.map((r) => r.T.o)))} unit="/10" tone="accent" />
         <StatCard label="Voci sotto il valore atteso" value={tot ? `${Math.round((below / tot) * 100)}%` : '–'} tone={tot && below / tot > 0.5 ? 'destructive' : 'neutral'} note={tot ? `${below} su ${tot}` : 'imposta i valori attesi'} />
-        <StatCard label="Si sopravvalutano" value={over} tone={over ? 'warning' : 'neutral'} note={`autovalutazione ≥ ${THR} sopra il voto`} />
+        <StatCard label="Si sopravvalutano" value={over} tone={over ? 'warning' : 'neutral'} note={`autovalutazione da ${fmtDec(THR / 10)} punti sopra il voto`} />
       </div>
 
       <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
         <h3 className="text-app-section text-foreground">Media per P</h3>
-        <Note size="caption">{withTarget ? 'Voto medio e valore atteso medio delle persone mostrate, scala 0–100.' : 'Voto medio delle persone mostrate, scala 0–100. Il valore atteso non è definito per tutte le P: non si disegna.'}</Note>
-        <CategoryBars title="Media per P" rows={bars} series={[{ key: 'actual', label: 'Voto medio' }, ...(withTarget ? [{ key: 'target', label: 'Valore atteso medio', reference: true }] : [])]} valueMax={100} orientation="horizontal" height="md" format={(n) => String(Math.round(n))} />
+        <Note size="caption">{withTarget ? 'Voto medio e valore atteso medio delle persone mostrate, scala 0–10.' : 'Voto medio delle persone mostrate, scala 0–10. Il valore atteso non è definito per tutte le P: non si disegna.'}</Note>
+        <CategoryBars title="Media per P" rows={bars} series={[{ key: 'actual', label: 'Voto medio' }, ...(withTarget ? [{ key: 'target', label: 'Valore atteso medio', reference: true }] : [])]} valueMax={10} orientation="horizontal" height="md" format={(n) => fmtDec(n)} />
       </div>
 
       <div className="flex flex-col gap-2">
@@ -138,13 +139,13 @@ export function RisultatiTab({ state, update, toast, onOpen }: { state: State5p;
               <TableRow>
                 <TableHead>Persona</TableHead>
                 <TableHead>Gruppo</TableHead>
-                <TableHead className="text-center">Valutazioni</TableHead>
+                <TableHead>Valutazioni</TableHead>
                 {PS.map((P) => (
-                  <TableHead key={P.k} className="text-center" title={P.d}>
+                  <TableHead key={P.k} title={P.d}>
                     {P.k} {P.n}
                   </TableHead>
                 ))}
-                <TableHead className="text-center">5P</TableHead>
+                <TableHead>5P</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -152,7 +153,7 @@ export function RisultatiTab({ state, update, toast, onOpen }: { state: State5p;
                 <TableRow key={r.p.id} className="cursor-pointer" tabIndex={0} onClick={() => onOpen(r.p.id)} onKeyDown={(e) => e.key === 'Enter' && onOpen(r.p.id)}>
                   <TableCell className="font-semibold">{r.name}</TableCell>
                   <TableCell className="text-app-caption">{r.p.gruppo}</TableCell>
-                  <TableCell className="text-center font-mono text-app-caption whitespace-nowrap">
+                  <TableCell className="font-mono text-app-caption whitespace-nowrap">
                     {r.oth.length ? `${r.nDir ? `D${r.nDir} ` : ''}P${r.nPeer}` : <Badge tone="warning">Solo auto</Badge>}
                     {r.nAuto ? ' · A' : ''}
                   </TableCell>

@@ -52,7 +52,7 @@ export type NavConfigEntry =
 // le due voci "Valutazioni Soft Skill" e "Valutazioni Hard Skill" (la seconda è
 // la Valutazione 5P, prima "Gestione valutazioni"), aperte di default.
 export const NAV_CONFIG_EN: NavConfigEntry[] = [
-  { type:'link', id:'home', label:'Home', icon:'home', requires:null },
+  { type:'link', id:'home', label:'Overview', icon:'home', requires:null },
   { type:'link', id:'analisi', label:'Interview', icon:'notes', requires:null },
   { type:'link', id:'company', label:'Company Data', icon:'users', requires:null },
   { type:'group', groupId:'valutazioni', label:'Evaluation Area', icon:'soft', items:[
@@ -75,7 +75,7 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
   { type:'action', id:'reset', label:'Reset Demo', icon:'refresh', action:'confirmResetDemo', editOnly:true },
 ];
 export const NAV_CONFIG_IT: NavConfigEntry[] = [
-  { type:'link', id:'home', label:'Home', icon:'home', requires:null },
+  { type:'link', id:'home', label:'Panoramica', icon:'home', requires:null },
   { type:'link', id:'analisi', label:'Intervista', icon:'notes', requires:null },
   { type:'link', id:'company', label:'Dati Aziendali', icon:'users', requires:null },
   { type:'group', groupId:'valutazioni', label:'Area Valutazioni', icon:'soft', items:[
@@ -319,26 +319,34 @@ export const AREAS_CONFIG = [
 
 // Ported verbatim from js/assessment.js ~3022-3035 (TIER_DEFS_EN/IT) — the
 // 5-tier performance classification used by Home/Overall Value/Anagrafica.
+// Una classificazione sola (CLAUDE.md, Fase 5, 2026-10-23): i nomi sono quelli
+// delle cinque fasce (quadDefs), uguali in ogni pagina. Chiavi e soglie
+// invariate. Prima: Top Talent / Talent to Develop / Solid Performer / Needs
+// Development / Critical Performer.
 export const TIER_DEFS_EN = [
-  { key: 'top', label: 'Top Talent', min: 8.3, chip: 'chip-gold' },
-  { key: 'valorizzare', label: 'Talent to Develop', min: 7.0, chip: 'chip-green' },
-  { key: 'adeguata', label: 'Solid Performer', min: 5.5, chip: 'chip-blue' },
-  { key: 'sviluppo', label: 'Needs Development', min: 4.0, chip: 'chip-amber' },
-  { key: 'critica', label: 'Critical Performer', min: -1, chip: 'chip-red' },
+  { key: 'top', label: 'High Value', min: 8.3, chip: 'chip-gold' },
+  { key: 'valorizzare', label: 'High Potential', min: 7.0, chip: 'chip-green' },
+  { key: 'adeguata', label: 'On Track', min: 5.5, chip: 'chip-blue' },
+  { key: 'sviluppo', label: 'Needs Strengthening', min: 4.0, chip: 'chip-amber' },
+  { key: 'critica', label: 'Critical', min: -1, chip: 'chip-red' },
 ]
+// Una classificazione sola (CLAUDE.md, Fase 5, 2026-10-23): i nomi sono quelli
+// delle cinque fasce (quadDefs, cap. 7), uguali in ogni pagina. Chiavi e
+// soglie invariate. Prima: Top Talent / Talento da Valorizzare / Persona
+// Adeguata / Persona da Sviluppare / Persona Critica.
 export const TIER_DEFS_IT = [
-  { key: 'top', label: 'Top Talent', min: 8.3, chip: 'chip-gold' },
-  { key: 'valorizzare', label: 'Talento da Valorizzare', min: 7.0, chip: 'chip-green' },
-  { key: 'adeguata', label: 'Persona Adeguata', min: 5.5, chip: 'chip-blue' },
-  { key: 'sviluppo', label: 'Persona da Sviluppare', min: 4.0, chip: 'chip-amber' },
-  { key: 'critica', label: 'Persona Critica', min: -1, chip: 'chip-red' },
+  { key: 'top', label: 'Alto Valore', min: 8.3, chip: 'chip-gold' },
+  { key: 'valorizzare', label: 'Alto Potenziale', min: 7.0, chip: 'chip-green' },
+  { key: 'adeguata', label: 'Nella Norma', min: 5.5, chip: 'chip-blue' },
+  { key: 'sviluppo', label: 'Da Potenziare', min: 4.0, chip: 'chip-amber' },
+  { key: 'critica', label: 'Critici', min: -1, chip: 'chip-red' },
 ]
 
 // Ported verbatim from js/assessment.js ~3158-3181 (PAGE_META_TEXT_EN/IT) —
 // the real page header title+subtitle for each of the 10 screens (distinct
 // from the shorter nav labels above).
 export const PAGE_META_TEXT_EN: Record<string, { title: string; sub: string }> = {
-  home: { title: 'Home', sub: 'Overall organization status' },
+  home: { title: 'Overview', sub: 'Overall organization status' },
   'soft-overview': { title: 'Cross-Functional Competencies', sub: 'What they are and how they are measured — Soft Skills & Big Five' },
   'hard-overview': { title: 'Professional Competencies', sub: 'What they are and how they are measured — multi-source APEX 5D protocol' },
   company: { title: 'Company Profile', sub: 'Locations, contacts, headcount by type, and key company roles' },
@@ -356,7 +364,7 @@ export const PAGE_META_TEXT_EN: Record<string, { title: string; sub: string }> =
   ai: { title: 'AI Assistant', sub: 'Query the dashboard in natural language' },
 }
 export const PAGE_META_TEXT_IT: Record<string, { title: string; sub: string }> = {
-  home: { title: 'Home', sub: "Stato generale dell'organizzazione" },
+  home: { title: 'Panoramica', sub: "Stato generale dell'organizzazione" },
   'soft-overview': { title: 'Competenze Trasversali', sub: 'Cosa sono e come si misurano — competenze trasversali e Big Five' },
   'hard-overview': { title: 'Competenze Professionali: le 5 P', sub: 'Cosa sono e come si misurano — protocollo APEX 5D a più fonti' },
   company: { title: 'Profilo Azienda', sub: 'Sedi, contatti, organico per tipologia e ruoli chiave aziendali' },

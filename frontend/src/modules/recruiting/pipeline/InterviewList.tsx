@@ -1,4 +1,5 @@
 import { CheckCircle2, Clock3, Loader2, MessageSquare, Plus, Save, Trash2 } from 'lucide-react'
+import { fmtScore10 } from '@/modules/recruiting/lib/format'
 import { useState } from 'react'
 
 import { InlineAlert } from '@/components/patterns/InlineAlert'
@@ -200,7 +201,7 @@ export function InterviewList({
             <option value="">{testResults.length ? 'Seleziona candidato testato…' : '(nessun candidato testato)'}</option>
             {testResults.map((r) => (
               <option key={r.id} value={r.id}>
-                {r.name || '—'} — {r.score}/100
+                {r.name || '—'} — {fmtScore10(r.score)}
               </option>
             ))}
           </SelectField>

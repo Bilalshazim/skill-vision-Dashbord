@@ -23,7 +23,8 @@ export function ChoiceCard({
   title: ReactNode
   description?: ReactNode
   icon?: LucideIcon
-  align?: 'start' | 'center'
+  /** `stacked`: icona sopra il testo, senza casella (tutto a sinistra). */
+  align?: 'start' | 'stacked'
   children?: ReactNode
 }) {
   return (
@@ -38,12 +39,12 @@ export function ChoiceCard({
         onClick={() => onSelectedChange(!selected)}
         className={cn(
           'flex w-full gap-3 rounded-sm p-3 text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-          align === 'center' ? 'flex-col items-center text-center' : 'items-start',
+          align === 'stacked' ? 'flex-col items-start' : 'items-start',
         )}
       >
         <span
           aria-hidden="true"
-          className={cn('flex size-5 shrink-0 items-center justify-center rounded-xs border', selected ? 'border-primary bg-primary text-primary-foreground' : 'border-input bg-background', align === 'center' && 'hidden')}
+          className={cn('flex size-5 shrink-0 items-center justify-center rounded-xs border', selected ? 'border-primary bg-primary text-primary-foreground' : 'border-input bg-background', align === 'stacked' && 'hidden')}
         >
           {selected ? <Check className="size-3.5" /> : null}
         </span>
@@ -52,7 +53,7 @@ export function ChoiceCard({
           <span className="block text-app-small font-medium text-foreground">{title}</span>
           {description ? <span className="mt-1 block text-app-caption text-muted-foreground">{description}</span> : null}
         </span>
-        {align === 'center' && selected ? <Check className="size-4 text-foreground" aria-hidden="true" /> : null}
+        {align === 'stacked' && selected ? <Check className="size-4 text-foreground" aria-hidden="true" /> : null}
       </button>
       {selected && children ? <div className="px-3 pb-3">{children}</div> : null}
     </div>

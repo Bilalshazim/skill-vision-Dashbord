@@ -1,5 +1,6 @@
 import { Note } from '@/components/patterns/Note'
 import { Card } from '@/components/ui/card'
+import { fmtDec } from '@/lib/format'
 import { fmtScore, fmtSigned } from '@/modules/assessment/gestione5p/dashboard/gap-style'
 import type { Dash5pPayload, DashItemRef } from '@/modules/assessment/gestione5p/model'
 
@@ -50,7 +51,7 @@ export function DashboardInsights({ insights, threshold }: { insights: Dash5pPay
               ))}
             </ul>
             <Note size="caption">
-              Scarto fra autovalutazione e voto, da {threshold} punti.{disc.length > SHOWN ? (disc.length - SHOWN === 1 ? ' Un’altra voce nella tabella.' : ` Altre ${disc.length - SHOWN} voci nella tabella.`) : ''}
+              Scarto fra autovalutazione e voto, da {fmtDec(threshold / 10)} punti su 10.{disc.length > SHOWN ? (disc.length - SHOWN === 1 ? ' Un’altra voce nella tabella.' : ` Altre ${disc.length - SHOWN} voci nella tabella.`) : ''}
             </Note>
           </>
         ) : (

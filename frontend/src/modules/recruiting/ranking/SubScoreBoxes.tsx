@@ -1,4 +1,4 @@
-import { fmtIT100 } from '@/modules/recruiting/lib/format'
+import { fmtScore10 } from '@/modules/recruiting/lib/format'
 
 // Ported from legacy .sub3 (three fixed sub-scores that make up AHI).
 // Fase 6: i colori categorici erano decorazione su metriche già etichettate
@@ -17,11 +17,11 @@ export function SubScoreBoxes({ fc, ab, icv }: { fc: number; ab: number; icv: nu
       {BOXES.map((b) => (
         <div
           key={b.key}
-          className="flex flex-col items-center justify-center rounded-sm border border-border bg-secondary px-3 py-3 text-center"
+          className="flex flex-col items-start justify-center rounded-sm border border-border bg-secondary px-3 py-3"
         >
           <div className="label-mono">{b.label}</div>
           <div className="mt-1 text-app-section font-semibold tabular-nums">
-            {fmtIT100(values[b.key])}
+            {fmtScore10(values[b.key])}
           </div>
         </div>
       ))}

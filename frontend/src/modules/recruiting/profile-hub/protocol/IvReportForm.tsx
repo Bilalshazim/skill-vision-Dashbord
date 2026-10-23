@@ -125,7 +125,7 @@ export function IvReportForm({ draft, onChange }: { draft: IvReportDraft; onChan
               </CheckRow>
             </CheckBox>
           </div>
-          <div className="flex flex-col justify-center gap-1 rounded-sm border border-border p-3 text-center">
+          <div className="flex flex-col justify-center gap-1 rounded-sm border border-border p-3">
             <span className="label-mono text-muted-foreground">Media complessiva</span>
             <span className="text-app-title font-mono text-foreground tabular-nums">{total > 0 ? fmtDec(total, 2) : '—'} / 5</span>
             <span className="text-app-caption text-muted-foreground">1 insufficiente · 3 adeguato · 5 eccellente</span>

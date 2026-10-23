@@ -1,5 +1,4 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
-import { CoinsLossIcon, HouseValueIcon, LightbulbGemIcon } from '@/components/patterns/CardIcons'
 import { NavCard } from '@/components/patterns/NavCard'
 import { SkillVisionCard } from '@/components/patterns/SkillVisionCard'
 import { Compass } from 'lucide-react'
@@ -20,9 +19,9 @@ import { RECRUITING_NAV_GROUPS } from '@/modules/recruiting/nav-config'
 // livello, le stesse voci della barra laterale (nav-config.ts). La card
 // aperta è ricordata nelle preferenze sul server; all'inizio nessuna.
 const LEVELS = [
-  { key: 'cerchiamo', title: 'Chi cerchiamo', group: 'Chi cerchiamo · Livello 1', icon: HouseValueIcon, description: 'Livello 1 · Il profilo del candidato, i CV e la preselezione' },
-  { key: 'adatto', title: 'Chi è più adatto', group: 'Chi è più adatto · Livello 2', icon: LightbulbGemIcon, description: 'Livello 2 · Risultati, confronto e stato della selezione' },
-  { key: 'scegliamo', title: 'Chi scegliamo', group: 'Chi scegliamo · Livello 3', icon: CoinsLossIcon, description: 'Livello 3 · I migliori candidati e le fasce di idoneità' },
+  { key: 'cerchiamo', title: 'Chi cerchiamo', group: 'Chi cerchiamo · Livello 1', description: 'Livello 1 · Il profilo del candidato, i CV e la preselezione' },
+  { key: 'adatto', title: 'Chi è più adatto', group: 'Chi è più adatto · Livello 2', description: 'Livello 2 · Risultati, confronto e stato della selezione' },
+  { key: 'scegliamo', title: 'Chi scegliamo', group: 'Chi scegliamo · Livello 3', description: 'Livello 3 · I migliori candidati e le fasce di idoneità' },
 ] as const
 
 export default function ProfileHubPage() {
@@ -43,7 +42,6 @@ export default function ProfileHubPage() {
         {LEVELS.map((level) => (
           <SkillVisionCard
             key={level.key}
-            icon={level.icon}
             title={level.title}
             open={openKey === level.key}
             onOpenChange={(open) => setOpenKey(open ? level.key : '')}

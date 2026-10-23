@@ -1,14 +1,15 @@
 import { Minus, TrendingDown, TrendingUp } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+
+import { BandCard } from '@/components/patterns/BandCard'
 
 import { InlineAlert } from '@/components/patterns/InlineAlert'
 import { Note } from '@/components/patterns/Note'
-import { PersonRow } from '@/components/patterns/PersonRow'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { Initials } from '@/components/ui/avatar'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { chipTone } from '@/modules/assessment/lib/chip-tone'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ScatterMatrix } from '@/components/patterns/ScatterMatrix'
@@ -17,30 +18,12 @@ import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { bothActive, classifyPopulation, computeHardSummary, computeSoftSummary, primaryScore, primaryScoreLabel, tierFor } from '@/modules/assessment/lib/calculations'
-import { fmt1, fmt1csv, getTierDefs, round1 } from '@/modules/assessment/lib/legacy-utils'
+import { fmt1, fmt1csv, fmt1it, getTierDefs, round1 } from '@/modules/assessment/lib/legacy-utils'
+import { TIER_BAND_TONE, TIER_COLORS, TIER_ORDER, type TierKey, tierDescription, tierLabels } from '@/modules/assessment/lib/tier-display'
 import { CSV_TYPE, downloadText } from '@/lib/download'
 
-// I colori delle cinque fasce di performance, sui token (CLAUDE.md cap. 7,
-// "Colore di severità"): la fascia più alta non è uno stato ed è neutra
-// piena (`foreground`), "adeguata" (nella norma) neutra tenue; le altre sui
-// toni di stato. Il nome della fascia sta sempre accanto al colore. Prima:
-// magenta e ottanio scritti a mano, diversi per modalità.
-// Le stesse fasce come tono di Badge (la parola c'è sempre).
-const TIER_TONE: Record<string, 'strong' | 'success' | 'neutral' | 'warning' | 'destructive'> = {
-  top: 'strong',
-  valorizzare: 'success',
-  adeguata: 'neutral',
-  sviluppo: 'warning',
-  critica: 'destructive',
-}
-
-const TIER_COLORS: Record<string, string> = {
-  top: 'var(--foreground)',
-  valorizzare: 'var(--success)',
-  adeguata: 'var(--chart-compare)',
-  sviluppo: 'var(--warning)',
-  critica: 'var(--destructive)',
-}
+// Colori, toni e nomi delle cinque fasce: lib/tier-display.ts, gli stessi
+// della Panoramica (una classificazione sola, CLAUDE.md Fase 5).
 
 // Client-supplied reference (skillvision-chart.html) hardcodes these exact
 // 6 monthly points for each module rather than deriving them from any real
@@ -84,6 +67,21 @@ export default function AssessmentValorePage() {
     [state, lang],
   )
   const colors = TIER_COLORS
+  const labels = tierLabels(ui)
+
+  // "Vedi tutte" di una fascia filtra l'elenco per dipendente (`?fascia=`,
+  // così ci si arriva anche dalla Panoramica) e lo porta in vista.
+  const [params, setParams] = useSearchParams()
+  const fascia = TIER_ORDER.find((k) => k === params.get('fascia')) ?? null
+  const tableRef = useRef<HTMLDivElement>(null)
+  const shownRows = fascia ? rows.filter((r) => r.tier.key === fascia) : rows
+  function showBand(key: TierKey | null) {
+    const next = new URLSearchParams(params)
+    if (key) next.set('fascia', key)
+    else next.delete('fascia')
+    setParams(next, { replace: true })
+    if (key) requestAnimationFrame(() => tableRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+  }
 
   // "Score medio" for the trend footer blends both series equally at each
   // point, same as the reference's own single trend line/label — compares
@@ -112,26 +110,36 @@ export default function AssessmentValorePage() {
         </InlineAlert>
       )}
 
-      <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+      {/* Le cinque fasce: ognuna dice chi c'è dentro (CLAUDE.md, Fase 5) — cosa
+          significa con la soglia, quante persone e che quota, le prime tre per
+          punteggio (il clic apre la scheda), "Vedi tutte" filtra l'elenco
+          sotto. Prende il posto delle "Classi di performance" (solo i
+          conteggi) e delle cinque colonne con tutti i nomi. */}
+      <section className="mb-4">
+        <PageHeader level="subsection" title={ui.bandsTitle} description={ui.valoreIndexNote(both ? ui.valoreIndexBoth : state.settings.modulo === 'A' ? ui.valoreIndexAOnly : ui.valoreIndexBOnly)} />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {TIER_ORDER.map((k) => (
+            <BandCard
+              key={k}
+              label={labels[k]}
+              tone={TIER_BAND_TONE[k]}
+              description={tierDescription(k, ui, lang)}
+              count={tiers[k].length}
+              total={state.employees.length}
+              unit={{ one: ui.bandPersonOne, many: ui.homeQ4PeopleUnit }}
+              people={rows
+                .filter((r) => r.tier.key === k)
+                .map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, meta: r.e.mansione || r.e.ruolo, score: `${fmt1it(r.combined)} /10`, onClick: () => setDrawerId(r.e.id) }))}
+              onSeeAll={() => showBand(k)}
+              seeAllLabel={ui.bandSeeAll}
+              emptyText={ui.bandEmpty}
+            />
+          ))}
+        </div>
+      </section>
+
+      <div className="mb-4">
         <Card>
-          <CardHeader>
-            <CardTitle>{ui.valoreClassificationTitle}</CardTitle>
-          </CardHeader>
-          <ul className="flex flex-col">
-            {TIER_DEFS.map((t) => (
-              <li className="flex items-center justify-between gap-3 border-b border-border py-2 last:border-b-0" key={t.key}>
-                <Badge tone={TIER_TONE[t.key]} dot>
-                  {t.label}
-                </Badge>
-                <span className="text-app-subtitle tabular-nums">{tiers[t.key].length}</span>
-              </li>
-            ))}
-          </ul>
-          <Note className="mt-3">
-            {ui.valoreIndexNote(both ? ui.valoreIndexBoth : state.settings.modulo === 'A' ? ui.valoreIndexAOnly : ui.valoreIndexBOnly)}
-          </Note>
-        </Card>
-        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>{ui.homeAndamentoTitle}</CardTitle>
           </CardHeader>
@@ -158,56 +166,41 @@ export default function AssessmentValorePage() {
         </Card>
       </div>
 
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>{ui.valoreMatrixTitle}</CardTitle>
-          <CardDescription className="w-full">{ui.valoreMatrixSub}</CardDescription>
-        </CardHeader>
-        {/* G4 (DECISIONI): la matrice come dispersione soft × hard, un punto
-            per persona nel colore della sua fascia; il clic apre la scheda.
-            Solo con i due moduli: con uno solo non c'è il secondo asse. Gli
-            elenchi per fascia sotto restano. */}
-        {both ? (
+      {/* G4 (DECISIONI): la matrice come dispersione soft × hard, un punto
+          per persona nel colore della sua fascia; il clic apre la scheda.
+          Solo con i due moduli: con uno solo non c'è il secondo asse. */}
+      {both ? (
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle>{ui.valoreMatrixTitle}</CardTitle>
+            <CardDescription className="w-full">{ui.valoreMatrixSub}</CardDescription>
+          </CardHeader>
           <ScatterMatrix
             className="mt-4"
             title={ui.valoreMatrixTitle}
             xLabel={ui.moduleASoft}
             yLabel={ui.moduleBHard}
-            groups={TIER_DEFS.map((t) => ({ key: t.key, label: t.label, color: colors[t.key] }))}
+            groups={TIER_DEFS.map((t) => ({ key: t.key, label: t.label, color: colors[t.key as TierKey] }))}
             points={rows.map((r) => ({ id: r.e.id, label: `${r.e.nome} ${r.e.cognome}`, x: r.soft, y: r.hard, group: r.tier.key }))}
             thresholds={TIER_DEFS.filter((t) => t.min > 0).map((t) => ({ value: t.min, label: t.label }))}
             onPointClick={setDrawerId}
           />
-        ) : null}
-        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-3 mt-4">
-          {TIER_DEFS.map((t) => (
-            <div key={t.key} className="rounded-md border border-border bg-background p-3">
-              <div className="mb-2 flex items-center gap-2">
-                <Badge tone={TIER_TONE[t.key]} dot>
-                  {t.label}
-                </Badge>
-                <span className="ml-auto text-app-small text-muted-foreground tabular-nums">{tiers[t.key].length}</span>
-              </div>
-              <div className="max-h-64 overflow-y-auto">
-                {tiers[t.key].length ? (
-                  tiers[t.key].map((e) => {
-                    const score = primaryScore(e, state, lang)
-                    return (
-                      <PersonRow key={e.id} first={e.nome} last={e.cognome} meta={e.ruolo} onClick={() => setDrawerId(e.id)} trailing={<Badge tone={score >= 7 ? 'success' : score >= 5 ? 'warning' : 'destructive'} dot>{fmt1(score)}</Badge>} />
-                    )
-                  })
-                ) : (
-                  <Note className="py-4 text-center">{ui.noEmployeesTitle}</Note>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+        </Card>
+      ) : null}
 
-      <Card padding="none">
+      <Card padding="none" ref={tableRef} className="scroll-mt-24">
         <CardHeader className="px-4 pt-4">
           <CardTitle>{ui.valoreByEmployeeTitle}</CardTitle>
+          {fascia ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone={TIER_BAND_TONE[fascia]} dot>
+                {ui.bandFilterNote(labels[fascia])}
+              </Badge>
+              <Button type="button" variant="ghost" size="sm" onClick={() => showBand(null)}>
+                {ui.bandFilterReset}
+              </Button>
+            </div>
+          ) : null}
         </CardHeader>
         <Table frame>
             <TableHeader>
@@ -229,9 +222,9 @@ export default function AssessmentValorePage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((r, i) => (
+              {shownRows.map((r) => (
                 <TableRow key={r.e.id} onClick={() => setDrawerId(r.e.id)}>
-                  <TableCell>{i + 1}</TableCell>
+                  <TableCell>{rows.indexOf(r) + 1}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Initials first={r.e.nome} last={r.e.cognome} size="sm" />
@@ -256,7 +249,7 @@ export default function AssessmentValorePage() {
                     </TableCell>
                   )}
                   <TableCell>
-                    <Badge tone={chipTone(r.tier.chip)} dot>
+                    <Badge tone={TIER_BAND_TONE[r.tier.key as TierKey]} dot>
                       {r.tier.label}
                     </Badge>
                   </TableCell>

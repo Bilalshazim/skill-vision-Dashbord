@@ -1,4 +1,5 @@
 import { AlertTriangle, CheckCircle2, Clock3, Loader2, RefreshCw, Send, Target, Trash2, Workflow, XCircle } from 'lucide-react'
+import { fmtScore10 } from '@/modules/recruiting/lib/format'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -209,7 +210,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
           size="sm"
         >
           <Target className="size-3.5 shrink-0" aria-hidden="true" />
-          Match CV/Profilo: {candidate.icv}%
+          Match CV/Profilo: {fmtScore10(candidate.icv)}
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -221,11 +222,11 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
         </DialogHeader>
 
         <div className="flex items-center gap-4 rounded-sm border border-border bg-secondary p-4">
-          <div className={cn('text-metric-lg font-mono font-semibold tabular-nums', above ? 'text-success' : 'text-warning')}>{candidate.icv}%</div>
+          <div className={cn('text-metric-lg font-mono font-semibold tabular-nums', above ? 'text-success' : 'text-warning')}>{fmtScore10(candidate.icv)}</div>
           <p className="text-app-small text-muted-foreground">
             {above
-              ? `Sopra soglia (${DEFAULT_MATCH_THRESHOLD}%) — link test idoneo all'invio automatico`
-              : `Sotto soglia (${DEFAULT_MATCH_THRESHOLD}%) — invio manuale`}
+              ? `Sopra soglia (${fmtScore10(DEFAULT_MATCH_THRESHOLD)}) — link test idoneo all'invio automatico`
+              : `Sotto soglia (${fmtScore10(DEFAULT_MATCH_THRESHOLD)}) — invio manuale`}
           </p>
         </div>
 

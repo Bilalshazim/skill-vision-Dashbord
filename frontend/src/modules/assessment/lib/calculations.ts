@@ -334,3 +334,34 @@ export function computeAvgMetric(state: AssessmentState, lang: AssessmentLang, t
   if (type === 'soft') return avg(state.employees.map((e) => computeSoftSummary(e, lang).overallOttenuto))
   return avg(state.employees.map((e) => computeHardSummary(e, lang).apexScore))
 }
+
+/** Chi ha almeno un punteggio (trasversale o professionale): la "persona valutata" della Panoramica. */
+export function evaluatedEmployees(state: AssessmentState): Employee[] {
+  return state.employees.filter(
+    (e) => Object.values(e.soft || {}).some((s) => (s?.ottenuto || 0) > 0) || Object.values(e.hard || {}).some((src) => Object.values(src || {}).some((v) => (v || 0) > 0)),
+  )
+}
+
+/** La data più recente fra quelle che i dati portano (inserimento delle persone, storico delle valutazioni, schede raccolte). `null` se nessun dato ha una data. */
+export function lastDataUpdate(state: AssessmentState): Date | null {
+  const dates: string[] = []
+  state.employees.forEach((e) => {
+    if (e.createdAt) dates.push(e.createdAt)
+    e.softHistory?.forEach((h) => dates.push(h.date))
+    e.hardHistory?.forEach((h) => dates.push(h.date))
+  })
+  state.evalAssignments.forEach((a) => {
+    dates.push(a.createdAt)
+    if (a.completedAt) dates.push(a.completedAt)
+  })
+  const times = dates.map((d) => new Date(d).getTime()).filter((t) => Number.isFinite(t))
+  return times.length ? new Date(Math.max(...times)) : null
+}
+
+/** La soglia di una fascia (TIER_DEFS, la stessa formula di tierFor): da `min` (compreso) a `max` (escluso; `null` per la più alta). La più bassa parte da 0. */
+export function tierRange(key: string, lang: AssessmentLang): { min: number; max: number | null } {
+  const defs = getTierDefs(lang)
+  const i = defs.findIndex((t) => t.key === key)
+  if (i < 0) return { min: 0, max: null }
+  return { min: Math.max(0, defs[i].min), max: i === 0 ? null : defs[i - 1].min }
+}

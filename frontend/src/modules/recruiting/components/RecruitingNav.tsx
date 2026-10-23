@@ -71,7 +71,9 @@ export function RecruitingNav({ onCompanyChange }: { onCompanyChange: () => void
             <SidebarMenu>
               {group.items.map((item) => {
                 // Corrispondenza sul segmento intero: "/imbuto" non accende "/imbuto-scelta".
-                const active = pathname === item.to || pathname.startsWith(`${item.to}/`)
+                // Le voci `end` (la Panoramica, /recruiting) solo sul loro indirizzo
+                // e sul vecchio /recruiting/home, non su ogni pagina del modulo.
+                const active = item.end ? pathname === item.to || pathname === `${item.to}/home` : pathname === item.to || pathname.startsWith(`${item.to}/`)
                 return (
                   <SidebarMenuItem key={item.screen}>
                     <SidebarMenuButton asChild isActive={active}>

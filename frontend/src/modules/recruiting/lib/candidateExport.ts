@@ -4,6 +4,10 @@ import { type AhiResult, ci, fasce, skillTierSums } from '@/modules/recruiting/l
 import type { Candidate } from '@/modules/recruiting/lib/types'
 
 const csvEsc = (v: unknown) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`
+// Nei file per chi legge (report e classifica in CSV) i punteggi sono su 10,
+// come a schermo, con il punto decimale dei CSV e lo stesso troncamento di
+// fmtScore10. I JSON per l'ATS restano su 100: sono dati per un altro sistema.
+const s10 = (n100: number) => (Math.floor(n100 + 1e-9) / 10).toFixed(1)
 const safeFileName = (name: string) => name.replace(/[ .]/g, '_')
 
 // Ported verbatim from downloadCandidateReport() (modules/recruiting.html
@@ -22,11 +26,11 @@ export function downloadCandidateReport(c: Candidate, r: AhiResult, position: nu
     ['Ruolo', DEFAULT_ROLE],
     ['Posizione in classifica', `${position} / ${totalRanked}`],
     ['Fonte', c.src || ''],
-    ['AHI /100', r.v],
+    ['AHI /10', s10(r.v)],
     ['Fascia', f.txt],
-    ['Aderenza alle competenze (55%)', r.fc],
-    ['Affinità Big Five (30%)', r.ab],
-    ['Indice CV — ML (15%)', r.icv],
+    ['Aderenza alle competenze (55%) /10', s10(r.fc)],
+    ['Affinità Big Five (30%) /10', s10(r.ab)],
+    ['Indice CV — ML (15%) /10', s10(r.icv)],
     ['Skill essenziali (tot.)', sums.essential.sum.toFixed(1)],
     ['Skill importanti (tot.)', sums.important.sum.toFixed(1)],
     ['Skill utili (tot.)', sums.useful.sum.toFixed(1)],
@@ -69,9 +73,9 @@ export function downloadCandidateProfileJson(c: Candidate, r: AhiResult): void {
 // downloadCandidateReport's position/totalRanked — avoid a second ranking
 // pass here).
 export function downloadRankingCsv(rk: { c: Candidate; r: AhiResult }[]): void {
-  let csv = 'Posizione;Candidato;AHI;FitCompetenze;AffinitaBigFive;IndiceCV;RedFlag;Ruolo\n'
+  let csv = 'Posizione;Candidato;AHI /10;FitCompetenze /10;AffinitaBigFive /10;IndiceCV /10;RedFlag;Ruolo\n'
   rk.forEach(({ c, r }, i) => {
-    csv += `${i + 1};${c.name};${r.v};${r.fc};${r.ab};${r.icv};${r.capped ? 'SI' : 'NO'};${DEFAULT_ROLE}\n`
+    csv += `${i + 1};${c.name};${s10(r.v)};${s10(r.fc)};${s10(r.ab)};${s10(r.icv)};${r.capped ? 'SI' : 'NO'};${DEFAULT_ROLE}\n`
   })
   downloadFile(`ranking_${DEFAULT_ROLE.replace(/ /g, '_')}.csv`, csv, 'text/csv')
 }

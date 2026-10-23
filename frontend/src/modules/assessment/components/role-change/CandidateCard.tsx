@@ -38,7 +38,7 @@ export function justification(c: Candidate, rank: number, ui: UI): string {
 export function CandidateCard({ candidate: c, rank, label, ui, onOpen }: { candidate: Candidate; rank: number; label?: string; ui: UI; onOpen: () => void }) {
   const missing = c.gaps.filter((g) => g.status === 'mancante' || g.status === 'non-valutata').length
   return (
-    <Card padding="lg" className={cn('h-full cursor-pointer gap-6', rank === 0 && 'border-2 border-primary')} onClick={onOpen}>
+    <Card padding="lg" className={cn('h-full cursor-pointer gap-6 transition-colors hover:border-primary', rank === 0 && 'border-2 border-primary')} onClick={onOpen}>
       <div className="flex flex-col gap-2">
         <CardHeader className="pb-0">
           <CardLabel>{label ?? `(${rank + 1}) ${ui.rcRanks[rank]}`}</CardLabel>

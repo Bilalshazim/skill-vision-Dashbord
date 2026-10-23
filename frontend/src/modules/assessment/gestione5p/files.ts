@@ -60,7 +60,7 @@ const ISTRUZIONI = [
   "AUTOVALUTAZIONI: una X accanto a chi compila anche la propria autovalutazione (di norma tutti). L'autovalutazione resta visibile nei risultati ma non entra nella media.",
   'Non mettere una persona nella propria riga (la sua autovalutazione è già nel foglio AUTOVALUTAZIONI) e non ripetere lo stesso nome nella stessa riga: la piattaforma li ignora e li segnala.',
   "Perché la media dei colleghi resti anonima, ogni persona dovrebbe essere valutata da almeno 3 colleghi. Chi non è valutato da nessun dirigente o collega avrà solo l'autovalutazione e nessun voto finale.",
-  "VALORI ATTESI (facoltativo): per ogni voce il livello richiesto dall'azienda, su scala 0–100. La colonna Base vale per tutti; aggiungi una colonna per ogni area/gruppo solo dove il valore è diverso. Non compare nelle schede dei valutatori e si può inserire o cambiare anche dopo la raccolta, direttamente nella piattaforma.",
+  "VALORI ATTESI (facoltativo): per ogni voce il livello richiesto dall'azienda, su scala 0–10 (si accetta anche 0–100). La colonna Base vale per tutti; aggiungi una colonna per ogni area/gruppo solo dove il valore è diverso. Non compare nelle schede dei valutatori e si può inserire o cambiare anche dopo la raccolta, direttamente nella piattaforma.",
   'Quando hai finito, salva il file e importalo nella piattaforma: pagina 1 Piano → Importa file Excel. La piattaforma controlla il file e segnala nomi non riconosciuti, doppioni e persone senza valutatori.',
 ]
 export function controlRows(S: State5p): (string | number)[][] {
@@ -141,7 +141,8 @@ export async function exportPlan(S: State5p, empty: boolean) {
   P.forEach((p) => au.rows.push([{ v: String(p.cog).toUpperCase(), s: XS.cellB }, { v: p.nom ? cap(p.nom) : '', s: XS.cell }, { v: p.auto ? 'X' : '', s: XS.auto }]))
   for (let k = 0; k < (empty ? 60 : 10); k++) au.rows.push([{ v: '', s: XS.cellB }, { v: '', s: XS.cell }, { v: '', s: XS.auto }])
   const G = empty ? [] : groups(S)
-  const ex100 = (v: number | undefined) => (v == null ? '' : Math.round(v * 10))
+  // I valori attesi nel modello Excel su 10, come a schermo (l'import accetta anche i file vecchi su 100).
+  const ex10 = (v: number | undefined) => (v == null ? '' : Math.round(v * 10) / 10)
   const gcols = G.length ? G : ['']
   const at: XSheet = {
     name: 'VALORI ATTESI',
@@ -151,13 +152,13 @@ export async function exportPlan(S: State5p, empty: boolean) {
     freeze: { r: 2, c: 3 },
     landscape: true,
     rows: [
-      [{ v: 'VALORI ATTESI · scala 0–100 · non visibili ai valutatori', s: XS.title }, ...Array.from({ length: 3 + Math.max(G.length, 1) }, () => ({ v: '', s: XS.title }))],
+      [{ v: 'VALORI ATTESI · scala 0–10 · non visibili ai valutatori', s: XS.title }, ...Array.from({ length: 3 + Math.max(G.length, 1) }, () => ({ v: '', s: XS.title }))],
       ['Codice', 'Area 5P', 'Voce', 'Base (tutti)', ...(G.length ? G : ['(nome area/gruppo)'])].map((v) => ({ v, s: XS.colHead })),
     ],
   }
   ITEMS_5P.forEach((it) => {
     const P5 = PS.find((x) => x.k === it.cod[0])!
-    at.rows.push([{ v: it.cod, s: XS.num }, { v: `${P5.k} · ${P5.n}`, s: XS.cell }, { v: it.area, s: XS.cell }, { v: ex100(S.exp.base[it.cod]), s: XS.edit }, ...gcols.map((g) => ({ v: g ? ex100(S.exp.groups[g]?.[it.cod]) : '', s: XS.edit }))])
+    at.rows.push([{ v: it.cod, s: XS.num }, { v: `${P5.k} · ${P5.n}`, s: XS.cell }, { v: it.area, s: XS.cell }, { v: ex10(S.exp.base[it.cod]), s: XS.edit }, ...gcols.map((g) => ({ v: g ? ex10(S.exp.groups[g]?.[it.cod]) : '', s: XS.edit }))])
   })
   const ist: XSheet = { name: 'ISTRUZIONI', cols: [6, 120], heights: { 0: 26 }, merges: ['A1:B1'], landscape: true, rows: [[{ v: 'COME COMPILARE IL FILE', s: XS.title }, { v: '', s: XS.title }], ...ISTRUZIONI.map((t, i): XCell[] => [{ v: i + 1, s: XS.num }, { v: t, s: XS.wrap }])] }
   const sheets = [el, valSheet('VALUTATORI DIRIGENTI', 'DIR', 15), valSheet('VALUTATORI PEER (Colleghi)', 'PEER', 10), au, at, ist]
@@ -368,37 +369,44 @@ export async function downloadFlat() {
 }
 
 // ---------- esportazione dei risultati e del report ----------
+// Nei file dei risultati i valori sono su 10, come a schermo: il valore
+// arrotondato di rd() diviso per 10 (un decimale), e così gli scarti.
+const on10 = (v: number | null) => {
+  const r = rd(v)
+  return r == null ? '' : r / 10
+}
+const d10 = (d: number | null) => (d == null ? '' : d / 10)
 export async function exportResults(S: State5p): Promise<boolean> {
   const R = allResults(S)
   if (!R.length) return false
-  const n = (v: number | null) => rd(v) ?? ''
+  const n = on10
   const head = ['Persona', 'Gruppo', 'Dirigenti', 'Colleghi', 'Autovalutazione']
   PS.forEach((P) => ['Voto', 'Atteso', 'Gap', 'Auto', 'Diff.'].forEach((t) => head.push(`${P.k} ${t}`)))
   ;['Voto', 'Atteso', 'Gap', 'Auto', 'Diff.'].forEach((t) => head.push(`5P ${t}`))
   const rows = R.map((r) => {
     const a: (string | number)[] = [r.name, r.p.gruppo || '', r.nDir, r.nPeer, r.nAuto ? 'SÌ' : 'NO']
-    ;[...PS.map((P) => r.P[P.k]), r.T].forEach((x) => a.push(n(x.o), n(x.x), dd(x.o, x.x) ?? '', n(x.a), dd(x.a, x.o) ?? ''))
+    ;[...PS.map((P) => r.P[P.k]), r.T].forEach((x) => a.push(n(x.o), n(x.x), d10(dd(x.o, x.x)), n(x.a), d10(dd(x.a, x.o))))
     return a
   })
   const det: (string | number)[][] = []
   R.forEach((r) =>
     CODES.forEach((c) => {
       const x = r.it[c]
-      det.push([r.name, r.p.gruppo || '', c, ITEM_NAME[c], n(x.o), n(x.x), dd(x.o, x.x) ?? '', n(x.a), dd(x.a, x.o) ?? '', x.n])
+      det.push([r.name, r.p.gruppo || '', c, ITEM_NAME[c], n(x.o), n(x.x), d10(dd(x.o, x.x)), n(x.a), d10(dd(x.a, x.o)), x.n])
     }),
   )
   const raw = S.evals.map((e) => [e.valutato, SRC[e.tipo].lab, e.valutatore || '', e.data || '', e.source || '', ...CODES.map((c) => e.scores[c] ?? '')])
   const par = [
     ['Azienda', S.company || ''],
     ['Data', today()],
-    ['Scala', '0–100 (voto 1–10 × 10, arrotondato all’intero)'],
+    ['Scala', '0–10 (media dei voti 1–10, un decimale)'],
     ['Voto', 'media di tutte le valutazioni di dirigenti e colleghi; autovalutazione esclusa'],
     ['Skill gap', 'voto − valore atteso'],
     ['Differenza', 'autovalutazione − voto'],
-    ['Soglie', `gap ≥ 0 raggiunto · da −1 a −${THR - 1} vicino · ≤ −${THR} da sviluppare`],
+    ['Soglie', `gap ≥ 0 raggiunto · da −0,1 a −${(THR - 1) / 10} vicino · ≤ −${THR / 10} da sviluppare`],
   ]
   const blob = (await buildXlsx([
-    simpleSheet('Riepilogo 5P', `RISULTATI 5P · ${S.company || ''} · scala 0–100 · voto = media di dirigente e colleghi, autovalutazione esclusa`, head, rows, [28, 18, 10, 10, 14, ...Array(head.length - 5).fill(9)], { freeze: { r: 2, c: 1 } }),
+    simpleSheet('Riepilogo 5P', `RISULTATI 5P · ${S.company || ''} · scala 0–10 · voto = media di dirigente e colleghi, autovalutazione esclusa`, head, rows, [28, 18, 10, 10, 14, ...Array(head.length - 5).fill(9)], { freeze: { r: 2, c: 1 } }),
     simpleSheet('Dettaglio voci', 'DETTAGLIO PER VOCE · gap = voto − atteso · diff. = autovalutazione − voto', ['Persona', 'Gruppo', 'Codice', 'Voce', 'Voto', 'Atteso', 'Skill gap', 'Autovalutazione', 'Differenza', 'N. valutazioni'], det, [28, 18, 8, 36, 9, 9, 10, 14, 11, 13]),
     simpleSheet('Valutazioni (riservato)', 'VALUTAZIONI CARICATE · riservato HR', ['Valutato', 'Tipo', 'Valutatore', 'Data', 'Origine', ...CODES], raw, [26, 14, 26, 11, 30, ...CODES.map(() => 5)]),
     simpleSheet('Parametri', 'PARAMETRI DI CALCOLO', ['Voce', 'Valore'], par, [18, 90]),
@@ -408,14 +416,14 @@ export async function exportResults(S: State5p): Promise<boolean> {
 }
 export async function exportRep(S: State5p, p: Person) {
   const r = resultOf(S, p)
-  const n = (v: number | null) => rd(v) ?? ''
+  const n = on10
   const head = ['Area', 'Voto', 'Valore atteso', 'Skill gap', 'Autovalutazione', 'Differenza']
-  const rowsP = [...PS.map((P) => ({ l: `${P.k} · ${P.n}`, x: r.P[P.k] })), { l: 'Totale 5P', x: r.T }].map(({ l, x }) => [l, n(x.o), n(x.x), dd(x.o, x.x) ?? '', n(x.a), dd(x.a, x.o) ?? ''])
+  const rowsP = [...PS.map((P) => ({ l: `${P.k} · ${P.n}`, x: r.P[P.k] })), { l: 'Totale 5P', x: r.T }].map(({ l, x }) => [l, n(x.o), n(x.x), d10(dd(x.o, x.x)), n(x.a), d10(dd(x.a, x.o))])
   const rowsI = CODES.map((c) => {
     const x = r.it[c]
-    return [`${c} · ${ITEM_NAME[c]}`, n(x.o), n(x.x), dd(x.o, x.x) ?? '', n(x.a), dd(x.a, x.o) ?? '']
+    return [`${c} · ${ITEM_NAME[c]}`, n(x.o), n(x.x), d10(dd(x.o, x.x)), n(x.a), d10(dd(x.a, x.o))]
   })
-  const sh = simpleSheet('Report', `REPORT 5P · ${r.name}${p.gruppo ? ` · ${p.gruppo}` : ''} · scala 0–100`, head, [...rowsP, ['', '', '', '', '', ''], ['DETTAGLIO PER VOCE', '', '', '', '', ''], ...rowsI], [40, 10, 14, 11, 16, 12])
+  const sh = simpleSheet('Report', `REPORT 5P · ${r.name}${p.gruppo ? ` · ${p.gruppo}` : ''} · scala 0–10`, head, [...rowsP, ['', '', '', '', '', ''], ['DETTAGLIO PER VOCE', '', '', '', '', ''], ...rowsI], [40, 10, 14, 11, 16, 12])
   saveFile(`Report_5P_${slug(r.name)}.xlsx`, (await buildXlsx([sh])) as Blob)
 }
 

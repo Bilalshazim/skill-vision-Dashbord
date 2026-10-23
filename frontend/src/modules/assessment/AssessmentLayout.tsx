@@ -19,14 +19,14 @@ import '@/modules/assessment/styles/assessment-print.css'
 // che stavano nella barra superiore del modulo, sono l'intestazione della
 // pagina: stessi testi (`getPageMeta`) e stesso slot (`useTopbarActions`).
 function AssessmentShell() {
-  const { lang, topbarActions } = useAssessment()
+  const { lang, topbarActions, pageDescription } = useAssessment()
   const location = useLocation()
   const pageId = location.pathname.split('/')[2] || 'home'
   const meta = getPageMeta(lang, pageId)
   return (
     <AppShell section="assessment" sidebarLabel="Assessment" sidebar={<AssessmentNav />}>
       <div data-module="assessment" data-portal-scope>
-        <PageHeader level="page" title={meta.title} description={meta.sub} actions={topbarActions} className="mb-6" />
+        <PageHeader level="page" title={meta.title} description={pageDescription ?? meta.sub} actions={topbarActions} className="mb-6" />
         <ModuleLockGate module="ASSESSMENT">
           <ErrorBoundary>
             <AssessmentDataGate>

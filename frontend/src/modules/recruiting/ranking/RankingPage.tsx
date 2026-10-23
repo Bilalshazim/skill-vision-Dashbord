@@ -1,9 +1,15 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { IDONEITA } from '@/lib/idoneita'
+import { QUALITY_BANDS } from '@/modules/recruiting/lib/quality-bands'
 
 import { DEFAULT_FLAGS, DEFAULT_ROLE, ROLES } from '@/modules/recruiting/lib/constants'
 import { syncRankingFromBackend } from '@/modules/recruiting/lib/backend-sync'
-import { ranking } from '@/modules/recruiting/lib/scoring'
+import { fasce, ranking } from '@/modules/recruiting/lib/scoring'
 import { readCandidates } from '@/modules/recruiting/lib/storage'
 import { RankingCard } from '@/modules/recruiting/ranking/RankingCard'
 
@@ -36,6 +42,12 @@ export default function RankingPage() {
     return readCandidates()
   }, [syncKey])
   const rk = useMemo(() => ranking(candidates), [candidates])
+  // "Vedi tutti" di una fascia (Candidati per fascia di idoneità) apre la
+  // classifica filtrata: `?fascia=` con la chiave di fasce(). La posizione
+  // resta quella nella classifica intera.
+  const [params, setParams] = useSearchParams()
+  const band = QUALITY_BANDS.find((b) => b.key === params.get('fascia'))
+  const shown = band ? rk.filter(({ r }) => fasce(r.v, r.capped).key === band.key) : rk
   const role = ROLES[DEFAULT_ROLE]
   const flaggedCount = Object.keys(DEFAULT_FLAGS).length
 
@@ -50,9 +62,21 @@ export default function RankingPage() {
         </p>
       ) : (
         <div className="flex flex-col gap-4">
-          {rk.map(({ c, r }, i) => (
-            <RankingCard key={c.id} candidate={c} result={r} position={i + 1} totalRanked={rk.length} role={role} />
-          ))}
+          {band ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone={IDONEITA[band.idoneita].tone} dot>
+                Solo la fascia «{IDONEITA[band.idoneita].label} · {band.name}» · {shown.length}
+              </Badge>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setParams({}, { replace: true })}>
+                Mostra tutti
+              </Button>
+            </div>
+          ) : null}
+          {shown.length ? (
+            shown.map((it) => <RankingCard key={it.c.id} candidate={it.c} result={it.r} position={rk.indexOf(it) + 1} totalRanked={rk.length} role={role} />)
+          ) : (
+            <p className="text-app-small text-muted-foreground">Nessun candidato in questa fascia.</p>
+          )}
         </div>
       )}
     </div>

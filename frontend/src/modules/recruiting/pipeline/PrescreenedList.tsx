@@ -1,4 +1,5 @@
 import { CheckCircle2, Clock3, Link2, Loader2, Plus, RefreshCw, Search, SendHorizonal, Star, Trash2, XCircle } from 'lucide-react'
+import { fmtScore10 } from '@/modules/recruiting/lib/format'
 import { useState } from 'react'
 
 import { InlineAlert } from '@/components/patterns/InlineAlert'
@@ -335,7 +336,7 @@ export function PrescreenedList({
                       {Number.isFinite(r.matchScore) ? (
                         <>
                           {' '}
-                          · match CV/Profilo <b className="font-semibold text-foreground">{r.matchScore}%</b>
+                          · match CV/Profilo <b className="font-semibold text-foreground">{fmtScore10(r.matchScore)}</b>
                         </>
                       ) : null}
                     </div>

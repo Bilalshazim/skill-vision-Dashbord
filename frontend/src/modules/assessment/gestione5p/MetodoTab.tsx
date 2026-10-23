@@ -83,17 +83,17 @@ export function MetodoTab({ state }: { state: State5p }) {
         </Panel>
         <Panel title="Come si calcola">
           <div className="flex flex-col gap-3 text-app-small">
-            <p>Ogni valutatore dà un voto da 1 a 10 a 25 voci, 5 per ogni P. Nei risultati la scala è riportata su 100 (voto × 10), come in «72 su 100».</p>
+            <p>Ogni valutatore dà un voto da 1 a 10 a 25 voci, 5 per ogni P. Nei risultati si legge la media su 10, con un decimale, come in «7,2 su 10».</p>
             <Formula>{`Voto di una voce   = media dei voti di dirigente e colleghi\nVoto di una P      = media delle sue 5 voci\nVoto 5P            = media delle 5 P\nAutovalutazione    = voto dato a sé stessi, fuori dalla media\nDifferenza         = autovalutazione − voto\nSkill Gap          = voto − valore atteso`}</Formula>
             <p className="text-app-caption">
-              Esempio: C4 Problem solving riceve 8 dal dirigente e 7, 7, 6, 8 da quattro colleghi. Voto = (8+7+7+6+8)/5 = 7,2 → <B>72</B>. Valore atteso 80 → <B>Skill Gap −8</B>. Se la persona si era data 9 → autovalutazione <B>90</B>, differenza <B>+18</B>: si percepisce più forte di come la vedono gli altri.
+              Esempio: C4 Problem solving riceve 8 dal dirigente e 7, 7, 6, 8 da quattro colleghi. Voto = (8+7+7+6+8)/5 = <B>7,2</B>. Valore atteso 8,0 → <B>Skill Gap −0,8</B>. Se la persona si era data 9 → autovalutazione <B>9,0</B>, differenza <B>+1,8</B>: si percepisce più forte di come la vedono gli altri.
             </p>
             <p className="text-app-caption">
-              Ogni scheda pesa uguale, quindi un dirigente e quattro colleghi danno cinque valutazioni dello stesso peso. Lettura dello Skill Gap: <B>0 o più</B> = livello raggiunto · <B>da −1 a −9</B> = vicino al livello · <B>−10 o meno</B> = da sviluppare. Lettura della differenza: entro ±9 percezione allineata, da +10 si sopravvaluta, da −10 si sottovaluta.
+              Ogni scheda pesa uguale, quindi un dirigente e quattro colleghi danno cinque valutazioni dello stesso peso. Lettura dello Skill Gap: <B>0 o più</B> = livello raggiunto · <B>da −0,1 a −0,9</B> = vicino al livello · <B>−1,0 o meno</B> = da sviluppare. Lettura della differenza: entro ±0,9 percezione allineata, da +1,0 si sopravvaluta, da −1,0 si sottovaluta.
             </p>
             <p className="text-app-caption">Le voci senza voto, comprese quelle segnate «Non so valutare», non entrano nella media. Se una persona è valutata solo da sé stessa non ha un voto finale.</p>
             <p className="text-app-caption">
-              <B>Livelli</B> (su 100): sotto 30 Non adeguato · 30–50 In sviluppo · 50–70 Adeguato · 70–90 Avanzato · 90 e oltre Eccellente.
+              <B>Livelli</B> (su 10): sotto 3,0 Non adeguato · 3,0–4,9 In sviluppo · 5,0–6,9 Adeguato · 7,0–8,9 Avanzato · 9,0 e oltre Eccellente.
             </p>
           </div>
         </Panel>
@@ -156,8 +156,8 @@ export function MetodoTab({ state }: { state: State5p }) {
           <TableHeader>
             <TableRow>
               <TableHead>P</TableHead>
-              <TableHead className="text-center">Valutazioni usate</TableHead>
-              <TableHead className="text-center">Alfa</TableHead>
+              <TableHead>Valutazioni usate</TableHead>
+              <TableHead>Alfa</TableHead>
               <TableHead>Giudizio</TableHead>
             </TableRow>
           </TableHeader>
@@ -169,8 +169,8 @@ export function MetodoTab({ state }: { state: State5p }) {
                   <TableCell className="font-semibold">
                     {P.k} · {P.n}
                   </TableCell>
-                  <TableCell className="text-center font-mono tabular-nums">{c.n}</TableCell>
-                  <TableCell className="text-center font-mono font-semibold tabular-nums">{c.a == null ? '–' : c.a.toFixed(2).replace('.', ',')}</TableCell>
+                  <TableCell className="font-mono tabular-nums">{c.n}</TableCell>
+                  <TableCell className="font-mono font-semibold tabular-nums">{c.a == null ? '–' : c.a.toFixed(2).replace('.', ',')}</TableCell>
                   <TableCell>
                     {c.a == null ? <Badge>Servono 10 valutazioni complete</Badge> : c.a >= 0.8 ? <Badge tone="success">Buona</Badge> : c.a >= 0.7 ? <Badge tone="success">Accettabile</Badge> : <Badge tone="warning">Da verificare</Badge>}
                   </TableCell>

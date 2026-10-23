@@ -2,6 +2,8 @@ import { ArrowRight, Check, ChevronDown, CircleDollarSign, Download, Gauge, List
 import { type ReactNode, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
+import { ActionList } from '@/components/patterns/ActionList'
+import { BandCard } from '@/components/patterns/BandCard'
 import { ChoiceCard } from '@/components/patterns/ChoiceCard'
 import { SendTestLinkBar } from '@/components/patterns/SendTestLinkBar'
 import { CompanySwitcher } from '@/components/patterns/CompanySwitcher'
@@ -514,21 +516,15 @@ function HomeCardsDemo() {
   const [open, setOpen] = useState(false)
   return (
     <div className="grid w-full grid-cols-1 gap-4">
-      <FolderCard icon={ListChecks} title="Le Decisioni — icona a sinistra (Recruiting)" kicker="quello che puoi fare da subito">
-        <p className="mt-4 text-app-body font-medium">Come agire da subito</p>
-      </FolderCard>
-      <FolderCard icon={ListChecks} iconSide="end" title="Le Decisioni — icona a destra (Assessment)">
-        <p className="mt-4 text-app-body font-medium">Stessa card, icona dall'altra parte</p>
-      </FolderCard>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {(['chart-4', 'chart-2', 'chart-5', 'chart-6'] as const).map((t) => (
-          <FolderCard key={t} icon={ListChecks} iconSide="end" tint={t} title={`tint="${t}"`}>
-            <p className="mt-4 text-app-body font-medium">Tinta leggera della card della Home, ripetuta sul pannello</p>
-          </FolderCard>
-        ))}
+        <FolderCard icon={ListChecks} title="Con icona" kicker="L'icona dice l'oggetto della card, 20px accanto al titolo">
+          <p className="text-app-body">Testo a sinistra, bordo 1px, nessuna ombra, nessuna tinta.</p>
+        </FolderCard>
+        <FolderCard title="Senza icona" aside={<Button size="sm" variant="outline">Azione</Button>}>
+          <p className="text-app-body">I controlli in alto a destra (`aside`).</p>
+        </FolderCard>
       </div>
       <SkillVisionCard
-        tint="chart-4"
         icon={CircleDollarSign}
         title="Il Valore"
         subtitle="quello che devi sapere"
@@ -587,7 +583,7 @@ function ChoiceCardsDemo() {
           ].map(([t, I, d]) => (
             <ChoiceCard
               key={t as string}
-              align="center"
+              align="stacked"
               icon={I as typeof Target}
               title={t as string}
               description={d as string}
@@ -1178,6 +1174,47 @@ const ENTRIES: Entry[] = [
     ),
   },
   {
+    name: 'BandCard',
+    level: 'Pattern',
+    source: 'components/patterns/BandCard.tsx',
+    render: () => (
+      <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+        <BandCard
+          label="Alto Potenziale"
+          tone="success"
+          description="Pronti a crescere. Punteggio complessivo da 7,0 a meno di 8,3 su 10"
+          count={4}
+          total={24}
+          people={[
+            { id: 'a', name: 'Giulia Bianchi', meta: 'Responsabile acquisti', score: '8,1 /10', onClick: () => toast('Apre la scheda') },
+            { id: 'b', name: 'Marco Rossi', meta: 'Tecnico di produzione', score: '7,6 /10', onClick: () => toast('Apre la scheda') },
+            { id: 'c', name: 'Sara Conti', meta: 'Commerciale', score: '7,2 /10', onClick: () => toast('Apre la scheda') },
+          ]}
+          onSeeAll={() => toast('Elenco filtrato sulla fascia')}
+        />
+        <BandCard label="Alto Valore" tone="strong" description="Pilastri operativi. Punteggio complessivo da 8,3 a 10 su 10" count={0} total={24} people={[]} onSeeAll={() => undefined} />
+      </div>
+    ),
+  },
+  {
+    name: 'ActionList',
+    level: 'Pattern',
+    source: 'components/patterns/ActionList.tsx',
+    render: () => (
+      <div className="flex w-full flex-col gap-4">
+        <ActionList
+          items={[
+            { key: 'a', label: 'Colloqui di restituzione da fare', description: 'Persone con un piano di sviluppo da discutere', count: 3, unit: 'persone', to: '/dev/components' },
+            { key: 'b', label: 'Formazione e Sviluppo', note: { value: 'Nota modificabile sul posto', onChange: () => undefined }, count: 5, unit: 'persone', to: '/dev/components' },
+            { key: 'c', label: 'Riga a zero: non compare', count: 0, to: '/dev/components' },
+          ]}
+          empty={{ title: 'Nessuna azione aperta.' }}
+        />
+        <ActionList items={[]} empty={{ title: 'Nessuna azione aperta.', description: 'Stato vuoto: dice da dove arriveranno le azioni.' }} />
+      </div>
+    ),
+  },
+  {
     name: 'FolderCard',
     level: 'Pattern',
     source: 'components/patterns/FolderCard.tsx · SkillVisionCard.tsx',
@@ -1354,11 +1391,11 @@ const ENTRIES: Entry[] = [
     source: 'components/patterns/ScoreGauge.tsx · CompletionRing.tsx · ScatterMatrix.tsx',
     render: () => (
       <div className="grid w-full grid-cols-1 gap-6">
-        <Row label="ScoreGauge e CompletionRing, dentro uno StatCard">
+        <Row label="ScoreGauge (arco intero, numero al centro, su 10) e CompletionRing dentro uno StatCard">
           <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-            <StatCard tone="accent" size="lg" icon={Gauge} label="Punteggio complessivo" value="60%">
-              <ScoreGauge value={60} label="Punteggio complessivo" />
-            </StatCard>
+            <Card>
+              <ScoreGauge value={6} label="Punteggio complessivo" />
+            </Card>
             <StatCard icon={Target} label="Copertura mansioni" value="93%">
               <CompletionRing value={93} label="Copertura mansioni" />
             </StatCard>

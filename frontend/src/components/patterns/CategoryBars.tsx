@@ -48,7 +48,7 @@ export function CategoryBars({
           valueMax={valueMax}
           margin={orientation === 'horizontal' ? { top: 8, right: 40, bottom: 8, left: 208 } : { top: 24, right: 8, bottom: 40, left: 32 }}
         >
-          <Grid horizontal={orientation === 'vertical'} vertical={orientation === 'horizontal'} />
+          <Grid horizontal={orientation === 'vertical'} vertical={orientation === 'horizontal'} fadeHorizontal={false} />
           {series.map((s, i) => (
             <Bar key={s.key} dataKey={s.key} fill={colors[i]} lineCap={4} valueLabel={(v) => (format ? format(v) : fmtDec(v))} />
           ))}

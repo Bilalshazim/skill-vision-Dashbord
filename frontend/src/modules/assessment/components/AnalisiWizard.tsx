@@ -372,7 +372,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
             <QuestionHeader count="7/7" eyebrow={ui.exiQ7Eyebrow} title={ui.exiQ7Title} subHtml={ui.exiQ7Sub} />
             <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {decisions.map((d, i) => (
-                <ChoiceCard key={i} align="center" icon={DECISION_ICON[d.ic] ?? Target} selected={draft.decSel.includes(i)} onSelectedChange={() => toggleDecision(i)} title={d.nm} description={d.ds} />
+                <ChoiceCard key={i} align="stacked" icon={DECISION_ICON[d.ic] ?? Target} selected={draft.decSel.includes(i)} onSelectedChange={() => toggleDecision(i)} title={d.nm} description={d.ds} />
               ))}
             </div>
             <div className="mb-4 flex flex-col gap-2">
@@ -416,7 +416,7 @@ function SliderBox({ ticks, value, inverted, pointsOf10Label, label, onChange }:
   const tier = inverted ? exiRiskTier(value, 'it') : exiScoreTier(value, 'it')
   return (
     <div className="mb-4 flex flex-col gap-4 rounded-md border border-border bg-background p-6">
-      <div className="flex flex-col items-center gap-1 text-center">
+      <div className="flex flex-col items-start gap-1 text-left">
         <span className="text-metric-lg tabular-nums">{fmt1(value)}</span>
         <span className="text-app-small text-muted-foreground">{pointsOf10Label}</span>
         <Badge tone={tier.tone} dot>

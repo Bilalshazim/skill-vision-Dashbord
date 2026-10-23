@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Card } from '@/components/ui/card'
 import { BF, DEFAULT_ROLE, ROLES } from '@/modules/recruiting/lib/constants'
+import { fmtScore10 } from '@/modules/recruiting/lib/format'
 import { ranking } from '@/modules/recruiting/lib/scoring'
 import { readCandidates } from '@/modules/recruiting/lib/storage'
 
@@ -16,6 +17,9 @@ import { readCandidates } from '@/modules/recruiting/lib/storage'
 // TODAY's top-ranked candidate) are computed, via the exact same
 // ranking()/ROLES/BF this migration already uses everywhere else — no
 // second scoring implementation.
+// Punteggi su 10 (DECISIONI, "Punteggi di Recruiting su 10"): le formule si
+// leggono sulla scala di 10 a cui arrivano a schermo, le soglie sono
+// 8,5 / 7,0 / 6,0. Nel codice gli indici restano su 100.
 export function MetodoContent() {
   const candidates = useMemo(() => readCandidates(), [])
   const rk = useMemo(() => ranking(candidates), [candidates])
@@ -37,7 +41,7 @@ export function MetodoContent() {
           peso (Essenziale=3, Importante=2, Utile=1) e un target minimo sulla scala APEX /31.
         </p>
         <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-app-body font-semibold text-foreground">
-          FC = [ Σᵢ wᵢ · min( Sᵢ / Tᵢ , 1 ) / Σᵢ wᵢ ] × 100
+          FC = [ Σᵢ wᵢ · min( Sᵢ / Tᵢ , 1 ) / Σᵢ wᵢ ] × 10
         </div>
         <p className="text-app-small leading-relaxed text-muted-foreground">
           <b className="font-semibold text-foreground">S</b>ᵢ = punteggio APEX del candidato sulla skill i · <b className="font-semibold text-foreground">T</b>
@@ -48,7 +52,7 @@ export function MetodoContent() {
           {top ? (
             <>
               <b className="font-semibold text-foreground">Esempio con i dati reali di oggi</b> — {top.c.name}, ruolo {DEFAULT_ROLE}: FC ={' '}
-              <b className="font-semibold text-foreground">{fmtDec(top.r.fc)}</b>. Significa che copre il {fmtDec(top.r.fc)}% del profilo che hai flaggato, con le
+              <b className="font-semibold text-foreground">{fmtScore10(top.r.fc)}</b>. Significa che copre il {fmtDec(top.r.fc)}% del profilo che hai flaggato, con le
               essenziali che pesano il triplo delle utili.
             </>
           ) : (
@@ -63,11 +67,11 @@ export function MetodoContent() {
           Affinità Big Five — AB (peso 30%)
         </h3>
         <p className="mt-2 text-app-small leading-relaxed text-muted-foreground">
-          Ogni ruolo ha un profilo di personalità ideale (percentili sui 5 fattori, con i sottofattori a supporto). L'affinità è 100 meno la distanza
-          media dal profilo ideale.
+          Ogni ruolo ha un profilo di personalità ideale (percentili sui 5 fattori, con i sottofattori a supporto). L'affinità è 10 meno la distanza
+          media dal profilo ideale, riportata su 10.
         </p>
         <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-app-body font-semibold text-foreground">
-          AB = 100 − ( Σₖ |Pₖ − Iₖ| / 5 )
+          AB = 10 − ( Σₖ |Pₖ − Iₖ| / 5 ) / 10
         </div>
         <p className="text-app-small leading-relaxed text-muted-foreground">
           <b className="font-semibold text-foreground">P</b>ₖ = percentile del candidato sul fattore k (Estroversione, Coscienziosità, Apertura,
@@ -79,7 +83,7 @@ export function MetodoContent() {
             <>
               <b className="font-semibold text-foreground">Esempio</b> — {top.c.name}: distanze per fattore{' '}
               {BF.map((k) => `|${top.c.bf[k]}−${ROLES[DEFAULT_ROLE].bf[k]}|=${Math.abs(top.c.bf[k] - ROLES[DEFAULT_ROLE].bf[k])}`).join(' · ')} → media{' '}
-              {fmtDec(BF.reduce((a, k) => a + Math.abs(top.c.bf[k] - ROLES[DEFAULT_ROLE].bf[k]), 0) / 5, 1)} → AB = <b className="font-semibold text-foreground">{fmtDec(top.r.ab)}</b>.
+              {fmtDec(BF.reduce((a, k) => a + Math.abs(top.c.bf[k] - ROLES[DEFAULT_ROLE].bf[k]), 0) / 5, 1)} → AB = <b className="font-semibold text-foreground">{fmtScore10(top.r.ab)}</b>.
             </>
           ) : (
             emptyExampleText
@@ -97,7 +101,7 @@ export function MetodoContent() {
           da contesto, non da giudice: per questo pesa solo il 15%.
         </p>
         <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-app-body font-semibold text-foreground">
-          ICV = 0,5·Esperienza + 0,3·Coerenza + 0,2·Settore &nbsp;(scala 0–100)
+          ICV = 0,5·Esperienza + 0,3·Coerenza + 0,2·Settore &nbsp;(scala 0–10)
         </div>
       </Card>
 
@@ -111,32 +115,32 @@ export function MetodoContent() {
         </div>
         <p className="text-app-small leading-relaxed text-muted-foreground">
           <b className="font-semibold text-foreground">Regola di sbarramento (red flag):</b> se anche una sola skill{' '}
-          <b className="font-semibold text-foreground">Essenziale</b> è sotto il 60% del target, l'AHI viene bloccato a 59 e il candidato è marcato in
+          <b className="font-semibold text-foreground">Essenziale</b> è sotto il 60% del target, l'AHI viene bloccato a 5,9 su 10 e il candidato è marcato in
           rosso. Un venditore che non comunica non si "compensa" con altro: la formula lo dice prima che lo scopriate a contratto firmato.
         </p>
         <div className="mt-3">
           <Table size="sm" minWidth="md">
             <TableHeader>
               <TableRow>
-                <TableHead>Fascia AHI</TableHead>
+                <TableHead>Fascia AHI (su 10)</TableHead>
                 <TableHead>Lettura per chi decide</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell className="font-mono font-semibold tabular-nums">85 – 100</TableCell>
+                <TableCell className="font-mono font-semibold tabular-nums">8,5 – 10</TableCell>
                 <TableCell className="text-muted-foreground">Assumibile subito: copre il ruolo così com'è</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-mono font-semibold tabular-nums">70 – 84</TableCell>
+                <TableCell className="font-mono font-semibold tabular-nums">7,0 – 8,4</TableCell>
                 <TableCell className="text-muted-foreground">Assumibile con piano di sviluppo mirato sui gap</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-mono font-semibold tabular-nums">60 – 69</TableCell>
+                <TableCell className="font-mono font-semibold tabular-nums">6,0 – 6,9</TableCell>
                 <TableCell className="text-muted-foreground">Solo se il mercato non offre di meglio: gap strutturali</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-mono font-semibold tabular-nums">&lt; 60 / red flag</TableCell>
+                <TableCell className="font-mono font-semibold tabular-nums">&lt; 6,0 / red flag</TableCell>
                 <TableCell className="text-muted-foreground">Sconsigliato per questo ruolo (può valere per altri)</TableCell>
               </TableRow>
             </TableBody>
@@ -154,10 +158,10 @@ export function MetodoContent() {
           performa meglio nel ruolo. Si calcola solo sulle competenze selezionate, pesate.
         </p>
         <div className="my-3 overflow-x-auto rounded-sm border border-border bg-secondary px-4 py-3 font-mono text-app-small font-semibold text-foreground">
-          CI = 100 − [ Σᵢ wᵢ · |Sᵢᶜᵃⁿᵈ − Sᵢᵇᵉⁿᶜʰ| / (Σᵢ wᵢ · 31) ] × 100
+          CI = 10 − [ Σᵢ wᵢ · |Sᵢᶜᵃⁿᵈ − Sᵢᵇᵉⁿᶜʰ| / (Σᵢ wᵢ · 31) ] × 10
         </div>
         <p className="text-app-small leading-relaxed text-muted-foreground">
-          CI ≥ 85: il candidato "gioca allo stesso livello" dei vostri migliori. CI 70–84: compatibile, con stile diverso. CI &lt; 70: profilo distante
+          CI da 8,5: il candidato "gioca allo stesso livello" dei vostri migliori. CI 7,0–8,4: compatibile, con stile diverso. CI sotto 7,0: profilo distante
           da chi oggi funziona nel ruolo — non per forza un male, ma una scelta consapevole.
         </p>
       </Card>

@@ -56,7 +56,7 @@ export function PersonDashboard({ payload, onExport }: { payload: Dash5pPayload;
           ) : null}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard
-              label="Voto 5P (0–100)"
+              label="Voto 5P (su 10)"
               value={fmtScore(sm.actual)}
               tone="accent"
               note={sm.level ? <Badge tone={LEVEL_TONE[sm.level.index]}>{sm.level.label}</Badge> : undefined}

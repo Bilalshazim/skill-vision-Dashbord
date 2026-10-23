@@ -1739,3 +1739,182 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
 - Società e posizione attive: erano nel documento, che ora è comune; sono una
   scelta di chi lavora, quindi vanno nelle preferenze dell'utente. Cambiare
   posizione non cambia i dati dei colleghi.
+
+## Panoramica come pagina d'ingresso dei due moduli: le rotte · 2026-10-23
+- Contesto: CLAUDE.md, Fase 6 ("Panoramica"). Prima `/recruiting` portava a
+  "Profilo della ricerca" e `/recruiting/home` non esisteva; `/assessment` e
+  `/assessment/home` aprivano la Home a folder card.
+- Opzioni: (a) `/recruiting` e `/recruiting/home` rendono la Panoramica,
+  come già fa Assessment con `/assessment` e `/assessment/home`; (b)
+  `/recruiting/home` rimanda con `Navigate` a `/recruiting`.
+- Cosa cambia: con (a) i due moduli si comportano allo stesso modo e i
+  vecchi segnalibri a `/home` funzionano senza salto di indirizzo; con (b)
+  un indirizzo solo, ma diverso da Assessment.
+- Raccomandazione e presa: **(a)**. Voce "Panoramica" in testa alla barra
+  laterale di Recruiting (`end`: accesa solo su `/recruiting` e
+  `/recruiting/home`, non su ogni pagina del modulo); in Assessment la voce
+  "Home" diventa "Panoramica" (stesso `id: 'home'`). "Profilo della ricerca"
+  resta a `/recruiting/profile`, "Stato dell'arte" a
+  `/recruiting/stato-dell-arte`: nessuna pagina tolta.
+
+## Panoramica di Assessment: contenuti e funzioni della vecchia Home · 2026-10-23
+- "In programma" non c'è: Assessment non ha date future (Piani di sviluppo
+  non ha scadenze). Si aggiungerà quando un dato con data esisterà.
+- Data dell'intestazione: Assessment non ha una data di ultima modifica sul
+  server. Si usa la più recente fra inserimento delle persone, storico delle
+  valutazioni e schede esterne (`lastDataUpdate`). Se il server un giorno
+  darà la data vera, si sostituisce lì.
+- Punteggio complessivo: si mostra su 10 ("6,0 /10", con benchmark e
+  scarto) perché i dati di Assessment sono già su 1–10. Il "in attesa" del
+  capitolo 7 riguarda i punteggi standardizzati di Original Skills (circa
+  −3…+1), che oggi non entrano in Assessment: "In attesa" compare solo
+  finché nessuno è valutato. Quando quei punteggi entreranno, serve la
+  formula del cliente.
+- Funzioni della vecchia Home che restano, spostate: le note delle quattro
+  azioni di sviluppo (righe di "Da fare adesso", stessa chiave
+  `settings.actionNotes`), "Esporta piano d'azione" e "Esporta report"
+  (azioni delle sezioni; il report scrive il punteggio su 10, non più in %).
+- Tolte, con una pagina che le copre: la mappa dei valori (`ValueMap`: la
+  matrice soft × hard è in Valori Complessivi), le tre StatCard di "Le
+  perdite invisibili" (area, mansione, competenza più critiche: grafico
+  "Sotto il benchmark" e pagine Competenze), i pulsanti "Confronta aree" /
+  "Vedi analisi". Tolto senza sostituto: l'andamento dell'organizzazione
+  della Home, che era una serie inventata (passeggiata casuale fissa verso
+  il valore di oggi, dichiarata nel codice): non ci sono dati storici veri.
+  L'andamento di Valori Complessivi resta com'era.
+- Tolti i file non più usati: `AssessmentHomePage`, `ValoreCard`, `ValueMap`,
+  `DecisionRow`, `lib/home-card-layout.ts`, `hooks/use-persisted-flag.ts`,
+  `CardIcons`, `CompositeIcon`, `LanguageSwitch`.
+
+## Una classificazione sola: le cinque fasce, anche nei nomi · 2026-10-23
+- Verificato nel codice: i tre livelli della Home (Ottimale / Moderato /
+  Critico) erano un raggruppamento delle cinque fasce (Ottimale = Alto
+  Valore + Alto Potenziale, Moderato = Nella Norma, Critico = Da Potenziare
+  + Critici, in `homeStats`). Non misuravano altro: spariscono con la Home.
+- Le cinque fasce avevano due serie di nomi: "Top Talent / Talento da
+  Valorizzare / Persona Adeguata / Persona da Sviluppare / Persona Critica"
+  (TIER_DEFS: tabelle, badge, matrice, scheda della persona, assistente) e
+  "Alto Valore / Alto Potenziale / Nella Norma / Da Potenziare / Critici"
+  (quadDefs). Preso: i nomi di quadDefs ovunque (cap. 7: "le cinque fasce
+  tengono i nomi che hanno già"), cambiando solo le etichette di TIER_DEFS e
+  dei testi dell'assistente; chiavi e soglie invariate, nessun dato toccato.
+- Pattern nuovo `BandCard` (nel catalogo): nome e tono, cosa significa con
+  la soglia su 10 (dalla stessa `tierFor`), quante persone e che quota, le
+  prime tre per punteggio (clic → scheda), "Vedi tutte" → elenco filtrato
+  (`/assessment/valore?fascia=…`, `/recruiting/ranking?fascia=…`). In
+  Valori Complessivi prende il posto delle "Classi di performance" (solo
+  conteggi) e delle cinque colonne con tutti i nomi; in "Candidati per
+  fascia di idoneità" del riquadro con tre conteggi.
+- Recruiting ha quattro fasce sull'indice AHI (85 / 70 / 60, red flag),
+  ognuna con la sua fascia di idoneità: restano quattro, con il nome di
+  idoneità davanti ("Da valutare · Gap strutturali").
+
+## Punteggi su 10: dove sì, dove no · 2026-10-23
+- Su 10: tutti i punteggi di Assessment a schermo (le pagine lo erano già;
+  la vecchia Home li mostrava in percentuale, "60 /100%"), le soglie delle
+  fasce, il Gauge (`ScoreGauge` ha `max`, default 10).
+- **Non convertiti, da decidere con il cliente:** l'indice AHI di Recruiting
+  e i suoi sottopunteggi (0–100, soglie 85/70/60 spiegate nel Metodo), i
+  risultati del test (0–100) e i risultati della Valutazione 5P ("su 100,
+  voto × 10", dal modello del cliente). Sono metodi su 100: passarli a 10
+  cambia quello che il Metodo e il modello 5P dicono. Proposta: mostrarli
+  su 10 con un decimale (85 → "8,5 /10") e riscrivere le soglie nel Metodo,
+  se Roberto e Alessio sono d'accordo.
+
+## Bklit e card dei grafici come sono fatti · 2026-10-23
+- Gauge: arco intero (135°–405°, default), `centerValue` + `defaultLabel` +
+  `suffix` " /10", traccia di default, nessun contenitore che lo ritagli.
+  Due scostamenti dai default, motivati: tacche piene in `chart-mono` (una
+  serie sola, regole di colore della Fase 5) e misura fissa 240 × 183 (il
+  default chiede 300px minimi e in una colonna stretta scorre).
+- Andamento (`TrendChart`): l'Area di Bklit disegna sempre un
+  `area-gradient`; `kind: 'area'` si disegna ora come linea, senza
+  riempimento. Griglia con `fadeHorizontal={false}` in `TrendChart` e
+  `CategoryBars` (niente `grid-rows-fade`).
+- Card dei grafici e StatCard: tolta la prop `elevated` (bordo lime 2px e
+  ombra `shadow-[0_8px_16px_0_var(--border-strong)]`). Perché l'audit "non
+  l'aveva segnalata": la segnalava (11 voci), ma era coperta dall'eccezione
+  alla regola 3 voluta in Fase 3 per la Home a folder card; l'eccezione è
+  superata dalla Fase 6 del 2026-10-23 e non vale più. `frontend/src` ora 0.
+- `Card` (primitiva) non ha più `hover:border-primary`: una card che non si
+  clicca non reagisce. Lo tengono `NavCard`, `StatCard` con `onClick` e la
+  card del Cambio ruolo, che si cliccano.
+
+## Card a cartella, "oggi / Skill Vision", lingua · 2026-10-23
+- `FolderCard`: superficie `card`, bordo 1px, testo a sinistra, icona Lucide
+  20px accanto al titolo e solo se serve; tolti bordo lime 2px, ombra,
+  tinte (`tint`, `color-mix` dei `chart-*`) e lato dell'icona.
+- `SkillVisionCard`: il selettore "oggi / Skill Vision" diventa un bottone
+  "Mostra il dettaglio / Nascondi il dettaglio" con `aria-expanded`. Le card
+  di "Profilo della ricerca" e di "Stato dell'arte" continuano ad aprire il
+  loro dettaglio; nessuna funzione tolta.
+- Icone composte (casa con euro, lampadina con gemma…) tolte; le card di
+  "Profilo della ricerca" restano senza icona.
+- Switch IT/EN: era tornato nella barra superiore e nelle Impostazioni.
+  Tolto da tutti e due; `useSharedLang` restituisce sempre `it` (la vecchia
+  preferenza `lang` sul server non si legge più). Dizionari inglesi intatti.
+- Scelta del modulo: cerchi delle lettere neutri (erano `chart-1` /
+  `chart-2`), niente ombra, nome del modulo non più in maiuscolo.
+- Testo al centro tolto ovunque nei due moduli, tabelle comprese: le colonne
+  numeriche restano in mono con cifre tabulari. `ChoiceCard`
+  `align="center"` diventa `align="stacked"` (icona sopra il testo).
+
+## Punteggi di Recruiting e del 5P su 10 · 2026-10-23
+- Supera la voce "Punteggi su 10: dove sì, dove no" di oggi: la conversione
+  di Recruiting e del 5P è approvata (richiesta del 2026-10-23).
+- Opzioni: (a) convertire i dati e le soglie nel codice e sul server; (b)
+  lasciare dati, calcoli e soglie su 100 e convertire solo a schermo e nei
+  file per chi legge.
+- Cosa cambia: (a) tocca il salvataggio dei dati, i risultati che arrivano
+  da Original Skills e le soglie del backend (`DEFAULT_MATCH_THRESHOLD` per
+  l'invio automatico del link); (b) nessun dato cambia, il prodotto fa le
+  stesse cose, cambia solo la lettura.
+- Raccomandazione e presa: **(b)**. Un formatter solo per Recruiting
+  (`fmtScore10`, `lib/format.ts`): AHI, FC, AB, ICV, CI, risultato del test,
+  corrispondenza CV in classifica, CV, preselezionati, migliori candidati,
+  fasce, assistente, report e classifica in CSV. Il 5P: `fmt10` e
+  `fmtSigned` (model.ts), `fmtScore` / `fmtSigned` del cruscotto, assi e
+  radar a 10, Excel dei risultati e del report su 10.
+- Il decimale si **tronca**, non si arrotonda: 84,9 → 8,4. Con
+  l'arrotondamento un 84,9 si leggerebbe 8,5 pur stando nella fascia "sotto
+  8,5". Il 5P invece parte dal valore già arrotondato all'intero su 100 (la
+  regola del 2026-10-09), quindi il numero letto è esattamente quello su cui
+  si calcolano livelli, gap e percezione.
+- Dove si scrive un punteggio, si scrive su 10 e si salva come prima: il
+  risultato del test (7,5 → 75) e i valori attesi del 5P (già salvati 1–10).
+  Il modello Excel dei valori attesi ora è su 0–10; l'import accetta ancora i
+  file su 0–100 (divide per 10 se un valore supera 10, regola già esistente).
+- Metodo: formule riscritte sulla scala di 10 (FC "× 10", AB "10 − …",
+  ICV "0–10", CI "10 − …"), fasce 8,5–10 / 7,0–8,4 / 6,0–6,9 / sotto 6,0,
+  sbarramento a 5,9. Metodo del 5P: esempio, letture di gap e differenza e
+  livelli su 10 (3,0 / 5,0 / 7,0 / 9,0).
+- **Non convertiti, di proposito:** le schede dei valutatori (scala 1–5, è
+  la scala del modulo), i punti APEX delle competenze (/31), i percentili
+  del Big Five (posizioni sul tratto, non voti), le quote in percentuale
+  (copertura delle essenziali, avanzamento, completamento), i JSON per l'ATS
+  (dati per un altro sistema: restano su 100, come prima).
+- Corretto insieme, perché violava la regola 6: il tag "NEW_APPLICANT"
+  dell'assistente era testo lime su fondo chiaro; ora neutro con bordo. Tolto
+  anche il lime come testo dei punteggi in modalità scura (risultati del
+  test, corrispondenza in Migliori candidati): erano numeri, non l'azione
+  della pagina.
+
+## Verifica a schermo delle due Panoramiche · 2026-10-23
+- Fatta in locale su chiaro, scuro, desktop (1440) e mobile (390 → il browser
+  ha riportato 487): nessuno scorrimento orizzontale, e il controllo di
+  contrasto dello snippet dell'audit (con i colori `oklch` convertiti in RGB)
+  non trova testi sotto soglia, in nessuna delle otto viste.
+- Un difetto trovato e corretto: la card "Distribuzione per fascia" teneva
+  l'altezza fissa di un grafico per una barra compatta, con un vuoto e il
+  link a metà card. `ChartCard` ha ora `height="auto"` e il piede sempre in
+  fondo (`mt-auto`), così i link delle due card di "Dove guardare" sono
+  allineati.
+- Per vedere Assessment con dati, nel database **locale**: alla società Acme
+  è stato aggiunto il modulo ASSESSMENT (`purchasedModules`), perché il codice
+  del seed era già stato usato in una sessione precedente. I 26 dipendenti di
+  prova c'erano già. Niente in produzione.
+- Da sapere: lo sblocco con un codice già usato risponde in inglese ("This
+  access code has already been redeemed"), testo del backend. Da tradurre.
+- Il browser di prova era usato in contemporanea da un'altra sessione (cambi
+  di pagina e di dimensione non miei): ogni vista è stata catturata subito
+  dopo l'apertura e ricontrollata.

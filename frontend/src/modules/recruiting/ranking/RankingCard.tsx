@@ -2,7 +2,7 @@ import { fmtDec } from '@/lib/format'
 import { AlertTriangle, ArrowLeftRight, ChevronDown, Download, FileJson } from 'lucide-react'
 import { useState } from 'react'
 
-import { sourceLabel } from '@/modules/recruiting/lib/format'
+import { fmtScore10, sourceLabel } from '@/modules/recruiting/lib/format'
 import { cn } from '@/lib/utils'
 import { EssentialSkillBars } from '@/modules/recruiting/components/EssentialSkillBars'
 import { Card } from '@/components/ui/card'
@@ -81,7 +81,10 @@ export function RankingCard({
         </div>
 
         <div className="hidden text-right sm:block">
-          <div className="font-mono text-metric-lg font-semibold leading-none tabular-nums text-foreground">{fmtDec(result.v)}</div>
+          <div className="font-mono text-metric-lg font-semibold leading-none tabular-nums text-foreground">
+            {fmtScore10(result.v, false)}
+            <span className="ml-1 text-app-small font-normal text-muted-foreground">/10</span>
+          </div>
           <ScoreBadge fascia={f} className="mt-1 block" />
         </div>
 
@@ -91,7 +94,10 @@ export function RankingCard({
       {/* Score repeats on its own row on narrow screens — the header grid
           hides it above md to keep the header from wrapping awkwardly. */}
       <div className="mt-3 flex items-center justify-between sm:hidden">
-        <div className="font-mono text-app-title font-semibold tabular-nums">{fmtDec(result.v)}</div>
+        <div className="font-mono text-app-title font-semibold tabular-nums">
+          {fmtScore10(result.v, false)}
+          <span className="ml-1 text-app-small font-normal text-muted-foreground">/10</span>
+        </div>
         <ScoreBadge fascia={f} />
       </div>
 
@@ -124,7 +130,7 @@ export function RankingCard({
             <p className="mt-4 flex items-start gap-2 text-app-small font-semibold text-destructive">
               <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               Sbarramento attivo: {hardFlags.map((x) => `${x.sk} (${fmtDec(x.s)} vs target ${x.t})`).join(' · ')} — AHI
-              bloccato a 59.
+              bloccato a 5,9 su 10.
             </p>
           )}
 

@@ -77,7 +77,7 @@ function RadarBlock({ title, note, skills, series }: { title: string; note?: str
 export function MatchCompare({ picks }: { picks: MatchPick[] }) {
   if (picks.length < 2) {
     return (
-      <div className="rounded-sm border border-border bg-card p-6 text-center text-app-small text-muted-foreground">
+      <div className="rounded-sm border border-border bg-card p-6 text-app-small text-muted-foreground">
         {picks.length === 1 ? 'Seleziona almeno un altro profilo per avviare il confronto' : 'Seleziona 2 o più profili per confrontarli'}
       </div>
     )
