@@ -184,18 +184,31 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
-## 2026-10-23 — Inviato su GitHub (`ba7d5df`), Railway ancora fermo
-- [x] Area Valutatori ("Intervistato", sintesi IA sui file) inviata su
-      `main` dopo i controlli: backend 163/163, typecheck, `audit-storage`
-      ok, audit d'identità 78 (nessuno nei file toccati).
-- [ ] **Railway non deploya dal 19/10**: l'ultimo deploy "zesty-victory /
-      production" su GitHub è `c76f11f`; `34848de`, `fcbf631` e `ba7d5df`
-      non ne hanno. La nota del 22/10 dice "deploy di Railway in pausa
-      (Roberto, 2026-10-21)". Da qui non c'è accesso a Railway (niente CLI):
-      va riattivato dal pannello e avviato il deploy dell'ultimo commit.
-      Attenzione: quel deploy porta in produzione anche tutto il lavoro
-      "Tutto sul server" del 21–22/10, non solo questo.
-
+## 2026-10-23 — In produzione: "Tutto sul server" e Area Valutatori
+- [x] **Errore mio, corretto:** la copia di lavoro era sul ramo
+      `server-only`, e `git push origin main` mandava il `main` locale, fermo a
+      `fcbf631`: `ba7d5df` e `08d6d0a` non erano arrivati su GitHub. Ora
+      `git push origin server-only:main` (avanti veloce, 4 commit: anche
+      `45f130a` della prova pulita del 22/10). `main` = `a025f1c`.
+- [x] Pausa dei deploy tolta da Roberto; un commit vuoto (`a025f1c`) ha
+      avviato il deploy "zesty-victory / production".
+- [x] Verificato in produzione: backend con `/api/v1/recruiting-store` (401
+      senza accesso, prima 404), /health 200. Frontend
+      `skill-vision-production-6a42.up.railway.app`: `/index.html` 302,
+      `/js/app.js` 404, `/api` passato al backend; nei pacchetti ci sono i
+      testi nuovi ("Non intervistato", "Prepara la scheda", "Invia scheda
+      compilata", "Annulla conferma"…).
+- [ ] **`dashboard.skill-vision.it` non funziona**: è un CNAME verso
+      `Bilalshazim.github.io` (GitHub Pages, che pubblicava il vecchio guscio
+      statico della radice). Con il guscio ritirato (`fad458c`) Pages risponde
+      "Site not found". Il dominio va puntato al frontend su Railway (dominio
+      personalizzato sul servizio "Skill Vision" + CNAME nel DNS), poi GitHub
+      Pages si può spegnere.
+- [ ] Da sapere: esiste anche `skill-vision-production.up.railway.app` (senza
+      suffisso) che serve ancora il vecchio `js/app.js`: non è questo
+      progetto o è un servizio vecchio; da controllare su Railway.
+- Nota per le sessioni future: prima di inviare, `git branch` — si lavora
+  su `server-only` e si invia con `git push origin server-only:main`.
 ## 2026-10-22 — Prova pulita di frontend e backend (codice di `main`, prima del deploy)
 - [x] Copia pulita di `origin/main` (`fcbf631`), senza i file non salvati
       dell'altra sessione; database vuoto `sv_cleantest` costruito dalle 10
