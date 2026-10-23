@@ -190,6 +190,8 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
       `panelPlacement="below"` per questo; la card aperta è una preferenza
       sul server (`sv-recruiting-profile-open-level`).
 - [x] Verificato in locale; build, audit-identita (27), audit-storage ok.
+- [x] Stesso schema su "Stato dell'arte": tre finestre in una riga, una
+      aperta alla volta, dettaglio sotto (`sv-recruiting-home-open-card`).
 
 ## 2026-10-23 — Recruiting: indice a quattro livelli (documento "Recruiting Module")
 - [x] Barra laterale a gruppi: Profilo della ricerca · Chi cerchiamo (L1) ·

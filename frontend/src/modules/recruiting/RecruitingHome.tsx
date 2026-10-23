@@ -6,8 +6,7 @@ import { PageHeader } from '@/components/patterns/PageHeader'
 import { SkillVisionCard } from '@/components/patterns/SkillVisionCard'
 import { StatCard } from '@/components/patterns/StatCard'
 import { Button } from '@/components/ui/button'
-import { usePersistedFlag } from '@/hooks/use-persisted-flag'
-import { homeCardLayout } from '@/lib/home-card-layout'
+import { usePreference } from '@/lib/preferences'
 import { InterviewAgendaCard, QualityBucketsCard, SelectionFunnelCard } from '@/modules/recruiting/components/HomeSectionCards'
 import { downloadText as downloadFile } from '@/lib/download'
 import { useRecruitingHomeData, type RecruitingHomeData } from '@/modules/recruiting/lib/use-recruiting-home-data'
@@ -36,18 +35,11 @@ function exportHomeSummary(data: RecruitingHomeData): void {
 // lib/storage.ts for the read-only localStorage boundary.
 export default function RecruitingHome() {
   const data = useRecruitingHomeData()
-  // Aperto/chiuso di ogni finestra, ricordato nel browser come in Assessment;
-  // all'inizio sono tutte chiuse (solo il titolo).
-  const [openCandidati, setOpenCandidati] = usePersistedFlag('sv-recruiting-home-candidati-view')
-  const [openImbuto, setOpenImbuto] = usePersistedFlag('sv-recruiting-home-imbuto-view')
-  const [openColloqui, setOpenColloqui] = usePersistedFlag('sv-recruiting-home-colloqui-view')
-  const cardLayout = homeCardLayout(
-    [
-      ['candidati', 'imbuto'],
-      ['colloqui'],
-    ] as const,
-    { candidati: openCandidati, imbuto: openImbuto, colloqui: openColloqui },
-  )
+  // Le tre finestre in una riga, una aperta alla volta: il dettaglio compare
+  // sotto la riga (richiesta del 2026-10-23, come in Profilo della ricerca).
+  // La finestra aperta sta nelle preferenze sul server; all'inizio nessuna.
+  const [openKey, setOpenKey] = usePreference<string>('sv-recruiting-home-open-card', '')
+  const cardProps = (key: string) => ({ open: openKey === key, onOpenChange: (open: boolean) => setOpenKey(open ? key : ''), panelPlacement: 'below' as const, panel: null })
 
   // Cross-module banner stats — all derived from the same real data already
   // computed above, no new sources invented (see CrossModuleBanner.tsx).
@@ -93,9 +85,8 @@ export default function RecruitingHome() {
           del cliente del 2026-10-23), con la stessa struttura della Home di
           Assessment (Fase 3, Roberto Feliciani): ognuna ha titolo, sottotitolo,
           due righe e il pulsante (come in Assessment, ma con l'icona a
-          sinistra); "Skill Vision" apre il dettaglio sulla destra, nella stessa
-          riga (SkillVisionCard + homeCardLayout, gli stessi pattern). */}
-      <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+          sinistra); "Skill Vision" apre il dettaglio sotto la riga. */}
+      <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-3">
         <SkillVisionCard
           icon={Users}
           title="Candidati per fascia di idoneità"
@@ -108,10 +99,7 @@ export default function RecruitingHome() {
               </Link>
             </Button>
           }
-          open={openCandidati}
-          onOpenChange={setOpenCandidati}
-          style={cardLayout.candidati}
-          panel={<QualityBucketsCard data={data} />}
+          {...cardProps('candidati')}
         />
 
         <SkillVisionCard
@@ -126,10 +114,7 @@ export default function RecruitingHome() {
               </Link>
             </Button>
           }
-          open={openImbuto}
-          onOpenChange={setOpenImbuto}
-          style={cardLayout.imbuto}
-          panel={<SelectionFunnelCard data={data} />}
+          {...cardProps('imbuto')}
         />
 
         <SkillVisionCard
@@ -144,12 +129,13 @@ export default function RecruitingHome() {
               </Link>
             </Button>
           }
-          open={openColloqui}
-          onOpenChange={setOpenColloqui}
-          style={cardLayout.colloqui}
-          panel={<InterviewAgendaCard data={data} />}
+          {...cardProps('colloqui')}
         />
       </div>
+
+      {openKey === 'candidati' ? <QualityBucketsCard data={data} /> : null}
+      {openKey === 'imbuto' ? <SelectionFunnelCard data={data} /> : null}
+      {openKey === 'colloqui' ? <InterviewAgendaCard data={data} /> : null}
 
       <CrossModuleBanner
         heading="Una sola lettura, mai due sistemi diversi."
