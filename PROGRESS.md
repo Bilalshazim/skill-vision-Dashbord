@@ -184,6 +184,22 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-10-23 — File vecchi spostati fuori dal progetto
+- [x] Spostati in `Desktop/Skill-Vision-Archivio-2026-10-23` (con `LEGGIMI.md`):
+      logo vecchio (`logo_black/white.svg`), copia vecchia delle fondamenta in
+      `assets/`, patch già applicata in `docs/`, 5 script e2e usa e getta del
+      15/09, 255 PDF dei test in `backend/storage/test-files` (già in
+      `.gitignore`, finiti in git per errore), un CV personale, le mappe del
+      progetto, i `.DS_Store`. 264 file tolti da git.
+- [x] Verificato dopo lo spostamento: build del frontend, typecheck e test
+      del backend 163/163, `audit-storage` ok. Audit d'identità da 78 a 27
+      (i difetti stavano nei file vecchi).
+- Rimasti di proposito: documenti di progetto, `.railway/`, script del
+  backend, pezzi della libreria non ancora usati (grafici Bklit, `form.tsx`).
+- Il guscio legacy nel codice era già ritirato il 21/10: i riferimenti a
+  `modules/recruiting.html` sono solo commenti. Il problema di
+  `dashboard.skill-vision.it` è il DNS (GitHub Pages), non un file.
+
 ## 2026-10-23 — In produzione: "Tutto sul server" e Area Valutatori
 - [x] **Errore mio, corretto:** la copia di lavoro era sul ramo
       `server-only`, e `git push origin main` mandava il `main` locale, fermo a
