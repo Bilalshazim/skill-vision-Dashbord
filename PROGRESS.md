@@ -211,7 +211,12 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 - [x] Verificato in locale (chiaro): 18 rotte aprono senza errori. Un ciclo
       infinito sul Profilo Candidato trovato e corretto durante la prova.
       tsc, build, audit-identita (27, invariato), audit-storage ok.
-- [ ] Non verificato: modalità scura, mobile. Non fatto: commit e push.
+- [x] In produzione (`73a1e23`, push su `server-only` e `main`): il bundle
+      su Railway ha le rotte nuove, backend /health ok, `recruiting-store`
+      401 senza accesso. Nel bundle nessun `setItem`, niente
+      sessionStorage/IndexedDB: restano solo letture e cancellazioni
+      dell'import che svuota il browser.
+- [ ] Non verificato: modalità scura, mobile.
 - [ ] Da chiarire con il cliente: il link dell'annuncio compare dopo «Salva»
       **e** «Conferma» (approvazione). Vedi DECISIONI.
 
