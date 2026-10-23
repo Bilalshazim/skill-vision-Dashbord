@@ -35,6 +35,7 @@ export function FolderCard({
   aside,
   iconSide = 'start',
   tint,
+  size = 'default',
   className,
   children,
 }: {
@@ -44,6 +45,8 @@ export function FolderCard({
   aside?: ReactNode
   iconSide?: 'start' | 'end'
   tint?: FolderTint
+  /** `tall`: corpo più alto, per una riga di tre card che deve riempire la pagina. */
+  size?: 'default' | 'tall'
   className?: string
   children: ReactNode
 }) {
@@ -59,7 +62,8 @@ export function FolderCard({
       </div>
       <div
         className={cn(
-          'flex min-h-52 flex-1 flex-col items-center justify-center text-center rounded-lg border-2 border-primary bg-card px-6 pt-3 pb-6 shadow-[0_8px_16px_0_var(--border-strong)] transition-shadow group-hover/folder:shadow-[0_8px_16px_0_var(--primary)]',
+          'flex flex-1 flex-col items-center justify-center text-center rounded-lg border-2 border-primary bg-card px-6 pt-3 pb-6 shadow-[0_8px_16px_0_var(--border-strong)] transition-shadow group-hover/folder:shadow-[0_8px_16px_0_var(--primary)]',
+          size === 'tall' ? 'min-h-72' : 'min-h-52',
           iconSide === 'end' ? 'rounded-tl-none' : 'rounded-tr-none',
         )}
         style={folderTintStyle(tint)}

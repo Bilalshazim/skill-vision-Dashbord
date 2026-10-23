@@ -32,6 +32,7 @@ export function SkillVisionCard({
   tint,
   style,
   panelPlacement = 'inline',
+  size,
 }: {
   icon: IconComponent
   iconSide?: 'start' | 'end'
@@ -52,6 +53,7 @@ export function SkillVisionCard({
   /** `below`: la card resta nella sua cella e il pannello lo mostra la
    *  pagina, sotto la riga (Profilo della ricerca di Recruiting). */
   panelPlacement?: 'inline' | 'below'
+  size?: 'default' | 'tall'
 }) {
   const inline = panelPlacement === 'inline'
   const panelId = useId()
@@ -81,6 +83,7 @@ export function SkillVisionCard({
         icon={icon}
         iconSide={iconSide}
         tint={tint}
+        size={size}
         title={title}
         kicker={subtitle}
         className="flex-1"

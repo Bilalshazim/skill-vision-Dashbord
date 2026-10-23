@@ -39,7 +39,7 @@ export default function RecruitingHome() {
   // sotto la riga (richiesta del 2026-10-23, come in Profilo della ricerca).
   // La finestra aperta sta nelle preferenze sul server; all'inizio nessuna.
   const [openKey, setOpenKey] = usePreference<string>('sv-recruiting-home-open-card', '')
-  const cardProps = (key: string) => ({ open: openKey === key, onOpenChange: (open: boolean) => setOpenKey(open ? key : ''), panelPlacement: 'below' as const, panel: null })
+  const cardProps = (key: string) => ({ open: openKey === key, onOpenChange: (open: boolean) => setOpenKey(open ? key : ''), panelPlacement: 'below' as const, size: 'tall' as const, panel: null })
 
   // Cross-module banner stats — all derived from the same real data already
   // computed above, no new sources invented (see CrossModuleBanner.tsx).

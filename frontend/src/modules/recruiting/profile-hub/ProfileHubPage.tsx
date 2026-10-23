@@ -48,6 +48,7 @@ export default function ProfileHubPage() {
             open={openKey === level.key}
             onOpenChange={(open) => setOpenKey(open ? level.key : '')}
             panelPlacement="below"
+            size="tall"
             panel={null}
           />
         ))}
