@@ -1,14 +1,13 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
-import { CheckCircle2, FileCheck2, FileSpreadsheet, FileText, Loader2, Percent, Upload } from 'lucide-react'
+import { CheckCircle2, FileCheck2, Files, FileText, Loader2, Percent, Upload } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { NavCard } from '@/components/patterns/NavCard'
 import { SelectField } from '@/components/patterns/SelectField'
-import { Hint } from '@/components/patterns/Hint'
 import { Card } from '@/components/ui/card'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { StatCard } from '@/components/patterns/StatCard'
-import { CvArchiveList } from '@/modules/recruiting/cv-export/CvArchiveList'
 import { downloadRankingCsv, downloadRankingJson } from '@/modules/recruiting/lib/candidateExport'
 import { ranking } from '@/modules/recruiting/lib/scoring'
 import { uploadCvToActiveOpening } from '@/modules/recruiting/lib/cv-upload'
@@ -43,10 +42,9 @@ const IDLE_FEEDBACK: UploadFeedback = { kind: 'idle' }
 // setActiveContext() di lib/pipeline.ts: nessun secondo archivio di contesto.
 //
 // NOT MIGRATED / REMOVED (per the Phase 15 audit, re-confirmed this phase):
-//  - Bulk Import — real backend dependency (POST /api/ingest/bulk), and no
-//    such backend route exists (verified against backend/src), so there is
-//    nothing honest to call; the control renders disabled rather than
-//    navigating to the retired /modules/recruiting.html bridge page.
+//  - Bulk Import ("Import massivo · archivio storico") — tolto dalla pagina
+//    su richiesta del cliente (2026-10-23); era comunque un controllo
+//    disattivato, senza una rotta di ingestione sul server.
 //  - "Parse CV & Match" — REMOVED outright: a second, redundant
 //    upload-adjacent action whose only candidate-naming signal
 //    (window.UPLOADED_CVS[0]) is permanently dead code (nothing ever
@@ -277,31 +275,6 @@ export default function CvExportPage() {
           )}
 
         </div>
-        <div className="flex flex-col gap-4">
-          <div className="rounded-lg border border-border bg-secondary p-4 flex-1">
-            <div className="label-mono mb-2 text-muted-foreground">Import massivo · archivio storico</div>
-            <p className="mb-3 text-app-small leading-relaxed text-muted-foreground">
-              Carica in un colpo solo l'intero archivio di CV esistente (più PDF insieme) per la società attiva. Non ancora disponibile in
-              questa versione.
-            </p>
-            {/* No backend ingest route exists (POST /api/ingest/bulk was never
-                implemented — verified against backend/src), and the old bridge
-                target (/modules/recruiting.html) no longer exists — so this is
-                an honest DISABLED control, never a dead link or a fake upload. */}
-            <Hint label="Il servizio di ingestione backend non è disponibile in questa build">
-              <Button
-                type="button"
-                disabled
-                aria-disabled="true"
-                variant="outline"
-                size="sm"
-              >
-                <FileSpreadsheet className="size-3.5 shrink-0" aria-hidden="true" />
-                Seleziona più CV (PDF)…
-              </Button>
-            </Hint>
-          </div>
-        </div>
       </div>
 
       <div>
@@ -325,9 +298,9 @@ export default function CvExportPage() {
         cliente senza autorizzazione.
       </p>
 
-      {/* BOTTOM — data table: the full candidate archive, as the page's
-          main content view below all controls. */}
-      <CvArchiveList candidates={candidates} />
+      {/* L'elenco dei CV caricati sta ora in "CV Elaborati" (documento del
+          cliente, 2026-10-23). */}
+      <NavCard to="/recruiting/cv-elaborati" icon={Files} title="CV Elaborati" description={`${candidates.length} CV analizzati · elenco, ricerca e link al test soft skill`} className="max-w-xl" />
     </div>
   )
 }

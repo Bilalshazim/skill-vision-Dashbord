@@ -1,12 +1,11 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
-import { useCallback, useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { NavCard } from '@/components/patterns/NavCard'
+import { CalendarDays, FileCheck2, ListChecks, Medal } from 'lucide-react'
 
-import { resolvePipelineOpening } from '@/modules/recruiting/lib/pipeline'
-import { syncRankingFromBackend } from '@/modules/recruiting/lib/backend-sync'
-import { usePipelineData } from '@/modules/recruiting/lib/use-pipeline-data'
+import { ensurePipeline } from '@/modules/recruiting/lib/pipeline'
+import { usePipelineSelection } from '@/modules/recruiting/lib/use-pipeline-selection'
 import { PipelineDashboard } from '@/modules/recruiting/pipeline/PipelineDashboard'
-import { PipelineDetail } from '@/modules/recruiting/pipeline/PipelineDetail'
+import { PipelineOpeningSummary } from '@/modules/recruiting/pipeline/PipelineDetail'
 
 // Migrated from modules/recruiting.html #scr-pipeline (renderPipelineScreen()
 // = renderPipelineDashboard() + renderPipelineDetail(), ~1975-2156).
@@ -46,67 +45,38 @@ import { PipelineDetail } from '@/modules/recruiting/pipeline/PipelineDetail'
 // to activeContext again — the closest thing to a strict superset of that
 // behavior here is that a *specific* deep link survives reload, while
 // visiting with no params at all still falls back exactly like legacy).
+//
+// La selezione vive ora in lib/use-pipeline-selection.ts, condivisa con le
+// pagine di ciascuna fase. Indice a quattro livelli (documento del cliente,
+// 2026-10-23): qui restano le posizioni e il riepilogo; preselezionati,
+// classifica dopo il test, colloqui e podio hanno una pagina loro, e i link
+// sotto ci arrivano sulla stessa posizione.
 export default function PipelinePage() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  // Bumped after every successful Prescreened mutation (PrescreenedList's
-  // onMutated) to force usePipelineData() to re-read storage fresh — see
-  // that hook's own comment for why this beats hand-patching local state.
-  const [refreshKey, setRefreshKey] = useState(0)
-  const handleMutated = useCallback(() => setRefreshKey((k) => k + 1), [])
-  const { state, cards } = usePipelineData(refreshKey)
-
-  // Phase 32 §3/§8 — same backend-primary match-score reconciliation as
-  // Ranking/Pagina A/CV & Esportazione, so "CV Elaborati"'s candidate pool
-  // here reflects backend-verified data too.
-  useEffect(() => {
-    let cancelled = false
-    void syncRankingFromBackend().then((result) => {
-      if (!cancelled && result.ok && result.updated > 0) handleMutated()
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [handleMutated])
-
-  const urlCompanyId = searchParams.get('companyId')
-  const urlOpeningId = searchParams.get('openingId')
-  const { company, opening } = resolvePipelineOpening(state, urlCompanyId, urlOpeningId)
-
-  // Mirrors getPipelineOpening()'s self-assignment back into pipelineState
-  // once resolved (line ~1965) — keeps the URL a canonical reflection of
-  // what's actually being shown (first visit, a stale/bad deep link, or an
-  // opening that no longer exists all resolve to *something* real; this
-  // syncs the address bar to match rather than silently showing content the
-  // URL doesn't describe).
-  useEffect(() => {
-    if (!company || !opening) return
-    if (urlCompanyId === company.id && urlOpeningId === opening.id) return
-    const next = new URLSearchParams(searchParams)
-    next.set('companyId', company.id)
-    next.set('openingId', opening.id)
-    setSearchParams(next, { replace: true })
-  }, [company, opening, urlCompanyId, urlOpeningId, searchParams, setSearchParams])
-
-  function handleSelect(companyId: string, openingId: string) {
-    const next = new URLSearchParams(searchParams)
-    next.set('companyId', companyId)
-    next.set('openingId', openingId)
-    setSearchParams(next, { replace: true })
-  }
-
+  const { cards, company, opening, onMutated, select, query } = usePipelineSelection()
   const selectedKey = company && opening ? `${company.id}:${opening.id}` : ''
+  const p = opening ? ensurePipeline(opening) : null
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader level="page" className="mb-0" title="Avanzamento della selezione" description={<>Stato di avanzamento e tracciamento per ogni posizione aperta — preselezione, test, colloqui, vincitore.</>} />
+      <PageHeader level="page" className="mb-0" title="Avanzamento della selezione" description={<>Stato di avanzamento e tracciamento per ogni posizione aperta — preselezione, test, colloqui, podio.</>} />
 
       <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground dark:text-secondary-foreground">
         "Segna completato" non è ancora disponibile in questa schermata.
       </p>
 
-      <PipelineDashboard cards={cards} selectedKey={selectedKey} onSelect={handleSelect} />
+      <PipelineDashboard cards={cards} selectedKey={selectedKey} onSelect={select} />
 
-      {company && opening && <PipelineDetail company={company} opening={opening} onMutated={handleMutated} />}
+      {company && opening && p ? (
+        <>
+          <PipelineOpeningSummary company={company} opening={opening} onMutated={onMutated} />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <NavCard to={`/recruiting/preselezionati${query}`} icon={ListChecks} title="CV preselezionati" description={`${p.prescreened.length} candidati`} />
+            <NavCard to={`/recruiting/classifica-test${query}`} icon={FileCheck2} title="Classifica dopo il test" description={`${p.testResults.length} risultati`} />
+            <NavCard to={`/recruiting/colloqui${query}`} icon={CalendarDays} title="Prossimi colloqui" description={`${p.interviews.length} colloqui`} />
+            <NavCard to={`/recruiting/podio${query}`} icon={Medal} title="Candidati al podio" description={p.winner ? `Vincitore: ${p.winner.name}` : 'Nessun vincitore'} />
+          </div>
+        </>
+      ) : null}
     </div>
   )
 }

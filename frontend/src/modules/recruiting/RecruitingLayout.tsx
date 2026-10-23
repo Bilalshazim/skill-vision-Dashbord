@@ -1,6 +1,6 @@
 import { CloudOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { ModuleLockGate } from '@/components/ModuleLockGate'
@@ -64,6 +64,8 @@ export default function RecruitingLayout() {
   }, [store.remoteVersion, shownRemote])
 
   const pageKey = `${contextVersion}-${shownRemote}`
+  const { pathname } = useLocation()
+  const onProfilePage = /^\/recruiting\/profile\/?$/.test(pathname)
 
   return (
     <AuthGuard>
@@ -77,9 +79,13 @@ export default function RecruitingLayout() {
                   {store.saveProblem}
                 </InlineAlert>
               ) : null}
-              <div className="mb-4">
-                <RecruitingHeader key={`h-${pageKey}`} />
-              </div>
+              {/* Società, Campagna e CIP solo su "Profilo della ricerca"
+                  (documento del cliente, 2026-10-23): le sotto-pagine no. */}
+              {onProfilePage ? (
+                <div className="mb-4">
+                  <RecruitingHeader key={`h-${pageKey}`} />
+                </div>
+              ) : null}
               <ErrorBoundary>
                 <Outlet key={pageKey} />
               </ErrorBoundary>

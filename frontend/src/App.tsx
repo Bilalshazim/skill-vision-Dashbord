@@ -33,6 +33,10 @@ const PaginaAPage = lazy(() => import('@/modules/recruiting/pagina-a/PaginaAPage
 const PipelinePage = lazy(() => import('@/modules/recruiting/pipeline/PipelinePage'))
 const ProfileHubPage = lazy(() => import('@/modules/recruiting/profile-hub/ProfileHubPage'))
 const RankingPage = lazy(() => import('@/modules/recruiting/ranking/RankingPage'))
+const CvElaboratiPage = lazy(() => import('@/modules/recruiting/cv-export/CvElaboratiPage'))
+const PipelineSectionPage = lazy(() => import('@/modules/recruiting/pipeline/PipelineSectionPage'))
+const OverviewSectionPage = lazy(() => import('@/modules/recruiting/OverviewSectionPage'))
+const EvaluatorDocumentPage = lazy(() => import('@/modules/recruiting/profile-hub/EvaluatorDocumentPage'))
 
 const AssessmentAiPage = lazy(() => import('@/modules/assessment/pages/AssessmentAiPage'))
 const AssessmentAnagraficaPage = lazy(() => import('@/modules/assessment/pages/AssessmentAnagraficaPage'))
@@ -95,6 +99,20 @@ function App() {
                 <Route path="cv" element={<CvExportPage />} />
                 <Route path="job-profile" element={<JobProfilePage />} />
                 <Route path="profile" element={<ProfileHubPage />} />
+                {/* Indice a quattro livelli (documento del cliente, 2026-10-23):
+                    le sezioni che stavano dentro una pagina hanno un indirizzo loro. */}
+                <Route path="cv-elaborati" element={<CvElaboratiPage />} />
+                <Route path="preselezionati" element={<PipelineSectionPage section="preselezionati" />} />
+                <Route path="classifica-test" element={<PipelineSectionPage section="classifica" />} />
+                <Route path="imbuto" element={<OverviewSectionPage view="imbuto" />} />
+                <Route path="imbuto-scelta" element={<OverviewSectionPage view="imbuto" />} />
+                <Route path="fasce-idoneita" element={<OverviewSectionPage view="fasce" />} />
+                <Route path="colloqui" element={<PipelineSectionPage section="colloqui" />} />
+                <Route path="podio" element={<PipelineSectionPage section="podio" />} />
+                <Route path="valutatori" element={<Navigate to="intervista" replace />} />
+                <Route path="valutatori/intervista" element={<EvaluatorDocumentPage doc="intervista" />} />
+                <Route path="valutatori/valutazione" element={<EvaluatorDocumentPage doc="valutazione" />} />
+                <Route path="valutatori/report" element={<EvaluatorDocumentPage doc="report" />} />
                 {/* Phase 33 — admin UIs for backend functionality that already
                     existed but had no screen (CIP, email config), plus the
                     JWT-authenticated evaluator workspace. Each page gates its

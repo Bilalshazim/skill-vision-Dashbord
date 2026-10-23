@@ -4,10 +4,10 @@ import { Briefcase } from 'lucide-react'
 
 import { CompanySwitcher } from '@/components/patterns/CompanySwitcher'
 import { SelectField } from '@/components/patterns/SelectField'
-import { SidebarContent, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
+import { SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { getBackendUser } from '@/lib/api/client'
 import { BrowserImportEntry } from '@/modules/recruiting/components/BrowserImportEntry'
-import { RECRUITING_NAV_ITEMS } from '@/modules/recruiting/nav-config'
+import { RECRUITING_NAV_GROUPS } from '@/modules/recruiting/nav-config'
 import { getActiveOpening, setActiveContext } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 
@@ -23,7 +23,7 @@ import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 // pagina aperta sulla società scelta.
 export function RecruitingNav({ onCompanyChange }: { onCompanyChange: () => void }) {
   const role = getBackendUser()?.role
-  const items = RECRUITING_NAV_ITEMS.filter((item) => !item.roles || (role && item.roles.includes(role)))
+  const groups = RECRUITING_NAV_GROUPS.map((g) => ({ ...g, items: g.items.filter((item) => !item.roles || (role && item.roles.includes(role))) })).filter((g) => g.items.length > 0)
   const { pathname } = useLocation()
   const state = readCvMatchingState()
   const { company, opening } = getActiveOpening(state)
@@ -65,23 +65,27 @@ export function RecruitingNav({ onCompanyChange }: { onCompanyChange: () => void
         ) : null}
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenu>
-            {items.map((item) => {
-              const active = item.end ? pathname === item.to || pathname === `${item.to}/` : pathname.startsWith(item.to)
-              return (
-                <SidebarMenuItem key={item.screen}>
-                  <SidebarMenuButton asChild isActive={active}>
-                    <NavLink to={item.to} end={item.end}>
-                      <item.icon aria-hidden="true" />
-                      <span className="truncate">{item.label}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )
-            })}
-          </SidebarMenu>
-        </SidebarGroup>
+        {groups.map((group) => (
+          <SidebarGroup key={group.label ?? group.items[0].screen}>
+            {group.label ? <SidebarGroupLabel>{group.label}</SidebarGroupLabel> : null}
+            <SidebarMenu>
+              {group.items.map((item) => {
+                // Corrispondenza sul segmento intero: "/imbuto" non accende "/imbuto-scelta".
+                const active = pathname === item.to || pathname.startsWith(`${item.to}/`)
+                return (
+                  <SidebarMenuItem key={item.screen}>
+                    <SidebarMenuButton asChild isActive={active}>
+                      <NavLink to={item.to} end={item.end}>
+                        <item.icon aria-hidden="true" />
+                        <span className="truncate">{item.label}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
+            </SidebarMenu>
+          </SidebarGroup>
+        ))}
         <BrowserImportEntry />
       </SidebarContent>
     </>

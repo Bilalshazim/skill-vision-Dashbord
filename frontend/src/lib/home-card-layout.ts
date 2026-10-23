@@ -5,10 +5,13 @@ import type { CSSProperties } from 'react'
 // takes a full row at its pair's position (so opening the right-hand card
 // never pushes it down); a closed card left alone on a row spans the row
 // rather than leaving an empty cell beside it.
-export function homeCardLayout<K extends string>(pairs: readonly (readonly [K, K])[], open: Record<K, boolean>): Record<K, CSSProperties> {
+// A row may also hold a single card (an odd count, e.g. the three cards of
+// Recruiting's "Profilo della ricerca"): it spans the row.
+export function homeCardLayout<K extends string>(pairs: readonly (readonly [K, K] | readonly [K])[], open: Record<K, boolean>): Record<K, CSSProperties> {
   const seq: K[] = []
   pairs.forEach(([l, r]) => {
-    if (open[r] && !open[l]) seq.push(r, l)
+    if (r === undefined) seq.push(l)
+    else if (open[r] && !open[l]) seq.push(r, l)
     else seq.push(l, r)
   })
   const full = new Set<K>()

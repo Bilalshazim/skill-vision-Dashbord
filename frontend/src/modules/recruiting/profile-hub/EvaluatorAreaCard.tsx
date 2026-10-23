@@ -50,7 +50,13 @@ function DocumentCard({ icon: Icon, title, subtitle, savedAt, emptyLabel, childr
 // `savedAt` is lifted here (not just inside each dialog) so the Subcard
 // header's teaser updates immediately after a save/clear, without needing
 // to re-read storage from a sibling component.
-export function EvaluatorAreaCard() {
+// Area Valutatori come quarto livello (documento del cliente, 2026-10-23):
+// ogni scheda ha una pagina sua (EvaluatorDocumentPage.tsx), quindi `doc`
+// mostra solo quella; il pannello dei valutatori esterni resta sotto,
+// perché invii, file caricati e sintesi valgono per tutte e tre.
+export type EvaluatorDoc = 'intervista' | 'valutazione' | 'report'
+
+export function EvaluatorAreaCard({ doc }: { doc: EvaluatorDoc }) {
   const role = DEFAULT_ROLE
   const [verbaleSavedAt, setVerbaleSavedAt] = useState<number | null>(() => loadIvNotesRecord(role)?.savedAt ?? null)
   const [valutazioneSavedAt, setValutazioneSavedAt] = useState<number | null>(() => loadIvEvalRecord(role)?.savedAt ?? null)
@@ -60,16 +66,20 @@ export function EvaluatorAreaCard() {
     <div className="flex flex-col gap-4">
       {/* I tre documenti del Protocollo di Intervista (modelli del cliente): una
           scheda ciascuno, con lo stato e il pulsante per compilarla. */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <DocumentCard icon={Mic} title="Intervista strutturata" subtitle="Verbale di colloquio" savedAt={verbaleSavedAt} emptyLabel="Non compilata">
-          <IvNotesDialog role={role} savedAt={verbaleSavedAt} onSavedAtChange={setVerbaleSavedAt} />
-        </DocumentCard>
-        <DocumentCard icon={NotebookPen} title="Valutazione candidato" subtitle="Scheda con matrice dei punteggi" savedAt={valutazioneSavedAt} emptyLabel="Non compilata">
-          <IvEvalDialog role={role} savedAt={valutazioneSavedAt} onSavedAtChange={setValutazioneSavedAt} />
-        </DocumentCard>
-        <DocumentCard icon={FileBarChart2} title="Report finale di valutazione" subtitle="Sintesi per la decisione" savedAt={reportSavedAt} emptyLabel="Non compilato">
-          <IvReportDialog role={role} savedAt={reportSavedAt} onSavedAtChange={setReportSavedAt} />
-        </DocumentCard>
+      <div className="max-w-xl">
+        {doc === 'intervista' ? (
+          <DocumentCard icon={Mic} title="Intervista strutturata" subtitle="Verbale di colloquio" savedAt={verbaleSavedAt} emptyLabel="Non compilata">
+            <IvNotesDialog role={role} savedAt={verbaleSavedAt} onSavedAtChange={setVerbaleSavedAt} />
+          </DocumentCard>
+        ) : doc === 'valutazione' ? (
+          <DocumentCard icon={NotebookPen} title="Valutazione candidato" subtitle="Scheda con matrice dei punteggi" savedAt={valutazioneSavedAt} emptyLabel="Non compilata">
+            <IvEvalDialog role={role} savedAt={valutazioneSavedAt} onSavedAtChange={setValutazioneSavedAt} />
+          </DocumentCard>
+        ) : (
+          <DocumentCard icon={FileBarChart2} title="Report finale di valutazione" subtitle="Sintesi per la decisione" savedAt={reportSavedAt} emptyLabel="Non compilato">
+            <IvReportDialog role={role} savedAt={reportSavedAt} onSavedAtChange={setReportSavedAt} />
+          </DocumentCard>
+        )}
       </div>
       {/* Phase 31 §13 — gestione multi-valutatore sul server (creazione,
           assegnazione, ruolo, minimo 3, token). Le prime due schede sono i

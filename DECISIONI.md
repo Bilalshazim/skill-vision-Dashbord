@@ -2,6 +2,26 @@
 
 Formato: `## <cosa> · <data>` — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Indice a quattro livelli di Recruiting · 2026-10-23
+- **"CV Elaborati"**: nel documento è una voce distinta da "Avanzamento della
+  selezione" (prima la voce "CV Elaborati" apriva l'avanzamento). Opzioni:
+  (a) pagina nuova con l'elenco dei CV caricati e analizzati; (b) stessa
+  pagina dell'avanzamento. Presa **(a)**: l'elenco esce da CV & Esportazione,
+  che resta caricamento + esportazione.
+- **Voci che erano sezioni di una pagina** (preselezionati, classifica,
+  colloqui, podio, tre schede valutatori, imbuto, fasce): (a) una rotta per
+  voce; (b) ancore nella stessa pagina. Presa **(a)**, così la barra laterale
+  segna la voce giusta. "Stato dell'arte" tiene i suoi riquadri (stesso
+  componente delle pagine nuove).
+- **"Profilo Candidato" nella barra laterale**: il documento non la elenca,
+  ma è la pagina della card 1. Tenuta come prima voce di Chi cerchiamo.
+- **Imbuto due volte (L2 e L3)**: due indirizzi (`imbuto`, `imbuto-scelta`)
+  per la stessa pagina, così si accende una voce sola.
+- **Link dell'annuncio "dopo il salvataggio"**: oggi serve anche «Conferma»
+  (richiesta del cliente del 2026-10-19). Non cambiato: approvare da soli al
+  salvataggio cambierebbe un flusso. **Da chiedere al cliente.**
+- **Test soft skill "dopo il salvataggio"**: mostrato quando c'è almeno un CV.
+
 ## Monorepo o cartella unica · 2026-09-25
 - Opzioni: (a) monorepo con pacchetti `ui`, `recruiting`, `assessment`;
   (b) un'applicazione con i componenti condivisi in `src/components`.

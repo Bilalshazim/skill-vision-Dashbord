@@ -1,44 +1,45 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
-import { CoinsLossIcon, GearAlertIcon, HouseValueIcon, LightbulbGemIcon } from '@/components/patterns/CardIcons'
+import { CoinsLossIcon, HouseValueIcon, LightbulbGemIcon } from '@/components/patterns/CardIcons'
+import { NavCard } from '@/components/patterns/NavCard'
 import { SkillVisionCard } from '@/components/patterns/SkillVisionCard'
-import { Compass, FileText } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Compass } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
 import { Card, CardDescription } from '@/components/ui/card'
 import { usePersistedFlag } from '@/hooks/use-persisted-flag'
 import { homeCardLayout } from '@/lib/home-card-layout'
-import { EvaluatorAreaCard } from '@/modules/recruiting/profile-hub/EvaluatorAreaCard'
-import { JobPostingSection } from '@/modules/recruiting/profile-hub/JobPostingSection'
-import { SoftSkillSection } from '@/modules/recruiting/profile-hub/SoftSkillSection'
-import { SurveyLinkSection } from '@/modules/recruiting/profile-hub/SurveyLinkSection'
+import { RECRUITING_NAV_GROUPS } from '@/modules/recruiting/nav-config'
 
-// Migrated from modules/recruiting.html #scr-profilo ("Profilo della
-// ricerca" — nav-labeled "Report", ~241-354): le quattro finestre nello
-// stesso ordine di legacy (Profilo Candidato / Competenze trasversali /
-// Annuncio di lavoro / Area Valutatore).
+// "Profilo della ricerca": le tre card dei primi tre livelli del percorso
+// (documento del cliente "Recruiting Module", 2026-10-23) — Chi cerchiamo,
+// Chi è più adatto, Chi scegliamo. Prima erano quattro finestre (Profilo
+// Candidato, Competenze trasversali, Annuncio di lavoro, Area Valutatori):
+// le competenze trasversali e l'annuncio stanno ora nel Profilo Candidato,
+// l'Area Valutatori è il quarto livello, nella barra laterale.
 //
-// Come nei disegni del cliente (Roberto Feliciani): ogni finestra è una
-// SkillVisionCard con il solo titolo e l'icona a sinistra; "Skill Vision" apre
-// sulla destra, nella stessa riga, il pannello con una riga di descrizione e
-// quello che prima stava dentro la card (identico: stesse sezioni, stessi
-// dialog). Aperto/chiuso è ricordato nel browser; all'inizio sono tutte chiuse.
+// Ogni card è una SkillVisionCard con il solo titolo e l'icona a sinistra;
+// "Skill Vision" apre sulla destra le pagine del livello, le stesse voci
+// della barra laterale (nav-config.ts). Aperto/chiuso è ricordato; all'inizio
+// sono tutte chiuse.
+const LEVELS = [
+  { key: 'cerchiamo', title: 'Chi cerchiamo', group: 'Chi cerchiamo · Livello 1', icon: HouseValueIcon, description: 'Livello 1 · Il profilo del candidato, i CV e la preselezione' },
+  { key: 'adatto', title: 'Chi è più adatto', group: 'Chi è più adatto · Livello 2', icon: LightbulbGemIcon, description: 'Livello 2 · Risultati, confronto e stato della selezione' },
+  { key: 'scegliamo', title: 'Chi scegliamo', group: 'Chi scegliamo · Livello 3', icon: CoinsLossIcon, description: 'Livello 3 · I migliori candidati e le fasce di idoneità' },
+] as const
+
 export default function ProfileHubPage() {
-  const [openProfilo, setOpenProfilo] = usePersistedFlag('sv-recruiting-profile-profilo-view')
-  const [openSoft, setOpenSoft] = usePersistedFlag('sv-recruiting-profile-soft-view')
-  const [openAnnuncio, setOpenAnnuncio] = usePersistedFlag('sv-recruiting-profile-annuncio-view')
-  const [openValutatore, setOpenValutatore] = usePersistedFlag('sv-recruiting-profile-valutatore-view')
-  const cardLayout = homeCardLayout(
-    [
-      ['profilo', 'soft'],
-      ['annuncio', 'valutatore'],
-    ] as const,
-    { profilo: openProfilo, soft: openSoft, annuncio: openAnnuncio, valutatore: openValutatore },
-  )
+  const [openCerchiamo, setOpenCerchiamo] = usePersistedFlag('sv-recruiting-profile-cerchiamo-view')
+  const [openAdatto, setOpenAdatto] = usePersistedFlag('sv-recruiting-profile-adatto-view')
+  const [openScegliamo, setOpenScegliamo] = usePersistedFlag('sv-recruiting-profile-scegliamo-view')
+  const state = {
+    cerchiamo: [openCerchiamo, setOpenCerchiamo],
+    adatto: [openAdatto, setOpenAdatto],
+    scegliamo: [openScegliamo, setOpenScegliamo],
+  } as const
+  const cardLayout = homeCardLayout([['cerchiamo', 'adatto'], ['scegliamo']] as const, { cerchiamo: openCerchiamo, adatto: openAdatto, scegliamo: openScegliamo })
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader level="page" className="mb-0" title="Profilo della ricerca" description={<>Configura posizione, mansione e competenze trasversali. La classifica si aggiorna in tempo reale.</>} />
+      <PageHeader level="page" className="mb-0" title="Profilo della ricerca" description={<>Dal profilo del candidato alla scelta finale, in tre livelli. La classifica si aggiorna in tempo reale.</>} />
 
       <div className="label-mono flex items-center gap-1.5 text-muted-foreground">
         <Compass className="size-3.5 shrink-0" aria-hidden="true" />
@@ -46,68 +47,30 @@ export default function ProfileHubPage() {
       </div>
 
       <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-        <SkillVisionCard
-          icon={HouseValueIcon}
-          title="Profilo Candidato"
-          open={openProfilo}
-          onOpenChange={setOpenProfilo}
-          style={cardLayout.profilo}
-          panel={
-            <Card className="gap-3">
-              <CardDescription>Il profilo della ricerca in corso · Responsabilità, competenze e requisiti</CardDescription>
-              <Button asChild variant="outline" className="h-auto justify-start gap-2.5 p-3 text-left">
-                <Link to="/recruiting/job-profile">
-                  <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                  <span className="flex-1 text-app-small font-medium text-foreground">Scheda professionale</span>
-                  <span className="text-app-caption font-medium text-foreground dark:text-primary">Apri scheda →</span>
-                </Link>
-              </Button>
-            </Card>
-          }
-        />
-
-        <SkillVisionCard
-          icon={LightbulbGemIcon}
-          title="Competenze trasversali"
-          open={openSoft}
-          onOpenChange={setOpenSoft}
-          style={cardLayout.soft}
-          panel={
-            <Card className="gap-3">
-              <CardDescription>Quelle che contano per il ruolo · Link al questionario</CardDescription>
-              <SoftSkillSection />
-              <SurveyLinkSection />
-            </Card>
-          }
-        />
-
-        <SkillVisionCard
-          icon={CoinsLossIcon}
-          title="Annuncio di lavoro"
-          open={openAnnuncio}
-          onOpenChange={setOpenAnnuncio}
-          style={cardLayout.annuncio}
-          panel={
-            <Card className="gap-3">
-              <CardDescription>Il link dell’annuncio pubblicato · Riepilogo della ricerca</CardDescription>
-              <JobPostingSection />
-            </Card>
-          }
-        />
-
-        <SkillVisionCard
-          icon={GearAlertIcon}
-          title="Area Valutatori"
-          open={openValutatore}
-          onOpenChange={setOpenValutatore}
-          style={cardLayout.valutatore}
-          panel={
-            <Card className="gap-3">
-              <CardDescription>Schede di intervista, valutazione e report · Valutatori, invii e sintesi</CardDescription>
-              <EvaluatorAreaCard />
-            </Card>
-          }
-        />
+        {LEVELS.map((level) => {
+          const [open, setOpen] = state[level.key]
+          const items = RECRUITING_NAV_GROUPS.find((g) => g.label === level.group)?.items ?? []
+          return (
+            <SkillVisionCard
+              key={level.key}
+              icon={level.icon}
+              title={level.title}
+              open={open}
+              onOpenChange={setOpen}
+              style={cardLayout[level.key]}
+              panel={
+                <Card className="gap-3">
+                  <CardDescription>{level.description}</CardDescription>
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {items.map((item) => (
+                      <NavCard key={item.screen} to={item.to} icon={item.icon} title={item.label} />
+                    ))}
+                  </div>
+                </Card>
+              }
+            />
+          )
+        })}
       </div>
     </div>
   )

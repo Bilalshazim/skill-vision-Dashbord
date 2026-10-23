@@ -184,6 +184,37 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-10-23 — Recruiting: indice a quattro livelli (documento "Recruiting Module")
+- [x] Barra laterale a gruppi: Profilo della ricerca · Chi cerchiamo (L1) ·
+      Chi è più adatto (L2) · Chi scegliamo (L3) · Area valutatori (L4) ·
+      Strumenti (Metodo, Assistente IA, admin). `nav-config.ts` →
+      `RECRUITING_NAV_GROUPS`.
+- [x] Società / Campagna / CIP solo su "Profilo della ricerca".
+- [x] "Profilo della ricerca": 3 card (Chi cerchiamo, Chi è più adatto, Chi
+      scegliamo); il pannello di ciascuna elenca le pagine del livello.
+- [x] Selezione delle 35 competenze trasversali dentro il Profilo Candidato
+      (sezione "Competenze trasversali", che segue subito i pesi scelti).
+      Annuncio di lavoro in fondo al Profilo Candidato.
+- [x] CV & Esportazione: tolto "Import massivo · archivio storico" (era un
+      controllo disattivato). L'elenco dei CV caricati passa a "CV Elaborati"
+      (`/recruiting/cv-elaborati`), con il link al test soft skill in fondo,
+      visibile dal primo CV salvato.
+- [x] Avanzamento della selezione: posizioni + riepilogo; preselezionati,
+      classifica dopo il test, colloqui e podio hanno una pagina loro (stessa
+      posizione via `?companyId&openingId`). "Candidato vincitore" →
+      "Candidati al podio".
+- [x] Nuove pagine: imbuto (L2 e L3), fasce di idoneità, le tre schede dei
+      valutatori (`/recruiting/valutatori/*`), ognuna con il pannello dei
+      valutatori esterni.
+- [x] "Posizioni aperte" tolta da Stato dell'arte (`OpeningsList.tsx`
+      eliminato). Il conteggio nelle StatCard resta.
+- [x] Verificato in locale (chiaro): 18 rotte aprono senza errori. Un ciclo
+      infinito sul Profilo Candidato trovato e corretto durante la prova.
+      tsc, build, audit-identita (27, invariato), audit-storage ok.
+- [ ] Non verificato: modalità scura, mobile. Non fatto: commit e push.
+- [ ] Da chiarire con il cliente: il link dell'annuncio compare dopo «Salva»
+      **e** «Conferma» (approvazione). Vedi DECISIONI.
+
 ## 2026-10-23 — File vecchi spostati fuori dal progetto
 - [x] Spostati in `Desktop/Skill-Vision-Archivio-2026-10-23` (con `LEGGIMI.md`):
       logo vecchio (`logo_black/white.svg`), copia vecchia delle fondamenta in

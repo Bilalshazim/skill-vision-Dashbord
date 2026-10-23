@@ -1,12 +1,14 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { AlertTriangle, CheckCircle2, FileText, Pencil, Save } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useConfirm } from '@/hooks/use-confirm'
 import { Badge } from '@/components/ui/badge'
 import { InlineAlert } from '@/components/patterns/InlineAlert'
-import { JobPostingLink } from '@/modules/recruiting/components/JobPostingLink'
+import { JobPostingSection } from '@/modules/recruiting/profile-hub/JobPostingSection'
+import { SoftSkillSection } from '@/modules/recruiting/profile-hub/SoftSkillSection'
+import { useSkillFlags } from '@/modules/recruiting/lib/skill-flags'
 import { jobProfilesApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
@@ -132,6 +134,18 @@ export default function JobProfilePage() {
   const [publicationLink, setPublicationLink] = useState<string | null>(null)
   const [approvalPending, setApprovalPending] = useState(false)
   const [approvalError, setApprovalError] = useState('')
+
+  // La scelta delle competenze sta ora in questa pagina: quando cambia un
+  // peso, la sezione "Competenze trasversali" della scheda lo segue subito,
+  // tenendo i valori attesi già scritti.
+  // useSkillFlags() dà un oggetto nuovo a ogni render: l'effetto segue il contenuto.
+  const skillFlagsKey = JSON.stringify(useSkillFlags())
+  const lastFlagsKey = useRef(skillFlagsKey)
+  useEffect(() => {
+    if (lastFlagsKey.current === skillFlagsKey) return
+    lastFlagsKey.current = skillFlagsKey
+    setJdState((prev) => ({ ...prev, sections: { ...prev.sections, softSkills: { ...prev.sections.softSkills, items: buildSoftSkillItems(prev.sections.softSkills.items) } } }))
+  }, [skillFlagsKey])
 
   // Phase 32 §5 — backend becomes primary for READ too: on mount, if the
   // active opening has a linked backend Campaign AND that campaign already
@@ -318,6 +332,11 @@ export default function JobProfilePage() {
               </AccordionSection>
 
               <AccordionSection index={nextIdx()} title="Competenze trasversali" sub={SECTION_SUB.softSkills} value="softSkills">
+                {/* La scelta delle competenze trasversali, prima una card del
+                    Profilo della ricerca (documento del cliente, 2026-10-23). */}
+                <div className="mb-3">
+                  <SoftSkillSection />
+                </div>
                 <JdSection section={jdState.sections.softSkills} onChange={(next) => updateSection('softSkills', next)} />
               </AccordionSection>
 
@@ -375,11 +394,17 @@ export default function JobProfilePage() {
             ) : null}
             {backendNote ? <span className="text-app-caption text-muted-foreground">{backendNote}</span> : null}
             {approvalError ? <InlineAlert layout="text">{approvalError}</InlineAlert> : null}
-            {approved && publicationLink ? <JobPostingLink publicationLink={publicationLink} positionTitle={getActiveOpening(readCvMatchingState()).opening?.title || DEFAULT_ROLE} /> : null}
             {!approved && backendProfileId ? <span className="text-app-caption text-muted-foreground">Premi «Conferma» in alto: la scheda viene approvata e si genera il link dell’annuncio da copiare o inviare.</span> : null}
           </div>
         </>
       )}
+      {/* L'annuncio di lavoro, prima una card del Profilo della ricerca: in
+          fondo alla scheda, con il link che compare dopo il salvataggio e la
+          conferma (documento del cliente, 2026-10-23). */}
+      <Card className="max-w-3xl gap-3">
+        <h2 className="text-app-section font-semibold">Annuncio di lavoro</h2>
+        <JobPostingSection link={approved ? publicationLink : null} />
+      </Card>
       {confirmDialog}
     </div>
   )

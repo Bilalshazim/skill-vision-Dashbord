@@ -39,7 +39,10 @@ const primaryBtnClass = buttonVariants({ size: 'sm' })
 // gates this modal on isAdmin; this migration has no login system, so the
 // edit dialog is always available (matching legacy's isAdmin=true branch,
 // same as every other editable feature already migrated).
-export function JobPostingSection() {
+// `link`: il link dell'annuncio quando lo conosce già chi la monta (la
+// scheda professionale, che lo genera con «Conferma»); senza, lo si legge
+// dal server.
+export function JobPostingSection({ link }: { link?: string | null } = {}) {
   const [open, setOpen] = useState(false)
   const [url, setUrl] = useState('')
   const [summary, setSummary] = useState(() => loadJobPostingSummary(DEFAULT_ROLE) || generateJobPostingPreview(DEFAULT_ROLE))
@@ -53,9 +56,11 @@ export function JobPostingSection() {
   // scheda professionale della posizione è confermata.
   const opening = getActiveOpening(readCvMatchingState()).opening
   const openingId = opening?.id
-  const [platformLink, setPlatformLink] = useState<string | null>(null)
+  const [loadedLink, setPlatformLink] = useState<string | null>(null)
+  const platformLink = link !== undefined ? link : loadedLink
+  const knownLink = link !== undefined
   useEffect(() => {
-    if (!openingId) return
+    if (!openingId || knownLink) return
     let cancelled = false
     void loadJobProfileFromBackend(openingId).then((r) => {
       if (!cancelled) setPlatformLink(r.ok && r.approved ? r.publicationLink : null)
@@ -63,7 +68,7 @@ export function JobPostingSection() {
     return () => {
       cancelled = true
     }
-  }, [openingId])
+  }, [openingId, knownLink])
 
   function handleOpenChange(next: boolean) {
     setOpen(next)
@@ -119,10 +124,14 @@ export function JobPostingSection() {
         <JobPostingLink publicationLink={platformLink} positionTitle={opening?.title || DEFAULT_ROLE} />
       ) : (
         <p className="text-app-caption text-muted-foreground">
-          Il link dell’annuncio compare qui quando confermi la{' '}
-          <Link to="/recruiting/job-profile" className="font-medium text-foreground underline-offset-2 hover:underline">
-            scheda professionale
-          </Link>
+          Il link dell’annuncio compare qui quando salvi e confermi la{' '}
+          {knownLink ? (
+            'scheda professionale'
+          ) : (
+            <Link to="/recruiting/job-profile" className="font-medium text-foreground underline-offset-2 hover:underline">
+              scheda professionale
+            </Link>
+          )}
           .
         </p>
       )}
