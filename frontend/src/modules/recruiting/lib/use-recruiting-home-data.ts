@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { ensurePipeline, getActiveOpening, pipelineStage, plDateFmt } from '@/modules/recruiting/lib/pipeline'
+import { countStages, positionCandidateIds, positionStages, STAGES, type StageCounts, sumStages } from '@/modules/recruiting/lib/position-funnel'
 import { type AhiResult, pendingCandidates, ranking } from '@/modules/recruiting/lib/scoring'
 import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import type { Candidate, Company, JobOpening } from '@/modules/recruiting/lib/types'
@@ -60,8 +61,14 @@ export type RecruitingHomeData = {
   funnel: FunnelStage[]
   /** I candidati in classifica di ogni fascia (stesso ordine di `buckets`), già per AHI decrescente. */
   bucketCandidates: { c: Candidate; r: AhiResult }[][]
+  /** Le fasi della selezione per ogni posizione aperta della società attiva (Imbuto, "Tutte le posizioni aperte"). */
+  positions: { companyId: string; openingId: string; title: string; counts: StageCounts }[]
+  /** L'imbuto di tutte le posizioni aperte della società, per fase. */
+  funnelCounts: StageCounts
   /** Panoramica (CLAUDE.md, Fase 6): i numeri di "Stato attuale" e "Da fare adesso". */
   overview: {
+    /** Candidati con il CV e senza test: quelli di "Da invitare al test". */
+    toInvite: number
     companyName: string
     /** La data più recente nei dati della selezione (preselezioni, risultati, decisioni). */
     lastUpdate: Date | null
@@ -83,13 +90,19 @@ export type RecruitingHomeData = {
 // shape changed (structured data instead of innerHTML strings) and the
 // color values became semantic tokens (see storage.ts / scoring.ts for the
 // read-only data boundary).
+//
+// Panoramica, Imbuto e Candidati per fascia guardano la società attiva e le
+// sue posizioni aperte (CLAUDE.md, Fase 6): prima i conteggi sommavano tutte
+// le società e l'archivio CV intero, mescolato alle posizioni. L'archivio
+// resta in Risultati e Candidati per fascia, con «Archivio CV».
 export function useRecruitingHomeData(): RecruitingHomeData {
   return useMemo(() => {
     const candidates = readCandidates()
     const state = readCvMatchingState()
+    const activeCompany = getActiveOpening(state).company
 
     const openings: { company: Company; opening: JobOpening }[] = []
-    for (const co of state.companies || []) {
+    for (const co of (state.companies || []).filter((c) => c.id === activeCompany?.id)) {
       for (const o of co.jobOpenings || []) {
         if (o.active === false) continue
         openings.push({ company: co, opening: o })
@@ -108,7 +121,12 @@ export function useRecruitingHomeData(): RecruitingHomeData {
       .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
       .slice(0, 5)
 
-    const rk = ranking(candidates)
+    // I candidati delle posizioni aperte della società attiva.
+    const ids = new Set(openings.flatMap(({ opening }) => [...positionCandidateIds(opening)]))
+    const rk = ranking(candidates.filter((c) => ids.has(c.id)))
+    const byId = new Map(candidates.map((c) => [c.id, c]))
+    const positions = openings.map(({ company, opening }) => ({ companyId: company.id, openingId: opening.id, title: opening.title, counts: countStages(positionStages(opening, byId)) }))
+    const total = sumStages(positions.map((p) => p.counts))
 
     const kpis: KpiDatum[] = [
       { key: 'candidates', value: candidates.length, label: 'Candidati in archivio' },
@@ -167,13 +185,9 @@ export function useRecruitingHomeData(): RecruitingHomeData {
         meta: `${iv.companyName} · ${iv.openingTitle}`,
       }))
 
-    const funnel: FunnelStage[] = [
-      { key: 'candidature', label: 'Candidature', count: candidates.length },
-      { key: 'screening', label: 'Preselezione', count: openings.reduce((sum, { opening }) => sum + ensurePipeline(opening).prescreened.length, 0) },
-      { key: 'test', label: 'Test Tecnico', count: openings.reduce((sum, { opening }) => sum + ensurePipeline(opening).testResults.length, 0) },
-      { key: 'colloqui', label: 'Colloqui', count: openings.reduce((sum, { opening }) => sum + ensurePipeline(opening).interviews.length, 0) },
-      { key: 'assunti', label: 'Assunti', count: openings.filter(({ opening }) => ensurePipeline(opening).winner).length, note: 'Posizioni con un vincitore selezionato — non un conteggio storico delle assunzioni' },
-    ]
+    // L'imbuto delle posizioni aperte della società, con le fasi del menu
+    // (lib/position-funnel.ts).
+    const funnel: FunnelStage[] = STAGES.map((s) => ({ key: s.key, label: s.label, count: total[s.key] }))
 
     const bucketCandidates: { c: Candidate; r: AhiResult }[][] = [[], [], [], []]
     for (const it of rk) {
@@ -223,7 +237,10 @@ export function useRecruitingHomeData(): RecruitingHomeData {
       interviewsThisWeek,
       funnel,
       bucketCandidates,
+      positions,
+      funnelCounts: total,
       overview: {
+        toInvite: pendingCandidates(candidates).length,
         companyName: getActiveOpening(state).company?.name ?? '',
         lastUpdate: times.length ? new Date(Math.max(...times)) : null,
         openings: openings.length,

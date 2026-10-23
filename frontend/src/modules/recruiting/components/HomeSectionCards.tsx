@@ -53,7 +53,7 @@ export function SelectionFunnelCard({ data }: { data: RecruitingHomeData }) {
   return (
     <Card>
       <CardContent>
-        <SelectionFunnel stages={data.funnel} />
+        <SelectionFunnel counts={data.funnelCounts} />
       </CardContent>
     </Card>
   )

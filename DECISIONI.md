@@ -1918,3 +1918,99 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
 - Il browser di prova era usato in contemporanea da un'altra sessione (cambi
   di pagina e di dimensione non miei): ogni vista è stata catturata subito
   dopo l'apertura e ricontrollata.
+
+## Posizione attiva unica: dove sta e chi la cambia · 2026-10-23
+- Contesto: CLAUDE.md, Fase 6 ("La posizione attiva è una sola in tutta
+  l'applicazione"). Le pagine dell'avanzamento (CV preselezionati, Classifica
+  dopo il test, Colloqui, Podio, Avanzamento) tenevano la loro scelta
+  nell'indirizzo (`?companyId&openingId`), separata da `activeContext`: era
+  la regola del vecchio Recruiting, ora un difetto.
+- Opzioni: (a) l'indirizzo resta la fonte e le altre pagine lo leggono; (b)
+  `activeContext` (preferenza dell'utente sul server) è la sola fonte, letta
+  da tutte le pagine attraverso un contesto del layout
+  (`lib/active-position.tsx`), e l'indirizzo vecchio diventa la posizione
+  attiva all'apertura.
+- Raccomandazione e presa: **(b)**. I segnalibri vecchi funzionano. La
+  scelta sta nella `ContextBar` (pattern nuovo, nel catalogo) sopra ogni
+  pagina; la barra laterale tiene solo la società. Tolti i "Cambia posizione"
+  delle singole pagine e il "cambialo dalla pagina CV & Esportazione".
+
+## Un profilo solo per tutta Recruiting: cosa resta da decidere · 2026-10-23
+- Trovato nel codice: il Profilo Candidato (scheda, competenze, pesi) e il
+  profilo con cui si calcola l'indice AHI sono **uno solo**, salvato sotto
+  "Sales Account Manager" (`DEFAULT_ROLE`), non uno per posizione. Per questo
+  Risultati e Stato dell'arte dicevano "Sales Account Manager" mentre le
+  posizioni aperte sono altre.
+- Fatto adesso, senza toccare i dati: Risultati e Candidati per fascia
+  mostrano di default i candidati della posizione attiva (bacino CV,
+  preselezionati, test, colloqui), con «Archivio CV» per vedere tutto
+  l'archivio come prima; ogni pagina dice "profilo di riferimento: Sales
+  Account Manager". Il Profilo della ricerca, se il profilo salvato ha un
+  nome diverso dalla posizione, lo scrive.
+- **Non fatto, da decidere col cliente** (tocca il salvataggio dei dati,
+  CLAUDE.md §5): un Profilo Candidato e un profilo di calcolo per ogni
+  posizione. Serve sapere se i profili esistenti vanno copiati su ogni
+  posizione aperta, e se la classifica di una posizione si calcola sul suo
+  profilo. Stima a parte.
+
+## Menu di Recruiting: due scostamenti dalla lista ricevuta · 2026-10-23
+- La richiesta del 2026-10-23 portava una lista diversa dalla tabella di
+  CLAUDE.md (per esempio "Profilo della ricerca" nel livello 1, "Risultati" e
+  "Imbuto" nel livello 2, "Colloqui" e "Podio" nel livello 3, senza Profilo
+  candidato, CV elaborati, CV preselezionati, Candidati per fascia, Confronto
+  interno). Presa la tabella di CLAUDE.md, che è la proposta di Roberto
+  "corretta dopo aver aperto le pagine" e non lascia pagine senza voce (cap. 1:
+  nessuna funzione sparisce).
+- L'Imbuto di selezione "esce dai livelli" (CLAUDE.md) ma la tabella non lo
+  mette da nessuna parte: preso il blocco in testa, sotto Profilo della
+  ricerca, perché vale per tutto il percorso e resta raggiungibile.
+- Area valutatori: sezione senza numero; chi ha il ruolo EVALUATOR vede solo
+  quella. Amministrazione solo per i ruoli che la gestiscono, come prima.
+
+## Imbuto: le fasi e le quote · 2026-10-23
+- Fasi (`lib/position-funnel.ts`): CV caricati → Preselezionati → Invitati al
+  test → Test completati → Idonei → In colloquio → Scelti. Chi è in una fase
+  è anche nelle precedenti, tranne "Idonei", che è un giudizio: si può fare il
+  colloquio a un "Da valutare", quindi la quota di "In colloquio" si calcola
+  sui test completati. Idoneo = fascia "Assumibile subito" dell'AHI (da 8,5 su
+  10); senza la scheda del candidato, il risultato del test inserito a mano.
+- La percentuale del Funnel di Bklit è sempre sulla prima fase: spenta;
+  accanto al numero la quota sulla precedente, la quota sul totale in tabella.
+- "Avanzamento della selezione" esce dal menu: i numeri per posizione sono
+  nell'Imbuto con "Tutte le posizioni aperte", e ogni riga porta alla pagina
+  di Avanzamento della posizione (che resta, con le sue azioni).
+- "Stato dell'arte" esce dal menu e la rotta rimanda alla Panoramica; il suo
+  "Report completo" diventa "Esporta riepilogo" nella Panoramica.
+
+## Panoramica di Assessment: andamento e card con il grafico · 2026-10-23
+- "Andamento punteggio organizzativo" è una sezione in più rispetto allo
+  schema della Fase 6, chiesta il 2026-10-23. Si calcola dallo storico vero
+  (`softHistory` / `hardHistory`, media per mese): niente serie inventate.
+  Con meno di due mesi c'è lo stato vuoto (oggi nei dati di prova lo storico è
+  vuoto). Solo i mesi con un valore per ogni linea attiva: un buco a zero
+  sarebbe un dato falso.
+- Stato attuale: il punteggio lo porta il Gauge al centro (il numero non si
+  ripete nella card, `StatCard` senza `value`); copertura, valutati e critici
+  con un anello senza numero al centro e il numero nella card. Gauge `sm`
+  (192 px) per stare in quattro colonne.
+- Le cinque fasce stanno ora nella Panoramica con le prime tre persone;
+  "Dove guardare" ha le due card sotto il benchmark (aree, mansioni).
+- Da sapere: l'andamento di Valori Complessivi usa ancora la serie fissa di
+  esempio del vecchio modulo (`ANDAMENTO_SOFT/HARD`); da portare sullo storico
+  vero come qui.
+
+## Tabelle a sinistra · 2026-10-23
+- Tutto il testo delle tabelle è a sinistra, numeri compresi: `DataTable`
+  ignora `align: 'end'` (prop tenuta, per non toccare chi la passa),
+  `ChartDataTable` e le celle scritte a mano passano a sinistra. Le colonne
+  numeriche si allineano con le cifre tabulari.
+
+## Profilo per posizione e menu: confermati · 2026-10-23
+- **Profilo:** resta un solo Profilo Candidato e un solo profilo di calcolo
+  per tutta Recruiting ("Sales Account Manager", `DEFAULT_ROLE`), ereditato da
+  ogni posizione aperta. Nessun profilo per posizione, nessun dato toccato. Le
+  pagine continuano a dire "profilo di riferimento: Sales Account Manager".
+  Chiude la domanda di "Un profilo solo per tutta Recruiting".
+- **Menu:** resta quello della tabella di CLAUDE.md, con l'Imbuto nel blocco
+  in testa (voce "Menu di Recruiting: due scostamenti dalla lista ricevuta").
+- **CLAUDE.md §9:** la regola "Niente dati nel browser" resta nel file.

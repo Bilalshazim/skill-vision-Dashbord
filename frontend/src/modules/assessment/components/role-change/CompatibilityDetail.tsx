@@ -47,8 +47,8 @@ export function CompatibilityDetail({ candidate: c, rank, hardFrom, ui, lang, on
               <TableHeader>
                 <TableRow>
                   <TableHead>{ui.rcReq}</TableHead>
-                  <TableHead className="text-right">{ui.rcRequired}</TableHead>
-                  <TableHead className="text-right">{ui.rcValueOf(c.emp.nome)}</TableHead>
+                  <TableHead>{ui.rcRequired}</TableHead>
+                  <TableHead>{ui.rcValueOf(c.emp.nome)}</TableHead>
                   <TableHead>{ui.rcStatus}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -61,8 +61,8 @@ export function CompatibilityDetail({ candidate: c, rank, hardFrom, ui, lang, on
                         {ui.rcKind[r.kind]} · {ui.rcWeight} {weightLabel(r.weight, lang).toLowerCase()}
                       </span>
                     </TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">{fmt1it(r.target)}</TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">{r.value == null ? '–' : fmt1it(r.value)}</TableCell>
+                    <TableCell className="font-mono tabular-nums">{fmt1it(r.target)}</TableCell>
+                    <TableCell className="font-mono tabular-nums">{r.value == null ? '–' : fmt1it(r.value)}</TableCell>
                     <TableCell>
                       <ReqStatusBadge status={r.status} label={ui.rcStatusLabel[r.status]} />
                     </TableCell>

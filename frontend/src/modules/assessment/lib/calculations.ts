@@ -365,3 +365,27 @@ export function tierRange(key: string, lang: AssessmentLang): { min: number; max
   if (i < 0) return { min: 0, max: null }
   return { min: Math.max(0, defs[i].min), max: i === 0 ? null : defs[i - 1].min }
 }
+
+/**
+ * L'andamento dell'organizzazione dallo storico vero delle valutazioni: per
+ * ogni mese, la media dei punteggi trasversali (softHistory) e professionali
+ * (hardHistory) registrati in quel mese, su 10. Niente serie inventate: con
+ * meno di due mesi l'andamento non c'è.
+ */
+export function orgTrend(state: AssessmentState): { month: string; date: Date; soft: number | null; hard: number | null }[] {
+  const by = new Map<string, { soft: number[]; hard: number[] }>()
+  const add = (iso: string, kind: 'soft' | 'hard', v: number) => {
+    const d = new Date(iso)
+    if (!Number.isFinite(d.getTime()) || !Number.isFinite(v)) return
+    const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    if (!by.has(k)) by.set(k, { soft: [], hard: [] })
+    by.get(k)![kind].push(v)
+  }
+  state.employees.forEach((e) => {
+    e.softHistory?.forEach((h) => add(h.date, 'soft', h.overallOttenuto))
+    e.hardHistory?.forEach((h) => add(h.date, 'hard', h.apexScore))
+  })
+  return [...by.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, v]) => ({ month, date: new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)) - 1, 1), soft: v.soft.length ? round1(avg(v.soft)) : null, hard: v.hard.length ? round1(avg(v.hard)) : null }))
+}

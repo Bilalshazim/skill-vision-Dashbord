@@ -248,7 +248,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
                     <div className="flex items-center gap-2 text-app-caption text-muted-foreground">
                       <span>{ui.exiAreaCriticalityLabel}</span>
                       <Slider min={1} max={10} step={1} value={[v]} onValueChange={([n]) => setAreaCrit(i, n)} aria-label={`${ui.exiAreaCriticalityLabel} — ${name}`} className="flex-1" />
-                      <span className="min-w-5 text-right text-app-small font-medium text-foreground tabular-nums">{v}</span>
+                      <span className="min-w-5 text-app-small font-medium text-foreground tabular-nums">{v}</span>
                     </div>
                   </ChoiceCard>
                 )

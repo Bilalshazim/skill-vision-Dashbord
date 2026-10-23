@@ -201,7 +201,7 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
                           <Badge>
                             {weightLabel(w, lang)}
                           </Badge>
-                          <span className="min-w-24 shrink-0 text-right text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
+                          <span className="min-w-24 shrink-0 text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
                             {ui.rcExpectedLabel}: <b>{fmt1(expected)}</b>
                           </span>
                         </div>

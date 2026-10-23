@@ -26,7 +26,7 @@ function ScoreRows({ rows }: { rows: { label: string; score: string; note: strin
             <th scope="row" className="py-1 pr-3 text-left font-normal text-muted-foreground">
               {r.label}
             </th>
-            <td className="py-1 pr-3 text-right font-mono tabular-nums text-foreground">{r.score ? `${r.score}/5` : '—'}</td>
+            <td className="py-1 pr-3 font-mono tabular-nums text-foreground">{r.score ? `${r.score}/5` : '—'}</td>
             <td className="py-1 text-muted-foreground">{r.note}</td>
           </tr>
         ))}

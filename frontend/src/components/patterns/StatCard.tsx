@@ -62,7 +62,8 @@ export function StatCard({
   className,
 }: {
   label?: ReactNode
-  value: ReactNode
+  /** Assente quando il numero lo porta il grafico dentro la card (il Gauge al centro): il numero si scrive una volta. */
+  value?: ReactNode
   unit?: ReactNode
   icon?: LucideIcon
   tone?: StatTone
@@ -115,12 +116,14 @@ export function StatCard({
           ) : null}
         </div>
       ) : null}
-      <div
-        className={cn('min-w-0 tabular-nums', valueKind === 'text' ? 'text-app-subtitle break-words' : size === 'lg' || emphasis ? 'text-metric-lg' : size === 'sm' ? 'text-app-subtitle' : 'text-metric', size === 'lg' && 'mt-auto')}
-      >
-        {value}
-        {unit ? <span className="ml-1 text-app-small font-normal text-muted-foreground">{unit}</span> : null}
-      </div>
+      {value != null ? (
+        <div
+          className={cn('min-w-0 tabular-nums', valueKind === 'text' ? 'text-app-subtitle break-words' : size === 'lg' || emphasis ? 'text-metric-lg' : size === 'sm' ? 'text-app-subtitle' : 'text-metric', size === 'lg' && 'mt-auto')}
+        >
+          {value}
+          {unit ? <span className="ml-1 text-app-small font-normal text-muted-foreground">{unit}</span> : null}
+        </div>
+      ) : null}
       {progress !== undefined ? <Progress value={Math.max(0, Math.min(100, progress))} tone={progressTone ?? BAR[tone]} className={size === 'lg' ? 'h-2.5' : undefined} /> : null}
       {note ? <p className="text-app-small text-muted-foreground">{note}</p> : null}
       {children}

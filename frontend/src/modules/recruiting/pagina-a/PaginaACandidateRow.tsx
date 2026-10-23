@@ -253,7 +253,7 @@ export const PaginaACandidateRow = memo(function PaginaACandidateRow({
           </Button>
         )}
         {sendState.kind === 'error' && (
-          <div className="max-w-48 text-right">
+          <div className="max-w-48">
             <p className="text-app-caption font-medium text-destructive">{sendState.message}</p>
             {sendState.rawMessage && (
               <button

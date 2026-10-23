@@ -9,16 +9,18 @@ import { cn } from '@/lib/utils'
 // tacche piene in `chart-mono` invece di `chart-1`, perché una serie sola
 // prende `chart-mono` (regole di colore della Fase 5) — in DECISIONI.
 // Il punteggio è su 10 (`max`); il numero non si ripete fuori dal grafico.
-// Misura fissa (240 × 183, il rapporto 21/16 di Bklit): il default di Bklit
-// chiede almeno 300px di larghezza, che in una colonna stretta scorre.
-export function ScoreGauge({ value, max = 10, label, className }: { value: number; max?: number; label: string; className?: string }) {
+// Misura fissa (il rapporto 21/16 di Bklit): il default di Bklit chiede almeno
+// 300px di larghezza, che in una colonna stretta scorre. `md` 240 × 183,
+// `sm` 192 × 146 per una riga di quattro card.
+export function ScoreGauge({ value, max = 10, label, size = 'md', className }: { value: number; max?: number; label: string; size?: 'sm' | 'md'; className?: string }) {
+  const [w, h] = size === 'sm' ? [192, 146] : [240, 183]
   const v = Math.max(0, Math.min(max, value))
   const shown = Math.round(v * 10) / 10
   return (
     <div data-slot="score-gauge" role="img" aria-label={`${label}: ${shown.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} su ${max}`} className={cn('flex justify-start', className)}>
       <Gauge
-        width={240}
-        height={183}
+        width={w}
+        height={h}
         value={(v / max) * 100}
         activeFill="var(--chart-mono)"
         centerValue={shown}

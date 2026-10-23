@@ -1,5 +1,4 @@
 import { Workflow } from 'lucide-react'
-import { Link } from 'react-router-dom'
 
 import { EmptyState } from '@/components/patterns/EmptyState'
 import { PageHeader } from '@/components/patterns/PageHeader'
@@ -17,35 +16,22 @@ const PAGES: Record<PipelineSection, { title: string; description: string }> = {
 
 // Una fase dell'avanzamento della selezione con una pagina sua (indice a
 // quattro livelli, documento del cliente del 2026-10-23). La posizione è
-// quella dell'indirizzo, arrivando da "Avanzamento della selezione", oppure
-// la posizione attiva della barra laterale.
+// la posizione attiva, nella barra in alto: si cambia da lì, per tutte le
+// pagine insieme (lib/active-position.tsx).
 export default function PipelineSectionPage({ section }: { section: PipelineSection }) {
-  const { company, opening, onMutated, query } = usePipelineSelection()
+  const { company, opening, onMutated } = usePipelineSelection()
   const page = PAGES[section]
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader
-        level="page"
-        className="mb-0"
-        eyebrow={company && opening ? `${company.name} · ${opening.title}` : undefined}
-        title={page.title}
-        description={
-          <>
-            {page.description}{' '}
-            <Link to={`/recruiting/pipeline${query}`} className="font-medium text-foreground underline-offset-2 hover:underline">
-              Cambia posizione
-            </Link>
-          </>
-        }
-      />
+      <PageHeader level="page" className="mb-0" title={page.title} description={page.description} />
 
       {section === 'colloqui' ? <AgendaBlock /> : null}
 
       {company && opening ? (
         <PipelineSectionCard section={section} company={company} opening={opening} onMutated={onMutated} />
       ) : (
-        <EmptyState size="sm" icon={Workflow} description="Nessuna posizione aperta. Aprine una dalla pagina CV & Esportazione." />
+        <EmptyState size="sm" icon={Workflow} description="Nessuna posizione attiva. Scegline una nella barra in alto, o aprine una da CV & Esportazione." />
       )}
     </div>
   )

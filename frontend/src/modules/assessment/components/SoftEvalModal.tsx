@@ -97,7 +97,7 @@ export function SoftEvalModal({ onClose }: { onClose: () => void }) {
                 <Input
                   id={`soft-eval-${s.id}-ottenuto`}
                   size="sm"
-                  className="w-16 text-right tabular-nums"
+                  className="w-16 tabular-nums"
                   type="number"
                   min={1}
                   max={10}
@@ -111,7 +111,7 @@ export function SoftEvalModal({ onClose }: { onClose: () => void }) {
                 <Input
                   id={`soft-eval-${s.id}-atteso`}
                   size="sm"
-                  className="w-16 text-right tabular-nums"
+                  className="w-16 tabular-nums"
                   type="number"
                   min={1}
                   max={10}

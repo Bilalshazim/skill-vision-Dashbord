@@ -60,10 +60,6 @@ export default function PipelinePage() {
     <div className="flex flex-col gap-4">
       <PageHeader level="page" className="mb-0" title="Avanzamento della selezione" description={<>Stato di avanzamento e tracciamento per ogni posizione aperta — preselezione, test, colloqui, podio.</>} />
 
-      <p className="rounded-sm border border-border bg-secondary px-3 py-2 text-app-caption text-muted-foreground dark:text-secondary-foreground">
-        "Segna completato" non è ancora disponibile in questa schermata.
-      </p>
-
       <PipelineDashboard cards={cards} selectedKey={selectedKey} onSelect={select} />
 
       {company && opening && p ? (

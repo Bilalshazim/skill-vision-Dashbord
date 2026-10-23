@@ -701,6 +701,117 @@ modulo, `/` porta direttamente lì. Nessuna dashboard nuova.
 **La voce `Menu`** prende il nome della sua destinazione, "Profilo della
 ricerca".
 
+**Menu di Recruiting** — deciso il 2026-10-23, dalla proposta di Roberto
+corretta dopo aver aperto le pagine. I quattro livelli restano; le voci vanno
+dove il contenuto della pagina dice che stanno.
+
+| Sezione | Voci, in quest'ordine |
+|---|---|
+| — | **Panoramica** (prima voce, pagina d'ingresso di `/recruiting`) |
+| — | **Profilo della ricerca** |
+| Chi cerchiamo · livello 1 | Profilo candidato · CV & Esportazione · CV elaborati · CV preselezionati · **Da invitare al test** |
+| Chi è più adatto · livello 2 | Classifica dopo il test · Candidati per fascia di idoneità · Confronto interno |
+| Chi scegliamo · livello 3 | Risultati · Prossimi colloqui · Candidati al podio |
+| Area valutatori | Intervista strutturata · Valutazione candidato · Report finale di valutazione |
+| Strumenti | Metodo · Assistente IA |
+| Amministrazione | CIP · Email · Comitato scientifico |
+
+Cosa cambia rispetto a oggi, e perché:
+
+- **"Migliori candidati" → "Da invitare al test"**, nel livello 1. La pagina
+  (`/recruiting/pagina-a`) elenca chi ha il CV caricato e non ha ancora fatto il
+  test, e da lì si manda il link: viene prima del test, non nella scelta
+  finale. Cambia l'etichetta, non la rotta.
+- **"Stato dell'arte" sparisce come voce**: è la vecchia Home di Recruiting
+  (contatori, card di sintesi). Il suo contenuto confluisce nella Panoramica.
+- **"Avanzamento della selezione"** e **"Imbuto di selezione"** escono dai
+  livelli. L'imbuto oggi è in due pagine con gli stessi dati (`/imbuto`, solo
+  tabella, e `/imbuto-scelta`, grafico e tabella): ne resta una, quella con il
+  grafico, rifatta come sotto; l'altra rotta reindirizza, non si rompono i link
+  salvati. La Panoramica ne mostra la versione compatta con il link "Apri
+  l'imbuto".
+
+**Imbuto di selezione** — verificato il 2026-10-23. Il grafico (Funnel di
+Bklit) è giusto; la pagina no:
+
+- **Non dice di quale posizione parla.** Mostra 56 candidature, cioè l'archivio
+  importato per "Sales Account Manager", mentre le posizioni aperte in
+  Avanzamento della selezione sono "Senior Frontend Engineer" e "Customer Care
+  Specialist", tutte e due a 0. Il numero più grande della pagina appartiene a
+  una posizione che non risulta aperta.
+- **Le fasi non sono quelle del processo.** "Test tecnico" non esiste: il test
+  è quello delle competenze trasversali di Original Skills. Mancano gli
+  invitati al test (Da invitare al test ne mostra 2 in attesa) e gli idonei.
+- **Una sola percentuale**, sul totale. Dove si perdono i candidati si legge dal
+  passaggio da una fase all'altra, che non c'è.
+- **La nota "Posizioni con un vincitore selezionato"** spiega "Assunti" con un
+  asterisco: la fase si chiama per quello che conta ("Scelti").
+- **Il grafico occupa metà riga e la pagina finisce lì.**
+
+Come deve essere:
+
+1. **Intestazione** con la posizione attiva (stato condiviso, sotto) e la
+   scelta "Questa posizione / Tutte le posizioni aperte". Mai l'archivio intero
+   mescolato alle posizioni.
+2. **Il grafico a tutta riga**, con le fasi del menu: CV caricati →
+   Preselezionati → Invitati al test → Test completati → Idonei → In colloquio
+   → Scelti. Ogni fase porta il numero e la quota sulla fase precedente; la
+   quota sul totale va nella tabella.
+3. **Una frase che dice dove si fermano**, calcolata (numeri d'esempio): "Il calo maggiore è fra
+   Preselezionati e Invitati al test: 12 su 30 non sono stati invitati". Se i
+   numeri sono tutti a zero oltre la prima fase, EmptyState, non un grafico
+   di zeri.
+4. **Una tabella per fase**: persone, quota sulla precedente, quota sul totale,
+   quante sono ferme lì e il link alla pagina della fase.
+5. **Con "Tutte le posizioni aperte"**, sotto, una riga per posizione con i
+   numeri per fase: è il contenuto di Avanzamento della selezione, che così non
+   serve più come pagina a parte. Il testo "«Segna completato» non è ancora
+   disponibile" sparisce: basta l'aggiornamento automatico (cap. 7, 2026-10-02).
+- **"Classifica dopo il test"** passa al livello 2: viene dopo il test.
+- **Prossimi colloqui e Candidati al podio** passano al livello 3: sono la
+  scelta finale.
+- **Area valutatori** non è un livello della selezione, è il lavoro di un
+  ruolo: sezione a parte, senza numero, mostrata in base al ruolo. Un
+  valutatore esterno vede solo questa.
+- **Amministrazione** solo per i ruoli che la gestiscono, come oggi.
+- **Profilo candidato** resta: nella lista di Roberto non c'era, ma è dove si
+  definisce la posizione e nessuna funzione sparisce (cap. 1).
+
+Il menu di Assessment non cambia in questo passaggio, tranne la prima voce:
+"Home" diventa "Panoramica".
+
+**Profilo della ricerca** — deciso il 2026-10-23. Oggi ripete il menu: tre
+folder card con il solo titolo ("Chi cerchiamo", "Chi è più adatto", "Chi
+scegliamo") e sotto i link del livello 1. Diventa la **scheda della posizione
+attiva**: la Panoramica guarda tutte le posizioni della società, il Profilo
+della ricerca una sola. Dall'alto:
+
+1. **Intestazione** — `PageHeader` con il nome della posizione, la società,
+   lo stato (aperta, in selezione, chiusa) e l'azione "Cambia posizione".
+2. **Cosa cerchiamo** — i requisiti chiave presi da Profilo candidato (scopo
+   del ruolo, competenze richieste, sede, contratto), in sola lettura, con il
+   link "Modifica il profilo". Se il profilo non è compilato: EmptyState che
+   porta a Profilo candidato.
+3. **A che punto siamo** — una riga per livello, nell'ordine del menu: quante
+   persone ci sono (CV caricati, preselezionati, invitati al test, test
+   completati, idonei, in colloquio, scelto) e il link alla pagina del
+   livello. È l'imbuto di questa sola posizione, scritto, non disegnato.
+4. **Il prossimo passo** — l'azione da fare adesso su questa posizione, una
+   sola, con il bottone che la esegue (per esempio "Invita 2 candidati al
+   test").
+
+Niente folder card, niente selettore "oggi / Skill Vision", niente testo
+centrato: valgono le regole della Panoramica.
+
+**La posizione attiva è una sola in tutta l'applicazione.** Il 2026-10-23
+Profilo della ricerca, Classifica dopo il test e Candidati al podio erano su
+"Senior Frontend Engineer", mentre Risultati e Stato dell'arte erano su "Sales
+Account Manager": chi naviga confronta due posizioni senza saperlo. È un
+difetto, non una scelta. La posizione attiva (con la società) sta in un solo
+stato condiviso, letto da tutte le pagine, ed è sempre visibile nella
+ContextBar con l'azione per cambiarla. "Cambialo dalla pagina CV &
+Esportazione" (testo di Da invitare al test) non deve più servire.
+
 Densità e impostazione: bordi sottili, superfici neutre, lime solo dove
 indica l'azione, il valore unico o lo stato attivo (paragrafo 1).
 

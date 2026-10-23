@@ -80,7 +80,7 @@ export function RankingCard({
           <div className="text-app-small font-semibold text-muted-foreground">{sourceLabel(candidate.src)}</div>
         </div>
 
-        <div className="hidden text-right sm:block">
+        <div className="hidden sm:block">
           <div className="font-mono text-metric-lg font-semibold leading-none tabular-nums text-foreground">
             {fmtScore10(result.v, false)}
             <span className="ml-1 text-app-small font-normal text-muted-foreground">/10</span>

@@ -13,7 +13,7 @@ import { PaginaACandidateRow } from '@/modules/recruiting/pagina-a/PaginaACandid
 
 // Legacy's own guard message for this exact failure (sendPaginaABulk,
 // modules/recruiting.html line 2302) — reused verbatim rather than invented.
-const NO_ACTIVE_OPENING_MESSAGE = 'Seleziona prima una company/opening nella pagina CV & Esportazione'
+const NO_ACTIVE_OPENING_MESSAGE = 'Nessuna posizione attiva: sceglila nella barra in alto prima di inviare il test.'
 
 type SendState =
   | { kind: 'idle' }
@@ -178,19 +178,12 @@ export default function PaginaAPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader level="page" className="mb-0" title="Migliori Candidati" description={<>Candidati con CV caricato ma non ancora sottoposti al test delle competenze trasversali, ordinati per corrispondenza CV/profilo. Spunta i candidati, aggiungi l'email e invia il link ai selezionati, oppure da ogni riga. Chi ha già ricevuto il link non si può spuntare.</>} />
+      <PageHeader level="page" className="mb-0" title="Da invitare al test" description={<>Candidati con CV caricato ma non ancora sottoposti al test delle competenze trasversali, ordinati per corrispondenza CV/profilo. Spunta i candidati, aggiungi l'email e invia il link ai selezionati, oppure da ogni riga. Chi ha già ricevuto il link non si può spuntare.</>} />
 
-      {opening && company ? (
-        <p className="text-app-caption text-muted-foreground">
-          Invio nel contesto attivo: <b className="font-semibold text-foreground">{company.name}</b> ·{' '}
-          <b className="font-semibold text-foreground">{opening.title}</b> — cambialo dalla pagina{' '}
-          <b className="font-semibold text-foreground">CV & Esportazione</b>.
-        </p>
-      ) : (
-        <p className="text-app-caption text-muted-foreground">
-          Nessun contesto CV/opening attivo — selezionane uno dalla pagina <b className="font-semibold text-foreground">CV & Esportazione</b> prima
-          di inviare i test.
-        </p>
+      {/* La posizione a cui va l'invito è la posizione attiva, nella barra in
+          alto (CLAUDE.md, Fase 6): qui non serve ripeterla né cambiarla. */}
+      {opening && company ? null : (
+        <p className="text-app-caption text-muted-foreground">Nessuna posizione attiva: sceglila nella barra in alto prima di inviare il test.</p>
       )}
 
       <div className="flex flex-col gap-3">
@@ -215,7 +208,7 @@ export default function PaginaAPage() {
         <EmptyState
           size="sm"
           icon={ClipboardCheck}
-          description='Nessun candidato in attesa di test. I candidati compaiono qui appena viene caricato un CV, fino al completamento del test delle competenze trasversali (segnato da CV Elaborati → "Segna completato").'
+          description='Nessun candidato in attesa di test. I candidati compaiono qui appena viene caricato un CV, fino al completamento del test delle competenze trasversali, che arriva da solo da Original Skills.'
         />
       ) : (
         <div>

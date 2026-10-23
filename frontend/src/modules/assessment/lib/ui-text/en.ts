@@ -11,7 +11,17 @@
 /* eslint-disable */
 export const UI_EN = {
   // Overview (CLAUDE.md, Phase 6, 2026-10-23)
-  panoSub: (company, date) => (company ? company + ' · ' : '') + (date ? 'data updated on ' + date : 'no data recorded yet'),
+  panoSub: (company, date) => [company, date ? 'data updated on ' + date : null].filter(Boolean).join(' · '),
+  panoScoreGap: (g) => 'Gap from benchmark ' + g,
+  panoGaugeBench: (b) => 'Benchmark ' + b,
+  panoTrendDelta: (d) => d + ' on the previous month',
+  panoBandsTitle: 'Tiers',
+  panoTrendTitle: 'Organisational score trend',
+  panoTrendSub: 'The average of the scores recorded each month, out of 10, against the benchmark.',
+  panoTrendEmpty: 'Trend not available yet.',
+  panoTrendEmptySub: 'It appears from the second evaluation recorded in a different month: today the data is a single snapshot.',
+  panoGapAreasTitle: 'Areas below benchmark',
+  panoGapRolesTitle: 'Roles below benchmark',
   panoStatusTitle: 'Current status',
   panoScore: 'Overall score',
   panoScoreNote: (bench, gap) => 'Benchmark ' + bench + ' /10 · gap ' + gap,

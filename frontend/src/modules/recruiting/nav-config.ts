@@ -1,7 +1,6 @@
 import {
   ArrowLeftRight,
   CalendarDays,
-  ClipboardCheck,
   FileBarChart,
   FileBarChart2,
   FileCheck2,
@@ -10,7 +9,6 @@ import {
   Filter,
   Home,
   IdCard,
-  LayoutDashboard,
   ListChecks,
   type LucideIcon,
   Mail,
@@ -21,9 +19,9 @@ import {
   Sigma,
   Sparkles,
   Trophy,
+  Send,
   Upload,
   Users,
-  Workflow,
 } from 'lucide-react'
 
 // Ported 1:1 from the legacy Recruiting module's own nav (#side in
@@ -64,25 +62,32 @@ export type RecruitingNavItem = {
   roles?: string[]
 }
 
-// Indice a quattro livelli (documento del cliente "Recruiting Module",
-// 2026-10-23): in testa "Profilo della ricerca", poi i quattro livelli del
-// percorso, poi gli strumenti. Le voci che erano sezioni di una pagina
-// (preselezionati, classifica dopo il test, colloqui, podio, le tre schede
-// dei valutatori) hanno ora un indirizzo loro. "Posizioni aperte" è tolta.
-// `screen` resta stabile dove la voce esisteva già.
+// Menu di Recruiting (CLAUDE.md, Fase 6, deciso il 2026-10-23): i quattro
+// livelli restano, le voci stanno dove il contenuto della pagina dice che
+// stanno. In testa Panoramica e Profilo della ricerca, poi l'Imbuto di
+// selezione, che vale per tutto il percorso e non per un livello. Tolte come
+// voci: "Stato dell'arte" (confluisce nella Panoramica, la rotta rimanda lì),
+// "Avanzamento della selezione" (i numeri per posizione sono nell'Imbuto con
+// "Tutte le posizioni aperte"; la pagina resta raggiungibile da lì), il
+// secondo Imbuto (/imbuto rimanda a /imbuto-scelta). "Migliori candidati"
+// diventa "Da invitare al test": stessa rotta. L'Area valutatori non è un
+// livello: è il lavoro di un ruolo, e un valutatore vede solo quella
+// (`audience`). `screen` resta stabile dove la voce esisteva già.
 export type RecruitingNavGroup = {
   /** Assente per il blocco in testa. */
   label?: string
+  /** `evaluator`: la sola sezione che vede chi ha il ruolo di valutatore. */
+  audience?: 'evaluator'
   items: RecruitingNavItem[]
 }
 
 export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
   {
     items: [
-      // La pagina d'ingresso del modulo (CLAUDE.md, Fase 6, 2026-10-23).
       { screen: 'panoramica', label: 'Panoramica', icon: Home, to: '/recruiting', end: true },
       // Era "Menu": la voce prende il nome della sua destinazione (CLAUDE.md, Fase 6).
       { screen: 'profilo', label: 'Profilo della ricerca', icon: FileBarChart, to: '/recruiting/profile' },
+      { screen: 'imbutoScelta', label: 'Imbuto di selezione', icon: Filter, to: '/recruiting/imbuto-scelta' },
     ],
   },
   {
@@ -91,33 +96,30 @@ export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
       { screen: 'jd', label: 'Profilo Candidato', icon: FileText, to: '/recruiting/job-profile' },
       { screen: 'cv', label: 'CV & Esportazione', icon: Upload, to: '/recruiting/cv' },
       { screen: 'cvElaborati', label: 'CV Elaborati', icon: Files, to: '/recruiting/cv-elaborati' },
-      { screen: 'pipeline', label: 'Avanzamento della selezione', icon: Workflow, to: '/recruiting/pipeline' },
       { screen: 'preselezionati', label: 'CV preselezionati', icon: ListChecks, to: '/recruiting/preselezionati' },
-      { screen: 'classificaTest', label: 'Classifica dopo il test', icon: FileCheck2, to: '/recruiting/classifica-test' },
+      { screen: 'paginaA', label: 'Da invitare al test', icon: Send, to: '/recruiting/pagina-a' },
     ],
   },
   {
     label: 'Chi è più adatto · Livello 2',
     items: [
-      { screen: 'ranking', label: 'Risultati', icon: Trophy, to: '/recruiting/ranking' },
+      { screen: 'classificaTest', label: 'Classifica dopo il test', icon: FileCheck2, to: '/recruiting/classifica-test' },
+      { screen: 'fasce', label: 'Candidati per fascia di idoneità', icon: Users, to: '/recruiting/fasce-idoneita' },
       { screen: 'match', label: 'Confronto interno', icon: ArrowLeftRight, to: '/recruiting/match' },
-      { screen: 'home', label: "Stato dell'arte", icon: LayoutDashboard, to: '/recruiting/stato-dell-arte' },
-      { screen: 'imbuto', label: 'Imbuto di selezione', icon: Filter, to: '/recruiting/imbuto' },
     ],
   },
   {
     label: 'Chi scegliamo · Livello 3',
     items: [
-      { screen: 'paginaA', label: 'Migliori candidati', icon: ClipboardCheck, to: '/recruiting/pagina-a' },
-      { screen: 'fasce', label: 'Candidati per fascia di idoneità', icon: Users, to: '/recruiting/fasce-idoneita' },
-      { screen: 'imbutoScelta', label: 'Imbuto di selezione', icon: Filter, to: '/recruiting/imbuto-scelta' },
+      { screen: 'ranking', label: 'Risultati', icon: Trophy, to: '/recruiting/ranking' },
+      { screen: 'colloqui', label: 'Prossimi colloqui', icon: CalendarDays, to: '/recruiting/colloqui' },
+      { screen: 'podio', label: 'Candidati al podio', icon: Medal, to: '/recruiting/podio' },
     ],
   },
   {
-    label: 'Area valutatori · Livello 4',
+    label: 'Area valutatori',
+    audience: 'evaluator',
     items: [
-      { screen: 'colloqui', label: 'Prossimi colloqui', icon: CalendarDays, to: '/recruiting/colloqui' },
-      { screen: 'podio', label: 'Candidati al podio', icon: Medal, to: '/recruiting/podio' },
       { screen: 'ivNotes', label: 'Intervista strutturata', icon: Mic, to: '/recruiting/valutatori/intervista' },
       { screen: 'ivEval', label: 'Valutazione candidato', icon: NotebookPen, to: '/recruiting/valutatori/valutazione' },
       { screen: 'ivReport', label: 'Report finale di valutazione', icon: FileBarChart2, to: '/recruiting/valutatori/report' },
@@ -128,6 +130,11 @@ export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
     items: [
       { screen: 'formule', label: 'Metodo', icon: Sigma, to: '/recruiting/metodo' },
       { screen: 'ai', label: 'Assistente IA', icon: Sparkles, to: '/recruiting/ask' },
+    ],
+  },
+  {
+    label: 'Amministrazione',
+    items: [
       { screen: 'cipAdmin', label: 'CIP', icon: IdCard, to: '/recruiting/admin/cip', roles: ['PLATFORM_ADMIN'] },
       { screen: 'emailAdmin', label: 'Email', icon: Mail, to: '/recruiting/admin/email', roles: ['PLATFORM_ADMIN', 'COMPANY_ADMIN'] },
       { screen: 'originalSkills', label: 'Comitato scientifico', icon: ScanSearch, to: '/recruiting/admin/comitato-scientifico', roles: ['PLATFORM_ADMIN'] },

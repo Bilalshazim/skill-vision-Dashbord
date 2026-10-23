@@ -97,7 +97,7 @@ export function JdSection({ section, onChange }: { section: JdSectionData; onCha
                   onChange({ ...section, items: section.items.map((x) => (x.id === it.id ? { ...x, valoreAtteso, checked: valoreAtteso != null ? true : x.checked } : x)) })
                 }}
                 size="sm"
-                className="w-16 text-right font-mono"
+                className="w-16 font-mono"
  />
             </Label>
           </div>

@@ -11,7 +11,17 @@
 /* eslint-disable */
 export const UI_IT = {
   // Panoramica (CLAUDE.md, Fase 6, 2026-10-23)
-  panoSub: (company, date) => (company ? company + ' · ' : '') + (date ? 'dati aggiornati al ' + date : 'nessun dato ancora registrato'),
+  panoSub: (company, date) => [company, date ? 'dati aggiornati al ' + date : null].filter(Boolean).join(' · '),
+  panoScoreGap: (g) => 'Scarto dal benchmark ' + g,
+  panoGaugeBench: (b) => 'Benchmark ' + b,
+  panoTrendDelta: (d) => d + ' sul mese prima',
+  panoBandsTitle: 'Fasce',
+  panoTrendTitle: 'Andamento punteggio organizzativo',
+  panoTrendSub: 'La media dei punteggi registrati ogni mese, su 10, contro il benchmark.',
+  panoTrendEmpty: 'Andamento non ancora disponibile.',
+  panoTrendEmptySub: 'Compare dalla seconda valutazione registrata in un mese diverso: oggi i dati sono una fotografia sola.',
+  panoGapAreasTitle: 'Aree sotto il benchmark',
+  panoGapRolesTitle: 'Mansioni sotto il benchmark',
   panoStatusTitle: 'Stato attuale',
   panoScore: 'Punteggio complessivo',
   panoScoreNote: (bench, gap) => 'Benchmark ' + bench + ' /10 · scarto ' + gap,

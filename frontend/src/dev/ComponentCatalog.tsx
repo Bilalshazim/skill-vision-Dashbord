@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { ActionList } from '@/components/patterns/ActionList'
 import { BandCard } from '@/components/patterns/BandCard'
 import { ChoiceCard } from '@/components/patterns/ChoiceCard'
+import { ContextBar } from '@/components/patterns/ContextBar'
 import { SendTestLinkBar } from '@/components/patterns/SendTestLinkBar'
 import { CompanySwitcher } from '@/components/patterns/CompanySwitcher'
 import { CompletionRing } from '@/components/patterns/CompletionRing'
@@ -159,7 +160,7 @@ function ChoiceDemo() {
         <div className="label-mono text-muted-foreground">Slider — 1–10, valore sempre scritto accanto</div>
         <div className="flex items-center gap-4">
           <Slider min={1} max={10} step={1} value={[score]} onValueChange={([n]) => setScore(n)} aria-label="Punteggio" />
-          <span className="w-8 text-right font-mono tabular-nums">{score}</span>
+          <span className="w-8 font-mono tabular-nums">{score}</span>
         </div>
         <Slider min={1} max={10} defaultValue={[4]} disabled aria-label="Disabilitato" />
       </div>
@@ -340,9 +341,9 @@ function TableDemo() {
             <TableHeader>
               <TableRow>
                 <TableHead>Dimensione</TableHead>
-                <TableHead className="text-right">Manager</TableHead>
-                <TableHead className="text-right">Peer</TableHead>
-                <TableHead className="text-right">Auto</TableHead>
+                <TableHead>Manager</TableHead>
+                <TableHead>Peer</TableHead>
+                <TableHead>Auto</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -352,16 +353,16 @@ function TableDemo() {
               ].map(([d, a, b, c]) => (
                 <TableRow key={String(d)}>
                   <TableCell>{d}</TableCell>
-                  <TableCell className="text-right">{a}</TableCell>
-                  <TableCell className="text-right">{b}</TableCell>
-                  <TableCell className="text-right">{c}</TableCell>
+                  <TableCell>{a}</TableCell>
+                  <TableCell>{b}</TableCell>
+                  <TableCell>{c}</TableCell>
                 </TableRow>
               ))}
               <TableRow className="bg-muted font-medium">
                 <TableCell>Media</TableCell>
-                <TableCell className="text-right">5,8</TableCell>
-                <TableCell className="text-right">5,9</TableCell>
-                <TableCell className="text-right">6,7</TableCell>
+                <TableCell>5,8</TableCell>
+                <TableCell>5,9</TableCell>
+                <TableCell>6,7</TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -772,7 +773,7 @@ const ENTRIES: Entry[] = [
           <Input className="w-48" defaultValue="Non valido" aria-invalid aria-label="Errore" />
         </Row>
         <Row label="Tipi">
-          <Input type="number" className="w-24 text-right tabular-nums" defaultValue={7.5} aria-label="Numero" />
+          <Input type="number" className="w-24 tabular-nums" defaultValue={7.5} aria-label="Numero" />
           <Input type="date" className="w-44" aria-label="Data" />
           <Input type="email" className="w-60" placeholder="nome@azienda.it" aria-label="Email" />
         </Row>
@@ -1170,6 +1171,23 @@ const ENTRIES: Entry[] = [
         />
         <PageHeader eyebrow="Customer care" title="Logica competenze Customer Care" description="Carico ticket, soddisfazione e competenze." />
         <PageHeader level="subsection" title="Sedi" description="Sedi operative dell'azienda" />
+      </div>
+    ),
+  },
+  {
+    name: 'ContextBar',
+    level: 'Pattern',
+    source: 'components/patterns/ContextBar.tsx',
+    render: () => (
+      <div className="w-full">
+        <ContextBar
+          items={[
+            { label: 'Società', value: 'Acme Corp' },
+            { label: 'Posizione attiva', value: 'Customer Care Specialist' },
+            { label: 'Stato', value: 'in selezione' },
+          ]}
+          action={<Button size="sm" variant="outline">Cambia posizione</Button>}
+        />
       </div>
     ),
   },

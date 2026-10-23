@@ -1,6 +1,6 @@
 import { CloudOff } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
+import { Outlet } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { ModuleLockGate } from '@/components/ModuleLockGate'
@@ -13,15 +13,17 @@ import { AppShell } from '@/layouts/AppShell'
 import { AuthGuard } from '@/layouts/AuthGuard'
 import { useBackendSession } from '@/lib/api/useBackendSession'
 import { BackendStatusBanner } from '@/modules/recruiting/components/BackendStatusBanner'
-import { RecruitingHeader } from '@/modules/recruiting/components/RecruitingHeader'
+import { RecruitingContextBar } from '@/modules/recruiting/components/RecruitingContextBar'
 import { RecruitingNav } from '@/modules/recruiting/components/RecruitingNav'
+import { ActivePositionProvider } from '@/modules/recruiting/lib/active-position'
 import { loadRecruitingStore, setRecruitingNotice, useRecruitingStore } from '@/modules/recruiting/lib/recruiting-store'
 import { applySavedSkillFlags } from '@/modules/recruiting/lib/skill-flags'
 
 // Recruiting nel guscio unico (Fase 4): AppShell con la barra laterale del
-// modulo. `contextVersion` cambia quando si sceglie un'altra società dalla
-// barra laterale: la pagina aperta si ridisegna sulla nuova società (le
-// pagine leggono il contesto attivo al render, non si abbonano).
+// modulo. `contextVersion` cambia quando si sceglie un'altra società (barra
+// laterale) o un'altra posizione (barra del contesto, lib/active-position.tsx):
+// la pagina aperta si ridisegna sulla nuova posizione (le pagine leggono il
+// contesto attivo al render, non si abbonano).
 //
 // I dati di Recruiting stanno sul server (lib/recruiting-store.ts): le pagine
 // si aprono solo quando sono arrivati. Quando un collega li cambia, la pagina
@@ -64,12 +66,12 @@ export default function RecruitingLayout() {
   }, [store.remoteVersion, shownRemote])
 
   const pageKey = `${contextVersion}-${shownRemote}`
-  const { pathname } = useLocation()
-  const onProfilePage = /^\/recruiting\/profile\/?$/.test(pathname)
+  const bumpContext = useCallback(() => setContextVersion((v) => v + 1), [])
 
   return (
     <AuthGuard>
-      <AppShell section="recruiting" sidebarLabel="Recruiting" sidebar={<RecruitingNav key={`n-${pageKey}`} onCompanyChange={() => setContextVersion((v) => v + 1)} />}>
+      <ActivePositionProvider version={`${pageKey}-${store.status}`} onChange={bumpContext}>
+      <AppShell section="recruiting" sidebarLabel="Recruiting" sidebar={<RecruitingNav key={`n-${pageKey}`} />}>
         <BackendStatusBanner status={backend.status} />
         <ModuleLockGate module="RECRUITING">
           {store.status === 'ready' ? (
@@ -79,13 +81,10 @@ export default function RecruitingLayout() {
                   {store.saveProblem}
                 </InlineAlert>
               ) : null}
-              {/* Società, Campagna e CIP solo su "Profilo della ricerca"
-                  (documento del cliente, 2026-10-23): le sotto-pagine no. */}
-              {onProfilePage ? (
-                <div className="mb-4">
-                  <RecruitingHeader key={`h-${pageKey}`} />
-                </div>
-              ) : null}
+              {/* La posizione attiva sopra ogni pagina, sempre (CLAUDE.md, Fase 6). */}
+              <RecruitingContextBar />
+              {/* Società, Campagna e CIP stanno in fondo a Profilo della ricerca
+                  (profile-hub/ProfileHubPage.tsx), sotto la scheda della posizione. */}
               <ErrorBoundary>
                 <Outlet key={pageKey} />
               </ErrorBoundary>
@@ -106,6 +105,7 @@ export default function RecruitingLayout() {
           )}
         </ModuleLockGate>
       </AppShell>
+      </ActivePositionProvider>
     </AuthGuard>
   )
 }

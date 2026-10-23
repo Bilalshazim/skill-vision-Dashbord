@@ -34,7 +34,7 @@ export function DashboardItemsTable({ items }: { items: Dash5pPayload['items'] }
       header: 'Skill gap',
       cell: (r) => (
         <span className="inline-flex items-center gap-2">
-          <span className="min-w-8 text-right font-medium tabular-nums">{fmtSigned(r.gap)}</span>
+          <span className="min-w-8 font-medium tabular-nums">{fmtSigned(r.gap)}</span>
           {r.gapState ? <Badge tone={GAP_TONE[r.gapState]}>{GAP_LABEL[r.gapState]}</Badge> : null}
         </span>
       ),

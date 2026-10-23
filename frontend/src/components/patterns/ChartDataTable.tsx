@@ -33,7 +33,7 @@ export function ChartDataTable({
             <span className="sr-only">{rowHeader}</span>
           </th>
           {columns.map((c) => (
-            <th key={c.label} scope="col" className="label-mono py-1 pl-2 text-right font-medium text-muted-foreground">
+            <th key={c.label} scope="col" className="label-mono py-1 pl-2 text-left font-medium text-muted-foreground">
               {c.label}
             </th>
           ))}
@@ -46,7 +46,7 @@ export function ChartDataTable({
               {r.label}
             </th>
             {r.values.map((v, i) => (
-              <td key={columns[i]?.label ?? i} className={cn('py-1 pl-2 text-right', columns[i]?.reference ? 'text-muted-foreground' : 'text-foreground')}>
+              <td key={columns[i]?.label ?? i} className={cn('py-1 pl-2 text-left', columns[i]?.reference ? 'text-muted-foreground' : 'text-foreground')}>
                 {v == null ? '—' : fmt(v)}
               </td>
             ))}

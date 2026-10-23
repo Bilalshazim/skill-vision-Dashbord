@@ -1,43 +1,59 @@
 import { FunnelChart } from '@/components/charts'
 import { ChartDataTable } from '@/components/patterns/ChartDataTable'
 import { EmptyState } from '@/components/patterns/EmptyState'
-import type { FunnelStage } from '@/modules/recruiting/lib/use-recruiting-home-data'
+import { PREVIOUS, type StageCounts, STAGES } from '@/modules/recruiting/lib/position-funnel'
 
-// G8 (DECISIONI): l'imbuto di selezione con il Funnel di Bklit. Le fasi
-// (Candidature → Screening → Test → Colloqui → Assunti) sono conteggi
-// cumulativi, quindi un imbuto vero le legge com'è: ogni fase con il suo
-// numero e la percentuale sulla prima. Una serie sola: `chart-mono`, senza
-// aloni (un solo strato). Prima era un anello di "persi per fase" con
-// cinque colori categorici.
-export function SelectionFunnel({ stages }: { stages: FunnelStage[] }) {
-  const total = stages[0]?.count ?? 0
-  const note = stages.find((s) => s.note)?.note
-  if (!total) {
-    return <EmptyState size="sm" description="L'imbuto compare quando ci sono candidature per le posizioni aperte." />
+/** La quota di una fase sulla precedente, in percentuale intera; `null` per la prima o se la precedente è vuota. */
+export function shareOfPrevious(counts: StageCounts, key: keyof StageCounts): number | null {
+  const prev = PREVIOUS[key]
+  if (!prev || !counts[prev]) return null
+  return Math.round((counts[key] / counts[prev]) * 100)
+}
+
+// G8 (DECISIONI): l'imbuto di selezione con il Funnel di Bklit, sulle fasi del
+// menu (lib/position-funnel.ts). Ogni fase porta il numero e la quota sulla
+// fase precedente (CLAUDE.md, Fase 6): la percentuale di Bklit, che è sempre
+// sulla prima fase, è spenta; la quota sul totale sta nella tabella. Una
+// serie sola: `chart-mono`, senza aloni. Se oltre la prima fase è tutto a zero
+// non si disegna un grafico di zeri: stato vuoto.
+export function SelectionFunnel({ counts, height = 'md' }: { counts: StageCounts; height?: 'md' | 'lg' }) {
+  if (!counts.cv) {
+    return <EmptyState size="sm" title="Nessun CV caricato." description="L'imbuto compare quando arrivano i primi CV, da CV & Esportazione." />
+  }
+  if (STAGES.slice(1).every((s) => !counts[s.key])) {
+    return (
+      <EmptyState
+        size="sm"
+        title={`${counts.cv} CV caricati, nessuno ancora preselezionato.`}
+        description="L'imbuto si disegna dalla preselezione in poi: si preselezionano i CV da CV preselezionati."
+      />
+    )
   }
   return (
     <figure className="flex flex-col gap-3">
-      <div aria-hidden="true" className="h-56 w-full">
+      <div aria-hidden="true" className={height === 'lg' ? 'h-72 w-full' : 'h-56 w-full'}>
         <FunnelChart
-          data={stages.map((s) => ({ label: s.label, value: s.count, displayValue: s.count.toLocaleString('it-IT') }))}
+          data={STAGES.map((s) => {
+            const share = shareOfPrevious(counts, s.key)
+            return { label: s.label, value: counts[s.key], displayValue: share == null ? counts[s.key].toLocaleString('it-IT') : `${counts[s.key].toLocaleString('it-IT')} · ${share}%` }
+          })}
           color="var(--chart-mono)"
           layers={1}
           orientation="horizontal"
           showLabels
           showValues
-          showPercentage
-          formatPercentage={(p) => `${Math.round(p)}%`}
+          showPercentage={false}
           className="h-full"
         />
       </div>
+      <figcaption className="text-app-caption text-muted-foreground">Accanto al numero, la quota sulla fase precedente.</figcaption>
       <ChartDataTable
         title="Imbuto di selezione"
         rowHeader="Fase"
-        columns={[{ label: 'Persone' }, { label: '% sulle candidature' }]}
-        rows={stages.map((s) => ({ label: s.label, values: [s.count, total ? Math.round((s.count / total) * 100) : 0] }))}
+        columns={[{ label: 'Persone' }, { label: '% sulla precedente' }, { label: '% sui CV caricati' }]}
+        rows={STAGES.map((s) => ({ label: s.label, values: [counts[s.key], shareOfPrevious(counts, s.key) ?? 100, Math.round((counts[s.key] / counts.cv) * 100)] }))}
         format={(n) => n.toLocaleString('it-IT')}
       />
-      {note ? <figcaption className="text-app-caption text-muted-foreground">* {note}</figcaption> : null}
     </figure>
   )
 }

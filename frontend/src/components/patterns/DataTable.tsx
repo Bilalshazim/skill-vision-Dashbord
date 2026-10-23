@@ -12,7 +12,8 @@ export type DataTableColumn<T> = {
   key: string
   header: ReactNode
   cell: (row: T) => ReactNode
-  /** `end` per le colonne numeriche e le azioni. */
+  /** Accettato e ignorato: tutto il testo delle tabelle è a sinistra (CLAUDE.md,
+   *  Fase 6, 2026-10-23); le colonne numeriche si allineano con le cifre tabulari. */
   align?: 'start' | 'end'
   /** `muted` per i dati di contorno (email, reparto…): testo secondario. */
   emphasis?: 'default' | 'muted'
@@ -114,7 +115,7 @@ export function DataTable<T>({
                   </TableHead>
                 ) : null}
                 {columns.map((c) => (
-                  <TableHead key={c.key} className={cn(c.align === 'end' && 'text-right')}>
+                  <TableHead key={c.key}>
                     {c.header}
                   </TableHead>
                 ))}
@@ -144,7 +145,6 @@ export function DataTable<T>({
                     <TableCell
                       key={c.key}
                       className={cn(
-                        c.align === 'end' && 'text-right',
                         c.emphasis === 'muted' && 'text-muted-foreground',
                         c.nowrap && 'whitespace-nowrap',
                         c.truncate && 'truncate',

@@ -184,6 +184,40 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-10-23 — Posizione attiva unica, menu, Profilo della ricerca, Imbuto, Panoramiche
+- [x] Posizione attiva unica (`lib/active-position.tsx`), letta da tutte le
+      pagine; `ContextBar` (pattern, nel catalogo) sopra ogni pagina di
+      Recruiting con la scelta della posizione; le pagine dell'avanzamento
+      seguono la posizione attiva (i link vecchi con l'indirizzo la impostano).
+      Risultati e Candidati per fascia: "Questa posizione" / "Archivio CV".
+- [x] Menu di Recruiting come nella tabella di CLAUDE.md; "Da invitare al
+      test" (era Migliori candidati); Area valutatori per ruolo; Stato
+      dell'arte e /imbuto rimandano.
+- [x] Profilo della ricerca = scheda della posizione attiva (intestazione,
+      Il prossimo passo, Cosa cerchiamo, A che punto siamo, dati della ricerca).
+- [x] Imbuto unico su /imbuto-scelta: fasi del processo, quota sulla
+      precedente, frase sul calo maggiore, tabella per fase, tabella per
+      posizione con "Tutte le posizioni aperte".
+- [x] Panoramica Recruiting: tolto "nessun dato ancora registrato"; in Da
+      fare "Candidati da invitare al test" e "Test da leggere"; Esporta
+      riepilogo (da Stato dell'arte); società attiva soltanto.
+- [x] Panoramica Assessment: quattro card con Gauge e anelli, Fasce con le
+      prime tre, Andamento dallo storico vero (vuoto nei dati di prova), Dove
+      guardare con aree e mansioni.
+- [x] Tabelle e testo a sinistra ovunque; regola "Niente dati nel browser"
+      rimessa in CLAUDE.md (sparita di nuovo nell'aggiornamento).
+- [x] tsc, build, audit-identita `frontend/src` 0, audit-storage ok;
+      verificate in locale Panoramica, Profilo, Imbuto, Risultati, Stato
+      dell'arte (rimando) e Panoramica Assessment; contrasto a posto.
+- [x] Deciso: resta un profilo solo, ereditato da ogni posizione; menu come
+      la tabella di CLAUDE.md; regola §9 tenuta (DECISIONI, "Profilo per
+      posizione e menu: confermati").
+- [x] Profilo e Imbuto in chiaro, desktop e mobile (390 px): a posto. Trovato e
+      corretto: la barra superiore usciva di 34 px a 390 px (spazi più stretti
+      sotto i 640 px, Topbar e ModuleSwitcher).
+- [ ] Non verificato: un valutatore (ruolo EVALUATOR) che vede solo l'Area.
+- [x] Commit e invio su GitHub (`server-only:main`).
+
 ## 2026-10-23 — Punteggi su 10 (Recruiting e 5P), verifica a schermo, commit
 - [x] Recruiting a schermo su 10 (`fmtScore10`): AHI, sottopunteggi, ICV, CI,
       risultati del test (inserimento su 10, salvataggio su 100 come prima),
@@ -203,7 +237,7 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 - [ ] Non verificati a schermo con dati: le schermate del 5P (in locale nessun
       piano 5P caricato) e la classifica con candidati nelle fasce alte.
 - [ ] Database locale: Acme ha ora anche ASSESSMENT (per la prova).
-- [ ] Non inviato su GitHub (solo commit locale su `server-only`).
+- [x] Inviato: `git push origin server-only:main` (avanti veloce, `4f73e33..caaec7d`). Railway ha avviato il deploy "zesty-victory / production": backend riuscito; frontend in corso al momento della nota.
 
 ## 2026-10-23 — Panoramica nei due moduli, Fasi 5–6 riviste (CLAUDE.md aggiornato)
 - [x] Rotte: `/recruiting` e `/recruiting/home` aprono la Panoramica di

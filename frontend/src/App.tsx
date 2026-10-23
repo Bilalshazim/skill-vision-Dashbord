@@ -18,7 +18,6 @@ import RecruitingLayout from '@/modules/recruiting/RecruitingLayout'
 const ModuleChooserPage = lazy(() => import('@/pages/ModuleChooserPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const JobPostingPublicPage = lazy(() => import('@/modules/recruiting/public/JobPostingPublicPage'))
-const RecruitingHome = lazy(() => import('@/modules/recruiting/RecruitingHome'))
 const RecruitingPanoramicaPage = lazy(() => import('@/modules/recruiting/RecruitingPanoramicaPage'))
 const CipAdminPage = lazy(() => import('@/modules/recruiting/admin/CipAdminPage'))
 const EmailConfigAdminPage = lazy(() => import('@/modules/recruiting/admin/EmailConfigAdminPage'))
@@ -36,7 +35,8 @@ const ProfileHubPage = lazy(() => import('@/modules/recruiting/profile-hub/Profi
 const RankingPage = lazy(() => import('@/modules/recruiting/ranking/RankingPage'))
 const CvElaboratiPage = lazy(() => import('@/modules/recruiting/cv-export/CvElaboratiPage'))
 const PipelineSectionPage = lazy(() => import('@/modules/recruiting/pipeline/PipelineSectionPage'))
-const OverviewSectionPage = lazy(() => import('@/modules/recruiting/OverviewSectionPage'))
+const ImbutoPage = lazy(() => import('@/modules/recruiting/ImbutoPage'))
+const FasceIdoneitaPage = lazy(() => import('@/modules/recruiting/FasceIdoneitaPage'))
 const EvaluatorDocumentPage = lazy(() => import('@/modules/recruiting/profile-hub/EvaluatorDocumentPage'))
 
 const AssessmentAiPage = lazy(() => import('@/modules/assessment/pages/AssessmentAiPage'))
@@ -93,7 +93,9 @@ function App() {
                     "Stato dell'arte" (la vecchia home) a /recruiting/stato-dell-arte. */}
                 <Route index element={<RecruitingPanoramicaPage />} />
                 <Route path="home" element={<RecruitingPanoramicaPage />} />
-                <Route path="stato-dell-arte" element={<RecruitingHome />} />
+                {/* "Stato dell'arte" (la vecchia home) confluisce nella Panoramica
+                    (CLAUDE.md, Fase 6, "Menu di Recruiting"): i segnalibri portano lì. */}
+                <Route path="stato-dell-arte" element={<Navigate to="/recruiting" replace />} />
                 <Route path="ranking" element={<RankingPage />} />
                 <Route path="pagina-a" element={<PaginaAPage />} />
                 <Route path="pipeline" element={<PipelinePage />} />
@@ -108,9 +110,10 @@ function App() {
                 <Route path="cv-elaborati" element={<CvElaboratiPage />} />
                 <Route path="preselezionati" element={<PipelineSectionPage section="preselezionati" />} />
                 <Route path="classifica-test" element={<PipelineSectionPage section="classifica" />} />
-                <Route path="imbuto" element={<OverviewSectionPage view="imbuto" />} />
-                <Route path="imbuto-scelta" element={<OverviewSectionPage view="imbuto" />} />
-                <Route path="fasce-idoneita" element={<OverviewSectionPage view="fasce" />} />
+                {/* Un imbuto solo (CLAUDE.md, Fase 6): /imbuto, con gli stessi dati, rimanda. */}
+                <Route path="imbuto" element={<Navigate to="/recruiting/imbuto-scelta" replace />} />
+                <Route path="imbuto-scelta" element={<ImbutoPage />} />
+                <Route path="fasce-idoneita" element={<FasceIdoneitaPage />} />
                 <Route path="colloqui" element={<PipelineSectionPage section="colloqui" />} />
                 <Route path="podio" element={<PipelineSectionPage section="podio" />} />
                 <Route path="valutatori" element={<Navigate to="intervista" replace />} />

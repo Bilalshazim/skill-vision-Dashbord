@@ -58,7 +58,7 @@ export function EssentialSkillBars({ candidate, essentialSkills }: { candidate: 
                 title={`Target: ${t}`}
               />
             </div>
-            <span className="text-right font-mono font-medium tabular-nums">{fmtDec(s)}</span>
+            <span className="font-mono font-medium tabular-nums">{fmtDec(s)}</span>
             <IdoneitaBadge fascia={fasciaFor(s, t)} />
           </div>
         )
