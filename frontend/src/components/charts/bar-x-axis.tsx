@@ -13,6 +13,8 @@ export interface BarXAxisProps {
   showAllLabels?: boolean;
   /** Maximum number of labels to show. Default: 12 */
   maxLabels?: number;
+  /** Skill Vision: lunghe etichette su più righe, larghe quanto il gruppo di barre, appese sotto il grafico. Default: false */
+  wrapLabels?: boolean;
 }
 
 interface BarXAxisLabelProps {
@@ -21,6 +23,10 @@ interface BarXAxisLabelProps {
   crosshairX: number | null;
   isHovering: boolean;
   tickerHalfWidth: number;
+  /** Larghezza della riga quando l'etichetta va a capo. */
+  wrapWidth?: number;
+  /** Distanza dal basso del grafico dove l'etichetta comincia. */
+  wrapTop?: number;
 }
 
 function BarXAxisLabel({
@@ -29,6 +35,8 @@ function BarXAxisLabel({
   crosshairX,
   isHovering,
   tickerHalfWidth,
+  wrapWidth,
+  wrapTop,
 }: BarXAxisLabelProps) {
   const fadeBuffer = 20;
   const fadeRadius = tickerHalfWidth + fadeBuffer;
@@ -49,7 +57,7 @@ function BarXAxisLabel({
       className="absolute"
       style={{
         left: x,
-        bottom: 12,
+        ...(wrapWidth ? { top: `calc(100% - ${wrapTop}px)` } : { bottom: 12 }),
         width: 0,
         display: "flex",
         justifyContent: "center",
@@ -57,7 +65,8 @@ function BarXAxisLabel({
     >
       <motion.span
         animate={{ opacity }}
-        className={cn("whitespace-nowrap text-chart-label text-xs")}
+        className={cn(wrapWidth ? "shrink-0 break-words text-center leading-tight" : "whitespace-nowrap", "text-chart-label text-xs")}
+        style={wrapWidth ? { width: wrapWidth } : undefined}
         initial={{ opacity: 1 }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
       >
@@ -91,6 +100,7 @@ const BarXAxisInner = memo(function BarXAxisInner({
   tickerHalfWidth = 50,
   showAllLabels = false,
   maxLabels = 12,
+  wrapLabels = false,
   container,
 }: BarXAxisProps & { container: HTMLDivElement }) {
   const { margin, tooltipData, barScale, bandWidth, barXAccessor, data } =
@@ -140,6 +150,8 @@ const BarXAxisInner = memo(function BarXAxisInner({
           key={`${item.label}-${item.x}`}
           label={item.label}
           tickerHalfWidth={tickerHalfWidth}
+          wrapWidth={wrapLabels && barScale ? Math.max(48, barScale.step() - 8) : undefined}
+          wrapTop={margin.bottom - 8}
           x={item.x}
         />
       ))}

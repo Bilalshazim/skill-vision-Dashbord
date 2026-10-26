@@ -2,6 +2,20 @@
 
 Formato: `## <cosa> · <data>` — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Comitato scientifico: barre verticali e anelli · 2026-10-26
+Su richiesta: niente barre orizzontali, "più moderno". Opzioni: barre
+verticali, anelli, o lasciare le orizzontali. Le verticali con nomi lunghi
+("Motivazione ed efficacia personale") si sovrappongono: l'asse di Bklit
+non va a capo. **Presa:** `BarXAxis` ha `wrapLabels` (unico scostamento da
+Bklit: l'etichetta va a capo, larga quanto il gruppo), `CategoryBars` lo
+espone. Competenze di ruolo e quota che raggiunge l'atteso → barre
+verticali a tutta riga. Le 36 competenze e il pannello della persona →
+pattern nuovo `RingStat` (Ring di Bklit, "punteggio singolo": anello del
+punteggio in `chart-mono`, dentro l'atteso in `chart-compare`, numero a
+fianco, atteso e scarto a parole). La tabella degli scarti del pannello
+sparisce: i valori sono negli anelli. Sotto i ~900px di larghezza le
+etichette verticali si stringono: da guardare su mobile.
+
 ## Comitato scientifico in grafici · 2026-10-26
 Richiesta: i risultati dell'anteprima (Recruiting → Amministrazione →
 Comitato scientifico) si leggono in grafici, con i tipi della tabella di

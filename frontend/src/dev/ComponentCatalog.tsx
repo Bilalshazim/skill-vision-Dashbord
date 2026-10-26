@@ -15,6 +15,7 @@ import { ScatterMatrix } from '@/components/patterns/ScatterMatrix'
 import { ScoreGauge } from '@/components/patterns/ScoreGauge'
 import { SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar'
 import { CategoryBars } from '@/components/patterns/CategoryBars'
+import { RingStat } from '@/components/patterns/RingStat'
 import { ProfileRadar } from '@/components/patterns/ProfileRadar'
 import { TrendChart } from '@/components/patterns/TrendChart'
 import { ChartCard } from '@/components/patterns/ChartCard'
@@ -1309,6 +1310,38 @@ const ENTRIES: Entry[] = [
                 { label: 'Estroversione', values: { ott: 5.1, att: 6.0 } },
               ]}
             />
+          </div>
+        </Row>
+        <Row label="CategoryBars — verticale, nomi lunghi a capo (wrapLabels)">
+          <div className="w-full">
+            <CategoryBars
+              title="Competenze di ruolo, media contro atteso"
+              valueMax={10}
+              height="lg"
+              wrapLabels
+              series={[{ key: 'ott', label: 'Media del gruppo' }, { key: 'att', label: 'Atteso medio', reference: true }]}
+              rows={[
+                { label: 'Motivazione ed efficacia personale', values: { ott: 3.19, att: 5 } },
+                { label: 'Orientamento al cliente', values: { ott: 3.41, att: 5 } },
+                { label: 'Resistenza allo stress', values: { ott: 3.96, att: 5 } },
+                { label: 'Fiducia in se stessi', values: { ott: 4.02, att: 5 } },
+                { label: 'Influenza e persuasione', values: { ott: 3.48, att: 5 } },
+                { label: 'Sensibilità relazionale', values: { ott: 3.33, att: 5 } },
+                { label: 'Team Work', values: { ott: 3.66, att: 5 } },
+                { label: 'Gestire le informazioni', values: { ott: 3.3, att: 5 } },
+                { label: 'Flessibilità/adattabilità', values: { ott: 3.24, att: 5 } },
+                { label: 'Problem Solving', values: { ott: 2.93, att: 5 } },
+                { label: 'Pianificazione e organizzazione', values: { ott: 3.28, att: 5 } },
+                { label: 'Innovazione', values: { ott: 6.1, att: 5 } },
+              ]}
+            />
+          </div>
+        </Row>
+        <Row label="RingStat — punteggio singolo su 10, con e senza atteso">
+          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <RingStat label="Motivazione ed efficacia personale" value={3.19} reference={5} note="Atteso 5,0 · scarto −1,81" />
+            <RingStat label="Innovazione" value={6.1} reference={5} note="Atteso 5,0 · scarto +1,10 · raggiunto" />
+            <RingStat label="Comunicazione" value={3.47} />
           </div>
         </Row>
         <Row label="TrendChart — area (una serie) e benchmark tratteggiato">

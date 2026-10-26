@@ -25,8 +25,6 @@ import { ComitatoPersonCharts } from '@/modules/recruiting/components/ComitatoPe
 // a cui appartenere.
 
 const isoDay = (d: Date) => d.toISOString().slice(0, 10)
-const fmt = (n: number | null, digits = 2) => (n === null ? '—' : n.toLocaleString('it-IT', { minimumFractionDigits: digits, maximumFractionDigits: digits }))
-const signed = (n: number | null) => (n === null ? '—' : `${n > 0 ? '+' : n < 0 ? '−' : ''}${fmt(Math.abs(n))}`)
 const fullName = (p: OriginalSkillsPerson) => `${p.lastName} ${p.firstName}`.trim()
 const day = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('it-IT') : '—')
 // Quante competenze del ruolo raggiungono il valore atteso: dice qualcosa
@@ -290,12 +288,6 @@ export default function OriginalSkillsPreviewPage() {
 }
 
 function PersonDetail({ person, companyLabel }: { person: OriginalSkillsPerson; companyLabel: string }) {
-  const role: DataTableColumn<OriginalSkillsPerson['roleCompetencies'][number]>[] = [
-    { key: 'name', header: 'Competenza', cell: (c) => c.name },
-    { key: 'score', header: 'Punteggio', cell: (c) => <span className="font-mono tabular-nums">{fmt(c.score)}</span>, align: 'end', nowrap: true },
-    { key: 'expected', header: 'Atteso', cell: (c) => <span className="font-mono tabular-nums">{fmt(c.expected)}</span>, align: 'end', emphasis: 'muted', nowrap: true },
-    { key: 'diff', header: 'Scarto', cell: (c) => <span className="font-mono tabular-nums">{signed(c.diff)}</span>, align: 'end', nowrap: true },
-  ]
   return (
     <>
       <SheetHeader>
@@ -305,14 +297,8 @@ function PersonDetail({ person, companyLabel }: { person: OriginalSkillsPerson; 
           {person.site ? ` · ${person.site}` : ''}
         </SheetDescription>
       </SheetHeader>
-      <SheetBody className="flex flex-col gap-6">
+      <SheetBody>
         <ComitatoPersonCharts person={person} />
-        {person.roleCompetencies.length ? (
-          <section className="flex flex-col gap-2">
-            <h3 className="text-app-subtitle text-foreground">Scarti dall'atteso</h3>
-            <DataTable columns={role} rows={person.roleCompetencies} getRowId={(c) => c.name} />
-          </section>
-        ) : null}
       </SheetBody>
     </>
   )

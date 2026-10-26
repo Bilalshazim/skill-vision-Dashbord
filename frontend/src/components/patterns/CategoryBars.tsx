@@ -27,6 +27,7 @@ export function CategoryBars({
   valueMax,
   orientation = 'vertical',
   height = 'md',
+  wrapLabels = false,
   format,
   className,
 }: {
@@ -37,6 +38,8 @@ export function CategoryBars({
   orientation?: 'vertical' | 'horizontal'
   /** `xl` / `2xl`: elenchi lunghi in orizzontale (fino a ~20 e ~40 righe); `auto` sceglie dal numero di righe. */
   height?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'auto'
+  /** In verticale: nomi lunghi su più righe sotto ogni gruppo invece che su una (che si sovrappone). */
+  wrapLabels?: boolean
   format?: (n: number) => string
   className?: string
 }) {
@@ -52,13 +55,13 @@ export function CategoryBars({
           className="h-full"
           orientation={orientation}
           valueMax={valueMax}
-          margin={orientation === 'horizontal' ? { top: 8, right: 40, bottom: 8, left: 208 } : { top: 24, right: 8, bottom: 40, left: 32 }}
+          margin={orientation === 'horizontal' ? { top: 8, right: 40, bottom: 8, left: 208 } : { top: 24, right: 8, bottom: wrapLabels ? 64 : 40, left: 32 }}
         >
           <Grid horizontal={orientation === 'vertical'} vertical={orientation === 'horizontal'} fadeHorizontal={false} />
           {series.map((s, i) => (
             <Bar key={s.key} dataKey={s.key} fill={colors[i]} lineCap={4} valueLabel={(v) => (format ? format(v) : fmtDec(v))} />
           ))}
-          {orientation === 'horizontal' ? <BarYAxis /> : <BarXAxis showAllLabels />}
+          {orientation === 'horizontal' ? <BarYAxis /> : <BarXAxis showAllLabels wrapLabels={wrapLabels} />}
           <ChartTooltip />
         </BarChart>
       </div>

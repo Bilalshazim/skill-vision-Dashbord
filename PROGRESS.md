@@ -184,6 +184,16 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-10-26 — Comitato scientifico: barre verticali e anelli
+- [x] Pagina: anelli nelle StatCard, barre verticali (ruolo media/atteso,
+      quota che raggiunge l'atteso), griglia di anelli per le 36 competenze.
+- [x] Pannello della persona: anelli per competenza (punteggio + atteso,
+      scarto scritto), anelli per tutte le competenze.
+- [x] Nuovo pattern `RingStat`, `wrapLabels` in `BarXAxis`/`CategoryBars`,
+      entrambi nel catalogo. Verificato nel catalogo in chiaro e scuro a
+      larghezza reale; tsc, oxlint e i due audit puliti.
+- [ ] Da guardare su mobile: etichette verticali strette sotto ~900px.
+
 ## 2026-10-26 — Comitato scientifico in grafici
 - [x] Sopra l'elenco: 4 StatCard (persone lette, competenze di ruolo
       raggiunte, atteso raggiunto su tutto il ruolo, competenza più lontana)
