@@ -2,6 +2,24 @@
 
 Formato: `## <cosa> · <data>` — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Comitato scientifico in grafici · 2026-10-26
+Richiesta: i risultati dell'anteprima (Recruiting → Amministrazione →
+Comitato scientifico) si leggono in grafici, con i tipi della tabella di
+CLAUDE.md (Fase 5).
+- **Opzioni per il profilo completo di una persona** (36 competenze): radar
+  (la riga "profilo di competenza" della tabella) o barre orizzontali.
+  Un radar a 36 assi non si legge, e la regola dice di non rimpicciolirlo.
+  **Presa: barre orizzontali a una serie, dalla più alta.**
+- **Competenze di ruolo contro atteso**: barre raggruppate (riga "persona
+  contro benchmark"), `chart-mono` contro `chart-compare`. Per il gruppo:
+  media delle persone che hanno la competenza nel ruolo contro atteso medio.
+- In più una barra per "quota di persone che raggiunge l'atteso" e quattro
+  StatCard. Il punteggio complessivo resta fuori (formula su 10 in attesa).
+- `CategoryBars` ha due altezze in più (`xl`, `2xl`) e `height="auto"`, che
+  sceglie dal numero di righe: le etichette non si sovrappongono.
+- I conti stanno in `modules/recruiting/lib/comitato-stats.ts`: se la forma
+  dell'API cambia, cambia quel file.
+
 ## Indice a quattro livelli di Recruiting · 2026-10-23
 - **"CV Elaborati"**: nel documento è una voce distinta da "Avanzamento della
   selezione" (prima la voce "CV Elaborati" apriva l'avanzamento). Opzioni:

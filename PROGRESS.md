@@ -184,6 +184,19 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-10-26 — Comitato scientifico in grafici
+- [x] Sopra l'elenco: 4 StatCard (persone lette, competenze di ruolo
+      raggiunte, atteso raggiunto su tutto il ruolo, competenza più lontana)
+      e tre grafici a barre (ruolo media/atteso, quota che raggiunge
+      l'atteso, tutte le competenze). Tabella delle persone invariata.
+- [x] Pannello della persona: barre punteggio/atteso del ruolo, barre di
+      tutte le competenze, tabella degli scarti.
+- [x] `CategoryBars`: altezze `xl`, `2xl`, `auto`. tsc, oxlint, audit
+      identità e storage puliti.
+- [ ] Verifica a schermo in chiaro e scuro: non fatta, serve la chiave del
+      Comitato scientifico (nessuna in locale). La forma dell'API sta
+      cambiando: adattare `comitato-stats.ts` quando arriva.
+
 ## 2026-10-23 — Posizione attiva unica, menu, Profilo della ricerca, Imbuto, Panoramiche
 - [x] Posizione attiva unica (`lib/active-position.tsx`), letta da tutte le
       pagine; `ContextBar` (pattern, nel catalogo) sopra ogni pagina di

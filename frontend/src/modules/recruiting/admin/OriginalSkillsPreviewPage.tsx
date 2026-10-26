@@ -16,6 +16,8 @@ import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTit
 import { ApiError, getBackendUser } from '@/lib/api/client'
 import { originalSkillsApi, type OriginalSkillsCompany, type OriginalSkillsPerson, type OriginalSkillsResults } from '@/lib/api/endpoints'
 import { useBackendSession } from '@/lib/api/useBackendSession'
+import { ComitatoOverview } from '@/modules/recruiting/components/ComitatoOverview'
+import { ComitatoPersonCharts } from '@/modules/recruiting/components/ComitatoPersonCharts'
 
 // Anteprima in sola lettura del Comitato scientifico (già "Original Skills"; PROPOSTA-ORIGINAL-SKILLS.md):
 // il server legge l'API al momento e non salva niente. Solo per gli
@@ -242,6 +244,8 @@ export default function OriginalSkillsPreviewPage() {
         </InlineAlert>
       )}
 
+      {data && data.people.length > 0 && <ComitatoOverview people={data.people} />}
+
       {data && <FilterBar search={{ value: search, onChange: (v) => (setSearch(v), setPage(1)), placeholder: 'Cerca per nome' }} />}
 
       <DataTable
@@ -292,10 +296,6 @@ function PersonDetail({ person, companyLabel }: { person: OriginalSkillsPerson; 
     { key: 'expected', header: 'Atteso', cell: (c) => <span className="font-mono tabular-nums">{fmt(c.expected)}</span>, align: 'end', emphasis: 'muted', nowrap: true },
     { key: 'diff', header: 'Scarto', cell: (c) => <span className="font-mono tabular-nums">{signed(c.diff)}</span>, align: 'end', nowrap: true },
   ]
-  const all: DataTableColumn<OriginalSkillsPerson['competencies'][number]>[] = [
-    { key: 'name', header: 'Competenza', cell: (c) => c.name },
-    { key: 'score', header: 'Punteggio', cell: (c) => <span className="font-mono tabular-nums">{fmt(c.score)}</span>, align: 'end', nowrap: true },
-  ]
   return (
     <>
       <SheetHeader>
@@ -306,24 +306,13 @@ function PersonDetail({ person, companyLabel }: { person: OriginalSkillsPerson; 
         </SheetDescription>
       </SheetHeader>
       <SheetBody className="flex flex-col gap-6">
-        <section className="flex flex-col gap-2">
-          <h3 className="text-app-subtitle text-foreground">Competenze del ruolo</h3>
-          <DataTable
-            columns={role}
-            rows={person.roleCompetencies}
-            getRowId={(c) => c.name}
-            empty={<EmptyState size="sm" description="Il Comitato scientifico non ha indicato competenze di ruolo per questa persona." />}
-          />
-        </section>
-        <section className="flex flex-col gap-2">
-          <h3 className="text-app-subtitle text-foreground">Tutte le competenze</h3>
-          <DataTable
-            columns={all}
-            rows={person.competencies}
-            getRowId={(c) => c.name}
-            empty={<EmptyState size="sm" description="Nessuna competenza nel questionario." />}
-          />
-        </section>
+        <ComitatoPersonCharts person={person} />
+        {person.roleCompetencies.length ? (
+          <section className="flex flex-col gap-2">
+            <h3 className="text-app-subtitle text-foreground">Scarti dall'atteso</h3>
+            <DataTable columns={role} rows={person.roleCompetencies} getRowId={(c) => c.name} />
+          </section>
+        ) : null}
       </SheetBody>
     </>
   )
