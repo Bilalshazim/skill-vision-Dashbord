@@ -5,6 +5,8 @@ import { useSearchParams } from 'react-router-dom'
 import { Logo } from '@/layouts/Logo'
 import { LoadingState } from '@/components/patterns/LoadingState'
 import { Note } from '@/components/patterns/Note'
+import { StaggerItem } from '@/components/patterns/StaggerItem'
+import { StaggerList } from '@/components/patterns/StaggerList'
 import { Card, CardTitle, CardLabel } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { assessmentApi } from '@/lib/api/assessment'
@@ -118,29 +120,31 @@ function EvaluationForm({
         <CardTitle>{ui.reFormTitle}</CardTitle>
         <Note className="mt-2">{ui.reFormDesc(employeeName, sourceLabel)}</Note>
       </Card>
-      <div>
+      <StaggerList>
         {APEX5D_DIMENSIONS.map((dim) => (
-          <section className="mb-4" key={dim.code}>
-            <CardLabel className="mb-2 border-b border-border pb-2">
-              {ui.hardDimensionPrefix} {dim.code} — {dim.name} <span className="font-sans tracking-normal normal-case">· {dim.desc}</span>
-            </CardLabel>
-            {dim.items.map((it) => (
-              <ApexItemRow
-                key={it.cod}
-                item={it}
-                lang={lang}
-                value={values[it.cod] ?? 0}
-                note={notes[it.cod] ?? ''}
-                onValue={(n) => {
-                  setError('')
-                  setValues((prev) => ({ ...(prev || {}), [it.cod]: n }))
-                }}
-                onNote={(t) => setNotes((prev) => ({ ...prev, [it.cod]: t }))}
-              />
-            ))}
-          </section>
+          <StaggerItem key={dim.code}>
+            <section className="mb-4">
+              <CardLabel className="mb-2 border-b border-border pb-2">
+                {ui.hardDimensionPrefix} {dim.code} — {dim.name} <span className="font-sans tracking-normal normal-case">· {dim.desc}</span>
+              </CardLabel>
+              {dim.items.map((it) => (
+                <ApexItemRow
+                  key={it.cod}
+                  item={it}
+                  lang={lang}
+                  value={values[it.cod] ?? 0}
+                  note={notes[it.cod] ?? ''}
+                  onValue={(n) => {
+                    setError('')
+                    setValues((prev) => ({ ...(prev || {}), [it.cod]: n }))
+                  }}
+                  onNote={(t) => setNotes((prev) => ({ ...prev, [it.cod]: t }))}
+                />
+              ))}
+            </section>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerList>
       <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
         {shownError ? <span className="text-app-small font-medium text-destructive">{shownError}</span> : null}
         <Button variant="default" onClick={submit} disabled={busy}>

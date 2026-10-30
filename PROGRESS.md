@@ -184,6 +184,30 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-10-30 — Movimento dell'interfaccia (Instructions.md)
+- [x] `lib/motion.ts`: preset dello SOP (molla della pillola, modulo,
+      pagina, webview, elenchi a scalare, tap 0,97). `motion` già presente,
+      niente `framer-motion`. Sfocatura tolta (DECISIONI).
+- [x] `ModuleSwitcher`: pillola `layoutId="activeModuleShellPill"` con
+      SNAPPY_TAB_SPRING, tap, `touch-manipulation`.
+- [x] `AppShell`: entrata del modulo (MODULE_SHELL_VARIANTS, in PWA
+      WEB_APP_SLIDE_VARIANTS); barra superiore e laterale ferme.
+- [x] `layouts/PageTransition` al posto di `<Outlet />` nei due layout
+      (FAST_PAGE_VARIANTS, `mode="wait"`).
+- [x] Pattern `StaggerList` / `StaggerItem`, nel catalogo ("Movimento"):
+      posizioni (Avanzamento), Classifica dopo il test, Da invitare al test
+      (bordo delle righe passato a `divide-y`), Cambio ruolo, sezioni APEX
+      (scheda professionale e pagina del valutatore).
+- [x] Button: tap 0,97, `touch-manipulation`, `select-none`.
+- [x] `globals.css`: `overscroll-behavior-y: none`, regola per "riduci
+      movimento"; `MotionConfig reducedMotion="user"` in App.
+- [x] tsc, oxlint (nessun avviso nuovo), audit identità (`frontend/src` 0),
+      audit storage puliti. Catalogo: elenco che rientra, transform a
+      `none` a fine animazione.
+- [ ] Non verificato nell'app vera: cambio di modulo e di pagina dopo il
+      login (backend locale spento). Da guardare in chiaro e scuro, e su
+      telefono.
+
 ## 2026-10-26 — Comitato scientifico: barre verticali e anelli
 - [x] Pagina: anelli nelle StatCard, barre verticali (ruolo media/atteso,
       quota che raggiunge l'atteso), griglia di anelli per le 36 competenze.

@@ -1,4 +1,6 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
+import { StaggerItem } from '@/components/patterns/StaggerItem'
+import { StaggerList } from '@/components/patterns/StaggerList'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
@@ -99,7 +101,13 @@ export default function RankingPage() {
             </div>
           ) : null}
           {shown.length ? (
-            shown.map((it) => <RankingCard key={it.c.id} candidate={it.c} result={it.r} position={rk.indexOf(it) + 1} totalRanked={rk.length} role={role} />)
+            <StaggerList className="flex flex-col gap-4">
+              {shown.map((it) => (
+                <StaggerItem key={it.c.id}>
+                  <RankingCard candidate={it.c} result={it.r} position={rk.indexOf(it) + 1} totalRanked={rk.length} role={role} />
+                </StaggerItem>
+              ))}
+            </StaggerList>
           ) : (
             <p className="text-app-small text-muted-foreground">Nessun candidato in questa fascia.</p>
           )}

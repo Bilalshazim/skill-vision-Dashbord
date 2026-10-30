@@ -5,6 +5,8 @@ import { InlineAlert } from '@/components/patterns/InlineAlert'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { SendTestLinkBar } from '@/components/patterns/SendTestLinkBar'
 import { EmptyState } from '@/components/patterns/EmptyState'
+import { StaggerItem } from '@/components/patterns/StaggerItem'
+import { StaggerList } from '@/components/patterns/StaggerList'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { sendTestLinkForCandidate, syncRankingFromBackend } from '@/modules/recruiting/lib/backend-sync'
 import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/storage'
@@ -211,10 +213,10 @@ export default function PaginaAPage() {
           description='Nessun candidato in attesa di test. I candidati compaiono qui appena viene caricato un CV, fino al completamento del test delle competenze trasversali, che arriva da solo da Original Skills.'
         />
       ) : (
-        <div>
+        <StaggerList className="divide-y divide-border">
           {pending.map((c) => (
+            <StaggerItem key={c.id}>
             <PaginaACandidateRow
-              key={c.id}
               candidate={c}
               selected={effectiveSelected.has(c.id)}
               prescreened={prescreenedById.get(c.id)}
@@ -223,8 +225,9 @@ export default function PaginaAPage() {
               onToggleSelect={handleToggle}
               onMutated={handleMutated}
             />
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerList>
       )}
     </div>
   )

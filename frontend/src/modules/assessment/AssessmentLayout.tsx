@@ -1,10 +1,11 @@
-import { Outlet, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import { ModuleLockGate } from '@/components/ModuleLockGate'
 import { ErrorBoundary } from '@/components/patterns/ErrorBoundary'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { AppShell } from '@/layouts/AppShell'
 import { AuthGuard } from '@/layouts/AuthGuard'
+import { PageTransition } from '@/layouts/PageTransition'
 import { AssessmentDataGate } from '@/modules/assessment/components/AssessmentDataGate'
 import { AssessmentNav } from '@/modules/assessment/components/AssessmentNav'
 import { AssessmentProvider, useAssessment } from '@/modules/assessment/lib/AssessmentContext'
@@ -30,7 +31,7 @@ function AssessmentShell() {
         <ModuleLockGate module="ASSESSMENT">
           <ErrorBoundary>
             <AssessmentDataGate>
-              <Outlet />
+              <PageTransition />
             </AssessmentDataGate>
           </ErrorBoundary>
         </ModuleLockGate>

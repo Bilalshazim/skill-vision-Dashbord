@@ -1,6 +1,5 @@
 import { CloudOff } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
-import { Outlet } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { ModuleLockGate } from '@/components/ModuleLockGate'
@@ -11,6 +10,7 @@ import { LoadingState } from '@/components/patterns/LoadingState'
 import { Button } from '@/components/ui/button'
 import { AppShell } from '@/layouts/AppShell'
 import { AuthGuard } from '@/layouts/AuthGuard'
+import { PageTransition } from '@/layouts/PageTransition'
 import { useBackendSession } from '@/lib/api/useBackendSession'
 import { BackendStatusBanner } from '@/modules/recruiting/components/BackendStatusBanner'
 import { RecruitingContextBar } from '@/modules/recruiting/components/RecruitingContextBar'
@@ -86,7 +86,7 @@ export default function RecruitingLayout() {
               {/* Società, Campagna e CIP stanno in fondo a Profilo della ricerca
                   (profile-hub/ProfileHubPage.tsx), sotto la scheda della posizione. */}
               <ErrorBoundary>
-                <Outlet key={pageKey} />
+                <PageTransition refreshKey={pageKey} />
               </ErrorBoundary>
             </>
           ) : store.status === 'error' ? (

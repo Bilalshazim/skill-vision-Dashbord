@@ -444,6 +444,22 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* Installata come app (PWA, webview): niente trascinamento elastico che
+     ricarica la pagina durante una valutazione. */
+  html, body {
+    overscroll-behavior-y: none;
+  }
+
+  /* "Riduci movimento" del sistema: le transizioni CSS si azzerano; quelle
+     di motion le riduce MotionConfig (App.tsx). */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   /* Le colonne numeriche si allineano. Senza cifre tabulari le
      colonne di punteggi si disallineano e non si confrontano. */
   table, [data-slot="table"] {

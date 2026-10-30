@@ -29,6 +29,8 @@ import { FolderCard } from '@/components/patterns/FolderCard'
 import { LoadingState } from '@/components/patterns/LoadingState'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { PersonRow } from '@/components/patterns/PersonRow'
+import { StaggerItem } from '@/components/patterns/StaggerItem'
+import { StaggerList } from '@/components/patterns/StaggerList'
 import { PrefixedInput } from '@/components/patterns/PrefixedInput'
 import { SkillVisionCard } from '@/components/patterns/SkillVisionCard'
 import { StatCard } from '@/components/patterns/StatCard'
@@ -610,6 +612,35 @@ function ChoiceCardsDemo() {
           ))}
           <PrefixedInput lead="Altro" aria-label="Altro" placeholder="Aggiungi una voce personalizzata…" />
         </div>
+      </Row>
+    </div>
+  )
+}
+
+// Movimento: l'elenco rientra a ogni "Ripeti". La pillola del commutatore si
+// prova cambiando modulo nell'app (qui è un link e cambierebbe pagina).
+function MotionDemo() {
+  const [run, setRun] = useState(0)
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <Row label="StaggerList + StaggerItem — 30ms fra una card e l'altra">
+        <StaggerList key={run} className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
+          {PEOPLE.slice(0, 3).map((p) => (
+            <StaggerItem key={p.id} pressable>
+              <Card className="h-full cursor-pointer" onClick={() => toast(`Apre ${p.nome}`)}>
+                <CardTitle>
+                  {p.nome} {p.cognome}
+                </CardTitle>
+                <CardDescription>{p.ruolo}</CardDescription>
+              </Card>
+            </StaggerItem>
+          ))}
+        </StaggerList>
+      </Row>
+      <Row label="Button — al tocco scende a 0,97">
+        <Button type="button" variant="outline" onClick={() => setRun((r) => r + 1)}>
+          Ripeti l'entrata
+        </Button>
       </Row>
     </div>
   )
@@ -1486,6 +1517,12 @@ const ENTRIES: Entry[] = [
     level: 'Pattern',
     source: 'components/patterns/SendTestLinkBar.tsx · DataTable (selection)',
     render: () => <SendTestLinkDemo />,
+  },
+  {
+    name: 'Movimento',
+    level: 'Pattern',
+    source: 'components/patterns/StaggerList.tsx · StaggerItem.tsx · ModuleSwitcher.tsx · layouts/PageTransition.tsx · lib/motion.ts',
+    render: () => <MotionDemo />,
   },
   {
     name: 'Accesso',

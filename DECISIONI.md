@@ -2,6 +2,34 @@
 
 Formato: `## <cosa> · <data>` — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Movimento dell'interfaccia (Instructions.md) · 2026-10-30
+Richiesta: lo SOP di animazione di `Instructions.md` (pillola del
+commutatore, cambio di modulo e di pagina, elenchi a scalare, risposta al
+tocco). Scelte:
+- **Libreria**: `framer-motion` non si installa. Si usa `motion` (13.4.6),
+  già presente per Bklit: è la stessa libreria con il nome nuovo
+  (`motion/react`). Nessuna dipendenza nuova (§12).
+- **Sfocatura del cambio di modulo** (`blur(4px)` nello SOP): tolta. Il
+  sistema non ha sfocature (regola 4) e l'audit la segnala; restano opacità
+  e scala. Raccomandazione: lasciarla fuori. Se la si vuole, va prima nelle
+  fondamenta.
+- **Aspetto del commutatore**: lo SOP ha grigi, `bg-white`, `shadow-md` ed
+  etichette inglesi ("Recruiting Portal"). Si prende solo il movimento: la
+  pillola è `bg-accent`, raggio `sm`, nessuna ombra, nomi di oggi.
+- **Uscita del modulo**: Recruiting e Assessment sono due layout di rotta;
+  cambiando modulo il vecchio si smonta subito. `AnimatePresence` sta in
+  AppShell attorno al contenuto: si vede l'entrata, non l'uscita, e barra
+  superiore e laterale restano ferme. L'alternativa (presenza sopra le
+  `Routes`) farebbe sparire e ricomparire anche la barra superiore.
+- **Pagine**: `PageTransition` al posto di `<Outlet />` nei due layout,
+  chiave = indirizzo. Il ridisegno di Recruiting per posizione o dati
+  (`pageKey`) non anima.
+- **`user-select: none`** solo su bottoni e commutatore, non sulle card dei
+  candidati: si deve poter copiare un nome.
+- **Tap 0,97**: nel Button (tutti i bottoni) e nelle card cliccabili
+  (`StaggerItem pressable`). Non sulle card grandi non cliccabili
+  (RankingCard): scalare un blocco alto si legge come un salto.
+
 ## Comitato scientifico: barre verticali e anelli · 2026-10-26
 Su richiesta: niente barre orizzontali, "più moderno". Opzioni: barre
 verticali, anelli, o lasciare le orizzontali. Le verticali con nomi lunghi

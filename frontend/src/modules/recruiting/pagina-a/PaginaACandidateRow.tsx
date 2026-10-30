@@ -178,7 +178,7 @@ export const PaginaACandidateRow = memo(function PaginaACandidateRow({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3 border-b border-border py-3 last:border-0">
+    <div className="flex flex-wrap items-center gap-3 py-3">
       <label
         className="label-mono flex shrink-0 items-center gap-2 text-muted-foreground"
         title={alreadySent ? 'Link già inviato' : 'Promosso al test'}

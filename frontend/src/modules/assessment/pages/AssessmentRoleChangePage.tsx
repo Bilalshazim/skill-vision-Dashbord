@@ -5,6 +5,8 @@ import { EmptyState } from '@/components/patterns/EmptyState'
 import { Field } from '@/components/patterns/Field'
 import { FieldGrid } from '@/components/patterns/FieldGrid'
 import { Note } from '@/components/patterns/Note'
+import { StaggerItem } from '@/components/patterns/StaggerItem'
+import { StaggerList } from '@/components/patterns/StaggerList'
 import { SelectField } from '@/components/patterns/SelectField'
 import { Card, CardDescription, CardLabel } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -125,11 +127,13 @@ export default function AssessmentRoleChangePage() {
               {result.noSoftProfile ? <Note size="caption">{ui.rcNoSoftProfile(brief.role)}</Note> : null}
             </div>
             {result.top.length ? (
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <StaggerList className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 {result.top.map((c, i) => (
-                  <CandidateCard key={c.emp.id} candidate={c} rank={i} ui={ui} onOpen={() => setOpenId(c.emp.id)} />
+                  <StaggerItem key={c.emp.id} pressable>
+                    <CandidateCard candidate={c} rank={i} ui={ui} onOpen={() => setOpenId(c.emp.id)} />
+                  </StaggerItem>
                 ))}
-              </div>
+              </StaggerList>
             ) : (
               <EmptyState size="sm" title={ui.rcNoCandidates} />
             )}

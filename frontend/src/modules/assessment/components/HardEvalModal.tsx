@@ -3,6 +3,8 @@ import { useState } from 'react'
 
 import { CardLabel } from '@/components/ui/card'
 import { Note } from '@/components/patterns/Note'
+import { StaggerItem } from '@/components/patterns/StaggerItem'
+import { StaggerList } from '@/components/patterns/StaggerList'
 import { useDirty } from '@/hooks/use-dirty'
 import { SelectField } from '@/components/patterns/SelectField'
 import { Field } from '@/components/patterns/Field'
@@ -182,24 +184,28 @@ export function HardEvalModal({ onClose }: { onClose: () => void }) {
           {APEX5D_TECH_NOTES.title}
         </Button>
       </div>
-      {APEX5D_DIMENSIONS.map((dim) => (
-        <section className="mb-4" key={dim.code}>
-          <CardLabel className="mb-2 border-b border-border pb-2">
-            {ui.hardDimensionPrefix} {dim.code} — {dim.name} <span className="font-sans tracking-normal normal-case">· {dim.desc}</span>
-          </CardLabel>
-          {dim.items.map((it) => (
-            <ApexItemRow
-              key={it.cod}
-              item={it}
-              lang={lang}
-              value={values[it.cod] ?? 0}
-              note={notes[it.cod] ?? ''}
-              onValue={(n) => setValues((prev) => ({ ...prev, [it.cod]: n }))}
-              onNote={(t) => setNotes((prev) => ({ ...prev, [it.cod]: t }))}
-            />
-          ))}
-        </section>
-      ))}
+      <StaggerList>
+        {APEX5D_DIMENSIONS.map((dim) => (
+          <StaggerItem key={dim.code}>
+            <section className="mb-4">
+              <CardLabel className="mb-2 border-b border-border pb-2">
+                {ui.hardDimensionPrefix} {dim.code} — {dim.name} <span className="font-sans tracking-normal normal-case">· {dim.desc}</span>
+              </CardLabel>
+              {dim.items.map((it) => (
+                <ApexItemRow
+                  key={it.cod}
+                  item={it}
+                  lang={lang}
+                  value={values[it.cod] ?? 0}
+                  note={notes[it.cod] ?? ''}
+                  onValue={(n) => setValues((prev) => ({ ...prev, [it.cod]: n }))}
+                  onNote={(t) => setNotes((prev) => ({ ...prev, [it.cod]: t }))}
+                />
+              ))}
+            </section>
+          </StaggerItem>
+        ))}
+      </StaggerList>
       {info === 'instructions' ? (
         <ModalDialog title={APEX5D_INSTRUCTIONS.title} sub={APEX5D_INSTRUCTIONS.intro} onClose={() => setInfo(null)} footer={<Button variant="outline" onClick={() => setInfo(null)}>Chiudi</Button>}>
           <CardLabel className="mb-2">Scala di valutazione · ancore comportamentali</CardLabel>

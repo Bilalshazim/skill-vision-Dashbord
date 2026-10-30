@@ -1,4 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
+import { MotionConfig } from 'motion/react'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
@@ -69,6 +70,9 @@ const ComponentCatalog = import.meta.env.DEV || import.meta.env.VITE_ENABLE_COMP
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+    {/* Con "riduci movimento" del sistema i movimenti di motion restano solo
+        dissolvenze (lib/motion.ts). */}
+    <MotionConfig reducedMotion="user">
     <BrowserRouter>
       <Toaster />
       <ErrorBoundary>
@@ -177,6 +181,7 @@ function App() {
         </Suspense>
       </ErrorBoundary>
     </BrowserRouter>
+    </MotionConfig>
     </QueryClientProvider>
   )
 }

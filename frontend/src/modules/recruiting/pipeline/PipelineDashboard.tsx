@@ -1,6 +1,8 @@
 import { FileCheck2, MessageSquare, Search, Trophy, Workflow } from 'lucide-react'
 
 import { EmptyState } from '@/components/patterns/EmptyState'
+import { StaggerItem } from '@/components/patterns/StaggerItem'
+import { StaggerList } from '@/components/patterns/StaggerList'
 import type { PipelineOpeningCard } from '@/modules/recruiting/lib/use-pipeline-data'
 import { cn } from '@/lib/utils'
 
@@ -29,18 +31,18 @@ export function PipelineDashboard({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <StaggerList className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {cards.map((card) => {
         const key = `${card.companyId}:${card.openingId}`
         const isSelected = key === selectedKey
         return (
+          <StaggerItem key={key} pressable>
           <button
-            key={key}
             type="button"
             onClick={() => onSelect(card.companyId, card.openingId)}
             aria-pressed={isSelected}
             className={cn(
-              'flex flex-col gap-2.5 rounded-lg border bg-card p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
+              'flex h-full w-full flex-col gap-2.5 rounded-lg border bg-card p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
               isSelected ? 'border-primary ring-1 ring-primary' : 'border-border hover:border-ring',
             )}
           >
@@ -80,8 +82,9 @@ export function PipelineDashboard({
               </span>
             </div>
           </button>
+          </StaggerItem>
         )
       })}
-    </div>
+    </StaggerList>
   )
 }
