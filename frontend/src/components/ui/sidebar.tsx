@@ -1,4 +1,5 @@
 import { Menu } from 'lucide-react'
+import { LayoutGroup, motion } from 'motion/react'
 import { Slot } from 'radix-ui'
 import { type ReactNode, useMemo, useState } from 'react'
 import type * as React from 'react'
@@ -6,6 +7,7 @@ import type * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet'
 import { SidebarContext, useSidebar } from '@/hooks/use-sidebar'
+import { ULTRA_TAB_SPRING } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
 // La barra laterale della libreria, con i token `--sidebar-*` del tema
@@ -35,13 +37,15 @@ function Sidebar({ label, className, children }: { label: string; className?: st
           className,
         )}
       >
-        {children}
+        <LayoutGroup id="sidebar-column">{children}</LayoutGroup>
       </aside>
       <Sheet open={openMobile} onOpenChange={setOpenMobile}>
         <SheetContent side="left" className="bg-sidebar p-0 text-sidebar-foreground lg:hidden">
           <SheetTitle className="sr-only">{label}</SheetTitle>
           <SheetDescription className="sr-only">{label}</SheetDescription>
-          <div className="flex h-full min-h-0 flex-col">{children}</div>
+          <div className="flex h-full min-h-0 flex-col">
+            <LayoutGroup id="sidebar-sheet">{children}</LayoutGroup>
+          </div>
         </SheetContent>
       </Sheet>
     </>
@@ -61,8 +65,14 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return <div data-slot="sidebar-header" className={cn('flex flex-col gap-2 border-b border-sidebar-border p-3', className)} {...props} />
 }
 
-function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="sidebar-content" className={cn('flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-3', className)} {...props} />
+// `layoutScroll`: la colonna scorre, e la pillola della voce attiva va
+// misurata tenendo conto dello scorrimento.
+function SidebarContent({ className, children }: { className?: string; children?: ReactNode }) {
+  return (
+    <motion.div layoutScroll data-slot="sidebar-content" className={cn('flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-3', className)}>
+      {children}
+    </motion.div>
+  )
 }
 
 function SidebarFooter({ className, ...props }: React.ComponentProps<'div'>) {
@@ -86,9 +96,12 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<'li'>) {
 }
 
 const menuButtonClass =
-  'flex w-full min-w-0 items-center gap-3 rounded-sm px-3 py-2 text-left text-app-small font-medium text-sidebar-foreground outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground [&_svg]:size-4 [&_svg]:shrink-0'
+  'relative isolate flex w-full min-w-0 touch-manipulation items-center gap-3 rounded-sm px-3 py-2 text-left text-app-small font-medium text-sidebar-foreground select-none outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:text-sidebar-primary-foreground data-[active=true]:hover:bg-transparent [&_svg]:size-4 [&_svg]:shrink-0'
 
 // Una voce. `asChild` per un NavLink; su mobile chiude il pannello al clic.
+// Il riempimento della voce attiva è una pillola sola che scorre sulla voce
+// nuova (ULTRA_TAB_SPRING); colonna e pannello mobile hanno ciascuno il suo
+// gruppo (Sidebar), così le due copie del menu non si passano la pillola.
 function SidebarMenuButton({
   asChild = false,
   isActive = false,
@@ -98,6 +111,7 @@ function SidebarMenuButton({
 }: React.ComponentProps<'button'> & { asChild?: boolean; isActive?: boolean }) {
   const { setOpenMobile } = useSidebar()
   const Comp = asChild ? Slot.Root : 'button'
+  const { children, ...rest } = props
   return (
     <Comp
       data-slot="sidebar-menu-button"
@@ -107,8 +121,11 @@ function SidebarMenuButton({
         onClick?.(e)
         setOpenMobile(false)
       }}
-      {...props}
-    />
+      {...rest}
+    >
+      {isActive ? <motion.span aria-hidden="true" layoutId="sidebar-active-pill" transition={ULTRA_TAB_SPRING} className="absolute inset-0 -z-10 rounded-sm bg-sidebar-primary" /> : null}
+      {asChild ? <Slot.Slottable>{children}</Slot.Slottable> : children}
+    </Comp>
   )
 }
 

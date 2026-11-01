@@ -184,6 +184,27 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-01 — Movimento, seconda parte (Instructions.md aggiornato)
+- [x] `ULTRA_TAB_SPRING` e `COUNTER_SPRING` in `lib/motion.ts`.
+- [x] Pillola scorrevole (`layoutId`) in Tabs, ToggleGroup (single) e barra
+      laterale dei due moduli, oltre al commutatore. Tap 0,97 e
+      `touch-manipulation` sulle voci.
+- [x] `layouts/ViewTransition` (shell / page, PWA di lato) usato da AppShell
+      e PageTransition; pannelli delle schede con entrata FAST_PAGE.
+- [x] `AnimatedNumber` + `parseDisplayedNumber` (lib/format.ts): i numeri
+      delle StatCard (e StatTile) salgono al valore.
+- [x] StaggerList avvolge da sé i figli; StatCard e card dei grafici delle
+      due Panoramiche entrano a scalare.
+- [x] tsc, oxlint (nessun avviso nuovo), audit identità (`frontend/src` 0),
+      audit storage. Catalogo in build: pillole nelle schede e nei gruppi,
+      contatori 24→31 e 6,0→7,4, "—" fermo, chiaro e scuro.
+- [ ] Le schermate vere dopo il login non verificate (backend locale
+      spento). In sviluppo il catalogo scende a ~6 fps (StrictMode + strumenti
+      di motion); in build 58 fps.
+- Nota: le schermate di Playwright su `localhost` escono bianche con la
+      pagina scorsa (zoom 80% salvato per l'host). Succede anche con il codice
+      del 30/10: non è un difetto dell'app. Usare `[::1]` per le verifiche.
+
 ## 2026-10-30 — Movimento dell'interfaccia (Instructions.md)
 - [x] `lib/motion.ts`: preset dello SOP (molla della pillola, modulo,
       pagina, webview, elenchi a scalare, tap 0,97). `motion` già presente,

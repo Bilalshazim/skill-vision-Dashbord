@@ -637,6 +637,13 @@ function MotionDemo() {
           ))}
         </StaggerList>
       </Row>
+      <Row label="StatCard — il numero sale al valore (AnimatedNumber); un testo resta fermo">
+        <StaggerList key={`s-${run}`} className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard label="Persone valutate" value={run % 2 ? 31 : 24} unit="persone" />
+          <StatCard label="Punteggio medio" value={run % 2 ? '7,4' : '6,0'} unit="/10" />
+          <StatCard label="Copertura" value="—" note="Testo: niente conteggio" />
+        </StaggerList>
+      </Row>
       <Row label="Button — al tocco scende a 0,97">
         <Button type="button" variant="outline" onClick={() => setRun((r) => r + 1)}>
           Ripeti l'entrata
@@ -1521,7 +1528,7 @@ const ENTRIES: Entry[] = [
   {
     name: 'Movimento',
     level: 'Pattern',
-    source: 'components/patterns/StaggerList.tsx · StaggerItem.tsx · ModuleSwitcher.tsx · layouts/PageTransition.tsx · lib/motion.ts',
+    source: 'patterns/StaggerList · StaggerItem · AnimatedNumber · ModuleSwitcher · ui/tabs · ui/toggle-group · ui/sidebar · layouts/ViewTransition · lib/motion.ts',
     render: () => <MotionDemo />,
   },
   {

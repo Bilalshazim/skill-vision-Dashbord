@@ -2,6 +2,32 @@
 
 Formato: `## <cosa> · <data>` — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Movimento, seconda parte (Instructions.md aggiornato) · 2026-11-01
+- **Molla**: `SNAPPY_TAB_SPRING` → `ULTRA_TAB_SPRING` (500 / 38 / 0,5),
+  usata da tutte le pillole: commutatore, barra laterale, Tabs, ToggleGroup.
+- **File dei preset**: restano in `lib/motion.ts`, non in
+  `src/constants/animationPresets.ts`: il progetto tiene questi valori in
+  `lib/` e non ha una cartella `constants`. Un posto solo.
+- **Grafici**: niente `recharts` (tolto in Fase 5, CLAUDE.md §3). Bklit
+  interpola già i tracciati quando cambiano i dati
+  (`use-animated-series-path.ts`, `use-animated-y-domains.ts`): non si tocca
+  ("Bklit si usa come è fatto").
+- **Sfocatura**: ancora fuori. L'esenzione della regola 4 del 2026-10-30
+  vale solo per i grafici Bklit, non per il guscio.
+- **Pillola nelle primitive**: Tabs e ToggleGroup tengono il valore anche
+  con solo `defaultValue`, per sapere dove sta la pillola; ogni istanza ha il
+  suo `LayoutGroup`. Con ToggleGroup `multiple` niente pillola (più voci
+  accese): fondo per voce come prima. Barra laterale: colonna e pannello
+  mobile in due gruppi, `layoutScroll` sulla colonna che scorre.
+- **Contatori**: `AnimatedNumber` dentro StatCard, solo quando il valore è
+  un numero da solo ("6,0", "17%", 42). "—", "3/5" e i testi restano fermi.
+  I lettori di schermo leggono il valore finale. Il numero resta scritto una
+  volta (cap. 5).
+- **Pannelli delle schede**: entrano con FAST_PAGE_VARIANTS (il pannello è
+  l'elemento animato, `asChild`, così `flex`/`gap` dei pannelli restano).
+- **StaggerItem**: il contenuto riempie l'elemento (`*:flex-1`), così le card
+  di una riga finiscono alla stessa altezza (cap. 6, Impaginazione).
+
 ## Movimento dell'interfaccia (Instructions.md) · 2026-10-30
 Richiesta: lo SOP di animazione di `Instructions.md` (pillola del
 commutatore, cambio di modulo e di pagina, elenchi a scalare, risposta al

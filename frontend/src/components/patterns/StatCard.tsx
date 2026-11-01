@@ -2,7 +2,9 @@ import { ArrowDown, ArrowRight, ArrowUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 
+import { AnimatedNumber } from '@/components/patterns/AnimatedNumber'
 import { Progress } from '@/components/ui/progress'
+import { parseDisplayedNumber } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 export type StatTone = 'neutral' | 'strong' | 'accent' | 'success' | 'warning' | 'destructive'
@@ -89,6 +91,8 @@ export function StatCard({
   className?: string
 }) {
   const Root = onClick ? 'button' : 'div'
+  // Un numero da solo sale al suo valore (AnimatedNumber); un nome, "—" o "3/5" resta com'è.
+  const counted = valueKind === 'number' ? parseDisplayedNumber(value) : null
   const rootProps = onClick ? { type: 'button' as const, onClick } : {}
   const DeltaIcon = delta?.direction === 'up' ? ArrowUp : delta?.direction === 'down' ? ArrowDown : ArrowRight
   const deltaInk = delta?.tone === 'success' ? 'text-success' : delta?.tone === 'destructive' ? 'text-destructive' : 'text-muted-foreground'
@@ -120,7 +124,7 @@ export function StatCard({
         <div
           className={cn('min-w-0 tabular-nums', valueKind === 'text' ? 'text-app-subtitle break-words' : size === 'lg' || emphasis ? 'text-metric-lg' : size === 'sm' ? 'text-app-subtitle' : 'text-metric', size === 'lg' && 'mt-auto')}
         >
-          {value}
+          {counted ? <AnimatedNumber {...counted} /> : value}
           {unit ? <span className="ml-1 text-app-small font-normal text-muted-foreground">{unit}</span> : null}
         </div>
       ) : null}

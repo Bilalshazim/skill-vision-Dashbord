@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { ActionList, type ActionItem } from '@/components/patterns/ActionList'
 import { ChartCard } from '@/components/patterns/ChartCard'
 import { PageHeader } from '@/components/patterns/PageHeader'
+import { StaggerList } from '@/components/patterns/StaggerList'
 import { StatCard } from '@/components/patterns/StatCard'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -61,12 +62,12 @@ export default function RecruitingPanoramicaPage() {
 
       <section>
         <PageHeader title="Stato attuale" description="Le posizioni aperte della società." />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StaggerList className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard label="Posizioni aperte" value={o.openings} />
           <StatCard label="Candidati in selezione" value={o.inSelection} note="Preselezionati nelle posizioni aperte" />
           <StatCard label="Idonei" value={o.suitable} tone={o.suitable ? 'success' : 'neutral'} note={`Fascia «Idoneo» · ${suitablePct}% dei candidati in classifica`} />
           <StatCard label="Colloqui in programma" value={o.interviewsScheduled} />
-        </div>
+        </StaggerList>
       </section>
 
       <section>
@@ -86,7 +87,7 @@ export default function RecruitingPanoramicaPage() {
 
       <section>
         <PageHeader title="Dove guardare" description="Due sintesi, ognuna con il link all'analisi completa." />
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <StaggerList className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <ChartCard
             title="Candidati per fascia di idoneità"
             description={`${data.rankedCount} candidati in classifica nelle posizioni aperte`}
@@ -99,7 +100,7 @@ export default function RecruitingPanoramicaPage() {
           <ChartCard title="Imbuto di selezione" description="Tutte le posizioni aperte, dal CV caricato alla scelta" height="auto" footer={<SeeMore to="/recruiting/imbuto-scelta?ambito=tutte">Apri l&apos;imbuto</SeeMore>}>
             <SelectionFunnel counts={data.funnelCounts} />
           </ChartCard>
-        </div>
+        </StaggerList>
       </section>
     </div>
   )

@@ -10,6 +10,7 @@ import { CompletionRing } from '@/components/patterns/CompletionRing'
 import { DistributionBar } from '@/components/patterns/DistributionBar'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { ScoreGauge } from '@/components/patterns/ScoreGauge'
+import { StaggerList } from '@/components/patterns/StaggerList'
 import { StatCard } from '@/components/patterns/StatCard'
 import { TrendChart } from '@/components/patterns/TrendChart'
 import { Button } from '@/components/ui/button'
@@ -156,7 +157,7 @@ export default function AssessmentPanoramicaPage() {
         {/* Quattro card in riga, ognuna col suo grafico piccolo. Il numero si
             scrive una volta: nel punteggio lo porta il Gauge al centro, nelle
             altre la card (gli anelli non hanno numero al centro). */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StaggerList className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {evaluated ? (
             <StatCard label={ui.panoScore} note={[ui.panoScoreGap(signed(gap)), trendDelta != null ? ui.panoTrendDelta(signed(trendDelta)) : null].filter(Boolean).join(' · ')}>
               <ScoreGauge size="sm" value={hs.orgAvg} label={ui.panoGaugeBench(fmt1it(hs.benchmark))} />
@@ -173,7 +174,7 @@ export default function AssessmentPanoramicaPage() {
           <StatCard label={ui.panoCritical} value={critical} unit={people} tone={critical ? 'destructive' : 'neutral'} note={ui.panoCriticalNote(labels.critica, criticalPct)}>
             <CompletionRing tone="destructive" value={criticalPct} label={ui.panoCritical} className="mx-0" />
           </StatCard>
-        </div>
+        </StaggerList>
       </section>
 
       <section>
@@ -265,7 +266,7 @@ export default function AssessmentPanoramicaPage() {
             </Button>
           }
         />
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <StaggerList className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {[
             { title: ui.panoGapAreasTitle, rows: gapAreas },
             { title: ui.panoGapRolesTitle, rows: gapRoles },
@@ -289,7 +290,7 @@ export default function AssessmentPanoramicaPage() {
               />
             </ChartCard>
           ))}
-        </div>
+        </StaggerList>
       </section>
 
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}

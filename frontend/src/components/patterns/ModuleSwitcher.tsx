@@ -2,7 +2,7 @@ import { BarChart3, Users } from 'lucide-react'
 import { motion } from 'motion/react'
 import { NavLink } from 'react-router-dom'
 
-import { SNAPPY_TAB_SPRING, TAP_SCALE } from '@/lib/motion'
+import { ULTRA_TAB_SPRING, TAP_SCALE } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
 const MODULES = [
@@ -19,7 +19,7 @@ const MotionNavLink = motion.create(NavLink)
 // si stringono: con la barra superiore intera la riga sta in 390px.
 //
 // Il fondo della voce accesa è una pillola sola (`layoutId`) che scorre sulla
-// voce nuova con SNAPPY_TAB_SPRING: la barra superiore si rimonta con il
+// voce nuova con ULTRA_TAB_SPRING: la barra superiore si rimonta con il
 // modulo, la pillola riparte dalla posizione di prima.
 export function ModuleSwitcher({ className }: { className?: string }) {
   return (
@@ -38,7 +38,7 @@ export function ModuleSwitcher({ className }: { className?: string }) {
         >
           {({ isActive }) => (
             <>
-              {isActive ? <motion.span aria-hidden="true" layoutId="activeModuleShellPill" transition={SNAPPY_TAB_SPRING} className="absolute inset-0 rounded-sm bg-accent" /> : null}
+              {isActive ? <motion.span aria-hidden="true" layoutId="activeModuleShellPill" transition={ULTRA_TAB_SPRING} className="absolute inset-0 rounded-sm bg-accent" /> : null}
               <m.icon aria-hidden="true" className="relative" />
               <span className="relative max-sm:sr-only">{m.label}</span>
             </>

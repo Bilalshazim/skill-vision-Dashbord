@@ -7,13 +7,17 @@ import type { Transition, Variants } from 'motion/react'
 // App.tsx) e le transizioni CSS si azzerano (globals.css). I grafici Bklit
 // hanno i loro tempi in components/charts/animation.ts.
 
-/** La pillola che scorre sotto la voce attiva del commutatore dei moduli. */
-export const SNAPPY_TAB_SPRING: Transition = {
+/** La pillola che scorre sotto la voce attiva: commutatore dei moduli,
+ *  barra laterale, Tabs, ToggleGroup. */
+export const ULTRA_TAB_SPRING: Transition = {
   type: 'spring',
-  stiffness: 600,
-  damping: 35,
+  stiffness: 500,
+  damping: 38,
   mass: 0.5,
 }
+
+/** I numeri delle metriche che salgono al valore (AnimatedNumber). */
+export const COUNTER_SPRING = { stiffness: 120, damping: 20 }
 
 /** Il cambio di modulo, Recruiting ↔ Assessment. Lo SOP aggiunge una
  *  sfocatura di 4px: tolta, il sistema non ha sfocature (regola 4,
