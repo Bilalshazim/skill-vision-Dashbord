@@ -11,13 +11,13 @@ export function Logo({ compact = false, size = 'md', className }: { compact?: bo
   const dark = theme === 'dark'
 
   if (compact) {
-    return <img src={dark ? '/brand/icona_white.svg' : '/brand/icona_black.svg'} alt="Skill Vision" width={30} height={30} className={cn('size-8', className)} />
+    return <img src={dark ? '/brand/icona_white.svg' : '/brand/icona_black.svg'} alt="Skill-Vision" width={30} height={30} className={cn('size-8', className)} />
   }
 
   return (
     <img
       src={dark ? '/brand/logo-su-scuro.svg' : '/brand/logo-su-chiaro.svg'}
-      alt="Skill Vision"
+      alt="Skill-Vision"
       width={914}
       height={170}
       className={cn('w-auto', size === 'md' ? 'h-6' : 'h-10', className)}

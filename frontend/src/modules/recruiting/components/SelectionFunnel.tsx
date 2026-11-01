@@ -1,31 +1,31 @@
 import { FunnelChart } from '@/components/charts'
 import { ChartDataTable } from '@/components/patterns/ChartDataTable'
 import { EmptyState } from '@/components/patterns/EmptyState'
-import { PREVIOUS, type StageCounts, STAGES } from '@/modules/recruiting/lib/position-funnel'
+import { PREVIOUS, type StageCounts, STAGES, type StateKey } from '@/modules/recruiting/lib/position-funnel'
 
-/** La quota di una fase sulla precedente, in percentuale intera; `null` per la prima o se la precedente è vuota. */
-export function shareOfPrevious(counts: StageCounts, key: keyof StageCounts): number | null {
+/** La quota di uno stato sul precedente, in percentuale intera; `null` per la prima o se la precedente è vuota. */
+export function shareOfPrevious(counts: StageCounts, key: StateKey): number | null {
   const prev = PREVIOUS[key]
   if (!prev || !counts[prev]) return null
   return Math.round((counts[key] / counts[prev]) * 100)
 }
 
-// G8 (DECISIONI): l'imbuto di selezione con il Funnel di Bklit, sulle fasi del
-// menu (lib/position-funnel.ts). Ogni fase porta il numero e la quota sulla
-// fase precedente (CLAUDE.md, Fase 6): la percentuale di Bklit, che è sempre
+// G8 (DECISIONI): l'imbuto di selezione con il Funnel di Bklit, sui cinque
+// stati della candidatura (lib/position-funnel.ts). Ogni stato porta il numero e la quota sullo
+// stato precedente (CLAUDE.md, Fase 6): la percentuale di Bklit, che è sempre
 // sulla prima fase, è spenta; la quota sul totale sta nella tabella. Una
 // serie sola: `chart-mono`, senza aloni. Se oltre la prima fase è tutto a zero
 // non si disegna un grafico di zeri: stato vuoto.
 export function SelectionFunnel({ counts, height = 'md' }: { counts: StageCounts; height?: 'md' | 'lg' }) {
   if (!counts.cv) {
-    return <EmptyState size="sm" title="Nessun CV caricato." description="L'imbuto compare quando arrivano i primi CV, da CV & Esportazione." />
+    return <EmptyState size="sm" title="Nessuna candidatura acquisita." description="L'imbuto compare quando arrivano i primi CV, da CV & Esportazione." />
   }
   if (STAGES.slice(1).every((s) => !counts[s.key])) {
     return (
       <EmptyState
         size="sm"
-        title={`${counts.cv} CV caricati, nessuno ancora preselezionato.`}
-        description="L'imbuto si disegna dalla preselezione in poi: si preselezionano i CV da CV preselezionati."
+        title={`${counts.cv} ${counts.cv === 1 ? 'candidatura acquisita' : 'candidature acquisite'}, nessun profilo ancora in valutazione.`}
+        description="L'imbuto si disegna dal secondo stato in poi: i profili da valutare si scelgono in CV preselezionati."
       />
     )
   }
@@ -46,11 +46,11 @@ export function SelectionFunnel({ counts, height = 'md' }: { counts: StageCounts
           className="h-full"
         />
       </div>
-      <figcaption className="text-app-caption text-muted-foreground">Accanto al numero, la quota sulla fase precedente.</figcaption>
+      <figcaption className="text-app-caption text-muted-foreground">Accanto al numero, la quota sullo stato precedente.</figcaption>
       <ChartDataTable
         title="Imbuto di selezione"
-        rowHeader="Fase"
-        columns={[{ label: 'Persone' }, { label: '% sulla precedente' }, { label: '% sui CV caricati' }]}
+        rowHeader="Stato"
+        columns={[{ label: 'Persone' }, { label: '% sul precedente' }, { label: '% sulle candidature' }]}
         rows={STAGES.map((s) => ({ label: s.label, values: [counts[s.key], shareOfPrevious(counts, s.key) ?? 100, Math.round((counts[s.key] / counts.cv) * 100)] }))}
         format={(n) => n.toLocaleString('it-IT')}
       />

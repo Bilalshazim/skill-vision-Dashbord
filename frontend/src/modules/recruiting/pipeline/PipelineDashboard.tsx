@@ -8,18 +8,12 @@ import { cn } from '@/lib/utils'
 
 // Migrated from renderPipelineDashboard() (modules/recruiting.html
 // ~1983-2015) — one card per (company, opening), unfiltered (see
-// use-pipeline-data.ts). Selecting a card only updates the Pipeline-local
-// selection (PipelinePage's search params) — never activeContext, never
-// localStorage, never a navigation away from /recruiting/pipeline.
-export function PipelineDashboard({
-  cards,
-  selectedKey,
-  onSelect,
-}: {
-  cards: PipelineOpeningCard[]
-  selectedKey: string
-  onSelect: (companyId: string, openingId: string) => void
-}) {
+// use-pipeline-data.ts). Le card sono un quadro di sola lettura: la posizione
+// attiva è segnata e scritta, e si cambia solo nel Profilo della ricerca
+// (CLAUDE.md, Fase 6; DECISIONI "Posizione attiva: si cambia solo nel
+// Profilo della ricerca"). Prima un clic su una card cambiava la posizione
+// attiva di tutta l'applicazione.
+export function PipelineDashboard({ cards, selectedKey }: { cards: PipelineOpeningCard[]; selectedKey: string }) {
   if (!cards.length) {
     return (
       <EmptyState
@@ -36,19 +30,17 @@ export function PipelineDashboard({
         const key = `${card.companyId}:${card.openingId}`
         const isSelected = key === selectedKey
         return (
-          <StaggerItem key={key} pressable>
-          <button
-            type="button"
-            onClick={() => onSelect(card.companyId, card.openingId)}
-            aria-pressed={isSelected}
-            className={cn(
-              'flex h-full w-full flex-col gap-2.5 rounded-lg border bg-card p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
-              isSelected ? 'border-primary ring-1 ring-primary' : 'border-border hover:border-ring',
-            )}
+          <StaggerItem key={key}>
+          <div
+            aria-current={isSelected ? 'true' : undefined}
+            className={cn('flex h-full w-full flex-col gap-2.5 rounded-lg border bg-card p-4 text-left', isSelected ? 'border-primary ring-1 ring-primary' : 'border-border')}
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <div className="label-mono truncate text-muted-foreground">{card.companyName}</div>
+                <div className="label-mono truncate text-muted-foreground">
+                  {card.companyName}
+                  {isSelected ? ' · Posizione attiva' : ''}
+                </div>
                 <div className="truncate text-app-small font-semibold">{card.openingTitle}</div>
               </div>
               {card.won && (
@@ -81,7 +73,7 @@ export function PipelineDashboard({
                 {card.interviewsCount} colloqui
               </span>
             </div>
-          </button>
+          </div>
           </StaggerItem>
         )
       })}

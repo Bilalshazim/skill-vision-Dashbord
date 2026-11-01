@@ -45,11 +45,16 @@ export function applyTemplateVariables(input: string, vars: TestInvitationVars):
   return out
 }
 
-const BRAND_INK = '#0D0C0A'
-const BRAND_ACCENT = '#B4C614'
-const BRAND_MUTED = '#6B7280'
-const BRAND_BORDER = '#E5E7EB'
-const BRAND_BG = '#F4F4F2'
+// Colori dell'email (HTML per i client di posta, che non leggono le variabili
+// CSS): valori della palette di globals.css, uno per ruolo. Esenti dall'audit
+// "colore scritto a mano" riga per riga (DECISIONI, "Email e audit").
+const BRAND_INK = '#0D0C0A' // audit-identita:email neutral-950
+const BRAND_ACCENT = '#DDEE1C' // audit-identita:email accent-400, il fondo del bottone primario
+const BRAND_MUTED = '#55534B' // audit-identita:email neutral-600
+const BRAND_SUBTLE = '#767369' // audit-identita:email neutral-500
+const BRAND_SURFACE = '#FFFEF5' // audit-identita:email neutral-0
+const BRAND_BORDER = '#EEEADA' // audit-identita:email neutral-200
+const BRAND_BG = '#F7F5EA' // audit-identita:email neutral-100
 
 function escapeHtml(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -78,24 +83,24 @@ function renderHtml(vars: TestInvitationVars, introHtml: string): string {
   }
 </style>
 </head>
-<body style="margin:0; padding:0; background-color:${BRAND_BG}; font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif;">
+<body style="margin:0; padding:0; background-color:${BRAND_BG}; font-family: Geist, -apple-system, Segoe UI, Helvetica, Arial, sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BRAND_BG};">
     <tr>
       <td align="center" style="padding: 32px 16px;">
-        <table role="presentation" class="sv-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px; background-color:#FFFFFF; border-radius:10px; overflow:hidden; border:1px solid ${BRAND_BORDER};">
+        <table role="presentation" class="sv-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px; background-color:${BRAND_SURFACE}; border-radius:10px; overflow:hidden; border:1px solid ${BRAND_BORDER};">
           <tr>
             <td class="sv-px" align="center" style="padding: 32px 40px 8px 40px;">
-              <img src="cid:${LOGO_CID}" width="160" alt="Skill Vision" style="display:block; border:0; outline:none; text-decoration:none; height:auto;">
+              <img src="cid:${LOGO_CID}" width="160" alt="Skill-Vision" style="display:block; border:0; outline:none; text-decoration:none; height:auto;">
             </td>
           </tr>
           <tr>
-            <td class="sv-px" style="padding: 16px 40px 0 40px; font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif;">
-              <h1 style="margin:0 0 4px 0; font-size:20px; line-height:28px; color:${BRAND_INK}; font-weight:700;">Ciao ${escapeHtml(candidateName)},</h1>
+            <td class="sv-px" style="padding: 16px 40px 0 40px; font-family: Geist, -apple-system, Segoe UI, Helvetica, Arial, sans-serif;">
+              <h1 style="margin:0 0 4px 0; font-size:20px; line-height:28px; color:${BRAND_INK}; font-weight:600;">Ciao ${escapeHtml(candidateName)},</h1>
               <p style="margin:0 0 4px 0; font-size:13px; line-height:20px; color:${BRAND_MUTED};">Candidatura — <strong style="color:${BRAND_INK};">${escapeHtml(jobTitle)}</strong> presso <strong style="color:${BRAND_INK};">${escapeHtml(companyName)}</strong></p>
             </td>
           </tr>
           <tr>
-            <td class="sv-px" style="padding: 20px 40px 0 40px; font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif; font-size:14.5px; line-height:23px; color:${BRAND_INK};">
+            <td class="sv-px" style="padding: 20px 40px 0 40px; font-family: Geist, -apple-system, Segoe UI, Helvetica, Arial, sans-serif; font-size:15px; line-height:23px; color:${BRAND_INK};">
               ${introHtml}
             </td>
           </tr>
@@ -103,15 +108,15 @@ function renderHtml(vars: TestInvitationVars, introHtml: string): string {
             <td class="sv-px" style="padding: 28px 40px 8px 40px;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td align="center" style="border-radius:8px; background-color:${BRAND_ACCENT};">
-                    <a href="${testLink}" target="_blank" style="display:inline-block; padding:14px 32px; font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif; font-size:14px; font-weight:700; letter-spacing:0.5px; color:${BRAND_INK}; text-decoration:none; border-radius:8px;">INIZIA IL TEST</a>
+                  <td align="center" style="border-radius:16px; background-color:${BRAND_ACCENT};">
+                    <a href="${testLink}" target="_blank" style="display:inline-block; padding:14px 32px; font-family: Geist, -apple-system, Segoe UI, Helvetica, Arial, sans-serif; font-size:14px; font-weight:600; color:${BRAND_INK}; text-decoration:none; border-radius:16px;">Inizia il test</a>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
           <tr>
-            <td class="sv-px" style="padding: 8px 40px 0 40px; font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif; font-size:12px; line-height:18px; color:${BRAND_MUTED};">
+            <td class="sv-px" style="padding: 8px 40px 0 40px; font-family: Geist, -apple-system, Segoe UI, Helvetica, Arial, sans-serif; font-size:12px; line-height:18px; color:${BRAND_MUTED};">
               <p style="margin:0 0 4px 0;">Se il pulsante non funziona, copia e incolla questo link nel browser:</p>
               <p style="margin:0; word-break:break-all;"><a href="${testLink}" target="_blank" style="color:${BRAND_INK};">${testLink}</a></p>
             </td>
@@ -120,10 +125,10 @@ function renderHtml(vars: TestInvitationVars, introHtml: string): string {
             <td class="sv-px" style="padding: 28px 40px 32px 40px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${BRAND_BORDER};">
                 <tr>
-                  <td style="padding-top:20px; font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif; font-size:12px; line-height:18px; color:${BRAND_MUTED};">
-                    <p style="margin:0 0 4px 0; font-weight:700; color:${BRAND_INK};">Skill Vision</p>
+                  <td style="padding-top:20px; font-family: Geist, -apple-system, Segoe UI, Helvetica, Arial, sans-serif; font-size:12px; line-height:18px; color:${BRAND_MUTED};">
+                    <p style="margin:0 0 4px 0; font-weight:600; color:${BRAND_INK};">Skill-Vision</p>
                     <p style="margin:0 0 4px 0;">Domande su questo invito? Rispondi a questa email o scrivi a <a href="mailto:info@skill-vision.it" style="color:${BRAND_INK};">info@skill-vision.it</a>.</p>
-                    <p style="margin:0; color:#9CA3AF;">Questa email è stata inviata perché la tua candidatura è in fase di valutazione per la posizione indicata sopra.</p>
+                    <p style="margin:0; color:${BRAND_SUBTLE};">Questa email è stata inviata perché la tua candidatura è in fase di valutazione per la posizione indicata sopra.</p>
                   </td>
                 </tr>
               </table>
@@ -186,13 +191,13 @@ function renderPlainText(vars: TestInvitationVars, intro: string): string {
     '',
     intro,
     '',
-    `INIZIA IL TEST: ${testLink}`,
+    `Inizia il test: ${testLink}`,
     '',
     'Se il link sopra non funziona, copialo e incollalo nel browser:',
     testLink,
     '',
     '---',
-    'Skill Vision',
+    'Skill-Vision',
     'Domande su questo invito? Rispondi a questa email o scrivi a info@skill-vision.it.',
     'Questa email è stata inviata perché la tua candidatura è in fase di valutazione per la posizione indicata sopra.',
   ].join('\n')
@@ -235,25 +240,25 @@ export function renderEvaluatorInvitation(vars: EvaluatorInvitationVars): Render
     '',
     intro,
     '',
-    `COMPILA LE SCHEDE: ${link}`,
+    `Compila le schede: ${link}`,
     '',
     'Se il link non funziona, copialo e incollalo nel browser.',
     '',
     '---',
-    'Skill Vision',
+    'Skill-Vision',
     'Domande? Scrivi a info@skill-vision.it.',
   ].join('\n')
   const html = `<!doctype html>
 <html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(subject)}</title></head>
-<body style="margin:0; padding:0; background-color:${BRAND_BG}; font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif;">
+<body style="margin:0; padding:0; background-color:${BRAND_BG}; font-family: Geist, -apple-system, Segoe UI, Helvetica, Arial, sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BRAND_BG};"><tr><td align="center" style="padding:32px 16px;">
-    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:100%; background-color:#FFFFFF; border-radius:10px; border:1px solid ${BRAND_BORDER};">
-      <tr><td align="center" style="padding:32px 40px 8px 40px;"><img src="cid:${LOGO_CID}" width="160" alt="Skill Vision" style="display:block; border:0; height:auto;"></td></tr>
-      <tr><td style="padding:16px 40px 0 40px;"><h1 style="margin:0; font-size:20px; line-height:28px; color:${BRAND_INK}; font-weight:700;">Ciao ${escapeHtml(evaluatorName)},</h1></td></tr>
-      <tr><td style="padding:16px 40px 0 40px; font-size:14.5px; line-height:23px; color:${BRAND_INK};">${paragraphsToHtml(intro)}</td></tr>
-      <tr><td style="padding:24px 40px 8px 40px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="border-radius:8px; background-color:${BRAND_ACCENT};"><a href="${escapeHtml(link)}" target="_blank" style="display:inline-block; padding:14px 32px; font-size:14px; font-weight:700; color:${BRAND_INK}; text-decoration:none; border-radius:8px;">COMPILA LE SCHEDE</a></td></tr></table></td></tr>
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:100%; background-color:${BRAND_SURFACE}; border-radius:10px; border:1px solid ${BRAND_BORDER};">
+      <tr><td align="center" style="padding:32px 40px 8px 40px;"><img src="cid:${LOGO_CID}" width="160" alt="Skill-Vision" style="display:block; border:0; height:auto;"></td></tr>
+      <tr><td style="padding:16px 40px 0 40px;"><h1 style="margin:0; font-size:20px; line-height:28px; color:${BRAND_INK}; font-weight:600;">Ciao ${escapeHtml(evaluatorName)},</h1></td></tr>
+      <tr><td style="padding:16px 40px 0 40px; font-size:15px; line-height:23px; color:${BRAND_INK};">${paragraphsToHtml(intro)}</td></tr>
+      <tr><td style="padding:24px 40px 8px 40px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="border-radius:16px; background-color:${BRAND_ACCENT};"><a href="${escapeHtml(link)}" target="_blank" style="display:inline-block; padding:14px 32px; font-size:14px; font-weight:600; color:${BRAND_INK}; text-decoration:none; border-radius:16px;">Compila le schede</a></td></tr></table></td></tr>
       <tr><td style="padding:8px 40px 0 40px; font-size:12px; line-height:18px; color:${BRAND_MUTED};"><p style="margin:0 0 4px 0;">Se il pulsante non funziona, copia e incolla questo link nel browser:</p><p style="margin:0; word-break:break-all;"><a href="${escapeHtml(link)}" target="_blank" style="color:${BRAND_INK};">${escapeHtml(link)}</a></p></td></tr>
-      <tr><td style="padding:28px 40px 32px 40px; font-size:12px; line-height:18px; color:${BRAND_MUTED};"><p style="margin:0; font-weight:700; color:${BRAND_INK};">Skill Vision</p><p style="margin:0;">Domande? Scrivi a <a href="mailto:info@skill-vision.it" style="color:${BRAND_INK};">info@skill-vision.it</a>.</p></td></tr>
+      <tr><td style="padding:28px 40px 32px 40px; font-size:12px; line-height:18px; color:${BRAND_MUTED};"><p style="margin:0; font-weight:600; color:${BRAND_INK};">Skill-Vision</p><p style="margin:0;">Domande? Scrivi a <a href="mailto:info@skill-vision.it" style="color:${BRAND_INK};">info@skill-vision.it</a>.</p></td></tr>
     </table>
   </td></tr></table>
 </body></html>`

@@ -36,7 +36,7 @@ export function Topbar({ menuTrigger }: { menuTrigger?: ReactNode }) {
   return (
     <header className="sticky top-0 z-(--z-header) flex h-16 shrink-0 items-center gap-2 border-b border-border bg-card px-3 sm:gap-3 sm:px-6">
       {menuTrigger}
-      <Link to="/" aria-label="Skill Vision — scelta del modulo" className="flex shrink-0 items-center rounded-xs outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+      <Link to="/" aria-label="Skill-Vision — scelta del modulo" className="flex shrink-0 items-center rounded-xs outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
         <Logo />
       </Link>
       {both ? <ModuleSwitcher className="sm:ml-2" /> : null}

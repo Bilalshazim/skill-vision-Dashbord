@@ -38,6 +38,28 @@ export function getLevelAnchors(lang: AssessmentLang) {
 export function getNavConfig(lang: AssessmentLang) {
   return lang === 'it' ? NAV_CONFIG_IT : NAV_CONFIG_EN
 }
+/**
+ * La riga del percorso di una pagina di Assessment (CLAUDE.md, Fase 6): parte
+ * da "Home"; dentro un gruppo del menu ("Area Valutazioni", "Area Risultati")
+ * il gruppo porta alla sua prima voce. Le pagine fuori dal menu prendono il
+ * titolo dalla loro intestazione. `null` per la Home e per le pagine senza
+ * intestazione (le pagine dei risultati hanno la loro riga).
+ */
+export function getPageTrail(lang: AssessmentLang, pageId: string): { items: { label: string; to: string }[]; current: string } | null {
+  if (pageId === 'home') return null
+  const nav = getNavConfig(lang)
+  const home = { label: nav.find((e) => e.type === 'link' && e.id === 'home')?.label ?? 'Home', to: '/assessment/home' }
+  for (const e of nav) {
+    if (e.type === 'link' && e.id === pageId) return { items: [home], current: e.label }
+    if (e.type === 'group') {
+      const item = e.items.find((i) => i.id === pageId)
+      if (item) return { items: [home, { label: e.label, to: `/assessment/${e.items[0].id}` }], current: item.label }
+    }
+  }
+  const title = getPageMeta(lang, pageId).title
+  return title ? { items: [home], current: title } : null
+}
+
 export function getPageMeta(lang: AssessmentLang, pageId: string) {
   const table = lang === 'it' ? PAGE_META_TEXT_IT : PAGE_META_TEXT_EN
   return table[pageId] || { title: '', sub: '' }

@@ -1,7 +1,10 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { NavCard } from '@/components/patterns/NavCard'
 import { CalendarDays, FileCheck2, ListChecks, Medal } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
+import { Button } from '@/components/ui/button'
+import { PROFILE_PATH } from '@/modules/recruiting/components/RecruitingContextBar'
 import { ensurePipeline } from '@/modules/recruiting/lib/pipeline'
 import { usePipelineSelection } from '@/modules/recruiting/lib/use-pipeline-selection'
 import { PipelineDashboard } from '@/modules/recruiting/pipeline/PipelineDashboard'
@@ -52,15 +55,27 @@ import { PipelineOpeningSummary } from '@/modules/recruiting/pipeline/PipelineDe
 // classifica dopo il test, colloqui e podio hanno una pagina loro, e i link
 // sotto ci arrivano sulla stessa posizione.
 export default function PipelinePage() {
-  const { cards, company, opening, onMutated, select, query } = usePipelineSelection()
+  const { cards, company, opening, onMutated, query } = usePipelineSelection()
   const selectedKey = company && opening ? `${company.id}:${opening.id}` : ''
   const p = opening ? ensurePipeline(opening) : null
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader level="page" className="mb-0" title="Avanzamento della selezione" description={<>Stato di avanzamento e tracciamento per ogni posizione aperta — preselezione, test, colloqui, podio.</>} />
+      <PageHeader
+        level="page"
+        className="mb-0"
+        title="Avanzamento della selezione"
+        description={<>Stato di avanzamento e tracciamento per ogni posizione aperta — preselezione, test, colloqui, podio. Il dettaglio sotto è della posizione attiva.</>}
+        actions={
+          cards.length > 1 ? (
+            <Button asChild variant="outline" size="sm">
+              <Link to={PROFILE_PATH}>Cambia posizione nel Profilo della ricerca</Link>
+            </Button>
+          ) : null
+        }
+      />
 
-      <PipelineDashboard cards={cards} selectedKey={selectedKey} onSelect={select} />
+      <PipelineDashboard cards={cards} selectedKey={selectedKey} />
 
       {company && opening && p ? (
         <>

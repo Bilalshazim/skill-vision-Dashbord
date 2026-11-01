@@ -13,6 +13,7 @@ import { AuthGuard } from '@/layouts/AuthGuard'
 import { PageTransition } from '@/layouts/PageTransition'
 import { useBackendSession } from '@/lib/api/useBackendSession'
 import { BackendStatusBanner } from '@/modules/recruiting/components/BackendStatusBanner'
+import { RecruitingBreadcrumb } from '@/modules/recruiting/components/RecruitingBreadcrumb'
 import { RecruitingContextBar } from '@/modules/recruiting/components/RecruitingContextBar'
 import { RecruitingNav } from '@/modules/recruiting/components/RecruitingNav'
 import { ActivePositionProvider } from '@/modules/recruiting/lib/active-position'
@@ -82,6 +83,7 @@ export default function RecruitingLayout() {
                 </InlineAlert>
               ) : null}
               {/* La posizione attiva sopra ogni pagina, sempre (CLAUDE.md, Fase 6). */}
+              <RecruitingBreadcrumb />
               <RecruitingContextBar />
               {/* Società, Campagna e CIP stanno in fondo a Profilo della ricerca
                   (profile-hub/ProfileHubPage.tsx), sotto la scheda della posizione. */}

@@ -1,6 +1,7 @@
 import { ArrowRight, Check, ChevronDown, CircleDollarSign, Download, Gauge, ListChecks, MapPin, Plus, Target, Trash2, TrendingUp, Users } from 'lucide-react'
 import { type ReactNode, useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { Link } from 'react-router-dom'
 
 import { ActionList } from '@/components/patterns/ActionList'
 import { BandCard } from '@/components/patterns/BandCard'
@@ -45,6 +46,11 @@ import { ConfirmDialog } from '@/components/patterns/ConfirmDialog'
 import { Field } from '@/components/patterns/Field'
 import { FieldGrid } from '@/components/patterns/FieldGrid'
 import { Hint } from '@/components/patterns/Hint'
+import { InfoTip } from '@/components/patterns/InfoTip'
+import { PageBreadcrumb } from '@/components/patterns/PageBreadcrumb'
+import { ResultsPage } from '@/components/patterns/ResultsPage'
+import { WindowCard } from '@/components/patterns/WindowCard'
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { PageErrorFallback } from '@/components/patterns/ErrorBoundary'
 import { InlineAlert } from '@/components/patterns/InlineAlert'
 import { ModalDialog } from '@/components/patterns/ModalDialog'
@@ -984,6 +990,127 @@ const ENTRIES: Entry[] = [
     ),
   },
   {
+    name: 'Breadcrumb',
+    level: 'Primitiva',
+    source: 'components/ui/breadcrumb.tsx',
+    render: () => (
+      <Row label="La riga del percorso: ogni voce prima della corrente è un link, separatore « / »">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/dev/components">Profilo della ricerca</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/dev/components">Chi cerchiamo</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Profilo candidato</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </Row>
+    ),
+  },
+  {
+    name: 'PageBreadcrumb',
+    level: 'Pattern',
+    source: 'components/patterns/PageBreadcrumb.tsx',
+    render: () => (
+      <Row label="In cima a ogni pagina di lavoro: la riga calcolata dal menu del modulo">
+        <PageBreadcrumb items={[{ label: 'Home', to: '/dev/components' }, { label: 'Area Risultati', to: '/dev/components' }]} current="Risultati Valutazioni Trasversali" />
+      </Row>
+    ),
+  },
+  {
+    name: 'InfoTip',
+    level: 'Pattern',
+    source: 'components/patterns/InfoTip.tsx',
+    render: () => (
+      <Row label="ⓘ accanto a un dato: cosa vuol dire, due o tre righe. Si apre anche con Tab">
+        <span className="flex items-center gap-2 text-app-body">
+          17% delle persone è sopra la norma
+          <InfoTip label="Che cosa misura la quota">Le persone nelle fasce Alto potenziale e Alto valore, sul totale delle persone valutate: 4 su 23.</InfoTip>
+        </span>
+      </Row>
+    ),
+  },
+  {
+    name: 'WindowCard',
+    level: 'Pattern',
+    source: 'components/patterns/WindowCard.tsx',
+    render: () => (
+      <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+        <WindowCard to="/dev/components" number="02" title="Le perdite invisibili" subtitle="Inefficienze, costi nascosti e valore che si disperde" question="Dove sto sprecando denaro o perdendo opportunità?" />
+        <WindowCard to="/dev/components" number="01" title="Chi cerchiamo?" subtitle="Definire il candidato ideale" content="Ruolo, requisiti, hard e soft skill" verbs="Crea posizione · Pubblica · Ricevi CV" />
+      </div>
+    ),
+  },
+  {
+    name: 'ResultsPage',
+    level: 'Pattern',
+    source: 'components/patterns/ResultsPage.tsx',
+    render: () => (
+      <div className="w-full">
+        <ResultsPage
+          crumbs={[{ label: 'Home', to: '/dev/components' }]}
+          number="03"
+          title="Il potenziale"
+          question="Quali risorse e potenzialità non sto impiegando?"
+          why="Le persone che possono fare di più spesso ci sono già. Trovarle dentro l’azienda evita una ricerca fuori; lasciarle ferme è un valore che non si usa."
+          situation={{
+            text: '4 persone su 23 sono sopra la norma.',
+            chart: (
+              <CategoryBars
+                title="Persone per tipo di intervento"
+                orientation="horizontal"
+                height="sm"
+                valueMax={5}
+                format={(n) => String(Math.round(n))}
+                series={[{ key: 'n', label: 'Persone' }]}
+                rows={[
+                  { label: 'Formazione', values: { n: 5 } },
+                  { label: 'Coaching', values: { n: 4 } },
+                  { label: 'Riorganizzazione', values: { n: 2 } },
+                  { label: 'Talento', values: { n: 0 } },
+                ]}
+                highlight="Formazione"
+              />
+            ),
+          }}
+          issues={{
+            items: [
+              { title: 'Alto potenziale', value: '4 persone', list: [{ id: 'a', text: 'Anna Rossi · Responsabile vendite · 7,8 /10' }], link: { label: 'Vedi l’elenco', to: '/dev/components' } },
+              { title: 'Alto valore', value: 'Nessuno oggi.' },
+              { title: 'Competenza più forte', value: 'Lavoro di squadra', body: '0,8 punti sopra l’atteso' },
+            ],
+            opportunity: 'L’opportunità: 4 persone possono crescere senza cercare nessuno fuori.',
+          }}
+          impact={{ pct: 17, label: 'delle persone è sopra la norma', hint: 'Le persone nelle fasce Alto potenziale e Alto valore, sul totale delle persone valutate: 4 su 23.', euroNote: 'di valore in più l’anno se impiegate, stima' }}
+          suggestion={{ text: 'Per chi è in Alto potenziale, un piano di sviluppo con l’azione Talento.', link: { label: 'Vai a Dove intervenire', to: '/dev/components' } }}
+          deepDives={[{ label: 'Valori complessivi', to: '/dev/components' }]}
+          home={{ label: 'Torna alla home', to: '/dev/components' }}
+          demoNote="Acme Corp"
+        />
+      </div>
+    ),
+  },
+  {
+    name: 'CompletionRing con il numero al centro',
+    level: 'Pattern',
+    source: 'components/patterns/CompletionRing.tsx',
+    render: () => (
+      <Row label="`center`: fuori da uno StatCard, il numero al centro (centerValue di Bklit)">
+        <CompletionRing value={40} label="CV in linea con il profilo" center="in linea" />
+      </Row>
+    ),
+  },
+  {
     name: 'Hint',
     level: 'Pattern',
     source: 'components/patterns/Hint.tsx',
@@ -1218,7 +1345,7 @@ const ENTRIES: Entry[] = [
     level: 'Pattern',
     source: 'components/patterns/ContextBar.tsx',
     render: () => (
-      <div className="w-full">
+      <div className="flex w-full flex-col gap-4">
         <ContextBar
           items={[
             { label: 'Società', value: 'Acme Corp' },
@@ -1226,6 +1353,13 @@ const ENTRIES: Entry[] = [
             { label: 'Stato', value: 'in selezione' },
           ]}
           action={<Button size="sm" variant="outline">Cambia posizione</Button>}
+        />
+        <ContextBar
+          variant="inline"
+          items={[
+            { label: 'Società', value: 'Acme Corp' },
+            { label: 'Posizione attiva', value: 'Senior Frontend Engineer' },
+          ]}
         />
       </div>
     ),

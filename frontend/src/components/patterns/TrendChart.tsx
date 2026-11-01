@@ -1,4 +1,4 @@
-import { ChartTooltip, ComposedChart, Grid, Line, SeriesBar, XAxis, YAxis } from '@/components/charts'
+import { Area, ChartTooltip, ComposedChart, Grid, Line, SeriesBar, XAxis, YAxis } from '@/components/charts'
 import { ChartDataTable } from '@/components/patterns/ChartDataTable'
 import { ChartLegend } from '@/components/patterns/ChartLegend'
 import { seriesColors } from '@/lib/chart-colors'
@@ -7,10 +7,10 @@ import { cn } from '@/lib/utils'
 export type TrendSeries = {
   key: string
   label: string
-  /** `line` (default), `bar`. `area` resta accettato e si disegna come linea:
-   *  niente riempimento sotto l'andamento (CLAUDE.md, Fase 5, regola 4). */
+  /** `line` (default), `area` (l'Area di Bklit con la sua sfumatura, nel colore
+   *  della serie: inchiostro, mai lime — regola 4, esenzione del 2026-10-30), `bar`. */
   kind?: 'line' | 'area' | 'bar'
-  /** Un riferimento (benchmark, obiettivo): linea tratteggiata in `muted-foreground`. */
+  /** Un riferimento (benchmark, obiettivo): linea tratteggiata in `chart-reference`. */
   reference?: boolean
   /** Asse a destra, per una seconda unità di misura (es. ticket accanto a CSAT %). */
   axis?: 'left' | 'right'
@@ -25,10 +25,14 @@ export type TrendSeries = {
 // per le percentuali, 1–5), non i soli valori presenti — una variazione di
 // due decimi non deve sembrare un crollo (DECISIONI, "Asse y fisso").
 // Per i conteggi (ticket) si lascia l'asse adattato ai dati.
-// Niente sfumature (regola 4), neanche quelle di Bklit: nessun riempimento
-// sotto le linee (l'Area di Bklit disegna sempre un `area-gradient`) e griglia
-// senza dissolvenza ai lati (`grid-rows-fade`). Nomi delle serie sotto il
-// grafico, valori in tabella per i lettori di schermo.
+// Bklit si usa come è fatto (regola 4, esenzione del 2026-10-30): l'Area con
+// il suo `area-gradient` e la griglia con la dissolvenza ai lati
+// (`grid-rows-fade`); prima erano spente. Nomi delle serie sotto il grafico,
+// valori in tabella per i lettori di schermo.
+//
+// `variant="spark"`: la sparkline dell'andamento accanto a un numero (StatCard
+// del punteggio nella Panoramica): stessa serie, senza assi, griglia, legenda e
+// tooltip; i valori restano nella tabella per i lettori di schermo.
 export function TrendChart({
   title,
   points,
@@ -36,6 +40,7 @@ export function TrendChart({
   height = 'md',
   scale,
   format,
+  variant = 'full',
   className,
 }: {
   title: string
@@ -45,8 +50,10 @@ export function TrendChart({
   /** Scala fissa per asse: `{ left: [0, 10] }`, `{ right: [0, 100] }`. */
   scale?: { left?: [number, number]; right?: [number, number] }
   format?: (n: number) => string
+  variant?: 'full' | 'spark'
   className?: string
 }) {
+  const spark = variant === 'spark'
   const colors = seriesColors(series)
   const data = points.map((p) => ({ date: p.date, label: p.label, ...Object.fromEntries(series.map((s) => [s.key, p.values[s.key] ?? 0])) }))
   const hasRight = series.some((s) => s.axis === 'right')
@@ -56,23 +63,38 @@ export function TrendChart({
   const barPad = series.some((s) => s.kind === 'bar') ? 16 : 0
   return (
     <figure data-slot="trend-chart" className={cn('flex flex-col gap-3', className)}>
-      <div aria-hidden="true" className={cn('w-full', height === 'sm' ? 'h-40' : height === 'md' ? 'h-60' : 'h-80')}>
-        <ComposedChart data={data} xDataKey="date" aspectRatio="auto" className="h-full" maxBarSize={32} yDomains={scale} margin={{ top: 16, right: hasRight ? 48 + barPad : 16 + barPad, bottom: 32, left: 40 + barPad }}>
-          <Grid horizontal fadeHorizontal={false} />
+      <div aria-hidden="true" className={cn('w-full', spark ? 'h-12' : height === 'sm' ? 'h-40' : height === 'md' ? 'h-60' : 'h-80')}>
+        <ComposedChart
+          data={data}
+          xDataKey="date"
+          aspectRatio="auto"
+          className="h-full"
+          maxBarSize={32}
+          yDomains={scale}
+          margin={spark ? { top: 4, right: 4, bottom: 4, left: 4 } : { top: 16, right: hasRight ? 48 + barPad : 16 + barPad, bottom: 32, left: 40 + barPad }}
+        >
+          {spark ? null : <Grid horizontal />}
           {series.map((s, i) => {
             const yAxisId = s.axis ?? 'left'
             if (s.kind === 'bar') return <SeriesBar key={s.key} dataKey={s.key} fill={colors[i]} radius={4} />
+            if (s.kind === 'area' && !s.reference) return <Area key={s.key} dataKey={s.key} yAxisId={yAxisId} fill={colors[i]} stroke={colors[i]} strokeWidth={2} />
             return <Line key={s.key} dataKey={s.key} yAxisId={yAxisId} stroke={colors[i]} strokeWidth={2} fadeEdges={false} dashFromIndex={s.reference ? 0 : undefined} />
           })}
-          <XAxis numTicks={Math.min(points.length, 8)} />
-          <YAxis formatValue={format} labelInset={barPad} />
-          {hasRight ? <YAxis yAxisId="right" orientation="right" formatValue={format} labelInset={barPad} /> : null}
-          <ChartTooltip />
+          {spark ? null : (
+            <>
+              <XAxis numTicks={Math.min(points.length, 8)} />
+              <YAxis formatValue={format} labelInset={barPad} />
+              {hasRight ? <YAxis yAxisId="right" orientation="right" formatValue={format} labelInset={barPad} /> : null}
+              <ChartTooltip />
+            </>
+          )}
         </ComposedChart>
       </div>
-      <figcaption>
-        <ChartLegend items={series.map((s, i) => ({ label: s.label, color: colors[i], reference: s.reference, kind: s.kind === 'bar' ? 'bar' : 'line' }))} />
-      </figcaption>
+      {spark ? null : (
+        <figcaption>
+          <ChartLegend items={series.map((s, i) => ({ label: s.label, color: colors[i], reference: s.reference, kind: s.kind === 'bar' ? 'bar' : 'line' }))} />
+        </figcaption>
+      )}
       <ChartDataTable title={title} rowHeader="Periodo" columns={series} rows={points.map((p) => ({ label: p.label, values: series.map((s) => p.values[s.key]) }))} format={format} />
     </figure>
   )

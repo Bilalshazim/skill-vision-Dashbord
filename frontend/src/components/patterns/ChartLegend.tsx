@@ -34,7 +34,7 @@ export function ChartLegend({ items, className }: { items: LegendItem[]; classNa
             <svg width="12" height="12" aria-hidden="true" className="shrink-0">
               <path d={markerPath(it.shape ?? 'circle', 6, 6, 4.5)} fill={it.color} />
             </svg>
-          ) : it.kind === 'bar' ? (
+          ) : it.kind === 'bar' && !it.reference ? (
             <span aria-hidden="true" className="size-2.5 shrink-0 rounded-xs" style={{ background: it.color }} />
           ) : (
             <svg width="16" height="8" aria-hidden="true" className="shrink-0">

@@ -2,35 +2,44 @@ import { ensurePipeline } from '@/modules/recruiting/lib/pipeline'
 import { ahi, fasce } from '@/modules/recruiting/lib/scoring'
 import type { Candidate, JobOpening } from '@/modules/recruiting/lib/types'
 
-// Le fasi della selezione di una posizione, quelle del menu (CLAUDE.md, Fase
-// 6, "Imbuto di selezione", 2026-10-23): CV caricati → Preselezionati →
-// Invitati al test → Test completati → Idonei → In colloquio → Scelti. Prima
-// l'imbuto aveva "Test tecnico" (che non esiste: il test è quello delle
-// competenze trasversali di Original Skills) e "Assunti" spiegato con un
-// asterisco, e contava l'archivio intero mescolato alle posizioni.
+// Gli stati della candidatura, le fasi dell'imbuto (CLAUDE.md, Fase 6, decisi
+// da Roberto il 2026-10-23): Candidatura acquisita → Profilo in valutazione →
+// Candidato di interesse → In fase di approfondimento → Selezione conclusa;
+// a parte l'esito (ESITI, sotto). Sostituiscono le sette fasi del 2026-10-23
+// (CV caricati … Scelti). Corrispondono agli stati del server
+// (`BackendCampaignCandidateStatus`): IN_POOL · SHORTLISTED/TEST_DA_INVIARE ·
+// TEST_INVIATO/HA_RISPOSTO/NON_HA_RISPOSTO · INTERVIEW · DECISION_*.
 //
-// Chi sta in una fase sta anche nelle precedenti: chi è in colloquio è stato
-// preselezionato, chi ha completato il test è stato invitato. Fa eccezione
-// "Idonei", che è un giudizio e non un passaggio: si può fare il colloquio a
-// un candidato "Da valutare", quindi "In colloquio" non si somma a "Idonei"
-// e la sua quota si calcola sui test completati.
+// Chi sta in uno stato sta anche nei precedenti: chi è in colloquio è stato
+// preselezionato, chi ha il test è stato preselezionato. Le chiavi interne
+// restano quelle di prima (si cambia l'etichetta, non i nomi nel codice);
+// `completati` e `idonei` non sono stati della candidatura ma si contano
+// ancora, perché il "prossimo passo" del Profilo della ricerca li usa.
 export type StageKey = 'cv' | 'preselezionati' | 'invitati' | 'completati' | 'idonei' | 'colloquio' | 'scelti'
 
-export const STAGES: { key: StageKey; label: string; to: string; stuck: string }[] = [
-  { key: 'cv', label: 'CV caricati', to: '/recruiting/cv-elaborati', stuck: 'non ancora preselezionati' },
-  { key: 'preselezionati', label: 'Preselezionati', to: '/recruiting/preselezionati', stuck: 'non ancora invitati al test' },
-  { key: 'invitati', label: 'Invitati al test', to: '/recruiting/preselezionati', stuck: 'non hanno ancora completato il test' },
-  { key: 'completati', label: 'Test completati', to: '/recruiting/classifica-test', stuck: 'senza un colloquio in programma' },
-  { key: 'idonei', label: 'Idonei', to: '/recruiting/fasce-idoneita', stuck: 'non ancora in colloquio' },
-  { key: 'colloquio', label: 'In colloquio', to: '/recruiting/colloqui', stuck: 'non ancora scelti' },
-  { key: 'scelti', label: 'Scelti', to: '/recruiting/podio', stuck: '' },
+/** Gli stati che si mostrano, in ordine. */
+export type StateKey = 'cv' | 'preselezionati' | 'invitati' | 'colloquio' | 'scelti'
+
+export const STAGES: { key: StateKey; label: string; description: string; to: string; stuck: string }[] = [
+  { key: 'cv', label: 'Candidatura acquisita', description: 'CV ricevuto', to: '/recruiting/cv-elaborati', stuck: 'non ancora in valutazione' },
+  { key: 'preselezionati', label: 'Profilo in valutazione', description: 'confronto CV / profilo', to: '/recruiting/preselezionati', stuck: 'senza il test inviato' },
+  { key: 'invitati', label: 'Candidato di interesse', description: 'approvato e test inviato', to: '/recruiting/classifica-test', stuck: 'senza un colloquio' },
+  { key: 'colloquio', label: 'In fase di approfondimento', description: 'colloquio', to: '/recruiting/colloqui', stuck: 'senza una decisione' },
+  { key: 'scelti', label: 'Selezione conclusa', description: 'decisione', to: '/recruiting/podio', stuck: '' },
 ]
 
-/** La fase che segue, per contare chi è fermo in una fase (Test completati e Idonei vanno tutti e due verso il colloquio). */
-export const NEXT: Record<StageKey, StageKey | null> = { cv: 'preselezionati', preselezionati: 'invitati', invitati: 'completati', completati: 'colloquio', idonei: 'colloquio', colloquio: 'scelti', scelti: null }
+/** L'esito, a parte dagli stati. Oggi si registra solo chi è scelto (`pipeline.winner` = Assunto): In riserva e Non selezionato non hanno ancora un dato. */
+export const ESITI = [
+  { key: 'assunto', label: 'Assunto' },
+  { key: 'riserva', label: 'In riserva' },
+  { key: 'non-selezionato', label: 'Non selezionato' },
+] as const
 
-/** La fase da cui si calcola la quota "sulla precedente": In colloquio si confronta con i test completati (vedi sopra). */
-export const PREVIOUS: Record<StageKey, StageKey | null> = { cv: null, preselezionati: 'cv', invitati: 'preselezionati', completati: 'invitati', idonei: 'completati', colloquio: 'completati', scelti: 'colloquio' }
+/** Lo stato che segue, per contare chi è fermo in uno stato. */
+export const NEXT: Record<StateKey, StateKey | null> = { cv: 'preselezionati', preselezionati: 'invitati', invitati: 'colloquio', colloquio: 'scelti', scelti: null }
+
+/** Lo stato da cui si calcola la quota "sulla precedente". */
+export const PREVIOUS: Record<StateKey, StateKey | null> = { cv: null, preselezionati: 'cv', invitati: 'preselezionati', colloquio: 'invitati', scelti: 'colloquio' }
 
 const SENT = new Set(['inviato', 'completato', 'ha_risposto', 'non_ha_risposto'])
 const DONE = new Set(['completato', 'ha_risposto'])
@@ -62,13 +71,15 @@ export function positionStages(opening: JobOpening, candidatesById: Map<string, 
 
 export type StageCounts = Record<StageKey, number>
 
+const ALL_KEYS: StageKey[] = ['cv', 'preselezionati', 'invitati', 'completati', 'idonei', 'colloquio', 'scelti']
+
 export function countStages(sets: Record<StageKey, Set<string>>): StageCounts {
-  return Object.fromEntries(STAGES.map((s) => [s.key, sets[s.key].size])) as StageCounts
+  return Object.fromEntries(ALL_KEYS.map((k) => [k, sets[k].size])) as StageCounts
 }
 
 /** Somma di più posizioni (Tutte le posizioni aperte). */
 export function sumStages(list: StageCounts[]): StageCounts {
-  return Object.fromEntries(STAGES.map((s) => [s.key, list.reduce((n, c) => n + c[s.key], 0)])) as StageCounts
+  return Object.fromEntries(ALL_KEYS.map((k) => [k, list.reduce((n, c) => n + c[k], 0)])) as StageCounts
 }
 
 /** Tutti gli id dei candidati che una posizione conosce: è "questa posizione" per Risultati e Candidati per fascia. */
@@ -78,9 +89,9 @@ export function positionCandidateIds(opening: JobOpening | undefined): Set<strin
   return new Set([...(opening.candidatePool ?? []).map((r) => r.id), ...p.prescreened.map((r) => r.candidateId), ...p.testResults.map((t) => t.candidateId), ...p.interviews.map((iv) => iv.candidateId).filter((id): id is string => !!id)])
 }
 
-/** Dove si fermano: il calo maggiore fra due fasi consecutive, in una frase. `null` se nessun calo. */
+/** Dove si fermano: il calo maggiore fra due stati consecutivi, in una frase. `null` se nessun calo. */
 export function biggestDrop(c: StageCounts): string | null {
-  let best: { from: StageKey; to: StageKey; lost: number } | null = null
+  let best: { from: StateKey; to: StateKey; lost: number } | null = null
   for (const s of STAGES) {
     const prev = PREVIOUS[s.key]
     if (!prev) continue

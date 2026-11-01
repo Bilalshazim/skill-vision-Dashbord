@@ -52,7 +52,8 @@ export type NavConfigEntry =
 // le due voci "Valutazioni Soft Skill" e "Valutazioni Hard Skill" (la seconda è
 // la Valutazione 5P, prima "Gestione valutazioni"), aperte di default.
 export const NAV_CONFIG_EN: NavConfigEntry[] = [
-  { type:'link', id:'home', label:'Overview', icon:'home', requires:null },
+  { type:'link', id:'home', label:'Home', icon:'home', requires:null },
+  { type:'link', id:'panoramica', label:'Overview', icon:'overview', requires:null },
   { type:'link', id:'analisi', label:'Interview', icon:'notes', requires:null },
   { type:'link', id:'company', label:'Company Data', icon:'users', requires:null },
   { type:'group', groupId:'valutazioni', label:'Evaluation Area', icon:'soft', items:[
@@ -75,7 +76,8 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
   { type:'action', id:'reset', label:'Reset Demo', icon:'refresh', action:'confirmResetDemo', editOnly:true },
 ];
 export const NAV_CONFIG_IT: NavConfigEntry[] = [
-  { type:'link', id:'home', label:'Panoramica', icon:'home', requires:null },
+  { type:'link', id:'home', label:'Home', icon:'home', requires:null },
+  { type:'link', id:'panoramica', label:'Panoramica', icon:'overview', requires:null },
   { type:'link', id:'analisi', label:'Intervista', icon:'notes', requires:null },
   { type:'link', id:'company', label:'Dati Aziendali', icon:'users', requires:null },
   { type:'group', groupId:'valutazioni', label:'Area Valutazioni', icon:'soft', items:[
@@ -346,7 +348,8 @@ export const TIER_DEFS_IT = [
 // the real page header title+subtitle for each of the 10 screens (distinct
 // from the shorter nav labels above).
 export const PAGE_META_TEXT_EN: Record<string, { title: string; sub: string }> = {
-  home: { title: 'Overview', sub: 'Overall organization status' },
+  home: { title: 'What you need to know', sub: '' },
+  panoramica: { title: 'Overview', sub: 'Overall organization status' },
   'soft-overview': { title: 'Cross-Functional Competencies', sub: 'What they are and how they are measured — Soft Skills & Big Five' },
   'hard-overview': { title: 'Professional Competencies', sub: 'What they are and how they are measured — multi-source APEX 5D protocol' },
   company: { title: 'Company Profile', sub: 'Locations, contacts, headcount by type, and key company roles' },
@@ -364,7 +367,8 @@ export const PAGE_META_TEXT_EN: Record<string, { title: string; sub: string }> =
   ai: { title: 'AI Assistant', sub: 'Query the dashboard in natural language' },
 }
 export const PAGE_META_TEXT_IT: Record<string, { title: string; sub: string }> = {
-  home: { title: 'Panoramica', sub: "Stato generale dell'organizzazione" },
+  home: { title: 'Quello che devi sapere', sub: '' },
+  panoramica: { title: 'Panoramica', sub: "Stato generale dell'organizzazione" },
   'soft-overview': { title: 'Competenze Trasversali', sub: 'Cosa sono e come si misurano — competenze trasversali e Big Five' },
   'hard-overview': { title: 'Competenze Professionali: le 5 P', sub: 'Cosa sono e come si misurano — protocollo APEX 5D a più fonti' },
   company: { title: 'Profilo Azienda', sub: 'Sedi, contatti, organico per tipologia e ruoli chiave aziendali' },

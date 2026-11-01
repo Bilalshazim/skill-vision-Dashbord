@@ -210,7 +210,7 @@ export default function PaginaAPage() {
         <EmptyState
           size="sm"
           icon={ClipboardCheck}
-          description='Nessun candidato in attesa di test. I candidati compaiono qui appena viene caricato un CV, fino al completamento del test delle competenze trasversali, che arriva da solo da Original Skills.'
+          description='Nessun candidato in attesa di test. I candidati compaiono qui appena viene caricato un CV, fino al completamento del test delle competenze trasversali, che arriva da solo.'
         />
       ) : (
         <StaggerList className="divide-y divide-border">

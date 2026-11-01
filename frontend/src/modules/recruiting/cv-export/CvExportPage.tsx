@@ -39,7 +39,7 @@ const IDLE_FEEDBACK: UploadFeedback = { kind: 'idle' }
 //
 // ACTIVE CONTEXT — Fase 'Foglio 2' (Roberto Feliciani): il riquadro
 // "Posizione e archivio" è stato tolto da questa pagina. Società e posizione
-// attive si scelgono ora dalla barra laterale (RecruitingNav), con lo stesso
+// attive si scelgono solo nel Profilo della ricerca (RecruitingContextBar), con lo stesso
 // setActiveContext() di lib/pipeline.ts: nessun secondo archivio di contesto.
 //
 // NOT MIGRATED / REMOVED (per the Phase 15 audit, re-confirmed this phase):
@@ -301,7 +301,7 @@ export default function CvExportPage() {
 
       {/* L'elenco dei CV caricati sta ora in "CV Elaborati" (documento del
           cliente, 2026-10-23). */}
-      <NavCard to="/recruiting/cv-elaborati" icon={Files} title="CV Elaborati" description={`${candidates.length} CV analizzati · elenco, ricerca e link al test soft skill`} className="max-w-xl" />
+      <NavCard to="/recruiting/cv-elaborati" icon={Files} title="CV elaborati" description={`${candidates.length} CV analizzati · elenco, ricerca e link al test soft skill`} className="max-w-xl" />
     </div>
   )
 }

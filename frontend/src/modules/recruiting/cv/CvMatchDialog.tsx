@@ -358,7 +358,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
               <Button asChild variant="outline" size="sm">
                 <Link to={`/recruiting/pipeline?companyId=${encodeURIComponent(activeIds.companyId)}&openingId=${encodeURIComponent(activeIds.openingId)}`}>
                   <Workflow className="size-3.5 shrink-0" aria-hidden="true" />
-                  Apri in CV Elaborati
+                  Apri in CV elaborati
                 </Link>
               </Button>
             )}

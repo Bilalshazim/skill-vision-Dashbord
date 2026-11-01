@@ -1,6 +1,6 @@
 import { ArrowRight, Download } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { ActionList, type ActionItem } from '@/components/patterns/ActionList'
 import { BandCard } from '@/components/patterns/BandCard'
@@ -8,6 +8,8 @@ import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { ChartCard } from '@/components/patterns/ChartCard'
 import { CompletionRing } from '@/components/patterns/CompletionRing'
 import { DistributionBar } from '@/components/patterns/DistributionBar'
+import { InfoTip } from '@/components/patterns/InfoTip'
+import { NavCard } from '@/components/patterns/NavCard'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { ScoreGauge } from '@/components/patterns/ScoreGauge'
 import { StaggerList } from '@/components/patterns/StaggerList'
@@ -15,6 +17,7 @@ import { StatCard } from '@/components/patterns/StatCard'
 import { TrendChart } from '@/components/patterns/TrendChart'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { CSV_TYPE, downloadText } from '@/lib/download'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { ModeSwitch, type ModuleMode } from '@/modules/assessment/components/ModeSwitch'
@@ -39,6 +42,7 @@ import { fmt1csv, fmt1it, round1 } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentLang, getUI } from '@/modules/assessment/lib/legacy-utils'
 import { TIER_BAND_TONE, TIER_DIST_TONE, TIER_ORDER, tierDescription, tierLabels } from '@/modules/assessment/lib/tier-display'
 import type { AssessmentState } from '@/modules/assessment/lib/types'
+import { assessmentResults } from '@/modules/assessment/lib/results'
 
 type UI = ReturnType<typeof getUI>
 
@@ -54,6 +58,14 @@ const signed = (n: number) => `${n > 0 ? '+' : ''}${fmt1it(n)}`
 // storico vero delle valutazioni), Dove guardare. "In programma" non c'è:
 // Assessment non ha date future (Piani di sviluppo non ha scadenze), e un
 // calendario non si inventa. Solo dati che l'applicazione ha già.
+//
+// Due viste in un selettore in alto (CLAUDE.md, Fase 6, 2026-10-29):
+// «Sintesi», per la direzione — valore a rischio e cascata (segnaposto in
+// euro finché non c'è la formula), Da fare adesso (solo compiti), le quattro
+// domande con il loro dato, le persone fascia per fascia, dove si perde valore
+// (aree contro l'atteso tratteggiato), cosa fare in ordine di impatto (gli
+// interventi, con le loro note modificabili) — e «Dettaglio», la Panoramica
+// operativa, dove "Da fare adesso" non ripete gli interventi.
 export default function AssessmentPanoramicaPage() {
   const { state, setState, lang, ui, canEdit, company } = useAssessment()
   const { state: s5 } = use5pState()
@@ -70,7 +82,26 @@ export default function AssessmentPanoramicaPage() {
   function setMode(next: ModuleMode) {
     setState((prev) => ({ ...prev, settings: { ...prev.settings, modulo: next } }))
   }
-  useTopbarActions(<ModeSwitch value={mode} onChange={setMode} ui={ui} />, [ui, mode])
+  const res = ui.res
+  // La vista sta nell'indirizzo (?vista=dettaglio), non nel browser.
+  const [params, setParams] = useSearchParams()
+  const vista: 'sintesi' | 'dettaglio' = params.get('vista') === 'dettaglio' ? 'dettaglio' : 'sintesi'
+  function setVista(next: string) {
+    const q = new URLSearchParams(params)
+    if (next === 'dettaglio') q.set('vista', 'dettaglio')
+    else q.delete('vista')
+    setParams(q, { replace: true })
+  }
+  useTopbarActions(
+    <>
+      <ToggleGroup type="single" value={vista} onValueChange={(v) => v && setVista(v)} aria-label={res.viewLabel}>
+        <ToggleGroupItem value="sintesi">{res.viewSintesi}</ToggleGroupItem>
+        <ToggleGroupItem value="dettaglio">{res.viewDettaglio}</ToggleGroupItem>
+      </ToggleGroup>
+      <ModeSwitch value={mode} onChange={setMode} ui={ui} />
+    </>,
+    [ui, mode, vista, params],
+  )
 
   const updated = lastDataUpdate(state)
   const updatedLabel = updated ? updated.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }) : null
@@ -88,13 +119,16 @@ export default function AssessmentPanoramicaPage() {
   // una linea per area attiva nella scelta CT / CP, il benchmark tratteggiato.
   const trend = useMemo(() => orgTrend(state), [state])
   const trendSeries = [
-    ...(f.A ? [{ key: 'soft', label: ui.moduleASoft }] : []),
-    ...(f.B ? [{ key: 'hard', label: ui.moduleBHard }] : []),
+    ...(f.A ? [{ key: 'soft', label: ui.moduleASoft, kind: 'area' as const }] : []),
+    ...(f.B ? [{ key: 'hard', label: ui.moduleBHard, kind: 'area' as const }] : []),
     { key: 'bench', label: `${ui.homeOrgTrendModeBenchmark} ${fmt1it(hs.benchmark)}`, reference: true },
   ]
   // Solo i mesi con un valore per ogni linea attiva: un buco disegnato a zero
   // sarebbe un dato falso.
   const trendPoints = trend.filter((t) => (!f.A || t.soft != null) && (!f.B || t.hard != null))
+  const sparkPoints = trendPoints
+    .map((t) => ({ date: t.date, v: avgOf([f.A ? t.soft : null, f.B ? t.hard : null]) }))
+    .filter((t): t is { date: Date; v: number } => t.v != null)
   const lastTwo = trendPoints.slice(-2).map((t) => avgOf([f.A ? t.soft : null, f.B ? t.hard : null]))
   const trendDelta = lastTwo.length === 2 && lastTwo[0] != null && lastTwo[1] != null ? round1(lastTwo[1] - lastTwo[0]) : null
 
@@ -122,13 +156,33 @@ export default function AssessmentPanoramicaPage() {
     { key: 'feedback', label: ui.panoTodoFeedback, description: ui.panoTodoFeedbackDesc, count: hs.feedbackDue, unit: people, to: '/assessment/feedback', linkLabel: ui.panoOpen },
     { key: 'collect', label: ui.panoTodoCollect, description: ui.panoTodoCollectDesc, count: toCollect, unit: ui.panoEvaluatorsUnit, to: '/assessment/gestione-valutazioni', linkLabel: ui.panoOpen },
     { key: 'send', label: ui.panoTodoSend, description: ui.panoTodoSendDesc, count: toSend, unit: ui.panoEvaluatorsUnit, to: '/assessment/gestione-valutazioni', linkLabel: ui.panoOpen },
-    // Le azioni di sviluppo per tipo, con la loro nota modificabile (salvata
-    // nelle impostazioni del modulo, come nella vecchia Home).
+  ]
+  // Le azioni di sviluppo per tipo, con la loro nota modificabile (salvata
+  // nelle impostazioni del modulo, come nella vecchia Home). Non stanno in "Da
+  // fare adesso" (sono interventi, non compiti: CLAUDE.md, Fase 6) ma in "Cosa
+  // fare, in ordine di impatto" della Sintesi, dalla più ampia.
+  const interventions: ActionItem[] = [
     { key: 'reorg', label: ui.azioniReorgShort, note: note('reorg', ui.azioniReorgDesc), count: hs.tiers.critica.length, unit: people, to: '/assessment/feedback', linkLabel: ui.panoOpen },
     { key: 'training', label: ui.azioniTraining, note: note('training', ui.azioniTrainingDesc(worstSkill ? worstSkill.name : ui.worstSkillFallback)), count: hs.tiers.sviluppo.length, unit: people, to: '/assessment/feedback', linkLabel: ui.panoOpen },
     { key: 'coaching', label: ui.azioniCoaching, note: note('coaching', ui.azioniCoachingDesc), count: hs.tiers.valorizzare.length, unit: people, to: '/assessment/feedback', linkLabel: ui.panoOpen },
     { key: 'talent', label: ui.azioniTalentShort, note: note('talent', ui.azioniTalentDesc), count: hs.tiers.top.length, unit: people, to: '/assessment/feedback', linkLabel: ui.panoOpen },
   ]
+  interventions.sort((a, b) => b.count - a.count)
+
+  // Le quattro domande, ognuna con il suo dato (le stesse quote delle pagine dei risultati).
+  const rd = useMemo(() => assessmentResults(state, lang), [state, lang])
+  const pctText = (p: number | null, label: string) => (p == null ? res.noTestsTitle : `${p}% ${label}`)
+  const datum = (slug: string) =>
+    slug === 'perdite-invisibili'
+      ? pctText(rd.belowPct, res.perditeImpact)
+      : slug === 'potenziale'
+        ? pctText(rd.abovePct, res.potenzialeImpact)
+        : slug === 'dove-intervenire'
+          ? pctText(rd.withInterventionPct, res.doveImpact)
+          : res.valorePrep
+  // Dove si perde valore: tutte le aree, dalla più bassa, contro l'atteso tratteggiato.
+  const lossRows = orgCriticalAreas(state, lang, 50).map((a) => ({ label: a.area, values: { avg: a.avg, atteso: hs.benchmark } }))
+  const worstLoss = lossRows[0] && lossRows[0].values.avg < hs.benchmark ? lossRows[0].label : undefined
 
   // Le persone per fascia, dalla più alta in punteggio (per le prime tre).
   const ranked = useMemo(
@@ -140,6 +194,24 @@ export default function AssessmentPanoramicaPage() {
     [state, lang],
   )
 
+  const bands = (sintesi: boolean) =>
+    TIER_ORDER.map((k) => (
+      <BandCard
+        key={k}
+        label={labels[k]}
+        tone={TIER_BAND_TONE[k]}
+        description={tierDescription(k, ui, lang)}
+        count={hs.tiers[k].length}
+        total={total}
+        unit={{ one: ui.bandPersonOne, many: people }}
+        people={ranked.filter((r) => r.tier === k).map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, meta: r.e.mansione || r.e.ruolo, score: `${fmt1it(r.score)} /10`, onClick: () => setDrawerId(r.e.id) }))}
+        onSeeAll={() => navigate(`/assessment/valore?fascia=${k}`)}
+        seeAllLabel={ui.bandSeeAll}
+        emptyText={ui.bandEmpty}
+        showPeople={!(sintesi && k === 'adeguata')}
+      />
+    ))
+
   // Dove guardare: aree e mansioni sotto il benchmark, dalla più lontana.
   const gapRows = (list: { label: string; avg: number }[]) =>
     list
@@ -150,17 +222,28 @@ export default function AssessmentPanoramicaPage() {
   const gapRoles = gapRows(orgCriticalRoles(state, lang, 6).map((r) => ({ label: r.ruolo, avg: r.avg })))
   const competenze = both ? (computeAvgMetric(state, lang, 'soft') <= computeAvgMetric(state, lang, 'hard') ? 'soft-overview' : 'hard-overview') : f.A ? 'soft-overview' : 'hard-overview'
 
-  return (
-    <div className="flex flex-col gap-8">
+  const dettaglio = (
+    <>
       <section>
         <PageHeader title={ui.panoStatusTitle} />
         {/* Quattro card in riga, ognuna col suo grafico piccolo. Il numero si
             scrive una volta: nel punteggio lo porta il Gauge al centro, nelle
             altre la card (gli anelli non hanno numero al centro). */}
-        <StaggerList className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StaggerList className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {evaluated ? (
             <StatCard label={ui.panoScore} note={[ui.panoScoreGap(signed(gap)), trendDelta != null ? ui.panoTrendDelta(signed(trendDelta)) : null].filter(Boolean).join(' · ')}>
               <ScoreGauge size="sm" value={hs.orgAvg} label={ui.panoGaugeBench(fmt1it(hs.benchmark))} />
+              {/* La sparkline dell'andamento, sotto il Gauge (CLAUDE.md, Fase 6). */}
+              {sparkPoints.length >= 2 ? (
+                <TrendChart
+                  title={ui.panoTrendTitle}
+                  variant="spark"
+                  scale={{ left: [0, 10] }}
+                  format={fmt1it}
+                  series={[{ key: 'v', label: ui.panoScore, kind: 'area' }]}
+                  points={sparkPoints.map((p) => ({ date: p.date, label: monthLabel(p.date), values: { v: p.v } }))}
+                />
+              ) : null}
             </StatCard>
           ) : (
             <StatCard label={ui.panoScore} valueKind="text" value={ui.panoScorePending} note={ui.panoScorePendingNote} />
@@ -210,23 +293,7 @@ export default function AssessmentPanoramicaPage() {
                 }))}
               />
             </Card>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {TIER_ORDER.map((k) => (
-                <BandCard
-                  key={k}
-                  label={labels[k]}
-                  tone={TIER_BAND_TONE[k]}
-                  description={tierDescription(k, ui, lang)}
-                  count={hs.tiers[k].length}
-                  total={total}
-                  unit={{ one: ui.bandPersonOne, many: people }}
-                  people={ranked.filter((r) => r.tier === k).map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, meta: r.e.mansione || r.e.ruolo, score: `${fmt1it(r.score)} /10`, onClick: () => setDrawerId(r.e.id) }))}
-                  onSeeAll={() => navigate(`/assessment/valore?fascia=${k}`)}
-                  seeAllLabel={ui.bandSeeAll}
-                  emptyText={ui.bandEmpty}
-                />
-              ))}
-            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{bands(false)}</div>
           </div>
         ) : (
           <Card>
@@ -293,6 +360,89 @@ export default function AssessmentPanoramicaPage() {
         </StaggerList>
       </section>
 
+    </>
+  )
+
+  const sintesi = (
+    <>
+      <section>
+        <PageHeader title={res.riskTitle} />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Card className="gap-2">
+            <p className="flex items-center gap-2">
+              <span className="font-mono text-app-title text-foreground">€ [—]</span>
+              <InfoTip label={res.riskHow}>{res.riskHowText}</InfoTip>
+            </p>
+            <p className="text-app-small text-muted-foreground">
+              {res.riskSub} · {res.riskPending}
+            </p>
+          </Card>
+          <Card className="gap-2">
+            <h3 className="text-app-subtitle text-foreground">{res.cascadeTitle}</h3>
+            <p className="text-app-small text-muted-foreground">{res.cascadeEmpty}</p>
+          </Card>
+        </div>
+      </section>
+
+      <section>
+        <PageHeader title={ui.panoTodoTitle} description={ui.panoTodoSub} />
+        <ActionList items={todo} empty={{ title: ui.panoTodoEmpty, description: ui.panoTodoEmptySub }} />
+      </section>
+
+      <section>
+        <PageHeader title={res.questionsTitle} description={res.questionsSub} />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {res.windows.map((w: { slug: string; number: string; title: string }) => (
+            <NavCard key={w.slug} to={`/assessment/${w.slug}`} title={`${w.number} · ${w.title}`} description={datum(w.slug)} />
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <PageHeader title={res.peopleTitle} description={ui.panoDistSub(total)} actions={<SeeMore to="/assessment/valore">{ui.panoDistLink}</SeeMore>} />
+        {total ? (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">{bands(true)}</div>
+        ) : (
+          <Card>
+            <p className="text-app-small text-muted-foreground">{ui.panoEmptySub}</p>
+          </Card>
+        )}
+      </section>
+
+      <section>
+        <PageHeader title={res.lossTitle} description={res.lossSub(fmt1it(hs.benchmark))} actions={<SeeMore to={`/assessment/${competenze}`}>{ui.panoGapLink}</SeeMore>} />
+        <ChartCard
+          title={res.lossTitle}
+          height="auto"
+          empty={lossRows.length ? undefined : { title: res.lossNone }}
+          footer={<p className="text-app-small text-muted-foreground">{res.lossEuro}</p>}
+        >
+          <CategoryBars
+            title={res.lossTitle}
+            orientation="horizontal"
+            height="auto"
+            valueMax={10}
+            format={fmt1it}
+            series={[
+              { key: 'avg', label: res.lossSeries },
+              { key: 'atteso', label: res.lossRef(fmt1it(hs.benchmark)), reference: true },
+            ]}
+            rows={lossRows}
+            highlight={worstLoss}
+          />
+        </ChartCard>
+      </section>
+
+      <section>
+        <PageHeader title={res.impactTitle} description={res.impactSub} />
+        <ActionList items={interventions} empty={{ title: ui.panoTodoEmpty, description: ui.panoTodoEmptySub }} />
+      </section>
+    </>
+  )
+
+  return (
+    <div className="flex flex-col gap-8">
+      {vista === 'sintesi' ? sintesi : dettaglio}
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
     </div>
   )

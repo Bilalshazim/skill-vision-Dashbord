@@ -9,6 +9,7 @@ import {
   Filter,
   Home,
   IdCard,
+  LayoutDashboard,
   ListChecks,
   type LucideIcon,
   Mail,
@@ -22,6 +23,7 @@ import {
   Send,
   Upload,
   Users,
+  Workflow,
 } from 'lucide-react'
 
 // Ported 1:1 from the legacy Recruiting module's own nav (#side in
@@ -60,66 +62,104 @@ export type RecruitingNavItem = {
    *  admin/CipAdminPage.tsx / EmailConfigAdminPage.tsx's own role checks
    *  and every backend route's requireRole()). */
   roles?: string[]
+  /** Nascosta a chi ha il ruolo di valutatore (EVALUATOR), anche dentro l'Area valutatori. */
+  staffOnly?: boolean
 }
 
-// Menu di Recruiting (CLAUDE.md, Fase 6, deciso il 2026-10-23): i quattro
-// livelli restano, le voci stanno dove il contenuto della pagina dice che
-// stanno. In testa Panoramica e Profilo della ricerca, poi l'Imbuto di
-// selezione, che vale per tutto il percorso e non per un livello. Tolte come
-// voci: "Stato dell'arte" (confluisce nella Panoramica, la rotta rimanda lì),
-// "Avanzamento della selezione" (i numeri per posizione sono nell'Imbuto con
-// "Tutte le posizioni aperte"; la pagina resta raggiungibile da lì), il
-// secondo Imbuto (/imbuto rimanda a /imbuto-scelta). "Migliori candidati"
-// diventa "Da invitare al test": stessa rotta. L'Area valutatori non è un
-// livello: è il lavoro di un ruolo, e un valutatore vede solo quella
-// (`audience`). `screen` resta stabile dove la voce esisteva già.
+// Menu di Recruiting (CLAUDE.md, Fase 6, "Menu di Recruiting", deciso da
+// Roberto il 2026-10-23; Panoramica seconda voce, deciso da Alessio il
+// 2026-10-30). In testa il Profilo della ricerca, pagina d'ingresso di
+// /recruiting, poi la Panoramica. Ogni livello ha una pagina principale
+// (`main`), quella che si apre dalla card del Profilo della ricerca e dal
+// titolo del livello nel menu, e sotto le sottopagine, che si raggiungono solo
+// dal menu.
+//
+// Bloccato fino alla risposta di Roberto, quindi solo il menu cambia e le
+// pagine restano dove sono: "Migliori candidati" apre /pagina-a com'è oggi
+// (chi non ha ancora fatto il test; la classifica con i test è Risultati);
+// "Classifica dopo il test" tiene il suo contenuto; l'Imbuto di selezione è
+// ai livelli 2 e 3 e le due voci aprono la stessa pagina; "Stato dell'arte"
+// rimanda alla Panoramica come dal 2026-10-23. "Posizioni aperte" non è una
+// voce (la rotta e il codice restano, DECISIONI).
+//
+// L'Area valutatori è il livello 4. Un valutatore vede solo questa sezione e,
+// dentro, solo le tre schede (`staffOnly` sulle altre due): come prima, il
+// menu non gli mostra elenchi di candidati che prima non vedeva.
+// `screen` resta stabile dove la voce esisteva già.
 export type RecruitingNavGroup = {
   /** Assente per il blocco in testa. */
   label?: string
+  /** La pagina principale del livello: prima voce, e il titolo del livello porta lì. */
+  main?: RecruitingNavItem
   /** `evaluator`: la sola sezione che vede chi ha il ruolo di valutatore. */
   audience?: 'evaluator'
   items: RecruitingNavItem[]
 }
 
+/**
+ * La riga del percorso di una pagina di Recruiting, dal menu: "Profilo della
+ * ricerca / Chi cerchiamo / CV elaborati". Il livello porta alla sua pagina
+ * principale (o alla prima voce, per le sezioni che non ne hanno). `null` per
+ * il Profilo della ricerca stesso e per le pagine che non sono nel menu (le
+ * pagine dei risultati hanno la loro riga). Con due voci sulla stessa pagina
+ * (l'Imbuto) vale la prima, come nel menu.
+ */
+export function recruitingTrail(pathname: string): { items: { label: string; to: string }[]; current: string } | null {
+  const root = { label: 'Profilo della ricerca', to: '/recruiting/profile' }
+  for (const g of RECRUITING_NAV_GROUPS) {
+    const items = [...(g.main ? [g.main] : []), ...g.items]
+    const hit = items.find((i) => pathname === i.to || pathname.startsWith(`${i.to}/`))
+    if (!hit) continue
+    if (hit.to === root.to) return null
+    if (!g.label) return { items: [root], current: hit.label }
+    const level = { label: g.label.split(' · ')[0].replace(/\?$/, ''), to: (g.main ?? items[0]).to }
+    return { items: [root, level], current: hit.label }
+  }
+  return null
+}
+
 export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
   {
     items: [
-      { screen: 'panoramica', label: 'Panoramica', icon: Home, to: '/recruiting', end: true },
       // Era "Menu": la voce prende il nome della sua destinazione (CLAUDE.md, Fase 6).
       { screen: 'profilo', label: 'Profilo della ricerca', icon: FileBarChart, to: '/recruiting/profile' },
+      { screen: 'panoramica', label: 'Panoramica', icon: Home, to: '/recruiting/panoramica' },
+    ],
+  },
+  {
+    label: 'Chi cerchiamo? · Livello 1',
+    main: { screen: 'jd', label: 'Profilo candidato', icon: FileText, to: '/recruiting/job-profile' },
+    items: [
+      { screen: 'cv', label: 'CV & Esportazione', icon: Upload, to: '/recruiting/cv' },
+      { screen: 'cvElaborati', label: 'CV elaborati', icon: Files, to: '/recruiting/cv-elaborati' },
+      { screen: 'pipeline', label: 'Avanzamento della selezione', icon: Workflow, to: '/recruiting/pipeline' },
+      { screen: 'preselezionati', label: 'CV preselezionati', icon: ListChecks, to: '/recruiting/preselezionati' },
+      { screen: 'classificaTest', label: 'Classifica dopo il test', icon: FileCheck2, to: '/recruiting/classifica-test' },
+    ],
+  },
+  {
+    label: 'Chi è più adatto? · Livello 2',
+    main: { screen: 'ranking', label: 'Risultati', icon: Trophy, to: '/recruiting/ranking' },
+    items: [
+      { screen: 'match', label: 'Confronto interno', icon: ArrowLeftRight, to: '/recruiting/match' },
+      { screen: 'statoArte', label: "Stato dell'arte", icon: LayoutDashboard, to: '/recruiting/stato-dell-arte' },
+      { screen: 'imbuto', label: 'Imbuto di selezione', icon: Filter, to: '/recruiting/imbuto-scelta' },
+    ],
+  },
+  {
+    label: 'Chi scegliamo? · Livello 3',
+    main: { screen: 'paginaA', label: 'Migliori candidati', icon: Send, to: '/recruiting/pagina-a' },
+    items: [
+      { screen: 'fasce', label: 'Candidati per fascia di idoneità', icon: Users, to: '/recruiting/fasce-idoneita' },
       { screen: 'imbutoScelta', label: 'Imbuto di selezione', icon: Filter, to: '/recruiting/imbuto-scelta' },
     ],
   },
   {
-    label: 'Chi cerchiamo · Livello 1',
-    items: [
-      { screen: 'jd', label: 'Profilo Candidato', icon: FileText, to: '/recruiting/job-profile' },
-      { screen: 'cv', label: 'CV & Esportazione', icon: Upload, to: '/recruiting/cv' },
-      { screen: 'cvElaborati', label: 'CV Elaborati', icon: Files, to: '/recruiting/cv-elaborati' },
-      { screen: 'preselezionati', label: 'CV preselezionati', icon: ListChecks, to: '/recruiting/preselezionati' },
-      { screen: 'paginaA', label: 'Da invitare al test', icon: Send, to: '/recruiting/pagina-a' },
-    ],
-  },
-  {
-    label: 'Chi è più adatto · Livello 2',
-    items: [
-      { screen: 'classificaTest', label: 'Classifica dopo il test', icon: FileCheck2, to: '/recruiting/classifica-test' },
-      { screen: 'fasce', label: 'Candidati per fascia di idoneità', icon: Users, to: '/recruiting/fasce-idoneita' },
-      { screen: 'match', label: 'Confronto interno', icon: ArrowLeftRight, to: '/recruiting/match' },
-    ],
-  },
-  {
-    label: 'Chi scegliamo · Livello 3',
-    items: [
-      { screen: 'ranking', label: 'Risultati', icon: Trophy, to: '/recruiting/ranking' },
-      { screen: 'colloqui', label: 'Prossimi colloqui', icon: CalendarDays, to: '/recruiting/colloqui' },
-      { screen: 'podio', label: 'Candidati al podio', icon: Medal, to: '/recruiting/podio' },
-    ],
-  },
-  {
-    label: 'Area valutatori',
+    label: 'Area valutatori · Livello 4',
     audience: 'evaluator',
     items: [
+      { screen: 'colloqui', label: 'Prossimi colloqui', icon: CalendarDays, to: '/recruiting/colloqui', staffOnly: true },
+      { screen: 'podio', label: 'Candidati al podio', icon: Medal, to: '/recruiting/podio', staffOnly: true },
       { screen: 'ivNotes', label: 'Intervista strutturata', icon: Mic, to: '/recruiting/valutatori/intervista' },
       { screen: 'ivEval', label: 'Valutazione candidato', icon: NotebookPen, to: '/recruiting/valutatori/valutazione' },
       { screen: 'ivReport', label: 'Report finale di valutazione', icon: FileBarChart2, to: '/recruiting/valutatori/report' },

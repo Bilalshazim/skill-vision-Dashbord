@@ -133,8 +133,8 @@ emailConfigRouter.post('/admin/email-service/test-send', requireRole('PLATFORM_A
 
     const result = await sendMail({
       to: req.body.to,
-      subject: 'Skill Vision — test email di configurazione SMTP',
-      text: `Questa è una email di test inviata dal pannello di amministrazione Skill Vision per verificare la configurazione SMTP.\n\nInviata da: ${req.auth!.sub}\nData: ${new Date().toISOString()}`,
+      subject: 'Skill-Vision — test email di configurazione SMTP',
+      text: `Questa è una email di test inviata dal pannello di amministrazione Skill-Vision per verificare la configurazione SMTP.\n\nInviata da: ${req.auth!.sub}\nData: ${new Date().toISOString()}`,
     })
     if (!result.ok) throw new BadGatewayError(`SMTP send failed: ${result.reason}`)
 

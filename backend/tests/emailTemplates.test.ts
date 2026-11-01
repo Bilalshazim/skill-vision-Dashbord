@@ -23,7 +23,7 @@ describe('lib/emailTemplates.ts — branded "INVIA LINK TEST" email', () => {
       expect(result.html).toContain('Maria Rossi')
       expect(result.html).toContain('Acme Corp')
       expect(result.html).toContain('Senior Frontend Engineer')
-      expect(result.html).toContain('INIZIA IL TEST')
+      expect(result.html).toContain('Inizia il test')
       expect(result.html).toContain(vars.testLink)
       expect(result.html).toContain('cid:skillvision-logo')
       expect(result.html).toContain('info@skill-vision.it') // footer contact
@@ -40,7 +40,7 @@ describe('lib/emailTemplates.ts — branded "INVIA LINK TEST" email', () => {
       expect(result.text).toContain('Maria Rossi')
       expect(result.text).toContain('Acme Corp')
       expect(result.text).toContain('Senior Frontend Engineer')
-      expect(result.text).toContain('INIZIA IL TEST')
+      expect(result.text).toContain('Inizia il test')
       expect(result.text).toContain(vars.testLink)
       expect(result.text).not.toMatch(/<[a-z]+>/i) // genuinely plain, not HTML-with-tags-stripped-badly
     })
@@ -62,7 +62,7 @@ describe('lib/emailTemplates.ts — branded "INVIA LINK TEST" email', () => {
 
     it('still renders through the SAME branded shell (logo, CTA button, footer) as the default template', () => {
       expect(result.html).toContain('cid:skillvision-logo')
-      expect(result.html).toContain('INIZIA IL TEST')
+      expect(result.html).toContain('Inizia il test')
       expect(result.html).toContain('info@skill-vision.it')
     })
   })

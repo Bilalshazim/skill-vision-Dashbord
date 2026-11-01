@@ -2,6 +2,318 @@
 
 Formato: `## <cosa> · <data>` — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Fase 7 — verifica finale e risposte per il resoconto · 2026-11-01
+
+### Email e audit
+L'HTML delle email non legge le variabili CSS: i colori ci vanno scritti.
+Opzioni: (a) escludere tutto il file dall'audit; (b) esenzione riga per riga,
+solo per valori in palette (`// audit-identita:email`), con fuori palette,
+bianco e nero che restano difetti. Presa (b). Nel passaggio i colori delle
+email sono passati sulla palette (prima grigi freddi fuori sistema e bianco
+puro), il bottone primario su `accent-400` come `--primary`, i bottoni da
+"INIZIA IL TEST" / "COMPILA LE SCHEDE" a minuscolo (regola 8), pesi 700 → 600,
+raggio 16px, Geist in testa ai caratteri. Test delle email aggiornati.
+Audit dell'intero repository: **0 difetti** (erano 15).
+
+### Testi
+- "Skill-Vision" con il trattino in ogni testo a schermo e nelle email (alt
+  del logo, barra superiore, scelta del modulo, configurazione email,
+  mittente predefinito, email di prova). Restano senza trattino i commenti
+  del codice e i nomi nel codice (`SkillVisionCard`, `SKILLVISION_ADMIN`).
+- "Original Skills": non compare più a schermo; resta nei nomi del codice
+  (`OriginalSkillsPreviewPage`, API `/original-skills`), come vuole il cap. 7.
+- "recuperare": nessun uso per i soldi. Restano "recuperarne il riferimento"
+  (un errore tecnico in `backend-sync.ts`) e un commento.
+- Euro: nessuna cifra calcolata nelle pagine nuove (segnaposto «€ [—]»). Le
+  pagine tecniche che mostrano la RAL, dato inserito, non sono toccate.
+
+### Le nove risposte
+1. **56 candidature su una posizione non aperta**: il vecchio imbuto metteva
+   come prima fase `readCandidates().length`, tutto l'archivio CV, che non
+   appartiene a nessuna posizione e si classifica sull'unico profilo salvato
+   (`DEFAULT_ROLE = 'Sales Account Manager'`); le fasi dopo sommavano le
+   pipeline delle posizioni aperte (a 0). Corretto il 2026-10-23
+   (`position-funnel.ts`). Resta con la stessa causa l'Assistente IA
+   (`lib/ask.ts`, "Posizione: Sales Account Manager" sull'archivio intero).
+2. **Colloqui di restituzione**: **10**, cioè le persone con
+   `feedbackNeeded` acceso. «Colloquio di restituzione necessario» in Piani di
+   sviluppo è l'etichetta dell'interruttore, presente su tutte le 23 schede.
+   Nei dati di prova è acceso per i profili "critical" e "developing" più il
+   15% casuale (`demo-data.ts`).
+3. **"Dati aggiornati al"**: è la data del dato più recente, non la data di
+   oggi. Assessment: il massimo fra `createdAt` delle persone, date dello
+   storico soft e professionale, creazione e completamento delle valutazioni
+   (`lastDataUpdate`). Recruiting: il massimo fra `addedAt` dei preselezionati,
+   `addedAt` dei risultati dei test e `decidedAt` della scelta. Senza date, la
+   frase non compare.
+4. **Date delle candidature**: sì. Sul server `CampaignCandidate.createdAt` /
+   `updatedAt`, `Candidate.createdAt`, `Cv.uploadedAt`, `Shortlist.addedAt`.
+   Nel modello del browser `PrescreenedEntry.addedAt`, `TestResult.addedAt`,
+   `winner.decidedAt`, `Interview.scheduledAt`, `CandidatePoolEntry.createdAt`
+   (facoltativo). La scheda `Candidate` locale non ha una data sua.
+5. **Un campo che distingue i manager**: **no, nessuno esplicito.** Original
+   Skills manda solo Nome, Cognome, codAzienda, numero intervista, ultima
+   modifica, sede, risultato e competenze: nessun ruolo né tipo. In Anagrafica
+   ci sono tre campi vicini ma non decisivi: `livelloCcnl` (testo libero, può
+   contenere "Quadro" o "Dirigente" ma non è un elenco chiuso), `tipoProfilo`
+   (oggi sempre "Employee") e `responsabileId` (chi è responsabile diretto di
+   qualcuno). `MANAGER` nello schema è un ruolo dei **valutatori**, non delle
+   persone. Nessun filtro applicato: il criterio lo dà Roberto (cap. 7).
+6. **Approfondimenti senza una pagina vera**: uno solo, **«Stato dell'arte»**
+   (in «Chi è più adatto?» e nel menu L2): la rotta rimanda alla Panoramica
+   dal 2026-10-23. Tutte le altre voci aprono una pagina esistente. «Area
+   risultati» (Il valore) apre «Risultati Valutazioni Trasversali» o
+   «Professionali» secondo il modulo, perché l'Area è un gruppo del menu e non
+   una pagina.
+7. **Dove compare "Posizioni aperte"**: Imbuto di selezione (scelta «Tutte le
+   posizioni aperte», intestazione "Tutte le posizioni aperte di …", tabella
+   "Per posizione"); Panoramica di Recruiting (stessa scelta e intestazione);
+   "Nessuna posizione aperta" nella barra del contesto, in Avanzamento e nel
+   Profilo della ricerca; "per ogni posizione aperta" nell'intestazione di
+   Avanzamento. La StatCard "Posizioni aperte" della Panoramica è tolta. Nel
+   codice ma non a schermo: `kpis` di `use-recruiting-home-data.ts` e il
+   banner trasversale spento (`crossBannerClosedPositionsSub`).
+8. **Componenti dei grafici rifatti**: `charts/bar.tsx` (prop `outline`),
+   `charts/bar-reference.tsx` (nuovo), `CategoryBars` (riferimento
+   tratteggiato, `highlight`), `TrendChart` (Area di Bklit, dissolvenza,
+   variante `spark`), `RingStat` (un anello), `CompletionRing` (`center`),
+   `ChartLegend` (riferimento sempre tratteggiato), `lib/chart-colors.ts`
+   (ruoli del 2026-10-26), `SelectionFunnel` (cinque stati), `BandCard`
+   (`showPeople`). Invariati e già conformi: `ScoreGauge`, `ProfileRadar`
+   (cambia solo il colore del riferimento), `DistributionBar`,
+   `QualityStackedBar`, `ScatterMatrix`. Effetto nelle pagine: tutti i grafici
+   "Ottenuto / Atteso" (Valutazioni soft, Customer care, 5P, Comitato), le
+   due Panoramiche, le pagine dei risultati, l'Imbuto.
+9. **Segnaposti ed etichette mancanti**: euro ovunque («€ [—] · In attesa
+   della formula»: pagine dei risultati, valore a rischio, euro per area,
+   costi evitabili per intervento); la cascata del valore a rischio; «Il
+   valore» intero («Contenuto in preparazione»); i testi di «Le perdite
+   invisibili» (tavola non nel repository); il nome del quinto stato
+   («Selezione conclusa» o «Selezione valutatori»); gli esiti «In riserva» e
+   «Non selezionato» (scritti «—», nessun dato); il punteggio complessivo su
+   1–10 (formula del cliente); la dicitura italiana di `ma1`; le soglie delle
+   fasce che il cliente deve confermare (oggi nota solo quella dei Critici).
+
+## Grafici sulle regole del 2026-10-26, Panoramiche, riga del percorso · 2026-11-01
+- **Riferimento sulle barre**: Bklit non ha un riferimento per riga nel
+  BarChart (la ReferenceArea è una fascia unica). Opzioni: (a) uno strato
+  nostro, `charts/bar-reference.tsx`, che legge le scale del BarChart dal
+  contesto e disegna un trattino per categoria; (b) visx; (c) lasciare la
+  seconda barra. Presa (a): niente dipendenze nuove, Bklit resta com'è.
+  `CategoryBars` disegna così ogni serie `reference`: tutti i grafici
+  "Ottenuto / Atteso" (Soft, Customer care, 5P, Comitato) diventano una barra
+  sola con l'atteso tratteggiato, senza toccare le pagine.
+- **Bordo della barra in evidenza**: aggiunta a `charts/bar.tsx` la prop
+  `outline` (1,5px, statica e animata). È uno scostamento da Bklit, minimo,
+  per `chart-highlight-stroke`. Chiude la voce aperta nel paragrafo sotto.
+- **Colori** (`lib/chart-colors.ts`): riferimento → `chart-reference`; due
+  serie vere → inchiostro + `chart-1`; `chart-compare` solo per "nella norma".
+  Legenda: un riferimento è sempre una linea tratteggiata.
+- **RingStat**: l'atteso era un secondo anello in `chart-compare` (la "seconda
+  barra" in tondo). Ora un anello solo; l'atteso si scrive sotto. Un segno
+  tratteggiato sull'anello Bklit non lo fa: non inventato.
+- **Sfumature di Bklit** (esenzione del 2026-10-30): `TrendChart` usa l'Area
+  di Bklit per le serie `area` (gradiente nel colore della serie, inchiostro)
+  e la griglia con la sua dissolvenza; prima erano spente. Variante `spark`
+  per la sparkline sotto il Gauge.
+- **Gauge**: arco in `chart-mono`, anche nella Panoramica. Il lime
+  (`chart-highlight`) sarebbe ammesso per il numero principale, ma le tacche
+  del Gauge non hanno bordo e su fondo chiaro sparirebbero.
+- **Panoramica di Assessment**: Sintesi (predefinita) e Dettaglio nel
+  selettore dell'intestazione, `?vista=dettaglio`. Le quattro azioni
+  (Formazione, Coaching, Riorganizzazione, Talento) escono da "Da fare
+  adesso" e vanno in "Cosa fare, in ordine di impatto" della Sintesi **con le
+  loro note modificabili**: nessuna funzione persa. Valore a rischio e cascata
+  sono segnaposto (euro senza formula): la cascata non si disegna, quindi
+  nessun grafico visx per ora. "Dove si perde valore": barre delle aree con
+  l'atteso tratteggiato, la più bassa in evidenza; l'euro per area è un
+  segnaposto.
+- **Panoramica di Recruiting**: tutto sulla posizione attiva, con «Questa
+  posizione / Tutte le posizioni aperte» (`?ambito=tutte`). Da fare adesso
+  come la tabella di CLAUDE.md, senza sovrapposizioni (CV da valutare, link
+  da inviare, test da leggere = completati non idonei senza colloquio,
+  colloqui da fissare = idonei senza colloquio). Tolte le righe "Candidati da
+  invitare al test" e "Posizioni senza candidati" e il bottone «Nuova
+  ricerca» (la pagina resta nel menu): erano scorciatoie, non funzioni.
+- **Riga del percorso** su ogni pagina di lavoro, calcolata dal menu
+  (`recruitingTrail`, `getPageTrail`): Recruiting "Profilo della ricerca /
+  livello / pagina" (il livello porta alla pagina principale, o alla prima
+  voce); Assessment "Home / gruppo / pagina". Non sulle due home né sulle
+  pagine dei risultati, che hanno la loro.
+
+## Le due home e le sette pagine dei risultati · 2026-11-01
+- **Un'impaginazione sola**: pattern `ResultsPage` (nel catalogo), usato
+  dalle sette pagine; riceve tutto calcolato (lib/results.ts dei due moduli).
+  Pattern nuovi: `WindowCard` (finestre della Home e card del Profilo della
+  ricerca), `InfoTip` (ⓘ, Tooltip di shadcn su un bottone: si apre col
+  focus), primitiva `Breadcrumb` di shadcn con separatore « / ».
+- **Riga del percorso**: le voci prima della corrente sono link, la corrente
+  è testo (`aria-current`). Opzioni: (a) anche la corrente link a sé stessa;
+  (b) corrente non cliccabile. Presa (b), come shadcn: un link alla pagina
+  aperta non porta da nessuna parte. Solo sulle pagine dei risultati: la riga
+  su ogni pagina tecnica (CLAUDE.md, Fase 6) **resta da fare**.
+- **Rotte**: Assessment `/assessment` e `/home` → Home, `/panoramica`,
+  `/il-valore`, `/perdite-invisibili`, `/potenziale`, `/dove-intervenire`.
+  Recruiting `/recruiting/chi-cerchiamo`, `/chi-e-piu-adatto`,
+  `/chi-scegliamo` (non `/risultati/…`: "Risultati" è già `/ranking`).
+  `/assessment/home` apriva la Panoramica: ora è la Home (anche il «Reset
+  demo» torna lì).
+- **«Le perdite invisibili» è senza tavola**: CLAUDE.md non ha la sua
+  tabella e la tavola sulla tela non è nel repository. Costruita con lo
+  stesso schema e i dati che ci sono (sotto la norma = Da potenziare +
+  Critici; aree, mansioni e competenza sotto l'atteso 7,0, come "Dove
+  guardare" della Panoramica). **Testi provvisori**, da confrontare con la
+  tavola: «Perché è importante», l'opportunità, l'ⓘ.
+- **Popolazione delle quote**: "sulle persone valutate" (CLAUDE.md), quindi
+  le fasce delle pagine dei risultati si calcolano su chi ha almeno una
+  valutazione; la Panoramica le calcola su tutta l'anagrafica (chi non è
+  valutato ha 0 e cade fra i Critici). Con tutti valutati i numeri coincidono.
+- **Interventi per tipo** = le fasce, come Panoramica ed esportazione del
+  piano: Formazione = Da potenziare, Coaching = Alto potenziale,
+  Riorganizzazione = Critici, Talento = Alto valore. Ogni persona ha una
+  fascia, quindi conta una volta. Con i dati dimostrativi dà 5 · 4 · 2 · 0.
+- **L'incongruenza dei colloqui di restituzione (10 contro 23)**: non c'è.
+  «Colloquio di restituzione necessario» in Piani di sviluppo è l'etichetta
+  dell'interruttore, scritta su ogni scheda (23); è acceso su 10 persone, lo
+  stesso `feedbackNeeded` che conta la Panoramica. Numero giusto: 10.
+- **Barra in evidenza** (`CategoryBars highlight`): la riga che conta va in una
+  seconda serie impilata in `chart-highlight`. Le barre di Bklit non hanno il
+  bordo: **manca il bordo scuro di 1,5px** (`chart-highlight-stroke`) in
+  chiaro, dove il lime sulla card è tenue. Il valore scritto accanto resta.
+  Aggiungerlo vuol dire toccare `charts/bar.tsx`: da decidere.
+- **«Chi è più adatto?»**: il grafico è la barra a segmenti di «Candidati per
+  fascia di idoneità» (colori di stato e nome della fascia), non un Bar Chart:
+  le barre di Bklit hanno un colore per serie, non per riga. L'ⓘ riassume le
+  soglie scritte in quella pagina.
+- **«Chi cerchiamo?»**: in linea con il profilo = Profilo in valutazione (i
+  preselezionati); competenze trasversali scelte = i pesi del Profilo
+  candidato (partono da quelli del ruolo, quindi raramente zero). Anello con
+  il numero al centro: `CompletionRing center` (RingCenter di Bklit).
+- **«Chi scegliamo?»**: punto di forza e rischio sulle competenze scelte nel
+  profilo, distanza dalla soglia del loro peso (W), in punti della scala del
+  test, non su 10.
+- **Profilo della ricerca**: tolti «Il prossimo passo», «Cosa cerchiamo», «A
+  che punto siamo» (avevano numeri, che Roberto non vuole qui). I contenuti
+  restano raggiungibili: pagine dei risultati, Profilo candidato, Imbuto.
+  Tolto anche il bottone «Cambia posizione»: la scelta sta nella barra sopra.
+- **Testi di Assessment** nel dizionario (`res` in it.ts / en.ts), come vuole
+  CLAUDE.md; quelli di Recruiting nelle pagine, come il resto del modulo.
+- **Dati dimostrativi**: la riga in fondo compare con `VITE_DEMO_MODE`
+  (`isDemoMode`), lo stesso interruttore del «Reset demo».
+
+## Menu di Recruiting a livelli, pagina d'ingresso · 2026-11-01
+Applicata la tabella "Menu di Recruiting" di CLAUDE.md (Fase 6). Sostituisce
+il menu del 2026-10-23 ("Menu di Recruiting" sotto e "Imbuto: le fasi"), che
+spostava le voci fra i livelli.
+- **Ingresso**: `/recruiting` apre il Profilo della ricerca (prima voce); la
+  Panoramica è la seconda voce, a `/recruiting/panoramica`. `/recruiting/home`
+  e `/recruiting/stato-dell-arte` portano alla Panoramica, come prima.
+- **Pagina principale di livello**: prima voce del gruppo, e il titolo del
+  livello è un link a lei. Opzioni: (a) solo la voce; (b) solo il titolo
+  cliccabile; (c) tutte e due. Presa (c): CLAUDE.md vuole il titolo
+  cliccabile, e senza la voce la pagina non si accende nel menu.
+- **Bloccati, solo il menu**: "Migliori candidati" (L3) apre `/pagina-a` com'è
+  oggi — la pagina continua a chiamarsi "Da invitare al test" e mostra chi non
+  ha fatto il test; "Classifica dopo il test" invariata; l'Imbuto è in L2 e L3
+  sulla stessa pagina `/imbuto-scelta` (le rotte non cambiano). Si accende una
+  voce sola, la prima nel menu: la pillola della voce attiva è una sola.
+- **Stato dell'arte** torna nel menu (L2) ma la rotta rimanda alla Panoramica
+  dal 2026-10-23, quando la pagina (`RecruitingHome.tsx`) è stata tolta.
+  Ripristinarla è spostare contenuto di una voce bloccata: **non fatto, da
+  chiedere** (il file è in git, `bb565c1^`). Intanto la voce accende la
+  Panoramica, non sé stessa.
+- **Area valutatori (L4)**: ci entrano Prossimi colloqui e Candidati al
+  podio. Un valutatore continua a vedere solo le tre schede (`staffOnly` sulle
+  due nuove): mostrargli gli elenchi dei candidati sarebbe un cambio di
+  permessi, non di menu.
+- **"Posizioni aperte"**: non è una voce del menu (non lo era più dal
+  2026-10-23) e non ha una rotta sua; il codice che conta le posizioni resta.
+  L'etichetta compare ancora, da mandare ad Alessio: StatCard "Posizioni
+  aperte" e la riga del CSV nella Panoramica; "Tutte le posizioni aperte"
+  nell'Imbuto; il testo della StatCard "Posizioni senza candidati".
+- **"Import massivo — Archivio storico"**: tolto dall'interfaccia il
+  2026-10-23. Sul server non c'è codice di import da conservare: era un
+  controllo disattivato senza rotta di ingestione (commento in
+  `CvExportPage.tsx`). Resta da sapere da Roberto se la funzione è chiusa.
+- **"Report AI"**: la dicitura non compare in nessuna pagina (cercato in
+  tutto `frontend/src`); la pagina Assistente IA resta.
+- **CV elaborati**: le finestre Colloqui e Candidato vincitore non ci sono più
+  dal 2026-10-23 (Candidato vincitore → Candidati al podio, L4). La proposta di
+  semplificazione della pagina resta da fare.
+- **Profilo candidato**: la scelta delle competenze trasversali è già dentro
+  la pagina, l'annuncio e il link in fondo. Il link però compare dopo
+  «Salva» **e** «Conferma» (approvazione sul server, richiesta del cliente del
+  2026-10-19). Far comparire il link al solo salvataggio vuol dire approvare
+  e pubblicare l'annuncio da sé: cambia un flusso. **Non fatto, da chiedere.**
+- Nomi a schermo come nel menu: "CV elaborati", titolo di Profilo candidato in
+  minuscolo ("Configura la scheda professionale…").
+
+## Stati della candidatura nell'imbuto · 2026-11-01
+I cinque stati di Roberto (CLAUDE.md, Fase 6) al posto delle sette fasi del
+2026-10-23. Corrispondenza scelta, sui dati che la pipeline ha già:
+| Stato | Chi | Stato del server |
+|---|---|---|
+| Candidatura acquisita | bacino CV della posizione + chi viene dopo | IN_POOL |
+| Profilo in valutazione | preselezionati | SHORTLISTED, TEST_DA_INVIARE |
+| Candidato di interesse | test inviato (anche completato) | TEST_INVIATO, TEST_HA/NON_HA_RISPOSTO |
+| In fase di approfondimento | con un colloquio | INTERVIEW |
+| Selezione conclusa | con una decisione | DECISION_WON / DECISION_LOST |
+- Opzione scartata: "Profilo in valutazione" = tutti i CV (ogni CV ha la sua
+  corrispondenza al profilo): darebbe due stati sempre uguali.
+- "Test completati" e "Idonei" escono dall'imbuto ma si contano ancora (il
+  prossimo passo del Profilo della ricerca li usa). Chiavi interne invariate.
+- **Esito**: si registra solo il candidato scelto (`pipeline.winner` →
+  Assunto). In riserva e Non selezionato non hanno un dato nella pipeline del
+  browser (il server ha `DECISION_LOST`, "In riserva" da nessuna parte).
+  L'Imbuto lo scrive ("non si registrano ancora"). Aggiungerli tocca il
+  salvataggio dei dati: **fermo, da decidere**. Il nome del quinto stato è
+  ancora da confermare (Roberto ha scritto anche "Selezione valutatori").
+- Il link "Dettaglio" della tabella per posizione dell'Imbuto apriva
+  Avanzamento con `?companyId=&openingId=`, che da oggi non cambia più la
+  posizione: ora apre Avanzamento, che mostra tutte le posizioni.
+- Corretto di passaggio: due testi a schermo nominavano Original Skills
+  (Profilo della ricerca, Da invitare al test), vietato dal cap. 7.
+
+## Posizione attiva: si cambia solo nel Profilo della ricerca · 2026-11-01
+Lo stato era già unico (`lib/active-position.tsx`, 2026-10-23), ma lo
+cambiavano quattro punti: la barra del contesto su ogni pagina, il selettore
+di società nella barra laterale, le card di Avanzamento della selezione e i
+parametri `?companyId=&openingId=` dei link vecchi. CLAUDE.md (Fase 6) vuole
+un posto solo.
+- **Barra del contesto**: intera, con società e posizione, solo su
+  `/recruiting/profile`; altrove il sovratitolo di sola lettura
+  "ACME CORP · SENIOR FRONTEND ENGINEER" (nuova variante `inline` del pattern
+  `ContextBar`, nel catalogo). Il cambio di società, tolto dalla barra
+  laterale, sta qui accanto a quello di posizione.
+- **Barra laterale**: la società si legge, non si sceglie.
+- **Avanzamento della selezione**: opzioni — (a) card di sola lettura, la
+  posizione attiva segnata e scritta, link al Profilo; (b) il clic sulla card
+  porta al Profilo della ricerca. Presa (a): (b) fa sembrare la card una
+  scelta che poi non avviene. **È un cambio di comportamento** (prima il clic
+  cambiava la posizione), chiesto esplicitamente con la regola di CLAUDE.md:
+  il quadro di tutte le posizioni resta, il dettaglio è quello della
+  posizione attiva.
+- **Link vecchi con i parametri**: perdono i parametri e mostrano la
+  posizione attiva, senza cambiarla.
+
+## Ruoli dei grafici e barre di scorrimento nel tema · 2026-11-01
+Applicati in `globals.css` i valori delle fondamenta (rivisti il 2026-10-26):
+`chart-mono` passa da lime scurito a inchiostro (`neutral-800` / `neutral-100`),
+nuovi `chart-highlight`, `chart-highlight-stroke`, `chart-reference`;
+`chart-compare` a `neutral-300` / `neutral-600`. Tutti anche in `@theme inline`
+(`bg-chart-highlight`, `stroke-chart-reference`…).
+- **Effetto immediato**: i 20 usi di `chart-mono` diventano inchiostro, come
+  vuole la regola. Il lime sul valore che conta (`chart-highlight`) e il
+  benchmark tratteggiato (`chart-reference`) vanno ancora collegati grafico
+  per grafico: non fatto qui.
+- **`--chart-line-secondary`** (alias Bklit) resta su `chart-compare`.
+- **Barre di scorrimento**: `--scrollbar-thumb` `neutral-300` / `neutral-600`;
+  `--scrollbar-thumb-hover` non è nelle fondamenta: preso il gradino
+  successivo verso il testo, `neutral-400` / `neutral-500`. Proprietà
+  standard (`scrollbar-width: thin`, `scrollbar-color`) su `*`; pseudo-classi
+  webkit solo dove lo standard manca (Safari). Su Chrome e Firefox il colore
+  di hover non si applica: lo standard non ha un hover del cursore.
+
 ## Movimento, seconda parte (Instructions.md aggiornato) · 2026-11-01
 - **Molla**: `SNAPPY_TAB_SPRING` → `ULTRA_TAB_SPRING` (500 / 38 / 0,5),
   usata da tutte le pillole: commutatore, barra laterale, Tabs, ToggleGroup.

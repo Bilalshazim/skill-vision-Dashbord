@@ -60,6 +60,9 @@ export interface BarProps {
   fill?: string;
   /** Color for tooltip dot. Use when fill is a gradient/pattern. Default: uses fill value */
   stroke?: string;
+  /** Skill Vision: bordo della barra (1,5px), per il valore in evidenza in lime
+   *  che su fondo chiaro ha bisogno del bordo scuro (`chart-highlight-stroke`). */
+  outline?: string;
   /** Line cap style for bar ends: "round", "butt", or a number for custom radius. Default: "round" */
   lineCap?: BarLineCap;
   /** Whether to animate the bars. Default: true */
@@ -111,6 +114,7 @@ interface AnimatedBarProps {
   enterTransition?: Transition;
   revealEpoch: number;
   isHorizontal: boolean;
+  outline?: string;
 }
 
 function AnimatedBar({
@@ -130,7 +134,9 @@ function AnimatedBar({
   enterTransition,
   revealEpoch,
   isHorizontal,
+  outline,
 }: AnimatedBarProps) {
+  const strokeProps = outline ? { stroke: outline, strokeWidth: 1.5 } : {};
   const enterAnim = transitionWithDelay(enterTransition, index * staggerDelay);
 
   if (animationType === "fade") {
@@ -140,6 +146,7 @@ function AnimatedBar({
           opacity: isFaded ? fadedOpacity : 1,
         }}
         fill={fill}
+        {...strokeProps}
         height={height}
         initial={{ opacity: 0 }}
         key={`fade-${index}-${revealEpoch}`}
@@ -168,6 +175,7 @@ function AnimatedBar({
       <motion.rect
         animate={target}
         fill={fill}
+        {...strokeProps}
         initial={initial}
         key={`grow-${index}-${revealEpoch}`}
         rx={rx}
@@ -195,6 +203,7 @@ const BarInner = memo(function BarInner({
   barScale,
   bandWidth,
   barXAccessor,
+  outline,
 }: BarInnerProps) {
   const {
     data,
@@ -429,6 +438,7 @@ const BarInner = memo(function BarInner({
                 isFaded={isFaded}
                 isHorizontal={isHorizontal}
                 key={barKey}
+                outline={outline}
                 revealEpoch={revealEpoch}
                 rx={effectiveRx}
                 ry={effectiveRy}
@@ -449,6 +459,8 @@ const BarInner = memo(function BarInner({
               fill={fill}
               height={barHeight}
               key={barKey}
+              stroke={outline}
+              strokeWidth={outline ? 1.5 : undefined}
               opacity={isFaded ? fadedOpacity : 1}
               rx={effectiveRx}
               ry={effectiveRy}

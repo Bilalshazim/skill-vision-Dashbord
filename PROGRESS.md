@@ -184,6 +184,131 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-01 — Verifica finale (Fase 7) e risposte del resoconto
+- [x] Audit identità dell'intero repository: **0 difetti** (erano 15, tutti
+      nelle email). Email sulla palette, esenzione riga per riga
+      `audit-identita:email` (DECISIONI), bottoni in minuscolo, pesi 600.
+- [x] "Skill-Vision" con il trattino in tutti i testi a schermo e nelle email.
+- [x] Verificati: nessun "Original Skills" a schermo, nessun "recuperare" per
+      i soldi, nessuna cifra in euro calcolata.
+- [x] Manager: nessun campo che li distingua (né Anagrafica né Original
+      Skills); nessun filtro inventato.
+- [x] Le nove risposte in DECISIONI ("Fase 7 — verifica finale").
+- [x] tsc frontend e backend, oxlint (nessun avviso nuovo), build; test delle
+      email del backend (8 su 8).
+- [ ] Suite completa del backend: 22 test passati, 141 falliti in 16 file per
+      "Can't reach database server at localhost:5432" (database locale spento,
+      verificato su emailConfig). I test senza database, email comprese,
+      passano. Da rilanciare con il database acceso.
+- [ ] Contrasto reale e verifica a occhio, chiaro e scuro: da fare con il
+      browser (nessuno in questa sessione).
+
+## 2026-11-01 — Grafici sulle nuove regole, Panoramiche, riga del percorso
+- [x] Grafici: riferimento tratteggiato sulle barre (`BarReference`, nuovo),
+      bordo della barra in evidenza (`outline` in `bar.tsx`), colori dei ruoli
+      in `chart-colors`, legenda, RingStat a un anello, Area e dissolvenza di
+      Bklit in TrendChart, variante sparkline. Tutti gli "Ottenuto / Atteso"
+      passano a una barra con l'atteso tratteggiato.
+- [x] Panoramica Assessment: Sintesi / Dettaglio; Dettaglio con 4 card per
+      riga, Gauge con benchmark e sparkline, andamento ad area in inchiostro,
+      "Da fare adesso" senza le azioni di sviluppo (spostate, con le note, in
+      Sintesi).
+- [x] Panoramica Recruiting: posizione attiva / tutte le posizioni aperte,
+      Stato attuale con gli anelli, Da fare adesso, In programma, Dove guardare.
+- [x] Riga del percorso su tutte le pagine di lavoro dei due moduli
+      (`PageBreadcrumb`, nel catalogo).
+- [x] tsc, oxlint (nessun avviso nuovo), build, audit identità (`frontend/src` 0).
+- [ ] Non verificato a schermo (nessun browser in questa sessione): i grafici
+      a barre con il segno tratteggiato, la barra in evidenza in chiaro, le
+      due Panoramiche, la riga del percorso — chiaro, scuro, mobile.
+
+## 2026-11-01 — Le due home e le sette pagine dei risultati
+- [x] Assessment: Home prima voce ("Quello che devi sapere", quattro finestre
+      2×2, senza numeri né grafici), Panoramica seconda (`/assessment/panoramica`).
+- [x] Recruiting: Profilo della ricerca con Società · Campagna · CIP in alto,
+      titolo e sottotitolo, tre card con le frecce verso le pagine dei
+      risultati; niente esito, niente "Report AI", niente numeri.
+- [x] Pattern `ResultsPage`, `WindowCard`, `InfoTip`, primitiva `Breadcrumb`;
+      `CategoryBars highlight`, `CompletionRing center`. Tutti nel catalogo.
+- [x] Sette pagine: Il valore (scheletro, «Contenuto in preparazione»), Le
+      perdite invisibili, Il potenziale, Dove intervenire; Chi cerchiamo?,
+      Chi è più adatto?, Chi scegliamo?. Frasi e quote dai dati, cinque fasce,
+      «Nessuno oggi.», euro «€ [—] · In attesa della formula», stato vuoto
+      senza test, riga dei dati dimostrativi, ⓘ sulle quote.
+- [x] Incongruenza 10 / 23 dei colloqui di restituzione: era l'etichetta
+      dell'interruttore, il numero è 10 (DECISIONI).
+- [x] tsc, oxlint (nessun avviso nuovo), build, audit identità (`frontend/src` 0).
+- [ ] **Testi provvisori** di «Le perdite invisibili»: la tavola non è nel
+      repository, da confrontare.
+- [ ] Bordo scuro della barra in evidenza (`chart-highlight-stroke`): Bklit
+      non lo ha (DECISIONI).
+- [ ] Riga del percorso sulle pagine tecniche (CLAUDE.md la vuole su ogni pagina).
+- [ ] Non verificato a schermo (Playwright non collegato): le nove schermate
+      nuove in chiaro e scuro, mobile, ⓘ da tastiera.
+
+## 2026-11-01 — Menu di Recruiting a livelli, stati della candidatura
+- [x] Menu come la tabella di CLAUDE.md: Profilo della ricerca (ingresso di
+      `/recruiting`), Panoramica (`/recruiting/panoramica`), quattro livelli
+      con la pagina principale in testa e il titolo cliccabile, Strumenti,
+      Amministrazione. Una voce accesa sola. Valutatore: solo le tre schede.
+- [x] Bloccati, toccato solo il menu: Migliori candidati → `/pagina-a`,
+      Classifica dopo il test, Imbuto in L2 e L3 sulla stessa pagina.
+- [x] Imbuto, Profilo della ricerca, Panoramica e CSV sui cinque stati
+      (Candidatura acquisita → … → Selezione conclusa); esito scritto a parte
+      (solo Assunto ha un dato).
+- [x] Nomi a schermo "CV elaborati", titolo di Profilo candidato; via
+      "Original Skills" da due testi; link "Dettaglio" dell'Imbuto.
+- [x] Già fatti prima (verificato): competenze trasversali dentro Profilo
+      candidato, Colloqui e Candidato vincitore fuori da CV elaborati, Import
+      massivo tolto, "Posizioni aperte" fuori dal menu, nessun "Report AI".
+- [x] tsc, oxlint (nessun avviso nuovo), build, audit identità
+      (`frontend/src` 0).
+- [ ] **Da chiedere** (DECISIONI): link dell'annuncio al solo salvataggio
+      (oggi serve «Conferma»); ripristino della pagina Stato dell'arte (oggi
+      rimanda alla Panoramica); In riserva / Non selezionato (serve un dato
+      nuovo); nome del quinto stato.
+- [ ] Etichetta "Posizioni aperte" ancora in Panoramica e Imbuto: elenco ad
+      Alessio (DECISIONI).
+- [ ] Non verificato a schermo (Playwright non collegato): menu in chiaro e
+      scuro, mobile, accesso da valutatore.
+
+## 2026-11-01 — Posizione attiva solo nel Profilo; token dei grafici e barre di scorrimento
+- [x] Posizione attiva: si cambia solo nel Profilo della ricerca. Altrove il
+      sovratitolo di sola lettura "ACME CORP · SENIOR FRONTEND ENGINEER"
+      (`ContextBar variant="inline"`, nel catalogo). Barra laterale: società
+      in sola lettura. Avanzamento: card di sola lettura, posizione attiva
+      scritta, link "Cambia posizione nel Profilo della ricerca". Link vecchi
+      con `?companyId=&openingId=`: parametri tolti, posizione invariata.
+      DECISIONI "Posizione attiva: si cambia solo nel Profilo della ricerca".
+- [x] Le 56 candidature, causa tecnica: il vecchio imbuto
+      (`use-recruiting-home-data.ts` prima di `bb565c1`) metteva come prima
+      fase `readCandidates().length`, cioè **tutto l'archivio CV**, che non
+      appartiene a nessuna posizione; le fasi dopo sommavano invece le
+      pipeline delle posizioni aperte (Senior Frontend Engineer e Customer
+      Care Specialist, entrambe a 0). L'archivio si classifica sull'unico
+      profilo salvato, `DEFAULT_ROLE = 'Sales Account Manager'`
+      (`lib/constants.ts`), ed è da lì che le 56 sembravano di quella
+      posizione. Risultati e Stato dell'arte facevano lo stesso
+      (`ranking(candidates)` sull'archivio intero). Corretto il 2026-10-23:
+      l'imbuto conta `candidatePool` + pipeline della posizione
+      (`position-funnel.ts`), Risultati ha "Questa posizione / Archivio CV".
+- [ ] Resta con la stessa causa: l'Assistente IA (`lib/ask.ts`) scrive
+      "Posizione: Sales Account Manager. Candidati: [archivio intero]". Non
+      toccato: da decidere se legge la posizione attiva.
+- [x] `globals.css`: `chart-mono` inchiostro, `chart-highlight`,
+      `chart-highlight-stroke`, `chart-reference`, `chart-compare` rivisto, in
+      chiaro e scuro e in `@theme inline`; `--scrollbar-thumb(-hover)` e barre
+      sottili senza binario in `@layer base`, ovunque (barra laterale
+      compresa). Niente `tailwind.config`: in v4 il tema è `@theme`.
+- [x] tsc, oxlint (file toccati puliti), build, audit identità
+      (`frontend/src` 0; i 15 del repository sono i modelli email del backend).
+- [ ] Non verificato a schermo: Playwright non si collega in questa sessione.
+      Da guardare in chiaro e scuro: sovratitolo, Profilo con i due
+      selettori, Avanzamento, barre di scorrimento, e i grafici ora in
+      inchiostro.
+- [ ] Da fare grafico per grafico: lime sul valore che conta
+      (`chart-highlight`) e benchmark tratteggiato (`chart-reference`).
+
 ## 2026-11-01 — Movimento, seconda parte (Instructions.md aggiornato)
 - [x] `ULTRA_TAB_SPRING` e `COUNTER_SPRING` in `lib/motion.ts`.
 - [x] Pillola scorrevole (`layoutId`) in Tabs, ToggleGroup (single) e barra

@@ -11,10 +11,10 @@ import { usePipelineData } from '@/modules/recruiting/lib/use-pipeline-data'
 // CLAUDE.md, Fase 6, 2026-10-23). Prima queste pagine tenevano una scelta
 // loro nell'indirizzo, separata dalla posizione attiva (la regola del vecchio
 // Recruiting): era il difetto per cui Classifica e Podio mostravano una
-// posizione e Risultati un'altra. Un indirizzo con ?companyId=&openingId=
-// (un segnalibro, un link di una versione precedente) diventa la posizione
-// attiva all'apertura, poi si toglie dall'indirizzo. Scegliere una posizione
-// qui (`select`, le card di Avanzamento) cambia la posizione attiva.
+// posizione e Risultati un'altra. La posizione si cambia solo nel Profilo
+// della ricerca (CLAUDE.md, Fase 6): un indirizzo con ?companyId=&openingId=
+// (un segnalibro, un link di una versione precedente) perde i parametri
+// all'apertura e mostra la posizione attiva, senza cambiarla.
 export function usePipelineSelection() {
   const [searchParams, setSearchParams] = useSearchParams()
   // Bumped after every successful mutation to force usePipelineData() to
@@ -22,7 +22,7 @@ export function usePipelineSelection() {
   const [refreshKey, setRefreshKey] = useState(0)
   const onMutated = useCallback(() => setRefreshKey((k) => k + 1), [])
   const { state, cards } = usePipelineData(refreshKey)
-  const { company: activeCompany, opening: activeOpening, setPosition } = useActivePosition()
+  const { company: activeCompany, opening: activeOpening } = useActivePosition()
 
   // Phase 32 §3/§8 — same backend-primary match-score reconciliation as
   // Ranking/Pagina A/CV & Esportazione.
@@ -40,22 +40,18 @@ export function usePipelineSelection() {
   const urlOpeningId = searchParams.get('openingId')
   useEffect(() => {
     if (!urlCompanyId && !urlOpeningId) return
-    const { company, opening } = resolvePipelineOpening(state, urlCompanyId, urlOpeningId)
     const next = new URLSearchParams(searchParams)
     next.delete('companyId')
     next.delete('openingId')
     setSearchParams(next, { replace: true })
-    if (company && opening && (company.id !== activeCompany?.id || opening.id !== activeOpening?.id)) setPosition(company.id, opening.id)
-  }, [urlCompanyId, urlOpeningId, state, searchParams, setSearchParams, activeCompany?.id, activeOpening?.id, setPosition])
+  }, [urlCompanyId, urlOpeningId, searchParams, setSearchParams])
 
   // Gli oggetti freschi dei dati letti qui (dopo ogni modifica), sulla posizione attiva.
   const { company, opening } = resolvePipelineOpening(state, activeCompany?.id ?? null, activeOpening?.id ?? null)
-
-  const select = useCallback((companyId: string, openingId: string) => setPosition(companyId, openingId), [setPosition])
 
   // Resta per i link fra le pagine dell'avanzamento: vuoto, perché la
   // posizione è già quella attiva.
   const query = ''
 
-  return { cards, company, opening, onMutated, select, query }
+  return { cards, company, opening, onMutated, query }
 }

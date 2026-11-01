@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SelectionFunnel, shareOfPrevious } from '@/modules/recruiting/components/SelectionFunnel'
 import { useActivePosition } from '@/modules/recruiting/lib/active-position'
-import { biggestDrop, countStages, NEXT, positionStages, type StageCounts, STAGES, sumStages } from '@/modules/recruiting/lib/position-funnel'
+import { biggestDrop, countStages, ESITI, NEXT, positionStages, type StageCounts, STAGES, sumStages } from '@/modules/recruiting/lib/position-funnel'
 import { readCandidates } from '@/modules/recruiting/lib/storage'
 import { useRecruitingHomeData } from '@/modules/recruiting/lib/use-recruiting-home-data'
 
@@ -17,9 +17,10 @@ import { useRecruitingHomeData } from '@/modules/recruiting/lib/use-recruiting-h
 // pagina sola, qui (/imbuto-scelta; /imbuto rimanda). Dall'alto: di quale
 // posizione parla (la posizione attiva, o "Tutte le posizioni aperte" della
 // società: mai l'archivio CV mescolato alle posizioni), il grafico a tutta
-// riga con le fasi del menu e la quota sulla precedente, la frase che dice
-// dove si fermano, la tabella per fase (persone, quote, quanti sono fermi lì,
-// la pagina della fase). Con tutte le posizioni, sotto, una riga per
+// riga con i cinque stati della candidatura e la quota sul precedente, a parte
+// l'esito, la frase che dice
+// dove si fermano, la tabella per stato (persone, quote, quanti sono fermi lì,
+// la pagina dello stato). Con tutte le posizioni, sotto, una riga per
 // posizione: è il riepilogo che stava in "Avanzamento della selezione".
 export default function ImbutoPage() {
   const [params, setParams] = useSearchParams()
@@ -69,21 +70,26 @@ export default function ImbutoPage() {
         }
       />
 
-      <ChartCard title="Dal CV caricato alla scelta" description={drop ?? (hasFlow ? 'Nessun calo fra una fase e la successiva.' : undefined)} height="auto">
+      <ChartCard title="Dalla candidatura alla selezione conclusa" description={drop ?? (hasFlow ? 'Nessun calo fra uno stato e il successivo.' : undefined)} height="auto">
         <SelectionFunnel counts={counts} height="lg" />
+        {counts.cv ? (
+          <p className="text-app-small text-muted-foreground">
+            Esito: {ESITI.map((e) => `${e.label} ${e.key === 'assunto' ? counts.scelti : '—'}`).join(' · ')}. In riserva e Non selezionato non si registrano ancora.
+          </p>
+        ) : null}
       </ChartCard>
 
       {counts.cv ? (
         <section>
-          <PageHeader title="Per fase" description="Quanti sono in ogni fase, quanti sono fermi lì e dove si lavora quella fase." />
+          <PageHeader title="Per stato" description="Quanti sono in ogni stato, quanti sono fermi lì e dove si lavora quello stato." />
           <DataTable
             rows={rows}
             getRowId={(r) => r.key}
             columns={[
-              { key: 'fase', header: 'Fase', cell: (r) => r.label },
+              { key: 'fase', header: 'Stato', cell: (r) => r.label },
               { key: 'n', header: 'Persone', cell: (r) => <span className="font-mono tabular-nums">{r.count}</span> },
-              { key: 'prev', header: '% sulla precedente', cell: (r) => <span className="font-mono tabular-nums">{r.prev == null ? '—' : `${r.prev}%`}</span> },
-              { key: 'tot', header: '% sui CV caricati', cell: (r) => <span className="font-mono tabular-nums">{r.total}%</span> },
+              { key: 'prev', header: '% sul precedente', cell: (r) => <span className="font-mono tabular-nums">{r.prev == null ? '—' : `${r.prev}%`}</span> },
+              { key: 'tot', header: '% sulle candidature', cell: (r) => <span className="font-mono tabular-nums">{r.total}%</span> },
               { key: 'fermi', header: 'Fermi qui', cell: (r) => (r.stuck == null ? '—' : <span><span className="font-mono tabular-nums">{r.stuck}</span> {r.stuckLabel}</span>) },
               {
                 key: 'apri',
@@ -103,7 +109,7 @@ export default function ImbutoPage() {
 
       {all ? (
         <section>
-          <PageHeader title="Per posizione" description="Le posizioni aperte della società, con i numeri di ogni fase." />
+          <PageHeader title="Per posizione" description="Le posizioni aperte della società, con i numeri di ogni stato." />
           {data.positions.length ? (
             <DataTable
               rows={data.positions}
@@ -116,7 +122,9 @@ export default function ImbutoPage() {
                   header: 'Dettaglio',
                   cell: (p) => (
                     <Button asChild variant="ghost" size="sm">
-                      <Link to={`/recruiting/pipeline?companyId=${encodeURIComponent(p.companyId)}&openingId=${encodeURIComponent(p.openingId)}`}>
+                      {/* L'indirizzo non sceglie più la posizione (si cambia solo nel
+                          Profilo della ricerca): Avanzamento mostra tutte le posizioni. */}
+                      <Link to="/recruiting/pipeline" aria-label={`Avanzamento della selezione, ${p.title}`}>
                         Apri <ArrowRight />
                       </Link>
                     </Button>

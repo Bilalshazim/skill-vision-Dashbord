@@ -50,8 +50,8 @@ Ne discendono due lavori, che si tengono:
    instradamento. Il login rifatto sul backend chiude il lavoro (Fase 8).
 
 **Le schermate non si riprogettano.** Tengono impianto e contenuti di oggi —
-tranne le due pagine d'ingresso, che diventano panoramiche (Fase 6,
-"Panoramica"). Cambia quello di cui sono fatte, non come sono disposte. I
+tranne le pagine d'ingresso e la Panoramica (Fase 6, "Le due home",
+"Panoramica", "Profilo della ricerca"). Cambia quello di cui sono fatte, non come sono disposte. I
 difetti di impaginazione si correggono solo dove il componente nuovo li
 risolve da sé.
 
@@ -103,7 +103,12 @@ che ne viola una è sbagliata anche se sembra migliore.
 3. **Nessuna ombra.** Le superfici si separano per colore e perimetro. Le
    librerie portano ombre di default su card, menu e bottoni: vanno rimosse.
    Unica eccezione i livelli flottanti, che usano scrim e bordo marcato.
-4. **Nessuna sfumatura, nessun alone, nessuna texture di fondo.**
+4. **Nessuna sfumatura, nessun alone, nessuna texture di fondo.** Vale per
+   superfici, card e sfondi. **I grafici Bklit ne sono esenti** (deciso il
+   2026-10-30): sfumatura dell'area e dissolvenza della griglia restano come
+   le fa Bklit. L'esenzione riguarda la forma, non il colore: i colori dei
+   grafici seguono le regole della Fase 5, quindi un'area è in inchiostro,
+   mai in lime.
 5. **Il bottone primario è `bg-primary` con `text-primary-foreground`.** Fondo
    lime, testo quasi nero. Mai testo bianco: darebbe 1,3:1.
 6. **Il lime non è mai testo su fondo chiaro** sotto `accent-600`, e non è mai
@@ -533,23 +538,35 @@ Bklit ha, o, in mancanza, un grafico visx con il motivo. Le proposte approvate
 vanno in `DECISIONI.md`; quelle non ancora approvate restano in un elenco in
 coda a `MAPPATURA.md`.
 
-**Regole di colore**
+**Regole di colore** — riviste il 2026-10-26, dopo la verifica in produzione
+(tavola "Colori dei grafici" sulla tela del Benvenuto). Sostituiscono la regola
+precedente, che dava ai dati il lime scurito (`chart-mono` = `accent-600`) e
+alle serie di confronto un grigio: tutto risultava verde, niente spiccava, e il
+benchmark grigio sembrava un secondo dato spento.
 
-| Serie | Colore |
-|---|---|
-| Una | `chart-mono` — cambia da solo fra le modalità |
-| Due | `chart-mono` per il dato principale, `chart-compare` per il confronto |
-| Tre o più | famiglia categorica `chart-1`…`chart-6`, **nell'ordine dato** |
+| Ruolo | Token | Come |
+|---|---|---|
+| I dati | `chart-mono` | inchiostro: `neutral-800` in chiaro, `neutral-100` in scuro |
+| Il valore che conta | `chart-highlight` + `chart-highlight-stroke` | lime pieno con bordo scuro di 1,5px in chiaro; **uno per grafico**: la persona contro il gruppo, l'area più critica, il valore di oggi in un andamento |
+| Benchmark, valore atteso | `chart-reference` | linea o segno **tratteggiato** con il nome scritto ("Benchmark 7,0"). **Mai una seconda barra** né una seconda linea piena |
+| Due serie di dati vere (non un riferimento) | `chart-mono` + `chart-1` | inchiostro per quella in primo piano, petrolio per l'altra, etichette dirette |
+| Tre o più serie | `chart-1`…`chart-6` | famiglia categorica, nell'ordine dato |
+| Fasce | `success` / `warning` / `destructive` | colori di stato, sempre con la parola |
+| "Nella norma" in una distribuzione | `chart-compare` | `neutral-300` in chiaro, `neutral-600` in scuro. Non è più il colore di una serie |
 
-`chart-compare` è `neutral-400` in chiaro e `neutral-500` in scuro, come dicono
-le fondamenta ("neutro per il termine di confronto"). Non `muted-foreground`:
-è un colore di testo, e come riempimento di una barra pesa quanto il dato
-principale. La serie di confronto deve arretrare.
+Conseguenze sui grafici di oggi:
 
-Il lime resta fuori dalla famiglia categorica: indica la serie che conta, non è
-una serie fra le altre. E nessun grafico affida il significato al solo colore:
-etichette dirette sulle serie, non una legenda a lato che costringe a
-confrontare due punti dello schermo.
+- "Ottenuto / Atteso" (Valutazioni soft skill, cluster e Big Five): l'atteso
+  diventa un segno tratteggiato sulla barra dell'ottenuto, non una barra grigia.
+- "Punteggio e benchmark", "Sotto il benchmark", "Andamento": dati in
+  inchiostro, benchmark tratteggiato, lime sul valore da guardare.
+- Gauge e Ring: arco pieno in `chart-mono`, oppure `chart-highlight` se è il
+  numero principale della pagina; la traccia resta quella di default di Bklit
+  (`--border`).
+
+E nessun grafico affida il significato al solo colore: etichette dirette sulle
+serie, non una legenda a lato che costringe a confrontare due punti dello
+schermo.
 
 **Regole dei pattern dei grafici** — verificate in produzione il 2026-10-01:
 
@@ -565,8 +582,11 @@ confrontare due punti dello schermo.
   distinguono anche senza colore: forma diversa per fascia e nome al passaggio
   del mouse.
 - **Distribuzione per fascia.** Segmenti in ordine di fascia, dalla più alta
-  alla più bassa. La più alta è neutra piena (`strong`), "nella norma" neutra
-  tenue (`chart-compare`), le altre sui toni di stato. La legenda dice il nome,
+  alla più bassa. La più alta (Alto valore) in inchiostro (`chart-mono`),
+  Alto potenziale `success`, "nella norma" neutra tenue (`chart-compare`), Da
+  potenziare `warning`, Critici `destructive`. Le soglie di ogni fascia vanno
+  scritte accanto al nome: oggi è nota solo quella dei Critici (sotto 4,0 su
+  10), le altre le chiede Alessio a Roberto. La legenda dice il nome,
   mai il colore: "Verde", "Giallo", "Rosso" non sono etichette.
 - **Radar.** Abbastanza grande da leggere le etichette degli assi senza
   sovrapposizioni. Se il riquadro è piccolo, si accorciano le etichette o si
@@ -582,10 +602,11 @@ confrontare due punti dello schermo.
   `centerValue` con `defaultLabel` al centro, `suffix` per l'unità, traccia di
   default. Ogni scostamento da una prop di default va in DECISIONI con il
   motivo.
-- **Niente sfumature, neanche quelle di Bklit.** L'area dell'Andamento usa di
-  nuovo `area-gradient`, e la griglia `grid-rows-fade`: riempimento piatto e
-  griglia senza dissolvenza (regola 4). Era già stato corretto: è una
-  regressione.
+- **Le sfumature di Bklit restano** (regola 4, esenzione del 2026-10-30):
+  `area-gradient` sull'area e `grid-rows-fade` sulla griglia sono ammessi
+  come Bklit li fa. Il colore dell'area è `chart-mono`, non lime: nella prima
+  versione l'area lime sfumata era una delle cause dell'effetto «tutto
+  verde».
 - **La card di un grafico è una card.** Superficie `card`, bordo sottile.
   Non `surface-accent` (è il fondo dei riquadri di evidenza, non dei grafici),
   non `surface-success/warning/danger` (sono fondi di avviso), non bordo di 2px,
@@ -629,10 +650,234 @@ Il criterio di fine per ogni schermata: la pagina non contiene più stile
 proprio, solo composizione. È questo che rende la dashboard modulare — una
 schermata nuova si fa con quello che c'è.
 
-**Panoramica** — deciso il 2026-10-23 dopo la verifica in produzione.
-Sostituisce la Home di Assessment a folder card e l'ingresso di Recruiting
-(oggi `/recruiting` apre Profilo della ricerca). Vale per i due moduli, con lo
-stesso schema.
+**Le due home e le pagine dei risultati** — approvato da Roberto il
+2026-10-29. Sostituisce il «Benvenuto» del 2026-10-26. Disegno: tela
+«Skill-Vision · Benvenuto», tavole «Assessment · 1 Home», «Assessment · 2
+Risultati · Le perdite invisibili» e «Recruiting · 1 Home · Profilo della
+ricerca». Si costruisce seguendo le tavole.
+
+La dashboard si usa anche nelle demo commerciali con CEO e CFO. Il percorso ha
+tre livelli, sempre nello stesso ordine:
+
+| Livello | Cosa | Per chi |
+|---|---|---|
+| 1 · Home | le finestre del modulo, cliccabili | la demo |
+| 2 · Pagina dei risultati | una per finestra, solo sul suo argomento | CEO, CFO |
+| 3 · Approfondimenti | le pagine tecniche che esistono già, **non si toccano** | chi ci lavora |
+
+**Una home per modulo**, mai un'unica pagina con le finestre dei due moduli:
+i moduli si acquistano separati. In demo si passa dall'una all'altra con il
+selettore in alto.
+
+1. **Home di Assessment** — prima voce del menu («Home»). Titolo «Quello che
+   devi sapere» e quattro finestre in griglia 2×2, ognuna con numero, titolo,
+   sottotitolo e domanda, **nessun numero e nessun grafico**:
+   - 01 **Il valore** · il divario tra retribuzione e rendimento · Quanto mi
+     rendono davvero le persone che pago?
+   - 02 **Le perdite invisibili** · inefficienze, costi nascosti e valore che si
+     disperde · Dove sto sprecando denaro o perdendo opportunità?
+   - 03 **Il potenziale** · talenti, competenze e opportunità di crescita già
+     presenti in azienda · Quali risorse e potenzialità non sto impiegando?
+   - 04 **Dove intervenire** · quello che puoi fare da subito · Cosa devo fare
+     per migliorare i risultati economici?
+
+   Il clic apre la pagina dei risultati di quella finestra. Testo a sinistra,
+   titoli non in maiuscolo, superfici neutre, nessuna icona.
+
+2. **Home di Recruiting** — il Profilo della ricerca (sotto). Il clic su una
+   card apre la pagina dei risultati del passo, e da lì la pagina principale
+   del livello (approvato da Roberto il 2026-10-30).
+
+**Le pagine dei risultati** — sette, una per finestra: quattro di Assessment,
+tre di Recruiting. Approvate da Roberto il 2026-10-30 sul modello «Le perdite
+invisibili» («vai avanti così»). Tutte con la stessa struttura:
+
+- la **riga del percorso** in cima («Home / Le perdite invisibili»), ogni voce
+  cliccabile, e «Torna alla home» in fondo;
+- titolo e domanda della finestra;
+- **«Perché è importante per la tua azienda?»**, due righe sotto il titolo;
+- **1 · La situazione oggi** — una frase e un grafico;
+- **2 · Criticità e opportunità** — al massimo tre riquadri e una riga
+  sull'opportunità;
+- **3 · L'impatto** — la **percentuale** dai dati, subito; il **valore
+  economico** come segnaposto «€ [—] · In attesa della formula» finché Roberto
+  non dà la formula, che sarà la stessa del Report ROI;
+- **4 · Cosa ti suggeriamo di fare** — una frase, il link alla pagina che
+  contiene le azioni, e dove serve «puoi interpellare il Senior Advisor»;
+- **Approfondimenti** — i link alle pagine tecniche già esistenti
+  sull'argomento.
+
+Ogni pagina parla **solo del suo argomento**: non porta a una pagina che dice
+tutto.
+
+**Il tooltip ⓘ** accanto ai dati e ai termini da spiegare: cosa vuol dire il
+dato e, se serve, come si legge. **Non** «a cosa serve»: al massimo
+«Interpella il Senior Advisor». Due o tre righe, mai di più. Tooltip di
+shadcn, si apre anche con il focus da tastiera.
+
+**La riga del percorso** (Breadcrumb di shadcn sui nostri token) sta in cima a
+**ogni** pagina, anche a quelle tecniche: in Assessment parte da «Home», in
+Recruiting da «Profilo della ricerca» («Profilo della ricerca / Chi cerchiamo /
+Profilo candidato»). Ogni voce è cliccabile.
+
+**Il disegno è uno solo**: la tavola «Le perdite invisibili». Le altre sei
+pagine si costruiscono **con la stessa impaginazione e gli stessi componenti**,
+con i contenuti qui sotto (2026-10-30). Non servono altre tavole.
+
+Regole per tutte e quattro:
+
+- **Le frasi con i numeri si calcolano dai dati**, non si scrivono a mano.
+  Tra parentesi quadre il dato da inserire. I valori «con i dati
+  dimostrativi» servono solo a controllare il calcolo.
+- **Una classificazione sola**: dove serve dire «sotto» o «sopra la norma» si
+  usano le cinque fasce (sotto la norma = Da potenziare + Critici; sopra la
+  norma = Alto potenziale + Alto valore). Mai una soglia nuova inventata.
+- **Un riquadro senza persone lo dice** con una frase («Nessuno oggi»), non
+  sparisce e non mostra uno zero nudo.
+- **Senza test completati** la pagina mostra l'EmptyState del pattern al posto
+  delle sezioni 1–3, con la frase «I risultati compaiono qui quando le persone
+  completano i test».
+- **Con dati dimostrativi** in fondo: «Dati dimostrativi · [società] · Le cifre
+  in euro compaiono quando la formula è definita».
+- **Gli approfondimenti** sono pagine che esistono: se una voce dell'elenco non
+  corrisponde a una rotta reale, si toglie, non si crea.
+
+**01 · Il valore** — Quanto mi rendono davvero le persone che pago?
+
+**In attesa di Roberto**: deve decidere come mettere in rapporto retribuzione
+e rendimento («mi serve tempo per ragionarci», 2026-10-30). Si costruisce solo
+lo scheletro: riga del percorso, titolo, domanda, «Perché è importante» (sotto),
+le quattro sezioni con l'EmptyState «Contenuto in preparazione», gli
+approfondimenti. Nessun calcolo su RAL e punteggio finché la regola non c'è.
+
+| Parte | Contenuto |
+|---|---|
+| Perché è importante | «La retribuzione è la voce di costo più grande. Sapere se a una retribuzione più alta corrisponde un rendimento più alto dice se la spesa va dove c'è il valore.» |
+| Approfondimenti | Valori complessivi · Area risultati · Anagrafica |
+
+**03 · Il potenziale** — Quali risorse e potenzialità non sto impiegando?
+
+| Parte | Contenuto |
+|---|---|
+| Perché è importante | «Le persone che possono fare di più spesso ci sono già. Trovarle dentro l'azienda evita una ricerca fuori; lasciarle ferme è un valore che non si usa.» |
+| 1 · La situazione oggi | Frase: «[N] persone su [totale] sono sopra la norma.» Grafico: la **barra di distribuzione per fascia** (pattern della Fase 5), le cinque fasce con nome, numero e quota. Con i dati dimostrativi: 4 su 23. |
+| 2 · Criticità e opportunità | Tre riquadri. «Alto potenziale»: [N] persone, le prime tre con mansione e punteggio, link all'elenco. «Alto valore»: [N] persone, come sopra; vuota: «Nessuno oggi.» «Competenza più forte»: la competenza con la distanza positiva più alta dall'atteso (Competenze trasversali), «[x] punti sopra l'atteso»; se nessuna è sopra: «Nessuna competenza sopra l'atteso.» Riga: «L'opportunità: [N] persone possono crescere senza cercare nessuno fuori.» |
+| 3 · L'impatto | Percentuale: Alto potenziale + Alto valore sulle persone valutate, «delle persone è sopra la norma» (17% con i dati dimostrativi). ⓘ «Le persone nelle fasce Alto potenziale e Alto valore, sul totale delle persone valutate: [N] su [totale].» Euro: «€ [—] · In attesa della formula · di valore in più l'anno se impiegate, stima». |
+| 4 · Cosa ti suggeriamo di fare | «Per chi è in Alto potenziale, un piano di sviluppo con l'azione Talento. Le azioni sono in Dove intervenire; per scegliere su chi puntare puoi interpellare il Senior Advisor.» Link «Vai a Dove intervenire →». |
+| Approfondimenti | Valori complessivi · Piani di sviluppo · Cambio ruolo e trasferimenti (solo se la pagina esiste) |
+
+**04 · Dove intervenire** — Cosa devo fare per migliorare i risultati economici?
+
+| Parte | Contenuto |
+|---|---|
+| Perché è importante | «Sapere dove sono i problemi serve a poco senza un ordine. Qui gli interventi sono in fila: da dove partire e quante persone riguardano.» |
+| 1 · La situazione oggi | Frase: «[N] persone hanno un intervento previsto. Il più frequente è [tipo].» Grafico: **Bar Chart** orizzontale di Bklit, persone per tipo di intervento (Formazione, Coaching, Riorganizzazione, Talento), barre in `chart-mono`, la più lunga in `chart-highlight`; un tipo a zero resta con «0». Una persona con più interventi conta una volta nel [N] della frase. Con i dati dimostrativi: 5 · 4 · 2 · 0. |
+| 2 · Criticità e opportunità | Tre riquadri. «Da seguire subito»: [N] persone nella fascia Critici, link all'elenco. «Colloqui di restituzione da fare»: [N], da Piani di sviluppo. «Mansione da cui partire»: la mansione con la distanza maggiore dall'atteso, «[x] punti sotto l'atteso». Riga: «L'opportunità: [tipo più frequente] riguarda [N] persone: un solo programma copre la parte più grande del lavoro.» |
+| 3 · L'impatto | Percentuale: persone con almeno un intervento sulle persone valutate, «delle persone ha un intervento previsto». ⓘ «Le persone con almeno un intervento nel piano di sviluppo, sul totale delle persone valutate: [N] su [totale].» Euro: «€ [—] · In attesa della formula · di costi evitabili l'anno con gli interventi, stima». |
+| 4 · Cosa ti suggeriamo di fare | «Cominciare dalle persone critiche, poi i colloqui di restituzione. I compiti con i nomi sono nella Panoramica; per costruire il piano puoi interpellare il Senior Advisor.» Link «Vai alla Panoramica →». |
+| Approfondimenti | Piani di sviluppo · Panoramica |
+
+**Recruiting · regole in più.** Le tre pagine leggono la posizione attiva
+(stato condiviso, sotto). Gli euro restano «€ [—] · In attesa della formula»
+**senza sottotitolo**: in Recruiting che cosa si stima lo decide Roberto. I
+dati dei test vengono da Risultati (la classifica con i test), qualunque sia il
+nome finale delle pagine bloccate: non da Migliori candidati.
+
+**Chi cerchiamo?** — Definire il candidato ideale.
+
+| Parte | Contenuto |
+|---|---|
+| Perché è importante | «Una ricerca parte bene se il profilo è chiaro. Requisiti e competenze definiti prima di leggere i CV rendono i candidati confrontabili e tolgono tempo alla selezione.» |
+| 1 · La situazione oggi | Frase: «Per [posizione] sono arrivati [N] CV: [M] sono in linea con il profilo.» Grafico: **Ring** di Bklit, CV preselezionati su CV ricevuti, il numero in `centerValue`. ⓘ «I CV preselezionati, sul totale dei CV ricevuti per questa posizione.» |
+| 2 · Criticità e opportunità | Tre riquadri. «CV ricevuti»: [N]. «In linea con il profilo»: [N]. «Competenze trasversali scelte»: [N], dal Profilo candidato; nessuna: «Nessuna ancora: si scelgono nel Profilo candidato.» Riga: «L'opportunità: con il profilo definito, tutti i CV si misurano con lo stesso metro.» |
+| 3 · L'impatto | Percentuale: CV preselezionati su CV ricevuti, «dei CV ricevuti è in linea con il profilo». ⓘ come sopra. Euro: «€ [—] · In attesa della formula». |
+| 4 · Cosa ti suggeriamo di fare | «Completare il profilo con le competenze trasversali prima di leggere i CV. Per sceglierle puoi interpellare il Senior Advisor.» Link «Vai al Profilo candidato →». |
+| Approfondimenti | CV & Esportazione · CV elaborati · Avanzamento della selezione · CV preselezionati · Classifica dopo il test |
+
+**Chi è più adatto?** — Valutare tutti in un unico elenco.
+
+| Parte | Contenuto |
+|---|---|
+| Perché è importante | «Un elenco unico, con CV, test e colloquio sullo stesso metro, confronta i candidati su quello che serve alla posizione e non sull'impressione del momento.» |
+| 1 · La situazione oggi | Frase: «[N] candidati hanno completato il test, [M] lo devono ancora fare.» Grafico: **Bar Chart** orizzontale, candidati per fascia di idoneità, con il nome della fascia scritto (le fasce di «Candidati per fascia di idoneità», colori di stato). ⓘ: la definizione delle fasce già scritta in quella pagina; se non c'è, segnaposto e lo dici ad Alessio. |
+| 2 · Criticità e opportunità | Tre riquadri. «Test completati»: [N]. «Test in attesa»: [N] inviati e non completati. «Primo in classifica»: nome e punteggio, da Risultati; nessuno: «Nessuno ancora: la classifica parte dal primo test completato.» Riga: «L'opportunità: i candidati si confrontano tutti sullo stesso test, non solo sul CV.» |
+| 3 · L'impatto | Percentuale: test completati su test inviati, «dei test inviati è completato». ⓘ «I candidati che hanno completato il test, sul totale di quelli a cui è stato inviato.» Euro: «€ [—] · In attesa della formula». |
+| 4 · Cosa ti suggeriamo di fare | «Sollecitare i test in attesa, poi fissare il colloquio con i primi della classifica. Per leggere i risultati puoi interpellare il Senior Advisor.» Link «Vai a Risultati →». |
+| Approfondimenti | Confronto interno · Stato dell'arte · Imbuto di selezione |
+
+**Chi scegliamo?** — Confrontare i finalisti.
+
+| Parte | Contenuto |
+|---|---|
+| Perché è importante | «La scelta finale pesa più di tutte le altre, e una scelta sbagliata si scopre tardi. Mettere i finalisti fianco a fianco, con punti di forza e rischi, rende la decisione motivata.» |
+| 1 · La situazione oggi | Finalisti = i candidati nello stato «In fase di approfondimento». Frase: «I finalisti sono [N]. Il primo è [nome], con [punteggio].» Grafico: **Bar Chart** orizzontale dei finalisti per punteggio, barre in `chart-mono`, il primo in `chart-highlight`. Nessun finalista: EmptyState «Nessun finalista: lo diventano i candidati in colloquio». |
+| 2 · Criticità e opportunità | Tre riquadri, sul primo finalista. «Punto di forza»: la competenza con la distanza positiva più alta dall'atteso. «Rischio»: la competenza con la distanza negativa più alta. «Colloqui in programma»: [N], da Prossimi colloqui. Riga: «L'opportunità: chi non viene scelto resta In riserva per la prossima ricerca.» |
+| 3 · L'impatto | Percentuale: finalisti su candidature acquisite, «delle candidature arriva in finale». ⓘ «I candidati in fase di approfondimento, sul totale delle candidature ricevute per questa posizione.» Euro: «€ [—] · In attesa della formula». |
+| 4 · Cosa ti suggeriamo di fare | «Confrontare i finalisti su punti di forza e rischi, poi chiudere con l'esito: Assunto, In riserva o Non selezionato. Per decidere puoi interpellare il Senior Advisor.» Link «Vai a Migliori candidati →». |
+| Approfondimenti | Candidati per fascia di idoneità · Imbuto di selezione |
+
+**Prima di Dove intervenire va risolta un'incongruenza**: in Panoramica i
+colloqui di restituzione risultano 10, in Piani di sviluppo «Colloquio di
+restituzione necessario» compare su tutte e 23 le persone. Il numero giusto è
+uno solo, e vale per tutte e due le pagine.
+
+**Panoramica**, seconda voce del menu di Assessment, per chi ci lavora, con due viste in un selettore in alto:
+   - **Sintesi**, per la direzione: valore a rischio a 12 mesi (stima con
+     intervallo e «Come è calcolato»); cascata dal valore a rischio al rischio
+     residuo, un passo per azione; **Da fare adesso** (i compiti aperti,
+     dal più urgente, ognuno con il conteggio e il link alla pagina dove si fa:
+     persone critiche da seguire, colloqui di restituzione, valutazioni da
+     raccogliere); le quattro domande con il loro dato; **Le persone, fascia
+     per fascia** (le cinque fasce affiancate: nome, quante e che quota, cosa
+     vuol dire con la soglia, le prime tre persone con mansione e punteggio, il
+     link all'elenco; «Nella norma» solo il conteggio e il link; una fascia
+     vuota lo dice); «Dove si
+     perde valore» (area contro l'atteso 7,0, segno tratteggiato sull'atteso, il
+     valore in euro per area); «Cosa fare, in ordine di impatto» (azioni con
+     persone coinvolte e valore recuperabile).
+   - **Dettaglio**: la Panoramica operativa (schema sotto).
+
+   **«Da fare adesso» e «Cosa fare, in ordine di impatto» non sono doppioni.**
+   Il primo elenca compiti di chi lavora (chi seguire, quale colloquio fare,
+   quale scheda sollecitare): risponde a «cosa faccio lunedì». Il secondo
+   elenca interventi (formazione, coaching, riorganizzazione) con il valore
+   che recuperano: risponde a «dove conviene investire». Nella Sintesi ci sono
+   tutti e due; nel Dettaglio, «Da fare adesso» non ripete gli interventi, che
+   stanno nel piano d'azione.
+
+**I grafici della Sintesi sono componenti Bklit**, non disegni: la tela li
+mostra a mano solo come riferimento. Ognuno con i suoi valori scritti.
+
+| Blocco | Componente |
+|---|---|
+| 01 · andamento contro l'atteso | Line Chart, atteso come linea di riferimento tratteggiata |
+| 02 · fasce | la barra di distribuzione per fascia (pattern della Fase 5) |
+| Cascata dal valore a rischio al rischio residuo | Bklit non ha un grafico a cascata: Bar Chart se regge barre sospese, altrimenti visx, con il motivo in DECISIONI |
+| Dove si perde valore (area contro l'atteso) | Bar Chart orizzontale con l'atteso come riferimento, oppure visx se il riferimento per riga non si fa: con il motivo |
+| Cosa fare, in ordine di impatto | elenco, nessun grafico |
+
+Prima di scegliere, controlla la documentazione di Bklit: si usa quello che
+c'è.
+
+**Gli euro non si calcolano finché Roberto non dà la formula.** Nelle tavole
+sono segnaposti dichiarati («€ [—]», «In attesa della formula») e così restano
+in produzione. La RAL è già in Anagrafica; turnover e assenze sono dati da
+raccogliere. I numeri non in euro vengono dai dati di Original Skills quando è
+collegato. In ogni caso con dati dimostrativi la pagina lo dice («Dati
+dimostrativi»).
+
+**Fuori da questo giro** (erano nella bozza che Roberto ci ha girato il
+2026-10-26, da decidere con lui): chat «Chiedi ai dati», esportazione per il
+CdA, simulatore di scenario, inglese. La bozza aveva anche l'italiano tradotto
+male e cifre inventate: non è un riferimento per testi e numeri.
+
+**Panoramica** — deciso il 2026-10-23 dopo la verifica in produzione;
+posizione corretta il 2026-10-26: **non è la pagina d'ingresso**. In Assessment
+è la seconda voce, dopo la Home, ed è la vista «Dettaglio» della
+Panoramica (l'altra è «Sintesi», sopra). **In Recruiting** è la seconda voce,
+dopo il Profilo della ricerca (deciso da Alessio il 2026-10-30), con la sola
+vista operativa. Stato dell'arte resta com'è, con il suo nome e al livello 2:
+se è un doppione lo decide Roberto, e intanto non si tocca.
 
 Cosa si è visto il 2026-10-23 e non si ripete: i dati stavano dietro un
 pulsante "Skill Vision" che nessuno capisce, chiusi in partenza; testo centrato
@@ -659,40 +904,51 @@ Regole:
   sono persone, le quote percentuali.
 - **La Panoramica riassume e rimanda.** Grafici di analisi completi (matrice,
   barre per mansione, elenchi di persone lunghi) restano nelle loro pagine; qui
-  al massimo due grafici, ognuno con il link alla pagina che lo sviluppa.
+  grafici di sintesi, ognuno con il link alla pagina che lo sviluppa.
+- **Un numero che ha una forma la mostra.** Correzione del 2026-10-23, dopo il
+  primo rilascio: StatCard con il solo numero rendono la pagina un elenco. Un
+  punteggio su una scala va con il Gauge, una quota con il Ring, un valore che
+  ha una storia con la sparkline dell'andamento. Il numero resta scritto una
+  volta sola, dentro il grafico (`centerValue`) o accanto, non in tutti e due.
 
 Schema, dall'alto, in sezioni con `PageHeader` di sezione:
 
 1. **Intestazione** — `PageHeader` "Panoramica", società attiva, data
    dell'ultimo aggiornamento dei dati. In Assessment il selettore CT / CP /
    Completo sta nelle azioni dell'intestazione, come ToggleGroup normale.
-2. **Stato attuale** — una riga di 4 StatCard.
+2. **Stato attuale** — una riga di 4 StatCard, **4 per riga** sopra i 1024px
+   (non 2×2 a mezza riga), ognuna con il suo grafico dove il dato ne ha uno.
 3. **Da fare adesso** — elenco di righe (testo a sinistra, conteggio, link
    alla pagina dove si fa la cosa), ordinate per urgenza. Ogni riga è
    un'azione che l'utente compie, non un indicatore.
 4. **In programma** — prossimi eventi con data, se il modulo ne ha.
-5. **Dove guardare** — due card affiancate, ognuna con un grafico di sintesi e
-   il link all'analisi.
+5. **Dove guardare** — card affiancate a due a due, ognuna con un grafico di
+   sintesi e il link all'analisi. Se il modulo ha un andamento nel tempo, ha
+   una riga intera sotto.
 
 Contenuti, solo da dati che l'applicazione ha già (verificati il 2026-10-23 sui
-dati di prova):
+dati di prova). La colonna di Recruiting è rivista il 2026-10-30: tutto sulla
+**posizione attiva**, con la scelta «Questa posizione / Tutte le posizioni
+aperte» nell'intestazione, come nell'Imbuto.
 
 | Sezione | Assessment | Recruiting |
 |---|---|---|
-| Stato attuale | punteggio complessivo contro benchmark (su 10); copertura mansioni; persone valutate; persone critiche | posizioni aperte; candidati in selezione; idonei; colloqui in programma |
-| Da fare adesso | colloqui di restituzione da fare (Piani di sviluppo); azioni di sviluppo per tipo con numero di persone (Formazione, Coaching, Riorganizzazione); schede 5P da inviare e valutazioni da raccogliere; persone critiche da seguire | candidati da valutare; link test da inviare; test completati da leggere; posizioni senza candidati |
-| In programma | **da verificare**: oggi non risultano date in Assessment (Piani di sviluppo non ha scadenze). Se non ci sono, la sezione non c'è — non si inventa un calendario | prossimi colloqui per data (esiste già) |
-| Dove guardare | distribuzione per fascia → Valori Complessivi; aree e mansioni sotto il benchmark → Competenze | candidati per fascia di idoneità → Candidati per fascia; imbuto di selezione → Imbuto |
+| Stato attuale | punteggio complessivo contro benchmark, su 10 → **Gauge** con il benchmark scritto e la sparkline mag–ott (il dato c'è: Andamento punteggio organizzativo); copertura mansioni → **Ring**; persone valutate su anagrafica → **Ring**; persone critiche → numero e quota  | CV ricevuti → numero; CV in linea con il profilo → **Ring**; test completati su inviati → **Ring**; colloqui in programma → numero |
+| Da fare adesso | colloqui di restituzione da fare (Piani di sviluppo); schede 5P da inviare e valutazioni da raccogliere; persone critiche da seguire. Formazione, Coaching e Riorganizzazione **non** stanno qui: sono nel piano d'azione  | CV da valutare; link al test da inviare; test completati da leggere; colloqui da fissare. Ogni riga porta alla pagina dove si fa |
+| In programma | **da verificare**: oggi non risultano date in Assessment (Piani di sviluppo non ha scadenze). Se non ci sono, la sezione non c'è — non si inventa un calendario  | prossimi colloqui per data (esiste già) |
+| Dove guardare | distribuzione per fascia, con le persone (regola "Una fascia dice chi c'è dentro") → Valori Complessivi; aree e mansioni sotto il benchmark → Competenze; **Andamento punteggio organizzativo** a riga intera, area in inchiostro  | i cinque stati della candidatura → **Funnel** compatto, link all'Imbuto di selezione; candidati per fascia di idoneità → Candidati per fascia |
 
 Stati vuoti: con i dati veri si parte da zero, quindi ogni sezione ha il suo
-EmptyState che dice cosa manca e da dove arriva (per esempio "Nessun test
-completato. I risultati arrivano da Original Skills ogni notte").
+EmptyState che dice cosa comparirà e come (per esempio "Nessun test
+completato. I risultati compaiono qui quando le persone completano i test").
+Il fornitore dei test non si nomina mai a schermo (sotto, "Testi").
 
 Il punteggio complessivo resta "in attesa" finché il cliente non dà la formula
 di conversione sulla scala 1–10 (cap. 7, 2026-10-02).
 
-È un cambio del concept del cliente: Alessio lo porta a Roberto. Si sviluppa
-dietro la rotta di oggi, senza toccare le pagine di analisi.
+Roberto ha accettato la Panoramica come pagina del menu, non come ingresso
+(2026-10-23): "può andare sull'indice che cliccandola si apre ma non può essere
+il buongiorno".
 
 **La radice `/`** tiene la funzione di oggi — la scelta del modulo dopo
 l'accesso — portata in React nella Fase 4. Se l'azienda ha acquistato un solo
@@ -701,35 +957,112 @@ modulo, `/` porta direttamente lì. Nessuna dashboard nuova.
 **La voce `Menu`** prende il nome della sua destinazione, "Profilo della
 ricerca".
 
-**Menu di Recruiting** — deciso il 2026-10-23, dalla proposta di Roberto
-corretta dopo aver aperto le pagine. I quattro livelli restano; le voci vanno
-dove il contenuto della pagina dice che stanno.
+**Menu di Recruiting** — deciso da Roberto il 2026-10-23 (risposta scritta).
+Sostituisce la proposta del 2026-10-23 che spostava le voci fra i livelli.
 
-| Sezione | Voci, in quest'ordine |
-|---|---|
-| — | **Panoramica** (prima voce, pagina d'ingresso di `/recruiting`) |
-| — | **Profilo della ricerca** |
-| Chi cerchiamo · livello 1 | Profilo candidato · CV & Esportazione · CV elaborati · CV preselezionati · **Da invitare al test** |
-| Chi è più adatto · livello 2 | Classifica dopo il test · Candidati per fascia di idoneità · Confronto interno |
-| Chi scegliamo · livello 3 | Risultati · Prossimi colloqui · Candidati al podio |
-| Area valutatori | Intervista strutturata · Valutazione candidato · Report finale di valutazione |
-| Strumenti | Metodo · Assistente IA |
-| Amministrazione | CIP · Email · Comitato scientifico |
+Ogni livello ha una **pagina principale**, quella che si apre dalla card del
+Profilo della ricerca e dal titolo del livello nel menu, e sotto le sue
+**sottopagine**, che si raggiungono solo dal menu.
 
-Cosa cambia rispetto a oggi, e perché:
+| Sezione | Pagina principale | Sottopagine, in quest'ordine |
+|---|---|---|
+| — | **Profilo della ricerca** (prima voce, pagina d'ingresso di `/recruiting`) | — |
+| Chi cerchiamo · livello 1 | Profilo candidato ("Configura la scheda professionale per la ricerca in corso") | CV & Esportazione · CV elaborati · Avanzamento della selezione · CV preselezionati · Classifica dopo il test |
+| Chi è più adatto · livello 2 | Risultati | Confronto interno · Stato dell'arte · Imbuto di selezione |
+| Chi scegliamo · livello 3 | Migliori candidati | Candidati per fascia di idoneità · Imbuto di selezione |
+| Area valutatori · livello 4 | — | Prossimi colloqui · Candidati al podio · Intervista strutturata · Valutazione candidato · Report finale di valutazione |
+| Strumenti | — | Metodo · Assistente IA |
+| Amministrazione | — | CIP · Email · Comitato scientifico (per ruolo, come oggi) |
 
-- **"Migliori candidati" → "Da invitare al test"**, nel livello 1. La pagina
-  (`/recruiting/pagina-a`) elenca chi ha il CV caricato e non ha ancora fatto il
-  test, e da lì si manda il link: viene prima del test, non nella scelta
-  finale. Cambia l'etichetta, non la rotta.
-- **"Stato dell'arte" sparisce come voce**: è la vecchia Home di Recruiting
-  (contatori, card di sintesi). Il suo contenuto confluisce nella Panoramica.
-- **"Avanzamento della selezione"** e **"Imbuto di selezione"** escono dai
-  livelli. L'imbuto oggi è in due pagine con gli stessi dati (`/imbuto`, solo
-  tabella, e `/imbuto-scelta`, grafico e tabella): ne resta una, quella con il
-  grafico, rifatta come sotto; l'altra rotta reindirizza, non si rompono i link
-  salvati. La Panoramica ne mostra la versione compatta con il link "Apri
-  l'imbuto".
+**Bloccato fino alla risposta di Roberto** — non spostare le pagine, applicare
+solo la struttura del menu:
+
+- **Migliori candidati e Risultati.** Roberto mette Migliori candidati al
+  livello 3 "perché il ranking include i risultati del test". La pagina che oggi
+  si chiama così (`/recruiting/pagina-a`) elenca invece chi **non** ha ancora
+  fatto il test, ordinato per corrispondenza CV/profilo, e da lì si invia il
+  link. La classifica con i test è Risultati (`/recruiting/ranking`, "Chi è il
+  candidato migliore?"), ed è quella nella sua slide del livello 3. Si chiarisce
+  con gli screenshot davanti: fino ad allora contenuti e rotte restano dove
+  sono.
+- **Classifica dopo il test** (livello 1): Roberto la vuole con il solo match
+  profilo/CV, ma oggi mostra i punteggi del test. Cambia il contenuto o il nome
+  ("Classifica CV / profilo" è la proposta): da decidere.
+- **Imbuto di selezione** è due volte (livelli 2 e 3), su due rotte con gli
+  stessi dati: per ora tutte e due le voci del menu aprono la stessa pagina.
+- **Stato dell'arte** è la vecchia Home di Recruiting: resta com'è, con il
+  suo nome e al livello 2 (2026-10-30).
+
+**Altre decisioni di Roberto (2026-10-23):**
+
+- **Profilo candidato**: le competenze trasversali si scelgono lì dentro. Al
+  salvataggio, in fondo alla pagina, compaiono l'annuncio pronto e il link per
+  l'invio. Nessun'altra finestra o accesso ad altre pagine in quella pagina.
+- **CV elaborati**: escono le finestre Colloqui e Candidato vincitore (che
+  diventa "Candidati al podio", livello 4). La pagina va semplificata: oggi è
+  alta circa 4000px con 56 righe uguali. Proposta di semplificazione prima di
+  svilupparla.
+- **CV & Esportazione**: via "Import massivo — Archivio storico"
+  dall'interfaccia. Il codice del backend resta, inutilizzato, finché Roberto
+  non dice che la funzione è chiusa: registralo in DECISIONI.
+- **"Posizioni aperte"**: si toglie la voce del menu (nel suo indice è in
+  fondo, "lo toglierei"). La rotta e il codice restano, inutilizzati: annotalo
+  in DECISIONI. Se l'etichetta compare altrove, mandane l'elenco ad Alessio.
+- **"Report AI"** (slide di Roberto, card 3): la dicitura si toglie.
+- **I manager** non compaiono nella dashboard, né nelle classifiche né
+  altrove, in tutti e due i moduli. **Manca il criterio** per riconoscerli nei
+  dati (Original Skills distingue solo candidato e dipendente): non inventarlo,
+  si aspetta Roberto.
+- **I cinque stati della candidatura**: Candidatura acquisita (CV ricevuto) →
+  Profilo in valutazione (confronto CV/profilo) → Candidato di interesse
+  (approvato e test inviato) → In fase di approfondimento (colloquio) →
+  Selezione conclusa (decisione); esito Assunto · In riserva · Non
+  selezionato. Il nome del quinto stato è da confermare (Roberto ha scritto
+  anche "Selezione valutatori"). Sono le fasi dell'imbuto, al posto di quelle
+  scritte sotto in "Imbuto di selezione".
+
+**Profilo della ricerca** — deciso da Roberto il 2026-10-23. È la copertina di
+Recruiting, le sue "tre slide" (materiale di Roberto: `RECRUITING_Schema`):
+
+1. **Società · Campagna · CIP** — modificabili **solo qui**, in nessun'altra
+   pagina. Cambiando la campagna cambia la ricerca su cui si lavora.
+2. **Titolo e sottotitolo** — "Configura profilo, posizione, mansione e
+   competenze trasversali. Il programma e le classifiche si aggiornano in tempo
+   reale."
+3. **Tre card in fila, con la freccia fra l'una e l'altra**, numerate 01 · 02 ·
+   03. Ognuna: titolo (Chi cerchiamo? · Chi è più adatto? · Chi scegliamo?),
+   sottotitolo (Definire il candidato ideale · Valutare tutti in un unico
+   elenco · Confrontare i finalisti), contenuto (Ruolo, requisiti, hard e soft
+   skill · Matching CV, Test, Colloquio · Punti di forza, Rischi), e in fondo i
+   verbi (Crea posizione · Pubblica · Ricevi CV / Approfondisci · Esamina ·
+   Approva / Confronta · Decidi · Chiudi). **Senza numeri**: Roberto non li
+   vuole qui. **Il clic apre la pagina dei risultati del passo** (sopra, «Le
+   pagine dei risultati», approvato il 2026-10-30), e da lì la pagina
+   principale del livello: Chi cerchiamo → Profilo candidato · Chi è più
+   adatto → Risultati · Chi scegliamo → Migliori candidati. Niente «Report AI»
+   nella terza card; la pagina Assistente IA resta.
+4. **Niente riga dell'esito** (deciso il 2026-10-29): non si clicca, quindi non
+   serve. I cinque stati restano come fasi dell'imbuto.
+
+Testo a sinistra, superfici neutre, bordo sottile, nessuna icona: il suo
+schema è già così. Niente folder card, niente "oggi / Skill Vision".
+
+**La posizione attiva è una sola in tutta l'applicazione.** Il 2026-10-23
+Profilo della ricerca, Classifica dopo il test e Candidati al podio erano su
+"Senior Frontend Engineer", mentre Risultati e Stato dell'arte erano su "Sales
+Account Manager": chi naviga confronta due posizioni senza saperlo. È un
+difetto, non una scelta, e si corregge subito: la posizione attiva (con la
+società) sta in un solo stato condiviso, letto da tutte le pagine, e si cambia
+solo nel Profilo della ricerca. Nelle altre pagine resta il sovratitolo di sola
+lettura che molte hanno già ("ACME CORP · SENIOR FRONTEND ENGINEER"), senza
+campi né matite; Alessio lo mostra a Roberto. "Cambialo dalla pagina CV &
+Esportazione" (testo di Migliori candidati) non deve più servire.
+
+**Le due prove che Roberto vuole vedere** ("falla e poi la vediamo"): i
+cinque stati come grafico, con quante persone passano da uno stato al
+successivo, e l'elenco delle posizioni aperte con i numeri per stato. Per
+intero nell'Imbuto di selezione (punti 2 e 5 qui sotto); in breve nella
+Panoramica di Recruiting, con il link.
 
 **Imbuto di selezione** — verificato il 2026-10-23. Il grafico (Funnel di
 Bklit) è giusto; la pagina no:
@@ -741,11 +1074,11 @@ Bklit) è giusto; la pagina no:
   una posizione che non risulta aperta.
 - **Le fasi non sono quelle del processo.** "Test tecnico" non esiste: il test
   è quello delle competenze trasversali di Original Skills. Mancano gli
-  invitati al test (Da invitare al test ne mostra 2 in attesa) e gli idonei.
+  invitati al test (Migliori candidati ne mostra 2 in attesa) e gli idonei.
 - **Una sola percentuale**, sul totale. Dove si perdono i candidati si legge dal
   passaggio da una fase all'altra, che non c'è.
 - **La nota "Posizioni con un vincitore selezionato"** spiega "Assunti" con un
-  asterisco: la fase si chiama per quello che conta ("Scelti").
+  asterisco: con i cinque stati e l'esito la nota non serve più.
 - **Il grafico occupa metà riga e la pagina finisce lì.**
 
 Come deve essere:
@@ -753,10 +1086,11 @@ Come deve essere:
 1. **Intestazione** con la posizione attiva (stato condiviso, sotto) e la
    scelta "Questa posizione / Tutte le posizioni aperte". Mai l'archivio intero
    mescolato alle posizioni.
-2. **Il grafico a tutta riga**, con le fasi del menu: CV caricati →
-   Preselezionati → Invitati al test → Test completati → Idonei → In colloquio
-   → Scelti. Ogni fase porta il numero e la quota sulla fase precedente; la
-   quota sul totale va nella tabella.
+2. **Il grafico a tutta riga**, con i cinque stati di Roberto (Candidatura
+   acquisita → Profilo in valutazione → Candidato di interesse → In fase di
+   approfondimento → Selezione conclusa) e, a parte, l'esito (Assunto · In
+   riserva · Non selezionato). Ogni stato porta il numero e la quota sullo
+   stato precedente; la quota sul totale va nella tabella.
 3. **Una frase che dice dove si fermano**, calcolata (numeri d'esempio): "Il calo maggiore è fra
    Preselezionati e Invitati al test: 12 su 30 non sono stati invitati". Se i
    numeri sono tutti a zero oltre la prima fase, EmptyState, non un grafico
@@ -764,53 +1098,18 @@ Come deve essere:
 4. **Una tabella per fase**: persone, quota sulla precedente, quota sul totale,
    quante sono ferme lì e il link alla pagina della fase.
 5. **Con "Tutte le posizioni aperte"**, sotto, una riga per posizione con i
-   numeri per fase: è il contenuto di Avanzamento della selezione, che così non
-   serve più come pagina a parte. Il testo "«Segna completato» non è ancora
+   numeri per stato. Il testo "«Segna completato» non è ancora
    disponibile" sparisce: basta l'aggiornamento automatico (cap. 7, 2026-10-02).
-- **"Classifica dopo il test"** passa al livello 2: viene dopo il test.
-- **Prossimi colloqui e Candidati al podio** passano al livello 3: sono la
-  scelta finale.
-- **Area valutatori** non è un livello della selezione, è il lavoro di un
-  ruolo: sezione a parte, senza numero, mostrata in base al ruolo. Un
-  valutatore esterno vede solo questa.
-- **Amministrazione** solo per i ruoli che la gestiscono, come oggi.
-- **Profilo candidato** resta: nella lista di Roberto non c'era, ma è dove si
-  definisce la posizione e nessuna funzione sparisce (cap. 1).
 
-Il menu di Assessment non cambia in questo passaggio, tranne la prima voce:
-"Home" diventa "Panoramica".
+Il menu di Assessment: **Home** (prima voce, le quattro finestre),
+**Panoramica** (seconda voce, Sintesi e Dettaglio), poi come oggi.
 
-**Profilo della ricerca** — deciso il 2026-10-23. Oggi ripete il menu: tre
-folder card con il solo titolo ("Chi cerchiamo", "Chi è più adatto", "Chi
-scegliamo") e sotto i link del livello 1. Diventa la **scheda della posizione
-attiva**: la Panoramica guarda tutte le posizioni della società, il Profilo
-della ricerca una sola. Dall'alto:
-
-1. **Intestazione** — `PageHeader` con il nome della posizione, la società,
-   lo stato (aperta, in selezione, chiusa) e l'azione "Cambia posizione".
-2. **Cosa cerchiamo** — i requisiti chiave presi da Profilo candidato (scopo
-   del ruolo, competenze richieste, sede, contratto), in sola lettura, con il
-   link "Modifica il profilo". Se il profilo non è compilato: EmptyState che
-   porta a Profilo candidato.
-3. **A che punto siamo** — una riga per livello, nell'ordine del menu: quante
-   persone ci sono (CV caricati, preselezionati, invitati al test, test
-   completati, idonei, in colloquio, scelto) e il link alla pagina del
-   livello. È l'imbuto di questa sola posizione, scritto, non disegnato.
-4. **Il prossimo passo** — l'azione da fare adesso su questa posizione, una
-   sola, con il bottone che la esegue (per esempio "Invita 2 candidati al
-   test").
-
-Niente folder card, niente selettore "oggi / Skill Vision", niente testo
-centrato: valgono le regole della Panoramica.
-
-**La posizione attiva è una sola in tutta l'applicazione.** Il 2026-10-23
-Profilo della ricerca, Classifica dopo il test e Candidati al podio erano su
-"Senior Frontend Engineer", mentre Risultati e Stato dell'arte erano su "Sales
-Account Manager": chi naviga confronta due posizioni senza saperlo. È un
-difetto, non una scelta. La posizione attiva (con la società) sta in un solo
-stato condiviso, letto da tutte le pagine, ed è sempre visibile nella
-ContextBar con l'azione per cambiarla. "Cambialo dalla pagina CV &
-Esportazione" (testo di Da invitare al test) non deve più servire.
+**Barre di scorrimento** — 2026-10-26: oggi sono quelle del sistema
+operativo (larghe 15px, grigie), fuori dal design. Diventano sottili, neutre,
+senza binario: `--scrollbar-thumb` (`neutral-300` in chiaro, `neutral-600` in
+scuro) e `--scrollbar-thumb-hover`, regole in `@layer base` di `globals.css`.
+Valgono ovunque, compresa la barra laterale; nessun componente ne definisce di
+proprie.
 
 Densità e impostazione: bordi sottili, superfici neutre, lime solo dove
 indica l'azione, il valore unico o lo stato attivo (paragrafo 1).
@@ -970,6 +1269,27 @@ dove veniva.
 
 **Testi**
 
+Le regole dei testi stanno nel manuale (capitolo 09, Tono di voce) e nel box
+progetto di Alessio, che è il punto di verità. Per l'interfaccia, dal
+2026-10-29:
+
+- **Il nome si scrive Skill-Vision**, con il trattino, in ogni testo a schermo,
+  email e documento. Il logo SKILLVISION non cambia.
+- **Mai "recuperare" per i soldi**: Skill-Vision fa evitare costi, non
+  restituisce denaro. "Costi evitabili", "puoi evitare", mai "recuperabili".
+- **Il fornitore dei test della parte soft non si nomina** (Original Skills):
+  a schermo è "i test che utilizziamo". Il nome resta solo nel codice, nelle
+  variabili e nei documenti interni.
+- **Parole bandite** (manuale p. 55): soluzione, innovativo,
+  all'avanguardia, a 360 gradi, valorizzare, potenziale inespresso, sinergia,
+  chiavi in mano.
+- **Inglese**: in dashboard restano report, gap, benchmark, feedback, team
+  (etichette di lavoro, deciso il 2026-10-29); nei testi di presentazione solo
+  engagement, turnover, recruiting, assessment, onboarding.
+- **Registro**: neutro e strumentale nelle pagine di lavoro; espositivo nelle
+  pagine di presentazione (le home e le pagine dei risultati), che usano anche la
+  scala tipografica del sito nel contenuto (eccezione del manuale, p. 25).
+- **Dati non reali**: ogni schermata con dati dimostrativi lo dichiara.
 - Il claim "From Search to Talent" nella Home Recruiting: inglese su interfaccia
   italiana. In quel punto non serve uno slogan, serve un'informazione.
 - "Salva JD": l'emoji è già stata tolta, la sigla resta.
@@ -977,9 +1297,11 @@ dove veniva.
 **Di prodotto — già decisi**
 
 - Le schermate non si riprogettano: tengono impianto e contenuti di oggi,
-  tranne le due pagine d'ingresso, che diventano Panoramica (Fase 6).
-- La Home di Assessment a folder card non resta (2026-10-23): diventa
-  Panoramica, come l'ingresso di Recruiting.
+  tranne le pagine d'ingresso e la Panoramica (Fase 6).
+- La Home di Assessment a folder card non resta: al suo posto la nuova Home
+  (le quattro finestre come domande, senza numeri) e, come seconda voce, la
+  Panoramica con le viste Sintesi e Dettaglio. In
+  Recruiting l'ingresso è il Profilo della ricerca di Roberto.
 - La radice `/` resta la scelta del modulo; nessuna dashboard trasversale ai
   due moduli.
 - La voce di menu `Menu` prende il nome della destinazione.
@@ -1009,7 +1331,8 @@ dove veniva.
   e la struttura che li gestisce **restano**: serviranno se un giorno si
   tradurrà tutta la piattaforma. I testi nuovi si scrivono passando dalla
   stessa struttura, non scritti a mano nei componenti.
-- **Ingresso dei due moduli**: Panoramica (Fase 6). Superfici neutre, testo a
+- **Ingresso dei due moduli**: Home in Assessment, Profilo della ricerca
+  in Recruiting; la Panoramica nel menu, seconda voce in tutti e due (Fase 6). Superfici neutre, testo a
   sinistra, niente contenuti nascosti dietro un interruttore.
 
 **Di prodotto — non decidere da solo**
@@ -1135,16 +1458,6 @@ node scripts/audit-identita.mjs
 ```
 
 Va eseguito alla fine di ogni fase, non solo alla fine del lavoro.
-
-**Niente dati nel browser** (deciso da Roberto il 2026-10-21): tutto sta sul
-server, anche le preferenze. `scripts/audit-storage.mjs` fallisce se
-`localStorage`, `sessionStorage` o IndexedDB compaiono fuori dai file che
-svuotano il browser. Un dato nuovo va sul server (preferenze dell'utente in
-`lib/preferences.ts`, dati in API o in `recruiting-store.ts`), mai nel browser.
-
-```
-node scripts/audit-storage.mjs
-```
 
 Lo script non vede il contrasto reale, perché dipende dal fondo su cui il testo
 appoggia davvero e non da quello della pagina. Quel controllo si fa a

@@ -271,7 +271,7 @@ export default function JobProfilePage() {
       <PageHeader
         level="page"
         className="mb-0"
-        title="Configura la Scheda Professionale per la ricerca in corso"
+        title="Configura la scheda professionale per la ricerca in corso"
         description={mode === 'preview' ? 'Anteprima pulita della scheda salvata — pronta per essere approvata e condivisa. Usa "Modifica" per tornare all\'editor.' : undefined}
         actions={
           <div className="flex flex-wrap items-center gap-2">

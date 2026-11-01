@@ -30,7 +30,7 @@ export default function CvElaboratiPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader level="page" className="mb-0" title="CV Elaborati" description="I CV caricati e analizzati per la posizione attiva, con la corrispondenza al profilo." />
+      <PageHeader level="page" className="mb-0" title="CV elaborati" description="I CV caricati e analizzati per la posizione attiva, con la corrispondenza al profilo." />
 
       <CvArchiveList candidates={candidates} />
 

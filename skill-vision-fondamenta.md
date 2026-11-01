@@ -124,13 +124,17 @@ Fondo dell'alert: colore di stato al 12%, bordo al 20%. I valori sono scelti per
 
 La scelta della famiglia dipende dal numero di serie, non dal tipo di grafico.
 
-| Serie | Cosa usare |
+| Ruolo nel grafico | Cosa usare |
 |---|---|
-| Una | Colore brand: `accent-600` su fondo chiaro, `accent-400` su fondo scuro |
-| Due | Brand per il dato principale, `chart-compare` per il termine di confronto: `neutral-400` in chiaro, `neutral-500` in scuro |
-| Tre o più | Famiglia categorica qui sotto |
+| I dati | `chart-mono`, inchiostro: `neutral-800` in chiaro, `neutral-100` in scuro |
+| Il valore che conta (uno per grafico) | `chart-highlight`, lime `accent-400`, con bordo `chart-highlight-stroke` (`neutral-800` in chiaro; in scuro non serve) |
+| Riferimento: benchmark, valore atteso | `chart-reference`, linea tratteggiata con il nome scritto: `neutral-500` in chiaro, `neutral-400` in scuro. Mai una seconda barra |
+| Due serie di dati vere | inchiostro per quella in primo piano, `chart-1` per l'altra, etichette dirette |
+| Tre o più serie | Famiglia categorica qui sotto |
 
-**Grafico monocromatico.** Il riferimento è sempre il colore brand. Su fondo chiaro va usato `accent-600`, perché `accent-400` su cream dà 1,25:1 ed è invisibile. È il caso più frequente della piattaforma: il risultato della persona contro il benchmark, l'elemento selezionato dentro una lista, la barra di completamento.
+**Perché non il lime come colore dei dati** (rivisto il 2026-10-26). La regola precedente dava a ogni serie singola il brand scurito (`accent-600`) e alle serie di confronto un neutro. In produzione il risultato era una dashboard tutta verde, dove niente spiccava, e un benchmark grigio che sembrava un secondo dato spento. Ora i dati sono in inchiostro e il lime torna a fare quello che fa in tutto il sistema: segnalare una cosa sola. Su fondo chiaro il lime da solo dà 1,25:1, per questo ha il bordo scuro, come il bottone primario ha il testo scuro.
+
+`chart-compare` (`neutral-300` in chiaro, `neutral-600` in scuro) resta solo per il segmento "nella norma" di una distribuzione: non è più il colore di una serie di confronto. Le tracce vuote di Ring e Gauge restano su `--border`, il default di Bklit.
 
 **Famiglia categorica**
 
@@ -145,7 +149,7 @@ La scelta della famiglia dipende dal numero di serie, non dal tipo di grafico.
 
 **L'ordine è funzionale, non estetico.** Le tonalità consecutive distano sempre più di ottanta gradi: chi usa due, tre o quattro serie prende sempre colori lontanissimi. Rosso e ambra, i due più vicini della famiglia, occupano le posizioni 3 e 5 e non si incontrano mai come adiacenti.
 
-**Il lime resta fuori dalla famiglia categorica.** Il suo mestiere è indicare la serie che conta, non essere una serie fra le altre. Neutro per il contesto, lime per il dato in evidenza.
+**Il lime resta fuori dalla famiglia categorica.** Il suo mestiere è indicare il valore che conta, non essere una serie fra le altre. Inchiostro per i dati, lime per il dato in evidenza.
 
 **Rosso, ambra e verde coincidono con gli stati di feedback.** È una scelta: il sistema ha un rosso, un ambra e un verde, non due quasi identici con nomi diversi. Ne consegue una regola da applicare senza eccezioni — **in un grafico il colore identifica una serie e non porta significato**. Una barra rossa non vuol dire "negativo".
 
@@ -591,8 +595,11 @@ Le lightness della scala neutra sono allineate a quelle della scala `neutral` di
   --warning:           var(--color-warning-light);
   --success:           var(--color-success-light);
 
-  --chart-mono:        var(--color-accent-600);
-  --chart-compare:     var(--color-neutral-400);
+  --chart-mono:             var(--color-neutral-800);
+  --chart-highlight:        var(--color-accent-400);
+  --chart-highlight-stroke: var(--color-neutral-800);
+  --chart-reference:        var(--color-neutral-500);
+  --chart-compare:          var(--color-neutral-300);
   --chart-1:           var(--color-chart-1-light);
   --chart-2:           var(--color-chart-2-light);
   --chart-3:           var(--color-chart-3-light);
@@ -620,8 +627,11 @@ Le lightness della scala neutra sono allineate a quelle della scala `neutral` di
   --warning:           var(--color-warning-dark);
   --success:           var(--color-success-dark);
 
-  --chart-mono:        var(--color-accent-400);
-  --chart-compare:     var(--color-neutral-500);
+  --chart-mono:             var(--color-neutral-100);
+  --chart-highlight:        var(--color-accent-400);
+  --chart-highlight-stroke: var(--color-accent-400);
+  --chart-reference:        var(--color-neutral-400);
+  --chart-compare:          var(--color-neutral-600);
   --chart-1:           var(--color-chart-1-dark);
   --chart-2:           var(--color-chart-2-dark);
   --chart-3:           var(--color-chart-3-dark);
@@ -774,8 +784,8 @@ Ogni componente adottato va verificato su questi punti prima di entrare in produ
 - **Nessuna ombra.** Le librerie ne portano di default: vanno rimosse. Fanno eccezione i livelli flottanti, che usano scrim e bordo marcato.
 
 **Grafici**
-- Serie singola: `chart-mono`, che cambia valore fra le due modalità.
-- Due serie: accento più neutro.
+- Dati in inchiostro (`chart-mono`), il valore che conta in lime con bordo (`chart-highlight`), uno per grafico.
+- Benchmark e valori attesi: linea tratteggiata con il nome (`chart-reference`), mai una seconda barra.
 - Tre o più: la famiglia categorica, nell'ordine dato.
 - Il colore non porta significato e non è mai l'unico portatore di informazione: servono etichette dirette o pattern.
 

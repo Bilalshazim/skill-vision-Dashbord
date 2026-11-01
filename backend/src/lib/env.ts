@@ -45,7 +45,7 @@ export const env = {
   // never logged, and never included in any API response.
   resendApiKey: process.env.RESEND_API_KEY || '',
   mailFrom: process.env.MAIL_FROM || '',
-  mailFromName: process.env.MAIL_FROM_NAME || 'Skill Vision',
+  mailFromName: process.env.MAIL_FROM_NAME || 'Skill-Vision',
   // "CONSIDERAZIONI DELL'ESPERTO" (Assessment interview summary) — the ONLY
   // module that reads this is modules/assessmentAi/routes.ts; never logged,
   // never returned in any response. Not required(): the button shows a

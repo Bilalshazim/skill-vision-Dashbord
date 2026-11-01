@@ -5,9 +5,9 @@ import { ProfileRadar } from '@/components/patterns/ProfileRadar'
 import { Card } from '@/components/ui/card'
 import { PS, type Dash5pPayload } from '@/modules/assessment/gestione5p/model'
 
-// Il profilo per le cinque P: barre raggruppate (voto e valore atteso
-// affiancati) e radar, nella stessa card. Due serie: voto in `chart-mono`,
-// valore atteso come riferimento in `chart-compare` (lib/chart-colors.ts).
+// Il profilo per le cinque P: barre del voto con il valore atteso come segno
+// tratteggiato sulla barra (CategoryBars) e radar, nella stessa card. Voto in `chart-mono`,
+// valore atteso come riferimento in `chart-reference` (lib/chart-colors.ts).
 // Il valore atteso si disegna solo se c'è per tutte e cinque le P: una barra a
 // zero sarebbe un dato falso. La tabella sotto ogni grafico dà i valori.
 export function DashboardCharts({ payload }: { payload: Dash5pPayload }) {

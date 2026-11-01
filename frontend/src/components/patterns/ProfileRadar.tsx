@@ -15,7 +15,7 @@ export type RadarSeries = {
 // Il profilo di competenza di una persona (Bklit Radar — DECISIONI, "Grafici
 // approvati", R1–R6). Colori dalle regole della Fase 5 (chart-colors.ts):
 // una serie principale in `chart-mono`, il riferimento in
-// `chart-compare`, solo contorno tratteggiato; tre o più serie principali
+// `chart-reference`, solo contorno tratteggiato; tre o più serie principali
 // nella famiglia categorica, in ordine. Il valore di ogni asse è scritto
 // nella tabella sotto il grafico: si legge senza il colore (regola 10) ed è
 // l'alternativa per i lettori di schermo. `max`: il fondo scala del dato (10

@@ -2,6 +2,7 @@ import { useLocation } from 'react-router-dom'
 
 import { ModuleLockGate } from '@/components/ModuleLockGate'
 import { ErrorBoundary } from '@/components/patterns/ErrorBoundary'
+import { PageBreadcrumb } from '@/components/patterns/PageBreadcrumb'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { AppShell } from '@/layouts/AppShell'
 import { AuthGuard } from '@/layouts/AuthGuard'
@@ -9,7 +10,7 @@ import { PageTransition } from '@/layouts/PageTransition'
 import { AssessmentDataGate } from '@/modules/assessment/components/AssessmentDataGate'
 import { AssessmentNav } from '@/modules/assessment/components/AssessmentNav'
 import { AssessmentProvider, useAssessment } from '@/modules/assessment/lib/AssessmentContext'
-import { getPageMeta } from '@/modules/assessment/lib/legacy-utils'
+import { getPageMeta, getPageTrail } from '@/modules/assessment/lib/legacy-utils'
 import '@/modules/assessment/styles/assessment-print.css'
 
 // Assessment nel guscio unico (Fase 4): lo stesso AppShell di Recruiting,
@@ -24,10 +25,14 @@ function AssessmentShell() {
   const location = useLocation()
   const pageId = location.pathname.split('/')[2] || 'home'
   const meta = getPageMeta(lang, pageId)
+  const trail = getPageTrail(lang, pageId)
   return (
     <AppShell section="assessment" sidebarLabel="Assessment" sidebar={<AssessmentNav />}>
       <div data-module="assessment" data-portal-scope>
-        <PageHeader level="page" title={meta.title} description={pageDescription ?? meta.sub} actions={topbarActions} className="mb-6" />
+        {/* Le pagine dei risultati non hanno una voce qui: portano da sé
+            percorso, titolo e domanda (ResultsPage). */}
+        {trail ? <PageBreadcrumb items={trail.items} current={trail.current} /> : null}
+        {meta.title ? <PageHeader level="page" title={meta.title} description={pageDescription ?? (meta.sub || undefined)} actions={topbarActions} className="mb-6" /> : null}
         <ModuleLockGate module="ASSESSMENT">
           <ErrorBoundary>
             <AssessmentDataGate>

@@ -199,7 +199,7 @@ export default function EmailConfigAdminPage() {
           {listError ? <InlineAlert>{listError}</InlineAlert> : null}
           <Card>
             <CardHeader>
-              <CardTitle>A. Configurazione mittente (Società/HR o amministratore Skill Vision)</CardTitle>
+              <CardTitle>A. Configurazione mittente (Società/HR o amministratore Skill-Vision)</CardTitle>
             </CardHeader>
             <CardContent>
               {isPlatformAdmin && (
@@ -221,7 +221,7 @@ export default function EmailConfigAdminPage() {
                     {senderConfigs.length ? (
                       senderConfigs.map((s) => (
                         <div key={s.id} className="rounded-sm border border-border px-3 py-2 text-app-small">
-                          <b className="font-semibold text-foreground">{s.displayName}</b> · {s.senderType === 'COMPANY_HR' ? 'Company/HR' : 'Skill Vision admin'} ·{' '}
+                          <b className="font-semibold text-foreground">{s.displayName}</b> · {s.senderType === 'COMPANY_HR' ? 'Company/HR' : 'Skill-Vision admin'} ·{' '}
                           {s.replyToEmail}
                         </div>
                       ))
@@ -233,7 +233,7 @@ export default function EmailConfigAdminPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <SelectField value={senderType} onValueChange={(v) => setSenderType(v as 'COMPANY_HR' | 'SKILLVISION_ADMIN')} size="sm">
                         <option value="COMPANY_HR">Company/HR</option>
-                        <option value="SKILLVISION_ADMIN">Skill Vision admin</option>
+                        <option value="SKILLVISION_ADMIN">Skill-Vision admin</option>
                       </SelectField>
                       <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Nome visualizzato" size="sm" className="w-48" />
                       <Input value={replyToEmail} onChange={(e) => setReplyToEmail(e.target.value)} placeholder="Email risposta" size="sm" className="w-56" />

@@ -221,19 +221,26 @@
   --ring:                  var(--color-accent-600);
   --link:                  var(--color-accent-800);
 
-  /* Serie singola nei grafici. Su fondo chiaro NON si usa il 400:
-     su cream dà 1,25:1 ed è invisibile. */
-  --chart-mono: var(--color-accent-600);
-  /* La serie di confronto (atteso, benchmark, profilo ideale): un neutro che
-     arretra. Non muted-foreground: è un colore di testo e come riempimento
-     pesa quanto il dato principale (CLAUDE.md, Fase 5). */
-  --chart-compare: var(--color-neutral-400);
+  /* Ruoli nei grafici (fondamenta, rivisti il 2026-10-26). I dati sono in
+     inchiostro; il lime segna un solo valore per grafico, con il bordo scuro
+     perché da solo su cream dà 1,25:1. Il riferimento (benchmark, atteso) è
+     una linea tratteggiata con il nome, mai una seconda barra. `compare`
+     resta solo per il segmento "nella norma" di una distribuzione. */
+  --chart-mono:             var(--color-neutral-800);
+  --chart-highlight:        var(--color-accent-400);
+  --chart-highlight-stroke: var(--color-neutral-800);
+  --chart-reference:        var(--color-neutral-500);
+  --chart-compare:          var(--color-neutral-300);
   --chart-1: var(--color-chart-1-light);
   --chart-2: var(--color-chart-2-light);
   --chart-3: var(--color-chart-3-light);
   --chart-4: var(--color-chart-4-light);
   --chart-5: var(--color-chart-5-light);
   --chart-6: var(--color-chart-6-light);
+
+  /* Barre di scorrimento: sottili, neutre, senza binario (regole in base). */
+  --scrollbar-thumb:       var(--color-neutral-300);
+  --scrollbar-thumb-hover: var(--color-neutral-400);
 
   /* Navigazione. Una voce non attiva non è testo secondario: è un
      bersaglio cliccabile. Quello che distingue la voce aperta è il
@@ -312,14 +319,20 @@
   --link:                  var(--color-accent-400);
 
 
-  --chart-mono: var(--color-accent-400);
-  --chart-compare: var(--color-neutral-500);
+  --chart-mono:             var(--color-neutral-100);
+  --chart-highlight:        var(--color-accent-400);
+  --chart-highlight-stroke: var(--color-accent-400);
+  --chart-reference:        var(--color-neutral-400);
+  --chart-compare:          var(--color-neutral-600);
   --chart-1: var(--color-chart-1-dark);
   --chart-2: var(--color-chart-2-dark);
   --chart-3: var(--color-chart-3-dark);
   --chart-4: var(--color-chart-4-dark);
   --chart-5: var(--color-chart-5-dark);
   --chart-6: var(--color-chart-6-dark);
+
+  --scrollbar-thumb:       var(--color-neutral-600);
+  --scrollbar-thumb-hover: var(--color-neutral-500);
 
   --sidebar:                    var(--color-neutral-900);
   --sidebar-foreground:         var(--color-neutral-100);
@@ -406,6 +419,9 @@
   --color-link:                  var(--link);
 
   --color-chart-mono: var(--chart-mono);
+  --color-chart-highlight: var(--chart-highlight);
+  --color-chart-highlight-stroke: var(--chart-highlight-stroke);
+  --color-chart-reference: var(--chart-reference);
   --color-chart-compare: var(--chart-compare);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -426,6 +442,9 @@
   --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
   --color-sidebar-border:             var(--sidebar-border);
   --color-sidebar-ring:               var(--sidebar-ring);
+
+  --color-scrollbar-thumb:       var(--scrollbar-thumb);
+  --color-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
 }
 
 /* ------------------------------------------------------------
@@ -457,6 +476,33 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Barre di scorrimento (CLAUDE.md, Fase 6, 2026-10-26): sottili, neutre,
+     senza binario, ovunque — barra laterale compresa. Nessun componente ne
+     definisce di proprie. Chrome 121+ e Firefox usano le proprietà standard
+     (e lì il colore di hover non si applica: lo standard non lo prevede);
+     Safari, che non le ha, usa le pseudo-classi webkit. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+  @supports not (scrollbar-color: auto) {
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
     }
   }
 

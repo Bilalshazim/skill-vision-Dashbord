@@ -37,6 +37,7 @@ export function BandCard({
   onSeeAll,
   seeAllLabel = 'Vedi tutte',
   emptyText = 'Nessuno in questa fascia.',
+  showPeople = true,
   className,
 }: {
   label: string
@@ -50,10 +51,12 @@ export function BandCard({
   onSeeAll?: () => void
   seeAllLabel?: string
   emptyText?: string
+  /** `false`: solo il conteggio e il link, senza le prime tre (la fascia "Nella norma" nella Sintesi). */
+  showPeople?: boolean
   className?: string
 }) {
   const pct = total ? Math.round((count / total) * 100) : 0
-  const top = people.slice(0, 3)
+  const top = showPeople ? people.slice(0, 3) : []
   return (
     <Card data-slot="band-card" className={cn('gap-3', className)}>
       <div className="flex flex-col gap-1">
@@ -96,9 +99,9 @@ export function BandCard({
             )
           })}
         </ul>
-      ) : (
+      ) : showPeople ? (
         <p className="text-app-small text-muted-foreground">{emptyText}</p>
-      )}
+      ) : null}
       {onSeeAll && count > 0 ? (
         <Button type="button" variant="ghost" size="sm" className="mt-auto self-start" onClick={onSeeAll}>
           {seeAllLabel}

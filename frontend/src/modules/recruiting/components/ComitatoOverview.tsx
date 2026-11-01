@@ -14,8 +14,8 @@ const pct = (n: number) => `${Math.round(n)}%`
 
 // La sintesi in grafici dei risultati letti dal Comitato scientifico, sopra
 // l'elenco delle persone. Tipi dalla tabella di CLAUDE.md (Fase 5): il
-// gruppo contro l'atteso → barre raggruppate verticali, `chart-mono` contro
-// `chart-compare`, nomi a capo sotto ogni gruppo; completamento e punteggio
+// gruppo contro l'atteso → barre verticali in `chart-mono` con l'atteso
+// tratteggiato (`chart-reference`), nomi a capo sotto ogni gruppo; completamento e punteggio
 // singolo → Ring. Le 36 competenze sono una griglia di anelli: in barre
 // sarebbero un elenco troppo lungo, in un radar 36 assi non si leggono. Il
 // punteggio complessivo resta fuori finché non c'è la formula su 10

@@ -70,6 +70,11 @@ for (const percorso of file(ROOT)) {
               "il sistema non li contiene: gli estremi sono neutral-0 e neutral-950");
       } else if (!PALETTE.has(hex)) {
         segna(rel, n, riga, "colore fuori palette", hex);
+      } else if (riga.includes("audit-identita:email")) {
+        // Esenzione esplicita, riga per riga (CLAUDE.md §12; DECISIONI, "Email
+        // e audit"): l'HTML delle email non legge le variabili CSS, quindi il
+        // valore della palette ci va scritto. Vale solo per i valori in
+        // palette: fuori palette, bianco e nero restano difetti.
       } else {
         segna(rel, n, riga, "colore scritto a mano",
               `${hex} è in palette ma va usato come token, non come valore`);

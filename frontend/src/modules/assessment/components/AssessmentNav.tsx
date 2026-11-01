@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeftRight, Brain, ClipboardList, Coins, FileText, Home, type LucideIcon, MessageSquareText, RotateCcw, Sparkles, Upload, Users, Wrench } from 'lucide-react'
+import { ArrowLeftRight, Brain, ClipboardList, Coins, FileText, Home, LayoutDashboard, type LucideIcon, MessageSquareText, RotateCcw, Sparkles, Upload, Users, Wrench } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
@@ -30,6 +30,7 @@ import { clearBrowserAssessment, readBrowser5p, readBrowserAssessment } from '@/
 // iniettati come HTML (Icon.tsx); qui Lucide, per nome della voce.
 const ICONS: Record<string, LucideIcon> = {
   home: Home,
+  overview: LayoutDashboard,
   soft: Brain,
   hard: Wrench,
   users: Users,

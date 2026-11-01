@@ -57,7 +57,7 @@ function ModuleChooser() {
       <div className="flex min-h-screen flex-col bg-background text-foreground">
         <Topbar />
         <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-6 p-4 sm:p-6">
-          <PageHeader level="page" title="Skill Vision" />
+          <PageHeader level="page" title="Skill-Vision" />
           <p className="max-w-prose text-app-section text-foreground">Dai dati sul Capitale Umano alle decisioni che generano valore per l'impresa</p>
           <p className="text-app-small text-muted-foreground">Seleziona il cruscotto di tuo interesse per proseguire</p>
           {!modules ? (
