@@ -137,6 +137,30 @@
   --text-metric--line-height: 1.2;
   --text-metric--font-weight: 500;
 
+  /* --- Scala del sito (fondamenta, "Scala tipografica — sito") --
+     Solo nelle pagine di presentazione: le due home e le pagine dei
+     risultati (CLAUDE.md cap. 7, "Registro"; eccezione del manuale,
+     p. 25). Le pagine di lavoro restano sulla scala dell'interfaccia.
+     Valori desktop; sotto `md` si scende di un gradino nella pagina. */
+  --text-site-h1: 2.75rem;                        /* 44 */
+  --text-site-h1--line-height: 1.1;
+  --text-site-h1--letter-spacing: -0.025em;
+  --text-site-h1--font-weight: 600;
+  --text-site-h2: 2rem;                           /* 32 */
+  --text-site-h2--line-height: 1.15;
+  --text-site-h2--letter-spacing: -0.02em;
+  --text-site-h2--font-weight: 600;
+  --text-site-h3: 1.5rem;                         /* 24 */
+  --text-site-h3--line-height: 1.25;
+  --text-site-h3--letter-spacing: -0.015em;
+  --text-site-h3--font-weight: 600;
+  --text-site-h4: 1.25rem;                        /* 20 */
+  --text-site-h4--line-height: 1.3;
+  --text-site-h4--letter-spacing: -0.01em;
+  --text-site-h4--font-weight: 600;
+  --text-site-body-lg: 1.125rem;                  /* 18 */
+  --text-site-body-lg--line-height: 1.6;
+
   /* --- Raggi ---------------------------------------------------
      xs checkbox e tag · sm input e controlli piccoli
      md bottoni · lg card e pannelli · xl sezioni e immagini

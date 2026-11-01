@@ -42,7 +42,7 @@ export default function ChiEPiuAdattoPage() {
             link: { label: 'Apri', to: '/recruiting/ranking' },
           },
         ],
-        opportunity: 'L’opportunità: i candidati si confrontano tutti sullo stesso test, non solo sul CV.',
+        opportunity: 'i candidati si confrontano tutti sullo stesso test, non solo sul CV.',
       }}
       impact={{ pct: data.completedPct, label: 'dei test inviati è completato', hint }}
       suggestion={{

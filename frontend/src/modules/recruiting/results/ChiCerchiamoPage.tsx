@@ -33,7 +33,7 @@ export default function ChiCerchiamoPage() {
             link: { label: 'Apri', to: '/recruiting/job-profile' },
           },
         ],
-        opportunity: 'L’opportunità: con il profilo definito, tutti i CV si misurano con lo stesso metro.',
+        opportunity: 'con il profilo definito, tutti i CV si misurano con lo stesso metro.',
       }}
       impact={{ pct: data.inLinePct, label: 'dei CV ricevuti è in linea con il profilo', hint }}
       suggestion={{

@@ -48,6 +48,8 @@ import { FieldGrid } from '@/components/patterns/FieldGrid'
 import { Hint } from '@/components/patterns/Hint'
 import { InfoTip } from '@/components/patterns/InfoTip'
 import { PageBreadcrumb } from '@/components/patterns/PageBreadcrumb'
+import { CascadePlaceholder } from '@/components/patterns/CascadePlaceholder'
+import { SummaryCard } from '@/components/patterns/SummaryCard'
 import { ResultsPage } from '@/components/patterns/ResultsPage'
 import { WindowCard } from '@/components/patterns/WindowCard'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
@@ -1025,6 +1027,17 @@ const ENTRIES: Entry[] = [
       <Row label="In cima a ogni pagina di lavoro: la riga calcolata dal menu del modulo">
         <PageBreadcrumb items={[{ label: 'Home', to: '/dev/components' }, { label: 'Area Risultati', to: '/dev/components' }]} current="Risultati Valutazioni Trasversali" />
       </Row>
+    ),
+  },
+  {
+    name: 'SummaryCard e CascadePlaceholder',
+    level: 'Pattern',
+    source: 'components/patterns/SummaryCard.tsx · CascadePlaceholder.tsx',
+    render: () => (
+      <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+        <SummaryCard number="04" title="Dove intervenire" question="Cosa devo fare per migliorare i risultati economici?" value="3 azioni · 9 persone" note="€ [—] di costi evitabili l’anno, stima" link={{ label: 'Vedi le azioni', to: '/dev/components' }} />
+        <CascadePlaceholder steps={['Valore a rischio', 'Formazione', 'Coaching', 'Riorganizzazione', 'Rischio residuo']} note="La cascata compare quando è definita la formula del valore a rischio." />
+      </div>
     ),
   },
   {

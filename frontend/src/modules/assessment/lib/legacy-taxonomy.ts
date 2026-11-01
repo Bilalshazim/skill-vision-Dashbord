@@ -348,8 +348,8 @@ export const TIER_DEFS_IT = [
 // the real page header title+subtitle for each of the 10 screens (distinct
 // from the shorter nav labels above).
 export const PAGE_META_TEXT_EN: Record<string, { title: string; sub: string }> = {
-  home: { title: 'What you need to know', sub: '' },
-  panoramica: { title: 'Overview', sub: 'Overall organization status' },
+  home: { title: '', sub: '' },
+  panoramica: { title: '', sub: '' },
   'soft-overview': { title: 'Cross-Functional Competencies', sub: 'What they are and how they are measured — Soft Skills & Big Five' },
   'hard-overview': { title: 'Professional Competencies', sub: 'What they are and how they are measured — multi-source APEX 5D protocol' },
   company: { title: 'Company Profile', sub: 'Locations, contacts, headcount by type, and key company roles' },
@@ -367,8 +367,8 @@ export const PAGE_META_TEXT_EN: Record<string, { title: string; sub: string }> =
   ai: { title: 'AI Assistant', sub: 'Query the dashboard in natural language' },
 }
 export const PAGE_META_TEXT_IT: Record<string, { title: string; sub: string }> = {
-  home: { title: 'Quello che devi sapere', sub: '' },
-  panoramica: { title: 'Panoramica', sub: "Stato generale dell'organizzazione" },
+  home: { title: '', sub: '' },
+  panoramica: { title: '', sub: '' },
   'soft-overview': { title: 'Competenze Trasversali', sub: 'Cosa sono e come si misurano — competenze trasversali e Big Five' },
   'hard-overview': { title: 'Competenze Professionali: le 5 P', sub: 'Cosa sono e come si misurano — protocollo APEX 5D a più fonti' },
   company: { title: 'Profilo Azienda', sub: 'Sedi, contatti, organico per tipologia e ruoli chiave aziendali' },

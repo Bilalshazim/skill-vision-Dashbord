@@ -2,6 +2,46 @@
 
 Formato: `## <cosa> · <data>` — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Le pagine sulle tavole del cliente · 2026-11-01
+Tavole ricevute: «Le perdite invisibili» (modello delle pagine dei
+risultati), «Panoramica · Sintesi», «Assessment · 1 Home», «Recruiting · 1 Home
+· Profilo della ricerca», «Colori dei grafici · oggi e proposta».
+- **Scala del sito** nelle pagine di presentazione (le due home, le pagine dei
+  risultati, la Sintesi): token `text-site-h1…h4` e `text-site-body-lg` in
+  `globals.css`, dai valori delle fondamenta; `PageHeader level="presentation"`.
+  È l'eccezione del cap. 7 ("Registro"); le pagine di lavoro restano su
+  `text-app-*`. Scostamento: `h4` a 600 invece di 500, come nelle tavole.
+- **Pagine dei risultati**: sezioni separate da un filo, etichetta in stile
+  label, frase grande a sinistra e grafico a destra; «Perché è importante» in
+  un riquadro tenue; riquadri delle criticità con l'etichetta nel colore di
+  stato e la parola; impatto con il numero grande e «€ [—]» con l'etichetta «In
+  attesa della formula»; suggerimento con la prima frase come titolo e un
+  link nel testo (non più il bottone lime); nota dei dati dimostrativi e
+  «Torna alla home» sulla stessa riga. Tolto il `max-w-5xl` che lasciava metà
+  schermo vuota.
+- **Home e Profilo**: `WindowCard` con titolo grande, domanda o verbi in fondo
+  e la freccia; intestazione della pagina con il sovratitolo (società ·
+  modulo). Profilo: la barra Società · Campagna · CIP è in cima ed è l'unico
+  posto dove si cambiano società e posizione (scelta nel campo quando ce n'è
+  più di una, matita per rinominare); la barra del contesto non compare lì.
+- **Sintesi della Panoramica**: titolo della tavola, valore a rischio con la
+  cascata come segnaposto tratteggiato (`CascadePlaceholder`: nessun numero
+  finché non c'è la formula), quattro `SummaryCard` con il loro dato, «Dove si
+  perde valore» accanto a «Cosa fare, in ordine di impatto» numerato (note
+  modificabili invariate, totali in «€ [—]»), le cinque fasce in una card sola.
+  «Apri il piano d'azione» porta a Piani di sviluppo, «Chiedi all'assistente»
+  all'Assistente IA: pagine esistenti, nessuna funzione nuova.
+- **Le quattro card della Sintesi** usano i titoli delle finestre di oggi (Il
+  valore, Le perdite invisibili, Il potenziale, Dove intervenire), non quelli
+  della tavola (Il valore che genera, La mappa dei valori…), che sono i nomi
+  vecchi del Foglio 3. Le voci di «Le perdite invisibili» (competenze
+  mancanti, turnover, assenze, inefficienze) sono segnaposto in euro.
+- **Non fatto**: il punto lime a fine andamento (tavola dei colori): il marker
+  di Bklit esiste solo nel LineChart, non nel ComposedChart di `TrendChart`;
+  aggiungerlo vuol dire toccare Bklit. Il menu di Assessment della tavola
+  (Valori complessivi in testa, senza Competenze trasversali / 5P) non è stato
+  applicato: è navigazione, non aspetto, e va confermato.
+
 ## Fase 7 — verifica finale e risposte per il resoconto · 2026-11-01
 
 ### Email e audit

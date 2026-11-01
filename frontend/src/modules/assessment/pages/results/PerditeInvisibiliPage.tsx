@@ -21,6 +21,9 @@ export default function PerditeInvisibiliPage() {
       empty={data.total ? undefined : { title: res.noTestsTitle, description: res.noTests }}
       situation={{
         text: res.perditeSituation(data.below, data.total),
+        detail: res.perditeDetail(data.worstArea?.label ?? null),
+        chartTitle: res.perditeChart,
+        hint: { label: res.perditeChart, text: res.perditeChartHint },
         chart: data.areasBelow.length ? (
           <CategoryBars
             title={res.perditeChart}
@@ -37,11 +40,12 @@ export default function PerditeInvisibiliPage() {
       }}
       issues={{
         items: [
-          { title: res.perditeArea, value: data.worstArea ? data.worstArea.label : res.perditeNoArea, body: data.worstArea ? res.pointsBelow(fmt1it(data.worstArea.gap)) : undefined, link: { label: res.open, to: competenze } },
-          { title: res.perditeRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, link: { label: res.open, to: '/assessment/valore' } },
-          { title: res.perditeSkill, value: data.worstSkill ? data.worstSkill.name : res.perditeNoSkill, body: data.worstSkill ? res.pointsBelow(fmt1it(-data.worstSkill.gap)) : undefined, link: { label: res.open, to: competenze } },
+          { tone: 'destructive' as const, title: res.perditeArea, value: data.worstArea ? data.worstArea.label : res.perditeNoArea, body: data.worstArea ? res.pointsBelow(fmt1it(data.worstArea.gap)) : undefined, link: { label: res.open, to: competenze } },
+          { tone: 'destructive' as const, title: res.perditeRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, link: { label: res.open, to: '/assessment/valore' } },
+          { tone: 'destructive' as const, title: res.perditeSkill, value: data.worstSkill ? data.worstSkill.name : res.perditeNoSkill, body: data.worstSkill ? res.pointsBelow(fmt1it(-data.worstSkill.gap)) : undefined, link: { label: res.open, to: competenze } },
         ],
         opportunity: res.perditeOpportunity(data.worstArea?.label ?? null),
+        opportunityLabel: res.opportunityLabel,
       }}
       impact={{ pct: data.belowPct, label: res.perditeImpact, hint: res.perditeHint(data.below, data.total), euroNote: res.perditeEuro }}
       suggestion={{ text: res.perditeSuggest, link: { label: res.goDove, to: '/assessment/dove-intervenire' } }}

@@ -25,6 +25,7 @@ export default function DoveIntervenirePage() {
       empty={data.total ? undefined : { title: res.noTestsTitle, description: res.noTests }}
       situation={{
         text: res.doveSituation(data.withIntervention, top ? name(top.key) : ''),
+        chartTitle: res.doveChart,
         chart: (
           <CategoryBars
             title={res.doveChart}
@@ -40,11 +41,12 @@ export default function DoveIntervenirePage() {
       }}
       issues={{
         items: [
-          { title: res.doveCritical, value: critical ? res.people(critical) : res.nobody, body: res.doveCriticalBody, link: { label: res.seeList, to: '/assessment/valore?fascia=critica' } },
+          { tone: 'destructive' as const, title: res.doveCritical, value: critical ? res.people(critical) : res.nobody, body: res.doveCriticalBody, link: { label: res.seeList, to: '/assessment/valore?fascia=critica' } },
           { title: res.doveFeedback, value: data.feedbackDue ? res.people(data.feedbackDue) : res.nobody, body: res.doveFeedbackBody, link: { label: res.open, to: '/assessment/feedback' } },
           { title: res.doveRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, link: { label: res.open, to: '/assessment/valore' } },
         ],
         opportunity: res.doveOpportunity(top ? name(top.key) : null, top?.count ?? 0),
+        opportunityLabel: res.opportunityLabel,
       }}
       impact={{ pct: data.withInterventionPct, label: res.doveImpact, hint: res.doveHint(data.withIntervention, data.total), euroNote: res.doveEuro }}
       suggestion={{ text: res.doveSuggest, link: { label: res.goPanoramica, to: '/assessment/panoramica' } }}

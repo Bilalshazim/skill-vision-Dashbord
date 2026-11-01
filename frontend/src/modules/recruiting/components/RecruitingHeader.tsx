@@ -11,10 +11,30 @@ import { getCachedBackendLink } from '@/modules/recruiting/lib/backend-link'
 import { getActiveOpening, renameCompany, renameOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import { Hint } from '@/components/patterns/Hint'
+import { SelectField } from '@/components/patterns/SelectField'
+import { useActivePosition } from '@/modules/recruiting/lib/active-position'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
-function EditableField({ label, value, onSave }: { label: string; value: string; onSave: (next: string) => void }) {
+// Con più scelte (`options`), il campo è la scelta della società o della
+// posizione attiva — l'unico posto dove si cambiano (CLAUDE.md, Fase 6) — e
+// la matita accanto rinomina quella scelta. Con una sola, il campo resta il
+// nome da rinominare con un clic.
+function EditableField({
+  label,
+  value,
+  onSave,
+  options,
+  selectedId,
+  onSelect,
+}: {
+  label: string
+  value: string
+  onSave: (next: string) => void
+  options?: { id: string; label: string }[]
+  selectedId?: string
+  onSelect?: (id: string) => void
+}) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(value)
 
@@ -57,6 +77,21 @@ function EditableField({ label, value, onSave }: { label: string; value: string;
             </Button>
           </Hint>
         </div>
+      ) : options && options.length > 1 && onSelect ? (
+        <div className="mt-1 flex items-center gap-1">
+          <SelectField size="sm" className="min-w-0 flex-1" value={selectedId ?? ''} onValueChange={(v) => onSelect(String(v))} aria-label={`Cambia ${label.toLowerCase()}`}>
+            {options.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.label}
+              </option>
+            ))}
+          </SelectField>
+          <Hint label={`Rinomina ${label.toLowerCase()}`}>
+            <Button type="button" variant="ghost" size="icon-sm" onClick={() => setEditing(true)} aria-label={`Rinomina ${label.toLowerCase()}`}>
+              <Pencil className="size-3.5 shrink-0" aria-hidden="true" />
+            </Button>
+          </Hint>
+        </div>
       ) : (
         <button
           type="button"
@@ -92,6 +127,7 @@ function EditableField({ label, value, onSave }: { label: string; value: string;
 export function RecruitingHeader() {
   const [, forceRerender] = useState(0)
   const { company, opening } = getActiveOpening(readCvMatchingState())
+  const { companies, setPosition } = useActivePosition()
   const backendCampaignId = opening ? getCachedBackendLink(opening.id)?.campaignId : undefined
   const user = getBackendUser()
   const isPlatformAdmin = user?.role === 'PLATFORM_ADMIN'
@@ -130,11 +166,23 @@ export function RecruitingHeader() {
   return (
     <Card className="gap-4">
       <div className="flex flex-wrap items-start gap-x-8 gap-y-4">
-        <EditableField label="Società" value={company.name} onSave={(next) => {
+        <EditableField
+          label="Società"
+          value={company.name}
+          options={companies.map((c) => ({ id: c.id, label: c.name }))}
+          selectedId={company.id}
+          onSelect={(id) => setPosition(id, '')}
+          onSave={(next) => {
           renameCompany(company.id, next)
           forceRerender((n) => n + 1)
         }} />
-        <EditableField label="Campagna" value={opening.title} onSave={(next) => {
+        <EditableField
+          label="Campagna"
+          value={opening.title}
+          options={company.jobOpenings.map((o) => ({ id: o.id, label: o.title }))}
+          selectedId={opening.id}
+          onSelect={(id) => setPosition(company.id, id)}
+          onSave={(next) => {
           renameOpening(company.id, opening.id, next)
           forceRerender((n) => n + 1)
         }} />

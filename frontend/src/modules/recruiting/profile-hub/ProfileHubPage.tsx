@@ -49,14 +49,13 @@ export default function ProfileHubPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <section>
-        <PageHeader title="Dati della ricerca" description="Società, campagna e CIP: si modificano solo qui." />
-        <RecruitingHeader />
-      </section>
+      {/* Società · Campagna · CIP in cima, come nella tavola: si modificano solo qui. */}
+      <RecruitingHeader />
 
       <PageHeader
-        level="page"
+        level="presentation"
         className="mb-0"
+        eyebrow={`${company.name} · Recruiting`}
         title="Profilo della ricerca"
         description="Configura profilo, posizione, mansione e competenze trasversali. Il programma e le classifiche si aggiornano in tempo reale."
       />

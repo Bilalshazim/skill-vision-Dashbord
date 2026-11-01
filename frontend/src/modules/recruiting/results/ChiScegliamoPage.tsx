@@ -51,7 +51,7 @@ export default function ChiScegliamoPage() {
           },
           { title: 'Colloqui in programma', value: data.interviewsPlanned ? people(data.interviewsPlanned, 'colloquio', 'colloqui') : 'Nessuno oggi.', link: { label: 'Apri', to: '/recruiting/colloqui' } },
         ],
-        opportunity: 'L’opportunità: chi non viene scelto resta In riserva per la prossima ricerca.',
+        opportunity: 'chi non viene scelto resta In riserva per la prossima ricerca.',
       }}
       impact={{ pct: data.finalistsPct, label: 'delle candidature arriva in finale', hint: 'I candidati in fase di approfondimento, sul totale delle candidature ricevute per questa posizione.' }}
       suggestion={{

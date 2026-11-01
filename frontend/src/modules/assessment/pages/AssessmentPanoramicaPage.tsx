@@ -9,7 +9,10 @@ import { ChartCard } from '@/components/patterns/ChartCard'
 import { CompletionRing } from '@/components/patterns/CompletionRing'
 import { DistributionBar } from '@/components/patterns/DistributionBar'
 import { InfoTip } from '@/components/patterns/InfoTip'
-import { NavCard } from '@/components/patterns/NavCard'
+import { CascadePlaceholder } from '@/components/patterns/CascadePlaceholder'
+import { SummaryCard } from '@/components/patterns/SummaryCard'
+import { Badge } from '@/components/ui/badge'
+import { isDemoMode } from '@/lib/demo-mode'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { ScoreGauge } from '@/components/patterns/ScoreGauge'
 import { StaggerList } from '@/components/patterns/StaggerList'
@@ -23,7 +26,7 @@ import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { ModeSwitch, type ModuleMode } from '@/modules/assessment/components/ModeSwitch'
 import { allEvaluators, evStatus, norm } from '@/modules/assessment/gestione5p/model'
 import { use5pState } from '@/modules/assessment/gestione5p/use5pState'
-import { useAssessment, usePageDescription, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
+import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import {
   bothActive,
   computeAvgMetric,
@@ -92,20 +95,29 @@ export default function AssessmentPanoramicaPage() {
     else q.delete('vista')
     setParams(q, { replace: true })
   }
-  useTopbarActions(
-    <>
-      <ToggleGroup type="single" value={vista} onValueChange={(v) => v && setVista(v)} aria-label={res.viewLabel}>
-        <ToggleGroupItem value="sintesi">{res.viewSintesi}</ToggleGroupItem>
-        <ToggleGroupItem value="dettaglio">{res.viewDettaglio}</ToggleGroupItem>
-      </ToggleGroup>
-      <ModeSwitch value={mode} onChange={setMode} ui={ui} />
-    </>,
-    [ui, mode, vista, params],
-  )
-
   const updated = lastDataUpdate(state)
   const updatedLabel = updated ? updated.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }) : null
-  usePageDescription(ui.panoSub(company?.name ?? '', updatedLabel), [ui, company?.name, updatedLabel])
+  // L'intestazione è della pagina (`panoramica` non ha titolo in
+  // PAGE_META_TEXT): nella Sintesi è il titolo della tavola, sulla scala del
+  // sito; nel Dettaglio "Panoramica". Sovratitolo con società e data dei dati,
+  // a destra la scelta della vista e la scelta CT / CP / Completo.
+  const header = (
+    <PageHeader
+      level={vista === 'sintesi' ? 'presentation' : 'page'}
+      className="mb-0"
+      eyebrow={res.panoEyebrow(company?.name ?? '', updatedLabel)}
+      title={vista === 'sintesi' ? res.sintesiTitle : res.panoTitle}
+      actions={
+        <>
+          <ToggleGroup type="single" value={vista} onValueChange={(v) => v && setVista(v)} aria-label={res.viewLabel}>
+            <ToggleGroupItem value="sintesi">{res.viewSintesi}</ToggleGroupItem>
+            <ToggleGroupItem value="dettaglio">{res.viewDettaglio}</ToggleGroupItem>
+          </ToggleGroup>
+          <ModeSwitch value={mode} onChange={setMode} ui={ui} />
+        </>
+      }
+    />
+  )
 
   // Stato attuale
   const evaluated = evaluatedEmployees(state).length
@@ -171,15 +183,6 @@ export default function AssessmentPanoramicaPage() {
 
   // Le quattro domande, ognuna con il suo dato (le stesse quote delle pagine dei risultati).
   const rd = useMemo(() => assessmentResults(state, lang), [state, lang])
-  const pctText = (p: number | null, label: string) => (p == null ? res.noTestsTitle : `${p}% ${label}`)
-  const datum = (slug: string) =>
-    slug === 'perdite-invisibili'
-      ? pctText(rd.belowPct, res.perditeImpact)
-      : slug === 'potenziale'
-        ? pctText(rd.abovePct, res.potenzialeImpact)
-        : slug === 'dove-intervenire'
-          ? pctText(rd.withInterventionPct, res.doveImpact)
-          : res.valorePrep
   // Dove si perde valore: tutte le aree, dalla più bassa, contro l'atteso tratteggiato.
   const lossRows = orgCriticalAreas(state, lang, 50).map((a) => ({ label: a.area, values: { avg: a.avg, atteso: hs.benchmark } }))
   const worstLoss = lossRows[0] && lossRows[0].values.avg < hs.benchmark ? lossRows[0].label : undefined
@@ -209,6 +212,7 @@ export default function AssessmentPanoramicaPage() {
         seeAllLabel={ui.bandSeeAll}
         emptyText={ui.bandEmpty}
         showPeople={!(sintesi && k === 'adeguata')}
+        bare={sintesi}
       />
     ))
 
@@ -363,85 +367,192 @@ export default function AssessmentPanoramicaPage() {
     </>
   )
 
+  // La Sintesi, sulla tavola «Panoramica · Sintesi»: valore a rischio e
+  // cascata (segnaposto finché non c'è la formula), le quattro domande con il
+  // loro dato, Da fare adesso, dove si perde valore accanto a cosa fare in
+  // ordine di impatto, le persone fascia per fascia in una card sola.
+  const activeActions = interventions.filter((i) => i.count > 0)
+  const peopleInActions = activeActions.reduce((n, i) => n + i.count, 0)
+  const win = (slug: string) => res.windows.find((w: { slug: string }) => w.slug === slug) as { slug: string; number: string; title: string; q: string }
+  const summaryLink = (slug: string) => ({ label: (res.sumLinks as Record<string, string>)[slug], to: `/assessment/${slug}` })
+
   const sintesi = (
     <>
-      <section>
-        <PageHeader title={res.riskTitle} />
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Card className="gap-2">
-            <p className="flex items-center gap-2">
-              <span className="font-mono text-app-title text-foreground">€ [—]</span>
-              <InfoTip label={res.riskHow}>{res.riskHowText}</InfoTip>
-            </p>
-            <p className="text-app-small text-muted-foreground">
-              {res.riskSub} · {res.riskPending}
-            </p>
-          </Card>
-          <Card className="gap-2">
-            <h3 className="text-app-subtitle text-foreground">{res.cascadeTitle}</h3>
-            <p className="text-app-small text-muted-foreground">{res.cascadeEmpty}</p>
-          </Card>
+      <Card padding="lg" className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="flex flex-col items-start gap-3">
+          <p className="label-mono text-muted-foreground">{res.riskTitle}</p>
+          <span className="text-site-h2 text-foreground md:text-site-h1">€ [—]</span>
+          <Badge>{res.riskPending}</Badge>
+          <p className="flex max-w-prose items-start gap-1 text-app-body text-muted-foreground">
+            <span>{res.riskRange}</span>
+            <InfoTip label={res.riskHow}>{res.riskHowText}</InfoTip>
+          </p>
+          <p className="text-app-subtitle font-semibold text-foreground">{res.riskActions(activeActions.length)}</p>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild size="sm">
+              <Link to="/assessment/feedback">{res.openPlan}</Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/assessment/ai">{res.askAssistant}</Link>
+            </Button>
+          </div>
         </div>
-      </section>
+        <div className="flex min-w-0 flex-col gap-3">
+          <p className="label-mono text-muted-foreground">{res.cascadeTitle}</p>
+          <CascadePlaceholder steps={res.cascadeSteps(activeActions.map((a) => a.label))} note={res.cascadeEmpty} />
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <SummaryCard
+          number={win('il-valore').number}
+          title={win('il-valore').title}
+          question={win('il-valore').q}
+          value={evaluated ? fmt1it(hs.orgAvg) : undefined}
+          unit={evaluated ? '/10' : undefined}
+          note={evaluated ? res.sumScoreNote(fmt1it(hs.benchmark), trendDelta != null ? ui.panoTrendDelta(signed(trendDelta)) : null) : res.sumScorePending}
+          link={summaryLink('il-valore')}
+        >
+          {sparkPoints.length >= 2 ? (
+            <TrendChart
+              title={ui.panoTrendTitle}
+              variant="spark"
+              scale={{ left: [0, 10] }}
+              format={fmt1it}
+              series={[
+                { key: 'v', label: ui.panoScore, kind: 'area' },
+                { key: 'b', label: res.lossRef(fmt1it(hs.benchmark)), reference: true },
+              ]}
+              points={sparkPoints.map((pt) => ({ date: pt.date, label: monthLabel(pt.date), values: { v: pt.v, b: hs.benchmark } }))}
+            />
+          ) : null}
+        </SummaryCard>
+        <SummaryCard
+          number={win('perdite-invisibili').number}
+          title={win('perdite-invisibili').title}
+          question={win('perdite-invisibili').q}
+          value={rd.total ? rd.below : undefined}
+          unit={rd.total ? res.sumBelow(rd.below, rd.total) : undefined}
+          note={rd.total ? undefined : res.noTestsTitle}
+          link={summaryLink('perdite-invisibili')}
+        >
+          <ul className="flex flex-col gap-1 text-app-small">
+            {(res.sumLossItems as string[]).map((item) => (
+              <li key={item} className="flex justify-between gap-2">
+                <span className="text-muted-foreground">{item}</span>
+                <span className="font-mono text-foreground">€ [—]</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-app-caption text-muted-foreground">{res.sumLossNote}</p>
+        </SummaryCard>
+        <SummaryCard
+          number={win('potenziale').number}
+          title={win('potenziale').title}
+          question={win('potenziale').q}
+          value={rd.total ? rd.above : undefined}
+          unit={rd.total ? res.sumAbove(rd.above, rd.total) : undefined}
+          note={rd.total ? undefined : res.noTestsTitle}
+          link={summaryLink('potenziale')}
+        >
+          {rd.total ? (
+            <DistributionBar
+              segments={TIER_ORDER.map((k) => ({
+                key: k,
+                label: labels[k],
+                pct: (rd.byTier[k].length / rd.total) * 100,
+                tone: TIER_DIST_TONE[k],
+                display: String(rd.byTier[k].length),
+              }))}
+            />
+          ) : null}
+        </SummaryCard>
+        <SummaryCard
+          number={win('dove-intervenire').number}
+          title={win('dove-intervenire').title}
+          question={win('dove-intervenire').q}
+          value={res.sumActions(activeActions.length, peopleInActions)}
+          note={res.sumActionsNote}
+          link={summaryLink('dove-intervenire')}
+        />
+      </div>
 
       <section>
-        <PageHeader title={ui.panoTodoTitle} description={ui.panoTodoSub} />
+        <PageHeader title={ui.panoTodoTitle} description={ui.panoTodoSub} actions={<SeeMore to="/assessment/feedback">{res.seeAll}</SeeMore>} />
         <ActionList items={todo} empty={{ title: ui.panoTodoEmpty, description: ui.panoTodoEmptySub }} />
       </section>
 
-      <section>
-        <PageHeader title={res.questionsTitle} description={res.questionsSub} />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {res.windows.map((w: { slug: string; number: string; title: string }) => (
-            <NavCard key={w.slug} to={`/assessment/${w.slug}`} title={`${w.number} · ${w.title}`} description={datum(w.slug)} />
-          ))}
-        </div>
-      </section>
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+        <section>
+          <PageHeader title={res.lossTitle} description={res.lossSub(fmt1it(hs.benchmark))} actions={<SeeMore to={`/assessment/${competenze}`}>{ui.panoGapLink}</SeeMore>} />
+          <ChartCard
+            title={res.lossTitle}
+            height="auto"
+            empty={lossRows.length ? undefined : { title: res.lossNone }}
+            footer={
+              <p className="flex justify-between gap-2 text-app-small">
+                <span className="font-semibold text-foreground">{res.lossTotal}</span>
+                <span className="font-mono text-foreground">€ [—]</span>
+              </p>
+            }
+          >
+            <CategoryBars
+              title={res.lossTitle}
+              orientation="horizontal"
+              height="auto"
+              valueMax={10}
+              format={fmt1it}
+              series={[
+                { key: 'avg', label: res.lossSeries },
+                { key: 'atteso', label: res.lossRef(fmt1it(hs.benchmark)), reference: true },
+              ]}
+              rows={lossRows}
+              highlight={worstLoss}
+            />
+          </ChartCard>
+        </section>
+        <section>
+          <PageHeader title={res.impactTitle} description={res.impactSub} />
+          <ActionList
+            ranked
+            items={interventions.map((i) => ({ ...i, value: '€ [—]' }))}
+            empty={{ title: ui.panoTodoEmpty, description: ui.panoTodoEmptySub }}
+            footer={
+              <>
+                <p className="flex justify-between gap-2 text-app-small">
+                  <span className="font-semibold text-foreground">{res.impactTotal}</span>
+                  <span className="font-mono text-foreground">€ [—]</span>
+                </p>
+                <Button asChild>
+                  <Link to="/assessment/feedback">{res.openPlan}</Link>
+                </Button>
+              </>
+            }
+          />
+        </section>
+      </div>
 
       <section>
         <PageHeader title={res.peopleTitle} description={ui.panoDistSub(total)} actions={<SeeMore to="/assessment/valore">{ui.panoDistLink}</SeeMore>} />
-        {total ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">{bands(true)}</div>
-        ) : (
-          <Card>
+        <Card padding="lg">
+          {total ? (
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-5">{bands(true)}</div>
+          ) : (
             <p className="text-app-small text-muted-foreground">{ui.panoEmptySub}</p>
-          </Card>
-        )}
+          )}
+        </Card>
       </section>
 
-      <section>
-        <PageHeader title={res.lossTitle} description={res.lossSub(fmt1it(hs.benchmark))} actions={<SeeMore to={`/assessment/${competenze}`}>{ui.panoGapLink}</SeeMore>} />
-        <ChartCard
-          title={res.lossTitle}
-          height="auto"
-          empty={lossRows.length ? undefined : { title: res.lossNone }}
-          footer={<p className="text-app-small text-muted-foreground">{res.lossEuro}</p>}
-        >
-          <CategoryBars
-            title={res.lossTitle}
-            orientation="horizontal"
-            height="auto"
-            valueMax={10}
-            format={fmt1it}
-            series={[
-              { key: 'avg', label: res.lossSeries },
-              { key: 'atteso', label: res.lossRef(fmt1it(hs.benchmark)), reference: true },
-            ]}
-            rows={lossRows}
-            highlight={worstLoss}
-          />
-        </ChartCard>
-      </section>
-
-      <section>
-        <PageHeader title={res.impactTitle} description={res.impactSub} />
-        <ActionList items={interventions} empty={{ title: ui.panoTodoEmpty, description: ui.panoTodoEmptySub }} />
-      </section>
+      <footer className="flex flex-wrap justify-between gap-3 border-t border-border pt-4 text-app-caption text-muted-foreground">
+        <span>{isDemoMode() ? `Dati dimostrativi · ${company?.name ?? '—'} · ${res.peopleCount(total)}` : res.peopleCount(total)}</span>
+        <span>{res.euroFooter}</span>
+      </footer>
     </>
   )
 
   return (
     <div className="flex flex-col gap-8">
+      {header}
       {vista === 'sintesi' ? sintesi : dettaglio}
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
     </div>

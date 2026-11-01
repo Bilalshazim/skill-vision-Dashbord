@@ -4,21 +4,24 @@ import { Link } from 'react-router-dom'
 
 import { EmptyState } from '@/components/patterns/EmptyState'
 import { InfoTip } from '@/components/patterns/InfoTip'
-import { PageHeader } from '@/components/patterns/PageHeader'
+import { Badge } from '@/components/ui/badge'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
 export type ResultsLink = { label: string; to: string }
 
 export type ResultsIssue = {
   title: string
-  /** Il dato del riquadro, già scritto ("4 persone", "1,2 punti sotto l'atteso"). Un riquadro senza persone lo dice a parole ("Nessuno oggi."), non con uno zero. */
+  /** Il dato del riquadro, già scritto ("4 persone", "Assistenza clienti"). Un riquadro senza persone lo dice a parole ("Nessuno oggi."), non con uno zero. */
   value: ReactNode
   body?: ReactNode
   /** Righe brevi sotto il dato, per esempio le prime tre persone con mansione e punteggio. */
   list?: { id: string; text: string }[]
   link?: ResultsLink
+  /** Il colore dell'etichetta, sempre con la parola: `destructive` per una criticità, `success` per un'opportunità. */
+  tone?: 'neutral' | 'destructive' | 'success'
 }
 
 export type ResultsImpact = {
@@ -32,13 +35,16 @@ export type ResultsImpact = {
   euroNote?: string
 }
 
+const LABEL_TONE = { neutral: 'text-muted-foreground', destructive: 'text-destructive', success: 'text-success' } as const
+
 // La pagina dei risultati di una finestra (CLAUDE.md, Fase 6, "Le pagine dei
-// risultati", approvate da Roberto il 2026-10-30): un'impaginazione sola per
-// le sette pagine, quattro di Assessment e tre di Recruiting, sul modello «Le
-// perdite invisibili». Dall'alto: la riga del percorso (ogni voce prima della
-// corrente è un link), numero, titolo e domanda, «Perché è importante per la
-// tua azienda?», le quattro sezioni numerate, gli approfondimenti, «Torna
-// alla home» e, con dati dimostrativi, la riga che lo dichiara.
+// risultati"): un'impaginazione sola per le sette pagine, sulla tavola «Le
+// perdite invisibili». Dall'alto: la riga del percorso, numero, titolo e
+// domanda (scala del sito: è una pagina di presentazione), «Perché è
+// importante per la tua azienda?» in un riquadro tenue, le quattro sezioni
+// separate da un filo — ognuna con l'etichetta in stile label, una frase
+// grande e, a destra o sotto, il suo contenuto —, gli approfondimenti e in
+// fondo, sulla stessa riga, la nota dei dati dimostrativi e «Torna alla home».
 //
 // Riceve tutto già calcolato: le frasi con i numeri si fanno dai dati nella
 // pagina, qui si dispongono. `empty` sostituisce le sezioni 1–3 (nessun test
@@ -65,11 +71,12 @@ export function ResultsPage({
   title: string
   question: string
   why: string
-  /** `chartEmpty`: la frase al posto del grafico quando non c'è niente da disegnare. */
-  situation?: { text: ReactNode; chart?: ReactNode; chartEmpty?: string; hint?: { label: string; text: ReactNode } }
-  issues?: { items: ResultsIssue[]; opportunity: ReactNode }
+  /** `text` è la frase grande; `detail` la riga sotto; `chartTitle` e `hint` stanno sopra il grafico. `chartEmpty` sostituisce il grafico quando non c'è niente da disegnare. */
+  situation?: { text: ReactNode; detail?: ReactNode; chart?: ReactNode; chartTitle?: string; chartEmpty?: string; hint?: { label: string; text: ReactNode } }
+  issues?: { items: ResultsIssue[]; opportunity: ReactNode; opportunityLabel?: string }
   impact?: ResultsImpact
-  suggestion?: { text: ReactNode; link?: ResultsLink }
+  /** `text`: la prima frase è il titolo della sezione, il resto la riga sotto. */
+  suggestion?: { text: string; link?: ResultsLink }
   empty?: { title?: string; description: string; scope?: 'data' | 'all' }
   deepDives: ResultsLink[]
   home: ResultsLink
@@ -82,9 +89,10 @@ export function ResultsPage({
     </Card>
   ) : null
   const hideAll = empty?.scope === 'all'
+  const [suggestHead, suggestRest] = suggestion ? splitFirstSentence(suggestion.text) : ['', '']
 
   return (
-    <article data-slot="results-page" className="flex max-w-5xl flex-col gap-8">
+    <article data-slot="results-page" className="flex flex-col gap-8">
       <Breadcrumb>
         <BreadcrumbList>
           {crumbs.map((c) => (
@@ -105,14 +113,14 @@ export function ResultsPage({
 
       <header className="flex flex-col gap-2">
         <p className="label-mono text-muted-foreground">{number}</p>
-        <h1 className="text-app-title text-foreground">{title}</h1>
-        <p className="max-w-prose text-app-subtitle text-foreground">{question}</p>
+        <h1 className="text-site-h3 text-foreground md:text-site-h2">{title}</h1>
+        <p className="max-w-prose text-site-body-lg text-foreground">{question}</p>
       </header>
 
-      <section>
-        <PageHeader title="Perché è importante per la tua azienda?" />
+      <Card padding="lg" className="max-w-4xl gap-2 bg-muted">
+        <h2 className="text-app-subtitle font-semibold text-foreground">Perché è importante per la tua azienda?</h2>
         <p className="max-w-prose text-app-body text-foreground">{why}</p>
-      </section>
+      </Card>
 
       {hideAll ? (
         emptyBlock
@@ -123,84 +131,81 @@ export function ResultsPage({
           ) : (
             <>
               {situation ? (
-                <section>
-                  <PageHeader title="1 · La situazione oggi" />
-                  <Card className="gap-4">
-                    <p className="flex max-w-prose items-start gap-2 text-app-body text-foreground">
-                      <span>{situation.text}</span>
-                      {situation.hint ? <InfoTip label={situation.hint.label}>{situation.hint.text}</InfoTip> : null}
-                    </p>
+                <Section label="1 · La situazione oggi" className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12">
+                  <div className="flex flex-col gap-2">
+                    <h2 className="max-w-prose text-site-h4 text-foreground">{situation.text}</h2>
+                    {situation.detail ? <p className="max-w-prose text-app-body text-muted-foreground">{situation.detail}</p> : null}
+                  </div>
+                  <div className="flex min-w-0 flex-col gap-2">
+                    {situation.chartTitle || situation.hint ? (
+                      <p className="flex items-center gap-1 text-app-small text-muted-foreground">
+                        {situation.chartTitle}
+                        {situation.hint ? <InfoTip label={situation.hint.label}>{situation.hint.text}</InfoTip> : null}
+                      </p>
+                    ) : null}
                     {situation.chart ?? (situation.chartEmpty ? <p className="text-app-small text-muted-foreground">{situation.chartEmpty}</p> : null)}
-                  </Card>
-                </section>
+                  </div>
+                </Section>
               ) : null}
 
               {issues ? (
-                <section>
-                  <PageHeader title="2 · Criticità e opportunità" />
+                <Section label="2 · Criticità e opportunità">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {issues.items.slice(0, 3).map((it) => (
-                      <Card key={it.title} className="gap-2">
-                        <h3 className="text-app-subtitle text-foreground">{it.title}</h3>
-                        <div className="text-app-body font-medium text-foreground">{it.value}</div>
+                      <Card key={it.title} className="gap-1 bg-muted">
+                        <h3 className={cn('label-mono', LABEL_TONE[it.tone ?? 'neutral'])}>{it.title}</h3>
+                        <div className="text-app-subtitle font-semibold text-foreground">{it.value}</div>
                         {it.body ? <div className="text-app-small text-muted-foreground">{it.body}</div> : null}
                         {it.list?.length ? (
-                          <ul className="flex flex-col gap-1 text-app-small text-muted-foreground">
+                          <ul className="mt-1 flex flex-col gap-1 text-app-small text-muted-foreground">
                             {it.list.map((l) => (
                               <li key={l.id}>{l.text}</li>
                             ))}
                           </ul>
                         ) : null}
-                        {it.link ? <SeeMore link={it.link} className="mt-auto self-start" /> : null}
+                        {it.link ? <TextLink link={it.link} className="mt-auto pt-2" /> : null}
                       </Card>
                     ))}
                   </div>
-                  <p className="mt-4 max-w-prose text-app-body text-foreground">{issues.opportunity}</p>
-                </section>
+                  <p className="mt-4 max-w-prose text-app-body text-foreground">
+                    <span className="font-semibold">{issues.opportunityLabel ?? 'L’opportunità:'}</span> {issues.opportunity}
+                  </p>
+                </Section>
               ) : null}
 
               {impact ? (
-                <section>
-                  <PageHeader title="3 · L'impatto" />
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <Card className="gap-2">
-                      <p className="flex items-center gap-2">
-                        <span className="font-mono text-app-title tabular-nums text-foreground">{impact.pct == null ? '—' : `${impact.pct}%`}</span>
-                        {impact.hint ? <InfoTip label={`Che cosa misura: ${impact.label}`}>{impact.hint}</InfoTip> : null}
-                      </p>
-                      <p className="text-app-small text-muted-foreground">{impact.label}</p>
-                    </Card>
-                    <Card className="gap-2">
-                      <p className="font-mono text-app-title text-foreground">€ [—]</p>
-                      <p className="text-app-small text-muted-foreground">In attesa della formula{impact.euroNote ? ` · ${impact.euroNote}` : ''}</p>
-                    </Card>
+                <Section label="3 · L'impatto" className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                  <div className="flex flex-col gap-1">
+                    <p className="flex items-center gap-2">
+                      <span className="text-site-h2 tabular-nums text-foreground md:text-site-h1">{impact.pct == null ? '—' : `${impact.pct}%`}</span>
+                      {impact.hint ? <InfoTip label={`Che cosa misura: ${impact.label}`}>{impact.hint}</InfoTip> : null}
+                    </p>
+                    <p className="text-app-body text-foreground">{impact.label}</p>
                   </div>
-                </section>
+                  <div className="flex flex-col items-start gap-2">
+                    <span className="text-site-h2 text-muted-foreground md:text-site-h1">€ [—]</span>
+                    <Badge>In attesa della formula</Badge>
+                    {impact.euroNote ? <p className="text-app-body text-muted-foreground">{impact.euroNote}</p> : null}
+                  </div>
+                </Section>
               ) : null}
             </>
           )}
 
           {suggestion ? (
-            <section>
-              <PageHeader title="4 · Cosa ti suggeriamo di fare" />
-              <Card className="gap-4">
-                <p className="max-w-prose text-app-body text-foreground">{suggestion.text}</p>
-                {suggestion.link ? (
-                  <Button asChild size="sm" className="self-start">
-                    <Link to={suggestion.link.to}>
-                      {suggestion.link.label} <ArrowRight />
-                    </Link>
-                  </Button>
-                ) : null}
-              </Card>
-            </section>
+            <Section label="4 · Cosa ti suggeriamo di fare">
+              <div className="flex max-w-3xl flex-col gap-2">
+                <h2 className="text-site-h4 text-foreground">{suggestHead}</h2>
+                {suggestRest ? <p className="text-app-body text-muted-foreground">{suggestRest}</p> : null}
+                {suggestion.link ? <TextLink link={suggestion.link} className="pt-1" /> : null}
+              </div>
+            </Section>
           ) : null}
         </>
       )}
 
       {deepDives.length ? (
-        <section>
-          <PageHeader title="Approfondimenti" description="Le pagine di lavoro su questo argomento." />
+        <Section label="Approfondimenti">
           <ul className="flex flex-wrap gap-2">
             {deepDives.map((d) => (
               <li key={d.to}>
@@ -212,27 +217,45 @@ export function ResultsPage({
               </li>
             ))}
           </ul>
-        </section>
+        </Section>
       ) : null}
 
-      <footer className="flex flex-col items-start gap-3 border-t border-border pt-4">
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+        {demoNote ? <p className="text-app-caption text-muted-foreground">Dati dimostrativi · {demoNote} · Le cifre in euro compaiono quando la formula è definita</p> : <span />}
         <Button asChild variant="ghost" size="sm">
           <Link to={home.to}>
             <ArrowLeft /> {home.label}
           </Link>
         </Button>
-        {demoNote ? <p className="text-app-caption text-muted-foreground">Dati dimostrativi · {demoNote} · Le cifre in euro compaiono quando la formula è definita</p> : null}
       </footer>
     </article>
   )
 }
 
-function SeeMore({ link, className }: { link: ResultsLink; className?: string }) {
+function Section({ label, className, children }: { label: string; className?: string; children: ReactNode }) {
   return (
-    <Button asChild variant="ghost" size="sm" className={className}>
-      <Link to={link.to}>
-        {link.label} <ArrowRight />
-      </Link>
-    </Button>
+    <section className="flex flex-col gap-4 border-t border-border pt-6">
+      <p className="label-mono text-muted-foreground">{label}</p>
+      <div className={className}>{children}</div>
+    </section>
   )
+}
+
+// Un link nel testo, sottolineato, con la freccia: "Vai a Dove intervenire →".
+// Non è un bottone primario: l'azione della pagina è leggere.
+function TextLink({ link, className }: { link: ResultsLink; className?: string }) {
+  return (
+    <Link
+      to={link.to}
+      className={cn('inline-flex items-center gap-1 self-start rounded-xs text-app-small font-medium text-foreground underline underline-offset-4 hover:text-link focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring', className)}
+    >
+      {link.label} <ArrowRight className="size-3.5" aria-hidden="true" />
+    </Link>
+  )
+}
+
+/** La prima frase e il resto: "Cominciare dalle persone critiche. I compiti…" → ["Cominciare dalle persone critiche.", "I compiti…"]. */
+function splitFirstSentence(text: string): [string, string] {
+  const m = text.match(/^(.+?[.!?])\s+(.*)$/s)
+  return m ? [m[1], m[2]] : [text, '']
 }

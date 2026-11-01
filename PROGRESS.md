@@ -184,6 +184,17 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-01 — Pagine sulle tavole del cliente
+- [x] Pagine dei risultati (sette), Home di Assessment, Profilo della ricerca e
+      Sintesi della Panoramica ridisegnate sulle tavole; tolta la larghezza
+      massima che lasciava metà schermo vuota.
+- [x] Scala del sito per le pagine di presentazione; pattern nuovi
+      `SummaryCard`, `CascadePlaceholder`; `ActionList` numerato con totale,
+      `BandCard` senza cornice, `PageHeader level="presentation"`.
+- [x] tsc, oxlint (nessun avviso nuovo), build, audit (0).
+- [ ] Non fatto: punto lime a fine andamento; menu di Assessment della
+      tavola (da confermare). Non verificato a schermo: chiaro, scuro, mobile.
+
 ## 2026-11-01 — Verifica finale (Fase 7) e risposte del resoconto
 - [x] Audit identità dell'intero repository: **0 difetti** (erano 15, tutti
       nelle email). Email sulla palette, esenzione riga per riga
