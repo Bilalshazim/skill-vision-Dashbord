@@ -3,13 +3,15 @@ import { useState, type FormEvent, type ReactNode } from 'react'
 
 import { Field } from '@/components/patterns/Field'
 import { InlineAlert } from '@/components/patterns/InlineAlert'
+import { PasswordInput } from '@/components/patterns/PasswordInput'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 
 export type LoginFormError = { kind: 'invalid' } | { kind: 'locked'; retryAfterSec: number } | { kind: 'network' }
 
-// Il modulo di accesso (Fase 8): email, password, un bottone. Non sa come si
+// Il modulo di accesso (Fase 8): email, password (con l'occhio per leggerla),
+// un bottone. Non sa come si
 // fa il login: riceve `onSubmit` e mostra l'errore che gli torna. Gli errori
 // dicono cosa è successo e cosa fare, senza dire se l'email esiste.
 export function LoginForm({
@@ -38,7 +40,7 @@ export function LoginForm({
           <Input type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} disabled={pending} required />
         </Field>
         <Field label="Password" required>
-          <Input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={pending} required />
+          <PasswordInput autoComplete="current-password" value={password} onChange={setPassword} disabled={pending} />
         </Field>
         {error ? <InlineAlert tone="destructive">{errorText(error)}</InlineAlert> : null}
         <Button type="submit" disabled={pending || !email.trim() || !password}>
