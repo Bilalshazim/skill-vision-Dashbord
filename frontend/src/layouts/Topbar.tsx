@@ -9,9 +9,10 @@ import { Button } from '@/components/ui/button'
 import { usePurchasedModules } from '@/hooks/use-purchased-modules'
 import { useTheme } from '@/hooks/use-theme'
 import { Logo } from '@/layouts/Logo'
+import { UsersSettings } from '@/layouts/UsersSettings'
 // Ponte verso la sessione del guscio legacy (non specifico di Assessment
 // malgrado il percorso): l'accesso di oggi resta com'è fino alla Fase 8.
-import { logout } from '@/lib/auth/session'
+import { logout, useSession } from '@/lib/auth/session'
 
 // La barra superiore del guscio unico: marchio (porta alla `/`, la scelta
 // del modulo), il
@@ -22,6 +23,10 @@ import { logout } from '@/lib/auth/session'
 export function Topbar({ menuTrigger }: { menuTrigger?: ReactNode }) {
   const { theme, setTheme } = useTheme()
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [usersDirty, setUsersDirty] = useState(false)
+  // La gestione utenti è solo dello staff Skill-Vision; il server lo verifica
+  // comunque (backend modules/users), qui si nasconde la scheda agli altri.
+  const platformAdmin = useSession().user?.role === 'PLATFORM_ADMIN'
   const dark = theme === 'dark'
   const modules = usePurchasedModules()
   const both = !!modules && modules.includes('RECRUITING') && modules.includes('ASSESSMENT')
@@ -57,7 +62,16 @@ export function Topbar({ menuTrigger }: { menuTrigger?: ReactNode }) {
           </Button>
         </Hint>
       </div>
-      {settingsOpen ? <SettingsDialog onClose={() => setSettingsOpen(false)} /> : null}
+      {settingsOpen ? (
+        <SettingsDialog
+          onClose={() => {
+            setSettingsOpen(false)
+            setUsersDirty(false)
+          }}
+          users={platformAdmin ? <UsersSettings onDirtyChange={setUsersDirty} /> : undefined}
+          usersDirty={usersDirty}
+        />
+      ) : null}
     </header>
   )
 }

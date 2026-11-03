@@ -37,13 +37,20 @@ enum UserStatus {
 model User {
   id           String     @id @default(uuid())
   email        String     @unique
+  // Nome utente per l'accesso, in alternativa all'email (Impostazioni → Utenti).
+  username     String?    @unique
   passwordHash String
   fullName     String
+  // Mansione o qualifica, solo descrittiva: i permessi vengono dal ruolo.
+  designation  String?
   role         UserRole
   companyId    String?
   company      Company?   @relation(fields: [companyId], references: [id])
   status       UserStatus @default(ACTIVE)
   lastLoginAt  DateTime?
+  // Cresce a ogni cambio di password, ruolo o stato: i token d'accesso con una
+  // versione vecchia sono rifiutati (middleware/auth.ts), quindi l'utente esce subito.
+  sessionVersion Int      @default(0)
   // Preferenze dell'interfaccia (tema, lingua, viste aperte, società scelta):
   // sul server e non nel browser (PROGETTO-TUTTO-SUL-SERVER.md, Parte 2).
   preferences  Json       @default("{}")

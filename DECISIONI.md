@@ -1,6 +1,32 @@
 # Decisioni
 
-Formato: `## <cosa> · <data>` — opzioni, cosa cambia, raccomandazione, opzione presa.
+Formato:  — opzioni, cosa cambia, raccomandazione, opzione presa.
+
+## Gestione utenti dalle Impostazioni · 2026-11-03
+Richiesta di Roberto: cambiare le password e creare utenti dall'app, solo lui
+(PLATFORM_ADMIN), con uscita automatica dell'utente a ogni cambio di password.
+- **Chi**: solo PLATFORM_ADMIN, deciso dal server (403 per gli altri ruoli,
+  COMPANY_ADMIN compreso); la scheda è nascosta a chi non lo è.
+- **Le password non si mostrano.** Nel database c'è solo l'hash bcrypt: non
+  esiste una password da far vedere. Si sceglie una nuova password (con
+  «Genera» e l'occhio per leggerla mentre la si scrive).
+- **Uscita immediata** — opzioni: (a) solo revoca dei refresh token: l'utente
+  resta dentro fino a 3 ore, finché scade il token d'accesso; (b) versione
+  della sessione nel token, controllata dal server a ogni richiesta: esce
+  alla prima chiamata, al massimo 30 s dopo con il controllo periodico.
+  Presa (b): costa una lettura per chiave primaria a richiesta, trascurabile.
+- **Nome utente**: facoltativo, accanto all'email (che resta obbligatoria:
+  serve agli inviti e ai modelli email). Minuscolo, senza @.
+- **Mansione** («designation»): testo descrittivo, non dà permessi. I
+  permessi vengono dai cinque ruoli che il backend ha già; a schermo
+  «Operatore» è RECRUITER. Nessun ruolo nuovo inventato.
+- **Regole della password**: le stesse dello script del gruppo di lavoro
+  (14 caratteri, minuscole, maiuscole, cifre, nessuna parola pubblica).
+- **Protezioni**: non si toglie l'ultimo PLATFORM_ADMIN attivo (né per ruolo
+  né per stato). Un utente non si cancella: si disattiva, i dati restano.
+- **Dove sta il codice**: `SettingsDialog` resta un pattern senza dati e
+  riceve la scheda come slot; il pezzo che legge il server sta in
+  `layouts/UsersSettings.tsx`, accanto alla Topbar.
 
 ## Le pagine sulle tavole del cliente · 2026-11-01
 Tavole ricevute: «Le perdite invisibili» (modello delle pagine dei

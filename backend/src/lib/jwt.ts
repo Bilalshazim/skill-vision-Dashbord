@@ -3,12 +3,17 @@ import jwt from 'jsonwebtoken'
 
 import { env } from './env.js'
 
-// JWT claims — §8: sub, role, companyId, platformId. Enough for the API to
-// authorize without a DB round-trip on every request.
+// JWT claims — §8: sub, role, companyId, platformId. requireAuth confronta
+// in più `sv` con il database, così un cambio di password chiude subito le
+// sessioni aperte invece di aspettare la scadenza del token.
 export type AccessTokenClaims = {
   sub: string
   role: string
   companyId: string | null
+  /** User.sessionVersion al momento del login: se nel frattempo è cresciuta
+   *  (cambio password, ruolo o stato) il token non vale più. Assente nei token
+   *  emessi prima della colonna: conta come 0. */
+  sv?: number
 }
 
 /** `maxSec`: il token non dura oltre la fine della sessione (secondi che restano). */

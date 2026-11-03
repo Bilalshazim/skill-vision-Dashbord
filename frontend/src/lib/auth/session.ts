@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 
-import { buildApiUrl, clearBackendSession, getAccessToken, getBackendUser, onUnauthorized, refreshAccessToken, setBackendSession, setBackendUser, type BackendUser } from '@/lib/api/client'
+import { apiGet, buildApiUrl, clearBackendSession, getAccessToken, getBackendUser, onUnauthorized, refreshAccessToken, setBackendSession, setBackendUser, type BackendUser } from '@/lib/api/client'
 import { loadPreferences, resetPreferences } from '@/lib/preferences'
 
 // Fase 8, modalità `backend` — la sessione dell'utente. Il token di accesso
@@ -59,6 +59,23 @@ function scheduleExpiry() {
   }
 }
 
+// Un cambio di password, ruolo o stato fatto dall'amministratore chiude la
+// sessione sul server (sessionVersion, backend middleware/auth.ts). Una pagina
+// ferma non lo saprebbe fino alla prossima chiamata: ogni 30 secondi si chiede
+// chi è l'utente, e un 401 fa uscire (onUnauthorized, in fondo al file).
+const HEARTBEAT_MS = 30_000
+let heartbeat: ReturnType<typeof setInterval> | null = null
+function startHeartbeat() {
+  if (heartbeat) return
+  heartbeat = setInterval(() => {
+    if (getAccessToken()) apiGet<BackendUser>('/auth/me').catch(() => undefined)
+  }, HEARTBEAT_MS)
+}
+function stopHeartbeat() {
+  if (heartbeat) clearInterval(heartbeat)
+  heartbeat = null
+}
+
 let ensuring: Promise<boolean> | null = null
 
 /** Apre (o conferma) la sessione: token in memoria, oppure rinnovo col cookie. */
@@ -84,6 +101,7 @@ export function ensureSession(): Promise<boolean> {
         setBackendUser(user)
         set({ status: 'authenticated', user })
         scheduleExpiry()
+        startHeartbeat()
         return true
       } catch {
         set({ status: 'anonymous', user: null })
@@ -122,6 +140,7 @@ export async function login(email: string, password: string): Promise<LoginResul
   setBackendSession(data.accessToken, data.user)
   set({ status: 'authenticated', user: data.user })
   scheduleExpiry()
+  startHeartbeat()
   return { ok: true, user: data.user }
 }
 
@@ -134,6 +153,7 @@ export async function logout(): Promise<void> {
   }
   if (expiryTimer) clearTimeout(expiryTimer)
   expiryTimer = null
+  stopHeartbeat()
   clearBackendSession()
   set({ status: 'anonymous', user: null })
 }

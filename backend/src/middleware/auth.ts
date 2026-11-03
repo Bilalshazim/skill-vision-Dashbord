@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express'
 
 import { UnauthorizedError, ForbiddenError, RoleForbiddenError } from '../lib/errors.js'
 import { verifyAccessToken, type AccessTokenClaims } from '../lib/jwt.js'
+import { prisma } from '../lib/prisma.js'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -18,14 +19,26 @@ declare global {
 
 // §8: every endpoint requires a bearer JWT except the webhook (which uses
 // signature verification instead — see src/modules/webhooks).
-export function requireAuth(req: Request, _res: Response, next: NextFunction) {
+// Oltre alla firma, il token deve essere ancora attuale: utente attivo e
+// stessa sessionVersion del database. Un cambio di password, ruolo o stato
+// la fa crescere (modules/users), e da quel momento i token emessi prima
+// sono rifiutati: l'utente esce subito, non alla scadenza del token.
+export async function requireAuth(req: Request, _res: Response, next: NextFunction) {
   const header = req.header('authorization')
   if (!header?.startsWith('Bearer ')) return next(new UnauthorizedError('Missing bearer token'))
+  let claims: AccessTokenClaims
   try {
-    req.auth = verifyAccessToken(header.slice('Bearer '.length))
-    next()
+    claims = verifyAccessToken(header.slice('Bearer '.length))
   } catch {
-    next(new UnauthorizedError('Invalid or expired token'))
+    return next(new UnauthorizedError('Invalid or expired token'))
+  }
+  try {
+    const user = await prisma.user.findUnique({ where: { id: claims.sub }, select: { status: true, sessionVersion: true } })
+    if (!user || user.status === 'DISABLED' || user.sessionVersion !== (claims.sv ?? 0)) return next(new UnauthorizedError('Session ended'))
+    req.auth = claims
+    next()
+  } catch (err) {
+    next(err)
   }
 }
 

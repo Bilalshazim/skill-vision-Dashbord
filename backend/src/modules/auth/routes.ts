@@ -14,7 +14,9 @@ import { validateBody } from '../../middleware/validate.js'
 
 export const authRouter = Router()
 
-const loginSchema = z.object({ email: z.string().email(), password: z.string().min(1) })
+// `email` accetta anche il nome utente (Impostazioni → Utenti): il campo
+// mantiene il nome per non cambiare il contratto con il frontend.
+const loginSchema = z.object({ email: z.string().trim().min(1), password: z.string().min(1) })
 
 // Fase 8 — limite ai tentativi di login. Due chiavi:
 //  - per IP + email: 5 tentativi falliti in 15 minuti, poi 429 fino alla
@@ -65,7 +67,8 @@ authRouter.post('/login', validateBody(loginSchema), async (req, res, next) => {
       loginEmailLimiter.hit(emailKey)
       return new UnauthorizedError(message)
     }
-    const user = await prisma.user.findUnique({ where: { email } })
+    const login = email.toLowerCase()
+    const user = await prisma.user.findFirst({ where: { OR: [{ email }, { email: login }, { username: login }] } })
     if (!user) throw fail('Invalid email or password')
     if (user.status === 'DISABLED') throw fail('Account disabled')
     const ok = await verifyPassword(password, user.passwordHash)
@@ -74,7 +77,7 @@ authRouter.post('/login', validateBody(loginSchema), async (req, res, next) => {
     loginEmailLimiter.reset(emailKey)
 
     const sessionEnd = new Date(Date.now() + env.sessionTtlSec * 1000)
-    const accessToken = signAccessToken({ sub: user.id, role: user.role, companyId: user.companyId }, env.sessionTtlSec)
+    const accessToken = signAccessToken({ sub: user.id, role: user.role, companyId: user.companyId, sv: user.sessionVersion }, env.sessionTtlSec)
     const refreshToken = await issueRefreshToken(user.id, sessionEnd)
     await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } })
 
@@ -129,7 +132,7 @@ authRouter.post('/refresh', validateBody(refreshSchema), async (req, res, next) 
     // token ancora valido continuerebbe a emettere token d'accesso.
     if (stored.user.status === 'DISABLED') throw new UnauthorizedError('Account disabled')
     // Il token d'accesso nuovo scade al più tardi con la sessione.
-    const accessToken = signAccessToken({ sub: stored.user.id, role: stored.user.role, companyId: stored.user.companyId }, secondsLeft(stored.expiresAt))
+    const accessToken = signAccessToken({ sub: stored.user.id, role: stored.user.role, companyId: stored.user.companyId, sv: stored.user.sessionVersion }, secondsLeft(stored.expiresAt))
 
     if (stored.revokedAt) {
       if (stored.rotatedAt && now.getTime() - stored.rotatedAt.getTime() <= ROTATION_GRACE_MS) {

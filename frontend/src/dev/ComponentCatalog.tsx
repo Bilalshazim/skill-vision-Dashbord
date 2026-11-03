@@ -71,6 +71,7 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { LoginForm } from '@/components/patterns/LoginForm'
+import { PasswordInput } from '@/components/patterns/PasswordInput'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -1679,12 +1680,18 @@ const ENTRIES: Entry[] = [
     render: () => <MotionDemo />,
   },
   {
+    name: 'Campo password',
+    level: 'Pattern',
+    source: 'components/patterns/PasswordInput.tsx · layouts/UsersSettings.tsx (Impostazioni → Utenti)',
+    render: () => <PasswordInputDemo />,
+  },
+  {
     name: 'Accesso',
     level: 'Pattern',
     source: 'components/patterns/LoginForm.tsx · pages/LoginPage.tsx (Fase 8)',
     render: () => (
       <div className="flex flex-col gap-6">
-        <Row label="Vuoto — il bottone si accende con email e password">
+        <Row label="Vuoto — il bottone si accende con email (o nome utente) e password">
           <LoginForm onSubmit={(email) => toast(`Accesso di ${email}`)} />
         </Row>
         <Row label="Credenziali errate — non dice se l'email esiste">
@@ -1753,5 +1760,26 @@ export default function ComponentCatalog() {
         </div>
       </div>
     </TooltipProvider>
+  )
+}
+
+function PasswordInputDemo() {
+  const [value, setValue] = useState('NuovaChiave2026x')
+  return (
+    <div className="flex max-w-sm flex-col gap-6">
+      <Row label="Con valore — l'occhio la mostra o la nasconde">
+        <Field label="Nuova password" hint="Almeno 14 caratteri, con minuscole, maiuscole e cifre.">
+          <PasswordInput value={value} onChange={setValue} />
+        </Field>
+      </Row>
+      <Row label="Errore e disabilitato">
+        <Field label="Ripeti la password" error="Le due password non coincidono.">
+          <PasswordInput value="" onChange={() => undefined} />
+        </Field>
+        <Field label="Password">
+          <PasswordInput value="" onChange={() => undefined} disabled />
+        </Field>
+      </Row>
+    </div>
   )
 }

@@ -22,6 +22,7 @@ import { publicAssessmentRouter } from './modules/publicAssessment/routes.js'
 import { publicJobPostingsRouter } from './modules/publicJobPostings/routes.js'
 import { recruitingStoreRouter } from './modules/recruitingStore/routes.js'
 import { shortlistRouter } from './modules/shortlist/routes.js'
+import { usersRouter } from './modules/users/routes.js'
 import { webhooksRouter } from './modules/webhooks/routes.js'
 import { env } from './lib/env.js'
 import { logger } from './lib/logger.js'
@@ -102,6 +103,7 @@ export function createApp() {
 
   app.use('/health', healthRouter)
   app.use('/api/v1/auth', authRouter)
+  app.use('/api/v1/users', usersRouter)
   app.use('/api/v1/platforms', platformsRouter)
   app.use('/api/v1/companies', companiesRouter)
   app.use('/api/v1/campaigns', campaignsRouter)

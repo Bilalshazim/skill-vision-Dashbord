@@ -1,5 +1,6 @@
 import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode, useEffect, useId } from 'react'
 
+import { PasswordInput } from '@/components/patterns/PasswordInput'
 import { SelectField } from '@/components/patterns/SelectField'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,7 +12,7 @@ type ControlProps = { id?: string; 'aria-describedby'?: string; 'aria-invalid'?:
 // Elementi a cui un'etichetta può puntare. Il primo di questi fra i figli è
 // "il controllo" del campo; il resto (un datalist, un bottone accanto, una
 // nota calcolata) resta com'è.
-const LINKABLE = new Set<unknown>(['input', 'textarea', 'select', Input, Textarea, SelectField])
+const LINKABLE = new Set<unknown>(['input', 'textarea', 'select', Input, Textarea, SelectField, PasswordInput])
 
 // Un campo di form: etichetta in stile label, il controllo, una nota
 // facoltativa e il messaggio d'errore. Collega da sé id, aria-describedby e

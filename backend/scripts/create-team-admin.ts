@@ -31,12 +31,9 @@ import { stdin, stdout } from 'node:process'
 
 import { PrismaClient, type UserRole } from '@prisma/client'
 
-import { hashPassword } from '../src/lib/password.js'
+import { hashPassword, passwordProblem as validatePassword } from '../src/lib/password.js'
 
 const VALID_ROLES: UserRole[] = ['PLATFORM_ADMIN', 'COMPANY_ADMIN', 'RECRUITER', 'EVALUATOR', 'READONLY']
-const MIN_LENGTH = 14
-// Le password pubbliche del seed e del ponte: mai riusabili.
-const FORBIDDEN = ['admin123', 'acme123', 'password', 'skillvision']
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name)
@@ -81,13 +78,6 @@ function promptHidden(question: string): Promise<string> {
     }
     stdin.on('data', onData)
   })
-}
-
-function validatePassword(pw: string): string | null {
-  if (pw.length < MIN_LENGTH) return `La password deve avere almeno ${MIN_LENGTH} caratteri.`
-  if (FORBIDDEN.some((f) => pw.toLowerCase().includes(f))) return 'La password contiene una parola già pubblica (seed o ponte del guscio).'
-  if (!/[a-z]/.test(pw) || !/[A-Z]/.test(pw) || !/\d/.test(pw)) return 'Servono almeno una minuscola, una maiuscola e una cifra.'
-  return null
 }
 
 function generatePassword(): string {

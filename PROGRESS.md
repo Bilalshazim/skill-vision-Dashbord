@@ -129,6 +129,9 @@ insieme allo spegnimento del catalogo in produzione.
 - [x] Ritiro del guscio legacy e della sua copia, del ponte e delle coppie
       di `js/app.js`, nello stesso passaggio (2026-10-21, "Tutto sul server"
       Parte 3).
+- [x] Gestione utenti in app (2026-11-03): Impostazioni → Utenti, solo
+      PLATFORM_ADMIN — elenco, nuovo utente, modifica, nuova password;
+      uscita immediata a ogni cambio di password, ruolo o stato
 ### Richieste del documento "recruiting doc" (2026-10-19)
 Stima e ordine approvati: prima i punti veloci (1, 2, 5–7), poi Recruiting
 valutatori, poi i grafici dopo l'accordo con Alessio.
@@ -183,6 +186,35 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 - [ ] Da decidere con Roberto: scheda 5P del valutatore come link online?
 
 ## Registro
+
+## 2026-11-03 — Gestione utenti dalle Impostazioni
+- [x] Backend: `/api/v1/users` (solo PLATFORM_ADMIN): elenco senza hash,
+      creazione, modifica (nome, email, nome utente, mansione, ruolo,
+      società, stato), nuova password. Regole della password in
+      `lib/password.ts`, condivise con `scripts/create-team-admin.ts`.
+- [x] Migrazione `20261103120000_user_admin_fields`: colonne `username`
+      (unico, facoltativo), `designation`, `sessionVersion`. Solo colonne
+      nuove; su Railway la applica il preDeployCommand.
+- [x] Uscita immediata: `sessionVersion` nel token d'accesso, confrontata in
+      `requireAuth` a ogni richiesta (una lettura per chiave primaria).
+      Cambio di password, ruolo, società o stato → versione +1 e refresh
+      token revocati. Anche per chi cambia la propria password. Il frontend
+      controlla `/auth/me` ogni 30 s, così anche una pagina ferma esce.
+      I token emessi prima del deploy valgono come versione 0: nessuno esce
+      al rilascio.
+- [x] Login con email **o** nome utente (`LoginForm`: «Email o nome utente»).
+- [x] Frontend: scheda «Utenti» in `SettingsDialog` (slot `users`, la
+      Topbar la passa solo al PLATFORM_ADMIN); `layouts/UsersSettings.tsx`;
+      pattern nuovo `PasswordInput` (in `LINKABLE` di Field, nel catalogo).
+      L'elenco si aggiorna da solo ogni 10 s.
+- [x] Verifica: 171 test backend verdi (8 nuovi in `tests/users.test.ts`);
+      tsc e oxlint puliti; audit identità a zero. Nel browser (scuro):
+      creato un utente, entrato col nome utente, cambiata la sua password →
+      la sua sessione aperta riceve 401 subito; cambiata la propria → torna
+      a `/login`. Dati locali riportati com'erano.
+- [ ] Da verificare in chiaro a occhio; non provato su Railway.
+- Rotto e corretto durante il lavoro: `protected-routes.test.ts` riconosce
+  la protezione solo se scritta `usersRouter.use(requireAuth)` da sola.
 
 ## 2026-11-01 — Pagine sulle tavole del cliente
 - [x] Pagine dei risultati (sette), Home di Assessment, Profilo della ricerca e

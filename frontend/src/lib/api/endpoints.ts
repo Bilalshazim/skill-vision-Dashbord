@@ -31,6 +31,38 @@ export const authApi = {
   me: () => apiGet<BackendUser>('/auth/me'),
 }
 
+// Gestione utenti (Impostazioni → Utenti, solo PLATFORM_ADMIN). La password
+// va solo in andata: il server non la restituisce mai.
+export type ManagedUserRole = 'PLATFORM_ADMIN' | 'COMPANY_ADMIN' | 'RECRUITER' | 'EVALUATOR' | 'READONLY'
+export type ManagedUserStatus = 'ACTIVE' | 'INVITED' | 'DISABLED'
+export type ManagedUser = {
+  id: string
+  email: string
+  username: string | null
+  fullName: string
+  designation: string | null
+  role: ManagedUserRole
+  companyId: string | null
+  company: { name: string } | null
+  status: ManagedUserStatus
+  lastLoginAt: string | null
+  createdAt: string
+}
+export type ManagedUserInput = {
+  email: string
+  username: string | null
+  fullName: string
+  designation: string | null
+  role: ManagedUserRole
+  companyId: string | null
+}
+export const usersApi = {
+  list: () => apiGet<ManagedUser[]>('/users'),
+  create: (body: ManagedUserInput & { password: string }) => apiPost<ManagedUser>('/users', body),
+  update: (id: string, body: Partial<ManagedUserInput> & { status?: 'ACTIVE' | 'DISABLED' }) => apiPatch<ManagedUser>(`/users/${id}`, body),
+  setPassword: (id: string, password: string) => apiPatch<{ signedOut: boolean; self: boolean }>(`/users/${id}/password`, { password }),
+}
+
 export const platformsApi = {
   list: () => apiGet<BackendPlatform[]>('/platforms'),
   create: (name: string) => apiPost<BackendPlatform>('/platforms', { name }),

@@ -34,8 +34,8 @@ export function LoginForm({
     <Card padding="lg" className="w-full max-w-sm">
       {header ? <div className="mb-6">{header}</div> : null}
       <form className="flex flex-col gap-4" onSubmit={submit} noValidate>
-        <Field label="Email" required>
-          <Input type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} disabled={pending} required />
+        <Field label="Email o nome utente" required>
+          <Input type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} disabled={pending} required />
         </Field>
         <Field label="Password" required>
           <Input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={pending} required />
