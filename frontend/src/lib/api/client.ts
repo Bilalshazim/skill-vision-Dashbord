@@ -23,7 +23,9 @@ export function apiFileUrl(path: string): string {
   return new URL(path, new URL(apiBaseUrl(), window.location.origin)).toString()
 }
 
-export type BackendUser = { id: string; email: string; fullName: string; role: string; companyId: string | null }
+// mustChangePassword: password provvisoria data dall’amministratore, da
+// sostituire al primo accesso (AuthGuard → FirstAccessPage).
+export type BackendUser = { id: string; email: string; fullName: string; role: string; companyId: string | null; mustChangePassword?: boolean }
 
 // Fase 8: il token di accesso e l'utente stanno solo in memoria — mai
 // nell'archivio del browser, che uno script può leggere — e il refresh token

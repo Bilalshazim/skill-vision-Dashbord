@@ -2,6 +2,29 @@
 
 Formato:  — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Primo accesso con password provvisoria · 2026-11-03
+Richiesta di Roberto: creando un utente la password non deve essere
+obbligatoria; al primo accesso l'utente ne crea una sua, salvata sul server.
+- **Opzioni**: (a) utente senza password, che al primo accesso con la sola
+  email ne sceglie una; (b) password provvisoria — scritta o generata
+  dall'amministratore, o generata dal server se il campo resta vuoto — che
+  l'utente sostituisce al primo accesso.
+- **Cosa cambia**: con (a) chiunque conosca l'email o il nome utente di un
+  account appena creato se ne prende l'accesso prima del titolare: con dati
+  di persone reali non si può. Con (b) per entrare serve la provvisoria, che
+  ha solo chi l'ha ricevuta.
+- **Presa (b).** Il campo password del nuovo utente è facoltativo; vuoto, il
+  server genera 18 caratteri e li restituisce una volta sola, mostrati con
+  «Copia i dati di accesso». Ogni password data dall'amministratore a un
+  altro utente (nuovo utente o «Cambia password») è provvisoria
+  (`mustChangePassword`); quella che si sceglie per sé no.
+- **Il blocco è sul server**: finché la password è provvisoria passano solo
+  `/auth/me`, `/auth/me/password` e `/auth/me/preferences`; il resto
+  risponde 403 `password_change_required`. L'interfaccia mostra la scelta
+  della password (FirstAccessPage) al posto di ogni pagina.
+- Salvata la password nuova, le altre sessioni dell'utente si chiudono e
+  questa continua con token nuovi: non deve rifare l'accesso.
+
 ## Gestione utenti dalle Impostazioni · 2026-11-03
 Richiesta di Roberto: cambiare le password e creare utenti dall'app, solo lui
 (PLATFORM_ADMIN), con uscita automatica dell'utente a ogni cambio di password.

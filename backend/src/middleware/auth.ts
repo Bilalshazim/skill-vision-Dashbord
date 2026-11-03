@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 
-import { UnauthorizedError, ForbiddenError, RoleForbiddenError } from '../lib/errors.js'
+import { UnauthorizedError, ForbiddenError, PasswordChangeRequiredError, RoleForbiddenError } from '../lib/errors.js'
 import { verifyAccessToken, type AccessTokenClaims } from '../lib/jwt.js'
 import { prisma } from '../lib/prisma.js'
 
@@ -23,6 +23,9 @@ declare global {
 // stessa sessionVersion del database. Un cambio di password, ruolo o stato
 // la fa crescere (modules/users), e da quel momento i token emessi prima
 // sono rifiutati: l'utente esce subito, non alla scadenza del token.
+// Con una password data dall’amministratore (mustChangePassword) passano solo
+// le rotte che servono a sceglierne una propria: il resto risponde 403.
+const FIRST_ACCESS_PATHS = new Set(['/api/v1/auth/me', '/api/v1/auth/me/password', '/api/v1/auth/me/preferences'])
 export async function requireAuth(req: Request, _res: Response, next: NextFunction) {
   const header = req.header('authorization')
   if (!header?.startsWith('Bearer ')) return next(new UnauthorizedError('Missing bearer token'))
@@ -33,8 +36,9 @@ export async function requireAuth(req: Request, _res: Response, next: NextFuncti
     return next(new UnauthorizedError('Invalid or expired token'))
   }
   try {
-    const user = await prisma.user.findUnique({ where: { id: claims.sub }, select: { status: true, sessionVersion: true } })
+    const user = await prisma.user.findUnique({ where: { id: claims.sub }, select: { status: true, sessionVersion: true, mustChangePassword: true } })
     if (!user || user.status === 'DISABLED' || user.sessionVersion !== (claims.sv ?? 0)) return next(new UnauthorizedError('Session ended'))
+    if (user.mustChangePassword && !FIRST_ACCESS_PATHS.has(req.originalUrl.split('?')[0])) return next(new PasswordChangeRequiredError())
     req.auth = claims
     next()
   } catch (err) {

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, KeyRound, Pencil, UserPlus, Wand2 } from 'lucide-react'
+import { ArrowLeft, Copy, KeyRound, Pencil, UserPlus, Wand2 } from 'lucide-react'
 import { type FormEvent, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { getBackendUser } from '@/lib/api/client'
 import { companiesApi, type ManagedUser, type ManagedUserRole, usersApi } from '@/lib/api/endpoints'
+import { generatePassword, PASSWORD_RULE_HINT, passwordProblem } from '@/lib/auth/passwordRules'
 import { logout } from '@/lib/auth/session'
 
 // Impostazioni → Utenti: elenco, nuovo utente, modifica, nuova password.
@@ -23,6 +24,9 @@ import { logout } from '@/lib/auth/session'
 // Le password non si vedono mai: il server ne tiene solo l'hash. Si può
 // solo sceglierne una nuova. Cambiarla, o cambiare ruolo, società o stato,
 // fa uscire subito quell'utente — anche chi la cambia per sé.
+// Una password data a un altro utente è provvisoria: al primo accesso ne
+// sceglie una sua (FirstAccessPage). Creando un utente la password si può
+// lasciare vuota: la genera il server e si vede qui una volta sola.
 
 // I ruoli del backend con il loro nome a schermo e cosa possono fare.
 const ROLE_LABEL: Record<ManagedUserRole, string> = {
@@ -52,26 +56,12 @@ const USERS_KEY = ['settings', 'users'] as const
 // vede le modifiche dell'altro senza ricaricare.
 const REFRESH_MS = 10_000
 
-const MIN_LENGTH = 14
-function passwordProblem(pw: string): string | null {
-  if (pw.length < MIN_LENGTH) return `Almeno ${MIN_LENGTH} caratteri.`
-  if (['admin123', 'acme123', 'password', 'skillvision'].some((f) => pw.toLowerCase().includes(f))) return 'Contiene una parola già pubblica: scegline un’altra.'
-  if (!/[a-z]/.test(pw) || !/[A-Z]/.test(pw) || !/\d/.test(pw)) return 'Servono almeno una minuscola, una maiuscola e una cifra.'
-  return null
-}
-function generatePassword(): string {
-  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'
-  for (;;) {
-    const out = Array.from(crypto.getRandomValues(new Uint8Array(18)), (b) => alphabet[b % alphabet.length]).join('')
-    if (!passwordProblem(out)) return out
-  }
-}
 // Il server antepone il nome del campo ("password: …"): a schermo basta il motivo.
 const errorText = (err: unknown) => (err instanceof Error ? err.message.replace(/^\w+: /, '') : 'Operazione non riuscita. Riprova.')
 
 const formatDate = (iso: string | null) => (iso ? new Date(iso).toLocaleString('it-IT', { dateStyle: 'short', timeStyle: 'short' }) : 'Mai')
 
-type View = { kind: 'list' } | { kind: 'create' } | { kind: 'edit'; user: ManagedUser } | { kind: 'password'; user: ManagedUser }
+type View = { kind: 'list' } | { kind: 'create' } | { kind: 'created'; user: ManagedUser; password: string } | { kind: 'edit'; user: ManagedUser } | { kind: 'password'; user: ManagedUser }
 
 export function UsersSettings({ onDirtyChange }: { onDirtyChange?: (dirty: boolean) => void }) {
   const [view, setView] = useState<View>({ kind: 'list' })
@@ -81,7 +71,8 @@ export function UsersSettings({ onDirtyChange }: { onDirtyChange?: (dirty: boole
     setView({ kind: 'list' })
   }
 
-  if (view.kind === 'create') return <UserForm onDone={back} onDirtyChange={onDirtyChange} />
+  if (view.kind === 'create') return <UserForm onDone={back} onCreated={(user, password) => setView({ kind: 'created', user, password })} onDirtyChange={onDirtyChange} />
+  if (view.kind === 'created') return <CreatedCredentials user={view.user} password={view.password} onDone={back} />
   if (view.kind === 'edit') return <UserForm user={view.user} onDone={back} onDirtyChange={onDirtyChange} />
   if (view.kind === 'password') return <PasswordForm user={view.user} onDone={back} onDirtyChange={onDirtyChange} />
 
@@ -113,7 +104,13 @@ export function UsersSettings({ onDirtyChange }: { onDirtyChange?: (dirty: boole
     },
     { key: 'role', header: 'Ruolo', cell: (u) => ROLE_LABEL[u.role] },
     { key: 'company', header: 'Società', cell: (u) => u.company?.name ?? 'Tutte', emphasis: 'muted' },
-    { key: 'status', header: 'Stato', cell: (u) => <Badge tone={STATUS[u.status].tone}>{STATUS[u.status].label}</Badge> },
+    { key: 'status', header: 'Stato', cell: (u) =>
+        u.status === 'ACTIVE' && u.mustChangePassword ? (
+          <Badge tone="warning">Primo accesso</Badge>
+        ) : (
+          <Badge tone={STATUS[u.status].tone}>{STATUS[u.status].label}</Badge>
+        ),
+    },
     { key: 'last', header: 'Ultimo accesso', cell: (u) => formatDate(u.lastLoginAt), emphasis: 'muted', nowrap: true },
     {
       key: 'actions',
@@ -140,7 +137,7 @@ export function UsersSettings({ onDirtyChange }: { onDirtyChange?: (dirty: boole
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-app-small text-muted-foreground">
-          {users.data ? `${users.data.length} utenti. ` : ''}Le password non si vedono: se ne sceglie una nuova.
+          {users.data ? `${users.data.length} utenti. ` : ''}Le password non si vedono: se ne sceglie una nuova, che l’utente cambia al primo accesso.
         </p>
         <Button onClick={() => setView({ kind: 'create' })}>
           <UserPlus /> Nuovo utente
@@ -162,6 +159,48 @@ export function UsersSettings({ onDirtyChange }: { onDirtyChange?: (dirty: boole
   )
 }
 
+// Dopo «Crea utente»: i dati da consegnare, con la password provvisoria.
+// Si vede solo qui e solo ora: il server ne tiene l'hash.
+function CreatedCredentials({ user, password, onDone }: { user: ManagedUser; password: string; onDone: () => void }) {
+  const text = [`Accesso a Skill-Vision: ${window.location.origin}/login`, `Email: ${user.email}`, ...(user.username ? [`Nome utente: ${user.username}`] : []), `Password provvisoria: ${password}`].join('\n')
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text)
+      toast.success('Dati di accesso copiati.')
+    } catch {
+      toast.error('Copia non riuscita: seleziona il testo e copialo a mano.')
+    }
+  }
+  return (
+    <div className="flex flex-col gap-6">
+      <BackHeader title={`Utente creato: ${user.fullName}`} sub="Consegna questi dati all’utente. Al primo accesso sceglie una password sua." onBack={onDone} />
+      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-app-body">
+        <dt className="label-mono text-muted-foreground">Email</dt>
+        <dd className="text-foreground">{user.email}</dd>
+        {user.username ? (
+          <>
+            <dt className="label-mono text-muted-foreground">Nome utente</dt>
+            <dd className="text-foreground">{user.username}</dd>
+          </>
+        ) : null}
+        <dt className="label-mono text-muted-foreground">Password provvisoria</dt>
+        <dd className="font-mono text-foreground select-all">{password}</dd>
+      </dl>
+      <InlineAlert tone="warning" layout="text">
+        La password provvisoria si vede solo ora. Se la perdi, ne scegli una nuova con «Cambia password».
+      </InlineAlert>
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={() => void copy()}>
+          <Copy /> Copia i dati di accesso
+        </Button>
+        <Button type="button" onClick={onDone}>
+          Fatto
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 function BackHeader({ title, sub, onBack }: { title: string; sub?: string; onBack: () => void }) {
   return (
     <div className="flex flex-col gap-2">
@@ -176,7 +215,17 @@ function BackHeader({ title, sub, onBack }: { title: string; sub?: string; onBac
   )
 }
 
-function UserForm({ user, onDone, onDirtyChange }: { user?: ManagedUser; onDone: () => void; onDirtyChange?: (dirty: boolean) => void }) {
+function UserForm({
+  user,
+  onDone,
+  onCreated,
+  onDirtyChange,
+}: {
+  user?: ManagedUser
+  onDone: () => void
+  onCreated?: (user: ManagedUser, password: string) => void
+  onDirtyChange?: (dirty: boolean) => void
+}) {
   const queryClient = useQueryClient()
   const companies = useQuery({ queryKey: ['settings', 'companies'], queryFn: companiesApi.list })
   const [email, setEmail] = useState(user?.email ?? '')
@@ -206,7 +255,8 @@ function UserForm({ user, onDone, onDirtyChange }: { user?: ManagedUser; onDone:
     username: !username.trim() || /^[a-z0-9._-]{3,40}$/i.test(username.trim()) ? null : 'Da 3 a 40 caratteri: lettere, cifre, punto, trattino o trattino basso.',
     fullName: fullName.trim() ? null : 'Scrivi nome e cognome.',
     companyId: !needsCompany || companyId ? null : 'Scegli la società.',
-    password: user ? null : passwordProblem(password),
+    // Vuota: la genera il server.
+    password: user || !password ? null : passwordProblem(password),
   }
   const valid = Object.values(errors).every((e) => !e)
   const accessChanges = !!user && (role !== user.role || (needsCompany ? companyId : '') !== (user.companyId ?? '') || status !== (user.status === 'DISABLED' ? 'DISABLED' : 'ACTIVE'))
@@ -222,7 +272,7 @@ function UserForm({ user, onDone, onDirtyChange }: { user?: ManagedUser; onDone:
         role,
         companyId: needsCompany ? companyId : null,
       }
-      return user ? usersApi.update(user.id, { ...body, status }) : usersApi.create({ ...body, password })
+      return user ? usersApi.update(user.id, { ...body, status }) : usersApi.create({ ...body, ...(password ? { password } : {}) })
     },
     onSuccess: async (saved) => {
       onDirtyChange?.(false)
@@ -232,8 +282,14 @@ function UserForm({ user, onDone, onDirtyChange }: { user?: ManagedUser; onDone:
         window.location.replace('/login')
         return
       }
-      toast.success(user ? `${saved.fullName}: modifiche salvate.` : `Utente creato: ${saved.fullName}. Può entrare con l’email${saved.username ? ' o il nome utente' : ''}.`)
       await queryClient.invalidateQueries({ queryKey: USERS_KEY })
+      if (!user && onCreated) {
+        // La password da consegnare: quella scritta qui o quella generata dal server.
+        const temp = (saved as { temporaryPassword?: string }).temporaryPassword ?? password
+        onCreated(saved, temp)
+        return
+      }
+      toast.success(`${saved.fullName}: modifiche salvate.`)
       onDone()
     },
   })
@@ -247,7 +303,7 @@ function UserForm({ user, onDone, onDirtyChange }: { user?: ManagedUser; onDone:
 
   return (
     <form className="flex flex-col gap-6" onSubmit={submit} noValidate>
-      <BackHeader title={user ? `Modifica ${user.fullName}` : 'Nuovo utente'} sub={user ? undefined : 'Entra con l’email o con il nome utente e la password che scegli qui.'} onBack={onDone} />
+      <BackHeader title={user ? `Modifica ${user.fullName}` : 'Nuovo utente'} sub={user ? undefined : 'Entra con l’email o con il nome utente. La password è provvisoria: al primo accesso ne sceglie una sua.'} onBack={onDone} />
       <FieldGrid>
         <Field label="Nome e cognome" required error={show('fullName')}>
           <Input value={fullName} onChange={(e) => setFullName(e.target.value)} autoComplete="off" />
@@ -289,7 +345,7 @@ function UserForm({ user, onDone, onDirtyChange }: { user?: ManagedUser; onDone:
             </SelectField>
           </Field>
         ) : (
-          <Field label="Password" required error={show('password')} hint={`Almeno ${MIN_LENGTH} caratteri, con minuscole, maiuscole e cifre.`}>
+          <Field label="Password provvisoria" error={show('password')} hint={`Facoltativa: se la lasci vuota la genera il sistema. ${PASSWORD_RULE_HINT}`}>
             <PasswordInput value={password} onChange={setPassword} />
             <div>
               <Button type="button" variant="outline" size="sm" onClick={() => setPassword(generatePassword())}>
@@ -354,11 +410,11 @@ function PasswordForm({ user, onDone, onDirtyChange }: { user: ManagedUser; onDo
     <form className="flex flex-col gap-6" onSubmit={submit} noValidate>
       <BackHeader
         title={`Nuova password per ${user.fullName}`}
-        sub={self ? 'È la tua: al salvataggio esci e rientri con quella nuova.' : `${user.email} esce subito da tutte le sessioni aperte e rientra con quella nuova.`}
+        sub={self ? 'È la tua: al salvataggio esci e rientri con quella nuova.' : `${user.email} esce subito da tutte le sessioni aperte. La nuova è provvisoria: al prossimo accesso ne sceglie una sua.`}
         onBack={onDone}
       />
       <FieldGrid>
-        <Field label="Nuova password" required error={tried ? problem : null} hint={`Almeno ${MIN_LENGTH} caratteri, con minuscole, maiuscole e cifre.`}>
+        <Field label="Nuova password" required error={tried ? problem : null} hint={PASSWORD_RULE_HINT}>
           <PasswordInput value={password} onChange={setPassword} />
           <div>
             <Button

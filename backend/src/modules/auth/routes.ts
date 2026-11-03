@@ -6,8 +6,9 @@ import { clearRefreshCookie, cookieRequestOriginAllowed, readRefreshCookie, setR
 import { BadRequestError, ForbiddenError, TooManyRequestsError, UnauthorizedError } from '../../lib/errors.js'
 import { env } from '../../lib/env.js'
 import { generateRefreshToken, hashToken, signAccessToken } from '../../lib/jwt.js'
-import { verifyPassword } from '../../lib/password.js'
+import { hashPassword, passwordProblem, verifyPassword } from '../../lib/password.js'
 import { prisma } from '../../lib/prisma.js'
+import { audit } from '../../lib/audit.js'
 import { createLimiter } from '../../lib/rateLimit.js'
 import { requireAuth } from '../../middleware/auth.js'
 import { validateBody } from '../../middleware/validate.js'
@@ -87,7 +88,7 @@ authRouter.post('/login', validateBody(loginSchema), async (req, res, next) => {
     res.json({
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role, companyId: user.companyId },
+      user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role, companyId: user.companyId, mustChangePassword: user.mustChangePassword },
     })
   } catch (err) {
     next(err)
@@ -177,7 +178,50 @@ authRouter.get('/me', requireAuth, async (req, res, next) => {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.auth!.sub } })
     if (!user || user.status === 'DISABLED') throw new UnauthorizedError()
-    res.json({ id: user.id, email: user.email, fullName: user.fullName, role: user.role, companyId: user.companyId })
+    res.json({ id: user.id, email: user.email, fullName: user.fullName, role: user.role, companyId: user.companyId, mustChangePassword: user.mustChangePassword })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// POST /api/v1/auth/me/password — l’utente sceglie la sua password: al primo
+// accesso, quando quella che ha è provvisoria (mustChangePassword), o quando
+// vuole cambiarla. Serve quella attuale. Le altre sessioni dell’utente si
+// chiudono (sessionVersion); questa continua con token nuovi.
+const ownPasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().superRefine((pw, ctx) => {
+    const problem = passwordProblem(pw)
+    if (problem) ctx.addIssue({ code: z.ZodIssueCode.custom, message: problem })
+  }),
+})
+
+authRouter.post('/me/password', requireAuth, validateBody(ownPasswordSchema), async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body as z.infer<typeof ownPasswordSchema>
+    const user = await prisma.user.findUnique({ where: { id: req.auth!.sub } })
+    if (!user) throw new UnauthorizedError()
+    if (!(await verifyPassword(currentPassword, user.passwordHash))) throw new BadRequestError('La password attuale non è corretta.')
+    if (currentPassword === newPassword) throw new BadRequestError('La nuova password deve essere diversa da quella attuale.')
+
+    const passwordHash = await hashPassword(newPassword)
+    const updated = await prisma.$transaction(async (tx) => {
+      await tx.refreshToken.updateMany({ where: { userId: user.id, revokedAt: null }, data: { revokedAt: new Date() } })
+      return tx.user.update({
+        where: { id: user.id },
+        data: { passwordHash, mustChangePassword: false, sessionVersion: { increment: 1 } },
+      })
+    })
+    await audit(prisma, { actorUserId: user.id, action: 'user.password_set_by_self', entityType: 'User', entityId: user.id, metadata: { firstAccess: user.mustChangePassword } })
+
+    const sessionEnd = new Date(Date.now() + env.sessionTtlSec * 1000)
+    const accessToken = signAccessToken({ sub: updated.id, role: updated.role, companyId: updated.companyId, sv: updated.sessionVersion }, env.sessionTtlSec)
+    const refreshToken = await issueRefreshToken(updated.id, sessionEnd)
+    setRefreshCookie(res, refreshToken, sessionEnd)
+    res.json({
+      accessToken,
+      user: { id: updated.id, email: updated.email, fullName: updated.fullName, role: updated.role, companyId: updated.companyId, mustChangePassword: false },
+    })
   } catch (err) {
     next(err)
   }

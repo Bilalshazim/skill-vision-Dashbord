@@ -132,6 +132,9 @@ insieme allo spegnimento del catalogo in produzione.
 - [x] Gestione utenti in app (2026-11-03): Impostazioni → Utenti, solo
       PLATFORM_ADMIN — elenco, nuovo utente, modifica, nuova password;
       uscita immediata a ogni cambio di password, ruolo o stato
+- [x] Primo accesso (2026-11-03): password del nuovo utente facoltativa
+      (la genera il server), provvisoria; al primo accesso l'utente ne
+      sceglie una sua (FirstAccessPage), il server blocca il resto
 ### Richieste del documento "recruiting doc" (2026-10-19)
 Stima e ordine approvati: prima i punti veloci (1, 2, 5–7), poi Recruiting
 valutatori, poi i grafici dopo l'accordo con Alessio.
@@ -186,6 +189,23 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 - [ ] Da decidere con Roberto: scheda 5P del valutatore come link online?
 
 ## Registro
+
+## 2026-11-03 — Primo accesso con password provvisoria
+- [x] Backend: colonna `mustChangePassword` (migrazione
+      `20261103180000_user_must_change_password`). Password del nuovo utente
+      facoltativa: vuota, la genera il server e la restituisce una volta.
+      Ogni password data a un altro utente è provvisoria; la propria no.
+- [x] `requireAuth`: con password provvisoria solo /auth/me, /me/password e
+      /me/preferences; il resto 403 `password_change_required`.
+- [x] `POST /auth/me/password` (attuale + nuova): salva, toglie il flag,
+      chiude le altre sessioni, restituisce token nuovi per questa.
+- [x] Frontend: pattern `NewPasswordForm` (nel catalogo), pagina
+      `FirstAccessPage` mostrata da AuthGuard; in Utenti il campo password è
+      facoltativo, dopo la creazione si vedono i dati di accesso con «Copia»,
+      badge «Primo accesso». Regole della password in `lib/auth/passwordRules.ts`.
+- [x] Test: 2 nuovi in `tests/users.test.ts` (10 su 10). Provato in locale:
+      utente creato senza password → accesso con la provvisoria → scelta
+      della password → dentro; la provvisoria non vale più.
 
 ## 2026-11-03 — Gestione utenti dalle Impostazioni
 - [x] Backend: `/api/v1/users` (solo PLATFORM_ADMIN): elenco senza hash,

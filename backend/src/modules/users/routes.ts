@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 import { audit } from '../../lib/audit.js'
 import { BadRequestError, ConflictError, NotFoundError } from '../../lib/errors.js'
-import { hashPassword, passwordProblem } from '../../lib/password.js'
+import { generatePassword, hashPassword, passwordProblem } from '../../lib/password.js'
 import { prisma } from '../../lib/prisma.js'
 import { requireAuth, requireRole } from '../../middleware/auth.js'
 import { validateBody } from '../../middleware/validate.js'
@@ -15,6 +15,10 @@ import { validateBody } from '../../middleware/validate.js'
 // Un cambio di password, ruolo, società o stato fa crescere sessionVersion e
 // revoca i refresh token: l'utente esce subito (middleware/auth.ts), anche
 // quando è chi fa la modifica.
+// Una password data dall’amministratore a un altro utente è provvisoria
+// (mustChangePassword): al primo accesso l’utente ne sceglie una sua
+// (auth/routes.ts, /me/password). Senza password, il server ne genera una e la
+// restituisce una volta sola, da consegnare all’utente.
 export const usersRouter = Router()
 
 usersRouter.use(requireAuth)
@@ -32,6 +36,7 @@ const publicFields = {
   companyId: true,
   company: { select: { name: true } },
   status: true,
+  mustChangePassword: true,
   lastLoginAt: true,
   createdAt: true,
 } as const
@@ -55,7 +60,7 @@ const createSchema = z.object({
   designation: optionalText,
   role: z.enum(ROLES),
   companyId: z.string().uuid().nullable().optional(),
-  password,
+  password: password.optional(),
 })
 
 const updateSchema = z.object({
@@ -101,6 +106,7 @@ usersRouter.post('/', validateBody(createSchema), async (req, res, next) => {
     const companyId = body.role === 'PLATFORM_ADMIN' ? null : (body.companyId ?? null)
     await checkCompany(body.role, companyId)
     await checkUnique(body.email, body.username)
+    const temporaryPassword = body.password ? undefined : generatePassword()
 
     const user = await prisma.user.create({
       data: {
@@ -110,12 +116,13 @@ usersRouter.post('/', validateBody(createSchema), async (req, res, next) => {
         designation: body.designation,
         role: body.role,
         companyId,
-        passwordHash: await hashPassword(body.password),
+        passwordHash: await hashPassword(body.password ?? temporaryPassword!),
+        mustChangePassword: true,
       },
       select: publicFields,
     })
-    await audit(prisma, { actorUserId: req.auth!.sub, action: 'user.created', entityType: 'User', entityId: user.id, metadata: { email: user.email, role: user.role, companyId } })
-    res.status(201).json(user)
+    await audit(prisma, { actorUserId: req.auth!.sub, action: 'user.created', entityType: 'User', entityId: user.id, metadata: { email: user.email, role: user.role, companyId, generated: !!temporaryPassword } })
+    res.status(201).json(temporaryPassword ? { ...user, temporaryPassword } : user)
   } catch (err) {
     next(err)
   }
@@ -177,12 +184,12 @@ usersRouter.patch('/:id/password', validateBody(passwordSchema), async (req, res
     const target = await prisma.user.findUnique({ where: { id: req.params.id }, select: { id: true, email: true } })
     if (!target) throw new NotFoundError('Utente non trovato')
 
+    const self = target.id === req.auth!.sub
     const passwordHash = await hashPassword((req.body as z.infer<typeof passwordSchema>).password)
     await prisma.$transaction([
-      prisma.user.update({ where: { id: target.id }, data: { passwordHash, sessionVersion: { increment: 1 } } }),
+      prisma.user.update({ where: { id: target.id }, data: { passwordHash, mustChangePassword: !self, sessionVersion: { increment: 1 } } }),
       prisma.refreshToken.updateMany({ where: { userId: target.id, revokedAt: null }, data: { revokedAt: new Date() } }),
     ])
-    const self = target.id === req.auth!.sub
     await audit(prisma, { actorUserId: req.auth!.sub, action: 'user.password_changed', entityType: 'User', entityId: target.id, metadata: { email: target.email, self } })
     res.json({ signedOut: true, self })
   } catch (err) {

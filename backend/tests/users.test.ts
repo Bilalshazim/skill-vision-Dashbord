@@ -90,3 +90,54 @@ describe('gestione utenti', () => {
     expect((await api.get('/api/v1/auth/me').set(authHeader(recruiterToken))).status).toBe(200)
   })
 })
+
+describe('primo accesso', () => {
+  beforeEach(resetDb)
+  afterAll(async () => prisma.$disconnect())
+
+  it('senza password il server ne genera una provvisoria; al primo accesso l’utente ne sceglie una sua', async () => {
+    const fx = await seedFixture()
+    const created = await api
+      .post('/api/v1/users')
+      .set(authHeader(await loginAs('admin@test.local')))
+      .send({ email: 'primo@test.local', fullName: 'Primo Accesso', role: 'RECRUITER', companyId: fx.company.id })
+    expect(created.status).toBe(201)
+    const temp = created.body.temporaryPassword as string
+    expect(temp).toHaveLength(18)
+    expect(created.body.mustChangePassword).toBe(true)
+    expect((await api.get('/api/v1/users').set(authHeader(await loginAs('admin@test.local')))).body.some((u: { temporaryPassword?: string }) => u.temporaryPassword)).toBe(false)
+
+    const login = await api.post('/api/v1/auth/login').send({ email: 'primo@test.local', password: temp })
+    expect(login.status).toBe(200)
+    expect(login.body.user.mustChangePassword).toBe(true)
+    const token = login.body.accessToken as string
+    // Fino alla password nuova passa solo /auth/me.
+    expect((await api.get('/api/v1/auth/me').set(authHeader(token))).status).toBe(200)
+    const blocked = await api.get('/api/v1/companies').set(authHeader(token))
+    expect(blocked.status).toBe(403)
+    expect(blocked.body.error.code).toBe('password_change_required')
+
+    expect((await api.post('/api/v1/auth/me/password').set(authHeader(token)).send({ currentPassword: 'sbagliata', newPassword: GOOD })).status).toBe(400)
+    expect((await api.post('/api/v1/auth/me/password').set(authHeader(token)).send({ currentPassword: temp, newPassword: 'corta' })).status).toBe(400)
+    const set = await api.post('/api/v1/auth/me/password').set(authHeader(token)).send({ currentPassword: temp, newPassword: GOOD })
+    expect(set.status).toBe(200)
+    expect(set.body.user.mustChangePassword).toBe(false)
+    // Il token vecchio è chiuso, quello nuovo funziona; la provvisoria non vale più.
+    expect((await api.get('/api/v1/auth/me').set(authHeader(token))).status).toBe(401)
+    expect((await api.get('/api/v1/auth/me').set(authHeader(set.body.accessToken))).body.mustChangePassword).toBe(false)
+    expect((await api.post('/api/v1/auth/login').send({ email: 'primo@test.local', password: temp })).status).toBe(401)
+    await loginAs('primo@test.local', GOOD)
+  })
+
+  it('una password data dall’amministratore a un altro è provvisoria; la propria no', async () => {
+    const fx = await seedFixture()
+    const token = await loginAs('admin@test.local')
+    await api.patch(`/api/v1/users/${fx.recruiter.id}/password`).set(authHeader(token)).send({ password: GOOD })
+    const login = await api.post('/api/v1/auth/login').send({ email: 'recruiter@test.local', password: GOOD })
+    expect(login.body.user.mustChangePassword).toBe(true)
+
+    await api.patch(`/api/v1/users/${fx.platformAdmin.id}/password`).set(authHeader(token)).send({ password: GOOD })
+    const self = await api.post('/api/v1/auth/login').send({ email: 'admin@test.local', password: GOOD })
+    expect(self.body.user.mustChangePassword).toBe(false)
+  })
+})

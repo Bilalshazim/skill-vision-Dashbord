@@ -144,6 +144,37 @@ export async function login(email: string, password: string): Promise<LoginResul
   return { ok: true, user: data.user }
 }
 
+export type SetOwnPasswordResult = { ok: true } | { ok: false; message: string }
+
+/** L’utente sceglie la sua password (al primo accesso o quando vuole). Il
+ *  server chiude le altre sessioni e restituisce token nuovi per questa. */
+export async function setOwnPassword(currentPassword: string, newPassword: string): Promise<SetOwnPasswordResult> {
+  let res: Response
+  try {
+    res = await fetch(buildApiUrl('/auth/me/password'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAccessToken()}` },
+      credentials: 'include',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    })
+  } catch {
+    return { ok: false, message: 'Il server non risponde. Riprova fra poco.' }
+  }
+  if (res.status === 401) {
+    void logout()
+    return { ok: false, message: 'La sessione è scaduta: rientra con la password provvisoria.' }
+  }
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null
+    return { ok: false, message: body?.error?.message?.replace(/^w+: /, '') ?? 'Password non salvata. Riprova.' }
+  }
+  const data = (await res.json()) as { accessToken: string; user: BackendUser }
+  setBackendSession(data.accessToken, data.user)
+  set({ status: 'authenticated', user: data.user })
+  scheduleExpiry()
+  return { ok: true }
+}
+
 /** Esce: il server revoca il refresh token e cancella il cookie. */
 export async function logout(): Promise<void> {
   try {

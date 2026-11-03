@@ -40,6 +40,13 @@ export class RoleForbiddenError extends AppError {
     super(403, 'role_forbidden', message)
   }
 }
+// 403 con un codice suo: l’utente ha una password data dall’amministratore e
+// deve sceglierne una propria prima di usare il resto (middleware/auth.ts).
+export class PasswordChangeRequiredError extends AppError {
+  constructor() {
+    super(403, 'password_change_required', 'Password change required')
+  }
+}
 export class NotFoundError extends AppError {
   constructor(message = 'Not found') {
     super(404, 'not_found', message)

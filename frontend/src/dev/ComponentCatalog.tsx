@@ -71,6 +71,7 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { LoginForm } from '@/components/patterns/LoginForm'
+import { NewPasswordForm } from '@/components/patterns/NewPasswordForm'
 import { PasswordInput } from '@/components/patterns/PasswordInput'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -1703,6 +1704,22 @@ const ENTRIES: Entry[] = [
         <Row label="In corso e server non raggiungibile">
           <LoginForm onSubmit={() => undefined} pending />
           <LoginForm onSubmit={() => undefined} error={{ kind: 'network' }} />
+        </Row>
+      </div>
+    ),
+  },
+  {
+    name: 'Scelta della password',
+    level: 'Pattern',
+    source: 'components/patterns/NewPasswordForm.tsx · pages/FirstAccessPage.tsx (primo accesso)',
+    render: () => (
+      <div className="flex flex-col gap-6">
+        <Row label="Primo accesso — dalla provvisoria a una propria; i controlli compaiono al salvataggio">
+          <NewPasswordForm currentLabel="Password provvisoria" onSubmit={() => toast('Password salvata')} />
+        </Row>
+        <Row label="Errore dal server e in corso">
+          <NewPasswordForm onSubmit={() => undefined} error="La password attuale non è corretta." />
+          <NewPasswordForm onSubmit={() => undefined} pending />
         </Row>
       </div>
     ),

@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs'
+import { randomInt } from 'node:crypto'
 
 export async function hashPassword(plain: string): Promise<string> {
   return bcrypt.hash(plain, 12)
@@ -20,4 +21,14 @@ export function passwordProblem(pw: string): string | null {
   if (FORBIDDEN.some((f) => pw.toLowerCase().includes(f))) return 'La password contiene una parola già pubblica (seed o ponte del guscio).'
   if (!/[a-z]/.test(pw) || !/[A-Z]/.test(pw) || !/\d/.test(pw)) return 'Servono almeno una minuscola, una maiuscola e una cifra.'
   return null
+}
+
+// Password provvisoria per un utente nuovo, quando l’amministratore non ne
+// scrive una: 18 caratteri senza quelli che si confondono (0/O, 1/l/I).
+export function generatePassword(): string {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'
+  for (;;) {
+    const out = Array.from({ length: 18 }, () => alphabet[randomInt(alphabet.length)]).join('')
+    if (!passwordProblem(out)) return out
+  }
 }

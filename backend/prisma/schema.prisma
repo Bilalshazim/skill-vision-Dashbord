@@ -51,6 +51,9 @@ model User {
   // Cresce a ogni cambio di password, ruolo o stato: i token d'accesso con una
   // versione vecchia sono rifiutati (middleware/auth.ts), quindi l'utente esce subito.
   sessionVersion Int      @default(0)
+  // Password data dall’amministratore: al prossimo accesso l’utente ne sceglie
+  // una sua, e fino ad allora il server rifiuta il resto (middleware/auth.ts).
+  mustChangePassword Boolean @default(false)
   // Preferenze dell'interfaccia (tema, lingua, viste aperte, società scelta):
   // sul server e non nel browser (PROGETTO-TUTTO-SUL-SERVER.md, Parte 2).
   preferences  Json       @default("{}")

@@ -45,6 +45,8 @@ export type ManagedUser = {
   companyId: string | null
   company: { name: string } | null
   status: ManagedUserStatus
+  // Password provvisoria: l’utente non ha ancora scelto la sua.
+  mustChangePassword: boolean
   lastLoginAt: string | null
   createdAt: string
 }
@@ -58,7 +60,8 @@ export type ManagedUserInput = {
 }
 export const usersApi = {
   list: () => apiGet<ManagedUser[]>('/users'),
-  create: (body: ManagedUserInput & { password: string }) => apiPost<ManagedUser>('/users', body),
+  // Senza password il server ne genera una e la restituisce una volta sola.
+  create: (body: ManagedUserInput & { password?: string }) => apiPost<ManagedUser & { temporaryPassword?: string }>('/users', body),
   update: (id: string, body: Partial<ManagedUserInput> & { status?: 'ACTIVE' | 'DISABLED' }) => apiPatch<ManagedUser>(`/users/${id}`, body),
   setPassword: (id: string, password: string) => apiPatch<{ signedOut: boolean; self: boolean }>(`/users/${id}/password`, { password }),
 }
