@@ -2544,3 +2544,41 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
   comunque per la `key` di `PageTransition`. Si vede anche la transizione d'uscita
   delle pagine, che prima il rimontaggio saltava. Il salvataggio sul server non
   cambia.
+
+## Home nel menu di Assessment: link e freccia · 2026-11-04
+- Gli altri gruppi si aprono cliccando il titolo, ma il titolo di Home deve aprire
+  la home (CLAUDE.md, 2026-11-02). Opzioni: (a) gruppo sempre aperto; (b) titolo
+  link più una freccia a parte.
+- Cosa cambia: (a) non si chiude mai, e il menu è già lungo; (b) è un controllo in
+  più, che shadcn prevede come `SidebarMenuAction`.
+- Raccomandazione e presa: **(b)**, aperto all'avvio. Con una pagina dei risultati
+  aperta la freccia non c'è: il gruppo resta aperto, come gli altri.
+
+## Storico nei dati di prova di Assessment · 2026-11-04
+- Il riquadro 01 della Sintesi chiede un andamento mag–ott, ma `generateDemoData` non
+  produceva storico. CLAUDE.md vieta le serie inventate per riempire un riquadro.
+- Opzioni: (a) generare lo storico solo nei dati di prova, che si dichiarano tali;
+  (b) nessun grafico finché non ci sono valutazioni vere.
+- Raccomandazione e presa: **(a)**. Con i dati veri il grafico compare solo con almeno
+  due mesi di storico vero. I mesi sono i sei passati rispetto al caricamento, non
+  «maggio–ottobre» scritto nel codice. Generato senza numeri casuali, così la
+  popolazione di prova non cambia.
+
+## Dati dimostrativi di Recruiting: come si caricano · 2026-11-04
+- Opzioni: (a) voce nel menu, come «Ripristina demo»; (b) seed sul server; (c)
+  caricamento automatico in modalità demo.
+- Cosa cambia: (b) è vietato da CLAUDE.md; (c) scriverebbe su Railway senza che
+  nessuno lo chieda, perché lì `VITE_DEMO_MODE` è attiva.
+- Raccomandazione e presa: **(a)**, con conferma. Aggiunge una posizione e i suoi
+  candidati, e ricaricando sostituisce solo quelli (id `demo-`): a differenza del
+  reset di Assessment non cancella niente, quindi non serve un'apertura sul server.
+- **Il limite:** il controllo è nel frontend (`isDemoMode`, società `company-acme`).
+  Anche una società nuova parte dai dati di esempio con Acme: finché
+  `VITE_DEMO_MODE` è attiva la voce compare anche a lei. Non è un problema oggi (non
+  ci sono clienti), e la variabile va tolta prima del primo cliente (Fase 8).
+
+## Pagina dei risultati «Chi scegliamo»: il vincitore fra i finalisti · 2026-11-04
+- Per avere il quinto stato la posizione dimostrativa ha un vincitore (Assunto). Il
+  codice conta chi è scelto anche fra i finalisti: 3 finalisti con un vincitore.
+  Non cambiato: è il calcolo esistente. Se Roberto vuole fuori chi è già scelto, è una
+  modifica a parte.

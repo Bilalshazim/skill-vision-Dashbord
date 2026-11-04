@@ -5,10 +5,10 @@ import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 
 // 02 · Le perdite invisibili (CLAUDE.md, Fase 6). È il modello delle sette
-// pagine (tavola «Assessment · 2 Risultati · Le perdite invisibili»): la tavola
-// non è nel repository, quindi i testi qui sono provvisori (DECISIONI) e i
-// numeri vengono dagli stessi calcoli della Panoramica: persone sotto la norma
-// (Da potenziare + Critici), aree, mansioni e competenze sotto l'atteso 7,0.
+// pagine (tavola «Assessment · 2 Risultati · Le perdite invisibili»). I testi
+// sono quelli della verifica in produzione del 2026-11-02; i numeri vengono
+// dagli stessi calcoli della Panoramica: persone sotto la norma (Da potenziare
+// + Critici), aree, mansioni e competenze sotto l'atteso 7,0.
 export default function PerditeInvisibiliPage() {
   const { res, data, win, f, crumbs, home, demoNote } = useAssessmentResults('perdite-invisibili')
   const competenze = f.A ? '/assessment/soft-overview' : '/assessment/hard-overview'
@@ -22,7 +22,7 @@ export default function PerditeInvisibiliPage() {
       why={res.perditeWhy}
       empty={data.total ? undefined : { title: res.noTestsTitle, description: res.noTests }}
       situation={{
-        text: res.perditeSituation(data.below, data.total),
+        text: res.perditeSituation(data.areasBelow.length),
         detail: res.perditeDetail(data.worstArea?.label ?? null),
         chartTitle: res.perditeChart,
         hint: { label: res.perditeChart, text: res.perditeChartHint },
@@ -42,19 +42,19 @@ export default function PerditeInvisibiliPage() {
       }}
       issues={{
         items: [
-          { tone: 'destructive' as const, title: res.perditeArea, value: data.worstArea ? data.worstArea.label : res.perditeNoArea, body: data.worstArea ? res.pointsBelow(fmt1it(data.worstArea.gap)) : undefined, link: { label: res.open, to: competenze } },
-          { tone: 'destructive' as const, title: res.perditeRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, link: { label: res.open, to: '/assessment/valore' } },
-          { tone: 'destructive' as const, title: res.perditeSkill, value: data.worstSkill ? data.worstSkill.name : res.perditeNoSkill, body: data.worstSkill ? res.pointsBelow(fmt1it(-data.worstSkill.gap)) : undefined, link: { label: res.open, to: competenze } },
+          { title: res.perditeArea, value: data.worstArea ? data.worstArea.label : res.perditeNoArea, body: data.worstArea ? res.pointsBelow(fmt1it(data.worstArea.gap)) : undefined, link: { label: res.open, to: competenze } },
+          { title: res.perditeRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, link: { label: res.open, to: '/assessment/valore' } },
+          { title: res.perditeSkill, value: data.worstSkill ? data.worstSkill.name : res.perditeNoSkill, body: data.worstSkill ? res.pointsBelow(fmt1it(-data.worstSkill.gap)) : undefined, link: { label: res.open, to: competenze } },
         ],
         opportunity: res.perditeOpportunity(data.worstArea?.label ?? null),
         opportunityLabel: res.opportunityLabel,
       }}
       impact={{ pct: data.belowPct, label: res.perditeImpact, hint: res.perditeHint(data.below, data.total), euroNote: res.perditeEuro }}
-      suggestion={{ text: res.perditeSuggest, link: { label: res.goDove, to: '/assessment/dove-intervenire' } }}
+      suggestion={{ text: res.perditeSuggest(data.worstArea?.label ?? null, data.worstRoleInArea),  link: { label: res.goDove, to: '/assessment/dove-intervenire' } }}
       deepDives={[
         { label: res.deep.soft, to: '/assessment/soft-overview' },
         { label: res.deep.hard, to: '/assessment/hard-overview' },
-        { label: res.deep.valore, to: '/assessment/valore' },
+        { label: res.deep.hardRes, to: '/assessment/hard-risultati' },
       ]}
       home={home}
       demoNote={demoNote}

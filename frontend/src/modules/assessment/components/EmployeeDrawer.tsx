@@ -219,7 +219,7 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
               </CardLabel>
               <label className="mb-3 flex items-center gap-3 text-app-small font-medium">
                 <Switch checked={feedbackNeeded ?? emp.feedbackNeeded} onCheckedChange={(c) => setFeedbackNeeded(c)} />
-                {ui.feedbackSwitchLabel}
+                {(feedbackNeeded ?? emp.feedbackNeeded) ? ui.feedbackSwitchLabel : ui.feedbackSwitchOff}
               </label>
               {(['azioni', 'formazione', 'coaching', 'obiettivi'] as const).map((k) => (
                 <Field label={ui[`devPlan${k[0].toUpperCase()}${k.slice(1)}Label` as keyof typeof ui] as string} key={k}>

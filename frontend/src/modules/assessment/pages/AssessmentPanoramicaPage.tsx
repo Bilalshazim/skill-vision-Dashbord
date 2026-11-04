@@ -203,7 +203,7 @@ export default function AssessmentPanoramicaPage() {
         count={hs.tiers[k].length}
         total={total}
         unit={{ one: ui.bandPersonOne, many: people }}
-        people={ranked.filter((r) => r.tier === k).map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, meta: r.e.mansione || r.e.ruolo, score: `${fmt1it(r.score)} /10`, onClick: () => setDrawerId(r.e.id) }))}
+        people={ranked.filter((r) => r.tier === k).map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, meta: r.e.ruolo || r.e.mansione, score: `${fmt1it(r.score)} /10`, onClick: () => setDrawerId(r.e.id) }))}
         onSeeAll={() => navigate(`/assessment/valore?fascia=${k}`)}
         seeAllLabel={ui.bandSeeAll}
         emptyText={ui.bandEmpty}
@@ -412,9 +412,10 @@ export default function AssessmentPanoramicaPage() {
           {sparkPoints.length >= 2 ? (
             <TrendChart
               title={ui.panoTrendTitle}
-              variant="spark"
+              variant="compact"
               scale={{ left: [0, 10] }}
               format={fmt1it}
+              markLast="v"
               series={[
                 { key: 'v', label: ui.panoScore, kind: 'area' },
                 { key: 'b', label: res.lossRef(fmt1it(hs.benchmark)), reference: true },

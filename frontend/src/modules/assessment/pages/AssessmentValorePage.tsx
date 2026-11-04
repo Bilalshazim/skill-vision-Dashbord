@@ -129,7 +129,7 @@ export default function AssessmentValorePage() {
               unit={{ one: ui.bandPersonOne, many: ui.homeQ4PeopleUnit }}
               people={rows
                 .filter((r) => r.tier.key === k)
-                .map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, meta: r.e.mansione || r.e.ruolo, score: `${fmt1it(r.combined)} /10`, onClick: () => setDrawerId(r.e.id) }))}
+                .map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, meta: r.e.ruolo || r.e.mansione, score: `${fmt1it(r.combined)} /10`, onClick: () => setDrawerId(r.e.id) }))}
               onSeeAll={() => showBand(k)}
               seeAllLabel={ui.bandSeeAll}
               emptyText={ui.bandEmpty}

@@ -134,6 +134,23 @@ function SidebarMenuBadge({ className, ...props }: React.ComponentProps<'span'>)
   return <span data-slot="sidebar-menu-badge" className={cn('ml-auto rounded-full bg-secondary px-2 text-app-caption tabular-nums text-secondary-foreground', className)} {...props} />
 }
 
+// Un'azione accanto a una voce (aprire e chiudere il suo gruppo): sta sopra la
+// voce, a destra. Sulla voce attiva prende il colore del testo della pillola.
+function SidebarMenuAction({ className, isActive = false, ...props }: React.ComponentProps<'button'> & { isActive?: boolean }) {
+  return (
+    <button
+      type="button"
+      data-slot="sidebar-menu-action"
+      className={cn(
+        'absolute top-1 right-1 z-10 flex size-7 items-center justify-center rounded-xs outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring [&_svg]:size-4',
+        isActive ? 'text-sidebar-primary-foreground' : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
 function SidebarMenuSub({ className, ...props }: React.ComponentProps<'ul'>) {
   return <ul data-slot="sidebar-menu-sub" className={cn('ml-5 flex flex-col gap-1 border-l border-sidebar-border pl-2', className)} {...props} />
 }
@@ -150,6 +167,7 @@ export {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuAction,
   SidebarMenuBadge,
   SidebarMenuSub,
 }

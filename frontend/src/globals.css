@@ -343,10 +343,10 @@
   --link:                  var(--color-accent-400);
 
 
-  --chart-mono:             var(--color-neutral-100);
+  --chart-mono:             var(--color-neutral-400);
   --chart-highlight:        var(--color-accent-400);
   --chart-highlight-stroke: var(--color-accent-400);
-  --chart-reference:        var(--color-neutral-400);
+  --chart-reference:        var(--color-neutral-200);
   --chart-compare:          var(--color-neutral-600);
   --chart-1: var(--color-chart-1-dark);
   --chart-2: var(--color-chart-2-dark);

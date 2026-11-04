@@ -27,6 +27,6 @@ export function useAssessmentResults(slug: string) {
     demoNote: isDemoMode() ? (company?.name ?? '—') : undefined,
     /** Le prime tre persone di una fascia, una riga ciascuna: nome, mansione, punteggio su 10. */
     topThree: (list: RankedPerson[]) =>
-      list.slice(0, 3).map((r) => ({ id: r.e.id, text: `${r.e.nome} ${r.e.cognome} · ${r.e.mansione || r.e.ruolo} · ${fmt1it(r.score)} /10` })),
+      list.slice(0, 3).map((r) => ({ id: r.e.id, text: `${r.e.nome} ${r.e.cognome} · ${r.e.ruolo || r.e.mansione} · ${fmt1it(r.score)} /10` })),
   }
 }

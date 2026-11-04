@@ -1,4 +1,4 @@
-import { Area, ChartTooltip, ComposedChart, Grid, Line, SeriesBar, XAxis, YAxis } from '@/components/charts'
+import { Area, ChartTooltip, ComposedChart, Grid, Line, LineSeriesTerminalMarker, SeriesBar, XAxis, YAxis } from '@/components/charts'
 import { ChartDataTable } from '@/components/patterns/ChartDataTable'
 import { ChartLegend } from '@/components/patterns/ChartLegend'
 import { seriesColors } from '@/lib/chart-colors'
@@ -33,6 +33,9 @@ export type TrendSeries = {
 // `variant="spark"`: la sparkline dell'andamento accanto a un numero (StatCard
 // del punteggio nella Panoramica): stessa serie, senza assi, griglia, legenda e
 // tooltip; i valori restano nella tabella per i lettori di schermo.
+// `variant="compact"`: dentro una card di sintesi. Asse del tempo e nomi delle
+// serie, senza griglia e senza asse dei valori: il numero è già nella card.
+// `markLast`: la serie il cui ultimo valore è quello da guardare, in lime.
 export function TrendChart({
   title,
   points,
@@ -41,6 +44,7 @@ export function TrendChart({
   scale,
   format,
   variant = 'full',
+  markLast,
   className,
 }: {
   title: string
@@ -50,10 +54,12 @@ export function TrendChart({
   /** Scala fissa per asse: `{ left: [0, 10] }`, `{ right: [0, 100] }`. */
   scale?: { left?: [number, number]; right?: [number, number] }
   format?: (n: number) => string
-  variant?: 'full' | 'spark'
+  variant?: 'full' | 'spark' | 'compact'
+  markLast?: string
   className?: string
 }) {
   const spark = variant === 'spark'
+  const compact = variant === 'compact'
   const colors = seriesColors(series)
   const data = points.map((p) => ({ date: p.date, label: p.label, ...Object.fromEntries(series.map((s) => [s.key, p.values[s.key] ?? 0])) }))
   const hasRight = series.some((s) => s.axis === 'right')
@@ -63,7 +69,7 @@ export function TrendChart({
   const barPad = series.some((s) => s.kind === 'bar') ? 16 : 0
   return (
     <figure data-slot="trend-chart" className={cn('flex flex-col gap-3', className)}>
-      <div aria-hidden="true" className={cn('w-full', spark ? 'h-12' : height === 'sm' ? 'h-40' : height === 'md' ? 'h-60' : 'h-80')}>
+      <div aria-hidden="true" className={cn('w-full', spark ? 'h-12' : compact ? 'h-32' : height === 'sm' ? 'h-40' : height === 'md' ? 'h-60' : 'h-80')}>
         <ComposedChart
           data={data}
           xDataKey="date"
@@ -71,16 +77,18 @@ export function TrendChart({
           className="h-full"
           maxBarSize={32}
           yDomains={scale}
-          margin={spark ? { top: 4, right: 4, bottom: 4, left: 4 } : { top: 16, right: hasRight ? 48 + barPad : 16 + barPad, bottom: 32, left: 40 + barPad }}
+          margin={spark ? { top: 4, right: 4, bottom: 4, left: 4 } : compact ? { top: 8, right: 12, bottom: 28, left: 12 } : { top: 16, right: hasRight ? 48 + barPad : 16 + barPad, bottom: 32, left: 40 + barPad }}
         >
-          {spark ? null : <Grid horizontal />}
+          {spark || compact ? null : <Grid horizontal />}
           {series.map((s, i) => {
             const yAxisId = s.axis ?? 'left'
             if (s.kind === 'bar') return <SeriesBar key={s.key} dataKey={s.key} fill={colors[i]} radius={4} />
             if (s.kind === 'area' && !s.reference) return <Area key={s.key} dataKey={s.key} yAxisId={yAxisId} fill={colors[i]} stroke={colors[i]} strokeWidth={2} />
             return <Line key={s.key} dataKey={s.key} yAxisId={yAxisId} stroke={colors[i]} strokeWidth={2} fadeEdges={false} dashFromIndex={s.reference ? 0 : undefined} />
           })}
-          {spark ? null : (
+          {markLast ? <LineSeriesTerminalMarker dataKey={markLast} fill="var(--chart-highlight)" stroke="var(--chart-highlight-stroke)" /> : null}
+          {compact ? <XAxis numTicks={Math.min(points.length, 6)} /> : null}
+          {spark || compact ? null : (
             <>
               <XAxis numTicks={Math.min(points.length, 8)} />
               <YAxis formatValue={format} labelInset={barPad} />

@@ -20,8 +20,6 @@ export type ResultsIssue = {
   /** Righe brevi sotto il dato, per esempio le prime tre persone con mansione e punteggio. */
   list?: { id: string; text: string }[]
   link?: ResultsLink
-  /** Il colore dell'etichetta, sempre con la parola: `destructive` per una criticità, `success` per un'opportunità. */
-  tone?: 'neutral' | 'destructive' | 'success'
 }
 
 export type ResultsImpact = {
@@ -34,8 +32,6 @@ export type ResultsImpact = {
   /** Cosa si stimerà in euro, sotto il segnaposto (Assessment); assente in Recruiting, dove lo decide Roberto. */
   euroNote?: string
 }
-
-const LABEL_TONE = { neutral: 'text-muted-foreground', destructive: 'text-destructive', success: 'text-success' } as const
 
 // La pagina dei risultati di una finestra (CLAUDE.md, Fase 6, "Le pagine dei
 // risultati"): un'impaginazione sola per le sette pagine, sulla tavola «Le
@@ -159,7 +155,8 @@ export function ResultsPage({
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {issues.items.slice(0, 3).map((it) => (
                       <Card key={it.title} className="gap-1 bg-muted">
-                        <h3 className={cn('label-mono', LABEL_TONE[it.tone ?? 'neutral'])}>{it.title}</h3>
+                        {/* L'etichetta è neutra: un riquadro di criticità non è una fascia (CLAUDE.md, Fase 6). */}
+                        <h3 className="label-mono text-muted-foreground">{it.title}</h3>
                         <div className="text-app-subtitle font-semibold text-foreground">{it.value}</div>
                         {it.body ? <div className="text-app-small text-muted-foreground">{it.body}</div> : null}
                         {it.list?.length ? (

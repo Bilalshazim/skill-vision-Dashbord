@@ -42,7 +42,7 @@ export default function AssessmentCustomerCarePage() {
   const [view, setView] = useState<CCView>('overview')
   const [drawerId, setDrawerId] = useState<string | null>(null)
   const SOFT_SKILLS = getSoftSkills(lang)
-  const competencyName = (id: string) => SOFT_SKILLS.find((s) => s.id === id)?.name || id
+  const competencyName = (id: string) => SOFT_SKILLS.find((s) => s.id === id)?.name || '—'
   const model = useMemo(() => customerCareModel(state.employees, ui), [state.employees, ui])
 
   useTopbarActions(

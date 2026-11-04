@@ -190,6 +190,49 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-04 (2) — Correzioni della verifica in produzione del 2026-11-02, dati dimostrativi di Recruiting
+- [x] Rilasciato prima il selettore CT / CP / Completo (73c2965, su `main`).
+- [x] Tema scuro: `chart-mono` `neutral-400`, `chart-reference` `neutral-200`.
+- [x] Menu di Assessment: Home è un gruppo con le quattro pagine dei risultati,
+      voce attiva accesa; si apre e chiude con la freccia (`SidebarMenuAction`,
+      nuova nella primitiva). Il titolo apre la home.
+- [x] Menu di Recruiting: il titolo del livello apre la pagina dei risultati ed è
+      acceso quando è aperta; lo stesso livello nella riga del percorso.
+- [x] «Le perdite invisibili» con i testi di CLAUDE.md. La frase del punto 4 usa
+      la mansione più lontana **dentro** l'area più lontana (`worstRoleInArea`).
+- [x] «Dove intervenire»: «[tipo] riguarda [N] persone su [totale]: un solo
+      programma le segue tutte.»
+- [x] Etichette dei riquadri neutre: tolta la prop `tone` di `ResultsIssue`.
+- [x] Nelle pagine che elencano persone la mansione è il nome (`ruolo`), non la
+      descrizione: Panoramica, Il potenziale, Valori complessivi, Cambio ruolo.
+- [x] «Colloquio di restituzione necessario» solo a interruttore acceso; spento
+      dice «Nessun colloquio di restituzione previsto» (Piani di sviluppo e scheda).
+- [x] Codici delle competenze: **non ho riprodotto «ma1» a schermo.** Controllati
+      le 21 pagine di Assessment, le pagine di Recruiting, scheda persona, cambio
+      ruolo, assistente, comitato scientifico (nessun codice). Trovato e chiuso un
+      solo punto che poteva mostrarlo: il ripiego di `competencyName` in Customer
+      Care. Da riscontrare con Alessio: su quale pagina l'ha visto?
+- [x] Assistente IA: risponde sulla posizione attiva e sui suoi candidati, non
+      sull'archivio. Il profilo di riferimento dei punteggi resta `DEFAULT_ROLE`.
+- [x] Sintesi, riquadro 01: Area con atteso tratteggiato e valore di oggi in lime
+      (`TrendChart` `variant="compact"`, `markLast`).
+- [x] **Rotto da prima:** i dati di prova di Assessment non avevano storico, quindi
+      l'andamento non poteva comparire. `addDemoHistory`: sei mesi passati, solo nei
+      dati di prova. Si vede **dopo «Ripristina demo»**. Verificato senza scrivere
+      niente: import in prova (23 dipendenti, nessuno scartato) e risposta del server
+      intercettata nel browser.
+- [x] Dati dimostrativi di Recruiting (`lib/demo-data.ts`, `RecruitingDemoEntry`):
+      posizione «Account Manager · posizione dimostrativa» in Acme, 12 candidati
+      inventati, cinque stati, 5 test completati e 2 in attesa, 3 finalisti, 1
+      colloquio in programma. Solo con un clic, in demo, su Acme, per chi può
+      scrivere. **Non caricati in produzione**, nessun seed.
+- [x] Verificato nel browser in locale, chiaro e scuro. `tsc -b`, oxlint, `vite
+      build`, audit a 0. Backend non toccato in questa modifica.
+- [ ] Non verificato a schermo: la voce nascosta a chi non può scrivere.
+- [ ] `<rect> width` negativo in console (animazione delle barre): c'era già. Le
+      barre finiscono giuste; è rumore da togliere a parte.
+- [ ] Non rilasciato: queste modifiche non sono ancora nel commit.
+
 ## 2026-11-04 — Selettore CT / CP / Completo ripristinato in tutto Assessment
 - [x] Cronologia: prima del rilascio stava nelle azioni dell'intestazione, a
       destra del titolo (`useTopbarActions` → `PageHeader`), solo in Panoramica.

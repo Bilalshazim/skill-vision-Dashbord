@@ -11,7 +11,7 @@ export function LeaverSummary({ emp, role, tasks, area, level, ui }: { emp: Empl
   const rows: [string, string][] = [
     [ui.rcName, `${emp.nome} ${emp.cognome}`],
     [ui.rcRole, role],
-    [ui.rcJobTitle, emp.mansione],
+    [ui.rcJobTitle, emp.ruolo || emp.mansione],
     [ui.rcArea, area],
     [ui.rcLevel, level],
   ]

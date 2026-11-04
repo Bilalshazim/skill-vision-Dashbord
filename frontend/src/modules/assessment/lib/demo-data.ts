@@ -207,6 +207,31 @@ export function exiBlankData(companyName: string): ExiData {
   }
 }
 
+const mean = (l: number[]) => (l.length ? l.reduce((n, v) => n + v, 0) / l.length : 0)
+const round1 = (n: number) => Math.round(n * 10) / 10
+
+// Lo storico dimostrativo: un punteggio al mese per i sei mesi passati, che sale
+// fino al valore di oggi, così l'andamento nella Panoramica ha qualcosa da
+// mostrare (CLAUDE.md, Fase 6). Esiste solo nei dati dimostrativi, che lo
+// dichiarano: fuori dalla demo la storia è solo quella delle valutazioni vere.
+// Senza numeri casuali, per non cambiare la popolazione generata sopra.
+function addDemoHistory(employees: Employee[]) {
+  const now = new Date()
+  const months = [6, 5, 4, 3, 2, 1].map((back) => new Date(now.getFullYear(), now.getMonth() - back, 15))
+  employees.forEach((e, i) => {
+    const soft = Object.values(e.soft)
+    const softNow = mean(soft.map((v) => v.ottenuto))
+    const softAtteso = round1(mean(soft.map((v) => v.atteso)))
+    const hardNow = mean(Object.values(e.hard.resp ?? {}))
+    const past = (value: number, m: number) => round1(Math.min(10, Math.max(1, value - (months.length - 1 - m) * 0.1 + ((i + m) % 3 === 0 ? 0.1 : 0))))
+    e.softHistory = months.map((d, m) => ({ module: 'transversal', date: d.toISOString(), source: 'manual', overallOttenuto: past(softNow, m), overallAtteso: softAtteso }))
+    e.hardHistory = months.map((d, m) => {
+      const label = d.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
+      return { module: 'professional', periodId: 'period_' + d.toISOString().slice(0, 7), periodLabel: label, date: d.toISOString(), source: 'resp', apexScore: past(hardNow, m), dims: [] }
+    })
+  })
+}
+
 // Ported verbatim from generateDemoData() (js/assessment.js ~2794-2874).
 // Same deterministic seed as legacy — a fresh React install generates the
 // exact same demo population, byte-for-byte, as a fresh legacy install.
@@ -257,6 +282,7 @@ export function generateDemoData(): AssessmentState {
       }
     })
   })
+  addDemoHistory(employees)
   const roleProfiles: AssessmentState['roleProfiles'] = {}
   Object.keys(ROLE_FOCUS_SKILLS).forEach((role) => {
     roleProfiles[role] = { requiredSkills: ROLE_FOCUS_SKILLS[role] }

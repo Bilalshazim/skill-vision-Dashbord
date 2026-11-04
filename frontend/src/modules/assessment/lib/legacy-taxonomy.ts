@@ -39,7 +39,8 @@ export const ICONS = {
 /* ---------------------- NAVIGATION CONFIGURATION ---------------------- */
 export type NavConfigEntry =
   | { type: 'link'; id: string; label: string; icon: string; requires: string | null; badge?: boolean }
-  | { type: 'group'; groupId: string; label: string; icon: string; items: { id: string; label: string; requires: string }[] }
+  // `homeId`: il titolo del gruppo è una pagina (la Home, con sotto le pagine dei risultati).
+  | { type: 'group'; groupId: string; homeId?: string; label: string; icon: string; items: { id: string; label: string; requires: string | null }[] }
   | { type: 'action'; id: string; label: string; icon: string; action: string; editOnly?: boolean }
   | { type: 'section'; label: string; editOnly?: boolean }
 // Client-requested 14-section order (2026 revision). "Logica Customer
@@ -52,7 +53,12 @@ export type NavConfigEntry =
 // le due voci "Valutazioni Soft Skill" e "Valutazioni Hard Skill" (la seconda è
 // la Valutazione 5P, prima "Gestione valutazioni"), aperte di default.
 export const NAV_CONFIG_EN: NavConfigEntry[] = [
-  { type:'link', id:'home', label:'Home', icon:'home', requires:null },
+  { type:'group', groupId:'home', homeId:'home', label:'Home', icon:'home', items:[
+    { id:'il-valore', label:'Value', requires:null },
+    { id:'perdite-invisibili', label:'Invisible losses', requires:null },
+    { id:'potenziale', label:'Potential', requires:null },
+    { id:'dove-intervenire', label:'Where to act', requires:null },
+  ] },
   { type:'link', id:'panoramica', label:'Overview', icon:'overview', requires:null },
   { type:'link', id:'analisi', label:'Interview', icon:'notes', requires:null },
   { type:'link', id:'company', label:'Company Data', icon:'users', requires:null },
@@ -76,7 +82,12 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
   { type:'action', id:'reset', label:'Reset Demo', icon:'refresh', action:'confirmResetDemo', editOnly:true },
 ];
 export const NAV_CONFIG_IT: NavConfigEntry[] = [
-  { type:'link', id:'home', label:'Home', icon:'home', requires:null },
+  { type:'group', groupId:'home', homeId:'home', label:'Home', icon:'home', items:[
+    { id:'il-valore', label:'Il valore', requires:null },
+    { id:'perdite-invisibili', label:'Le perdite invisibili', requires:null },
+    { id:'potenziale', label:'Il potenziale', requires:null },
+    { id:'dove-intervenire', label:'Dove intervenire', requires:null },
+  ] },
   { type:'link', id:'panoramica', label:'Panoramica', icon:'overview', requires:null },
   { type:'link', id:'analisi', label:'Intervista', icon:'notes', requires:null },
   { type:'link', id:'company', label:'Dati Aziendali', icon:'users', requires:null },

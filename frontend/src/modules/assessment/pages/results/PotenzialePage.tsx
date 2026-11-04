@@ -17,7 +17,6 @@ export default function PotenzialePage() {
   const band = (k: 'valorizzare' | 'top') => {
     const list = data.byTier[k]
     return {
-      tone: 'success' as const,
       title: labels[k],
       value: list.length ? res.people(list.length) : res.nobody,
       list: topThree(list),

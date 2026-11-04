@@ -70,9 +70,8 @@ export type RecruitingNavItem = {
 // Roberto il 2026-10-23; Panoramica seconda voce, deciso da Alessio il
 // 2026-10-30). In testa il Profilo della ricerca, pagina d'ingresso di
 // /recruiting, poi la Panoramica. Ogni livello ha una pagina principale
-// (`main`), quella che si apre dalla card del Profilo della ricerca e dal
-// titolo del livello nel menu, e sotto le sottopagine, che si raggiungono solo
-// dal menu.
+// (`main`), prima voce del livello, e sotto le sottopagine, che si raggiungono
+// solo dal menu. Il titolo del livello apre la pagina dei risultati (`results`).
 //
 // Bloccato fino alla risposta di Roberto, quindi solo il menu cambia e le
 // pagine restano dove sono: "Migliori candidati" apre /pagina-a com'è oggi
@@ -89,8 +88,10 @@ export type RecruitingNavItem = {
 export type RecruitingNavGroup = {
   /** Assente per il blocco in testa. */
   label?: string
-  /** La pagina principale del livello: prima voce, e il titolo del livello porta lì. */
+  /** La pagina principale del livello: la prima voce. */
   main?: RecruitingNavItem
+  /** La pagina dei risultati del livello: ci porta il titolo, come la card del Profilo della ricerca (CLAUDE.md, Fase 6, 2026-11-02). */
+  results?: string
   /** `evaluator`: la sola sezione che vede chi ha il ruolo di valutatore. */
   audience?: 'evaluator'
   items: RecruitingNavItem[]
@@ -112,7 +113,7 @@ export function recruitingTrail(pathname: string): { items: { label: string; to:
     if (!hit) continue
     if (hit.to === root.to) return null
     if (!g.label) return { items: [root], current: hit.label }
-    const level = { label: g.label.split(' · ')[0].replace(/\?$/, ''), to: (g.main ?? items[0]).to }
+    const level = { label: g.label.split(' · ')[0].replace(/\?$/, ''), to: g.results ?? (g.main ?? items[0]).to }
     return { items: [root, level], current: hit.label }
   }
   return null
@@ -128,6 +129,7 @@ export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
   },
   {
     label: 'Chi cerchiamo? · Livello 1',
+    results: '/recruiting/chi-cerchiamo',
     main: { screen: 'jd', label: 'Profilo candidato', icon: FileText, to: '/recruiting/job-profile' },
     items: [
       { screen: 'cv', label: 'CV & Esportazione', icon: Upload, to: '/recruiting/cv' },
@@ -139,6 +141,7 @@ export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
   },
   {
     label: 'Chi è più adatto? · Livello 2',
+    results: '/recruiting/chi-e-piu-adatto',
     main: { screen: 'ranking', label: 'Risultati', icon: Trophy, to: '/recruiting/ranking' },
     items: [
       { screen: 'match', label: 'Confronto interno', icon: ArrowLeftRight, to: '/recruiting/match' },
@@ -148,6 +151,7 @@ export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
   },
   {
     label: 'Chi scegliamo? · Livello 3',
+    results: '/recruiting/chi-scegliamo',
     main: { screen: 'paginaA', label: 'Migliori candidati', icon: Send, to: '/recruiting/pagina-a' },
     items: [
       { screen: 'fasce', label: 'Candidati per fascia di idoneità', icon: Users, to: '/recruiting/fasce-idoneita' },

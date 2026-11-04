@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeftRight, Brain, ClipboardList, Coins, FileText, Home, LayoutDashboard, type LucideIcon, MessageSquareText, RotateCcw, Sparkles, Upload, Users, Wrench } from 'lucide-react'
+import { ArrowLeftRight, Brain, ChevronDown, ClipboardList, Coins, FileText, Home, LayoutDashboard, type LucideIcon, MessageSquareText, RotateCcw, Sparkles, Upload, Users, Wrench } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
@@ -11,6 +11,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -59,7 +60,7 @@ export function AssessmentNav() {
   const currentPage = location.pathname.split('/')[2] || 'home'
   // "Area Valutazioni" e "Area Risultati" partono aperte: le loro voci si
   // vedono subito sotto (richiesta del cliente, 2026-10-13). Si possono chiudere.
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ valutazioni: true, risultati: true })
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ home: true, valutazioni: true, risultati: true })
   const [showMethodology, setShowMethodology] = useState(false)
   const demo = isDemoMode()
   const nav = getNavConfig(lang)
@@ -190,12 +191,32 @@ export function AssessmentNav() {
       const containsActive = visibleItems.some((it) => it.id === currentPage)
       const isOpen = containsActive || !!openGroups[entry.groupId]
       const Icon = iconFor(entry.icon)
+      const toggle = () => setOpenGroups((p) => ({ ...p, [entry.groupId]: !p[entry.groupId] }))
+      // "Home" apre la home e ha sotto le pagine dei risultati (CLAUDE.md, Fase 6,
+      // 2026-11-02): il titolo è un link, quindi si apre e chiude con la freccia.
+      const homeActive = entry.homeId === currentPage
       return (
         <SidebarMenuItem key={entry.groupId}>
-          <SidebarMenuButton type="button" aria-expanded={isOpen} onClick={() => setOpenGroups((p) => ({ ...p, [entry.groupId]: !p[entry.groupId] }))}>
-            <Icon aria-hidden="true" />
-            <span className="min-w-0 flex-1">{entry.label}</span>
-          </SidebarMenuButton>
+          {entry.homeId ? (
+            <>
+              <SidebarMenuButton asChild isActive={homeActive}>
+                <NavLink to={`/assessment/${entry.homeId}`}>
+                  <Icon aria-hidden="true" />
+                  <span className="min-w-0 flex-1">{entry.label}</span>
+                </NavLink>
+              </SidebarMenuButton>
+              {containsActive ? null : (
+                <SidebarMenuAction isActive={homeActive} aria-expanded={isOpen} aria-label={entry.label} onClick={toggle}>
+                  <ChevronDown aria-hidden="true" className={isOpen ? 'rotate-180' : undefined} />
+                </SidebarMenuAction>
+              )}
+            </>
+          ) : (
+            <SidebarMenuButton type="button" aria-expanded={isOpen} onClick={toggle}>
+              <Icon aria-hidden="true" />
+              <span className="min-w-0 flex-1">{entry.label}</span>
+            </SidebarMenuButton>
+          )}
           {isOpen ? (
             <SidebarMenuSub>
               {visibleItems.map((it) => (

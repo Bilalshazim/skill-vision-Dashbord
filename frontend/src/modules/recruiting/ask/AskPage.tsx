@@ -11,6 +11,8 @@ import { AskAnswerView } from '@/modules/recruiting/ask/AskAnswerView'
 import { ScreeningResultView } from '@/modules/recruiting/ask/ScreeningResultView'
 import type { AskAnswer, QuickQuestion, ScreeningResult } from '@/modules/recruiting/lib/ask'
 import { QUICK_QUESTIONS, composeAnswer, isScreeningPrompt, runLocalScreeningQuery } from '@/modules/recruiting/lib/ask'
+import { useActivePosition } from '@/modules/recruiting/lib/active-position'
+import { positionCandidateIds } from '@/modules/recruiting/lib/position-funnel'
 import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/storage'
 
 type FreeTextState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'answer'; answer: AskAnswer } | { kind: 'screening'; result: ScreeningResult }
@@ -19,8 +21,8 @@ type ChatState = { kind: 'idle' } | { kind: 'pending'; index: number } | { kind:
 
 const NO_CANDIDATES_ANSWER: AskAnswer = {
   blocks: [
-    { type: 'title', parts: ['Nessun candidato in archivio'] },
-    { type: 'paragraph', parts: ['Carica i primi CV dalla pagina ', { text: 'CV & Esportazione', bold: true }, ' (o importa in blocco un archivio storico) per vedere qui analisi calcolate sui dati reali.'] },
+    { type: 'title', parts: ['Nessun candidato per questa posizione'] },
+    { type: 'paragraph', parts: ['Carica i primi CV dalla pagina ', { text: 'CV & Esportazione', bold: true }, ' per vedere qui analisi calcolate sui candidati della posizione.'] },
   ],
 }
 const INSUFFICIENT_DATA_ANSWER: AskAnswer = {
@@ -50,7 +52,14 @@ const ACTION_ROUTES: Record<QuickQuestion['actionTarget'], string> = {
 // read-only: no writes, no localStorage keys touched by this screen.
 export default function AskPage() {
   const navigate = useNavigate()
-  const candidates = useMemo(() => readCandidates(), [])
+  // Si risponde sulla posizione attiva e sui suoi candidati, come in Risultati:
+  // non sull'archivio intero (CLAUDE.md, Fase 6, 2026-11-02).
+  const { opening } = useActivePosition()
+  const position = opening?.title ?? '—'
+  const candidates = useMemo(() => {
+    const ids = positionCandidateIds(opening)
+    return readCandidates().filter((c) => ids.has(c.id))
+  }, [opening])
   const cvState = useMemo(() => readCvMatchingState(), [])
 
   const [freeText, setFreeText] = useState('')
@@ -67,10 +76,12 @@ export default function AskPage() {
     }
     setFreeTextState({ kind: 'pending' })
     setTimeout(() => {
-      if (isScreeningPrompt(q)) {
+      if (!candidates.length) {
+        setFreeTextState({ kind: 'answer', answer: NO_CANDIDATES_ANSWER })
+      } else if (isScreeningPrompt(q)) {
         setFreeTextState({ kind: 'screening', result: runLocalScreeningQuery(q, candidates, cvState) })
       } else {
-        setFreeTextState({ kind: 'answer', answer: composeAnswer(q, candidates) })
+        setFreeTextState({ kind: 'answer', answer: composeAnswer(q, candidates, position) })
       }
     }, 300)
   }
@@ -89,7 +100,7 @@ export default function AskPage() {
         return
       }
       try {
-        setChatState({ kind: 'answered', index, answer: QUICK_QUESTIONS[index].build(candidates) })
+        setChatState({ kind: 'answered', index, answer: QUICK_QUESTIONS[index].build(candidates, position) })
       } catch {
         setChatState({ kind: 'answered', index, answer: INSUFFICIENT_DATA_ANSWER })
       }
@@ -109,7 +120,7 @@ export default function AskPage() {
     // era nella colonna di lettura da 720px, CLAUDE.md Fase 6 — vedi
     // DECISIONI). Messaggi e bottoni dalla libreria (ChatMessage, Button).
     <div className="flex w-full flex-col gap-4">
-      <PageHeader level="page" className="mb-0" title="Assistente IA" description="Domande sui dati di Recruiting: le risposte sono calcolate sulla classifica attuale." />
+      <PageHeader level="page" className="mb-0" title="Assistente IA" description={`Domande sulla posizione «${position}»: le risposte sono calcolate sui suoi candidati.`} />
 
       <Card>
         <CardHeader>

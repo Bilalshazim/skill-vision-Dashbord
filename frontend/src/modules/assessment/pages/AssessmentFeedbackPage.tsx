@@ -71,7 +71,7 @@ export default function AssessmentFeedbackPage() {
 
               <label className="mb-3 flex items-center gap-3 text-app-small font-medium">
                 <Switch checked={d.feedbackNeeded} onCheckedChange={(c) => setDrafts((prev) => ({ ...prev, [e.id]: { ...d, feedbackNeeded: c } }))} />
-                {ui.feedbackSwitchLabel}
+                {d.feedbackNeeded ? ui.feedbackSwitchLabel : ui.feedbackSwitchOff}
               </label>
 
               {DEV_PLAN_FIELDS.map((f) => (

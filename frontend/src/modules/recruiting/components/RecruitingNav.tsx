@@ -3,7 +3,9 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { CompanySwitcher } from '@/components/patterns/CompanySwitcher'
 import { SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { getBackendUser } from '@/lib/api/client'
+import { cn } from '@/lib/utils'
 import { BrowserImportEntry } from '@/modules/recruiting/components/BrowserImportEntry'
+import { RecruitingDemoEntry } from '@/modules/recruiting/components/RecruitingDemoEntry'
 import { RECRUITING_NAV_GROUPS, type RecruitingNavItem } from '@/modules/recruiting/nav-config'
 import { useActivePosition } from '@/modules/recruiting/lib/active-position'
 
@@ -18,9 +20,10 @@ import { useActivePosition } from '@/modules/recruiting/lib/active-position'
 // (amministrazione) solo i ruoli elencati. È una comodità: il limite vero lo
 // mette il server (vedi nav-config.ts).
 //
-// Ogni livello ha la sua pagina principale come prima voce, e il titolo del
-// livello porta lì. Una voce accesa sola: l'Imbuto di selezione è ai livelli 2
-// e 3 sulla stessa pagina, e la pillola della voce attiva è una sola, quindi
+// Ogni livello ha la sua pagina principale come prima voce; il titolo del
+// livello apre la pagina dei risultati ed è attivo quando è aperta (CLAUDE.md,
+// Fase 6, 2026-11-02). Una voce accesa sola: l'Imbuto di selezione è ai livelli
+// 2 e 3 sulla stessa pagina, e la pillola della voce attiva è una sola, quindi
 // si accende la prima voce del menu che corrisponde all'indirizzo.
 export function RecruitingNav() {
   const role = getBackendUser()?.role
@@ -44,8 +47,12 @@ export function RecruitingNav() {
           <SidebarGroup key={group.label ?? group.items[0].screen}>
             {group.label ? (
               <SidebarGroupLabel>
-                {group.main && group.items[0] === group.main ? (
-                  <Link to={group.main.to} className="hover:text-sidebar-foreground">
+                {group.results ? (
+                  <Link
+                    to={group.results}
+                    aria-current={pathname === group.results ? 'page' : undefined}
+                    className={cn('-mx-1 block rounded-xs px-1 hover:text-sidebar-foreground', pathname === group.results && 'bg-sidebar-primary text-sidebar-primary-foreground hover:text-sidebar-primary-foreground')}
+                  >
                     {group.label}
                   </Link>
                 ) : (
@@ -70,6 +77,7 @@ export function RecruitingNav() {
           </SidebarGroup>
         ))}
         <BrowserImportEntry />
+        <RecruitingDemoEntry />
       </SidebarContent>
     </>
   )

@@ -68,6 +68,12 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
   const areasBelow = total ? gapRows(orgCriticalAreas(state, lang, 50).map((a) => ({ label: a.area, avg: a.avg }))) : []
   const rolesBelow = total ? gapRows(orgCriticalRoles(state, lang, 50).map((r) => ({ label: r.ruolo, avg: r.avg }))) : []
   const worstSkill = total ? worstCompetenza(state, lang, f) : null
+  // La mansione più lontana dentro l'area più lontana: è da lì che si suggerisce di partire.
+  const worstAreaName = areasBelow[0]?.label
+  const inArea = new Map<string, number[]>()
+  ranked.filter((r) => r.e.area === worstAreaName && r.e.ruolo).forEach((r) => inArea.set(r.e.ruolo, [...(inArea.get(r.e.ruolo) ?? []), r.score]))
+  const mean = (l: number[]) => l.reduce((n, v) => n + v, 0) / l.length
+  const worstRoleInArea = [...inArea.entries()].sort((a, b) => mean(a[1]) - mean(b[1]))[0]?.[0] ?? null
 
   return {
     total,
@@ -88,6 +94,7 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
     rolesBelow,
     worstArea: areasBelow[0] ?? null,
     worstRole: rolesBelow[0] ?? null,
+    worstRoleInArea,
     worstSkill: worstSkill && worstSkill.gap < 0 ? worstSkill : null,
   }
 }

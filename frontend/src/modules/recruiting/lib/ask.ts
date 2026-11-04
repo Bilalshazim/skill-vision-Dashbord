@@ -350,25 +350,28 @@ function source(text: string): AskAnswerBlock {
   return { type: 'source', text }
 }
 
-export type QuickQuestion = { id: string; question: string; actionTarget: 'ranking' | 'match' | 'formule' | 'profilo'; build: (candidates: Candidate[]) => AskAnswer }
+export type QuickQuestion = { id: string; question: string; actionTarget: 'ranking' | 'match' | 'formule' | 'profilo'; build: (candidates: Candidate[], position: string) => AskAnswer }
 
 // Ported verbatim from QS[] (modules/recruiting.html ~3316-3382) — same 5
 // questions, same wording, same underlying computation (ranking()/ci()/
 // flags/ROLES[currentRole].bench — currentRole is fixed to DEFAULT_ROLE in
 // this migration, same as everywhere else scoring is used), same
 // actionTarget per question (QS[0..4].actionTarget assignment, line 3382).
+// Il profilo di riferimento resta quello (`DEFAULT_ROLE`, come in Risultati), ma
+// le risposte parlano della posizione attiva e dei suoi candidati (CLAUDE.md,
+// Fase 6, 2026-11-02): lo decide AskPage, da useActivePosition.
 export const QUICK_QUESTIONS: QuickQuestion[] = [
   {
     id: 'chi-assumere',
     question: 'Chi devo assumere per questa posizione?',
     actionTarget: 'ranking',
-    build: (candidates) => {
+    build: (candidates, position) => {
       const rk = ranking(candidates)
       const t = rk[0]
       const s = rk[1]
       return {
         blocks: [
-          title(`Per la posizione ${DEFAULT_ROLE}: `, b(t.c.name), '.'),
+          title(`Per la posizione ${position}: `, b(t.c.name), '.'),
           p(
             'AHI ',
             b(fmtScore10(t.r.v)),
@@ -392,14 +395,14 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
     id: 'assumere-o-promuovere',
     question: "Meglio assumere o promuovere dall'interno?",
     actionTarget: 'match',
-    build: (candidates) => {
+    build: (candidates, position) => {
       const rk = ranking(candidates)
       const t = rk[0]
       const bench = ROLES[DEFAULT_ROLE].bench
       const civ = ci(t.c)
       return {
         blocks: [
-          title(`Confronto esterno vs interno per ${DEFAULT_ROLE}:`),
+          title(`Confronto esterno vs interno per ${position}:`),
           p(
             'Il migliore esterno è ',
             b(t.c.name),
@@ -499,7 +502,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
 // the generic ctxSummary line) is omitted from the summary line rather than
 // hardcoded, since this composer has no talents parameter — every other
 // branch is otherwise byte-faithful.
-export function composeAnswer(q: string, candidates: Candidate[]): AskAnswer {
+export function composeAnswer(q: string, candidates: Candidate[], position: string): AskAnswer {
   const qn = normalizeText(q)
   const rank = ranking(candidates)
   const essentials = Object.entries(DEFAULT_FLAGS)
@@ -507,7 +510,7 @@ export function composeAnswer(q: string, candidates: Candidate[]): AskAnswer {
     .map(([s]) => s)
 
   const ctxSummary = (): TextPart[] => [
-    `Posizione: ${DEFAULT_ROLE}. Candidati: ${candidates.length}. Skill essenziali (${essentials.length}): ${essentials.join(', ') || '—'}. Top 5: ${rank
+    `Posizione: ${position}. Candidati: ${candidates.length}. Skill essenziali (${essentials.length}): ${essentials.join(', ') || '—'}. Top 5: ${rank
       .slice(0, 5)
       .map((r, i) => `#${i + 1} ${r.c.name} (${fmtScore10(r.r.v)})`)
       .join('; ')}.`,
@@ -525,7 +528,7 @@ export function composeAnswer(q: string, candidates: Candidate[]): AskAnswer {
       blocks: [
         title('Protocollo di Intervista SKILL-VISION®'),
         p(...ctxSummary()),
-        ...sections.map((title2) => p(b(title2), `: non ancora compilata per la posizione «${DEFAULT_ROLE}»`)),
+        ...sections.map((title2) => p(b(title2), `: non ancora compilata per la posizione «${position}»`)),
       ],
     }
   }
@@ -559,7 +562,7 @@ export function composeAnswer(q: string, candidates: Candidate[]): AskAnswer {
   if (/miglior|top|piu adatt|primo|forte|best/.test(qn)) {
     return {
       blocks: [
-        title(`Top 5 per "${DEFAULT_ROLE}"`),
+        title(`Top 5 per "${position}"`),
         p(...ctxSummary()),
         list(
           rank.slice(0, 5).map((r) => {
