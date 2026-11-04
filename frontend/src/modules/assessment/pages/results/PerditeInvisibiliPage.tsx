@@ -1,5 +1,6 @@
 import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { ResultsPage } from '@/components/patterns/ResultsPage'
+import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 
@@ -13,6 +14,7 @@ export default function PerditeInvisibiliPage() {
   const competenze = f.A ? '/assessment/soft-overview' : '/assessment/hard-overview'
   return (
     <ResultsPage
+      actions={<AssessmentModeSwitch />}
       crumbs={crumbs}
       number={win.number}
       title={win.title}

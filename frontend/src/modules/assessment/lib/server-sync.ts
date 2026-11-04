@@ -1,5 +1,6 @@
 import { assessmentApi, type ServerAssessmentState } from '@/lib/api/assessment'
 import { ApiError } from '@/lib/api/client'
+import type { AssessmentPackage } from '@/lib/api/types'
 import { hydrate } from '@/modules/assessment/lib/storage'
 import type { AssessmentState, EvalAssignment } from '@/modules/assessment/lib/types'
 
@@ -14,12 +15,14 @@ import type { AssessmentState, EvalAssignment } from '@/modules/assessment/lib/t
 export type Baseline = ServerAssessmentState
 
 /** Dallo stato del server allo stato completo delle schermate, e la sua base di confronto. */
-export function fromServer(server: ServerAssessmentState, companyName: string): { state: AssessmentState; baseline: Baseline } {
+export function fromServer(server: ServerAssessmentState, companyName: string, purchased: AssessmentPackage): { state: AssessmentState; baseline: Baseline } {
   const baseline: Baseline = structuredClone(server)
   const state = hydrate(structuredClone({ ...server, settings: server.settings ?? undefined, analisiIniziale: server.analisiIniziale ?? undefined, company: server.company ?? undefined }))
   // Una società che non ha ancora salvato le impostazioni prende il suo nome
   // dal backend, non quello della demo.
   if (!server.settings) state.settings.companyName = companyName
+  // Con un solo pacchetto la vista è quella, anche prima del primo salvataggio.
+  if (purchased !== 'AB') state.settings.modulo = purchased
   return { state, baseline }
 }
 

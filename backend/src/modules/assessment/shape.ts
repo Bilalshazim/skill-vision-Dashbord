@@ -365,9 +365,10 @@ export async function writeEmployee(tx: Prisma.TransactionClient, companyId: str
   return row
 }
 
-export function settingsData(s: z.infer<typeof settingsSchema>) {
+// La vista non esce dal pacchetto acquistato: con un solo pacchetto è sempre quello.
+export function settingsData(s: z.infer<typeof settingsSchema>, assessmentPackage: 'A' | 'B' | 'AB') {
   return {
-    modulo: s.modulo,
+    modulo: assessmentPackage === 'AB' ? s.modulo : assessmentPackage,
     companyName: s.companyName,
     testsAcquired: s.testsAcquired,
     testsDispatched: s.testsDispatched,

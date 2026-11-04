@@ -43,6 +43,26 @@ companiesRouter.post('/', requireRole('PLATFORM_ADMIN'), validateBody(createSche
   }
 })
 
+const assessmentPackageSchema = z.object({ assessmentPackage: z.enum(['A', 'B', 'AB']) })
+
+// Quale pacchetto di Assessment ha acquistato la società: lo decide lo staff
+// (Impostazioni → Pacchetti). Con un solo pacchetto la vista salvata si allinea.
+companiesRouter.put('/:id/assessment-package', requireRole('PLATFORM_ADMIN'), validateBody(assessmentPackageSchema), async (req, res, next) => {
+  try {
+    const { assessmentPackage } = req.body as z.infer<typeof assessmentPackageSchema>
+    const existing = await prisma.company.findUnique({ where: { id: req.params.id } })
+    if (!existing) throw new NotFoundError('Società non trovata')
+    const company = await prisma.$transaction(async (tx) => {
+      if (assessmentPackage !== 'AB') await tx.assessmentSettings.updateMany({ where: { companyId: req.params.id }, data: { modulo: assessmentPackage } })
+      return tx.company.update({ where: { id: req.params.id }, data: { assessmentPackage } })
+    })
+    await audit(prisma, { actorUserId: req.auth!.sub, action: 'company.assessmentPackage.changed', entityType: 'Company', entityId: company.id })
+    res.json(company)
+  } catch (err) {
+    next(err)
+  }
+})
+
 const redeemAccessCodeSchema = z.object({ code: z.string().min(1) })
 
 // Any authenticated user of the company can redeem — this is the "unlock

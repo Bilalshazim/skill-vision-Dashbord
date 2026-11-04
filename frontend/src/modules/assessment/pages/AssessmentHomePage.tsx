@@ -1,5 +1,6 @@
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { WindowCard } from '@/components/patterns/WindowCard'
+import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 
 // La Home di Assessment (CLAUDE.md, Fase 6, "Le due home", approvato da
@@ -14,7 +15,7 @@ export default function AssessmentHomePage() {
   const { ui, company } = useAssessment()
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader level="presentation" className="mb-0" eyebrow={[company?.name, 'Assessment'].filter(Boolean).join(' · ')} title={ui.res.homeTitle} />
+      <PageHeader level="presentation" className="mb-0" eyebrow={[company?.name, 'Assessment'].filter(Boolean).join(' · ')} title={ui.res.homeTitle} actions={<AssessmentModeSwitch />} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {ui.res.windows.map((w: { slug: string; number: string; title: string; sub: string; q: string }) => (
           <WindowCard key={w.slug} to={`/assessment/${w.slug}`} number={w.number} title={w.title} subtitle={w.sub} question={w.q} />

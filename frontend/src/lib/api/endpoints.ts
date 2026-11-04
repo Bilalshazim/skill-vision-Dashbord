@@ -1,8 +1,9 @@
 // Phase 31 §2 — one typed function per backend route the Recruiting
 // frontend actually calls, grouped by domain. Thin wrappers over
 // apiGet/apiPost/apiPatch/apiUpload (client.ts) — no fetch() elsewhere.
-import { apiDelete, apiGet, apiGetAnonymous, apiPatch, apiPost, apiPostAnonymous, apiRequest, apiUpload } from '@/lib/api/client'
+import { apiDelete, apiGet, apiGetAnonymous, apiPatch, apiPost, apiPostAnonymous, apiPut, apiRequest, apiUpload } from '@/lib/api/client'
 import type {
+  AssessmentPackage,
   BackendCampaign,
   BackendCampaignCandidate,
   BackendCandidate,
@@ -76,6 +77,7 @@ export const companiesApi = {
   list: () => apiGet<BackendCompany[]>('/companies'),
   get: (id: string) => apiGet<BackendCompany>(`/companies/${id}`),
   redeemAccessCode: (id: string, code: string) => apiPost<BackendCompany>(`/companies/${id}/redeem-access-code`, { code }),
+  setAssessmentPackage: (id: string, assessmentPackage: AssessmentPackage) => apiPut<BackendCompany>(`/companies/${id}/assessment-package`, { assessmentPackage }),
 }
 
 export const assessmentAiApi = {

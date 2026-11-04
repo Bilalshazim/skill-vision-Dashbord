@@ -55,6 +55,7 @@ export function ResultsPage({
   number,
   title,
   question,
+  actions,
   why,
   situation,
   issues,
@@ -70,6 +71,8 @@ export function ResultsPage({
   number: string
   title: string
   question: string
+  /** A destra del titolo, come in PageHeader: in Assessment il selettore CT / CP / Completo. */
+  actions?: ReactNode
   why: string
   /** `text` è la frase grande; `detail` la riga sotto; `chartTitle` e `hint` stanno sopra il grafico. `chartEmpty` sostituisce il grafico quando non c'è niente da disegnare. */
   situation?: { text: ReactNode; detail?: ReactNode; chart?: ReactNode; chartTitle?: string; chartEmpty?: string; hint?: { label: string; text: ReactNode } }
@@ -111,10 +114,13 @@ export function ResultsPage({
         </BreadcrumbList>
       </Breadcrumb>
 
-      <header className="flex flex-col gap-2">
-        <p className="label-mono text-muted-foreground">{number}</p>
-        <h1 className="text-site-h3 text-foreground md:text-site-h2">{title}</h1>
-        <p className="max-w-prose text-site-body-lg text-foreground">{question}</p>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex min-w-0 flex-col gap-2">
+          <p className="label-mono text-muted-foreground">{number}</p>
+          <h1 className="text-site-h3 text-foreground md:text-site-h2">{title}</h1>
+          <p className="max-w-prose text-site-body-lg text-foreground">{question}</p>
+        </div>
+        {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
       </header>
 
       <Card padding="lg" className="max-w-4xl gap-2 bg-muted">

@@ -150,6 +150,9 @@ model Company {
   // POST /companies/:id/redeem-access-code is the only way to add to it.
   // Empty by default: a Company must be explicitly entitled, never assumed.
   purchasedModules PlatformModule[] @default([])
+  // Il pacchetto di Assessment acquistato: A = CT, B = CP, AB = Completo. Il
+  // selettore CT / CP / Completo mostra solo questo (CLAUDE.md, Fase 6).
+  assessmentPackage AssessmentModulo @default(AB)
 
   users          User[]
   campaigns      Campaign[]

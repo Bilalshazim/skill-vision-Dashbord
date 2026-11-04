@@ -5,7 +5,9 @@
 export type BackendRole = 'PLATFORM_ADMIN' | 'COMPANY_ADMIN' | 'RECRUITER' | 'EVALUATOR' | 'HIRING_MANAGER'
 
 export type PlatformModule = 'RECRUITING' | 'ASSESSMENT'
-export type BackendCompany = { id: string; name: string; platformId: string | null; vatNumber: string | null; purchasedModules: PlatformModule[] }
+/** Il pacchetto di Assessment acquistato: A = CT, B = CP, AB = Completo. */
+export type AssessmentPackage = 'A' | 'B' | 'AB'
+export type BackendCompany = { id: string; name: string; platformId: string | null; vatNumber: string | null; purchasedModules: PlatformModule[]; assessmentPackage: AssessmentPackage }
 
 export type BackendCampaignStatus = 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'CLOSED'
 export type BackendCampaign = { id: string; companyId: string; name: string; status: BackendCampaignStatus; createdAt: string }

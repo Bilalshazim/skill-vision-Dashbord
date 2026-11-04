@@ -2501,3 +2501,46 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
 - **Menu:** resta quello della tabella di CLAUDE.md, con l'Imbuto nel blocco
   in testa (voce "Menu di Recruiting: due scostamenti dalla lista ricevuta").
 - **CLAUDE.md §9:** la regola "Niente dati nel browser" resta nel file.
+
+## Selettore CT / CP / Completo: dove sta su ogni pagina · 2026-11-04
+- Opzioni: (a) nelle azioni dell'intestazione di ogni pagina, a destra del
+  titolo; (b) una riga fissa sopra tutte le pagine, nel layout; (c) nella barra
+  superiore.
+- Cosa cambia: (a) è la posizione che aveva prima del rilascio, ma le pagine con
+  intestazione propria (Home, risultati, Panoramica) lo montano da sé; (b) e (c)
+  sono un punto solo nel codice ma una posizione nuova, che Roberto non ha chiesto.
+- Raccomandazione e presa: **(a)**. Un solo componente collegato,
+  `AssessmentModeSwitch`, così le pagine non ripetono la logica.
+- La scelta resta nelle impostazioni della società, com'era: vale per tutti gli
+  utenti di quella società, non per il singolo. Se Roberto la vuole per utente,
+  è una modifica a parte.
+
+## Pacchetto di Assessment acquistato · 2026-11-04
+- Il dato non esisteva: `purchasedModules` distingue Recruiting e Assessment, non
+  CT e CP. `settings.modulo` è la vista scelta, non quello che si è comprato.
+- Opzioni: (a) colonna nuova su `Company`; (b) nuovi valori di `PlatformModule`,
+  con i codici di attivazione; (c) solo nel frontend, da configurazione.
+- Cosa cambia: (b) cambia il controllo di accesso di tutto il modulo e i codici già
+  emessi; (c) il server accetterebbe qualunque vista.
+- Raccomandazione e presa: **(a)**, `assessmentPackage` (riusa `AssessmentModulo`:
+  A = CT, B = CP, AB = Completo), default Completo. Migrazione solo additiva.
+- Lo imposta lo staff in Impostazioni → Pacchetti. I codici di attivazione non
+  portano il pacchetto: se dovranno farlo, è da decidere con Roberto.
+- **Da confermare con Roberto:** il pacchetto limita il selettore, come chiesto. Le
+  pagine dell'altra area restano raggiungibili dal menu, attenuate come oggi: non
+  è un blocco di accesso.
+
+## ErrorBoundary senza `key`, cache allineata dopo i salvataggi · 2026-11-04
+- Difetto: `key={pathname}` in cima all'app rimontava tutto a ogni pagina, in tutti
+  e due i moduli. Assessment ripartiva da una cache mai aggiornata dopo i
+  salvataggi: ogni modifica sembrava persa fino al ricaricamento.
+- Opzioni: (a) solo aggiornare la cache; (b) solo togliere il rimontaggio;
+  (c) tutte e due.
+- Cosa cambia: con (a) chi legge soltanto perde la scelta a ogni pagina; con (b)
+  il difetto resta passando da Recruiting e tornando, perché i due layout si
+  rimontano comunque.
+- Raccomandazione e presa: **(c)**. Tocca il comportamento dei due moduli: i layout
+  ora restano montati, come AppShell già presumeva, e le pagine si rimontano
+  comunque per la `key` di `PageTransition`. Si vede anche la transizione d'uscita
+  delle pagine, che prima il rimontaggio saltava. Il salvataggio sul server non
+  cambia.

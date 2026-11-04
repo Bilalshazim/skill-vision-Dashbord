@@ -8,6 +8,7 @@ import { AppShell } from '@/layouts/AppShell'
 import { AuthGuard } from '@/layouts/AuthGuard'
 import { PageTransition } from '@/layouts/PageTransition'
 import { AssessmentDataGate } from '@/modules/assessment/components/AssessmentDataGate'
+import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { AssessmentNav } from '@/modules/assessment/components/AssessmentNav'
 import { AssessmentProvider, useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { getPageMeta, getPageTrail } from '@/modules/assessment/lib/legacy-utils'
@@ -32,7 +33,7 @@ function AssessmentShell() {
         {/* Le pagine dei risultati non hanno una voce qui: portano da sé
             percorso, titolo e domanda (ResultsPage). */}
         {trail ? <PageBreadcrumb items={trail.items} current={trail.current} /> : null}
-        {meta.title ? <PageHeader level="page" title={meta.title} description={pageDescription ?? (meta.sub || undefined)} actions={topbarActions} className="mb-6" /> : null}
+        {meta.title ? <PageHeader level="page" title={meta.title} description={pageDescription ?? (meta.sub || undefined)} actions={<>{topbarActions}<AssessmentModeSwitch /></>} className="mb-6" /> : null}
         <ModuleLockGate module="ASSESSMENT">
           <ErrorBoundary>
             <AssessmentDataGate>

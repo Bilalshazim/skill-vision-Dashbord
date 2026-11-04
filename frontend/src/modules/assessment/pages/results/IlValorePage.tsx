@@ -1,4 +1,5 @@
 import { ResultsPage } from '@/components/patterns/ResultsPage'
+import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 
 // 01 · Il valore (CLAUDE.md, Fase 6). In attesa di Roberto, che deve decidere
@@ -10,6 +11,7 @@ export default function IlValorePage() {
   const { res, win, f, crumbs, home, demoNote } = useAssessmentResults('il-valore')
   return (
     <ResultsPage
+      actions={<AssessmentModeSwitch />}
       crumbs={crumbs}
       number={win.number}
       title={win.title}

@@ -190,6 +190,41 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-04 — Selettore CT / CP / Completo ripristinato in tutto Assessment
+- [x] Cronologia: prima del rilascio stava nelle azioni dell'intestazione, a
+      destra del titolo (`useTopbarActions` → `PageHeader`), solo in Panoramica.
+      Stessa posizione, ora su ogni pagina: `AssessmentModeSwitch` nel layout,
+      nella Home, nelle quattro pagine dei risultati (prop `actions` di
+      `ResultsPage`) e nella Panoramica.
+- [x] Pacchetto acquistato: non esisteva nei dati. Nuova colonna
+      `Company.assessmentPackage` (migrazione
+      `20261104120000_company_assessment_package`, default Completo: nessuna
+      società cambia), `PUT /companies/:id/assessment-package` solo per lo staff,
+      scheda Impostazioni → Pacchetti. Con un solo pacchetto il selettore mostra
+      solo quello e il server non accetta altre viste (DECISIONI).
+- [x] **Rotto da prima, trovato verificando:** scelto CT e cambiata pagina, il
+      selettore tornava indietro. `ErrorBoundary` in cima all'app aveva
+      `key={pathname}`: a ogni pagina si rimontava tutta l'app, e Assessment
+      ripartiva dalla cache di React Query, mai aggiornata dopo i salvataggi
+      (`staleTime: Infinity`). Valeva per **ogni** modifica di Assessment, non
+      solo per il selettore: a schermo tornava indietro fino al ricaricamento,
+      sul server era salvata. Corretto: l'errore si azzera con una prop, e dopo
+      ogni salvataggio la cache segue il server (DECISIONI).
+- [x] Chi legge soltanto: la scelta resta mentre naviga e alla rilettura dal
+      server; non viene salvata (cambiando modulo torna a quella della società).
+- [x] Verificato nel browser (locale): 21 pagine con la stessa scelta; scelta e
+      cambio pagina subito; Recruiting e ritorno; ricaricamento; pacchetto solo CP
+      (una voce sola, anche dopo il ricaricamento) e ritorno a Completo; chiaro,
+      scuro e 390px senza scorrimento orizzontale; Recruiting si apre e naviga.
+      La verifica del ruolo «sola lettura» non è stata fatta a schermo.
+- [x] `tsc -b` (frontend e backend), oxlint, `vite build`, audit a 0; test backend
+      `assessment`, `users`, `protected-routes`: 49 passati (4 nuovi sui pacchetti).
+- [ ] Non toccato: `<rect> width` negativo in console (animazione dei grafici a
+      barre), c'era già prima di questa modifica.
+- [ ] Non toccato: la voce scelta del ToggleGroup è neutra (`accent`), mentre
+      CLAUDE.md e le tavole la vogliono lime. Vale per tutti i ToggleGroup: da
+      decidere a parte.
+
 ## 2026-11-03 — Primo accesso con password provvisoria
 - [x] Backend: colonna `mustChangePassword` (migrazione
       `20261103180000_user_must_change_password`). Password del nuovo utente

@@ -1,5 +1,6 @@
 import { DistributionBar } from '@/components/patterns/DistributionBar'
 import { ResultsPage } from '@/components/patterns/ResultsPage'
+import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
 import { TIER_DIST_TONE, TIER_ORDER, tierLabels } from '@/modules/assessment/lib/tier-display'
@@ -25,6 +26,7 @@ export default function PotenzialePage() {
   }
   return (
     <ResultsPage
+      actions={<AssessmentModeSwitch />}
       crumbs={crumbs}
       number={win.number}
       title={win.title}

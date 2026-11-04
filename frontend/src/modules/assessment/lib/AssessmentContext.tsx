@@ -1,6 +1,6 @@
 import { canEditAssessment } from '@/lib/auth/roles'
 import { useSession } from '@/lib/auth/session'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { toast as sonnerToast } from 'sonner'
 
@@ -111,6 +111,9 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
   const [state, setStateRaw] = useState<AssessmentState>(EMPTY_STATE)
   // La società di cui `state` contiene i dati: finché non è quella attiva, si carica.
   const [loadedFor, setLoadedFor] = useState<string | null>(null)
+  const loadedForRef = useRef<string | null>(null)
+  const ownWriteAt = useRef<number | null>(null)
+  const queryClient = useQueryClient()
   // `stateRef` è sempre l'ultimo stato delle schermate, `baselineRef` l'ultimo
   // che il server ha confermato: il salvataggio manda la differenza.
   const stateRef = useRef(state)
@@ -123,12 +126,18 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
   // schermate. Non durante un salvataggio, che li renderebbe già vecchi.
   useEffect(() => {
     if (!q.data || !org.company || syncing.current) return
-    const { state: next, baseline } = fromServer(q.data, org.company.name)
+    // Quello che abbiamo appena scritto noi nella cache è già lo stato attuale.
+    if (q.dataUpdatedAt === ownWriteAt.current) return
+    const { state: next, baseline } = fromServer(q.data, org.company.name, org.company.assessmentPackage)
+    // Chi legge soltanto non salva: la sua scelta CT / CP / Completo non è sul
+    // server e non deve cadere a ogni rilettura, finché resta nella stessa società.
+    if (!canEdit && loadedForRef.current === org.company.id && org.company.assessmentPackage === 'AB') next.settings.modulo = stateRef.current.settings.modulo
+    loadedForRef.current = org.company.id
     stateRef.current = next
     baselineRef.current = baseline
     setStateRaw(next)
     setLoadedFor(org.company.id)
-  }, [q.data, q.dataUpdatedAt, org.company])
+  }, [q.data, q.dataUpdatedAt, org.company, canEdit])
 
   const refetch = q.refetch
   const flush = useCallback(async () => {
@@ -150,6 +159,11 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
           setStateRaw(stateRef.current)
         }
       } while (pending.current)
+      // La cache segue il server: rientrando nel modulo (che qui si rimonta) non
+      // si riparte dai dati di prima del salvataggio.
+      const stateKey = ['assessment', 'state', companyId]
+      queryClient.setQueryData(stateKey, stateRef.current)
+      ownWriteAt.current = queryClient.getQueryState(stateKey)?.dataUpdatedAt ?? null
     } catch (err) {
       // Il server resta la verità: niente salvataggi silenziosi a metà, si
       // dice cosa non è andato e si torna ai dati salvati.
@@ -160,7 +174,7 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
     } finally {
       syncing.current = false
     }
-  }, [companyId, refetch, toast, ui])
+  }, [companyId, queryClient, refetch, toast, ui])
 
   const setState = useCallback(
     (updater: (prev: AssessmentState) => AssessmentState) => {

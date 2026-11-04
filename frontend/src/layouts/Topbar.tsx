@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { usePurchasedModules } from '@/hooks/use-purchased-modules'
 import { useTheme } from '@/hooks/use-theme'
 import { Logo } from '@/layouts/Logo'
+import { PackagesSettings } from '@/layouts/PackagesSettings'
 import { UsersSettings } from '@/layouts/UsersSettings'
 // Ponte verso la sessione del guscio legacy (non specifico di Assessment
 // malgrado il percorso): l'accesso di oggi resta com'è fino alla Fase 8.
@@ -69,6 +70,7 @@ export function Topbar({ menuTrigger }: { menuTrigger?: ReactNode }) {
             setUsersDirty(false)
           }}
           users={platformAdmin ? <UsersSettings onDirtyChange={setUsersDirty} /> : undefined}
+          packages={platformAdmin ? <PackagesSettings /> : undefined}
           usersDirty={usersDirty}
         />
       ) : null}

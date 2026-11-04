@@ -29,11 +29,15 @@ export function PageErrorFallback({ onReload }: { onReload: () => void }) {
   )
 }
 
-class Boundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false }
+class Boundary extends Component<{ resetKey: string; children: ReactNode }, { failed: boolean; resetKey: string }> {
+  state = { failed: false, resetKey: this.props.resetKey }
 
   static getDerivedStateFromError() {
     return { failed: true }
+  }
+
+  static getDerivedStateFromProps(props: { resetKey: string }, state: { resetKey: string }) {
+    return props.resetKey === state.resetKey ? null : { failed: false, resetKey: props.resetKey }
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
@@ -46,8 +50,10 @@ class Boundary extends Component<{ children: ReactNode }, { failed: boolean }> {
 }
 
 // Si azzera a ogni cambio di pagina: un errore su una pagina non resta
-// appeso quando si va su un'altra.
+// appeso quando si va su un'altra. Con una prop e non con `key`: una `key`
+// rimonterebbe a ogni pagina tutto quello che sta dentro, compresi i layout e
+// lo stato dei moduli (la scelta CT / CP / Completo tornava indietro).
 export function ErrorBoundary({ children }: { children: ReactNode }) {
   const { pathname } = useLocation()
-  return <Boundary key={pathname}>{children}</Boundary>
+  return <Boundary resetKey={pathname}>{children}</Boundary>
 }

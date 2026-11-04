@@ -15,13 +15,14 @@ import { type Theme, useTheme } from '@/hooks/use-theme'
 // piattaforma. Il pattern non va a prendere dati: riceve il contenuto pronto.
 // `usersDirty` fa chiedere conferma prima di chiudere con un modulo a metà.
 // Le impostazioni proprie di Assessment restano nel modulo.
-export function SettingsDialog({ onClose, users, usersDirty = false }: { onClose: () => void; users?: ReactNode; usersDirty?: boolean }) {
-  const [tab, setTab] = useState<'look' | 'users'>('look')
+// `packages`: la scheda Pacchetti, anche questa solo per lo staff.
+export function SettingsDialog({ onClose, users, usersDirty = false, packages }: { onClose: () => void; users?: ReactNode; usersDirty?: boolean; packages?: ReactNode }) {
+  const [tab, setTab] = useState<'look' | 'users' | 'packages'>('look')
   const look = <ThemeField />
   return (
     <ModalDialog
       title="Impostazioni"
-      sub={tab === 'users' ? 'Utenti della piattaforma: accessi, ruoli e password.' : 'Si applicano subito a tutta la piattaforma.'}
+      sub={tab === 'users' ? 'Utenti della piattaforma: accessi, ruoli e password.' : tab === 'packages' ? 'Il pacchetto di Assessment acquistato da ogni società.' : 'Si applicano subito a tutta la piattaforma.'}
       size={users ? 'xl' : undefined}
       dirty={tab === 'users' && usersDirty}
       onClose={onClose}
@@ -37,6 +38,7 @@ export function SettingsDialog({ onClose, users, usersDirty = false }: { onClose
           <TabsList>
             <TabsTrigger value="look">Aspetto</TabsTrigger>
             <TabsTrigger value="users">Utenti</TabsTrigger>
+            {packages ? <TabsTrigger value="packages">Pacchetti</TabsTrigger> : null}
           </TabsList>
           <TabsContent value="look" className="pt-4">
             {look}
@@ -44,6 +46,11 @@ export function SettingsDialog({ onClose, users, usersDirty = false }: { onClose
           <TabsContent value="users" className="pt-4">
             {users}
           </TabsContent>
+          {packages ? (
+            <TabsContent value="packages" className="pt-4">
+              {packages}
+            </TabsContent>
+          ) : null}
         </Tabs>
       ) : (
         look

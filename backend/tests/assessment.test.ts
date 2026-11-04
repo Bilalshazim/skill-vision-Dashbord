@@ -304,6 +304,42 @@ describe('Assessment sul server', () => {
     expect(JSON.stringify(rows)).not.toContain('segreta')
   })
 
+  describe('pacchetto acquistato (selettore CT / CP / Completo)', () => {
+    const putPackage = (token: string, assessmentPackage: string) =>
+      api.put(`/api/v1/companies/${fx.company.id}/assessment-package`).set(authHeader(token)).send({ assessmentPackage })
+
+    it('una società nuova ha il pacchetto Completo e sceglie la vista liberamente', async () => {
+      const company = await api.get(`/api/v1/companies/${fx.company.id}`).set(authHeader(admin))
+      expect(company.body.assessmentPackage).toBe('AB')
+      await api.put(`${base(fx.company.id)}/settings`).set(authHeader(admin)).send({ modulo: 'B' })
+      const state = await api.get(`${base(fx.company.id)}/state`).set(authHeader(admin))
+      expect(state.body.settings.modulo).toBe('B')
+    })
+
+    it('solo lo staff di piattaforma cambia il pacchetto', async () => {
+      expect((await putPackage(admin, 'A')).status).toBe(403)
+      expect((await putPackage(recruiter, 'A')).status).toBe(403)
+      expect((await prisma.company.findUniqueOrThrow({ where: { id: fx.company.id } })).assessmentPackage).toBe('AB')
+    })
+
+    it('con un solo pacchetto la vista salvata si allinea e non ne esce più', async () => {
+      await api.put(`${base(fx.company.id)}/settings`).set(authHeader(admin)).send({ modulo: 'AB' })
+      const res = await putPackage(await loginAs('admin@test.local'), 'A')
+      expect(res.status).toBe(200)
+      expect(res.body.assessmentPackage).toBe('A')
+      const read = () => api.get(`${base(fx.company.id)}/state`).set(authHeader(admin))
+      expect((await read()).body.settings.modulo).toBe('A')
+      await api.put(`${base(fx.company.id)}/settings`).set(authHeader(admin)).send({ modulo: 'B' })
+      expect((await read()).body.settings.modulo).toBe('A')
+      await api.post(`${base(fx.company.id)}/import`).set(authHeader(admin)).send({ dryRun: false, state: { settings: { modulo: 'AB' } } })
+      expect((await read()).body.settings.modulo).toBe('A')
+    })
+
+    it('rifiuta un pacchetto che non esiste', async () => {
+      expect((await putPackage(await loginAs('admin@test.local'), 'C')).status).toBe(400)
+    })
+  })
+
   describe('import dal browser (decisione 4)', () => {
     const exported = {
       settings: { modulo: 'AB', companyName: 'Demo Company S.r.l.' },

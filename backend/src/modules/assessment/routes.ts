@@ -215,7 +215,7 @@ assessmentRouter.delete('/companies/:companyId/assignments/:clientId', requireRo
 assessmentRouter.put('/companies/:companyId/settings', requireRole(...WRITE_ROLES), validateBody(settingsSchema), async (req, res, next) => {
   try {
     const company = await companyFor(req)
-    const data = settingsData(req.body)
+    const data = settingsData(req.body, company.assessmentPackage)
     const s = await prisma.assessmentSettings.upsert({ where: { companyId: company.id }, create: { companyId: company.id, ...data }, update: data })
     await log(req, 'assessment.settings.saved', 'AssessmentSettings', s.id)
     res.status(204).end()
@@ -379,7 +379,8 @@ async function importState(tx: Prisma.TransactionClient, companyId: string, body
   if (body.settings) {
     const s = settingsSchema.safeParse({ ...body.settings, evaluators: body.evaluators ?? [] })
     if (s.success) {
-      const data = settingsData(s.data)
+      const { assessmentPackage } = await tx.company.findUniqueOrThrow({ where: { id: companyId }, select: { assessmentPackage: true } })
+      const data = settingsData(s.data, assessmentPackage)
       await tx.assessmentSettings.upsert({ where: { companyId }, create: { companyId, ...data }, update: data })
     } else skip('settings', '-', s.error.issues[0]?.message ?? 'non valido')
   }

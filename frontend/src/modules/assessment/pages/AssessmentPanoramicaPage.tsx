@@ -23,7 +23,7 @@ import { Card } from '@/components/ui/card'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { CSV_TYPE, downloadText } from '@/lib/download'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
-import { ModeSwitch, type ModuleMode } from '@/modules/assessment/components/ModeSwitch'
+import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { allEvaluators, evStatus, norm } from '@/modules/assessment/gestione5p/model'
 import { use5pState } from '@/modules/assessment/gestione5p/use5pState'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
@@ -79,12 +79,8 @@ export default function AssessmentPanoramicaPage() {
   const total = state.employees.length
   const both = bothActive(state)
   const f = { A: state.settings.modulo === 'A' || state.settings.modulo === 'AB', B: state.settings.modulo === 'B' || state.settings.modulo === 'AB' }
-  const mode: ModuleMode = both ? 'AB' : f.A ? 'A' : 'B'
   const labels = tierLabels(ui)
 
-  function setMode(next: ModuleMode) {
-    setState((prev) => ({ ...prev, settings: { ...prev.settings, modulo: next } }))
-  }
   const res = ui.res
   // La vista sta nell'indirizzo (?vista=dettaglio), non nel browser.
   const [params, setParams] = useSearchParams()
@@ -113,7 +109,7 @@ export default function AssessmentPanoramicaPage() {
             <ToggleGroupItem value="sintesi">{res.viewSintesi}</ToggleGroupItem>
             <ToggleGroupItem value="dettaglio">{res.viewDettaglio}</ToggleGroupItem>
           </ToggleGroup>
-          <ModeSwitch value={mode} onChange={setMode} ui={ui} />
+          <AssessmentModeSwitch />
         </>
       }
     />
