@@ -57,11 +57,11 @@ export function WindowCard({
         <span className="label-mono text-muted-foreground">{number}</span>
       )}
       <span className={cn('relative text-site-h3 text-foreground md:text-site-h2', theme && 'mt-auto')}>{title}</span>
-      <span className="text-app-body text-muted-foreground">{subtitle}</span>
+      <span className="relative text-app-body text-muted-foreground">{subtitle}</span>
       {content ? <span className="mt-4 text-app-small text-foreground">{content}</span> : null}
-      <span className={cn('relative flex items-end justify-between gap-4', theme ? 'border-t border-border pt-3' : 'mt-auto pt-6')}>
-        {footer ? <span className={cn('max-w-prose', question ? 'text-app-subtitle font-semibold text-foreground' : 'text-app-small text-muted-foreground')}>{footer}</span> : <span />}
-        <ArrowRight className={cn('size-4 shrink-0 text-muted-foreground', !theme && 'transition-transform group-hover:translate-x-0.5')} aria-hidden="true" />
+      <span className={cn('relative flex items-end justify-between gap-4', theme ? 'border-t border-border pt-3' : verbs ? 'mt-auto border-t border-border pt-3' : 'mt-auto pt-6')}>
+        {footer ? <span className={cn('max-w-prose', question ? 'text-app-subtitle font-semibold text-foreground' : 'text-app-small font-medium text-foreground')}>{footer}</span> : <span />}
+        <ArrowRight className={cn('size-4 shrink-0 text-foreground', !theme && 'transition-transform group-hover:translate-x-0.5')} aria-hidden="true" />
       </span>
     </Link>
   )

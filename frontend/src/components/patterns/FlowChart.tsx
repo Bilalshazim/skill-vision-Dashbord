@@ -1,5 +1,6 @@
 import { SankeyChart, SankeyLink, SankeyLinkValues, SankeyNode, SankeyTooltip } from '@/components/charts'
 import { ChartDataTable } from '@/components/patterns/ChartDataTable'
+import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
 // Un grafico a flussi (Bklit Sankey — CLAUDE.md, Fase 6, "Dove intervenire ·
@@ -12,6 +13,8 @@ export function FlowChart({
   nodes,
   links,
   note,
+  sourceLabel,
+  targetLabel,
   formatValue,
   className,
 }: {
@@ -19,6 +22,9 @@ export function FlowChart({
   nodes: { name: string; color: string }[]
   links: { source: number; target: number; value: number }[]
   note?: string
+  /** I nomi delle due colonne, sopra il grafico. */
+  sourceLabel?: string
+  targetLabel?: string
   /** Il valore sotto il nome di ogni nodo, con la sua unità. */
   formatValue: (value: number) => string
   className?: string
@@ -36,9 +42,17 @@ export function FlowChart({
   const colorOf = (i: number) => shown[i]?.color ?? 'var(--chart-mono)'
   const nodeIndex = (n: unknown) => (typeof n === 'object' && n ? ((n as { index?: number }).index ?? 0) : Number(n))
   return (
-    <figure data-slot="flow-chart" className={cn('flex flex-col gap-3', className)}>
-      <div aria-hidden="true" className="relative w-full">
-        <SankeyChart data={data} aspectRatio="5 / 2" margin={{ top: 16, right: 180, bottom: 16, left: 140 }} nodeWidth={12} nodePadding={16}>
+    <Card data-slot="flow-chart" className={cn('gap-3', className)}>
+      {/* Su un telefono il grafico scorre dentro la card, non la pagina. */}
+      <figure className="relative flex min-w-0 flex-col gap-3 overflow-x-auto">
+      {sourceLabel || targetLabel ? (
+        <p aria-hidden="true" className="label-mono flex justify-between px-16 text-muted-foreground">
+          <span>{sourceLabel}</span>
+          <span>{targetLabel}</span>
+        </p>
+      ) : null}
+      <div aria-hidden="true" className="relative w-full min-w-2xl">
+        <SankeyChart data={data} aspectRatio="5 / 2" margin={{ top: 16, right: 200, bottom: 16, left: 160 }} nodeWidth={12} nodePadding={16}>
           <SankeyLink strokeOpacity={0.35} useGradient={false} getLinkColor={(l) => colorOf(nodeIndex(l.source))} />
           <SankeyLinkValues />
           <SankeyNode getNodeColor={(_, i) => colorOf(i)} formatValue={formatValue} />
@@ -58,6 +72,7 @@ export function FlowChart({
             values: shown.map((_, t) => ({ t })).filter(({ t }) => data.links.some((l) => l.target === t)).map(({ t }) => data.links.find((l) => l.source === i && l.target === t)?.value ?? 0),
           }))}
       />
-    </figure>
+      </figure>
+    </Card>
   )
 }

@@ -1339,6 +1339,7 @@ const ENTRIES: Entry[] = [
       <CompetencyHeatmap
         className="w-full"
         title="Le competenze"
+        highestLabel="Il valore più alto della riga"
         format={(n) => n.toFixed(1).replace('.', ',')}
         columns={[{ id: 'a', label: 'Anna R.', color: 'var(--chart-1)' }, { id: 'b', label: 'Luca N.', color: 'var(--chart-2)' }, { id: 'c', label: 'Sara B.', color: 'var(--chart-3)' }]}
         groups={[{ label: 'Competenze personali', rows: [{ key: 'x', label: 'Autonomia', values: [9, 6, 3] }, { key: 'y', label: 'Persistenza', values: [5, null, 7] }] }]}

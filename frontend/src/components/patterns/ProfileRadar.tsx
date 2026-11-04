@@ -36,6 +36,7 @@ export function ProfileRadar({
   format,
   size = 'md',
   hideTable = false,
+  compare = false,
   className,
 }: {
   title: string
@@ -47,6 +48,8 @@ export function ProfileRadar({
   size?: 'sm' | 'md'
   /** La tabella resta per i lettori di schermo; a schermo la scrive già chi confronta. */
   hideTable?: boolean
+  /** Il radar dei confronti (tavola «Confronto a 2»): griglia rotonda con 5 e 10 scritti, più margine per i nomi. */
+  compare?: boolean
   className?: string
 }) {
   // Il riferimento va disegnato per primo, sotto la persona.
@@ -61,9 +64,9 @@ export function ProfileRadar({
 
   return (
     <figure data-slot="profile-radar" className={cn('flex flex-col gap-3', className)}>
-      <div className={cn('w-full', size === 'md' ? 'h-112' : 'h-96')} aria-hidden="true">
-        <RadarChart data={data} metrics={axes.map((a) => ({ key: a.key, label: a.short ?? a.label }))} margin={64} levels={5} className="mx-auto h-full w-auto max-w-full">
-          <RadarGrid showLabels={false} />
+      <div className={cn('w-full', compare ? 'h-144' : size === 'md' ? 'h-112' : 'h-96')} aria-hidden="true">
+        <RadarChart data={data} metrics={axes.map((a) => ({ key: a.key, label: a.short ?? a.label }))} margin={compare ? 88 : 64} levels={compare ? 4 : 5} className="mx-auto h-full w-auto max-w-full">
+          <RadarGrid showLabels={compare} circular={compare} formatLevel={(p) => (p === 50 ? '5' : p === 100 ? '10' : null)} />
           <RadarAxis />
           <RadarLabels fontSize={12} />
           {ordered.map((s, i) => (

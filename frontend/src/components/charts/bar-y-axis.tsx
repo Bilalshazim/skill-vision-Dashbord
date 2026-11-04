@@ -11,6 +11,10 @@ export interface BarYAxisProps {
   showAllLabels?: boolean;
   /** Maximum number of labels to show. Default: 20 */
   maxLabels?: number;
+  /** Skill Vision: nomi allineati a sinistra (tavola «Colori dei grafici»). */
+  alignLeft?: boolean;
+  /** Skill Vision: il nome in grassetto, quello del valore in evidenza. */
+  emphasize?: string;
 }
 
 interface BarYAxisLabelProps {
@@ -25,10 +29,12 @@ function BarYAxisLabel({
   y,
   bandHeight,
   isHovered,
-}: BarYAxisLabelProps) {
+  alignLeft,
+  emphasized,
+}: BarYAxisLabelProps & { alignLeft?: boolean; emphasized?: boolean }) {
   return (
     <div
-      className="absolute right-0 flex items-center justify-end pr-2"
+      className={alignLeft ? "absolute right-0 left-0 flex items-center justify-start pr-2" : "absolute right-0 flex items-center justify-end pr-2"}
       style={{
         top: y,
         height: bandHeight,
@@ -41,7 +47,7 @@ function BarYAxisLabel({
             ? "var(--foreground)"
             : "var(--chart-label, var(--color-zinc-500))",
         }}
-        className={cn("truncate whitespace-nowrap text-right text-app-caption")}
+        className={cn("truncate whitespace-nowrap text-app-caption", alignLeft ? "text-left" : "text-right", emphasized && "font-semibold text-foreground")}
         initial={{
           opacity: 1,
           color: "var(--chart-label, var(--color-zinc-500))",
@@ -78,6 +84,8 @@ export function BarYAxis(props: BarYAxisProps) {
 const BarYAxisInner = memo(function BarYAxisInner({
   showAllLabels = true,
   maxLabels = 20,
+  alignLeft,
+  emphasize,
   container,
 }: BarYAxisProps & { container: HTMLDivElement }) {
   const { margin, barScale, bandWidth, barXAccessor, data, hoveredBarIndex } =
@@ -125,7 +133,9 @@ const BarYAxisInner = memo(function BarYAxisInner({
     >
       {labelsToShow.map((item) => (
         <BarYAxisLabel
+          alignLeft={alignLeft}
           bandHeight={item.bandHeight}
+          emphasized={emphasize === item.label}
           isHovered={hoveredBarIndex === item.index}
           key={`${item.label}-${item.y}`}
           label={item.label}

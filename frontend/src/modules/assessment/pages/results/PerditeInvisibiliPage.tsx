@@ -12,9 +12,8 @@ import { useRoi } from '@/modules/assessment/lib/use-roi'
 // dagli stessi calcoli della Panoramica: persone sotto la norma (Da potenziare
 // + Critici), aree, mansioni e competenze sotto l'atteso 7,0.
 export default function PerditeInvisibiliPage() {
-  const { res, data, win, f, crumbs, home, demoNote } = useAssessmentResults('perdite-invisibili')
+  const { res, data, win, crumbs, home, demoNote } = useAssessmentResults('perdite-invisibili')
   const roi = useRoi()
-  const competenze = f.A ? '/assessment/soft-overview' : '/assessment/hard-overview'
   return (
     <ResultsPage
       actions={<AssessmentModeSwitch />}
@@ -33,7 +32,7 @@ export default function PerditeInvisibiliPage() {
           <CategoryBars
             title={res.perditeChart}
             orientation="horizontal"
-            height="auto"
+            compact
             valueMax={Math.max(2, Math.ceil(data.areasBelow[0].gap))}
             format={fmt1it}
             series={[{ key: 'gap', label: res.perditeChart }]}
@@ -45,9 +44,9 @@ export default function PerditeInvisibiliPage() {
       }}
       issues={{
         items: [
-          { title: res.perditeArea, value: data.worstArea ? data.worstArea.label : res.perditeNoArea, body: data.worstArea ? res.pointsBelow(fmt1it(data.worstArea.gap)) : undefined, link: { label: res.open, to: competenze } },
-          { title: res.perditeRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, link: { label: res.open, to: '/assessment/valore' } },
-          { title: res.perditeSkill, value: data.worstSkill ? data.worstSkill.name : res.perditeNoSkill, body: data.worstSkill ? res.pointsBelow(fmt1it(-data.worstSkill.gap)) : undefined, link: { label: res.open, to: competenze } },
+          { title: res.perditeArea, value: data.worstArea ? data.worstArea.label : res.perditeNoArea, body: data.worstArea ? res.pointsBelow(fmt1it(data.worstArea.gap)) : undefined },
+          { title: res.perditeRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined },
+          { title: res.perditeSkill, value: data.worstSkill ? data.worstSkill.name : res.perditeNoSkill, body: data.worstSkill ? res.pointsBelow(fmt1it(-data.worstSkill.gap)) : undefined },
         ],
         opportunity: res.perditeOpportunity(data.worstArea?.label ?? null),
         opportunityLabel: res.opportunityLabel,

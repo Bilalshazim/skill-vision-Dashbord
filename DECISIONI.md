@@ -2721,3 +2721,22 @@ una domanda aperta (PROPOSTA-ORIGINAL-SKILLS §8).
   alla Panoramica. Presa: la pagina di `bb565c1^`, senza riprogettarla. Contiene ancora il
   pulsante «Skill-Vision» sulle card e il riquadro «Una sola lettura»; se è un doppione lo
   decide Roberto.
+
+## Tavole: dove vale il testo · 2026-11-04
+CLAUDE.md: «Dove una tavola e questo testo non coincidono, vale questo testo». Restano quindi
+diversi dalle tavole:
+- Home e Perdite con il selettore CT / CP / Completo, che le tavole non hanno (2026-11-03).
+- Nel menu, Home con sotto le quattro pagine; le tavole più vecchie non le mostrano (2026-11-02).
+- Titoli dei livelli «Chi cerchiamo? · Livello 1», non «· 1». Vanno su due righe.
+- Perdite: terza colonna con l'indice a 100 e la cifra in euro, che ora c'è (2026-11-03).
+- Approfondimenti di Perdite con i nomi di CLAUDE.md.
+- Sintesi, «Dove si perde valore»: barre di Bklit con l'atteso tratteggiato, come chiede la tabella
+  di CLAUDE.md; la tavola sembra disegnare punti su una linea, e dice che il disegno è solo un
+  riferimento.
+- Confronto: «Tutte · 35», non «Tutte le competenze · 35».
+
+## Selettori lime; icone del menu confermate · 2026-11-04
+- Le tavole mostrano il selettore attivo lime, già nella regola di CLAUDE.md. Presa: come le tavole.
+- Le tavole mostrano anche il menu senza icone: le avevo tolte, Bilal le ha fatte rimettere. Le
+  icone del menu **restano**.
+- Vale per tutti i ToggleGroup, anche nelle pagine tecniche: è aspetto, non comportamento.

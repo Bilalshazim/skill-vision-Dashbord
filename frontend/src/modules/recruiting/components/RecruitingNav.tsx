@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { CompanySwitcher } from '@/components/patterns/CompanySwitcher'
 import { SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { getBackendUser } from '@/lib/api/client'
+import { isDemoMode } from '@/lib/demo-mode'
 import { cn } from '@/lib/utils'
 import { BrowserImportEntry } from '@/modules/recruiting/components/BrowserImportEntry'
 import { RecruitingDemoEntry } from '@/modules/recruiting/components/RecruitingDemoEntry'
@@ -40,7 +41,7 @@ export function RecruitingNav() {
   return (
     <>
       <SidebarHeader>
-        <CompanySwitcher companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company?.id} />
+        <CompanySwitcher companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company?.id} note={isDemoMode() ? 'Dati dimostrativi' : undefined} />
       </SidebarHeader>
       <SidebarContent>
         {groups.map((group) => (

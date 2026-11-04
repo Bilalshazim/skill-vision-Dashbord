@@ -36,6 +36,7 @@ export function CategoryBars({
   wrapLabels = false,
   format,
   highlight,
+  compact = false,
   className,
 }: {
   title: string
@@ -50,6 +51,8 @@ export function CategoryBars({
   format?: (n: number) => string
   /** Con una serie sola: l'etichetta della riga da mettere in evidenza (il valore che conta, uno per grafico) in `chart-highlight`. */
   highlight?: string
+  /** In orizzontale: barre sottili e nomi allineati a sinistra (tavola «Colori dei grafici»), senza griglia. Il nome in evidenza è in grassetto. */
+  compact?: boolean
   className?: string
 }) {
   const colors = seriesColors(series)
@@ -72,18 +75,19 @@ export function CategoryBars({
   })
   return (
     <figure data-slot="category-bars" className={cn('flex flex-col gap-3', className)}>
-      <div aria-hidden="true" className={cn('w-full', HEIGHT[height === 'auto' ? autoHeight(rows.length) : height])}>
+      <div aria-hidden="true" className={cn('w-full', !compact && HEIGHT[height === 'auto' ? autoHeight(rows.length) : height])} style={compact ? { height: rows.length * 32 + 16 } : undefined}>
         <BarChart
           data={data}
           xDataKey="name"
           aspectRatio="auto"
           className="h-full"
           orientation={orientation}
+          barWidth={compact ? 16 : undefined}
           valueMax={max}
           stacked={!!hl}
-          margin={orientation === 'horizontal' ? { top: 8, right: 40, bottom: 8, left: 208 } : { top: 24, right: 8, bottom: wrapLabels ? 64 : 40, left: 32 }}
+          margin={compact ? { top: 8, right: 40, bottom: 8, left: 150 } : orientation === 'horizontal' ? { top: 8, right: 40, bottom: 8, left: 208 } : { top: 24, right: 8, bottom: wrapLabels ? 64 : 40, left: 32 }}
         >
-          <Grid horizontal={orientation === 'vertical'} vertical={orientation === 'horizontal'} fadeHorizontal={false} />
+          {compact ? null : <Grid horizontal={orientation === 'vertical'} vertical={orientation === 'horizontal'} fadeHorizontal={false} />}
           {bars.map((s) => (
             <Bar key={s.key} dataKey={s.key} fill={colors[series.indexOf(s)]} lineCap={4} valueLabel={(v) => (Object.is(v, -0) ? '' : fmt(v))} />
           ))}
@@ -91,7 +95,7 @@ export function CategoryBars({
           {refs.map((s) => (
             <BarReference key={s.key} referenceKey={s.key} />
           ))}
-          {orientation === 'horizontal' ? <BarYAxis /> : <BarXAxis showAllLabels wrapLabels={wrapLabels} />}
+          {orientation === 'horizontal' ? <BarYAxis alignLeft={compact} emphasize={compact ? highlight : undefined} /> : <BarXAxis showAllLabels wrapLabels={wrapLabels} />}
           <ChartTooltip />
         </BarChart>
       </div>

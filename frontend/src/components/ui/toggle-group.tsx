@@ -60,10 +60,11 @@ function ToggleGroupItem({ className, children, value, ...props }: React.Compone
         className={cn(
           'relative isolate inline-flex touch-manipulation items-center justify-center gap-2 rounded-sm px-3 py-1 text-app-small font-medium whitespace-nowrap text-muted-foreground select-none transition-colors outline-none hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 data-[state=on]:text-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0',
           !ctx.single && 'data-[state=on]:bg-accent',
+          ctx.single && 'data-[state=on]:text-primary-foreground data-[state=on]:hover:text-primary-foreground',
           className,
         )}
       >
-        {pill ? <motion.span aria-hidden="true" layoutId="toggle-group-active-pill" transition={ULTRA_TAB_SPRING} className="absolute inset-0 -z-10 rounded-sm bg-accent" /> : null}
+        {pill ? <motion.span aria-hidden="true" layoutId="toggle-group-active-pill" transition={ULTRA_TAB_SPRING} className="absolute inset-0 -z-10 rounded-sm bg-primary" /> : null}
         {children}
       </motion.button>
     </ToggleGroupPrimitive.Item>

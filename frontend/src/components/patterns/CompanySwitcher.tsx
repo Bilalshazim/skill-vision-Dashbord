@@ -1,6 +1,7 @@
 import { Building2 } from 'lucide-react'
 
 import { SelectField } from '@/components/patterns/SelectField'
+import { Badge } from '@/components/ui/badge'
 
 export type OrgCompany = { id: string; name: string }
 
@@ -14,11 +15,14 @@ export function CompanySwitcher({
   companies,
   activeId,
   onChange,
+  note,
 }: {
   group?: { name: string } | null
   companies: OrgCompany[]
   activeId?: string
   onChange?: (id: string) => void
+  /** Sotto il nome, per esempio «Dati dimostrativi». */
+  note?: string
 }) {
   const active = companies.find((c) => c.id === activeId) ?? companies[0]
   return (
@@ -38,6 +42,7 @@ export function CompanySwitcher({
       ) : (
         <p className="truncate px-2 text-app-small font-medium text-sidebar-foreground">{active?.name || '—'}</p>
       )}
+      {note ? <Badge className="ml-2 self-start">{note}</Badge> : null}
     </div>
   )
 }

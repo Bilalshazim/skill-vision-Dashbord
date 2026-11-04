@@ -13,6 +13,10 @@ export interface RadarGridProps {
   stroke?: string;
   /** Grid line stroke opacity. Default: 0.6 */
   strokeOpacity?: number;
+  /** Skill Vision: cerchi al posto dei poligoni (tavola «Confronto a 2»). */
+  circular?: boolean;
+  /** Skill Vision: l'etichetta di un livello (0–100); null per non scriverla. */
+  formatLevel?: (percent: number) => string | null;
   /** Additional class name */
   className?: string;
 }
@@ -21,6 +25,8 @@ export function RadarGrid({
   showLabels = true,
   stroke = radarCssVars.border,
   strokeOpacity = 0.6,
+  circular = false,
+  formatLevel,
   className = "",
 }: RadarGridProps) {
   const {
@@ -76,7 +82,7 @@ export function RadarGrid({
                 : undefined
             }
           >
-            <LineRadial
+            {circular ? <circle fill="none" r={targetRadius} stroke={stroke} strokeOpacity={strokeOpacity} strokeWidth={1} /> : <LineRadial
               angle={(d) => radialScale(d.angle) ?? 0}
               data={angles}
               fill="none"
@@ -85,7 +91,7 @@ export function RadarGrid({
               strokeLinecap="round"
               strokeOpacity={strokeOpacity}
               strokeWidth={1}
-            />
+            />}
           </motion.g>
         );
       })}
@@ -115,7 +121,7 @@ export function RadarGrid({
               x={4}
               y={-((i + 1) * radius) / levels}
             >
-              {((i + 1) * 100) / levels}
+              {formatLevel ? formatLevel(((i + 1) * 100) / levels) : ((i + 1) * 100) / levels}
             </text>
           </motion.g>
         ))}

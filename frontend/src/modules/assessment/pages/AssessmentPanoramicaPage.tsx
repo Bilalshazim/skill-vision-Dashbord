@@ -496,7 +496,7 @@ export default function AssessmentPanoramicaPage() {
             <CategoryBars
               title={res.lossTitle}
               orientation="horizontal"
-              height="auto"
+              compact
               valueMax={10}
               format={fmt1it}
               series={[

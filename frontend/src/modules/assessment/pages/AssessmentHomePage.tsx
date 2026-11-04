@@ -14,11 +14,11 @@ import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 // passaggio del mouse cambiano solo fondo e bordo. L'intestazione è della pagina,
 // non del layout (`home` non ha titolo in PAGE_META_TEXT).
 export default function AssessmentHomePage() {
-  const { ui, company } = useAssessment()
+  const { ui } = useAssessment()
   const reduced = useReducedMotion()
   return (
     <div className="flex min-h-home flex-col gap-4">
-      <PageHeader level="presentation" className="mb-0" eyebrow={[company?.name, 'Assessment'].filter(Boolean).join(' · ')} title={ui.res.homeTitle} actions={<AssessmentModeSwitch />} />
+      <PageHeader level="presentation" className="mb-0" title={ui.res.homeTitle} actions={<AssessmentModeSwitch />} />
       <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2 md:auto-rows-fr">
         {ui.res.windows.map((w: { slug: string; number: string; title: string; sub: string; q: string; theme: string }, i: number) => (
           <motion.div key={w.slug} initial={reduced ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: i * 0.06 }} className="min-w-0">

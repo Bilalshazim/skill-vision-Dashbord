@@ -49,6 +49,8 @@ export default function DoveIntervenirePage() {
             ])}
             note={res.doveFlowNote(emptyBands)}
             formatValue={res.people}
+            sourceLabel={res.doveFlowFrom}
+            targetLabel={res.doveFlowTo}
           />
         ),
       }}

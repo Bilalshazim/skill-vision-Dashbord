@@ -14,6 +14,15 @@ export interface RadarLabelsProps {
   className?: string;
 }
 
+// Skill Vision: i nomi lunghi su due righe (tavola «Confronto a 2»).
+function wrapLabel(label: string, max = 18): string[] {
+  if (label.length <= max) return [label];
+  const words = label.split(" ");
+  let first = "";
+  while (words.length > 1 && (first + " " + words[0]).trim().length <= max) first = (first + " " + words.shift()).trim();
+  return first ? [first, words.join(" ")] : [label];
+}
+
 export function RadarLabels({
   offset = 24,
   fontSize = 11,
@@ -66,7 +75,11 @@ export function RadarLabels({
               x={0}
               y={0}
             >
-              {metric.label}
+              {wrapLabel(metric.label).map((line, l, all) => (
+                <tspan dy={l === 0 ? `${-(all.length - 1) * 0.55}em` : "1.1em"} key={line} x={0}>
+                  {line}
+                </tspan>
+              ))}
             </text>
           </motion.g>
         );

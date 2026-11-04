@@ -239,7 +239,7 @@ export function AssessmentNav() {
   return (
     <>
       <SidebarHeader>
-        <CompanySwitcher companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company?.id} onChange={setCompanyId} />
+        <CompanySwitcher companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company?.id} onChange={setCompanyId} note={demo ? ui.res.demoBadge : undefined} />
       </SidebarHeader>
       <SidebarContent>
         {groups.map((g, i) => {

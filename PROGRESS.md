@@ -190,6 +190,26 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-04 (6) — Schermate allineate alle tavole
+- [x] Tavole salvate in memoria confrontate con le schermate, in chiaro.
+- [x] Selettori: voce scelta lime in tutti i ToggleGroup (era neutra).
+- [x] Menu: «Dati dimostrativi» sotto la società. Le icone restano (Bilal, 2026-11-04: le avevo
+      tolte per seguire le tavole; non era richiesto).
+- [x] Home: niente sovratitolo. Il numero in filigrana resta com'era (Bilal, 2026-11-04: la
+      versione più grande copriva i testi); ora non copre più il sottotitolo.
+- [x] Le perdite invisibili: «Cinque aree», barre sottili con nomi a sinistra (`compact` di
+      `CategoryBars`, anche in Sintesi), nessun «Apri» nei riquadri.
+- [x] Dove intervenire: grafico in una card con «Fascia» e «Piano di sviluppo», valori in mono.
+      Su telefono il grafico scorre dentro la card: la pagina scorreva di lato, in produzione.
+- [x] Confronto a 2: due schede persona con iniziali, forma scritta e «Cambia»
+      (`ComparePersonCard`), frase coi nomi di battesimo, radar rotondo con 5 e 10.
+- [x] Confronto fino a 5: posizione in classifica, «Tutti», «+ Aggiungi», `AreaBars`, heatmap con
+      intestazioni piene, colori più intensi e casella del valore più alto.
+- [x] Profilo della ricerca: filo e testo scuro sui verbi.
+- [x] Senza persone scelte, il confronto parte dalle prime due della stessa mansione.
+- [ ] Scostamenti voluti dalle tavole: vedi DECISIONI, «Tavole: dove vale il testo».
+- [ ] Non rilasciato.
+
 ## 2026-11-04 (5) — Pagine che non si aprivano, pillola del menu, Stato dell'arte
 - [x] Pagine lente: togliendo il rimontaggio a ogni pagina (`ErrorBoundary`, Fase 1, in
       produzione da 73c2965) ha cominciato a funzionare davvero l'uscita di `ViewTransition`,
