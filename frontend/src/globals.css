@@ -142,6 +142,9 @@
      risultati (CLAUDE.md cap. 7, "Registro"; eccezione del manuale,
      p. 25). Le pagine di lavoro restano sulla scala dell'interfaccia.
      Valori desktop; sotto `md` si scende di un gradino nella pagina. */
+  /* Il numero in filigrana delle finestre della Home: decorazione, non testo da leggere. */
+  --text-watermark: 6rem;                         /* 96 */
+  --text-watermark--line-height: 1;
   --text-site-h1: 2.75rem;                        /* 44 */
   --text-site-h1--line-height: 1.1;
   --text-site-h1--letter-spacing: -0.025em;
@@ -596,4 +599,10 @@
   letter-spacing: 0.07em;
   font-weight: 500;
   text-transform: uppercase;
+}
+
+/* La Home di Assessment: le quattro finestre riempiono lo schermo sotto la barra
+   superiore (64px) e i margini del contenuto (24px sopra e sotto). */
+@utility min-h-home {
+  min-height: calc(100svh - 7rem);
 }

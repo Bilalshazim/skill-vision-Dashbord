@@ -304,6 +304,49 @@ describe('Assessment sul server', () => {
     expect(JSON.stringify(rows)).not.toContain('segreta')
   })
 
+  describe('motore ROI', () => {
+    const roi = (companyId = fx.company.id) => `${base(companyId)}/roi`
+    const body = { statement: { vdp: 1000000, cp: 400000 }, months: 12, inv: 20000, turn: 3, ass: 4 }
+
+    it('salva e rilegge i dati; un’altra società non li vede', async () => {
+      expect((await api.put(roi()).set(authHeader(admin)).send(body)).status).toBe(204)
+      const res = await api.get(roi()).set(authHeader(recruiter))
+      expect(res.body.data).toMatchObject(body)
+      expect(res.body.atteso).toBeNull()
+      expect((await api.get(roi()).set(authHeader(other))).status).toBe(403)
+      expect((await api.put(roi()).set(authHeader(other)).send(body)).status).toBe(403)
+    })
+
+    it('rifiuta un esercizio di durata assurda o un importo negativo', async () => {
+      expect((await api.put(roi()).set(authHeader(admin)).send({ ...body, months: 0 })).status).toBe(400)
+      expect((await api.put(roi()).set(authHeader(admin)).send({ ...body, inv: -1 })).status).toBe(400)
+    })
+
+    it('l’atteso si fissa una volta: a schermo solo il valore, il resto resta registrato', async () => {
+      const lock = { value: 7, criteria: 'Benchmark dopo la prima misurazione' }
+      const first = await api.post(`${roi()}/atteso`).set(authHeader(admin)).send(lock)
+      expect(first.status).toBe(200)
+      expect(first.body).toEqual({ atteso: 7 })
+      expect((await api.post(`${roi()}/atteso`).set(authHeader(admin)).send({ ...lock, value: 8 })).status).toBe(409)
+      const read = await api.get(roi()).set(authHeader(admin))
+      expect(read.body.atteso).toBe(7)
+      expect(JSON.stringify(read.body)).not.toContain('Benchmark')
+      const row = await prisma.assessmentRoi.findUniqueOrThrow({ where: { companyId: fx.company.id } })
+      expect(row.attesoCriteria).toBe(lock.criteria)
+      expect(row.attesoLockedBy).toBe(fx.companyAdmin.id)
+      expect(row.attesoLockedAt).toBeInstanceOf(Date)
+    })
+
+    it('salvare i dati non tocca l’atteso; toglierlo è solo dello staff', async () => {
+      await api.post(`${roi()}/atteso`).set(authHeader(admin)).send({ value: 7, criteria: 'x' })
+      await api.put(roi()).set(authHeader(admin)).send(body)
+      expect((await api.get(roi()).set(authHeader(admin))).body.atteso).toBe(7)
+      expect((await api.delete(`${roi()}/atteso`).set(authHeader(admin))).status).toBe(403)
+      expect((await api.delete(`${roi()}/atteso`).set(authHeader(await loginAs('admin@test.local')))).status).toBe(204)
+      expect((await api.get(roi()).set(authHeader(admin))).body.atteso).toBeNull()
+    })
+  })
+
   describe('pacchetto acquistato (selettore CT / CP / Completo)', () => {
     const putPackage = (token: string, assessmentPackage: string) =>
       api.put(`/api/v1/companies/${fx.company.id}/assessment-package`).set(authHeader(token)).send({ assessmentPackage })

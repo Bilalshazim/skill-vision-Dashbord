@@ -41,7 +41,13 @@ export const isServerToken = (token: string) => /^[A-Za-z0-9_-]{43}$/.test(token
 const base = (companyId: string) => `/assessment/companies/${encodeURIComponent(companyId)}`
 const id = (s: string) => encodeURIComponent(s)
 
+/** I dati del motore ROI di una società: bilancio dal file e voci a mano. */
+export type RoiData = { statement: Record<string, number>; fileName?: string; loadedAt?: string; months: number; inv?: number; invAz?: number; turn?: number; ass?: number }
+
 export const assessmentApi = {
+  getRoi: (companyId: string) => apiGet<{ data: Partial<RoiData>; atteso: number | null }>(`${base(companyId)}/roi`),
+  putRoi: (companyId: string, data: RoiData) => apiPut<void>(`${base(companyId)}/roi`, data),
+  lockAtteso: (companyId: string, value: number, criteria: string) => apiPost<{ atteso: number }>(`${base(companyId)}/roi/atteso`, { value, criteria }),
   state: (companyId: string) => apiGet<ServerAssessmentState>(`${base(companyId)}/state`),
   putEmployee: (companyId: string, e: Employee) => apiPut<Employee>(`${base(companyId)}/employees/${id(e.id)}`, e),
   putPeriod: (companyId: string, p: EvalPeriod) => apiPut<EvalPeriod>(`${base(companyId)}/periods/${id(p.id)}`, p),

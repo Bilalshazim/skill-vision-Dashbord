@@ -1,26 +1,32 @@
+import { motion, useReducedMotion } from 'motion/react'
+
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { WindowCard } from '@/components/patterns/WindowCard'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 
-// La Home di Assessment (CLAUDE.md, Fase 6, "Le due home", approvato da
-// Roberto il 2026-10-29; tavola «Assessment · 1 Home»): prima voce del menu,
-// sovratitolo con la società, titolo "Quello che devi sapere" sulla scala del
-// sito e le quattro finestre in griglia 2×2, ognuna con numero, titolo,
-// sottotitolo e domanda. Nessun numero di dati, nessun grafico, nessuna
-// icona. Il clic apre la pagina dei risultati di quella finestra.
-// L'intestazione è della pagina, non del layout (`home` non ha titolo in
-// PAGE_META_TEXT): è di presentazione, non di lavoro.
+// La Home di Assessment (CLAUDE.md, Fase 6, tavola «Home · senza dati», Roberto
+// 2026-11-03): prima voce del menu e quattro finestre a tutta altezza, visibili
+// all'apertura, ognuna con l'etichetta (numero e tema), il numero in filigrana,
+// titolo, sottotitolo e domanda. Nessun dato e nessun grafico: compaiono entrando
+// nella finestra. All'apertura una dissolvenza breve, una dopo l'altra (solo
+// opacità, e nessuna con "riduci movimento"). Al
+// passaggio del mouse cambiano solo fondo e bordo. L'intestazione è della pagina,
+// non del layout (`home` non ha titolo in PAGE_META_TEXT).
 export default function AssessmentHomePage() {
   const { ui, company } = useAssessment()
+  const reduced = useReducedMotion()
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex min-h-home flex-col gap-4">
       <PageHeader level="presentation" className="mb-0" eyebrow={[company?.name, 'Assessment'].filter(Boolean).join(' · ')} title={ui.res.homeTitle} actions={<AssessmentModeSwitch />} />
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {ui.res.windows.map((w: { slug: string; number: string; title: string; sub: string; q: string }) => (
-          <WindowCard key={w.slug} to={`/assessment/${w.slug}`} number={w.number} title={w.title} subtitle={w.sub} question={w.q} />
+      <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2 md:auto-rows-fr">
+        {ui.res.windows.map((w: { slug: string; number: string; title: string; sub: string; q: string; theme: string }, i: number) => (
+          <motion.div key={w.slug} initial={reduced ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: i * 0.06 }} className="min-w-0">
+            <WindowCard to={`/assessment/${w.slug}`} number={w.number} theme={w.theme} title={w.title} subtitle={w.sub} question={w.q} />
+          </motion.div>
         ))}
       </div>
+      <p className="text-app-caption text-muted-foreground">{ui.res.homeNote}</p>
     </div>
   )
 }

@@ -10,6 +10,11 @@ export type RadarSeries = {
   values: Record<string, number>
   /** `reference`: il profilo atteso o il benchmark, disegnato solo come contorno tratteggiato. */
   reference?: boolean
+  /** Il colore della persona, quando è fissato da chi confronta. */
+  color?: string
+  /** Il rombo per la seconda persona nel confronto a due: si distingue anche senza il colore. */
+  pointShape?: 'circle' | 'diamond'
+  dashed?: boolean
 }
 
 // Il profilo di competenza di una persona (Bklit Radar — DECISIONI, "Grafici
@@ -30,6 +35,7 @@ export function ProfileRadar({
   max = 10,
   format,
   size = 'md',
+  hideTable = false,
   className,
 }: {
   title: string
@@ -39,11 +45,14 @@ export function ProfileRadar({
   max?: number
   format?: (n: number) => string
   size?: 'sm' | 'md'
+  /** La tabella resta per i lettori di schermo; a schermo la scrive già chi confronta. */
+  hideTable?: boolean
   className?: string
 }) {
   // Il riferimento va disegnato per primo, sotto la persona.
   const ordered = [...series.filter((s) => s.reference), ...series.filter((s) => !s.reference)]
-  const colors = seriesColors(ordered)
+  const auto = seriesColors(ordered)
+  const colors = ordered.map((s, i) => s.color ?? auto[i])
   const data = ordered.map((s, i) => ({
     label: s.label,
     color: colors[i],
@@ -58,7 +67,7 @@ export function ProfileRadar({
           <RadarAxis />
           <RadarLabels fontSize={12} />
           {ordered.map((s, i) => (
-            <RadarArea key={s.label} index={i} showPoints={!s.reference} fillOpacity={s.reference ? 0 : 0.15} strokeDasharray={s.reference ? '4 4' : undefined} />
+            <RadarArea key={s.label} index={i} showPoints={!s.reference} pointShape={s.pointShape} fillOpacity={s.reference ? 0 : 0.15} strokeDasharray={s.reference || s.dashed ? '4 4' : undefined} />
           ))}
         </RadarChart>
       </div>
@@ -66,7 +75,7 @@ export function ProfileRadar({
         <ChartLegend items={ordered.map((s, i) => ({ label: s.label, color: colors[i], reference: s.reference }))} />
       </figcaption>
       <ChartDataTable
-        visible
+        visible={!hideTable}
         title={title}
         rowHeader="Dimensione"
         columns={ordered.map((s) => ({ label: s.label, reference: s.reference }))}

@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "test": "node --test src/lib/roi/model.test.ts",
     "preview": "vite preview",
     "start": "node scripts/serve-combined.mjs dist $PORT",
     "serve:combined": "node scripts/serve-combined.mjs dist 8300"
@@ -28,6 +29,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "d3-array": "^3.2.4",
+    "d3-sankey": "^0.12.3",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
     "jszip": "^3.10.2",
@@ -49,6 +51,7 @@
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@types/d3-array": "^3.2.2",
+    "@types/d3-sankey": "^0.12.4",
     "@types/d3-scale": "^4.0.9",
     "@types/d3-shape": "^3.2.0",
     "@types/node": "^24.13.4",

@@ -1,5 +1,6 @@
 import { evaluatedEmployees, orgCriticalAreas, orgCriticalRoles, primaryScore, tierFor, worstCompetenza } from '@/modules/assessment/lib/calculations'
 import { getSoftSkills, round1, type AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
+import { orgIndex, personIndex } from '@/modules/assessment/lib/role-index'
 import { TIER_ORDER, type TierKey } from '@/modules/assessment/lib/tier-display'
 import type { AssessmentState, Employee } from '@/modules/assessment/lib/types'
 
@@ -14,7 +15,7 @@ import type { AssessmentState, Employee } from '@/modules/assessment/lib/types'
 /** Il valore atteso, su 10: lo stesso benchmark di homeStats e della Panoramica. */
 export const ATTESO = 7.0
 
-export type RankedPerson = { e: Employee; score: number; tier: TierKey }
+export type RankedPerson = { e: Employee; score: number; tier: TierKey; index: number | null }
 
 /** Gli interventi del piano di sviluppo, per fascia: gli stessi della Panoramica e dell'esportazione del piano d'azione. */
 export const INTERVENTI: { key: 'training' | 'coaching' | 'reorg' | 'talent'; tier: TierKey }[] = [
@@ -30,7 +31,7 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
   const ranked: RankedPerson[] = evaluated
     .map((e) => {
       const score = primaryScore(e, state, lang)
-      return { e, score, tier: tierFor(score, lang).key as TierKey }
+      return { e, score, tier: tierFor(score, lang).key as TierKey, index: personIndex(e, state, lang) }
     })
     .sort((a, b) => b.score - a.score)
   const total = ranked.length
@@ -75,7 +76,15 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
   const mean = (l: number[]) => l.reduce((n, v) => n + v, 0) / l.length
   const worstRoleInArea = [...inArea.entries()].sort((a, b) => mean(a[1]) - mean(b[1]))[0]?.[0] ?? null
 
+  // Il grafico a flussi: per ogni fascia, quante persone hanno il colloquio di
+  // restituzione nel piano di sviluppo e quante nessun intervento. Il tipo di
+  // intervento per persona non è un dato: per ora solo questi due esiti.
+  const flows = TIER_ORDER.map((k) => ({ tier: k, withFeedback: byTier[k].filter((r) => r.e.feedbackNeeded).length, without: byTier[k].filter((r) => !r.e.feedbackNeeded).length }))
+
   return {
+    flows,
+    feedbackEvaluated: flows.reduce((n, f) => n + f.withFeedback, 0),
+    index: orgIndex(state, lang),
     total,
     employees: state.employees.length,
     ranked,

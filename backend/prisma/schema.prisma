@@ -153,6 +153,7 @@ model Company {
   // Il pacchetto di Assessment acquistato: A = CT, B = CP, AB = Completo. Il
   // selettore CT / CP / Completo mostra solo questo (CLAUDE.md, Fase 6).
   assessmentPackage AssessmentModulo @default(AB)
+  assessmentRoi     AssessmentRoi?
 
   users          User[]
   campaigns      Campaign[]
@@ -1196,4 +1197,21 @@ model RecruitingDocument {
   updatedAt   DateTime @updatedAt
 
   @@unique([scope, key])
+}
+
+// I dati del motore ROI di una società (CLAUDE.md, Fase 6, "Euro dal motore
+// ROI"): bilancio caricato una volta e voci inserite a mano. L'atteso si fissa
+// una volta dopo la prima misurazione e non cambia per il periodo del Patto: a
+// schermo solo il valore; data, criterio e autore restano qui, senza uscire.
+model AssessmentRoi {
+  id             String    @id @default(uuid())
+  companyId      String    @unique
+  company        Company   @relation(fields: [companyId], references: [id])
+  data           Json      @default("{}")
+  attesoLocked   Float?
+  attesoLockedAt DateTime?
+  attesoCriteria String?
+  attesoLockedBy String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }

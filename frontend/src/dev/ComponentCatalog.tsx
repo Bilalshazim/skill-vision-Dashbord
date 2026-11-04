@@ -22,7 +22,11 @@ import { TrendChart } from '@/components/patterns/TrendChart'
 import { ChartCard } from '@/components/patterns/ChartCard'
 import { CrossModuleBanner } from '@/components/patterns/CrossModuleBanner'
 import { DataTable } from '@/components/patterns/DataTable'
+import { CompetencyHeatmap } from '@/components/patterns/CompetencyHeatmap'
+import { CompetencyRows } from '@/components/patterns/CompetencyRows'
 import { DistributionBar } from '@/components/patterns/DistributionBar'
+import { FlowChart } from '@/components/patterns/FlowChart'
+import { RoleFitRanking } from '@/components/patterns/RoleFitRanking'
 import { EmptyState } from '@/components/patterns/EmptyState'
 import { FilterBar } from '@/components/patterns/FilterBar'
 import { FilterToggle } from '@/components/patterns/FilterToggle'
@@ -1281,6 +1285,64 @@ const ENTRIES: Entry[] = [
           <StatCard surface="none" size="sm" label="Da valorizzare" value={4} note="17% dell'organico" />
         </Row>
       </>
+    ),
+  },
+  {
+    name: 'FlowChart',
+    level: 'Pattern',
+    source: 'components/patterns/FlowChart.tsx',
+    render: () => (
+      <div className="w-full">
+        <FlowChart
+          title="Dalle fasce al piano di sviluppo"
+          nodes={[{ name: 'Alto potenziale', color: 'var(--success)' }, { name: 'Critici', color: 'var(--destructive)' }, { name: 'Nessun intervento', color: 'var(--chart-compare)' }, { name: 'Colloquio', color: 'var(--chart-mono)' }]}
+          links={[{ source: 0, target: 2, value: 4 }, { source: 1, target: 3, value: 2 }]}
+          formatValue={(n) => `${n} persone`}
+          note="Lo spessore di ogni flusso è il numero di persone."
+        />
+      </div>
+    ),
+  },
+  {
+    name: 'RoleFitRanking',
+    level: 'Pattern',
+    source: 'components/patterns/RoleFitRanking.tsx',
+    render: () => (
+      <RoleFitRanking
+        className="w-full"
+        label="Indice di adattamento al ruolo"
+        sentence="Anna e Luca sono testa a testa (106, 104)."
+        referenceLabel="Atteso 100"
+        rows={[{ id: 'a', name: 'Anna Rossi', meta: 'Responsabile', value: 106, color: 'var(--chart-3)' }, { id: 'b', name: 'Luca Neri', meta: 'Operatore', value: 104, color: 'var(--chart-2)' }, { id: 'c', name: 'Sara Blu', value: 72, color: 'var(--chart-1)' }]}
+      />
+    ),
+  },
+  {
+    name: 'CompetencyRows',
+    level: 'Pattern',
+    source: 'components/patterns/CompetencyRows.tsx',
+    render: () => (
+      <CompetencyRows
+        className="w-full"
+        title="Competenza"
+        format={(n) => n.toFixed(1).replace('.', ',')}
+        people={[{ name: 'Anna Rossi', short: 'AR', color: 'var(--chart-3)' }, { name: 'Luca Neri', short: 'LN', color: 'var(--chart-2)' }]}
+        groups={[{ label: 'Essenziali', rows: [{ key: 'a', label: 'Comunicazione', a: 7, b: 7 }, { key: 'b', label: 'Autocontrollo', a: 5, b: 8 }] }]}
+      />
+    ),
+  },
+  {
+    name: 'CompetencyHeatmap',
+    level: 'Pattern',
+    source: 'components/patterns/CompetencyHeatmap.tsx',
+    render: () => (
+      <CompetencyHeatmap
+        className="w-full"
+        title="Le competenze"
+        format={(n) => n.toFixed(1).replace('.', ',')}
+        columns={[{ id: 'a', label: 'Anna R.', color: 'var(--chart-1)' }, { id: 'b', label: 'Luca N.', color: 'var(--chart-2)' }, { id: 'c', label: 'Sara B.', color: 'var(--chart-3)' }]}
+        groups={[{ label: 'Competenze personali', rows: [{ key: 'x', label: 'Autonomia', values: [9, 6, 3] }, { key: 'y', label: 'Persistenza', values: [5, null, 7] }] }]}
+      />
     ),
   },
   {

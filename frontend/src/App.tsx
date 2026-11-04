@@ -19,6 +19,7 @@ import RecruitingLayout from '@/modules/recruiting/RecruitingLayout'
 const ModuleChooserPage = lazy(() => import('@/pages/ModuleChooserPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const JobPostingPublicPage = lazy(() => import('@/modules/recruiting/public/JobPostingPublicPage'))
+const RecruitingHome = lazy(() => import('@/modules/recruiting/RecruitingHome'))
 const RecruitingPanoramicaPage = lazy(() => import('@/modules/recruiting/RecruitingPanoramicaPage'))
 const CipAdminPage = lazy(() => import('@/modules/recruiting/admin/CipAdminPage'))
 const EmailConfigAdminPage = lazy(() => import('@/modules/recruiting/admin/EmailConfigAdminPage'))
@@ -53,6 +54,7 @@ const AssessmentHardPage = lazy(() => import('@/modules/assessment/pages/Assessm
 const AssessmentHardRisultatiPage = lazy(() => import('@/modules/assessment/pages/AssessmentHardRisultatiPage'))
 const AssessmentPanoramicaPage = lazy(() => import('@/modules/assessment/pages/AssessmentPanoramicaPage'))
 const AssessmentHomePage = lazy(() => import('@/modules/assessment/pages/AssessmentHomePage'))
+const AssessmentConfrontoPage = lazy(() => import('@/modules/assessment/pages/AssessmentConfrontoPage'))
 const IlValorePage = lazy(() => import('@/modules/assessment/pages/results/IlValorePage'))
 const PerditeInvisibiliPage = lazy(() => import('@/modules/assessment/pages/results/PerditeInvisibiliPage'))
 const PotenzialePage = lazy(() => import('@/modules/assessment/pages/results/PotenzialePage'))
@@ -106,9 +108,7 @@ function App() {
                 <Route index element={<Navigate to="/recruiting/profile" replace />} />
                 <Route path="panoramica" element={<RecruitingPanoramicaPage />} />
                 <Route path="home" element={<Navigate to="/recruiting/panoramica" replace />} />
-                {/* "Stato dell'arte" dal 2026-10-23 rimanda alla Panoramica: bloccato
-                    fino alla risposta di Roberto (CLAUDE.md, Fase 6), resta com'è. */}
-                <Route path="stato-dell-arte" element={<Navigate to="/recruiting/panoramica" replace />} />
+                <Route path="stato-dell-arte" element={<RecruitingHome />} />
                 <Route path="ranking" element={<RankingPage />} />
                 <Route path="pagina-a" element={<PaginaAPage />} />
                 <Route path="pipeline" element={<PipelinePage />} />
@@ -164,6 +164,7 @@ function App() {
               <Route index element={<AssessmentHomePage />} />
               <Route path="home" element={<AssessmentHomePage />} />
               <Route path="panoramica" element={<AssessmentPanoramicaPage />} />
+              <Route path="confronto" element={<AssessmentConfrontoPage />} />
               <Route path="il-valore" element={<IlValorePage />} />
               <Route path="perdite-invisibili" element={<PerditeInvisibiliPage />} />
               <Route path="potenziale" element={<PotenzialePage />} />

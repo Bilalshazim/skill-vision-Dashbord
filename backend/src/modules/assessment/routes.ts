@@ -210,6 +210,74 @@ assessmentRouter.delete('/companies/:companyId/assignments/:clientId', requireRo
   }
 })
 
+// ---------- motore ROI ----------
+
+const roiNumber = z.number().finite().nonnegative().optional()
+const roiSchema = z.object({
+  statement: z.record(z.number().finite()).default({}),
+  fileName: z.string().max(255).optional(),
+  loadedAt: z.string().max(40).optional(),
+  months: z.number().int().min(1).max(36).default(12),
+  inv: roiNumber,
+  invAz: roiNumber,
+  turn: roiNumber,
+  ass: roiNumber,
+})
+const attesoSchema = z.object({ value: z.number().min(1).max(10), criteria: z.string().min(1).max(500) })
+
+// A schermo solo il valore dell'atteso: data, criterio e autore restano sul server.
+assessmentRouter.get('/companies/:companyId/roi', async (req, res, next) => {
+  try {
+    const company = await companyFor(req)
+    const row = await prisma.assessmentRoi.findUnique({ where: { companyId: company.id } })
+    res.json({ data: row?.data ?? {}, atteso: row?.attesoLocked ?? null })
+  } catch (err) {
+    next(err)
+  }
+})
+
+assessmentRouter.put('/companies/:companyId/roi', requireRole(...WRITE_ROLES), validateBody(roiSchema), async (req, res, next) => {
+  try {
+    const company = await companyFor(req)
+    const s = await prisma.assessmentRoi.upsert({ where: { companyId: company.id }, create: { companyId: company.id, data: req.body }, update: { data: req.body } })
+    await log(req, 'assessment.roi.saved', 'AssessmentRoi', s.id)
+    res.status(204).end()
+  } catch (err) {
+    next(err)
+  }
+})
+
+// L'atteso si fissa una volta sola: una seconda richiesta riceve 409, senza
+// cambiare valore, data o autore. Un valore sbagliato lo toglie lo staff, con la
+// rotta sotto, e l'operazione resta nel registro.
+assessmentRouter.post('/companies/:companyId/roi/atteso', requireRole(...WRITE_ROLES), validateBody(attesoSchema), async (req, res, next) => {
+  try {
+    const company = await companyFor(req)
+    const { value, criteria } = req.body as z.infer<typeof attesoSchema>
+    const saved = await prisma.$transaction(async (tx) => {
+      const current = await tx.assessmentRoi.findUnique({ where: { companyId: company.id } })
+      if (current?.attesoLocked != null) throw new ConflictError('L’atteso è già fissato e non cambia per il periodo del Patto')
+      const lock = { attesoLocked: value, attesoLockedAt: new Date(), attesoCriteria: criteria, attesoLockedBy: req.auth!.sub }
+      return tx.assessmentRoi.upsert({ where: { companyId: company.id }, create: { companyId: company.id, ...lock }, update: lock })
+    })
+    await log(req, 'assessment.roi.attesoLocked', 'AssessmentRoi', saved.id)
+    res.json({ atteso: saved.attesoLocked })
+  } catch (err) {
+    next(err)
+  }
+})
+
+assessmentRouter.delete('/companies/:companyId/roi/atteso', requireRole('PLATFORM_ADMIN'), async (req, res, next) => {
+  try {
+    const company = await companyFor(req)
+    const saved = await prisma.assessmentRoi.update({ where: { companyId: company.id }, data: { attesoLocked: null, attesoLockedAt: null, attesoCriteria: null, attesoLockedBy: null } })
+    await log(req, 'assessment.roi.attesoUnlocked', 'AssessmentRoi', saved.id)
+    res.status(204).end()
+  } catch (err) {
+    next(err)
+  }
+})
+
 // ---------- documenti unici per società ----------
 
 assessmentRouter.put('/companies/:companyId/settings', requireRole(...WRITE_ROLES), validateBody(settingsSchema), async (req, res, next) => {
@@ -507,6 +575,7 @@ assessmentRouter.post('/companies/:companyId/reset', requireRole('PLATFORM_ADMIN
         await tx.assessmentCompanyProfile.deleteMany({ where: { companyId } })
         await tx.executiveInterview.deleteMany({ where: { companyId } })
         await tx.valutazione5p.deleteMany({ where: { companyId } })
+        await tx.assessmentRoi.deleteMany({ where: { companyId } })
       },
       TX,
     )

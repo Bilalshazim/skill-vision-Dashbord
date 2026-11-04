@@ -2582,3 +2582,142 @@ Piano in `PROGETTO-ASSESSMENT-SERVER.md` §8. Decise da Roberto il 2026-10-14.
   codice conta chi è scelto anche fra i finalisti: 3 finalisti con un vincitore.
   Non cambiato: è il calcolo esistente. Se Roberto vuole fuori chi è già scelto, è una
   modifica a parte.
+
+## Motore ROI: una copia con un test, non un modulo condiviso · 2026-11-04
+- CLAUDE.md chiede «un solo modulo di calcolo, usato da tutti e due». Il motore è in un
+  altro repository, pubblicato su GitHub Pages, con modifiche in corso non nostre.
+- Opzioni: (a) pacchetto condiviso, che obbliga a cambiare il build del motore; (b)
+  copia letterale con un test sugli stessi valori di riferimento.
+- Raccomandazione e presa: **(b)**, per non toccare l'altro repository. Il limite: una
+  formula corretta va corretta in due posti, e il test scatta solo sui casi che copre.
+  Il pacchetto condiviso resta il passo giusto: **da decidere con Alessio**.
+
+## Dalla dashboard al motore: le scale · 2026-11-04
+- Il motore lavora in punti su 100, la dashboard su 10. Valore competenze = punteggio
+  medio × 10; divario = (atteso − punteggio medio) × 10, mai sotto zero. Copertura dei
+  ruoli dalla Panoramica. Il resto sono i predefiniti del motore: base HCVA, convenzione
+  gestionale, costo di sostituzione 50%, assenze aggredibili 60%, leva 4 spenta.
+- **Da confermare con Roberto:** è la scelta da cui dipendono di più gli importi. Con
+  punteggio 6,0 e atteso 7,0 il divario vale 10 punti, cioè il 10% dell'HCVA.
+
+## Quale cifra del motore su quale pagina · 2026-11-04
+- CLAUDE.md dice solo che l'obiettivo è Dove intervenire, scenario base, e che gli altri
+  tre sono ordini di grandezza. La corrispondenza è una proposta:
+  Il valore = potenziale del divario (gapVal) · Le perdite invisibili = somma dei
+  potenziali lordi (pool) · Il potenziale = produttività attesa (l1) · Dove intervenire
+  = beneficio atteso (benefit), con prudenziale ed espansivo.
+- **Da confermare con Roberto.** Il valore resta scheletro: la cifra non usa la regola
+  fra RAL e punteggio, che è ancora in attesa di lui.
+
+## «Compenso» e durata dell'esercizio · 2026-11-04
+- «Compenso» di CLAUDE.md è il corrispettivo dell'assessment del motore: senza, il motore
+  si ferma, e la dashboard pure, con lo stesso messaggio.
+- Il motore non conosce la durata dell'esercizio. Si scrive a mano, 12 mesi di partenza,
+  o arriva dal file (chiave «Durata esercizio»). Si riportano all'anno le voci che
+  scorrono nell'anno, non gli indici.
+
+## Atteso fissato: fino a quando · 2026-11-04
+- Le date del Patto non sono nel sistema, quindi il blocco non ha una scadenza. Lo toglie
+  solo lo staff, con una rotta senza interfaccia che resta nel registro. Si fissa al
+  primo salvataggio dei dati con persone già valutate. **Da chiarire con Roberto.**
+
+## Indice a 100: in Home no · 2026-11-04
+- La richiesta chiede l'indice «su Results e Home» e anche «nessun numero in Home».
+  CLAUDE.md (2026-11-03) è esplicito: nessun dato in home. Presa: solo nelle pagine dei
+  risultati. Soft e professionali pesano metà ciascuno, come il punteggio complessivo.
+- Un ruolo senza competenze scelte usa tutte le 35, e il confronto lo mostra nei numeri.
+
+## Barre dei confronti in HTML, heatmap fuori scala · 2026-11-04
+- Classifica e barre per area vogliono una barra per persona, col suo colore e il suo
+  nome: Bklit colora per serie e non per riga. Barre semplici sui token, con il valore
+  scritto. Radar e Sankey restano Bklit.
+- La heatmap mescola il colore della persona con la superficie: non è la scala
+  sequenziale che manca al sistema, vale solo qui ed è decisa dalla tavola. Il dato si
+  legge dal numero. Supera «nessuna heatmap nel prodotto» della Fase 5.
+
+## Sankey di Bklit: dipendenza nuova · 2026-11-04
+- `d3-sankey` e i suoi tipi, richiesti da Bklit. File presi dal registro a mano, senza
+  `shadcn add`, che avrebbe sovrascritto i grafici già adattati.
+
+## Risposte per Alessio · 2026-11-04
+Raccolte dal codice e dai documenti. Dove un dato non è verificabile, lo si dice.
+
+**1 · Consegna di venerdì (2026-11-06).** Nel repository non c'è nessun impegno con questa
+data: la conferma è di Bilal. Lo stato tecnico: tutto il lavoro è fatto e passa i
+controlli, ma le Fasi 3–4 e questa verifica non sono ancora rilasciate. Non dipendono da noi:
+il criterio dei manager; la conferma di Roberto su scale, corrispondenza delle cifre e blocco
+dell'atteso; un file vero di Credit Save; i dati di bilancio per vedere gli euro.
+
+**2 · Da dove vengono 5 · 4 · 2 · 0 (Punto 5).** Dal conteggio delle persone per fascia, non da
+un dato per persona. `INTERVENTI` in `lib/results.ts`: Da potenziare → Formazione (5), Alto
+potenziale → Coaching (4), Critici → Riorganizzazione (2), Alto valore → Talento (0). Il tipo
+di intervento per persona **non esiste**. Per persona ci sono solo l'interruttore
+`feedbackNeeded` e quattro testi liberi in `developmentPlan` (azioni, formazione, coaching,
+obiettivi), vuoti nei dati di prova. Per questo il Sankey ha due soli esiti. Averlo davvero
+richiede un campo nuovo e la sua compilazione.
+
+**3 · Sottofattori (Punto 8).** No, per quanto si è potuto vedere. La risposta dell'API osservata
+il 2026-10-02 (32 persone) ha `competenze` e `competenze ruolo`, con nome e punteggio, e nessun
+campo di sottofattori. I nomi (`BF_SUB`) sono etichette nostre, senza valori. Quindi il blocco nel
+profilo non c'è. Da chiedere al fornitore se esistono altrove; la versione a 42 voci è ancora
+una domanda aperta (PROPOSTA-ORIGINAL-SKILLS §8).
+
+**4 · Massimo reale delle soft skill (Punto 6).** **Il 10 non è confermato dai dati.**
+- Dati veri: l'unica misura è la chiamata di prova del 2026-10-02: da 0,51 a 8,11, 32 persone di
+  una sola società, un solo periodo. Non è stata rifatta, ed è un mese vecchia. Il minimo è anche
+  sotto 1, quindi non sta nemmeno nella scala dichiarata.
+- La scala 1–10 viene dalla conferma del comitato tramite Roberto (2026-11-04), non dai dati.
+- Assessment è davvero 1–10: il modulo lo limita e il generatore di prova pure. Il server però
+  non controlla l'intervallo (`ottenuto: z.number()`).
+- **Recruiting no:** i punteggi dei candidati sono su 31 (nei dati di prova da 0,9 a 32,99, sopra
+  il massimo), e «/31» è a schermo nell'Assistente IA e nell'esportazione CSV. Contrasta con «una
+  scala sola»; convertirlo tocca gli algoritmi: **da decidere**.
+
+**5 · Testi mancanti e segnaposto.**
+- Dati che mancano al cliente:
+  - corpo dell'email del questionario: «[Testo standard da inserire — verrà fornito dal cliente]»;
+  - «Report dati provvisorio…», finché non c'è il modello grafico definitivo;
+  - Il valore: «Contenuto in preparazione», in attesa della regola di Roberto;
+  - Recruiting, le tre pagine dei risultati: «€ [—] · In attesa della formula»;
+  - Assessment, le quattro pagine: «In attesa dei dati di bilancio», finché non si carica;
+  - Sintesi della Panoramica: valore a rischio, intervallo «€ [minimo] e € [massimo]», «[—]%»,
+    azioni, quattro voci di perdita, costi evitabili, euro per area e per azione, cascata;
+  - Comitato scientifico: etichette provvisorie delle società senza nome associato.
+- Diciture in attesa di una decisione:
+  - nome del quinto stato: «Selezione conclusa» (Roberto ha scritto anche «Selezione valutatori»);
+  - esiti In riserva e Non selezionato: «—», non si registrano ancora;
+  - `ma1`: «Prendere decisioni» in Assessment, «Il processo decisionale» in Recruiting; proposta
+    «Processo decisionale», non applicata;
+  - «Classifica dopo il test» e «Migliori candidati»: nome e contenuto bloccati.
+- **Testi scritti da noi senza un testo approvato**, da far rileggere: le
+  frasi del confronto (`cmpLeader`, `cmpTied`, `cmpSummary`), le spiegazioni di «Come è calcolato»
+  e le note sotto le cifre (`roiHow*`, `roiValoreNote`, `roiMissingNote`), la sezione del bilancio in
+  Dati aziendali, le note del grafico a flussi, «Pacchetti» nelle Impostazioni.
+
+## Manager a schermo: la verifica non passa e non si corregge ora · 2026-11-04
+- Richiesta: che non compaiano. Il criterio non c'è. Opzioni: (a) filtrare per parole nel ruolo
+  («Responsabile», «Capo»…); (b) aspettare il criterio.
+- Cosa cambia: (a) toglie persone da classifiche e fasce, cambia percentuali e importi, e sbaglia
+  sui nomi dei ruoli; è esattamente quello che CLAUDE.md dice di non inventare.
+- Raccomandazione e presa: **(b)**. Tocca il comportamento: si aspetta Roberto.
+
+## Uscita delle pagine · 2026-11-04
+- `AnimatePresence mode="wait"` in `ViewTransition` è attivo davvero solo dopo la correzione
+  di `ErrorBoundary` della Fase 1: la pagina nuova aspetta l'uscita della vecchia. Misurato sulle
+  build di produzione: circa 550ms per pagina con l'uscita, circa 120ms senza.
+- Opzioni: (a) tenere l'uscita; (b) toglierla. Con (b) si perde la dissolvenza d'uscita.
+- Raccomandazione e presa: **(b)**. Scostamento da `Instructions.md` (la vecchia esce, la nuova
+  entra): aprire la pagina conta più dell'animazione. L'entrata resta. Si torna indietro con un
+  solo file. Non era un blocco: l'avevo scritto per errore, dal server di sviluppo.
+
+## Pillola del menu: ferma sulla voce · 2026-11-04
+- La pillola scorreva da una voce all'altra con `layoutId`, dentro una colonna che scorre:
+  passava sopra le altre voci e poteva restare fuori posto. Presa: nessuno scorrimento nel
+  menu. Restano le pillole di ToggleGroup, Tabs e commutatore dei moduli, che non stanno in
+  una colonna che scorre.
+
+## Stato dell'arte: ripristinata · 2026-11-04
+- CLAUDE.md (2026-10-30): resta com'è, con il suo nome, al livello 2; la rotta invece rimandava
+  alla Panoramica. Presa: la pagina di `bb565c1^`, senza riprogettarla. Contiene ancora il
+  pulsante «Skill-Vision» sulle card e il riquadro «Una sola lettura»; se è un doppione lo
+  decide Roberto.

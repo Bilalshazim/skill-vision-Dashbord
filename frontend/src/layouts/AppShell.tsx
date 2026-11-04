@@ -27,7 +27,7 @@ export function AppShell({ section, sidebarLabel, sidebar, children }: { section
           <div className="flex min-h-0 flex-1">
             <Sidebar label={sidebarLabel}>{sidebar}</Sidebar>
             <main className="min-w-0 flex-1 p-4 sm:p-6">
-              <ViewTransition viewKey={section} mode="shell" initial className="mx-auto w-full max-w-screen-2xl">
+              <ViewTransition viewKey={section} mode="shell" className="mx-auto w-full max-w-screen-2xl">
                 {children}
               </ViewTransition>
             </main>

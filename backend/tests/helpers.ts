@@ -24,6 +24,7 @@ export async function resetDb() {
     prisma.employee.deleteMany(),
     prisma.assessmentPeriod.deleteMany(),
     prisma.jobRoleProfile.deleteMany(),
+    prisma.assessmentRoi.deleteMany(),
     prisma.assessmentSettings.deleteMany(),
     prisma.assessmentCompanyProfile.deleteMany(),
     prisma.executiveInterview.deleteMany(),

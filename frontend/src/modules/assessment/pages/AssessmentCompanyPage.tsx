@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@/modules/assessment/components/Icon'
+import { RoiDataSection } from '@/modules/assessment/components/RoiDataSection'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import type { CompanyContact, CompanyLocation } from '@/modules/assessment/lib/types'
 
@@ -209,6 +210,8 @@ export default function AssessmentCompanyPage() {
           </Button>
         </div>
       )}
+
+      <RoiDataSection />
     </div>
   )
 }

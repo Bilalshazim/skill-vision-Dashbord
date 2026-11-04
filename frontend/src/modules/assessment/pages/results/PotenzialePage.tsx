@@ -1,7 +1,9 @@
 import { DistributionBar } from '@/components/patterns/DistributionBar'
 import { ResultsPage } from '@/components/patterns/ResultsPage'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
+import { roiFigure } from '@/modules/assessment/components/RoiFigure'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
+import { useRoi } from '@/modules/assessment/lib/use-roi'
 import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
 import { TIER_DIST_TONE, TIER_ORDER, tierLabels } from '@/modules/assessment/lib/tier-display'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
@@ -14,6 +16,7 @@ export default function PotenzialePage() {
   const { ui } = useAssessment()
   const { res, data, win, crumbs, home, demoNote, topThree } = useAssessmentResults('potenziale')
   const labels = tierLabels(ui)
+  const roi = useRoi()
   const band = (k: 'valorizzare' | 'top') => {
     const list = data.byTier[k]
     return {
@@ -60,7 +63,7 @@ export default function PotenzialePage() {
         opportunity: res.potenzialeOpportunity(data.above),
         opportunityLabel: res.opportunityLabel,
       }}
-      impact={{ pct: data.abovePct, label: res.potenzialeImpact, hint: res.potenzialeHint(data.above, data.total), euroNote: res.potenzialeEuro }}
+      impact={{ pct: data.abovePct, label: res.potenzialeImpact, hint: res.potenzialeHint(data.above, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'potenziale') }}
       suggestion={{ text: res.potenzialeSuggest, link: { label: res.goDove, to: '/assessment/dove-intervenire' } }}
       deepDives={[
         { label: res.deep.valore, to: '/assessment/valore' },

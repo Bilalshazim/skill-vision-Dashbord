@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 
 import { isDemoMode } from '@/lib/demo-mode'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
-import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
 import { assessmentResults, type RankedPerson } from '@/modules/assessment/lib/results'
 
 export const ASSESSMENT_HOME = '/assessment/home'
@@ -24,9 +23,9 @@ export function useAssessmentResults(slug: string) {
     f,
     crumbs: [{ label: res.home, to: ASSESSMENT_HOME }],
     home: { label: res.backHome, to: ASSESSMENT_HOME },
-    demoNote: isDemoMode() ? (company?.name ?? '—') : undefined,
-    /** Le prime tre persone di una fascia, una riga ciascuna: nome, mansione, punteggio su 10. */
+    demoNote: isDemoMode() ? `${company?.name ?? '—'} · ${res.roiDemoNote}` : undefined,
+    /** Le prime tre persone di una fascia, una riga ciascuna: nome, mansione, indice a 100. */
     topThree: (list: RankedPerson[]) =>
-      list.slice(0, 3).map((r) => ({ id: r.e.id, text: `${r.e.nome} ${r.e.cognome} · ${r.e.ruolo || r.e.mansione} · ${fmt1it(r.score)} /10` })),
+      list.slice(0, 3).map((r) => ({ id: r.e.id, text: `${r.e.nome} ${r.e.cognome} · ${r.e.ruolo || r.e.mansione} · ${res.indexOf(r.index)}` })),
   }
 }

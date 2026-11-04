@@ -421,7 +421,7 @@ async function recoverShortlistIdOnConflict(
   candidateId: string,
   campaignCandidateId: string,
 ): Promise<{ ok: true; shortlistId: string } | { ok: false; message: string }> {
-  const stillUnrecoverable = 'Candidato già nella rosa sul server, ma non è stato possibile recuperarne il riferimento — ricarica la pagina.'
+  const stillUnrecoverable = 'Candidato già nella rosa sul server, ma non è stato possibile ritrovarne il riferimento — ricarica la pagina.'
   const campaignId = readCandidates().find((c) => c.id === candidateId)?.backendCampaignId
   if (!campaignId) return { ok: false, message: stillUnrecoverable }
   try {

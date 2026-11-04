@@ -77,8 +77,7 @@ export type RecruitingNavItem = {
 // pagine restano dove sono: "Migliori candidati" apre /pagina-a com'è oggi
 // (chi non ha ancora fatto il test; la classifica con i test è Risultati);
 // "Classifica dopo il test" tiene il suo contenuto; l'Imbuto di selezione è
-// ai livelli 2 e 3 e le due voci aprono la stessa pagina; "Stato dell'arte"
-// rimanda alla Panoramica come dal 2026-10-23. "Posizioni aperte" non è una
+// ai livelli 2 e 3 e le due voci aprono la stessa pagina. "Posizioni aperte" non è una
 // voce (la rotta e il codice restano, DECISIONI).
 //
 // L'Area valutatori è il livello 4. Un valutatore vede solo questa sezione e,

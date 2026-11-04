@@ -190,6 +190,103 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-04 (5) — Pagine che non si aprivano, pillola del menu, Stato dell'arte
+- [x] Pagine lente: togliendo il rimontaggio a ogni pagina (`ErrorBoundary`, Fase 1, in
+      produzione da 73c2965) ha cominciato a funzionare davvero l'uscita di `ViewTransition`,
+      che fa aspettare la pagina nuova. Misurato sulle build di produzione: circa 550ms per
+      pagina prima, circa 120ms ora. **Nessun blocco vero:** in sessione avevo scritto che
+      la pagina restava ferma; era la lentezza del server di sviluppo. Dieci raffiche di clic:
+      nessuna pagina mancata, né prima né dopo.
+- [ ] Con otto clic in 0,3 secondi e la CPU rallentata 6× ora si può attendere di più (fino a
+      9s contro 5s): ogni pagina intermedia si disegna. Non è un uso normale; lasciato.
+- [x] Pillola del menu fuori posto: la pillola viaggiava da una voce all'altra dentro il menu
+      che scorre, e passava sopra le altre voci; il menu saltava anche di posizione (da 120 a
+      0 durante il viaggio). Ora sta ferma sulla voce attiva; tolti `LayoutGroup` e
+      `layoutScroll`. Un blocco permanente come nello screenshot di Bilal non l'ho riprodotto:
+      solo il viaggio di circa 300ms.
+- [x] Stato dell'arte: non era rotta, rimandava alla Panoramica dal 2026-10-23. Pagina
+      ripristinata com'era (`bb565c1^`), «Skill-Vision» col trattino. Era una domanda
+      aperta in questo registro: la risposta è la segnalazione di Bilal e CLAUDE.md.
+- [x] Verificato in locale: le 46 voci del menu dei due moduli aprono la pagina giusta;
+      pillola a 0px dalla voce e menu fermo anche a menu scorso. Sulla build di produzione:
+      tempi e Stato dell'arte.
+
+## 2026-11-04 (4) — Verifica finale e risposte per Alessio
+- [x] `node scripts/audit-identita.mjs`: nessun difetto.
+- [x] «Original Skills» a schermo: nessuno. Restano solo nomi nel codice, variabili e
+      documenti interni; i messaggi del backend dicono «Comitato scientifico».
+- [x] «Skill-Vision»: a schermo sempre col trattino. Restano nomi di componenti, un
+      commento in `globals.css` e una chiave del lettore del bilancio
+      («investimento skill vision»), che serve a riconoscere i file.
+- [x] «Recuperare» per i soldi: nessuno. Un solo uso a schermo, un errore tecnico che
+      non parla di denaro: riscritto in «ritrovarne il riferimento».
+- [ ] **Manager: la verifica non passa.** Compaiono in tutti gli elenchi e le
+      classifiche (per esempio Capo linea, Responsabile assistenza clienti). Il
+      criterio per riconoscerli non c'è (`ruolo` arriva vuoto dall'API, `tipo
+      candidatura` distingue solo candidato e dipendente): CLAUDE.md dice di non
+      inventarlo e di aspettare Roberto. Nessuna frase dice che sono esclusi: giusto.
+- [x] Pagine tecniche e algoritmi: `calculations`, `role-change`, `role-census`,
+      `scoring` e l'integrazione Original Skills invariati dal 2026-11-01. Nelle pagine
+      tecniche solo aggiunte e testi: pulsante del confronto, sezione del bilancio, nome
+      della mansione, etichetta del colloquio.
+- [ ] **Trovato, non corretto:** le parole bandite restano in pagine tecniche
+      («soluzioni interne» in Cambio ruolo, «Valorizzare» in testi e nomi di fascia). La
+      scala /31 di Recruiting è ancora a schermo (risposte 4 in DECISIONI).
+- [x] Risposte alle cinque domande: DECISIONI, «Risposte per Alessio».
+- [x] `tsc -b`, oxlint, build, audit. Backend non toccato in questa modifica.
+- [ ] Non rilasciato: la verifica e le Fasi 3–4 non sono ancora nel commit.
+
+## 2026-11-04 (3) — Home, confronti, indice a 100, grafico a flussi, motore ROI
+- [x] Rilasciate prima le correzioni della verifica (113ab93, su `main`).
+- [x] Home di Assessment sulla tavola «Home · senza dati»: quattro finestre a tutta
+      altezza, etichetta con numero e tema, numero in filigrana, nessun dato. Al
+      passaggio del mouse solo fondo e bordo; dissolvenza all'apertura, nessuna con
+      «riduci movimento». Le card di Recruiting non cambiano.
+- [x] Confronto fra persone, nuova pagina `/assessment/confronto?ids=`, con il
+      pulsante «Confronta persone» in Valutazioni trasversali. A due: classifica,
+      righe con cerchio e rombo, selettore ruolo / tutte, radar ambra e magenta. Da
+      tre a cinque: classifica, radar, barre per area, heatmap delle 35. Clic su un
+      nome: resta in evidenza, gli altri si attenuano.
+- [x] Pattern nuovi, nel catalogo: `RoleFitRanking`, `CompetencyRows`,
+      `CompetencyHeatmap`, `FlowChart`. `ProfileRadar` con colore e rombo per serie.
+- [x] Indice a 100 (`lib/role-index.ts`) e tooltip con il testo di Roberto nelle
+      quattro pagine dei risultati; negli elenchi di persone l'indice al posto del
+      punteggio su 10. **Non in Home**, che non ha dati.
+- [x] Scala 1–10 e complessivo: già così nel codice (`primaryScore`, media 50/50).
+      Nessuna conversione da togliere e nessun «in attesa» per la scala: resta solo
+      «in attesa delle prime valutazioni», che è vero.
+- [x] Dove intervenire: Sankey di Bklit (d3-sankey, dipendenza nuova, DECISIONI) dalle
+      cinque fasce a colloquio / nessun intervento, con i numeri sui flussi.
+      Corretta l'etichetta inglese di Bklit («0 sessions»).
+- [x] Motore ROI (`lib/roi/`): stesse formule di Skill-Vision-ROI, `npm test` nel
+      frontend con i valori di riferimento dei suoi test (6 passati). Scenari,
+      blocchi, annualizzazione. Dati in Dati aziendali, sul server (`AssessmentRoi`,
+      migrazione `20261104180000_assessment_roi`).
+- [x] Atteso fissato una volta dopo la prima misurazione: a schermo solo il valore;
+      data, criterio e autore sul server; un secondo tentativo riceve 409.
+- [x] Cifre in euro su Il valore, Le perdite invisibili, Il potenziale, Dove
+      intervenire, con etichette del motore, «Gli importi non si sommano» e «Come è
+      calcolato». Senza bilancio il segnaposto, con il motivo.
+- [x] **Sottofattori: il blocco non c'è.** Né l'integrazione con Original Skills né
+      il modello di Assessment hanno i valori (ci sono solo i nomi, `BF_SUB`, come
+      etichette in Profilo della ricerca e Competenze Trasversali). Regola di
+      CLAUDE.md: se non ci sono, non si mostra e si dice.
+- [x] **Risposta alla domanda in CLAUDE.md sui conteggi 5 · 4 · 2 · 0:** vengono dalla
+      fascia (`INTERVENTI` in `lib/results.ts`: Da potenziare → Formazione, Alto
+      potenziale → Coaching, Critici → Riorganizzazione, Alto valore → Talento), non da
+      un dato per persona. Per persona esistono solo testi liberi nel piano di sviluppo
+      e l'interruttore del colloquio.
+- [x] Verificato nel browser in locale, in chiaro e in scuro, con il bilancio
+      dimostrativo; un esercizio di 6 mesi raddoppia gli importi e lo dice. Test
+      backend `assessment`: 36 passati (4 nuovi). `tsc -b`, oxlint, build, audit.
+- [ ] Sintesi della Panoramica: gli euro restano segnaposto (non è una pagina dei
+      risultati e i passi della cascata non corrispondono alle leve). Da decidere.
+- [ ] Non verificato: il caricamento di un file vero di Credit Save, che non abbiamo.
+      Provati solo il formato chiave / valore (test) e il bilancio dimostrativo.
+- [ ] Non verificato a schermo: confronti e cifre per chi ha il ruolo di sola lettura.
+- [ ] Le quattro cifre leggono la vista CT / CP / Completo: cambiano con il selettore.
+- [ ] Non rilasciato: queste modifiche non sono ancora nel commit.
+
 ## 2026-11-04 (2) — Correzioni della verifica in produzione del 2026-11-02, dati dimostrativi di Recruiting
 - [x] Rilasciato prima il selettore CT / CP / Completo (73c2965, su `main`).
 - [x] Tema scuro: `chart-mono` `neutral-400`, `chart-reference` `neutral-200`.

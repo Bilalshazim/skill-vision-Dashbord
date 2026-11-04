@@ -23,6 +23,8 @@ export interface RadarAreaProps {
   fillOpacity?: number;
   /** Dash pattern for the outline (a reference series). Default: none */
   strokeDasharray?: string;
+  /** Skill Vision: rombo per la seconda persona nel confronto a due. Default: circle */
+  pointShape?: "circle" | "diamond";
   /** Additional class name */
   className?: string;
 }
@@ -45,6 +47,7 @@ const RadarPoint = memo(function RadarPoint({
   isHovered,
   metricKey,
   enterComplete,
+  shape,
 }: {
   mountProgress: MotionValue<number>;
   target: { x: number; y: number };
@@ -52,9 +55,27 @@ const RadarPoint = memo(function RadarPoint({
   isHovered: boolean;
   metricKey: string;
   enterComplete: boolean;
+  shape: "circle" | "diamond";
 }) {
   const cx = useTransform(mountProgress, (t) => target.x * t);
   const cy = useTransform(mountProgress, (t) => target.y * t);
+
+  if (enterComplete && shape === "diamond") {
+    const half = isHovered ? 5 : 4;
+    return (
+      <rect
+        fill={color}
+        height={half * 2}
+        key={metricKey}
+        stroke={radarCssVars.background}
+        strokeWidth={2}
+        transform={`rotate(45 ${target.x} ${target.y})`}
+        width={half * 2}
+        x={target.x - half}
+        y={target.y - half}
+      />
+    );
+  }
 
   if (enterComplete) {
     return (
@@ -94,6 +115,7 @@ export const RadarArea = memo(function RadarArea({
   showStroke = true,
   fillOpacity: restOpacity = 0.15,
   strokeDasharray,
+  pointShape = "circle",
   className = "",
 }: RadarAreaProps) {
   const {
@@ -211,6 +233,7 @@ export const RadarArea = memo(function RadarArea({
               isHovered={isHovered}
               key={metric.key}
               metricKey={metric.key}
+              shape={pointShape}
               mountProgress={mountProgress}
               target={target}
             />

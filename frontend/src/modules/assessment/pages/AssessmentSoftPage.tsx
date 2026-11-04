@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import { Note } from '@/components/patterns/Note'
 import { chipTone } from '@/modules/assessment/lib/chip-tone'
@@ -66,7 +66,11 @@ export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultVie
   const [match, setMatch] = useState<string[]>([])
 
   useTopbarActions(
-    canEdit ? (
+    <>
+      <Button asChild variant="outline">
+        <Link to="/assessment/confronto">{ui.res.cmpOpen}</Link>
+      </Button>
+      {canEdit ? (
       <>
         <Button variant="outline" onClick={() => setShowSurveyLink(true)}>
           <Icon name="notes" />
@@ -77,7 +81,8 @@ export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultVie
           {ui.newEvaluation}
         </Button>
       </>
-    ) : null,
+      ) : null}
+    </>,
     [canEdit, ui],
   )
 

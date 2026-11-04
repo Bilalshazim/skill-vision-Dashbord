@@ -35,7 +35,7 @@ export function useRecruitingResults(slug: (typeof RECRUITING_STEPS)[number]['sl
     position: opening?.title ?? '—',
     crumbs: [{ label: 'Profilo della ricerca', to: PROFILE_PATH }],
     home: { label: 'Torna alla home', to: PROFILE_PATH },
-    demoNote: isDemoMode() ? (company?.name ?? '—') : undefined,
+    demoNote: isDemoMode() ? `${company?.name ?? '—'} · Le cifre in euro compaiono quando la formula è definita` : undefined,
   }
 }
 

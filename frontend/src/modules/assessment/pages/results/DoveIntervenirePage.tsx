@@ -1,12 +1,15 @@
-import { CategoryBars } from '@/components/patterns/CategoryBars'
+import { FlowChart } from '@/components/patterns/FlowChart'
 import { ResultsPage } from '@/components/patterns/ResultsPage'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
+import { roiFigure } from '@/modules/assessment/components/RoiFigure'
+import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
+import { TIER_COLORS, TIER_ORDER, tierLabels } from '@/modules/assessment/lib/tier-display'
+import { useRoi } from '@/modules/assessment/lib/use-roi'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 
 // 04 · Dove intervenire (CLAUDE.md, Fase 6, tabella "04 · Dove intervenire").
-// Persone per tipo di intervento (Bar Chart orizzontale di Bklit, barre in
-// inchiostro, la più lunga in evidenza; un tipo a zero resta con "0"). I
+// Dalle fasce al piano di sviluppo (Sankey di Bklit, tavola del 2 novembre). I
 // colloqui di restituzione sono le persone con il colloquio segnato in Piani di
 // sviluppo (`feedbackNeeded`), lo stesso numero della Panoramica: l'"incongruenza"
 // 10 contro 23 era l'etichetta dell'interruttore, scritta su ogni scheda
@@ -16,6 +19,14 @@ export default function DoveIntervenirePage() {
   const name = (k: keyof typeof res.interventi) => res.interventi[k] as string
   const top = data.mostFrequent
   const critical = data.byTier.critica.length
+  const { ui } = useAssessment()
+  const labels = tierLabels(ui)
+  const roi = useRoi()
+  // Dalle cinque fasce a cosa prevede il piano di sviluppo. Il colore della fascia
+  // accompagna il suo nome; la fascia più alta e "nella norma" restano neutre.
+  const n = TIER_ORDER.length
+  const emptyBands = TIER_ORDER.filter((k) => !data.byTier[k].length).map((k) => labels[k])
+  const highUntouched = data.flows.find((f) => f.tier === 'valorizzare')
   return (
     <ResultsPage
       actions={<AssessmentModeSwitch />}
@@ -26,18 +37,18 @@ export default function DoveIntervenirePage() {
       why={res.doveWhy}
       empty={data.total ? undefined : { title: res.noTestsTitle, description: res.noTests }}
       situation={{
-        text: res.doveSituation(data.withIntervention, top ? name(top.key) : ''),
-        chartTitle: res.doveChart,
+        text: res.doveSituation(data.feedbackEvaluated, data.total, labels.valorizzare, highUntouched?.withFeedback ?? 0, (highUntouched?.withFeedback ?? 0) + (highUntouched?.without ?? 0)),
+        wide: true,
         chart: (
-          <CategoryBars
+          <FlowChart
             title={res.doveChart}
-            orientation="horizontal"
-            height="sm"
-            valueMax={Math.max(1, ...data.interventi.map((i) => i.count))}
-            format={(n) => String(Math.round(n))}
-            series={[{ key: 'n', label: res.doveChart }]}
-            rows={data.interventi.map((i) => ({ label: name(i.key), values: { n: i.count } }))}
-            highlight={top ? name(top.key) : undefined}
+            nodes={[...TIER_ORDER.map((k) => ({ name: labels[k], color: TIER_COLORS[k] })), { name: res.doveFlowNone, color: 'var(--chart-compare)' }, { name: res.doveFlowFeedback, color: 'var(--chart-mono)' }]}
+            links={data.flows.flatMap((f, i) => [
+              { source: i, target: n, value: f.without },
+              { source: i, target: n + 1, value: f.withFeedback },
+            ])}
+            note={res.doveFlowNote(emptyBands)}
+            formatValue={res.people}
           />
         ),
       }}
@@ -50,7 +61,7 @@ export default function DoveIntervenirePage() {
         opportunity: res.doveOpportunity(top ? name(top.key) : null, top?.count ?? 0, data.withIntervention),
         opportunityLabel: res.opportunityLabel,
       }}
-      impact={{ pct: data.withInterventionPct, label: res.doveImpact, hint: res.doveHint(data.withIntervention, data.total), euroNote: res.doveEuro }}
+      impact={{ pct: data.withInterventionPct, label: res.doveImpact, hint: res.doveHint(data.withIntervention, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'dove') }}
       suggestion={{ text: res.doveSuggest, link: { label: res.goPanoramica, to: '/assessment/panoramica' } }}
       deepDives={[
         { label: res.deep.piani, to: '/assessment/feedback' },

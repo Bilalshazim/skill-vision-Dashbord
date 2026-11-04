@@ -19,6 +19,7 @@ export function WindowCard({
   question,
   content,
   verbs,
+  theme,
   className,
 }: {
   to: string
@@ -28,6 +29,8 @@ export function WindowCard({
   question?: string
   content?: string
   verbs?: string
+  /** La tavola «Home · senza dati»: l'etichetta con numero e tema e il numero grande in filigrana; la freccia non si muove. */
+  theme?: string
   /** Solo per il posizionamento nella griglia. */
   className?: string
 }) {
@@ -37,17 +40,28 @@ export function WindowCard({
       to={to}
       data-slot="window-card"
       className={cn(
-        'group flex h-full min-h-56 min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-6 text-left text-card-foreground outline-none transition-colors hover:border-border-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        'group relative flex h-full min-h-56 min-w-0 flex-col gap-2 overflow-hidden rounded-lg border border-border bg-card p-6 text-left text-card-foreground outline-none transition-colors hover:border-border-strong hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         className,
       )}
     >
-      <span className="label-mono text-muted-foreground">{number}</span>
-      <span className="text-site-h3 text-foreground md:text-site-h2">{title}</span>
+      {theme ? (
+        <>
+          <span aria-hidden="true" className="pointer-events-none absolute top-2 right-4 text-watermark font-semibold text-border select-none">
+            {number}
+          </span>
+          <span className="label-mono relative self-start rounded-md border border-border px-2 py-1 text-muted-foreground">
+            {number} · {theme}
+          </span>
+        </>
+      ) : (
+        <span className="label-mono text-muted-foreground">{number}</span>
+      )}
+      <span className={cn('relative text-site-h3 text-foreground md:text-site-h2', theme && 'mt-auto')}>{title}</span>
       <span className="text-app-body text-muted-foreground">{subtitle}</span>
       {content ? <span className="mt-4 text-app-small text-foreground">{content}</span> : null}
-      <span className="mt-auto flex items-end justify-between gap-4 pt-6">
+      <span className={cn('relative flex items-end justify-between gap-4', theme ? 'border-t border-border pt-3' : 'mt-auto pt-6')}>
         {footer ? <span className={cn('max-w-prose', question ? 'text-app-subtitle font-semibold text-foreground' : 'text-app-small text-muted-foreground')}>{footer}</span> : <span />}
-        <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+        <ArrowRight className={cn('size-4 shrink-0 text-muted-foreground', !theme && 'transition-transform group-hover:translate-x-0.5')} aria-hidden="true" />
       </span>
     </Link>
   )

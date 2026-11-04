@@ -1,8 +1,10 @@
 import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { ResultsPage } from '@/components/patterns/ResultsPage'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
+import { roiFigure } from '@/modules/assessment/components/RoiFigure'
 import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
+import { useRoi } from '@/modules/assessment/lib/use-roi'
 
 // 02 · Le perdite invisibili (CLAUDE.md, Fase 6). È il modello delle sette
 // pagine (tavola «Assessment · 2 Risultati · Le perdite invisibili»). I testi
@@ -11,6 +13,7 @@ import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 // + Critici), aree, mansioni e competenze sotto l'atteso 7,0.
 export default function PerditeInvisibiliPage() {
   const { res, data, win, f, crumbs, home, demoNote } = useAssessmentResults('perdite-invisibili')
+  const roi = useRoi()
   const competenze = f.A ? '/assessment/soft-overview' : '/assessment/hard-overview'
   return (
     <ResultsPage
@@ -49,7 +52,7 @@ export default function PerditeInvisibiliPage() {
         opportunity: res.perditeOpportunity(data.worstArea?.label ?? null),
         opportunityLabel: res.opportunityLabel,
       }}
-      impact={{ pct: data.belowPct, label: res.perditeImpact, hint: res.perditeHint(data.below, data.total), euroNote: res.perditeEuro }}
+      impact={{ pct: data.belowPct, label: res.perditeImpact, hint: res.perditeHint(data.below, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'perdite') }}
       suggestion={{ text: res.perditeSuggest(data.worstArea?.label ?? null, data.worstRoleInArea),  link: { label: res.goDove, to: '/assessment/dove-intervenire' } }}
       deepDives={[
         { label: res.deep.soft, to: '/assessment/soft-overview' },

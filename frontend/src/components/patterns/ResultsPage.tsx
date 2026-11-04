@@ -1,9 +1,10 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { Fragment, type ReactNode } from 'react'
+import { Fragment, type ReactNode, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { EmptyState } from '@/components/patterns/EmptyState'
 import { InfoTip } from '@/components/patterns/InfoTip'
+import { ModalDialog } from '@/components/patterns/ModalDialog'
 import { Badge } from '@/components/ui/badge'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
@@ -22,15 +23,32 @@ export type ResultsIssue = {
   link?: ResultsLink
 }
 
+/** La cifra in euro, già calcolata e scritta: il pattern non conosce il motore. `value` assente: il segnaposto, con il motivo. */
+export type ResultsEuro = {
+  value: string | null
+  pending?: string
+  tags?: string[]
+  note?: string
+  detail?: string
+  scenarios?: { label: string; value: string }[]
+  footer?: string
+  link?: ResultsLink
+  how?: { title: string; intro: string; rows: { label: string; value: string }[] }
+}
+
 export type ResultsImpact = {
-  /** La quota dai dati, in percentuale intera; `null` se non c'è il totale su cui calcolarla. */
-  pct: number | null
+  /** La quota dai dati, in percentuale intera; `null` se non c'è il totale su cui calcolarla. Assente: la pagina non ha una quota. */
+  pct?: number | null
   /** Cosa misura la quota, dopo il numero: "delle persone è sopra la norma". */
-  label: string
+  label?: string
   /** Il testo del tooltip ⓘ: cosa vuol dire il dato. */
   hint?: ReactNode
-  /** Cosa si stimerà in euro, sotto il segnaposto (Assessment); assente in Recruiting, dove lo decide Roberto. */
+  /** Cosa si stimerà in euro, sotto il segnaposto; in Recruiting non c'è: lo decide Roberto. */
   euroNote?: string
+  /** La cifra del motore ROI. Assente: il segnaposto «In attesa della formula». */
+  euro?: ResultsEuro
+  /** L'indice a 100 dell'azienda, con il suo tooltip. */
+  index?: { value: number | null; label: string; hint: ReactNode }
 }
 
 // La pagina dei risultati di una finestra (CLAUDE.md, Fase 6, "Le pagine dei
@@ -71,7 +89,7 @@ export function ResultsPage({
   actions?: ReactNode
   why: string
   /** `text` è la frase grande; `detail` la riga sotto; `chartTitle` e `hint` stanno sopra il grafico. `chartEmpty` sostituisce il grafico quando non c'è niente da disegnare. */
-  situation?: { text: ReactNode; detail?: ReactNode; chart?: ReactNode; chartTitle?: string; chartEmpty?: string; hint?: { label: string; text: ReactNode } }
+  situation?: { text: ReactNode; detail?: ReactNode; chart?: ReactNode; chartTitle?: string; chartEmpty?: string; hint?: { label: string; text: ReactNode }; /** Il grafico sotto la frase, a tutta riga (il grafico a flussi). */ wide?: boolean }
   issues?: { items: ResultsIssue[]; opportunity: ReactNode; opportunityLabel?: string }
   impact?: ResultsImpact
   /** `text`: la prima frase è il titolo della sezione, il resto la riga sotto. */
@@ -82,6 +100,67 @@ export function ResultsPage({
   /** La società, quando i dati sono dimostrativi: la pagina lo dice in fondo. */
   demoNote?: string
 }) {
+  const [howOpen, setHowOpen] = useState(false)
+  const impactSection = impact ? (
+    <Section label="3 · L'impatto" className={cn('grid grid-cols-1 gap-8', impact.index ? 'lg:grid-cols-3' : 'md:grid-cols-2')}>
+      {impact.pct !== undefined ? (
+        <div className="flex flex-col gap-1">
+          <p className="flex items-center gap-2">
+            <span className="text-site-h2 tabular-nums text-foreground md:text-site-h1">{impact.pct == null ? '—' : `${impact.pct}%`}</span>
+            {impact.hint ? <InfoTip label={`Che cosa misura: ${impact.label}`}>{impact.hint}</InfoTip> : null}
+          </p>
+          <p className="text-app-body text-foreground">{impact.label}</p>
+        </div>
+      ) : null}
+      {impact.index ? (
+        <div className="flex flex-col gap-1">
+          <p className="flex items-center gap-2">
+            <span className="text-site-h2 tabular-nums text-foreground md:text-site-h1">{impact.index.value ?? '—'}</span>
+            <InfoTip label={`Che cosa misura: ${impact.index.label}`}>{impact.index.hint}</InfoTip>
+          </p>
+          <p className="text-app-body text-foreground">{impact.index.label}</p>
+        </div>
+      ) : null}
+      <div className="flex min-w-0 flex-col items-start gap-2">
+        <span className={cn('text-site-h2 tabular-nums md:text-site-h1', impact.euro?.value ? 'text-foreground' : 'text-muted-foreground')}>{impact.euro?.value ?? '€ [—]'}</span>
+        <span className="flex flex-wrap gap-1">
+          {impact.euro?.value ? (impact.euro.tags ?? []).map((t) => <Badge key={t}>{t}</Badge>) : <Badge>{impact.euro?.pending ?? 'In attesa della formula'}</Badge>}
+        </span>
+        {impact.euro?.note ?? impact.euroNote ? <p className="text-app-body text-muted-foreground">{impact.euro?.note ?? impact.euroNote}</p> : null}
+        {impact.euro?.detail ? <p className="text-app-small text-muted-foreground">{impact.euro.detail}</p> : null}
+        {impact.euro?.scenarios ? (
+          <dl className="grid w-full max-w-md grid-cols-3 gap-2 pt-1">
+            {impact.euro.scenarios.map((s) => (
+              <div key={s.label}>
+                <dt className="label-mono text-muted-foreground">{s.label}</dt>
+                <dd className="text-app-small tabular-nums text-foreground">{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
+        {impact.euro?.footer ? <p className="text-app-small text-muted-foreground">{impact.euro.footer}</p> : null}
+        {impact.euro?.link ? <TextLink link={impact.euro.link} /> : null}
+        {impact.euro?.how ? (
+          <Button type="button" variant="ghost" size="sm" onClick={() => setHowOpen(true)}>
+            {impact.euro.how.title}
+          </Button>
+        ) : null}
+        {howOpen && impact.euro?.how ? (
+          <ModalDialog title={impact.euro.how.title} sub={impact.euro.how.intro} onClose={() => setHowOpen(false)}>
+            <dl className="flex flex-col">
+              {impact.euro.how.rows.map((r) => (
+                <div key={r.label} className="flex justify-between gap-6 border-b border-border py-2 text-app-small last:border-b-0 last:font-semibold">
+                  <dt className="text-foreground">{r.label}</dt>
+                  <dd className="text-right tabular-nums text-foreground">{r.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </ModalDialog>
+        ) : null}
+      </div>
+    </Section>
+  ) : null
+
   const emptyBlock = empty ? (
     <Card>
       <EmptyState title={empty.title} description={empty.description} />
@@ -125,7 +204,10 @@ export function ResultsPage({
       </Card>
 
       {hideAll ? (
-        emptyBlock
+        <>
+          {emptyBlock}
+          {impactSection}
+        </>
       ) : (
         <>
           {empty ? (
@@ -133,7 +215,7 @@ export function ResultsPage({
           ) : (
             <>
               {situation ? (
-                <Section label="1 · La situazione oggi" className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12">
+                <Section label="1 · La situazione oggi" className={cn('grid grid-cols-1 gap-6', !situation.wide && 'lg:grid-cols-2 lg:gap-12')}>
                   <div className="flex flex-col gap-2">
                     <h2 className="max-w-prose text-site-h4 text-foreground">{situation.text}</h2>
                     {situation.detail ? <p className="max-w-prose text-app-body text-muted-foreground">{situation.detail}</p> : null}
@@ -176,22 +258,7 @@ export function ResultsPage({
                 </Section>
               ) : null}
 
-              {impact ? (
-                <Section label="3 · L'impatto" className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                  <div className="flex flex-col gap-1">
-                    <p className="flex items-center gap-2">
-                      <span className="text-site-h2 tabular-nums text-foreground md:text-site-h1">{impact.pct == null ? '—' : `${impact.pct}%`}</span>
-                      {impact.hint ? <InfoTip label={`Che cosa misura: ${impact.label}`}>{impact.hint}</InfoTip> : null}
-                    </p>
-                    <p className="text-app-body text-foreground">{impact.label}</p>
-                  </div>
-                  <div className="flex flex-col items-start gap-2">
-                    <span className="text-site-h2 text-muted-foreground md:text-site-h1">€ [—]</span>
-                    <Badge>In attesa della formula</Badge>
-                    {impact.euroNote ? <p className="text-app-body text-muted-foreground">{impact.euroNote}</p> : null}
-                  </div>
-                </Section>
-              ) : null}
+              {impactSection}
             </>
           )}
 
@@ -224,7 +291,7 @@ export function ResultsPage({
       ) : null}
 
       <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
-        {demoNote ? <p className="text-app-caption text-muted-foreground">Dati dimostrativi · {demoNote} · Le cifre in euro compaiono quando la formula è definita</p> : <span />}
+        {demoNote ? <p className="text-app-caption text-muted-foreground">Dati dimostrativi · {demoNote}</p> : <span />}
         <Button asChild variant="ghost" size="sm">
           <Link to={home.to}>
             <ArrowLeft /> {home.label}

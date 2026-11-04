@@ -57,7 +57,9 @@ export function AssessmentNav() {
   const [confirm, confirmDialog] = useConfirm()
   const location = useLocation()
   const navigate = useNavigate()
-  const currentPage = location.pathname.split('/')[2] || 'home'
+  // Il confronto è una vista dei risultati trasversali: nel menu resta accesa quella voce.
+  const pathPage = location.pathname.split('/')[2] || 'home'
+  const currentPage = pathPage === 'confronto' ? 'soft-risultati' : pathPage
   // "Area Valutazioni" e "Area Risultati" partono aperte: le loro voci si
   // vedono subito sotto (richiesta del cliente, 2026-10-13). Si possono chiudere.
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ home: true, valutazioni: true, risultati: true })
