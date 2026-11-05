@@ -2874,3 +2874,9 @@ un posto. Il menu di Assessment ha una voce che porta lì, solo per l'account de
 - **Sul server non cambia niente**: il ripristino resta ammesso solo per `ASSESSMENT_DEMO_COMPANY_IDS`.
   Va impostata sul backend dove serve: senza, il pulsante risponde «ammesso solo per una società demo».
 - I testi orfani del vecchio confronto restano nei dizionari: la loro struttura si conserva (CLAUDE.md cap. 7).
+
+## Rilascio dei sei punti: come si segnano · 2026-11-05
+Bilal ha chiesto di segnarli completati e pubblicati. **Presa**: pubblicati sì, «completati» no. CLAUDE.md
+§9: un punto è fatto solo dopo la prova in produzione, e un «non fatto» dichiarato vale più di un «fatto» che
+si rompe al primo clic. Il controllo locale di Bilal c'è, la prova da loggati in produzione no. Quando c'è, per
+ogni punto si aggiunge la riga con pagina, azione e risultato. Stato in PROGRESS, 2026-11-05 (4).

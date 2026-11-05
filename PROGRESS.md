@@ -190,6 +190,29 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-05 (4) — Rilascio dei sei punti: pubblicato, verifica in produzione da fare
+Commit `769d789` su `main` e `server-only`. Deploy «zesty-victory / production»: Backend e Skill
+Vision riusciti (stato GitHub `success`). Nuovo bundle servito (`index-BVj9tkQr.js`), `/health` 200.
+**Migrazioni: nessuna in questo rilascio**, nessun file di `backend/` è cambiato. L'ultima resta
+`20261104180000_assessment_roi`, del rilascio precedente.
+
+Stato dei sei punti, secondo CLAUDE.md §9. Controllo locale di Bilal: completato. La richiesta di
+segnarli «completati» non è applicata: §9 vuole la prova da loggati in produzione, che non c'è.
+La numerazione viene dalle richieste di Bilal: l'elenco originale di Alessio non è nel repository.
+
+| Punto | Stato | Provato in produzione |
+|---|---|---|
+| 1 · Confronti ed elenchi | pubblicato | testi nel bundle; **non fatto** da loggati |
+| 2 · Menu di Recruiting | pubblicato | **non fatto** da loggati |
+| 3 · Dati demo e strumenti in Amministrazione | pubblicato | testi nel bundle; **non fatto** da loggati |
+| 4 · Testi del piede e di Dove intervenire | pubblicato | testi nel bundle; **non fatto** da loggati |
+| 5 · Formula e pagina Il valore | pubblicato | testi nel bundle; **non fatto** da loggati |
+| 6 · Home senza filigrana | pubblicato | **non fatto** da loggati |
+
+- [ ] **Non fatto: prova da loggati in produzione.** Motivo: nessuna sessione nel browser di
+      lavoro e nessuna credenziale di produzione. Serve l'account demo, o lo fa Bilal.
+- [ ] Da controllare al primo accesso di demo@skill-vision.it: la posizione dimostrativa si crea da sola.
+
 ## 2026-11-05 (3) — Vecchio confronto via anche dalle professionali, strumenti demo in un posto solo
 Solo in locale: nessun commit, nessun push (richiesta di Bilal).
 - [x] Tolta la scheda «Confronto (fino a 5)» da Competenze professionali, con `MatchCell`, `MatchLegend`
