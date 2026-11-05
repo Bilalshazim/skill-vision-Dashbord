@@ -190,6 +190,21 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-05 (5) — Area valutatori: campi più corti
+Solo in locale, non pubblicato (richiesta di Bilal, con screenshot).
+- [x] Regola unica `FIELD_WIDTHS` (`components/patterns/field-widths.ts`): testo, email, password e
+      tendine 384px, data, ora e numeri 176px, testo lungo 768px. Le card esterne non cambiano.
+- [x] Applicata a Intervista, Valutazione e Report (pagina e schede nel dialog), Prossimi colloqui,
+      Candidati al podio. Le altre pagine di Recruiting non sono toccate.
+- [x] Provato: scheda Intervista nel dialog (384 e 176), Prossimi colloqui (data 170, note 371).
+- [~] Riga «Nome valutatore / Email»: provata con una copia temporanea nella pagina (371px sulla stessa
+      riga; senza la regola 1426px, una per riga), perché compare solo con una posizione collegata a una
+      campagna del backend, e quella attiva non lo è. Da guardare sulla riga vera.
+- [x] Controlli: typecheck, lint (0 errori), build, audit senza difetti.
+- [ ] Non provato: schede Valutazione e Report aperte, telefono, modalità scura.
+- [ ] Visto, non toccato: in quella pagina il sovratitolo dice «Senior Frontend Engineer» e il pannello
+      «Account Manager · posizione dimostrativa»: sembrano due posizioni attive diverse. Da controllare.
+
 ## 2026-11-05 (4) — Rilascio dei sei punti: pubblicato, verifica in produzione da fare
 Commit `769d789` su `main` e `server-only`. Deploy «zesty-victory / production»: Backend e Skill
 Vision riusciti (stato GitHub `success`). Nuovo bundle servito (`index-BVj9tkQr.js`), `/health` 200.

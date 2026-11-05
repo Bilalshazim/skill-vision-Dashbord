@@ -1,3 +1,5 @@
+import { FIELD_WIDTHS } from '@/components/patterns/field-widths'
+import { cn } from '@/lib/utils'
 import { Field } from '@/components/patterns/Field'
 import { FieldGrid } from '@/components/patterns/FieldGrid'
 import { Input } from '@/components/ui/input'
@@ -63,7 +65,7 @@ export function IvReportForm({ draft, onChange }: { draft: IvReportDraft; onChan
   const lines = (n: number) => Array.from({ length: n }, (_, i) => `${i + 1}. `).join('\n')
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className={cn('flex flex-col gap-6', FIELD_WIDTHS)}>
       <section className="flex flex-col gap-4">
         <FieldGrid>
           <Field label="Candidato">

@@ -1,6 +1,8 @@
 import { FileBarChart2, Mic, NotebookPen, Users } from 'lucide-react'
 import { useState } from 'react'
 
+import { FIELD_WIDTHS } from '@/components/patterns/field-widths'
+import { cn } from '@/lib/utils'
 import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { loadIvEvalRecord, loadIvNotesRecord, loadIvReportRecord } from '@/modules/recruiting/lib/interview-protocol'
 import { EvaluatorsBackendPanel } from '@/modules/recruiting/profile-hub/EvaluatorsBackendPanel'
@@ -63,7 +65,7 @@ export function EvaluatorAreaCard({ doc }: { doc: EvaluatorDoc }) {
   const [reportSavedAt, setReportSavedAt] = useState<number | null>(() => loadIvReportRecord(role)?.savedAt ?? null)
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={cn('flex flex-col gap-4', FIELD_WIDTHS)}>
       {/* I tre documenti del Protocollo di Intervista (modelli del cliente): una
           scheda ciascuno, con lo stato e il pulsante per compilarla. */}
       <div className="max-w-xl">

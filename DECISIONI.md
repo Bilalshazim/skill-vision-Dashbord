@@ -2880,3 +2880,9 @@ Bilal ha chiesto di segnarli completati e pubblicati. **Presa**: pubblicati sì,
 §9: un punto è fatto solo dopo la prova in produzione, e un «non fatto» dichiarato vale più di un «fatto» che
 si rompe al primo clic. Il controllo locale di Bilal c'è, la prova da loggati in produzione no. Quando c'è, per
 ogni punto si aggiunge la riga con pagina, azione e risultato. Stato in PROGRESS, 2026-11-05 (4).
+
+## Area valutatori: larghezza dei campi · 2026-11-05
+Richiesta di Bilal: i campi a tutta riga si leggono male, le card esterne restano. **Opzioni**: (a) una larghezza su
+ogni campo, oltre cento righe; (b) una regola sola sul contenitore della pagina. **Presa (b)**: `FIELD_WIDTHS`, si
+cambia in un punto e una pagina nuova dell'area la riceve con una riga. Usa selettori su `data-slot`, non cambia
+l'API delle primitive. Solo in Area valutatori: altrove i campi restano come sono finché non viene chiesto.

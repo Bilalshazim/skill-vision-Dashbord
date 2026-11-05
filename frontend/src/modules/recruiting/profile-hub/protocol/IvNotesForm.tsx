@@ -1,3 +1,5 @@
+import { FIELD_WIDTHS } from '@/components/patterns/field-widths'
+import { cn } from '@/lib/utils'
 import { InlineAlert } from '@/components/patterns/InlineAlert'
 import { Field } from '@/components/patterns/Field'
 import { FieldGrid } from '@/components/patterns/FieldGrid'
@@ -60,7 +62,7 @@ export function IvNotesForm({ draft, onChange }: { draft: IvNotesDraft; onChange
     })
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className={cn('flex flex-col gap-6', FIELD_WIDTHS)}>
       <DocSection n={1} title="Dati del colloquio">
         <FieldGrid>
           <Field label="Candidato">

@@ -1,3 +1,5 @@
+import { FIELD_WIDTHS } from '@/components/patterns/field-widths'
+import { cn } from '@/lib/utils'
 import { Trash2 } from 'lucide-react'
 
 import { InlineAlert } from '@/components/patterns/InlineAlert'
@@ -74,7 +76,7 @@ export function IvEvalForm({ draft, onChange }: { draft: IvEvalDraft; onChange: 
     ))
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className={cn('flex flex-col gap-6', FIELD_WIDTHS)}>
       <DocSection n={1} title="Candidato e posizione">
         <FieldGrid>
           <Field label="Candidato">

@@ -1,7 +1,9 @@
 import { Workflow } from 'lucide-react'
 
 import { EmptyState } from '@/components/patterns/EmptyState'
+import { FIELD_WIDTHS } from '@/components/patterns/field-widths'
 import { PageHeader } from '@/components/patterns/PageHeader'
+import { cn } from '@/lib/utils'
 import { InterviewAgendaCard } from '@/modules/recruiting/components/HomeSectionCards'
 import { usePipelineSelection } from '@/modules/recruiting/lib/use-pipeline-selection'
 import { useRecruitingHomeData } from '@/modules/recruiting/lib/use-recruiting-home-data'
@@ -23,7 +25,8 @@ export default function PipelineSectionPage({ section }: { section: PipelineSect
   const page = PAGES[section]
 
   return (
-    <div className="flex flex-col gap-4">
+    // Prossimi colloqui e Candidati al podio sono l'Area valutatori.
+    <div className={cn('flex flex-col gap-4', (section === 'colloqui' || section === 'podio') && FIELD_WIDTHS)}>
       <PageHeader level="page" className="mb-0" title={page.title} description={page.description} />
 
       {section === 'colloqui' ? <AgendaBlock /> : null}
