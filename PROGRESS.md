@@ -212,6 +212,11 @@ La numerazione viene dalle richieste di Bilal: l'elenco originale di Alessio non
 - [ ] **Non fatto: prova da loggati in produzione.** Motivo: nessuna sessione nel browser di
       lavoro e nessuna credenziale di produzione. Serve l'account demo, o lo fa Bilal.
 - [ ] Da controllare al primo accesso di demo@skill-vision.it: la posizione dimostrativa si crea da sola.
+- [ ] **Si è rotto:** il deploy di `d519e84` (solo documenti) è fallito per il servizio Skill Vision dopo
+      circa 22 secondi; il Backend è riuscito. Causa non vista: qui non ci sono i log di Railway. In
+      produzione resta il bundle di `769d789`, che risponde. Il commit di questa nota è un nuovo
+      tentativo: l'esito è nello stato GitHub del commit. Su Railway `VITE_DEMO_MODE` risulta `true`
+      nel bundle: va tolta prima del primo cliente (Fase 8).
 
 ## 2026-11-05 (3) — Vecchio confronto via anche dalle professionali, strumenti demo in un posto solo
 Solo in locale: nessun commit, nessun push (richiesta di Bilal).
