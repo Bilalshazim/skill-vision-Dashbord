@@ -24,8 +24,8 @@ export function ChartDataTable({
   // valore non intero, così le colonne si allineano; interi altrimenti.
   const anyDecimal = rows.some((r) => r.values.some((v) => v != null && !Number.isInteger(v)))
   const fmt = format ?? ((n: number) => fmtDec(n, anyDecimal ? 1 : 0))
-  return (
-    <table className={cn('border-collapse text-app-caption tabular-nums', visible ? 'w-full' : 'sr-only')}>
+  const table = (
+    <table className={cn('border-collapse text-app-caption tabular-nums', visible && 'w-full')}>
       <caption className="sr-only">{title}</caption>
       <thead>
         <tr className="border-b border-border">
@@ -55,4 +55,7 @@ export function ChartDataTable({
       </tbody>
     </table>
   )
+  // `sr-only` sta su un contenitore: una tabella non scende a 1px e allargava la
+  // pagina sul telefono (68px nel confronto).
+  return visible ? table : <div className="sr-only">{table}</div>
 }

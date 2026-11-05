@@ -91,13 +91,6 @@ export function gapInterpretation(delta: number, lang: AssessmentLang) {
   if (a < 1.8) return { label: UI.gapModerate, tag: 'gap-warn' }
   return { label: UI.gapSignificant, tag: 'gap-bad' }
 }
-export function matchCellClasses(values: number[]): string[] {
-  if (values.length < 2) return values.map(() => '')
-  const max = Math.max(...values)
-  const min = Math.min(...values)
-  if (round1(max - min) <= 0.5) return values.map(() => 'match-overlap')
-  return values.map((v) => (v === max ? 'match-high' : v === min ? 'match-low' : ''))
-}
 
 export function tierFor(score: number, lang: AssessmentLang) {
   const TIER_DEFS = getTierDefs(lang)

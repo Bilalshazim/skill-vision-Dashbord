@@ -17,6 +17,7 @@ import { RecruitingBreadcrumb } from '@/modules/recruiting/components/Recruiting
 import { RecruitingContextBar } from '@/modules/recruiting/components/RecruitingContextBar'
 import { RecruitingNav } from '@/modules/recruiting/components/RecruitingNav'
 import { ActivePositionProvider } from '@/modules/recruiting/lib/active-position'
+import { preloadRecruitingDemo } from '@/modules/recruiting/lib/demo-data'
 import { loadRecruitingStore, setRecruitingNotice, useRecruitingStore } from '@/modules/recruiting/lib/recruiting-store'
 import { applySavedSkillFlags } from '@/modules/recruiting/lib/skill-flags'
 
@@ -68,6 +69,11 @@ export default function RecruitingLayout() {
 
   const pageKey = `${contextVersion}-${shownRemote}`
   const bumpContext = useCallback(() => setContextVersion((v) => v + 1), [])
+
+  // I dati dimostrativi si caricano da soli, sulla sola società demo (lib/demo-data.ts).
+  useEffect(() => {
+    if (store.status === 'ready' && preloadRecruitingDemo()) bumpContext()
+  }, [store.status, bumpContext])
 
   return (
     <AuthGuard>

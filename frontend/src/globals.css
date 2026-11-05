@@ -142,9 +142,6 @@
      risultati (CLAUDE.md cap. 7, "Registro"; eccezione del manuale,
      p. 25). Le pagine di lavoro restano sulla scala dell'interfaccia.
      Valori desktop; sotto `md` si scende di un gradino nella pagina. */
-  /* Il numero in filigrana delle finestre della Home: decorazione, non testo da leggere. */
-  --text-watermark: 6rem;                         /* 96 */
-  --text-watermark--line-height: 1;
   --text-site-h1: 2.75rem;                        /* 44 */
   --text-site-h1--line-height: 1.1;
   --text-site-h1--letter-spacing: -0.025em;

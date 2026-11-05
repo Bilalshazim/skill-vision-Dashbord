@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly VITE_ENABLE_COMPONENT_CATALOG?: string
   readonly VITE_DEMO_MODE?: string
   readonly VITE_STAFF_EMAILS?: string
+  readonly VITE_DEMO_ACCOUNTS?: string
+  readonly VITE_DEMO_COMPANY_IDS?: string
 }
 
 interface ImportMeta {

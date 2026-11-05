@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import { cn } from '@/lib/utils'
 import { Note } from '@/components/patterns/Note'
@@ -8,8 +8,6 @@ import { EmptyState } from '@/components/patterns/EmptyState'
 import { Initials } from '@/components/ui/avatar'
 import { StatCard } from '@/components/patterns/StatCard'
 import { Separator } from '@/components/ui/separator'
-import { MatchLegend } from '@/modules/assessment/components/MatchLegend'
-import { MatchCell } from '@/modules/assessment/components/MatchCell'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -27,10 +25,11 @@ import { HardEvalModal } from '@/modules/assessment/components/HardEvalModal'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { StatTile } from '@/modules/assessment/components/StatTile'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
-import { computeHardSummary, gapInterpretation, matchCellClasses } from '@/modules/assessment/lib/calculations'
+import { computeHardSummary, gapInterpretation } from '@/modules/assessment/lib/calculations'
 import { avg, fmt1, getApex5dDimensions, levelFor, round1 } from '@/modules/assessment/lib/legacy-utils'
 
-type HardView = 'individuale' | 'area' | 'ranking' | 'match'
+type HardView = 'individuale' | 'area' | 'ranking'
+const HARD_VIEWS: HardView[] = ['individuale', 'area', 'ranking']
 
 // Migrated from renderHard()/renderHardViewBody()/renderHard*View()
 // (js/assessment.js ~6961-7358) — all 4 legacy tabs plus the evaluators
@@ -49,29 +48,35 @@ export default function AssessmentHardPage({ defaultView = 'individuale' }: { de
   // card) deep-link straight into the Area tab instead of always landing
   // on defaultView — read once on mount, same as defaultView itself.
   const [searchParams] = useSearchParams()
-  const initialView = (searchParams.get('view') as HardView | null) || defaultView
+  // Il vecchio ?view=match non esiste più: il confronto è /assessment/confronto.
+  const requestedView = searchParams.get('view') as HardView | null
+  const initialView = requestedView && HARD_VIEWS.includes(requestedView) ? requestedView : defaultView
   const [view, setView] = useState<HardView>(initialView)
   const [selectedEmp, setSelectedEmp] = useState<string | null>(null)
   const [rankSort, setRankSort] = useState<'score' | 'gap'>('score')
-  const [match, setMatch] = useState<string[]>([])
   const [drawerId, setDrawerId] = useState<string | null>(null)
   const [showEvalModal, setShowEvalModal] = useState(false)
   const [showManagerModal, setShowManagerModal] = useState(false)
   const [newEvaluatorName, setNewEvaluatorName] = useState('')
 
   useTopbarActions(
-    canEdit ? (
-      <>
-        <Button variant="outline" size="sm" onClick={() => setShowManagerModal(true)}>
-          <Icon name="userGear" />
-          {ui.evalManagerBtn}
-        </Button>
-        <Button variant="default" onClick={() => setShowEvalModal(true)}>
-          <Icon name="plus" />
-          {ui.newEvaluation}
-        </Button>
-      </>
-    ) : null,
+    <>
+      <Button asChild variant="outline">
+        <Link to="/assessment/confronto">{ui.res.cmpOpen}</Link>
+      </Button>
+      {canEdit ? (
+        <>
+          <Button variant="outline" size="sm" onClick={() => setShowManagerModal(true)}>
+            <Icon name="userGear" />
+            {ui.evalManagerBtn}
+          </Button>
+          <Button variant="default" onClick={() => setShowEvalModal(true)}>
+            <Icon name="plus" />
+            {ui.newEvaluation}
+          </Button>
+        </>
+      ) : null}
+    </>,
     [canEdit, ui],
   )
 
@@ -100,7 +105,6 @@ export default function AssessmentHardPage({ defaultView = 'individuale' }: { de
     { id: 'individuale', label: ui.softTabIndividuale },
     { id: 'area', label: ui.softTabArea },
     { id: 'ranking', label: ui.softTabRanking },
-    { id: 'match', label: ui.matchUpTo5 },
   ]
 
   return (
@@ -152,7 +156,6 @@ export default function AssessmentHardPage({ defaultView = 'individuale' }: { de
       {view === 'individuale' && <HardIndividualeView selectedEmp={selectedEmp} onSelectEmp={setSelectedEmp} />}
       {view === 'area' && <HardAreaView />}
       {view === 'ranking' && <HardRankingView sort={rankSort} onSort={setRankSort} onOpenDrawer={setDrawerId} />}
-      {view === 'match' && <HardMatchView match={match} onChangeMatch={setMatch} />}
 
       {showEvalModal && <HardEvalModal onClose={() => setShowEvalModal(false)} />}
       {showManagerModal && <EvaluationManagerModal onClose={() => setShowManagerModal(false)} />}
@@ -396,96 +399,6 @@ function HardRankingView({ sort, onSort, onOpenDrawer }: { sort: 'score' | 'gap'
             </TableBody>
           </Table>
       </Card>
-    </>
-  )
-}
-
-function HardMatchView({ match, onChangeMatch }: { match: string[]; onChangeMatch: (ids: string[]) => void }) {
-  const { state, lang, ui } = useAssessment()
-  const APEX5D_DIMENSIONS = getApex5dDimensions(lang)
-  const emps = match.map((id) => state.employees.find((e) => e.id === id)).filter((e): e is NonNullable<typeof e> => !!e)
-  function add(id: string) {
-    if (match.length >= 5) return
-    onChangeMatch([...match, id])
-  }
-  function remove(id: string) {
-    onChangeMatch(match.filter((x) => x !== id))
-  }
-  const overallVals = emps.map((e) => computeHardSummary(e, lang).apexScore)
-  const overallCls = matchCellClasses(overallVals)
-  return (
-    <>
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>{ui.softSelectUpTo5}</CardTitle>
-        </CardHeader>
-        <SelectField
-          size="sm"
-          value=""
-          onValueChange={(v) => {
-            if (v) add(v)
-          }}
-        >
-          <option value="">{ui.softAddToComparison}</option>
-          {state.employees
-            .filter((e) => !match.includes(e.id))
-            .map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.cognome} {e.nome}
-              </option>
-            ))}
-        </SelectField>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {emps.map((e) => (
-            <Badge key={e.id} onRemove={() => remove(e.id)} removeLabel={ui.matchRemove(`${e.nome} ${e.cognome}`)}>
-              {e.nome} {e.cognome}
-            </Badge>
-          ))}
-        </div>
-      </Card>
-      {emps.length ? (
-        <Card padding="none">
-          <Table frame>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{ui.colDimension}</TableHead>
-                  {emps.map((e) => (
-                    <TableHead key={e.id}>
-                      {e.nome} {e.cognome[0]}.
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow className="bg-muted font-medium">
-                  <TableCell>
-                    <b>{ui.hardApexScoreCol}</b>
-                  </TableCell>
-                  {overallVals.map((v, i) => (
-                    <MatchCell key={i} value={v} match={overallCls[i]} strong />
-                  ))}
-                </TableRow>
-                {APEX5D_DIMENSIONS.map((dim) => {
-                  const vals = emps.map((e) => computeHardSummary(e, lang).dims.find((d) => d.code === dim.code)!.mediaTotale)
-                  const cls = matchCellClasses(vals)
-                  return (
-                    <TableRow key={dim.code}>
-                      <TableCell>
-                        {dim.code} · {dim.name}
-                      </TableCell>
-                      {vals.map((v, i) => (
-                        <MatchCell key={i} value={v} match={cls[i]} />
-                      ))}
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          <MatchLegend />
-        </Card>
-      ) : (
-        <EmptyState title={ui.softNoEmpSelectedTitle} description={ui.softNoEmpSelectedDesc} />
-      )}
     </>
   )
 }

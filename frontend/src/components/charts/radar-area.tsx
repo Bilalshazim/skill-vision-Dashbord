@@ -48,6 +48,8 @@ const RadarPoint = memo(function RadarPoint({
   metricKey,
   enterComplete,
   shape,
+  onEnter,
+  onLeave,
 }: {
   mountProgress: MotionValue<number>;
   target: { x: number; y: number };
@@ -56,38 +58,60 @@ const RadarPoint = memo(function RadarPoint({
   metricKey: string;
   enterComplete: boolean;
   shape: "circle" | "diamond";
+  onEnter: () => void;
+  onLeave: () => void;
 }) {
   const cx = useTransform(mountProgress, (t) => target.x * t);
   const cy = useTransform(mountProgress, (t) => target.y * t);
 
+  // Skill Vision: un bersaglio più largo del punto, per il tooltip.
+  const hitArea = (
+    <circle
+      cx={target.x}
+      cy={target.y}
+      data-slot="radar-point"
+      fill="transparent"
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      pointerEvents="all"
+      r={12}
+    />
+  );
+
   if (enterComplete && shape === "diamond") {
     const half = isHovered ? 5 : 4;
     return (
-      <rect
-        fill={color}
-        height={half * 2}
-        key={metricKey}
-        stroke={radarCssVars.background}
-        strokeWidth={2}
-        transform={`rotate(45 ${target.x} ${target.y})`}
-        width={half * 2}
-        x={target.x - half}
-        y={target.y - half}
-      />
+      <>
+        <rect
+          fill={color}
+          height={half * 2}
+          key={metricKey}
+          stroke={radarCssVars.background}
+          strokeWidth={2}
+          transform={`rotate(45 ${target.x} ${target.y})`}
+          width={half * 2}
+          x={target.x - half}
+          y={target.y - half}
+        />
+        {hitArea}
+      </>
     );
   }
 
   if (enterComplete) {
     return (
-      <circle
-        cx={target.x}
-        cy={target.y}
-        fill={color}
-        key={metricKey}
-        r={isHovered ? 6 : 4}
-        stroke={radarCssVars.background}
-        strokeWidth={2}
-      />
+      <>
+        <circle
+          cx={target.x}
+          cy={target.y}
+          fill={color}
+          key={metricKey}
+          r={isHovered ? 6 : 4}
+          stroke={radarCssVars.background}
+          strokeWidth={2}
+        />
+        {hitArea}
+      </>
     );
   }
 
@@ -130,7 +154,7 @@ export const RadarArea = memo(function RadarArea({
     getColor,
     getPointPosition,
   } = useRadarStable();
-  const { hoveredIndex, setHoveredIndex } = useRadarHover();
+  const { hoveredIndex, setHoveredIndex, setHoveredPoint } = useRadarHover();
 
   const durationFactor = enterDurationMs / 1100;
   const areaData = data[index];
@@ -233,6 +257,8 @@ export const RadarArea = memo(function RadarArea({
               isHovered={isHovered}
               key={metric.key}
               metricKey={metric.key}
+              onEnter={() => setHoveredPoint({ seriesIndex: index, metricIndex: i })}
+              onLeave={() => setHoveredPoint(null)}
               shape={pointShape}
               mountProgress={mountProgress}
               target={target}

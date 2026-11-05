@@ -14,7 +14,9 @@ import { cn } from '@/lib/utils'
 // Con type="single" il fondo della voce accesa è una pillola sola che scorre
 // sulla voce nuova (ULTRA_TAB_SPRING); con "multiple" ogni voce accesa ha il
 // suo fondo. Il gruppo tiene il valore anche quando è passato solo
-// `defaultValue`, per sapere dove sta la pillola.
+// `defaultValue`, per sapere dove sta la pillola. Il lime è solo della voce
+// accesa: al passaggio del mouse le altre prendono il fondo neutro, altrimenti
+// sembrano accese due voci insieme (verifica del 2026-11-05).
 
 const SingleValueContext = createContext<{ single: boolean; value: string | undefined }>({ single: false, value: undefined })
 
@@ -58,9 +60,9 @@ function ToggleGroupItem({ className, children, value, ...props }: React.Compone
         data-slot="toggle-group-item"
         whileTap={TAP_SCALE}
         className={cn(
-          'relative isolate inline-flex touch-manipulation items-center justify-center gap-2 rounded-sm px-3 py-1 text-app-small font-medium whitespace-nowrap text-muted-foreground select-none transition-colors outline-none hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 data-[state=on]:text-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0',
+          'relative isolate inline-flex touch-manipulation items-center justify-center gap-2 rounded-sm px-3 py-1 text-app-small font-medium whitespace-nowrap text-muted-foreground select-none transition-colors outline-none hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 data-[state=on]:text-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0',
           !ctx.single && 'data-[state=on]:bg-accent',
-          ctx.single && 'data-[state=on]:text-primary-foreground data-[state=on]:hover:text-primary-foreground',
+          ctx.single && 'data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-transparent data-[state=on]:hover:text-primary-foreground',
           className,
         )}
       >

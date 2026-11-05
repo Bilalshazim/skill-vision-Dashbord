@@ -1,3 +1,4 @@
+import { getBackendUser } from '@/lib/api/client'
 import { env } from '@/lib/env'
 
 // Siamo nella versione demo? (CLAUDE.md cap. 7, "Reset demo", deciso dal
@@ -7,4 +8,16 @@ import { env } from '@/lib/env'
 // sul servizio che fa da demo. In sviluppo locale vale sempre come demo.
 export function isDemoMode(): boolean {
   return env.demoMode
+}
+
+/** L'account demo (es. demo@skill-vision.it, COMPANY_ADMIN sulla sola società demo): solo lui vede gli strumenti dei dati dimostrativi (CLAUDE.md §9). Filtro d'interfaccia. */
+export function isDemoAccount(): boolean {
+  const email = getBackendUser()?.email?.toLowerCase()
+  return env.demoMode && !!email && env.demoAccounts.includes(email)
+}
+
+/** L'utente sta sulla società demo? Mai vero per una società non elencata: i dati di Recruiting stanno per società, e la prima volta ogni società legge lo stesso seed. */
+export function isOnDemoCompany(): boolean {
+  const companyId = getBackendUser()?.companyId?.toLowerCase()
+  return isDemoAccount() || (env.demoMode && !!companyId && env.demoCompanyIds.includes(companyId))
 }

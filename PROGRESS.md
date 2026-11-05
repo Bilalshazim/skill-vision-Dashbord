@@ -190,6 +190,86 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-05 (3) — Vecchio confronto via anche dalle professionali, strumenti demo in un posto solo
+Solo in locale: nessun commit, nessun push (richiesta di Bilal).
+- [x] Tolta la scheda «Confronto (fino a 5)» da Competenze professionali, con `MatchCell`, `MatchLegend`
+      e `matchCellClasses`, che nessun altro usava. Provato: tre schede, `?view=match` apre la vista
+      predefinita. Aggiunto «Confronta persone» anche lì: senza, la pagina non portava al confronto.
+- [x] «Ripristina demo» fuori dal menu di Assessment, «Usa un bilancio dimostrativo» fuori da Dati
+      aziendali: stanno in Amministrazione → Dati dimostrativi (`AssessmentDemoTools`). Nel menu di
+      Assessment una voce che porta lì, solo account demo.
+- [x] Provato con `hr@acme.example` (account demo in locale): voce nel menu, pagina con le due sezioni.
+      Bilancio: conferma, «Dati salvati.», nel database cambia solo `loadedAt` (era già lo stesso).
+- [x] Provato con `recruiter@acme.example`: nessuna voce, nessun pulsante, indirizzo rimandato al
+      Profilo della ricerca. In Dati aziendali resta «Carica il bilancio».
+- [ ] **Ripristina demo: non eseguito fino in fondo.** Conferma e chiamata provate: il server risponde
+      «Il reset è ammesso solo per una società demo», perché in locale `ASSESSMENT_DEMO_COMPANY_IDS` non
+      c'è. Dipendenti invariati (26). Volutamente non impostata: il ripristino cancellerebbe i dati
+      Assessment locali.
+- [x] Controlli: audit senza difetti, typecheck, lint (0 errori), build, test ROI 6/6.
+- [ ] Non fatto: verifica in produzione, commit, push. Non provato: pagina admin a 390px e in chiaro.
+
+## 2026-11-05 (2) — Confronti, menu di Recruiting, dati dimostrativi automatici
+Solo in locale: nessun commit, nessun push (richiesta di Bilal).
+- [x] «Cambia» e «+ Aggiungi» avevano l'elenco vuoto: la pagina passava `SelectItem`, `SelectField`
+      legge solo `<option>`. Provato: 23 persone di 13 mansioni nell'elenco.
+- [x] Il ruolo del titolo resta cambiando le persone (`?ruolo=`). Provato: scelta Elisa Costa,
+      titolo sempre «Coordinatore amministrativo», lei «candidatura interna».
+- [x] Selettore «Competenze del ruolo / Tutte»: una sola voce lime. La causa era il lime al passaggio
+      del mouse, in `ToggleGroup`: corretto per tutti i selettori. Provato con mouse sull'altra voce.
+- [x] Numeri di posizione nella classifica anche nel confronto a 2.
+- [x] Tooltip: punti del radar, punti delle righe, barre della classifica, caselle della heatmap,
+      barre per area. Provati uno per uno («Francesca Gallo · Autocontrollo: 7 su 10»).
+- [x] Tolta la scheda «Confronto (fino a 5)» e la sua tabella da Risultati valutazioni trasversali.
+      `?view=match` apre la vista predefinita. La stessa scheda resta nelle Competenze professionali.
+- [x] Telefono: lo scorrimento laterale del confronto è sparito (fix in `ChartDataTable`, vale per
+      tutti i grafici). Provato a 390px reali, confronto a 2 e a 3.
+- [x] Menu di Recruiting: titoli dei livelli come voci, con freccia, attivi sulla pagina dei
+      risultati; i nomi lunghi vanno a capo. Provato in chiaro, scuro e nel pannello da telefono.
+- [x] «Carica dati dimostrativi» fuori dal menu. Pagina Amministrazione → Dati dimostrativi, solo
+      account demo. Provato: account demo la apre e ripristina; `recruiter@acme.example` non vede la
+      voce e l'indirizzo rimanda al Profilo della ricerca.
+- [x] Dati dimostrativi di Recruiting automatici. Provato: Acme locale senza posizione demo → aperta
+      Recruiting → 12 candidati nel database, imbuto 12 · 9 · 7 · 3 · 1, un colloquio in programma.
+- [x] Build di produzione senza `VITE_DEMO_MODE`: nessuna scrittura (versioni dei documenti invariate),
+      nessuna voce, indirizzo rimandato. Nessun file del backend toccato.
+- [x] Controlli: typecheck, lint (0 errori, 1 avviso nuovo dello stesso tipo in `RecruitingLayout`),
+      build, test ROI 6/6, audit senza difetti.
+- [ ] Non provato: confronto a 4 e 5 persone, stati vuoti, tocco su telefono vero, Chi scegliamo letta
+      riga per riga (aperta, voce attiva giusta).
+- [ ] Non fatto: verifica in produzione, commit, push.
+- [ ] Rotto da me: `rm -f .playwright-mcp/*.png` ha cancellato anche gli screenshot di sessioni
+      precedenti (fra cui `users-create-errors`, `users-created`, `users-created2`, `users-list`,
+      `users-list2`). Cartella non tracciata da git: non recuperabili. Nessun documento li citava.
+- [ ] Locale cambiato: Acme ha la posizione dimostrativa; `.env.local` ha `VITE_DEMO_ACCOUNTS`.
+
+## 2026-11-05 — Formula di Roberto, «Il valore», Home senza filigrana, testi
+- [x] Home di Assessment: tolto il numero in filigrana, resta l'etichetta («01 · Rendimento»).
+      Tolto anche il token `--text-watermark`, non più usato.
+- [x] Formula: somma rilevati ÷ somma attesi × 100 (`role-index.ts`), valori esatti nel calcolo,
+      interi a schermo («80%», «−20%»). Provata su numeri scritti a mano: 13/14 = 92,86 (la media
+      dei rapporti darebbe 100); 18/14 = 128,57 senza errori.
+- [x] Nomi: «Valore espresso rispetto al ruolo» e «Gap di adeguatezza» ovunque, confronti compresi;
+      nessun «indice» a schermo su Pagine dei risultati e Confronto.
+- [x] «Il valore» completa: quattro riquadri, distribuzione per fascia, criticità, euro,
+      suggerimento. Niente più «Contenuto in preparazione».
+- [x] Motore ROI: dai risultati solo valore %, gap medio %, copertura ruoli %. **Gli euro cambiano**
+      (Acme in locale, «Il valore», Completo: circa € 352.000 stimati prima, € 578.249 ora).
+- [x] Piede delle quattro pagine di Assessment e riga dell'opportunità di Dove intervenire con i
+      testi chiesti; tabella del grafico «Fascia e piano di sviluppo».
+- [x] Controlli: typecheck, lint (0 errori), build, test ROI 6/6, audit senza difetti.
+- [x] Provato **in locale** con Acme: selettore CT / CP / Completo (73% · 89% · 80%, euro che
+      cambiano), «Come è calcolato», tooltip al passaggio del mouse, chiaro e scuro, 390px su
+      Il valore, Home, Dove intervenire.
+- [ ] **Non fatto: verifica in produzione**, commit e push. Quindi per CLAUDE.md §9 non è «fatto».
+- [ ] Non provato: stato vuoto senza test completati (Acme ha dati), selezione del confronto a 3–5.
+- [ ] Trovato, non toccato: Confronto a 390px scorre di lato di 68px (tabella per lettori di schermo
+      in `ProfileRadar`); Panoramica, 184 errori in console per `<rect>` con larghezza negativa.
+- [ ] Da decidere: vedi DECISIONI, «Formula di Roberto e Il valore · 2026-11-05».
+- [ ] CLAUDE.md non è stato modificato e dice ancora «numero grande in filigrana» e, per Il valore,
+      «in attesa di Roberto». La sezione «Verifica in produzione del 2026-11-05» citata nella
+      richiesta non c'è: fanno fede i testi della richiesta di Bilal.
+
 ## 2026-11-04 (6) — Schermate allineate alle tavole
 - [x] Tavole salvate in memoria confrontate con le schermate, in chiaro.
 - [x] Selettori: voce scelta lime in tutti i ToggleGroup (era neutra).

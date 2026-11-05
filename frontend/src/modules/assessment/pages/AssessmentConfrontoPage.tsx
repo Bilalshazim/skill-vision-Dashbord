@@ -14,7 +14,6 @@ import { RoleFitRanking } from '@/components/patterns/RoleFitRanking'
 import { SelectField } from '@/components/patterns/SelectField'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { SelectItem } from '@/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { evaluatedEmployees, primaryScore } from '@/modules/assessment/lib/calculations'
@@ -36,7 +35,8 @@ const cell = (n: number) => (Number.isInteger(n) ? String(n) : fmt1it(n))
 // Il confronto fra persone (CLAUDE.md, Fase 6, tavole «Confronto a 2» e «Confronto
 // fino a 5»): chi si confronta sta nell'indirizzo (?ids=a,b); senza, le prime due
 // persone della stessa mansione. Il ruolo di riferimento è quello della prima
-// persona. In cima la classifica di adattamento; sotto, a due: una riga per
+// persona all'apertura, e resta quello del titolo anche cambiando le persone, che
+// possono venire da mansioni diverse (?ruolo=). In cima la classifica del valore espresso; sotto, a due: una riga per
 // competenza e il radar; da tre a cinque: radar, barre per area, heatmap delle 35.
 // Clic su un nome: resta in evidenza, gli altri si attenuano. I numeri vengono solo
 // dalle 35 competenze, mai dai sottofattori.
@@ -59,18 +59,20 @@ export default function AssessmentConfrontoPage() {
     setFocus(null)
     const q = new URLSearchParams(params)
     q.set('ids', list.join(','))
+    if (role) q.set('ruolo', role)
     setParams(q, { replace: true })
   }
   const toggleFocus = (id: string) => setFocus((f) => (f === id ? null : id))
   const ids = people.map((p) => p.id)
   const addable = evaluated.filter((e) => !ids.includes(e.id))
   const option = (e: Employee) => (
-    <SelectItem key={e.id} value={e.id}>
+    <option key={e.id} value={e.id}>
       {fullName(e)} · {e.ruolo}
-    </SelectItem>
+    </option>
   )
 
-  const role = people[0]?.ruolo ?? ''
+  const roleParam = params.get('ruolo')
+  const role = roleParam && (state.roleProfiles[roleParam] || evaluated.some((e) => e.ruolo === roleParam)) ? roleParam : (people[0]?.ruolo ?? '')
   const skills = getSoftSkills(lang)
   const inRole = roleSkills(state, role, lang)
   // Un ruolo senza competenze scelte si confronta su tutte le 35, e lo si dice.
@@ -103,7 +105,7 @@ export default function AssessmentConfrontoPage() {
     )
   }
 
-  // La classifica: l'indice a 100 sulle competenze del ruolo di riferimento.
+  // La classifica: il valore espresso sulle competenze del ruolo di riferimento.
   const radarIds = radarSkills.map((s) => s.id)
   const rows = people.map((p, i) => ({ id: p.id, name: fullName(p), meta: p.ruolo, value: Math.round(softIndex(state, p, role, radarIds) ?? 0), color: colors[i] }))
   const sorted = [...rows].sort((a, b) => b.value - a.value)
@@ -111,10 +113,10 @@ export default function AssessmentConfrontoPage() {
   const firstName = (id: string) => people.find((p) => p.id === id)?.nome ?? ''
   const sentence =
     tied.length === 2 && people.length === 2
-      ? res.cmpTiedTwo(firstName(tied[0].id), firstName(tied[1].id), tied[0].value, tied[1].value)
+      ? res.cmpTiedTwo(firstName(tied[0].id), firstName(tied[1].id), res.indexPct(tied[0].value), res.indexPct(tied[1].value))
       : tied.length > 1
-        ? res.cmpTied(tied.map((r) => r.name), tied.map((r) => r.value))
-        : res.cmpLeader(sorted[0].name, sorted[0].value, sorted[1].name, sorted[1].value)
+        ? res.cmpTied(tied.map((r) => r.name), tied.map((r) => res.indexPct(r.value)))
+        : res.cmpLeader(sorted[0].name, res.indexPct(sorted[0].value), sorted[1].name, res.indexPct(sorted[1].value))
   const seriesColor = (i: number, id: string) => (focus && focus !== id ? dim(colors[i]) : colors[i])
 
   const radar = (
@@ -125,6 +127,7 @@ export default function AssessmentConfrontoPage() {
         hideTable
         compare
         format={fmt1it}
+        pointTip={res.cmpPointTip}
         axes={radarSkills.map((s) => ({ key: s.id, label: s.name }))}
         series={people.map((p, i) => ({ label: fullName(p), color: seriesColor(i, p.id), pointShape: people.length === 2 && i === 1 ? ('diamond' as const) : undefined, dashed: people.length === 2 && i === 1, values: Object.fromEntries(radarIds.map((id) => [id, score(p, id)])) }))}
       />
@@ -157,7 +160,7 @@ export default function AssessmentConfrontoPage() {
           ))}
         </div>
         <div>{addPerson}</div>
-        <RoleFitRanking label={res.cmpFitLabel(radarIds.length)} sentence={sentence} rows={rows} referenceLabel={res.cmpReference} focus={focus} onFocus={toggleFocus} />
+        <RoleFitRanking ranked label={res.cmpFitLabel(radarIds.length)} sentence={sentence} rows={rows} referenceLabel={res.cmpReference} valueLabel={res.indexLabel} focus={focus} onFocus={toggleFocus} />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <ToggleGroup type="single" value={scope} onValueChange={(v) => v && setScope(v as 'role' | 'all')} aria-label={res.cmpScopeLabel}>
             <ToggleGroupItem value="role">{res.cmpScopeRole(radarIds.length)}</ToggleGroupItem>
@@ -166,7 +169,7 @@ export default function AssessmentConfrontoPage() {
           <p className="text-app-small text-muted-foreground">{res.cmpSummary(list.length, same, a.nome, aAhead, b.nome, list.length - same - aAhead)}</p>
         </div>
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <CompetencyRows title={res.cmpCompetency} people={[{ name: fullName(a), short: initials(a), color: colors[0] }, { name: fullName(b), short: initials(b), color: colors[1] }]} groups={groups} format={fmt1it} />
+          <CompetencyRows title={res.cmpCompetency} people={[{ name: fullName(a), short: initials(a), color: colors[0] }, { name: fullName(b), short: initials(b), color: colors[1] }]} groups={groups} format={fmt1it} tip={res.cmpPointTip} />
           {radar}
         </div>
       </div>
@@ -206,21 +209,22 @@ export default function AssessmentConfrontoPage() {
         </Button>
         {addPerson}
       </div>
-      <RoleFitRanking ranked label={res.cmpFitQuestion(role)} note={res.cmpFitNote(radarIds.length)} sentence={sentence} rows={rows} referenceLabel={res.cmpReference} focus={focus} onFocus={toggleFocus} />
+      <RoleFitRanking ranked label={res.cmpFitQuestion(role)} note={res.cmpFitNote(radarIds.length)} sentence={sentence} rows={rows} referenceLabel={res.cmpReference} valueLabel={res.indexLabel} focus={focus} onFocus={toggleFocus} />
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         {radar}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {clusters.map((c) => (
-            <AreaBars key={c} title={shortArea(c)} format={fmt1it} focus={focus} rows={people.map((p, i) => ({ id: p.id, label: initials(p), value: areaAvg(p, c), color: colors[i] }))} />
+            <AreaBars key={c} title={shortArea(c)} format={fmt1it} tip={res.cmpPointTip} focus={focus} rows={people.map((p, i) => ({ id: p.id, label: initials(p), name: fullName(p), value: areaAvg(p, c), color: colors[i] }))} />
           ))}
         </div>
       </div>
       <CompetencyHeatmap
         title={res.cmpHeatTitle(skills.length)}
         highestLabel={res.cmpHeatHighest}
-        columns={people.map((p, i) => ({ id: p.id, label: `${p.nome} ${p.cognome[0] ?? ''}.`, color: colors[i] }))}
+        columns={people.map((p, i) => ({ id: p.id, label: `${p.nome} ${p.cognome[0] ?? ''}.`, name: fullName(p), color: colors[i] }))}
         groups={clusters.map((c) => ({ label: shortArea(c), rows: skills.filter((s) => s.cluster === c).map((s) => ({ key: s.id, label: s.name, values: people.map((p) => (score(p, s.id) > 0 ? score(p, s.id) : null)) })) }))}
         format={cell}
+        tip={res.cmpPointTip}
         focus={focus}
         onFocus={toggleFocus}
       />

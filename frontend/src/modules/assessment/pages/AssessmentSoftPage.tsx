@@ -8,8 +8,6 @@ import { EmptyState } from '@/components/patterns/EmptyState'
 import { Initials } from '@/components/ui/avatar'
 import { StatCard } from '@/components/patterns/StatCard'
 import { Separator } from '@/components/ui/separator'
-import { MatchLegend } from '@/modules/assessment/components/MatchLegend'
-import { MatchCell } from '@/modules/assessment/components/MatchCell'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -26,10 +24,11 @@ import { SoftEvalModal } from '@/modules/assessment/components/SoftEvalModal'
 import { StatTile } from '@/modules/assessment/components/StatTile'
 import { SurveyLinkModal } from '@/modules/assessment/components/SurveyLinkModal'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
-import { computeSoftSummary, gapInterpretation, matchCellClasses, orgWorstSoftSkills } from '@/modules/assessment/lib/calculations'
+import { computeSoftSummary, gapInterpretation, orgWorstSoftSkills } from '@/modules/assessment/lib/calculations'
 import { avg, fmt1, getBigFiveDims, getSoftClusters, getSoftSkills, round1 } from '@/modules/assessment/lib/legacy-utils'
 
-type SoftView = 'org' | 'area' | 'alfa' | 'individuale' | 'ranking' | 'match'
+type SoftView = 'org' | 'area' | 'alfa' | 'individuale' | 'ranking'
+const SOFT_VIEWS: SoftView[] = ['org', 'area', 'alfa', 'individuale', 'ranking']
 const BF_ORDER = ['O', 'C', 'E', 'A', 'S'] as const
 
 // Migrated from renderSoft()/renderSoftViewBody()/renderSoft*View()
@@ -56,14 +55,15 @@ export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultVie
   // card) deep-link straight into the Area tab instead of always landing
   // on defaultView — read once on mount, same as defaultView itself.
   const [searchParams] = useSearchParams()
-  const initialView = (searchParams.get('view') as SoftView | null) || defaultView
+  // Il vecchio ?view=match non esiste più: il confronto è /assessment/confronto.
+  const requestedView = searchParams.get('view') as SoftView | null
+  const initialView = requestedView && SOFT_VIEWS.includes(requestedView) ? requestedView : defaultView
   const [view, setView] = useState<SoftView>(initialView)
   const [showEvalModal, setShowEvalModal] = useState(false)
   const [showSurveyLink, setShowSurveyLink] = useState(false)
   const [drawerId, setDrawerId] = useState<string | null>(null)
   const [selectedEmp, setSelectedEmp] = useState<string | null>(null)
   const [rankSort, setRankSort] = useState<'score' | 'gap'>('score')
-  const [match, setMatch] = useState<string[]>([])
 
   useTopbarActions(
     <>
@@ -92,7 +92,6 @@ export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultVie
     { id: 'alfa', label: ui.softTabAlfa },
     { id: 'individuale', label: ui.softTabIndividuale },
     { id: 'ranking', label: ui.softTabRanking },
-    { id: 'match', label: ui.matchUpTo5 },
   ]
 
   return (
@@ -112,7 +111,6 @@ export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultVie
       {view === 'alfa' && <SoftAlfaView onOpenDrawer={setDrawerId} />}
       {view === 'individuale' && <SoftIndividualeView selectedEmp={selectedEmp} onSelectEmp={setSelectedEmp} />}
       {view === 'ranking' && <SoftRankingView sort={rankSort} onSort={setRankSort} onOpenDrawer={setDrawerId} />}
-      {view === 'match' && <SoftMatchView match={match} onChangeMatch={setMatch} />}
 
       {showEvalModal && <SoftEvalModal onClose={() => setShowEvalModal(false)} />}
       {showSurveyLink && <SurveyLinkModal onClose={() => setShowSurveyLink(false)} />}
@@ -427,112 +425,6 @@ function SoftRankingView({ sort, onSort, onOpenDrawer }: { sort: 'score' | 'gap'
             </TableBody>
           </Table>
       </Card>
-    </>
-  )
-}
-
-function SoftMatchView({ match, onChangeMatch }: { match: string[]; onChangeMatch: (ids: string[]) => void }) {
-  const { state, lang, ui } = useAssessment()
-  const SOFT_CLUSTERS = getSoftClusters(lang)
-  const SOFT_SKILLS = getSoftSkills(lang)
-  const emps = match.map((id) => state.employees.find((e) => e.id === id)).filter((e): e is NonNullable<typeof e> => !!e)
-  function add(id: string) {
-    if (match.length >= 5) return
-    onChangeMatch([...match, id])
-  }
-  function remove(id: string) {
-    onChangeMatch(match.filter((x) => x !== id))
-  }
-  const overallVals = emps.map((e) => computeSoftSummary(e, lang).overallOttenuto)
-  const overallCls = matchCellClasses(overallVals)
-  return (
-    <>
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>{ui.softSelectUpTo5}</CardTitle>
-        </CardHeader>
-        <div className="flex gap-2 flex-wrap">
-          <SelectField
-            size="sm"
-            value=""
-            onValueChange={(v) => {
-              if (v) add(v)
-            }}
-          >
-            <option value="">{ui.softAddToComparison}</option>
-            {state.employees
-              .filter((e) => !match.includes(e.id))
-              .map((e) => (
-                <option key={e.id} value={e.id}>
-                  {e.cognome} {e.nome}
-                </option>
-              ))}
-          </SelectField>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {emps.map((e) => (
-            <Badge key={e.id} onRemove={() => remove(e.id)} removeLabel={ui.matchRemove(`${e.nome} ${e.cognome}`)}>
-              {e.nome} {e.cognome}
-            </Badge>
-          ))}
-        </div>
-      </Card>
-      {emps.length ? (
-        <Card padding="none" className="match-col">
-          <Table frame>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{ui.colCompetency}</TableHead>
-                  {emps.map((e) => (
-                    <TableHead key={e.id}>
-                      {e.nome} {e.cognome[0]}.
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow className="bg-muted font-medium">
-                  <TableCell>
-                    <b>{ui.colOverallScore}</b>
-                  </TableCell>
-                  {overallVals.map((v, i) => (
-                    <MatchCell key={i} value={v} match={overallCls[i]} strong />
-                  ))}
-                </TableRow>
-                {SOFT_CLUSTERS.map((c) => (
-                  <SoftMatchClusterRows key={c} cluster={c} skills={SOFT_SKILLS.filter((s) => s.cluster === c)} emps={emps} />
-                ))}
-              </TableBody>
-            </Table>
-          <MatchLegend />
-        </Card>
-      ) : (
-        <EmptyState title={ui.softNoEmpSelectedTitle} description={ui.softNoEmpSelectedDesc} />
-      )}
-    </>
-  )
-}
-
-function SoftMatchClusterRows({ cluster, skills, emps }: { cluster: string; skills: { id: string; name: string }[]; emps: { id: string; soft: Record<string, { ottenuto: number }> }[] }) {
-  return (
-    <>
-      <TableRow>
-        <TableCell colSpan={emps.length + 1} className="label-mono bg-muted text-muted-foreground">
-          {cluster}
-        </TableCell>
-      </TableRow>
-      {skills.map((s) => {
-        const vals = emps.map((e) => (e.soft[s.id] || { ottenuto: 0 }).ottenuto)
-        const cls = matchCellClasses(vals)
-        return (
-          <TableRow key={s.id}>
-            <TableCell>{s.name}</TableCell>
-            {vals.map((v, i) => (
-              <MatchCell key={i} value={v} match={cls[i]} />
-            ))}
-          </TableRow>
-        )
-      })}
     </>
   )
 }

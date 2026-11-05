@@ -7,6 +7,11 @@ import {
   Files,
   FileText,
   Filter,
+  CircleCheck,
+  ClipboardCheck,
+  RotateCcw,
+  Scale,
+  Search,
   Home,
   IdCard,
   LayoutDashboard,
@@ -64,6 +69,8 @@ export type RecruitingNavItem = {
   roles?: string[]
   /** Nascosta a chi ha il ruolo di valutatore (EVALUATOR), anche dentro l'Area valutatori. */
   staffOnly?: boolean
+  /** Solo per l'account demo (lib/demo-mode.ts). */
+  demoOnly?: boolean
 }
 
 // Menu di Recruiting (CLAUDE.md, Fase 6, "Menu di Recruiting", deciso da
@@ -87,6 +94,8 @@ export type RecruitingNavItem = {
 export type RecruitingNavGroup = {
   /** Assente per il blocco in testa. */
   label?: string
+  /** Con l'icona il titolo è una voce del menu, con sotto le sue pagine (i quattro livelli). Senza, un'etichetta. */
+  icon?: LucideIcon
   /** La pagina principale del livello: la prima voce. */
   main?: RecruitingNavItem
   /** La pagina dei risultati del livello: ci porta il titolo, come la card del Profilo della ricerca (CLAUDE.md, Fase 6, 2026-11-02). */
@@ -128,6 +137,7 @@ export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
   },
   {
     label: 'Chi cerchiamo? · Livello 1',
+    icon: Search,
     results: '/recruiting/chi-cerchiamo',
     main: { screen: 'jd', label: 'Profilo candidato', icon: FileText, to: '/recruiting/job-profile' },
     items: [
@@ -140,6 +150,7 @@ export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
   },
   {
     label: 'Chi è più adatto? · Livello 2',
+    icon: Scale,
     results: '/recruiting/chi-e-piu-adatto',
     main: { screen: 'ranking', label: 'Risultati', icon: Trophy, to: '/recruiting/ranking' },
     items: [
@@ -150,6 +161,7 @@ export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
   },
   {
     label: 'Chi scegliamo? · Livello 3',
+    icon: CircleCheck,
     results: '/recruiting/chi-scegliamo',
     main: { screen: 'paginaA', label: 'Migliori candidati', icon: Send, to: '/recruiting/pagina-a' },
     items: [
@@ -159,6 +171,7 @@ export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
   },
   {
     label: 'Area valutatori · Livello 4',
+    icon: ClipboardCheck,
     audience: 'evaluator',
     items: [
       { screen: 'colloqui', label: 'Prossimi colloqui', icon: CalendarDays, to: '/recruiting/colloqui', staffOnly: true },
@@ -181,6 +194,7 @@ export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
       { screen: 'cipAdmin', label: 'CIP', icon: IdCard, to: '/recruiting/admin/cip', roles: ['PLATFORM_ADMIN'] },
       { screen: 'emailAdmin', label: 'Email', icon: Mail, to: '/recruiting/admin/email', roles: ['PLATFORM_ADMIN', 'COMPANY_ADMIN'] },
       { screen: 'originalSkills', label: 'Comitato scientifico', icon: ScanSearch, to: '/recruiting/admin/comitato-scientifico', roles: ['PLATFORM_ADMIN'] },
+      { screen: 'demoAdmin', label: 'Dati dimostrativi', icon: RotateCcw, to: '/recruiting/admin/dati-dimostrativi', demoOnly: true },
     ],
   },
 ]

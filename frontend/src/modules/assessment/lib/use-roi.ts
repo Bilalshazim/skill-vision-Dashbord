@@ -7,13 +7,14 @@ import { model, type RoiModel, type RoiState } from '@/lib/roi/model'
 import { SCEN, scenOverrides } from '@/lib/roi/scenarios'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { activeEmployees, evaluatedEmployees, homeStats, roleCoveragePct } from '@/modules/assessment/lib/calculations'
+import { orgValue } from '@/modules/assessment/lib/role-index'
 
 // Dalla dashboard al motore ROI (CLAUDE.md, Fase 6, "Euro dal motore ROI"). Dati
 // di bilancio e voci a mano dal server, salvati in Dati aziendali; organico e
-// persone valutate da Anagrafica e valutazioni; competenze, divario e copertura
-// dai risultati. Le ipotesi non scelte sono i valori predefiniti del motore: base
-// HCVA, convenzione gestionale, costo di sostituzione 50%, assenze aggredibili
-// 60%, leva 4 spenta. La scala del motore è 0–100, quella della dashboard 1–10.
+// persone valutate da Anagrafica e valutazioni. Dai risultati vanno solo tre dati,
+// esatti: valore %, gap medio %, copertura ruoli %. Le ipotesi non scelte sono i
+// valori predefiniti del motore: base HCVA, convenzione gestionale, costo di
+// sostituzione 50%, assenze aggredibili 60%, leva 4 spenta.
 
 const ENGINE_DEFAULTS = { conv: 'gest', base: 'hcva', cs: 50, qa: 60, l4on: 0, posVac: 0, posPrev: 0, gg: 45 } as const
 
@@ -37,6 +38,7 @@ export function useRoi() {
 
   const stats = useMemo(() => homeStats(state, lang), [state, lang])
   const coverage = useMemo(() => roleCoveragePct(state, lang), [state, lang])
+  const value = useMemo(() => orgValue(state, lang), [state, lang])
   const evaluated = useMemo(() => evaluatedEmployees(state).length, [state])
   const employees = useMemo(() => activeEmployees(state).length, [state])
 
@@ -45,16 +47,20 @@ export function useRoi() {
     if (!q.data) return { status: 'loading', problems: [], months: 12, atteso, input: null, scenarios: null }
     const d = q.data.data
     const months = d.months ?? 12
-    if (!d.statement || !Object.keys(d.statement).length || !evaluated) return { status: 'missing', problems: [], months, atteso, input: null, scenarios: null }
+    if (!d.statement || !Object.keys(d.statement).length || !evaluated || !value) return { status: 'missing', problems: [], months, atteso, input: null, scenarios: null }
     const f = annualize(d.statement, months)
+    // Il motore vuole un divario positivo e valore + divario entro 100: un'eccedenza
+    // sul ruolo non è un divario e non deve fermare il calcolo. `comp` serve solo a
+    // quel controllo; gli euro dipendono da `gap`.
+    const gap = Math.max(0, -value.gapMedio)
     const input: RoiState = {
       ...ENGINE_DEFAULTS,
       N: employees,
       nVal: evaluated,
       inv: d.inv ?? 0,
       invAz: d.invAz ?? 0,
-      comp: stats.orgAvg * 10,
-      gap: Math.max(0, atteso - stats.orgAvg) * 10,
+      comp: Math.min(value.valore, 100 - gap),
+      gap,
       cov: coverage,
       turn: d.turn ?? 0,
       ass: d.ass ?? 0,
@@ -81,7 +87,7 @@ export function useRoi() {
     const problems = blockingProblems(input, base)
     if (problems.length) return { status: 'blocked', problems, months, atteso, input, scenarios: null }
     return { status: 'ready', problems: [], months, atteso, input, scenarios: { prud: run('prud'), base, espa: run('espa') } }
-  }, [q.data, stats.orgAvg, stats.benchmark, coverage, evaluated, employees])
+  }, [q.data, stats.benchmark, value, coverage, evaluated, employees])
 
   // L'atteso si fissa dopo la prima misurazione, una volta sola: chi salva i dati
   // con persone già valutate lo fissa. Da lì non cambia; lo garantisce il server.

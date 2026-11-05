@@ -2,6 +2,7 @@ import { Fragment, useState } from 'react'
 
 import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 export type HeatmapGroup = { label: string; rows: { key: string; label: string; values: (number | null)[] }[] }
@@ -17,6 +18,7 @@ export function CompetencyHeatmap({
   columns,
   groups,
   format,
+  tip,
   focus,
   onFocus,
   className,
@@ -24,9 +26,12 @@ export function CompetencyHeatmap({
   title: string
   /** La casella che accende il bordo sul valore più alto della riga. */
   highestLabel: string
-  columns: { id: string; label: string; color: string }[]
+  /** `name`: il nome intero, nel tooltip delle caselle. */
+  columns: { id: string; label: string; name: string; color: string }[]
   groups: HeatmapGroup[]
   format: (n: number) => string
+  /** Il testo del tooltip di una casella: «Nome · Competenza: 7 su 10». */
+  tip: (name: string, competency: string, value: string) => string
   focus?: string | null
   onFocus?: (id: string) => void
   className?: string
@@ -76,13 +81,17 @@ export function CompetencyHeatmap({
                     {r.values.map((v, i) => {
                       const s = v != null ? strength(v) : 0
                       return (
-                        <td
-                          key={columns[i].id}
-                          className={cn('rounded-xs border text-center tabular-nums transition-opacity', s > 70 ? 'text-background' : 'text-foreground', showHighest && v != null && v === max ? 'border-foreground font-semibold' : 'border-transparent', focus && focus !== columns[i].id && 'opacity-40')}
-                          style={v != null ? { background: `color-mix(in oklab, ${columns[i].color} ${s}%, var(--card))` } : undefined}
-                        >
-                          {v != null ? format(v) : '—'}
-                        </td>
+                        <Tooltip key={columns[i].id}>
+                          <TooltipTrigger asChild>
+                            <td
+                              className={cn('rounded-xs border text-center tabular-nums transition-opacity', s > 70 ? 'text-background' : 'text-foreground', showHighest && v != null && v === max ? 'border-foreground font-semibold' : 'border-transparent', focus && focus !== columns[i].id && 'opacity-40')}
+                              style={v != null ? { background: `color-mix(in oklab, ${columns[i].color} ${s}%, var(--card))` } : undefined}
+                            >
+                              {v != null ? format(v) : '—'}
+                            </td>
+                          </TooltipTrigger>
+                          <TooltipContent>{tip(columns[i].name, r.label, v != null ? format(v) : '—')}</TooltipContent>
+                        </Tooltip>
                       )
                     })}
                   </tr>

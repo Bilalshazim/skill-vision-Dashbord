@@ -22,7 +22,7 @@ export function roiFigure(res: Res, roi: RoiResult, page: 'valore' | 'perdite' |
   const footer = [res.roiNoSum, annual].filter(Boolean).join(' ')
   const dataRows = [
     { label: res.roiRowHcva, value: roiEuro(base.HCVA) },
-    { label: res.roiRowGap, value: `${pct(s.gap)} (${res.roiRowGapNote(pct(s.comp), pct(s.comp + s.gap))})` },
+    { label: res.roiRowGap, value: `${res.indexPct(s.gap)} (${res.roiRowGapNote(res.indexPct(s.comp), res.indexPct(s.comp + s.gap))})` },
     { label: res.roiRowEvaluated, value: `${s.nVal} / ${s.N}` },
   ]
   if (page === 'valore') {

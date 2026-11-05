@@ -10,6 +10,7 @@ import {
   defaultRadarColors,
   type RadarContextValue,
   type RadarData,
+  type RadarHoveredPoint,
   type RadarMetric,
   RadarProvider,
 } from "./radar-context";
@@ -39,6 +40,8 @@ export interface RadarChartProps {
   hoveredIndex?: number | null;
   /** Callback when hover state changes */
   onHoverChange?: (index: number | null) => void;
+  /** Skill Vision: il testo del tooltip di un punto. Assente: nessun tooltip. */
+  pointTooltip?: (seriesIndex: number, metricKey: string) => ReactNode;
   /** Additional class name for the container */
   className?: string;
   /** Child components (RadarGrid, RadarAxis, RadarLabels, RadarArea) */
@@ -60,6 +63,7 @@ interface RadarChartInnerProps {
   children: ReactNode;
   hoveredIndexProp?: number | null;
   onHoverChange?: (index: number | null) => void;
+  pointTooltip?: (seriesIndex: number, metricKey: string) => ReactNode;
 }
 
 function RadarChartInner({
@@ -77,7 +81,9 @@ function RadarChartInner({
   children,
   hoveredIndexProp,
   onHoverChange,
+  pointTooltip,
 }: RadarChartInnerProps) {
+  const [hoveredPoint, setHoveredPoint] = useState<RadarHoveredPoint | null>(null);
   const [internalHoveredIndex, setInternalHoveredIndex] = useState<
     number | null
   >(null);
@@ -160,6 +166,7 @@ function RadarChartInner({
     levels,
     hoveredIndex,
     setHoveredIndex,
+    setHoveredPoint,
     animate,
     enterDurationMs,
     staggerScale,
@@ -171,18 +178,44 @@ function RadarChartInner({
     yScale,
   };
 
+  const tipMetric = hoveredPoint ? metrics[hoveredPoint.metricIndex] : undefined;
+  const tipPosition =
+    hoveredPoint && tipMetric
+      ? getPointPosition(
+          hoveredPoint.metricIndex,
+          data[hoveredPoint.seriesIndex]?.values[tipMetric.key] ?? 0
+        )
+      : null;
+
   return (
     <RadarProvider value={contextValue}>
-      <svg
-        aria-hidden="true"
-        height={size}
-        style={{ overflow: "visible" }}
-        width={size}
-      >
-        <Group left={size / 2} top={size / 2}>
-          {children}
-        </Group>
-      </svg>
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg
+          aria-hidden="true"
+          height={size}
+          style={{ overflow: "visible" }}
+          width={size}
+        >
+          <Group left={size / 2} top={size / 2}>
+            {children}
+          </Group>
+        </svg>
+        {hoveredPoint && tipMetric && tipPosition && pointTooltip ? (
+          <div
+            className={cn(
+              "pointer-events-none absolute z-(--z-popover) w-max max-w-xs -translate-y-full rounded-sm border border-border-strong bg-popover px-3 py-2 text-app-caption text-popover-foreground",
+              tipPosition.x > 0 && "-translate-x-full"
+            )}
+            data-slot="radar-point-tooltip"
+            style={{
+              left: size / 2 + tipPosition.x,
+              top: size / 2 + tipPosition.y - 8,
+            }}
+          >
+            {pointTooltip(hoveredPoint.seriesIndex, tipMetric.key)}
+          </div>
+        ) : null}
+      </div>
     </RadarProvider>
   );
 }
@@ -201,6 +234,7 @@ export function RadarChart({
   className = "",
   hoveredIndex,
   onHoverChange,
+  pointTooltip,
   children,
 }: RadarChartProps) {
   // If fixed size is provided, use it directly
@@ -222,6 +256,7 @@ export function RadarChart({
           metrics={metrics}
           motionReplayKey={motionReplayKey}
           onHoverChange={onHoverChange}
+          pointTooltip={pointTooltip}
           staggerScale={staggerScale}
           width={fixedSize}
         >
@@ -248,6 +283,7 @@ export function RadarChart({
             metrics={metrics}
             motionReplayKey={motionReplayKey}
             onHoverChange={onHoverChange}
+            pointTooltip={pointTooltip}
             staggerScale={staggerScale}
             width={width}
           >

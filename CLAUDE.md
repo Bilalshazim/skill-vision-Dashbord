@@ -546,9 +546,9 @@ benchmark grigio sembrava un secondo dato spento.
 
 | Ruolo | Token | Come |
 |---|---|---|
-| I dati | `chart-mono` | inchiostro: `neutral-800` in chiaro, `neutral-100` in scuro |
+| I dati | `chart-mono` | inchiostro: `neutral-800` in chiaro, `neutral-400` in scuro (corretto il 2026-11-02: con `neutral-100` le barre erano quasi bianche e il lime non spiccava) |
 | Il valore che conta | `chart-highlight` + `chart-highlight-stroke` | lime pieno con bordo scuro di 1,5px in chiaro; **uno per grafico**: la persona contro il gruppo, l'area più critica, il valore di oggi in un andamento |
-| Benchmark, valore atteso | `chart-reference` | linea o segno **tratteggiato** con il nome scritto ("Benchmark 7,0"). **Mai una seconda barra** né una seconda linea piena |
+| Benchmark, valore atteso | `chart-reference` (`neutral-500` in chiaro, `neutral-200` in scuro) | linea o segno **tratteggiato** con il nome scritto ("Benchmark 7,0"). **Mai una seconda barra** né una seconda linea piena |
 | Due serie di dati vere (non un riferimento) | `chart-mono` + `chart-1` | inchiostro per quella in primo piano, petrolio per l'altra, etichette dirette |
 | Tre o più serie | `chart-1`…`chart-6` | famiglia categorica, nell'ordine dato |
 | Fasce | `success` / `warning` / `destructive` | colori di stato, sempre con la parola |
@@ -772,7 +772,7 @@ approfondimenti. Nessun calcolo su RAL e punteggio finché la regola non c'è.
 |---|---|
 | Perché è importante | «Sapere dove sono i problemi serve a poco senza un ordine. Qui gli interventi sono in fila: da dove partire e quante persone riguardano.» |
 | 1 · La situazione oggi | Frase: «[N] persone hanno un intervento previsto. Il più frequente è [tipo].» Grafico: **Bar Chart** orizzontale di Bklit, persone per tipo di intervento (Formazione, Coaching, Riorganizzazione, Talento), barre in `chart-mono`, la più lunga in `chart-highlight`; un tipo a zero resta con «0». Una persona con più interventi conta una volta nel [N] della frase. Con i dati dimostrativi: 5 · 4 · 2 · 0. |
-| 2 · Criticità e opportunità | Tre riquadri. «Da seguire subito»: [N] persone nella fascia Critici, link all'elenco. «Colloqui di restituzione da fare»: [N], da Piani di sviluppo. «Mansione da cui partire»: la mansione con la distanza maggiore dall'atteso, «[x] punti sotto l'atteso». Riga: «L'opportunità: [tipo più frequente] riguarda [N] persone: un solo programma copre la parte più grande del lavoro.» |
+| 2 · Criticità e opportunità | Tre riquadri. «Da seguire subito»: [N] persone nella fascia Critici, link all'elenco. «Colloqui di restituzione da fare»: [N], da Piani di sviluppo. «Mansione da cui partire»: la mansione con la distanza maggiore dall'atteso, «[x] punti sotto l'atteso». Riga: «L'opportunità: [tipo più frequente] riguarda [N] persone su [totale con un intervento]: un solo programma le segue tutte.» (Corretto il 2026-11-02: la versione precedente diceva «la parte più grande del lavoro», falso con 5 su 11.) |
 | 3 · L'impatto | Percentuale: persone con almeno un intervento sulle persone valutate, «delle persone ha un intervento previsto». ⓘ «Le persone con almeno un intervento nel piano di sviluppo, sul totale delle persone valutate: [N] su [totale].» Euro: «€ [—] · In attesa della formula · di costi evitabili l'anno con gli interventi, stima». |
 | 4 · Cosa ti suggeriamo di fare | «Cominciare dalle persone critiche, poi i colloqui di restituzione. I compiti con i nomi sono nella Panoramica; per costruire il piano puoi interpellare il Senior Advisor.» Link «Vai alla Panoramica →». |
 | Approfondimenti | Piani di sviluppo · Panoramica |
@@ -914,8 +914,9 @@ Regole:
 Schema, dall'alto, in sezioni con `PageHeader` di sezione:
 
 1. **Intestazione** — `PageHeader` "Panoramica", società attiva, data
-   dell'ultimo aggiornamento dei dati. In Assessment il selettore CT / CP /
-   Completo sta nelle azioni dell'intestazione, come ToggleGroup normale.
+   dell'ultimo aggiornamento dei dati. Il selettore CT / CP / Completo **non
+   è della Panoramica**: vale per tutto Assessment (sotto, «Selettore CT / CP
+   / Completo»).
 2. **Stato attuale** — una riga di 4 StatCard, **4 per riga** sopra i 1024px
    (non 2×2 a mezza riga), ognuna con il suo grafico dove il dato ne ha uno.
 3. **Da fare adesso** — elenco di righe (testo a sinistra, conteggio, link
@@ -943,8 +944,10 @@ EmptyState che dice cosa comparirà e come (per esempio "Nessun test
 completato. I risultati compaiono qui quando le persone completano i test").
 Il fornitore dei test non si nomina mai a schermo (sotto, "Testi").
 
-Il punteggio complessivo resta "in attesa" finché il cliente non dà la formula
-di conversione sulla scala 1–10 (cap. 7, 2026-10-02).
+Il punteggio complessivo era "in attesa" della formula di conversione sulla
+scala 1–10 (cap. 7, 2026-10-02). **Superato il 2026-11-04:** soft skill e
+competenze professionali sono già tutte e due da 1 a 10; il complessivo è la
+media delle due, con lo stesso peso, e si mostra.
 
 Roberto ha accettato la Panoramica come pagina del menu, non come ingresso
 (2026-10-23): "può andare sull'indice che cliccandola si apre ma non può essere
@@ -1103,6 +1106,175 @@ Come deve essere:
 
 Il menu di Assessment: **Home** (prima voce, le quattro finestre),
 **Panoramica** (seconda voce, Sintesi e Dettaglio), poi come oggi.
+
+**Le pagine dei risultati nel menu** — deciso il 2026-11-02, dopo la verifica
+in produzione: aperta una pagina dei risultati, nel menu non era attiva
+nessuna voce, e per passare da una finestra all'altra bisognava tornare alla
+home.
+
+- **Assessment**: Home diventa un gruppo come Area valutazioni, con sotto le
+  quattro pagine: Il valore · Le perdite invisibili · Il potenziale · Dove
+  intervenire. «Home» apre la home; la voce della pagina aperta è attiva.
+- **Recruiting**: il titolo di ogni livello («Chi cerchiamo? · Livello 1» e
+  così via) apre la **pagina dei risultati** del livello, come la card del
+  Profilo della ricerca. Sotto restano le voci dell'indice di Roberto, con la
+  pagina principale per prima (Profilo candidato, Risultati, Migliori
+  candidati). Aperta una pagina dei risultati, è attivo il titolo del livello.
+
+**Tavole del 2–4 novembre 2026 — da costruire.** Decise con Roberto il
+2026-11-03 e il 2026-11-04. Tela «Skill-Vision · Benvenuto», riga «2 novembre».
+Dove una tavola e questo testo non coincidono, vale questo testo.
+
+- **Home di Assessment: la tavola «Home · senza dati»** (Roberto,
+  2026-11-03). Finestre a tutta altezza, visibili all'apertura; in ognuna
+  l'etichetta con numero e tema (01 · Rendimento, 02 · Costi, 03 · Talenti,
+  04 · Azioni), il numero grande in filigrana, titolo, sottotitolo e domanda.
+  **Nessun dato e nessun grafico in home**: i dati compaiono entrando nella
+  finestra. All'apertura le finestre compaiono una dopo l'altra con una
+  dissolvenza breve (nessuna con `prefers-reduced-motion`). Al passaggio del
+  mouse cambiano **solo il fondo e il bordo**, leggeri: nessuna ombra, nessuno
+  spostamento, nessuna freccia che si muove. La tavola «Home · con i dati» è
+  scartata.
+- **Una scala sola, da 1 a 10**, per soft skill e competenze professionali
+  (confermato dal comitato scientifico tramite Roberto il 2026-11-04; annulla
+  la «scala da 1 a 8» del 2026-11-02). Nessuna conversione: il punteggio
+  complessivo è la media delle due parti con lo stesso peso, e non resta più
+  «in attesa» per la scala.
+- **In cima a ogni confronto, la classifica di adattamento al ruolo**
+  (Roberto: «non è facile capire chi è il miglior candidato»). Per ogni
+  persona l'indice a 100 sulle competenze del ruolo, dal più alto; una frase
+  calcolata che dice chi è più adatto, o «testa a testa» se la distanza è di
+  3 punti o meno; barre piene nel colore della persona; l'atteso 100 come
+  linea tratteggiata con il nome; per chi supera 100 un'etichetta lime con lo
+  scarto («+6»). Nessuno sfondo colorato oltre l'atteso.
+- **Confronto a 2**: una riga per competenza con due punti uniti da un tratto
+  (cerchio e rombo), selettore «Competenze del ruolo · 12 / Tutte · 35»,
+  radar solo sulle competenze del ruolo. **Colori caldi: ambra (`chart-3`)
+  per la prima persona, magenta (`chart-2`) per la seconda** — eccezione alla
+  regola «due serie = `chart-mono` + `chart-1`», solo per questo confronto. Le
+  due persone si distinguono anche per forma e tratto, non solo per colore.
+- **Confronto fino a 5**: sotto la classifica, tre grafici sugli stessi dati.
+  **Radar a stella sulle competenze del ruolo** (aree piene, pallini sui
+  vertici), **barre a gruppi**
+  (un riquadro per area, ordinato dal più alto) e **heatmap delle 35
+  competenze**, con ogni colonna nel colore della persona, intensità secondo
+  il valore, il numero sempre scritto e il valore più alto della riga con il
+  bordo scuro. Una persona per colore, la stessa in tutti e tre. Clic su un
+  nome: la persona resta in evidenza, le altre si attenuano. Niente grafico a
+  linee per questo confronto.
+- **Dove intervenire · grafico a flussi** (Sankey di Bklit): dalle fasce a cosa
+  prevede il piano di sviluppo. Con i dati di oggi solo «colloquio di
+  restituzione / nessun intervento»: il tipo di intervento (Formazione,
+  Coaching, Riorganizzazione, Talento) per persona non c'è. **Bilal: dimmi da
+  dove vengono i conteggi 5 · 4 · 2 · 0 e se esiste il dato per persona.**
+- **Area o linea.** Area (con la sfumatura di Bklit) per **una serie sola nel
+  tempo**: andamento del punteggio, CV ricevuti, sparkline. Linea con due o
+  più serie, che con l'area si coprono. Nelle pagine di analisi l'asse di
+  un'area parte dal fondo della scala; tagliarlo è ammesso solo nella home.
+- **Sparkline** (Bklit, «KPI cards») solo per un numero che ha uno storico vero
+  (oggi: il punteggio organizzativo; le candidature hanno una data). Mai una
+  serie inventata per riempire un riquadro.
+- **Radar: la versione con i pallini sui vertici** (`RadarArea` con
+  `showPoints`, il predefinito di Bklit), così al passaggio del mouse si
+  legge il valore di ogni punto. Non le varianti «Minimal», «Hexagon» o
+  «Single Series», che i pallini li tolgono. Nel confronto a 2 il secondo
+  profilo ha i pallini a rombo, come nelle righe.
+- **Sottofattori** (Socievolezza, Cordialità…): si mostrano, ma **a parte**,
+  nel profilo della persona; i numeri dei confronti vengono solo dalle 35 soft
+  skill (Roberto, 2026-11-03). Verifica se arrivano già da Original Skills: se
+  non ci sono, il blocco non c'è, e dimmelo.
+- **Grafico radiale di Bklit: non si usa** per ora. È dichiarato sperimentale
+  e serve per dati ciclici, che non abbiamo.
+
+**Selettore CT / CP / Completo — da ripristinare (2026-11-03).** Con il
+rilascio del 30 ottobre è rimasto solo nella Panoramica; Roberto l'ha visto
+sparire e non l'aveva chiesto. Torna **dov'era prima del rilascio** (stessa
+posizione, stesso comportamento: lo ritrovi nella cronologia del repository) e
+vale per **tutto Assessment**, home e pagine dei risultati comprese. La scelta
+resta mentre si naviga. Se il cliente ha acquistato un solo pacchetto, il
+selettore mostra solo quello.
+
+**Euro dal motore ROI — approvato da Roberto il 2026-11-03.** La dashboard usa
+le **stesse formule** del motore ROI (roi.skill-vision.it), in automatico: un
+solo modulo di calcolo, usato da tutti e due, così una formula corretta vale
+ovunque. Il documento «Formule % in €» non è la fonte.
+
+- **Dati in ingresso**: voci del bilancio dal file di Credit Save, caricato una
+  volta in **Dati aziendali**; dipendenti e
+  persone valutate da Anagrafica e valutazioni; valore delle competenze,
+  divario dall'atteso e copertura dei ruoli dai risultati dell'assessment;
+  compenso, turnover e assenze inseriti a mano nella stessa pagina.
+- **Il periodo del bilancio**: se l'esercizio non dura 12 mesi (cambio di
+  data di chiusura), il calcolo lo segnala e riporta i valori all'anno. Mai un
+  periodo parziale usato come annuo.
+- **Etichette**: quelle del motore («potenziale, non perdita in corso»,
+  «stima», «verificabile a consuntivo», scenari prudenziale · base ·
+  espansivo). L'importo da leggere come obiettivo è quello di Dove intervenire,
+  lo scenario base; gli altri tre sono ordini di grandezza, con la riga «gli
+  importi non si sommano». Ogni cifra porta a «Come è calcolato».
+- **L'atteso**: si fissa dopo la prima misurazione e **non cambia per tutto il
+  periodo del Patto**. A schermo solo il valore. Data, criterio e chi l'ha
+  fissato si registrano nel sistema, senza mostrarli.
+- **Indice a 100** (nelle quattro finestre e nelle pagine dei risultati; i
+  punteggi restano nelle pagine tecniche): 100 = la persona raggiunge l'atteso
+  su tutte le competenze scelte per il suo ruolo, soft e professionali. Tooltip:
+  «100 = la persona raggiunge il livello atteso su tutte le competenze scelte
+  per il suo ruolo. 109 = lo supera in media del 9%.» **Formula di Roberto
+  (2026-11-05): somma dei valori rilevati ÷ somma dei valori attesi × 100**
+  sulle competenze del ruolo (non la media dei rapporti); gap di adeguatezza =
+  valore espresso − 100. Soft e professionali con lo stesso peso (nessun peso
+  per ora: in futuro un'opzione). Nomi a schermo: «Valore espresso rispetto al
+  ruolo» (85%) e «Gap di adeguatezza» (−15%), senza decimali; il valore esatto
+  resta nel calcolo e nel ROI. Oltre 100% è un'eccedenza, non un errore.
+  Verso il ROI vanno solo tre dati: valore %, gap medio %, copertura ruoli %.
+
+**Verifica in produzione del 2026-11-02 — correzioni:**
+
+- **«Le perdite invisibili» con i testi della tavola**, non riscritti:
+  - Perché è importante: «Sono costi che non compaiono in bilancio: le persone
+    ci sono e sono pagate, ma una parte del loro valore si disperde in
+    inefficienze e competenze che mancano.»
+  - 1: «[N] aree restano sotto quello che chiede la loro mansione. La distanza
+    maggiore è in [area].» ⓘ sul grafico: «L'atteso è il punteggio che la
+    mansione richiede: 7,0 su 10. La barra dice di quanto le persone di
+    un'area ne restano sotto, in media: più è lunga, più l'area è lontana.»
+  - 2: etichette «Area più lontana · Mansione più a rischio · Competenza più
+    debole». Riga: «L'opportunità: partire dall'area più lontana dà un
+    ordine agli interventi.» (Sostituisce la frase della tavola, «la distanza
+    è concentrata in poche mansioni»: con 4 aree su 6 sotto l'atteso non è
+    dimostrata.)
+  - 3: ⓘ «Le persone nelle fasce Da potenziare e Critici, sul totale delle
+    persone valutate: [N] su [totale].»
+  - 4: «Partire da [area], e dentro l'area dalla mansione di [mansione]. Le
+    azioni sono in Dove intervenire. Per scegliere da dove cominciare puoi
+    interpellare il Senior Advisor.»
+  - Approfondimenti: Competenze trasversali · Competenze professionali: le 5
+    P · Risultati Valutazioni Professionali.
+  - Vietata ogni frase che dica quanto «pesa» un'area sul totale
+    («la parte più grande della perdita»): i dati non lo dimostrano.
+- **Le etichette dei riquadri sono neutre** (`muted-foreground`, stile label).
+  Il colore di stato solo sulle fasce, con la parola: un riquadro di
+  criticità non è una fascia.
+- **La mansione si mostra con il suo nome** («Responsabile assistenza
+  clienti»), non con la descrizione («Attività operative e di supporto per
+  responsabile assistenza clienti»). Vale in tutte le pagine che elencano
+  persone.
+- **Recruiting ha bisogno di dati dimostrativi.** La posizione attiva della
+  demo non ha CV, quindi le pagine mostrano solo stati vuoti. Serve una
+  posizione dimostrativa di Acme con candidati in tutti e cinque gli stati,
+  test completati e in attesa, almeno due finalisti e un colloquio in
+  programma, caricata con lo stesso meccanismo dei dati dimostrativi di
+  Assessment. **Non con il seed in produzione.** Solo per la società demo.
+- **L'Assistente IA legge la posizione attiva**, non l'archivio descritto come
+  «Sales Account Manager» (`ask.ts`): è lo stesso difetto della posizione
+  unica.
+- **«Colloquio di restituzione necessario»** compare solo dove l'interruttore
+  è attivo; spento, l'etichetta dice lo stato vero.
+- **Il codice «ma1»** non compare a schermo: ogni competenza con il suo nome
+  italiano.
+- **Manager: nessuna frase dice che sono esclusi** finché non c'è il criterio.
+  Nei dati dimostrativi ci sono un capo linea (Alto potenziale) e una
+  responsabile assistenza clienti (Critici).
 
 **Barre di scorrimento** — 2026-10-26: oggi sono quelle del sistema
 operativo (larghe 15px, grigie), fuori dal design. Diventano sottili, neutre,
@@ -1463,6 +1635,48 @@ Lo script non vede il contrasto reale, perché dipende dal fondo su cui il testo
 appoggia davvero e non da quello della pagina. Quel controllo si fa a
 applicazione avviata, con lo snippet in coda allo script, incollato nella
 console del browser su ogni schermata e in entrambe le modalità.
+
+### Prima di scrivere «fatto» — obbligatorio (2026-11-05)
+
+Il resoconto va al cliente e allo studio, che **non fanno il collaudo**. Il
+rilascio del 4 novembre è arrivato con errori visibili al primo clic: i menu
+«Cambia» e «+ Aggiungi» dei confronti si aprivano vuoti, i due pulsanti di un
+selettore erano accesi insieme, il passaggio del mouse non mostrava niente, il
+pulsante «Carica dati dimostrativi» stava nel menu di produzione. Non deve
+ripetersi.
+
+Un punto è «fatto» solo quando, **dopo la pubblicazione e in produzione**, è
+stato provato così:
+
+1. **Controlli del codice**: `audit-identita.mjs`, typecheck, lint, build, test.
+   Sono il minimo, non la prova.
+2. **Ogni pagina toccata si apre nel browser** (con l'automazione del browser
+   se disponibile) con l'account demo, e si usa come la userebbe il cliente:
+   - **ogni menu a tendina si apre e ha voci**; scegliendone una la pagina
+     cambia;
+   - **ogni selettore ha una sola opzione attiva**, e cambiandola cambiano i
+     dati;
+   - **ogni link porta dove deve**, e la voce del menu attiva è quella giusta;
+   - **il passaggio del mouse mostra il valore** su ogni punto, barra e casella
+     dei grafici;
+   - **clic sugli elementi interattivi** (nomi da evidenziare, pulsanti,
+     schede): fanno quello che dicono;
+   - **modalità chiara e scura**, e **larghezza da telefono** (390px): niente
+     testo tagliato, niente sovrapposizioni, niente scorrimento orizzontale;
+   - **con dati e senza dati**: gli stati vuoti dicono cosa comparirà.
+3. **Confronto con la tavola** di riferimento sulla tela: struttura, testi,
+   colori, ordine. Ogni differenza o è voluta e scritta in DECISIONI, o si
+   corregge.
+4. **Niente strumenti di lavoro a schermo**: pulsanti di debug, di caricamento
+   demo, di reset, catalogo componenti. Stanno solo nell'account demo, in una
+   pagina di amministrazione.
+5. **Ogni frase del resoconto è verificata**: non si scrive che una cosa
+   succede («i manager non compaiono») se non c'è il modo di controllarlo.
+
+Nel resoconto, **per ogni punto, una riga su come è stato verificato in
+produzione** (pagina, azione fatta, risultato). Quello che non è stato
+provato, o non funziona, si scrive «non fatto» con il motivo: un «non fatto»
+dichiarato vale più di un «fatto» che si rompe al primo clic.
 
 ---
 

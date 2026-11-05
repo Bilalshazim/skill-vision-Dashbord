@@ -1,21 +1,24 @@
 import { Card } from '@/components/ui/card'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 export type RoleFitRow = { id: string; name: string; meta?: string; value: number; color: string }
 
-// In cima a ogni confronto, la classifica di adattamento al ruolo (CLAUDE.md,
-// Fase 6, tavole del 2–4 novembre): dal più alto, barra piena nel colore della
-// persona, l'atteso 100 tratteggiato con il nome, un'etichetta lime con lo scarto
+// In cima a ogni confronto, la classifica del valore espresso rispetto al ruolo
+// (CLAUDE.md, Fase 6, tavole del 2–4 novembre): dal più alto, barra piena nel colore della
+// persona, l'atteso 100% tratteggiato con il nome, un'etichetta lime con lo scarto
 // per chi lo supera. Nessuno sfondo colorato oltre l'atteso. Barre in HTML, non
 // Bklit: una barra per persona con il suo colore e il suo nome (DECISIONI).
 // `focus`: la persona in evidenza; le altre si attenuano. Il clic sul nome la
-// sceglie. `ranked`: la posizione accanto al nome, nel confronto fino a cinque.
+// sceglie. `ranked`: la posizione a sinistra del nome. `valueLabel`: il nome del
+// dato, nel tooltip della barra («Nome · Valore espresso rispetto al ruolo: 98%»).
 export function RoleFitRanking({
   label,
   sentence,
   note,
   rows,
   referenceLabel,
+  valueLabel,
   ranked = false,
   focus,
   onFocus,
@@ -26,6 +29,7 @@ export function RoleFitRanking({
   note?: string
   rows: RoleFitRow[]
   referenceLabel: string
+  valueLabel: string
   ranked?: boolean
   focus?: string | null
   onFocus?: (id: string) => void
@@ -52,13 +56,18 @@ export function RoleFitRanking({
                 </button>
               </span>
               <div className="flex items-center gap-3 sm:col-span-4">
-                <div className="relative h-6 min-w-0 flex-1 rounded-xs bg-muted">
-                  <div className="h-full rounded-xs" style={{ width: `${(r.value / scale) * 100}%`, background: r.color }} />
-                  <span aria-hidden="true" className="absolute inset-y-0 border-l border-dashed border-foreground" style={{ left: referenceAt }} />
-                </div>
-                <span className="flex w-20 shrink-0 items-center justify-end gap-2">
-                  {over > 0 ? <span className="rounded-md bg-primary px-2 text-app-caption font-medium text-primary-foreground">+{over}</span> : null}
-                  <span className="text-app-subtitle font-semibold tabular-nums text-foreground">{r.value}</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div data-slot="role-fit-bar" className="relative h-6 min-w-0 flex-1 rounded-xs bg-muted">
+                      <div className="h-full rounded-xs" style={{ width: `${(r.value / scale) * 100}%`, background: r.color }} />
+                      <span aria-hidden="true" className="absolute inset-y-0 border-l border-dashed border-foreground" style={{ left: referenceAt }} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>{`${r.name} · ${valueLabel}: ${r.value}%`}</TooltipContent>
+                </Tooltip>
+                <span className="flex w-24 shrink-0 items-center justify-end gap-2">
+                  {over > 0 ? <span className="rounded-md bg-primary px-2 text-app-caption font-medium text-primary-foreground">+{over}%</span> : null}
+                  <span className="text-app-subtitle font-semibold tabular-nums text-foreground">{r.value}%</span>
                 </span>
               </div>
             </li>
@@ -74,7 +83,7 @@ export function RoleFitRanking({
               {referenceLabel}
             </span>
           </div>
-          <span className="w-20 shrink-0" />
+          <span className="w-24 shrink-0" />
         </div>
       </div>
     </Card>

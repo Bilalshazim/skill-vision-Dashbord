@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowLeftRight, Brain, ChevronDown, ClipboardList, Coins, FileText, Home, LayoutDashboard, type LucideIcon, MessageSquareText, RotateCcw, Sparkles, Upload, Users, Wrench } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
 import { CompanySwitcher } from '@/components/patterns/CompanySwitcher'
 import {
@@ -19,10 +19,9 @@ import {
 } from '@/components/ui/sidebar'
 import { useConfirm } from '@/hooks/use-confirm'
 import { assessmentApi } from '@/lib/api/assessment'
-import { isDemoMode } from '@/lib/demo-mode'
+import { isDemoAccount, isDemoMode } from '@/lib/demo-mode'
 import { MethodologyModal } from '@/modules/assessment/components/MethodologyModal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
-import { generateDemoData } from '@/modules/assessment/lib/demo-data'
 import { getNavConfig } from '@/modules/assessment/lib/legacy-utils'
 import { errorReason } from '@/modules/assessment/lib/server-sync'
 import { clearBrowserAssessment, readBrowser5p, readBrowserAssessment } from '@/modules/assessment/lib/browser-import'
@@ -39,24 +38,23 @@ const ICONS: Record<string, LucideIcon> = {
   value: Coins,
   feedback: MessageSquareText,
   ai: Sparkles,
-  refresh: RotateCcw,
   transfer: ArrowLeftRight,
 }
 const iconFor = (name?: string) => (name && ICONS[name]) || ClipboardList
 
 // Il contenuto della barra laterale di Assessment nel guscio unico. Stesse
 // voci, stesse sezioni, l'evidenziazione per vista (CT/CP) al posto del filtro per modulo, stesso contatore dei
-// piani di sviluppo, stesse voci-azione (Note metodologiche, Reset demo) di
-// prima; il Reset demo compare solo in demo (lib/demo-mode.ts). In testa la
+// piani di sviluppo, stessa voce-azione (Note metodologiche) di prima. Gli strumenti
+// demo stanno in Amministrazione → Dati dimostrativi, solo per l'account demo
+// (CLAUDE.md §9). In testa la
 // società (struttura gruppo → società: oggi Assessment ne conosce una, il
 // nome dalle impostazioni del modulo); in fondo il conteggio dei dipendenti.
 export function AssessmentNav() {
-  const { lang, ui, state, canEdit, isAdmin, toast, companies, company, setCompanyId, retry } = useAssessment()
+  const { lang, ui, state, isAdmin, toast, companies, company, setCompanyId } = useAssessment()
   const queryClient = useQueryClient()
   const [busy, setBusy] = useState(false)
   const [confirm, confirmDialog] = useConfirm()
   const location = useLocation()
-  const navigate = useNavigate()
   // Il confronto è una vista dei risultati trasversali: nel menu resta accesa quella voce.
   const pathPage = location.pathname.split('/')[2] || 'home'
   const currentPage = pathPage === 'confronto' ? 'soft-risultati' : pathPage
@@ -87,29 +85,6 @@ export function AssessmentNav() {
     return e === 'on' ? 'font-semibold text-sidebar-foreground' : e === 'off' ? 'text-sidebar-foreground/45 hover:text-sidebar-foreground' : undefined
   }
   const feedbackBadge = state.employees.filter((e) => e.feedbackNeeded).length
-
-  async function resetDemo() {
-    if (!canEdit) {
-      toast(ui.viewerReadOnly, 'err')
-      return
-    }
-    if (!(await confirm({ title: ui.resetDemo, description: ui.confirmResetDemo, confirmLabel: ui.resetDemo, cancelLabel: ui.confirmCancel, destructive: true }))) return
-    if (!company) return
-    // Si tolgono i dati della società demo sul server e si importano quelli di prova.
-    setBusy(true)
-    try {
-      await assessmentApi.resetDemo(company.id)
-      await assessmentApi.importState(company.id, generateDemoData(), false)
-      await queryClient.invalidateQueries({ queryKey: ['assessment', 'state', company.id] })
-    } catch (err) {
-      toast(ui.serverSaveFailed(errorReason(err, ui.serverOffline)), 'err')
-      retry()
-      return
-    } finally {
-      setBusy(false)
-    }
-    navigate('/assessment/home')
-  }
 
   // Una volta per società: i dati che le versioni precedenti tenevano in questo
   // browser vanno sul server (decisione 4 del 2026-10-14) e poi si cancellano
@@ -150,8 +125,7 @@ export function AssessmentNav() {
   }
 
   // Raggruppa per sezione: una voce `section` apre un gruppo con etichetta.
-  // Un gruppo che resterebbe vuoto (es. "Strumenti amministrazione" fuori
-  // dalla demo) non compare.
+  // Un gruppo che resterebbe vuoto non compare.
   type Entry = (typeof nav)[number]
   const groups: { label?: string; entries: Entry[] }[] = [{ entries: [] }]
   for (const entry of nav) {
@@ -175,9 +149,8 @@ export function AssessmentNav() {
       )
     }
     if (entry.type === 'action') {
-      if (entry.action === 'confirmResetDemo' && !demo) return null
       const Icon = iconFor(entry.icon)
-      const handler = entry.action === 'openMethodologyModal' ? () => setShowMethodology(true) : entry.action === 'confirmResetDemo' ? resetDemo : undefined
+      const handler = entry.action === 'openMethodologyModal' ? () => setShowMethodology(true) : undefined
       return (
         <SidebarMenuItem key={entry.id}>
           <SidebarMenuButton type="button" onClick={handler} disabled={!handler || busy}>
@@ -252,6 +225,21 @@ export function AssessmentNav() {
             </SidebarGroup>
           )
         })}
+        {isDemoAccount() ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>{ui.res.adminLabel}</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/recruiting/admin/dati-dimostrativi">
+                    <RotateCcw aria-hidden="true" />
+                    <span className="min-w-0 flex-1">{ui.res.demoBadge}</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        ) : null}
         {browserData ? (
           <SidebarGroup>
             <SidebarMenu>

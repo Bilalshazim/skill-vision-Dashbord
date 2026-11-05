@@ -47,7 +47,7 @@ export type ResultsImpact = {
   euroNote?: string
   /** La cifra del motore ROI. Assente: il segnaposto «In attesa della formula». */
   euro?: ResultsEuro
-  /** L'indice a 100 dell'azienda, con il suo tooltip. */
+  /** Il valore espresso rispetto al ruolo, in percentuale intera, con il suo tooltip. */
   index?: { value: number | null; label: string; hint: ReactNode }
 }
 
@@ -62,7 +62,7 @@ export type ResultsImpact = {
 //
 // Riceve tutto già calcolato: le frasi con i numeri si fanno dai dati nella
 // pagina, qui si dispongono. `empty` sostituisce le sezioni 1–3 (nessun test
-// completato) o tutte e quattro (`scope: 'all'`, contenuto in preparazione).
+// completato) o tutte e quattro (`scope: 'all'`).
 // Gli euro sono un segnaposto dichiarato finché Roberto non dà la formula.
 export function ResultsPage({
   crumbs,
@@ -115,7 +115,7 @@ export function ResultsPage({
       {impact.index ? (
         <div className="flex flex-col gap-1">
           <p className="flex items-center gap-2">
-            <span className="text-site-h2 tabular-nums text-foreground md:text-site-h1">{impact.index.value ?? '—'}</span>
+            <span className="text-site-h2 tabular-nums text-foreground md:text-site-h1">{impact.index.value == null ? '—' : `${impact.index.value}%`}</span>
             <InfoTip label={`Che cosa misura: ${impact.index.label}`}>{impact.index.hint}</InfoTip>
           </p>
           <p className="text-app-body text-foreground">{impact.index.label}</p>

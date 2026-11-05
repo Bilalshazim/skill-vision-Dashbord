@@ -23,6 +23,7 @@ const RecruitingHome = lazy(() => import('@/modules/recruiting/RecruitingHome'))
 const RecruitingPanoramicaPage = lazy(() => import('@/modules/recruiting/RecruitingPanoramicaPage'))
 const CipAdminPage = lazy(() => import('@/modules/recruiting/admin/CipAdminPage'))
 const EmailConfigAdminPage = lazy(() => import('@/modules/recruiting/admin/EmailConfigAdminPage'))
+const DemoDataAdminPage = lazy(() => import('@/modules/recruiting/admin/DemoDataAdminPage'))
 const OriginalSkillsPreviewPage = lazy(() => import('@/modules/recruiting/admin/OriginalSkillsPreviewPage'))
 const AskPage = lazy(() => import('@/modules/recruiting/ask/AskPage'))
 const CvExportPage = lazy(() => import('@/modules/recruiting/cv-export/CvExportPage'))
@@ -146,6 +147,8 @@ function App() {
                 <Route path="admin/cip" element={<CipAdminPage />} />
                 <Route path="admin/email" element={<EmailConfigAdminPage />} />
                 <Route path="admin/comitato-scientifico" element={<OriginalSkillsPreviewPage />} />
+                {/* Solo l'account demo: per gli altri la pagina rimanda al Profilo della ricerca. */}
+                <Route path="admin/dati-dimostrativi" element={<DemoDataAdminPage />} />
                 {/* Il vecchio indirizzo (preferiti): stessa pagina, nome nuovo. */}
                 <Route path="admin/original-skills" element={<Navigate to="/recruiting/admin/comitato-scientifico" replace />} />
                 <Route path="evaluate" element={<RecruitingEvaluatePage />} />

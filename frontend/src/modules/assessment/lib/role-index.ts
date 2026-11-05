@@ -2,12 +2,15 @@ import { computeHardSummary, evaluatedEmployees } from '@/modules/assessment/lib
 import { getSoftSkills, type AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import type { AssessmentState, Employee } from '@/modules/assessment/lib/types'
 
-// L'indice a 100 (CLAUDE.md, Fase 6, "Euro dal motore ROI", Roberto 2026-11-03):
-// 100 = la persona raggiunge l'atteso su tutte le competenze scelte per il suo
-// ruolo. Per ogni competenza rilevato ÷ atteso × 100, poi la media; soft e
-// professionali con lo stesso peso. La scala è una sola, da 1 a 10, per tutte e
-// due (comitato scientifico, 2026-11-04). I confronti fra persone usano solo la
-// parte soft sulle competenze del ruolo; i sottofattori non entrano mai.
+// Il valore espresso rispetto al ruolo (CLAUDE.md, Fase 6, "Euro dal motore ROI",
+// formula di Roberto, 2026-11-05): somma dei valori rilevati ÷ somma dei valori
+// attesi × 100 sulle competenze del ruolo, non la media dei rapporti. 100 = la
+// persona raggiunge l'atteso su tutte; oltre 100 è un'eccedenza, non un errore. Ogni
+// competenza, soft o professionale, conta uguale: nessun peso per ora. Una
+// competenza non ancora misurata non entra in nessuna delle due somme. La scala è
+// una sola, da 1 a 10 (comitato scientifico, 2026-11-04). I valori qui sono esatti:
+// si arrotondano solo a schermo. I confronti fra persone usano solo la parte soft
+// sulle competenze del ruolo; i sottofattori non entrano mai.
 
 /** L'atteso delle competenze professionali: lo stesso benchmark della Panoramica. */
 const HARD_EXPECTED = 7
@@ -29,40 +32,61 @@ export function expectedSoft(state: AssessmentState, emp: Employee, role: string
   return state.roleProfiles[role]?.skillExpected?.[id] ?? emp.soft[id]?.atteso ?? 8
 }
 
-const mean = (l: number[]) => l.reduce((n, v) => n + v, 0) / l.length
+type Totals = { got: number; expected: number }
 
-/** La media di rilevato ÷ atteso × 100 sulle competenze indicate. `null` se nessuna è stata misurata. */
-export function softIndex(state: AssessmentState, emp: Employee, role: string, ids: string[]): number | null {
-  const parts = ids
-    .map((id) => {
+const ratio = ({ got, expected }: Totals) => (expected > 0 ? (got / expected) * 100 : null)
+const addTotals = (a: Totals, b: Totals): Totals => ({ got: a.got + b.got, expected: a.expected + b.expected })
+
+function softTotals(state: AssessmentState, emp: Employee, role: string, ids: string[]): Totals {
+  return ids.reduce<Totals>(
+    (t, id) => {
       const got = emp.soft[id]?.ottenuto ?? 0
       const expected = expectedSoft(state, emp, role, id)
-      return got > 0 && expected > 0 ? (got / expected) * 100 : null
-    })
-    .filter((v): v is number => v != null)
-  return parts.length ? mean(parts) : null
+      return got > 0 && expected > 0 ? addTotals(t, { got, expected }) : t
+    },
+    { got: 0, expected: 0 },
+  )
 }
 
-function hardIndex(emp: Employee, lang: AssessmentLang): number | null {
+function hardTotals(emp: Employee, lang: AssessmentLang): Totals {
   const hasHard = Object.values(emp.hard || {}).some((src) => Object.values(src || {}).some((v) => v > 0))
-  if (!hasHard) return null
+  if (!hasHard) return { got: 0, expected: 0 }
   const dims = computeHardSummary(emp, lang).dims.filter((d) => d.mediaTotale > 0)
-  return dims.length ? mean(dims.map((d) => (d.mediaTotale / HARD_EXPECTED) * 100)) : null
+  return { got: dims.reduce((n, d) => n + d.mediaTotale, 0), expected: dims.length * HARD_EXPECTED }
 }
 
-/** L'indice di una persona nella vista scelta (CT, CP o Completo). Un ruolo senza competenze scelte usa tutte le 35. */
-export function personIndex(emp: Employee, state: AssessmentState, lang: AssessmentLang): number | null {
+/** Le due somme di una persona nella vista scelta (CT, CP o Completo). Un ruolo senza competenze scelte usa tutte le 35. */
+function personTotals(emp: Employee, state: AssessmentState, lang: AssessmentLang): Totals {
   const m = state.settings.modulo
   const skills = roleSkills(state, emp.ruolo, lang)
   const ids = skills.length ? skills.map((s) => s.id) : getSoftSkills(lang).map((s) => s.id)
-  const parts = [m !== 'B' ? softIndex(state, emp, emp.ruolo, ids) : null, m !== 'A' ? hardIndex(emp, lang) : null].filter((v): v is number => v != null)
-  return parts.length ? Math.round(mean(parts)) : null
+  const soft = m !== 'B' ? softTotals(state, emp, emp.ruolo, ids) : { got: 0, expected: 0 }
+  return m !== 'A' ? addTotals(soft, hardTotals(emp, lang)) : soft
 }
 
-/** L'indice dell'azienda: la media delle persone valutate. */
-export function orgIndex(state: AssessmentState, lang: AssessmentLang): number | null {
-  const all = evaluatedEmployees(state)
-    .map((e) => personIndex(e, state, lang))
-    .filter((v): v is number => v != null)
-  return all.length ? Math.round(mean(all)) : null
+/** Il valore espresso sulle competenze indicate, solo parte soft. `null` se nessuna è stata misurata. */
+export function softIndex(state: AssessmentState, emp: Employee, role: string, ids: string[]): number | null {
+  return ratio(softTotals(state, emp, role, ids))
+}
+
+/** Il valore espresso di una persona. `null` se non ha niente di misurato. */
+export function personIndex(emp: Employee, state: AssessmentState, lang: AssessmentLang): number | null {
+  return ratio(personTotals(emp, state, lang))
+}
+
+/**
+ * I due dati dell'azienda, sulle persone valutate. `valore`: la stessa formula, con
+ * le somme di tutti. `gapMedio`: la media dei gap di adeguatezza delle singole
+ * persone (valore espresso − 100). `null` se nessuno ha niente di misurato.
+ */
+export function orgValue(state: AssessmentState, lang: AssessmentLang): { valore: number; gapMedio: number } | null {
+  const totals = evaluatedEmployees(state)
+    .map((e) => personTotals(e, state, lang))
+    .filter((t) => t.expected > 0)
+  if (!totals.length) return null
+  const gaps = totals.map((t) => ratio(t)! - 100)
+  return {
+    valore: ratio(totals.reduce(addTotals))!,
+    gapMedio: gaps.reduce((n, v) => n + v, 0) / gaps.length,
+  }
 }

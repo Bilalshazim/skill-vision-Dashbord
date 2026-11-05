@@ -10,16 +10,11 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import type { RoiData } from '@/lib/api/assessment'
-import { isDemoMode } from '@/lib/demo-mode'
 import { parseCsv, readRows } from '@/lib/roi/importer'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { roiEuro, useRoi } from '@/modules/assessment/lib/use-roi'
 
 const STATEMENT_KEYS = ['ric', 'vdp', 'costiProd', 'cp', 'sal', 'amm', 'acc', 'ebit', 'ebitda', 'un', 'ante', 'imposte'] as const
-
-// Solo per la demo: un bilancio inventato, dichiarato tale a schermo.
-const DEMO_STATEMENT: Record<string, number> = { ric: 9400000, vdp: 9650000, costiProd: 8700000, cp: 2100000, sal: 1520000, amm: 310000, acc: 40000, ebit: 950000, ebitda: 1300000, un: 610000, ante: 870000, imposte: 260000 }
-const DEMO_MANUAL = { inv: 18000, turn: 6, ass: 4.5 }
 
 // I dati del motore ROI in Dati aziendali (CLAUDE.md, Fase 6): il bilancio si
 // carica una volta dal file, compenso, turnover e assenze si scrivono a mano. La
@@ -83,11 +78,6 @@ export function RoiDataSection() {
                 <input type="file" accept=".xlsx,.xls,.csv,.txt" className="sr-only" onChange={onFile} />
               </label>
             </Button>
-            {isDemoMode() ? (
-              <Button type="button" variant="ghost" size="sm" onClick={() => setDraft({ statement: DEMO_STATEMENT, months: 12, fileName: res.roiDemoFile, loadedAt: new Date().toISOString(), ...DEMO_MANUAL })}>
-                {res.roiDemoLoad}
-              </Button>
-            ) : null}
             {draft.fileName ? <span className="text-app-small text-muted-foreground">{draft.fileName}</span> : null}
           </div>
         ) : null}

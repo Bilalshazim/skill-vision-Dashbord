@@ -27,7 +27,9 @@ export type RadarSeries = {
 // per Assessment, 100 per i Big Five di Recruiting); Bklit lavora in 0–100 e
 // la conversione è qui. Il radar è grande abbastanza da leggere le
 // etichette degli assi senza sovrapposizioni; se non ci stanno si passa
-// `short`, non si rimpicciolisce il radar (CLAUDE.md).
+// `short`, non si rimpicciolisce il radar (CLAUDE.md). Al passaggio del mouse
+// ogni punto dice persona, asse e valore; con più persone sullo stesso valore,
+// tutte, perché i punti si coprono.
 export function ProfileRadar({
   title,
   axes,
@@ -37,6 +39,7 @@ export function ProfileRadar({
   size = 'md',
   hideTable = false,
   compare = false,
+  pointTip,
   className,
 }: {
   title: string
@@ -50,6 +53,8 @@ export function ProfileRadar({
   hideTable?: boolean
   /** Il radar dei confronti (tavola «Confronto a 2»): griglia rotonda con 5 e 10 scritti, più margine per i nomi. */
   compare?: boolean
+  /** Il testo del tooltip di un punto. Assente: «Nome · Asse: 7 su 10». */
+  pointTip?: (name: string, axis: string, value: string) => string
   className?: string
 }) {
   // Il riferimento va disegnato per primo, sotto la persona.
@@ -62,10 +67,21 @@ export function ProfileRadar({
     values: Object.fromEntries(axes.map((a) => [a.key, Math.max(0, Math.min(100, ((s.values[a.key] ?? 0) / max) * 100))])),
   }))
 
+  const fmt = format ?? ((n: number) => n.toLocaleString('it-IT', { maximumFractionDigits: 1 }))
+  const tip = pointTip ?? ((name: string, axis: string, value: string) => `${name} · ${axis}: ${value} su ${max}`)
+  const pointTooltip = (seriesIndex: number, key: string) => {
+    const hovered = ordered[seriesIndex]
+    const axis = axes.find((a) => a.key === key)
+    if (!hovered || !axis) return null
+    const value = hovered.values[key] ?? 0
+    const same = [hovered, ...ordered.filter((s) => s !== hovered && !s.reference && (s.values[key] ?? 0) === value)]
+    return same.map((s) => <div key={s.label}>{tip(s.label, axis.label, fmt(value))}</div>)
+  }
+
   return (
     <figure data-slot="profile-radar" className={cn('flex flex-col gap-3', className)}>
       <div className={cn('w-full', compare ? 'h-144' : size === 'md' ? 'h-112' : 'h-96')} aria-hidden="true">
-        <RadarChart data={data} metrics={axes.map((a) => ({ key: a.key, label: a.short ?? a.label }))} margin={compare ? 88 : 64} levels={compare ? 4 : 5} className="mx-auto h-full w-auto max-w-full">
+        <RadarChart data={data} metrics={axes.map((a) => ({ key: a.key, label: a.short ?? a.label }))} margin={compare ? 88 : 64} levels={compare ? 4 : 5} pointTooltip={pointTooltip} className="mx-auto h-full w-auto max-w-full">
           <RadarGrid showLabels={compare} circular={compare} formatLevel={(p) => (p === 50 ? '5' : p === 100 ? '10' : null)} />
           <RadarAxis />
           <RadarLabels fontSize={12} />

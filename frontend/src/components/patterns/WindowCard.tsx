@@ -29,7 +29,7 @@ export function WindowCard({
   question?: string
   content?: string
   verbs?: string
-  /** La tavola «Home · senza dati»: l'etichetta con numero e tema e il numero grande in filigrana; la freccia non si muove. */
+  /** La tavola «Home · senza dati»: l'etichetta con numero e tema; la freccia non si muove. */
   theme?: string
   /** Solo per il posizionamento nella griglia. */
   className?: string
@@ -40,26 +40,21 @@ export function WindowCard({
       to={to}
       data-slot="window-card"
       className={cn(
-        'group relative flex h-full min-h-56 min-w-0 flex-col gap-2 overflow-hidden rounded-lg border border-border bg-card p-6 text-left text-card-foreground outline-none transition-colors hover:border-border-strong hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        'group flex h-full min-h-56 min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-6 text-left text-card-foreground outline-none transition-colors hover:border-border-strong hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         className,
       )}
     >
       {theme ? (
-        <>
-          <span aria-hidden="true" className="pointer-events-none absolute top-2 right-4 text-watermark font-semibold text-border select-none">
-            {number}
-          </span>
-          <span className="label-mono relative self-start rounded-md border border-border px-2 py-1 text-muted-foreground">
-            {number} · {theme}
-          </span>
-        </>
+        <span className="label-mono self-start rounded-md border border-border px-2 py-1 text-muted-foreground">
+          {number} · {theme}
+        </span>
       ) : (
         <span className="label-mono text-muted-foreground">{number}</span>
       )}
-      <span className={cn('relative text-site-h3 text-foreground md:text-site-h2', theme && 'mt-auto')}>{title}</span>
-      <span className="relative text-app-body text-muted-foreground">{subtitle}</span>
+      <span className={cn('text-site-h3 text-foreground md:text-site-h2', theme && 'mt-auto')}>{title}</span>
+      <span className="text-app-body text-muted-foreground">{subtitle}</span>
       {content ? <span className="mt-4 text-app-small text-foreground">{content}</span> : null}
-      <span className={cn('relative flex items-end justify-between gap-4', theme ? 'border-t border-border pt-3' : verbs ? 'mt-auto border-t border-border pt-3' : 'mt-auto pt-6')}>
+      <span className={cn('flex items-end justify-between gap-4', theme ? 'border-t border-border pt-3' : verbs ? 'mt-auto border-t border-border pt-3' : 'mt-auto pt-6')}>
         {footer ? <span className={cn('max-w-prose', question ? 'text-app-subtitle font-semibold text-foreground' : 'text-app-small font-medium text-foreground')}>{footer}</span> : <span />}
         <ArrowRight className={cn('size-4 shrink-0 text-foreground', !theme && 'transition-transform group-hover:translate-x-0.5')} aria-hidden="true" />
       </span>

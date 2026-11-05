@@ -16,8 +16,6 @@ import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 // (DECISIONI).
 export default function DoveIntervenirePage() {
   const { res, data, win, crumbs, home, demoNote } = useAssessmentResults('dove-intervenire')
-  const name = (k: keyof typeof res.interventi) => res.interventi[k] as string
-  const top = data.mostFrequent
   const critical = data.byTier.critica.length
   const { ui } = useAssessment()
   const labels = tierLabels(ui)
@@ -60,7 +58,7 @@ export default function DoveIntervenirePage() {
           { title: res.doveFeedback, value: data.feedbackDue ? res.people(data.feedbackDue) : res.nobody, body: res.doveFeedbackBody, link: { label: res.open, to: '/assessment/feedback' } },
           { title: res.doveRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, link: { label: res.open, to: '/assessment/valore' } },
         ],
-        opportunity: res.doveOpportunity(top ? name(top.key) : null, top?.count ?? 0, data.withIntervention),
+        opportunity: res.doveOpportunity(highUntouched?.without ?? 0, (highUntouched?.withFeedback ?? 0) + (highUntouched?.without ?? 0)),
         opportunityLabel: res.opportunityLabel,
       }}
       impact={{ pct: data.withInterventionPct, label: res.doveImpact, hint: res.doveHint(data.withIntervention, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'dove') }}

@@ -1,18 +1,24 @@
+import { getBackendUser } from '@/lib/api/client'
+import { isOnDemoCompany } from '@/lib/demo-mode'
+import { getPreference, setPreference } from '@/lib/preferences'
 import { BF, DEFAULT_FLAGS, DEFAULT_ROLE, ROLES, SKILLS, W } from '@/modules/recruiting/lib/constants'
 import { readCandidates, readCvMatchingState, writeCandidates, writeCvMatchingState } from '@/modules/recruiting/lib/storage'
 import type { Candidate, CandidatePoolEntry, Interview, JobOpening, PipelineWinner, PrescreenedEntry, TestResult } from '@/modules/recruiting/lib/types'
 
 // I dati dimostrativi di Recruiting (CLAUDE.md, Fase 6, verifica del
 // 2026-11-02): una posizione di Acme con candidati in tutti e cinque gli stati,
-// test completati e in attesa, finalisti e un colloquio in programma. Come in
-// Assessment si caricano a mano, dal menu, solo in modalità demo: niente seed,
-// niente caricamento automatico. Aggiungono la posizione e i suoi candidati
-// senza toccare il resto; ricaricarli sostituisce solo quelli dimostrativi.
+// test completati e in attesa, finalisti e un colloquio in programma. Si caricano
+// da soli all'ingresso in Recruiting (`preloadRecruitingDemo`), solo in modalità
+// demo e solo sulla società demo; nessun seed del backend. Aggiungono la posizione
+// e i suoi candidati senza toccare il resto; ripristinarli (amministrazione
+// dell'account demo) sostituisce solo quelli dimostrativi.
 
 export const DEMO_COMPANY_ID = 'company-acme'
 const DEMO_OPENING_ID = 'opening-demo-account-manager'
 const DEMO_PREFIX = 'demo-'
 export const DEMO_OPENING_TITLE = 'Account Manager · posizione dimostrativa'
+const DEMO_SEEN_PREF = 'recruitingDemoSeen'
+const WRITE_ROLES = new Set(['PLATFORM_ADMIN', 'COMPANY_ADMIN', 'RECRUITER'])
 
 type Stage = 'acquisita' | 'valutazione' | 'test-da-inviare' | 'test-inviato' | 'test-completato' | 'colloquio-fissato' | 'colloquio-fatto' | 'assunto'
 
@@ -112,4 +118,34 @@ export function loadRecruitingDemo(): { companyId: string; openingId: string } {
   const activeContext = { companyId: DEMO_COMPANY_ID, openingId: DEMO_OPENING_ID }
   writeCvMatchingState({ companies, activeContext })
   return activeContext
+}
+
+/**
+ * All'ingresso in Recruiting: se manca, mette la posizione dimostrativa. Fa niente
+ * fuori dalla modalità demo, fuori dalla società demo e per chi non può scrivere.
+ * La prima volta di ogni utente la rende attiva, se la sua posizione è vuota; poi la
+ * scelta resta la sua. `true` se è cambiato qualcosa da ridisegnare.
+ */
+export function preloadRecruitingDemo(): boolean {
+  if (!isOnDemoCompany() || !WRITE_ROLES.has(getBackendUser()?.role ?? '')) return false
+  const state = readCvMatchingState()
+  const company = state.companies.find((c) => c.id === DEMO_COMPANY_ID)
+  if (!company) return false
+  const exists = company.jobOpenings.some((o) => o.id === DEMO_OPENING_ID)
+  const firstVisit = !getPreference<boolean>(DEMO_SEEN_PREF, false)
+  if (exists && !firstVisit) return false
+
+  const active = state.activeContext
+  const activeOpening = active.companyId === DEMO_COMPANY_ID ? company.jobOpenings.find((o) => o.id === active.openingId) : undefined
+  const activate = firstVisit && active.companyId === DEMO_COMPANY_ID && !activeOpening?.candidatePool?.length
+  const activeContext = activate ? { companyId: DEMO_COMPANY_ID, openingId: DEMO_OPENING_ID } : active
+  if (exists) {
+    writeCvMatchingState({ companies: state.companies, activeContext })
+  } else {
+    const { candidates, opening } = buildRecruitingDemo()
+    writeCandidates([...readCandidates().filter((c) => !c.id.startsWith(DEMO_PREFIX)), ...candidates])
+    writeCvMatchingState({ companies: state.companies.map((c) => (c.id === DEMO_COMPANY_ID ? { ...c, jobOpenings: [...c.jobOpenings, opening] } : c)), activeContext })
+  }
+  setPreference(DEMO_SEEN_PREF, true)
+  return true
 }

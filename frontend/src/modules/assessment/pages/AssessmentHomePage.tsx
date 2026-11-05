@@ -7,7 +7,7 @@ import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 
 // La Home di Assessment (CLAUDE.md, Fase 6, tavola «Home · senza dati», Roberto
 // 2026-11-03): prima voce del menu e quattro finestre a tutta altezza, visibili
-// all'apertura, ognuna con l'etichetta (numero e tema), il numero in filigrana,
+// all'apertura, ognuna con l'etichetta (numero e tema),
 // titolo, sottotitolo e domanda. Nessun dato e nessun grafico: compaiono entrando
 // nella finestra. All'apertura una dissolvenza breve, una dopo l'altra (solo
 // opacità, e nessuna con "riduci movimento"). Al

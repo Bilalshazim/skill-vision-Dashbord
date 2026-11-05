@@ -24,8 +24,8 @@ export function useAssessmentResults(slug: string) {
     crumbs: [{ label: res.home, to: ASSESSMENT_HOME }],
     home: { label: res.backHome, to: ASSESSMENT_HOME },
     demoNote: isDemoMode() ? `${company?.name ?? '—'} · ${res.roiDemoNote}` : undefined,
-    /** Le prime tre persone di una fascia, una riga ciascuna: nome, mansione, indice a 100. */
+    /** Le prime tre persone di una fascia, una riga ciascuna: nome, mansione, valore espresso. */
     topThree: (list: RankedPerson[]) =>
-      list.slice(0, 3).map((r) => ({ id: r.e.id, text: `${r.e.nome} ${r.e.cognome} · ${r.e.ruolo || r.e.mansione} · ${res.indexOf(r.index)}` })),
+      list.slice(0, 3).map((r) => ({ id: r.e.id, text: `${r.e.nome} ${r.e.cognome} · ${r.e.ruolo || r.e.mansione} · ${res.indexPct(r.index)}` })),
   }
 }

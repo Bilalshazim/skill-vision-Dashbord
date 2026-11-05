@@ -1,6 +1,6 @@
-import { evaluatedEmployees, orgCriticalAreas, orgCriticalRoles, primaryScore, tierFor, worstCompetenza } from '@/modules/assessment/lib/calculations'
+import { evaluatedEmployees, orgCriticalAreas, orgCriticalRoles, primaryScore, roleCoveragePct, tierFor, worstCompetenza } from '@/modules/assessment/lib/calculations'
 import { getSoftSkills, round1, type AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
-import { orgIndex, personIndex } from '@/modules/assessment/lib/role-index'
+import { orgValue, personIndex } from '@/modules/assessment/lib/role-index'
 import { TIER_ORDER, type TierKey } from '@/modules/assessment/lib/tier-display'
 import type { AssessmentState, Employee } from '@/modules/assessment/lib/types'
 
@@ -81,10 +81,25 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
   // intervento per persona non è un dato: per ora solo questi due esiti.
   const flows = TIER_ORDER.map((k) => ({ tier: k, withFeedback: byTier[k].filter((r) => r.e.feedbackNeeded).length, without: byTier[k].filter((r) => !r.e.feedbackNeeded).length }))
 
+  // Il valore espresso: a schermo senza decimali, il gap è sempre il numero
+  // mostrato meno 100. Sotto e oltre l'atteso si contano sul numero mostrato.
+  const value = orgValue(state, lang)
+  const index = value ? Math.round(value.valore) : null
+  const shown = ranked.flatMap((r) => (r.index == null ? [] : [Math.round(r.index)]))
+  const byRole = new Map<string, number[]>()
+  ranked.forEach((r) => r.index != null && r.e.ruolo && byRole.set(r.e.ruolo, [...(byRole.get(r.e.ruolo) ?? []), r.index]))
+  const roleGaps = [...byRole.entries()].map(([label, list]) => ({ label, gap: Math.round(mean(list)) - 100 })).sort((a, b) => a.gap - b.gap)
+
   return {
     flows,
     feedbackEvaluated: flows.reduce((n, f) => n + f.withFeedback, 0),
-    index: orgIndex(state, lang),
+    index,
+    gap: index == null ? null : index - 100,
+    gapMedio: value ? Math.round(value.gapMedio) : null,
+    coverage: roleCoveragePct(state, lang),
+    belowExpected: shown.filter((v) => v < 100).length,
+    aboveExpected: shown.filter((v) => v > 100).length,
+    worstRoleByGap: roleGaps[0] && roleGaps[0].gap < 0 ? roleGaps[0] : null,
     total,
     employees: state.employees.length,
     ranked,

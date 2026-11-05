@@ -1310,9 +1310,11 @@ const ENTRIES: Entry[] = [
     render: () => (
       <RoleFitRanking
         className="w-full"
-        label="Indice di adattamento al ruolo"
-        sentence="Anna e Luca sono testa a testa (106, 104)."
-        referenceLabel="Atteso 100"
+        label="Valore espresso rispetto al ruolo"
+        sentence="Anna e Luca sono testa a testa (106%, 104%)."
+        referenceLabel="Atteso 100%"
+        valueLabel="Valore espresso rispetto al ruolo"
+        ranked
         rows={[{ id: 'a', name: 'Anna Rossi', meta: 'Responsabile', value: 106, color: 'var(--chart-3)' }, { id: 'b', name: 'Luca Neri', meta: 'Operatore', value: 104, color: 'var(--chart-2)' }, { id: 'c', name: 'Sara Blu', value: 72, color: 'var(--chart-1)' }]}
       />
     ),
@@ -1326,6 +1328,7 @@ const ENTRIES: Entry[] = [
         className="w-full"
         title="Competenza"
         format={(n) => n.toFixed(1).replace('.', ',')}
+        tip={(name, competency, value) => `${name} · ${competency}: ${value} su 10`}
         people={[{ name: 'Anna Rossi', short: 'AR', color: 'var(--chart-3)' }, { name: 'Luca Neri', short: 'LN', color: 'var(--chart-2)' }]}
         groups={[{ label: 'Essenziali', rows: [{ key: 'a', label: 'Comunicazione', a: 7, b: 7 }, { key: 'b', label: 'Autocontrollo', a: 5, b: 8 }] }]}
       />
@@ -1341,7 +1344,8 @@ const ENTRIES: Entry[] = [
         title="Le competenze"
         highestLabel="Il valore più alto della riga"
         format={(n) => n.toFixed(1).replace('.', ',')}
-        columns={[{ id: 'a', label: 'Anna R.', color: 'var(--chart-1)' }, { id: 'b', label: 'Luca N.', color: 'var(--chart-2)' }, { id: 'c', label: 'Sara B.', color: 'var(--chart-3)' }]}
+        tip={(name, competency, value) => `${name} · ${competency}: ${value} su 10`}
+        columns={[{ id: 'a', label: 'Anna R.', name: 'Anna Rossi', color: 'var(--chart-1)' }, { id: 'b', label: 'Luca N.', name: 'Luca Neri', color: 'var(--chart-2)' }, { id: 'c', label: 'Sara B.', name: 'Sara Blu', color: 'var(--chart-3)' }]}
         groups={[{ label: 'Competenze personali', rows: [{ key: 'x', label: 'Autonomia', values: [9, 6, 3] }, { key: 'y', label: 'Persistenza', values: [5, null, 7] }] }]}
       />
     ),

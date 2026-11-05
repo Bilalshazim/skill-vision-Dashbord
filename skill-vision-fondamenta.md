@@ -126,9 +126,9 @@ La scelta della famiglia dipende dal numero di serie, non dal tipo di grafico.
 
 | Ruolo nel grafico | Cosa usare |
 |---|---|
-| I dati | `chart-mono`, inchiostro: `neutral-800` in chiaro, `neutral-100` in scuro |
+| I dati | `chart-mono`, inchiostro: `neutral-800` in chiaro, `neutral-400` in scuro (non `neutral-100`: barre quasi bianche schiacciano il lime) |
 | Il valore che conta (uno per grafico) | `chart-highlight`, lime `accent-400`, con bordo `chart-highlight-stroke` (`neutral-800` in chiaro; in scuro non serve) |
-| Riferimento: benchmark, valore atteso | `chart-reference`, linea tratteggiata con il nome scritto: `neutral-500` in chiaro, `neutral-400` in scuro. Mai una seconda barra |
+| Riferimento: benchmark, valore atteso | `chart-reference`, linea tratteggiata con il nome scritto: `neutral-500` in chiaro, `neutral-200` in scuro. Mai una seconda barra |
 | Due serie di dati vere | inchiostro per quella in primo piano, `chart-1` per l'altra, etichette dirette |
 | Tre o più serie | Famiglia categorica qui sotto |
 
@@ -627,10 +627,10 @@ Le lightness della scala neutra sono allineate a quelle della scala `neutral` di
   --warning:           var(--color-warning-dark);
   --success:           var(--color-success-dark);
 
-  --chart-mono:             var(--color-neutral-100);
+  --chart-mono:             var(--color-neutral-400);
   --chart-highlight:        var(--color-accent-400);
   --chart-highlight-stroke: var(--color-accent-400);
-  --chart-reference:        var(--color-neutral-400);
+  --chart-reference:        var(--color-neutral-200);
   --chart-compare:          var(--color-neutral-600);
   --chart-1:           var(--color-chart-1-dark);
   --chart-2:           var(--color-chart-2-dark);

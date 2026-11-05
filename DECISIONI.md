@@ -2740,3 +2740,137 @@ diversi dalle tavole:
 - Le tavole mostrano anche il menu senza icone: le avevo tolte, Bilal le ha fatte rimettere. Le
   icone del menu **restano**.
 - Vale per tutti i ToggleGroup, anche nelle pagine tecniche: è aspetto, non comportamento.
+
+## Formula di Roberto e Il valore · 2026-11-05
+Richiesta di Bilal, con la formula di CLAUDE.md (Fase 6, «Euro dal motore ROI»). Le scelte che la
+richiesta non scioglieva, tutte da confermare con Roberto:
+- **Soft e professionali.** Opzioni: (a) un'unica somma su tutte le competenze; (b) due rapporti,
+  poi la media dei due. Con (b) le due parti pesano metà ciascuna, ma è una media di rapporti, che
+  la formula esclude. **Presa (a)**: ogni competenza conta uguale, quindi la parte con più
+  competenze pesa di più.
+- **Competenza non misurata.** Non entra in nessuna delle due somme, come prima: contarla zero
+  abbasserebbe il valore per un dato che manca.
+- **Valore dell'azienda e gap medio.** Se il valore dell'azienda fosse la media delle persone, gap
+  medio e gap di adeguatezza sarebbero sempre lo stesso numero. **Presa**: valore = la stessa
+  formula con le somme di tutti; gap medio = media dei gap delle singole persone. Oggi con Acme a
+  schermo coincidono comunque (−20% e −20%): due riquadri per un numero solo. **Da decidere** se
+  tenerli tutti e due o se «gap medio» vuol dire altro (il motore ROI conosce anche «gap medio
+  sotto soglia»).
+- **Motore ROI.** `comp` = valore, `gap` = gap medio cambiato di segno, `cov` = copertura. Il motore
+  non è stato toccato e blocca valori oltre 100 e `comp + gap` oltre 100, quindi un'eccedenza dà
+  gap 0 e `comp` è limitato a `100 − gap`. Il limite non cambia gli euro: `comp` serve solo a quel
+  controllo. Prima `gap` era (atteso − punteggio) × 10: **gli importi salgono** (Acme, Completo:
+  12% → 19,7%, circa € 352.000 → € 578.249). **Da confermare** prima del rilascio.
+- **L'atteso fissato.** L'atteso bloccato sul server non entra più nel gap: ora contano gli attesi
+  delle competenze del ruolo. CLAUDE.md vuole un atteso che non cambia per tutto il Patto: se si
+  modifica un profilo di ruolo il gap si muove. **Da decidere.**
+- **Il valore, cosa si è aggiunto.** La richiesta nomina riquadri e fasce; la pagina ha anche le
+  sezioni 2 e 4, quindi i tre riquadri («Mansione con il gap più alto», «Sotto l'atteso», «Oltre
+  l'atteso»), la frase, l'opportunità e il suggerimento sono **testi proposti da me**, da far
+  approvare. «Copertura mansioni» è il nome già in Panoramica. Nell'impatto resta solo l'euro: ogni
+  numero una volta. Il valore non mette in rapporto retribuzione e punteggio, mentre titolo e
+  «Perché è importante» parlano ancora di retribuzione.
+- **Tooltip.** «100 =» e «109 =» diventano «100% =» e «109% =», come i valori a schermo.
+- **Piede.** Testo come richiesto, ma con il bilancio già caricato sta sotto una cifra in euro
+  visibile (Acme in locale). Solo Assessment: Recruiting non usa il bilancio e tiene la sua frase.
+  «inventat…» resta in «Bilancio dimostrativo (cifre inventate)» (Dati aziendali), fuori dal piede.
+- **Fascia e piano di sviluppo.** È il titolo della tabella sotto il grafico, che oggi è solo per
+  lettori di schermo (`sr-only`): a schermo non si vede nessuna differenza.
+- **Filigrana.** Tolta su richiesta esplicita: supera la decisione del 2026-11-04 e il testo di
+  CLAUDE.md sulla tavola «Home · senza dati».
+
+## Motore ROI: tre domande per Roberto · 2026-11-05
+Aperte dalla formula del 2026-11-05 (dettagli in «Formula di Roberto e Il valore»). Nel frattempo
+il calcolo segue la raccomandazione scritta sotto; gli importi in euro cambiano già (Acme in locale,
+Il valore, Completo: circa € 352.000 stimati prima, € 578.249 ora).
+
+1. **«Gap medio» è un dato diverso dal «Gap di adeguatezza»?** Oggi gap medio = media dei gap delle
+   singole persone; gap di adeguatezza = valore dell'azienda − 100. Con Acme a schermo coincidono
+   (−20% e −20%), quindi due riquadri per un numero. Il motore conosce anche «gap medio sotto
+   soglia». Cosa cambia: se conta solo chi sta sotto l'atteso, un'eccedenza non compensa più un
+   divario e gli euro salgono. **Raccomandazione**: tenere la media semplice finché Roberto non
+   conferma, poi togliere uno dei due riquadri se restano uguali.
+2. **Soft e professionali: una somma sola o due parti a pari peso?** Oggi una somma sola: ogni
+   competenza conta uguale, quindi la parte con più competenze pesa di più. Due parti a metà ciascuna
+   sarebbe però una media di rapporti, che la formula esclude. **Raccomandazione**: somma sola, come
+   dice la formula, salvo che «lo stesso peso» voglia dire metà e metà.
+3. **L'atteso fissato deve ancora guidare il gap?** Il gap ora nasce dagli attesi delle competenze del
+   ruolo: cambiando un profilo di ruolo si muove anche durante il Patto, mentre CLAUDE.md vuole un
+   atteso che non cambia. **Raccomandazione**: alla prima misurazione fissare per ogni ruolo gli attesi
+   delle competenze, e calcolare su quelli. Serve un dato nuovo sul server: non fatto, si aspetta la
+   risposta.
+
+## Il ruolo nel confronto resta nell'indirizzo · 2026-11-05
+- **Opzioni**: (a) il ruolo è sempre quello della prima persona; (b) si fissa all'apertura e sta in
+  `?ruolo=`. Con (a) cambiando la prima persona cambiano titolo e classifica senza dirlo.
+- **Presa (b)**, chiesta da Bilal: il titolo non cambia, e un link al confronto riapre lo stesso
+  ruolo. Chi viene da un'altra mansione è «candidatura interna». Il suo valore si misura sulle
+  competenze del ruolo di riferimento, quindi può essere molto basso.
+
+## Selettori: lime solo sulla voce accesa · 2026-11-05
+Il lime al passaggio del mouse faceva sembrare accese due voci. **Presa**: fondo neutro (`accent`)
+sulle altre. Vale per tutti i `ToggleGroup`, non solo per il confronto: la causa è nella primitiva.
+
+## Tooltip dei grafici del confronto · 2026-11-05
+- **Radar**: il Radar di Bklit non ha tooltip sui punti. Scostamento dall'uso documentato: aggiunti
+  alla nostra copia (`pointTooltip` in `radar-chart.tsx`, un bersaglio di 12px attorno a ogni punto).
+  Vale per tutti i radar: dove il punteggio è su 100, il testo dice «su 100».
+- **Righe, barre, heatmap**: sono HTML, non Bklit (DECISIONI precedenti): Tooltip di shadcn.
+- **Punti coincidenti**: il tooltip elenca tutte le persone con quel valore, perché il punto sopra
+  copre gli altri.
+- **Tastiera**: questi tooltip si aprono col mouse; i valori sono comunque scritti a schermo e nelle
+  tabelle per i lettori di schermo. Rendere focalizzabili 175 caselle costerebbe più di quanto dà.
+- **Barre per area**: non erano nell'elenco; aggiunte per CLAUDE.md §9 («ogni barra»).
+
+## Vecchio confronto: solo nei risultati trasversali · 2026-11-05
+Tolti scheda e tabella da `AssessmentSoftPage`, quindi anche da Valutazioni Soft Skill, che usa la
+stessa pagina. Il confronto resta su /assessment/confronto, con «Confronta persone». **La stessa
+scheda c'era in Competenze professionali**: tolta anche quella, vedi «Un confronto solo» sotto.
+
+## Come si riconosce l'account demo · 2026-11-05
+Il prodotto non aveva il concetto. **Presa**: `isDemoAccount()` = modalità demo + email in
+`VITE_DEMO_ACCOUNTS` (se vuota, demo@skill-vision.it, l'account già previsto da
+`create-team-admin.ts`). Filtro d'interfaccia, come `VITE_STAFF_EMAILS`: il server non lo sa. La pagina
+ripristina solo dati che l'utente può già scrivere, quindi il rischio è basso; un vero controllo sul
+server arriverebbe con un campo sull'account. In locale `.env.local` aggiunge hr@acme.example.
+
+## Dati dimostrativi automatici: quando partono · 2026-11-05
+- **Il rischio trovato**: i dati di Recruiting stanno per società, e la prima volta ogni società legge
+  lo stesso seed, che contiene `company-acme`. Il controllo su `company-acme` non basta: una società
+  reale in un ambiente con `VITE_DEMO_MODE=true` avrebbe ricevuto candidati finti.
+- **Presa, chiusa per difetto**: partono solo con modalità demo + utente che può scrivere + account demo
+  o società in `VITE_DEMO_COMPANY_IDS` (in una build vuota; in locale la Acme del seed).
+- La posizione si crea se manca. Diventa attiva solo la prima volta di ogni utente e solo se la sua è
+  vuota: poi la scelta resta sua (preferenza `recruitingDemoSeen`).
+- Nessun seed del backend. **Da sapere prima del rilascio**: su Railway `VITE_DEMO_MODE` è acceso,
+  quindi il primo accesso di demo@skill-vision.it scriverà i dati sulla sua società.
+- CLAUDE.md (Fase 6, verifica del 2026-11-02) e i commenti precedenti dicevano «si caricano a mano»:
+  superato dalla richiesta di Bilal.
+- «Ripristina demo» e «Usa un bilancio dimostrativo»: spostati, vedi «Strumenti demo in un posto solo» sotto.
+
+## Menu di Recruiting: titoli dei livelli come voci · 2026-11-05
+Come «Home» in Assessment: icona, freccia, gruppo aperto all'inizio. **Le icone delle sottovoci
+restano** (2026-11-04), anche se Home in Assessment non le ha. Nuove icone Lucide per i livelli: Search,
+Scale, CircleCheck, ClipboardCheck. L'Area valutatori non ha una pagina dei risultati: il titolo apre e
+chiude. Strumenti e Amministrazione restano etichette: non sono livelli.
+
+## Un confronto solo · 2026-11-05
+Decisione di Bilal: tutti i confronti passano da «Confronta persone». Tolta la scheda «Confronto (fino a 5)»
+anche da Competenze professionali; `MatchCell`, `MatchLegend` e `matchCellClasses` non servivano più e
+sono tolti. **Cosa si perde**: la pagina del confronto legge solo le 35 competenze trasversali, come chiede
+CLAUDE.md, quindi oggi nessuna schermata mette fianco a fianco i punteggi professionali (5 P) di più persone.
+Restano la classifica e la vista individuale. Da dire a Roberto. Aggiunto il link «Confronta persone» alla
+pagina delle professionali: senza, da lì non si arrivava al confronto.
+
+## Strumenti demo in un posto solo · 2026-11-05
+Decisione di Bilal, CLAUDE.md §9. **Opzioni**: (a) una pagina per modulo; (b) una pagina sola, sotto
+Recruiting, che ospita anche Assessment. **Presa (b)**: è la pagina chiesta, e tutti gli strumenti stanno in
+un posto. Il menu di Assessment ha una voce che porta lì, solo per l'account demo: il clic cambia modulo.
+- **Limite**: la pagina sta dentro Recruiting. Una società demo senza quel modulo la vedrebbe bloccata.
+- **Cambia il comportamento del bilancio**: prima riempiva il modulo di Dati aziendali e andava salvato; ora
+  non c'è il modulo accanto, quindi chiede conferma e salva subito. Come prima, il primo salvataggio con
+  persone valutate fissa l'atteso.
+- **Dopo «Ripristina demo»** si resta sulla pagina, con un avviso; prima si andava alla Home del modulo.
+- **Sul server non cambia niente**: il ripristino resta ammesso solo per `ASSESSMENT_DEMO_COMPANY_IDS`.
+  Va impostata sul backend dove serve: senza, il pulsante risponde «ammesso solo per una società demo».
+- I testi orfani del vecchio confronto restano nei dizionari: la loro struttura si conserva (CLAUDE.md cap. 7).

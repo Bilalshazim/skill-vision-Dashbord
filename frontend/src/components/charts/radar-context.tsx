@@ -44,9 +44,16 @@ export interface RadarData {
   values: Record<string, number>;
 }
 
+export interface RadarHoveredPoint {
+  seriesIndex: number;
+  metricIndex: number;
+}
+
 export interface RadarHoverContextValue {
   hoveredIndex: number | null;
   setHoveredIndex: (index: number | null) => void;
+  /** Skill Vision: il punto sotto il mouse, per il suo tooltip. */
+  setHoveredPoint: (point: RadarHoveredPoint | null) => void;
 }
 
 export interface RadarStableContextValue {
@@ -132,8 +139,9 @@ export function RadarProvider({
     () => ({
       hoveredIndex: value.hoveredIndex,
       setHoveredIndex: value.setHoveredIndex,
+      setHoveredPoint: value.setHoveredPoint,
     }),
-    [value.hoveredIndex, value.setHoveredIndex]
+    [value.hoveredIndex, value.setHoveredIndex, value.setHoveredPoint]
   );
 
   return (

@@ -1,4 +1,7 @@
+import type { ReactNode } from 'react'
+
 import { Card } from '@/components/ui/card'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 export type CompetencyGroup = { label: string; rows: { key: string; label: string; a: number; b: number }[] }
@@ -6,18 +9,22 @@ export type CompetencyGroup = { label: string; rows: { key: string; label: strin
 // Il confronto a due, competenza per competenza (CLAUDE.md, Fase 6): una riga per
 // competenza, due punti sulla scala da 1 a 10 uniti da un tratto. Cerchio per la
 // prima persona, rombo per la seconda: si distinguono anche senza il colore
-// (regola 10), e i due valori sono scritti in fondo alla riga.
+// (regola 10), e i due valori sono scritti in fondo alla riga. Al passaggio del
+// mouse ogni punto dice persona, competenza e valore; se coincidono, tutti e due.
 export function CompetencyRows({
   title,
   people,
   groups,
   format,
+  tip,
   className,
 }: {
   title: string
   people: [{ name: string; short: string; color: string }, { name: string; short: string; color: string }]
   groups: CompetencyGroup[]
   format: (n: number) => string
+  /** Il testo del tooltip di un punto: «Nome · Competenza: 7 su 10». */
+  tip: (name: string, competency: string, value: string) => string
   className?: string
 }) {
   const at = (v: number) => `${((Math.min(10, Math.max(1, v)) - 1) / 9) * 100}%`
@@ -43,8 +50,12 @@ export function CompetencyRows({
                 <span className="relative col-span-2 h-4" role="img" aria-label={`${people[0].name} ${format(r.a)}, ${people[1].name} ${format(r.b)}`}>
                   <span className="absolute inset-x-0 top-1/2 border-t border-border" />
                   <span className="absolute top-1/2 h-1 -translate-y-1/2 bg-muted-foreground" style={{ left: `min(${at(r.a)}, ${at(r.b)})`, width: `calc(max(${at(r.a)}, ${at(r.b)}) - min(${at(r.a)}, ${at(r.b)}))` }} />
-                  <span className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-background" style={{ left: at(r.a), background: people[0].color }} />
-                  <span className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border border-background" style={{ left: at(r.b), background: people[1].color }} />
+                  <Dot left={at(r.a)} lines={[tip(people[0].name, r.label, format(r.a))]}>
+                    <span className="size-3 rounded-full border border-background" style={{ background: people[0].color }} />
+                  </Dot>
+                  <Dot left={at(r.b)} lines={r.a === r.b ? [tip(people[0].name, r.label, format(r.a)), tip(people[1].name, r.label, format(r.b))] : [tip(people[1].name, r.label, format(r.b))]}>
+                    <span className="size-3 rotate-45 border border-background" style={{ background: people[1].color }} />
+                  </Dot>
                 </span>
                 <span className="text-right text-app-small tabular-nums text-foreground">
                   {format(r.a)} · {format(r.b)}
@@ -55,5 +66,22 @@ export function CompetencyRows({
         </section>
       ))}
     </Card>
+  )
+}
+
+function Dot({ left, lines, children }: { left: string; lines: string[]; children: ReactNode }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span data-slot="competency-dot" className="absolute top-1/2 flex size-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center" style={{ left }}>
+          {children}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>
+        {lines.map((l) => (
+          <div key={l}>{l}</div>
+        ))}
+      </TooltipContent>
+    </Tooltip>
   )
 }

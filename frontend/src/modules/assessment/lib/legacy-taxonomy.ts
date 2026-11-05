@@ -78,8 +78,6 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
   { type:'link', id:'feedback', label:'Development Plans', icon:'feedback', requires:null, badge:true },
   { type:'link', id:'ai', label:'AI Assistant', icon:'ai', requires:null },
   { type:'action', id:'methodology', label:'Methodology Notes', icon:'notes', action:'openMethodologyModal' },
-  { type:'section', label:'Admin Tools', editOnly:true },
-  { type:'action', id:'reset', label:'Reset Demo', icon:'refresh', action:'confirmResetDemo', editOnly:true },
 ];
 export const NAV_CONFIG_IT: NavConfigEntry[] = [
   { type:'group', groupId:'home', homeId:'home', label:'Home', icon:'home', items:[
@@ -107,8 +105,6 @@ export const NAV_CONFIG_IT: NavConfigEntry[] = [
   { type:'link', id:'feedback', label:'Piani di Sviluppo', icon:'feedback', requires:null, badge:true },
   { type:'link', id:'ai', label:'Assistente IA', icon:'ai', requires:null },
   { type:'action', id:'methodology', label:'Note Metodologiche', icon:'notes', action:'openMethodologyModal' },
-  { type:'section', label:'Strumenti Amministrazione', editOnly:true },
-  { type:'action', id:'reset', label:'Ripristina demo', icon:'refresh', action:'confirmResetDemo', editOnly:true },
 ];
 
 /* ---------------------- TAXONOMY — 35 SOFT SKILLS (Module A) ----------------------
