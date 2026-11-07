@@ -66,7 +66,8 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
       .map((r) => ({ label: r.label, gap: round1(ATTESO - r.avg) }))
       .filter((r) => r.gap > 0.05)
       .sort((a, b) => b.gap - a.gap)
-  const areasBelow = total ? gapRows(orgCriticalAreas(state, lang, 50).map((a) => ({ label: a.area, avg: a.avg }))) : []
+  const allAreas = total ? orgCriticalAreas(state, lang, 50) : []
+  const areasBelow = gapRows(allAreas.map((a) => ({ label: a.area, avg: a.avg })))
   const rolesBelow = total ? gapRows(orgCriticalRoles(state, lang, 50).map((r) => ({ label: r.ruolo, avg: r.avg }))) : []
   const worstSkill = total ? worstCompetenza(state, lang, f) : null
   // La mansione più lontana dentro l'area più lontana: è da lì che si suggerisce di partire.
@@ -111,6 +112,9 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
     interventi,
     withIntervention,
     withInterventionPct: pct(withIntervention),
+    areas: allAreas.map((a) => ({ label: a.area, avg: a.avg, gap: round1(a.avg - ATTESO) })),
+    /** Quota del colloquio di restituzione sulle persone valutate: lo stesso numero della frase di Dove intervenire. */
+    feedbackPct: pct(flows.reduce((n, f) => n + f.withFeedback, 0)),
     mostFrequent: mostFrequent && mostFrequent.count > 0 ? mostFrequent : null,
     feedbackDue: state.employees.filter((e) => e.feedbackNeeded).length,
     bestSoft,

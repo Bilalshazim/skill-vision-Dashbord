@@ -60,7 +60,7 @@ export default function RankingPage() {
       <PageHeader
         level="page"
         className="mb-0"
-        title="Chi è il candidato migliore?"
+        title="Migliori candidati"
         description={
           <>
             {description} · <b className="font-semibold text-foreground">{rk.length}</b> candidati · <b className="font-semibold text-foreground">{flaggedCount}</b> skill flaggate

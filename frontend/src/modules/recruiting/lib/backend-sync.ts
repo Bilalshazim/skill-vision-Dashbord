@@ -15,7 +15,8 @@
 // the exact ported formula, src/lib/scoring.ts), but does not add real
 // OCR/ML text extraction, which no approved document describes and this
 // phase's brief does not ask for. Never claim otherwise in the UI.
-import { DEFAULT_MATCH_THRESHOLD, DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
+import { activeRole } from '@/modules/recruiting/lib/active-role'
+import { DEFAULT_MATCH_THRESHOLD } from '@/modules/recruiting/lib/constants'
 import { setCandidateEmail } from '@/modules/recruiting/lib/candidates'
 import { buildSimulatedCvData, matchCandidateToProfile } from '@/modules/recruiting/lib/cv-upload'
 import { addCandidateToPool, addPrescreenedEntry, buildDefaultJobProfile, getActiveOpening, setPrescreenStatus } from '@/modules/recruiting/lib/pipeline'
@@ -102,7 +103,7 @@ export async function uploadCvViaBackend(file: File): Promise<UploadCvViaBackend
   }
 
   const parsedCv = buildSimulatedCvData()
-  const jobProfile = opening.jobProfile || buildDefaultJobProfile(DEFAULT_ROLE)
+  const jobProfile = opening.jobProfile || buildDefaultJobProfile(activeRole())
   const matchResult = matchCandidateToProfile(parsedCv, jobProfile)
 
   // Local mirror (§15 write-through) — same Candidate shape

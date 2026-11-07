@@ -1,6 +1,7 @@
 import { createContext, type ReactNode, useCallback, useContext, useMemo } from 'react'
 
 import { getActiveOpening, setActiveContext } from '@/modules/recruiting/lib/pipeline'
+import { applySavedSkillFlags } from '@/modules/recruiting/lib/skill-flags'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import type { Company, JobOpening } from '@/modules/recruiting/lib/types'
 
@@ -25,6 +26,8 @@ export function ActivePositionProvider({ version, onChange, children }: { versio
   const setPosition = useCallback(
     (companyId: string, openingId: string) => {
       setActiveContext(companyId, openingId)
+      // Le competenze sono della posizione: prima di ridisegnare le pagine.
+      applySavedSkillFlags()
       onChange()
     },
     [onChange],

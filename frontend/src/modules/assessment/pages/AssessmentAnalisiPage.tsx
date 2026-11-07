@@ -1,6 +1,6 @@
 import { fmtDec } from '@/lib/format'
 import { ArrowRight, Download, Printer, RotateCcw } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Note } from '@/components/patterns/Note'
 import { StatCard } from '@/components/patterns/StatCard'
@@ -16,12 +16,27 @@ import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/Assess
 import { exiBlankData } from '@/modules/assessment/lib/demo-data'
 import { exiRiskTier, exiScoreTier, fmt1, round1 } from '@/modules/assessment/lib/legacy-utils'
 import { printReportHtml } from '@/modules/assessment/lib/print'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import AssessmentCompanyPage from '@/modules/assessment/pages/AssessmentCompanyPage'
 import type { ExiData } from '@/modules/assessment/lib/types'
 import { assessmentAiApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
 import type { getUI } from '@/modules/assessment/lib/legacy-utils'
 import { JSON_TYPE, downloadText } from '@/lib/download'
+
+// Le domande saltate (Decisioni del 2026-11-06): senza commento e con il cursore al valore
+// di partenza. Il cursore ha sempre un valore, quindi non si legge da solo.
+function unanswered(a: ExiData) {
+  const blank = exiBlankData('')
+  return {
+    q1: !a.q1c.trim() && a.q1 === blank.q1,
+    q2: !a.q2c.trim() && a.q2 === blank.q2,
+    q4: !a.q4c.trim() && a.q4 === blank.q4,
+    q5: !a.rischi.length && a.q5 === blank.q5,
+    q6: !a.obiettivi.length && a.q6 === blank.q6,
+    q7: !a.q7c.trim() && !(a.decisioni || []).length,
+  }
+}
 
 // The exact Q&A pairs sent to POST /assessment-ai/expert-review (real,
 // server-side Claude call — see backend/src/modules/assessmentAi/routes.ts).
@@ -29,13 +44,14 @@ import { JSON_TYPE, downloadText } from '@/lib/download'
 // shape so the prompt built server-side stays simple and doesn't need to
 // know this module's internal field names.
 function buildInterviewTranscript(a: ExiData, ui: ReturnType<typeof getUI>): { question: string; answer: string }[] {
+  const off = unanswered(a)
   return [
-    { question: ui.exiQ1Title, answer: `${a.q1}/10 — ${a.q1c}` },
-    { question: ui.exiQ2Title, answer: `${a.q2}/10 — ${a.q2c}` },
+    { question: ui.exiQ1Title, answer: off.q1 ? '' : `${a.q1}/10 — ${a.q1c}` },
+    { question: ui.exiQ2Title, answer: off.q2 ? '' : `${a.q2}/10 — ${a.q2c}` },
     { question: ui.exiQ3Title, answer: [a.q3c, ...a.q3Altro].filter(Boolean).join('; ') },
-    { question: ui.exiQ4Title, answer: `${a.q4}/10 — ${a.q4c}` },
-    { question: ui.exiQ5Title, answer: [...a.rischi, a.q5 ? `${a.q5}/10` : ''].filter(Boolean).join('; ') },
-    { question: ui.exiQ6Title, answer: [...a.obiettivi, a.q6 ? `${a.q6}/10` : ''].filter(Boolean).join('; ') },
+    { question: ui.exiQ4Title, answer: off.q4 ? '' : `${a.q4}/10 — ${a.q4c}` },
+    { question: ui.exiQ5Title, answer: off.q5 ? '' : [...a.rischi, `${a.q5}/10`].filter(Boolean).join('; ') },
+    { question: ui.exiQ6Title, answer: off.q6 ? '' : [...a.obiettivi, `${a.q6}/10`].filter(Boolean).join('; ') },
     { question: ui.exiQ7Title, answer: [a.q7c, ...a.q7Altro].filter(Boolean).join('; ') },
   ].filter((qa) => qa.answer.trim().length > 0)
 }
@@ -48,11 +64,16 @@ function buildInterviewTranscript(a: ExiData, ui: ReturnType<typeof getUI>): { q
 // 25) the 8-step edit wizard, print view, and JSON export. Phase 24 had
 // shipped only the report/display side.
 export default function AssessmentAnalisiPage() {
-  const { state, setState } = useAssessment()
+  const { state, setState, ui } = useAssessment()
   const navigate = useNavigate()
   const [mode, setMode] = useState<'report' | 'wizard'>('report')
   const [wizardStartStep, setWizardStartStep] = useState(0)
   const a = state.analisiIniziale
+  const { hash } = useLocation()
+  // I link «Vai a Dati aziendali» portano alla sezione.
+  useEffect(() => {
+    if (hash) document.getElementById(hash.slice(1))?.scrollIntoView()
+  }, [hash])
 
   function commitAndReturn(data: ExiData) {
     setState((prev) => ({ ...prev, analisiIniziale: data }))
@@ -63,7 +84,20 @@ export default function AssessmentAnalisiPage() {
     return <AnalisiWizard initial={a} startStep={wizardStartStep} onCancel={a.completed ? () => setMode('report') : null} onGenerate={commitAndReturn} />
   }
 
-  return <AnalisiReport a={a} onNewInterview={() => { setWizardStartStep(0); setMode('wizard') }} onEditAnswers={() => { setWizardStartStep(7); setMode('wizard') }} onStartAssessment={() => navigate('/assessment/anagrafica')} />
+  // Dati aziendali sono la prima sezione dell'Intervista, prima delle domande (Decisioni
+  // del 2026-11-06). Mentre si risponde restano fuori: il percorso delle domande è a sé.
+  return (
+    <div className="flex flex-col gap-8">
+      <section id="dati-aziendali" className="scroll-mt-24">
+        <PageHeader title={ui.res.dataSectionTitle} />
+        <AssessmentCompanyPage />
+      </section>
+      <section>
+        <PageHeader title={ui.res.interviewSectionTitle} />
+        <AnalisiReport a={a} onNewInterview={() => { setWizardStartStep(0); setMode('wizard') }} onEditAnswers={() => { setWizardStartStep(7); setMode('wizard') }} onStartAssessment={() => navigate('/assessment/anagrafica')} />
+      </section>
+    </div>
+  )
 }
 
 function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: { a: ExiData; onNewInterview: () => void; onEditAnswers: () => void; onStartAssessment: () => void }) {
@@ -107,6 +141,8 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
   const risk = (a.rischi || []).filter(Boolean)
   const obj = (a.obiettivi || []).filter(Boolean)
   const meta = [a.intervistato, ui.exiRoles[a.ruolo], a.settore, a.data].filter(Boolean).join(' · ')
+  const off = unanswered(a)
+  const noAnswer = ui.exiUnanswered as string
 
   async function newInterview() {
     if (!canEdit) return
@@ -282,16 +318,16 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <AnswerCard eyebrow={ui.exiQ1Eyebrow} title={ui.exiAns1Title} quote={a.q1c}>
+        <AnswerCard eyebrow={ui.exiQ1Eyebrow} title={ui.exiAns1Title} quote={a.q1c} noAnswer={off.q1 ? noAnswer : undefined}>
           <TierValue value={v1} tier={exiScoreTier(v1, lang)} unit={ui.exiPointsOf10} />
         </AnswerCard>
-        <AnswerCard eyebrow={ui.exiQ2Eyebrow} title={ui.exiAns2Title} quote={a.q2c}>
+        <AnswerCard eyebrow={ui.exiQ2Eyebrow} title={ui.exiAns2Title} quote={a.q2c} noAnswer={off.q2 ? noAnswer : undefined}>
           <TierValue value={v2} tier={exiScoreTier(v2, lang)} unit={ui.exiPointsOf10} />
         </AnswerCard>
-        <AnswerCard eyebrow={ui.exiQ4Eyebrow} title={ui.exiAns4Title} quote={a.q4c}>
+        <AnswerCard eyebrow={ui.exiQ4Eyebrow} title={ui.exiAns4Title} quote={a.q4c} noAnswer={off.q4 ? noAnswer : undefined}>
           <TierValue value={v4} tier={exiScoreTier(v4, lang)} unit={ui.exiPointsOf10} />
         </AnswerCard>
-        <AnswerCard eyebrow={ui.exiQ5Eyebrow} title={ui.exiAns5Title}>
+        <AnswerCard eyebrow={ui.exiQ5Eyebrow} title={ui.exiAns5Title} noAnswer={off.q5 ? noAnswer : undefined}>
           <TierValue prefix={ui.exiRiskInlineLabel} value={v5} tier={exiRiskTier(v5, lang)} unit={ui.exiPointsOf10} />
           {risk.length > 0 && (
             <ol className="mt-3 list-decimal pl-5 text-app-small">
@@ -301,7 +337,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
             </ol>
           )}
         </AnswerCard>
-        <AnswerCard eyebrow={ui.exiQ6Eyebrow} title={ui.exiAns6Title}>
+        <AnswerCard eyebrow={ui.exiQ6Eyebrow} title={ui.exiAns6Title} noAnswer={off.q6 ? noAnswer : undefined}>
           <TierValue prefix={ui.exiUrgencyInlineLabel} value={v6} tier={exiScoreTier(v6, lang)} unit={ui.exiPointsOf10} />
           {obj.length > 0 && (
             <ol className="mt-3 list-decimal pl-5 text-app-small">
@@ -311,7 +347,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
             </ol>
           )}
         </AnswerCard>
-        <AnswerCard eyebrow={ui.exiQ7Eyebrow} title={ui.exiAns7Title} quote={a.q7c}>
+        <AnswerCard eyebrow={ui.exiQ7Eyebrow} title={ui.exiAns7Title} quote={a.q7c} noAnswer={off.q7 ? noAnswer : undefined}>
           {(a.decisioni || []).length ? (
             <div className="flex flex-wrap gap-2">
               {a.decisioni.map((i) => (ui.exiDecisions[i] ? <Badge key={i}>{ui.exiDecisions[i].nm}</Badge> : null))}
@@ -394,12 +430,12 @@ function TierValue({ prefix, value, tier, unit }: { prefix?: string; value: numb
 
 // Una risposta dell'Intervista nel report: sovratitolo, domanda, valore,
 // e il commento citato dell'intervistato se c'è.
-function AnswerCard({ eyebrow, title, quote, children }: { eyebrow: string; title: string; quote?: string; children: React.ReactNode }) {
+function AnswerCard({ eyebrow, title, quote, noAnswer, children }: { eyebrow: string; title: string; quote?: string; noAnswer?: string; children: React.ReactNode }) {
   return (
     <Card>
       <CardLabel>{eyebrow}</CardLabel>
       <CardTitle className="mt-1 mb-3 text-app-subtitle">{title}</CardTitle>
-      {children}
+      {noAnswer ? <Badge className="self-start">{noAnswer}</Badge> : children}
       {quote ? <blockquote className="mt-3 border-l-2 border-border-strong pl-3 text-app-small text-muted-foreground italic">“{quote}”</blockquote> : null}
     </Card>
   )

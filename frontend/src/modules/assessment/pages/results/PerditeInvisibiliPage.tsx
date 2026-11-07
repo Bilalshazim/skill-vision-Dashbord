@@ -3,6 +3,7 @@ import { ResultsPage } from '@/components/patterns/ResultsPage'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { roiFigure } from '@/modules/assessment/components/RoiFigure'
 import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
+import { ATTESO } from '@/modules/assessment/lib/results'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 import { useRoi } from '@/modules/assessment/lib/use-roi'
 
@@ -10,15 +11,18 @@ import { useRoi } from '@/modules/assessment/lib/use-roi'
 // pagine (tavola «Assessment · 2 Risultati · Le perdite invisibili»). I testi
 // sono quelli della verifica in produzione del 2026-11-02; i numeri vengono
 // dagli stessi calcoli della Panoramica: persone sotto la norma (Da potenziare
-// + Critici), aree, mansioni e competenze sotto l'atteso 7,0.
+// + Critici), aree, mansioni e competenze sotto l'atteso 7,0. Parla solo delle perdite
+// (Decisioni del 2026-11-06): per ogni area l'ottenuto, l'atteso tratteggiato con il
+// valore e lo scarto in fondo alla barra; niente suggerimento né approfondimenti.
 export default function PerditeInvisibiliPage() {
-  const { res, data, win, crumbs, home, demoNote } = useAssessmentResults('perdite-invisibili')
+  const { res, data, win, theme, crumbs, home, demoNote } = useAssessmentResults('perdite-invisibili')
   const roi = useRoi()
   return (
     <ResultsPage
       actions={<AssessmentModeSwitch />}
       crumbs={crumbs}
       number={win.number}
+      theme={theme}
       title={win.title}
       question={win.q}
       why={res.perditeWhy}
@@ -28,16 +32,23 @@ export default function PerditeInvisibiliPage() {
         detail: res.perditeDetail(data.worstArea?.label ?? null),
         chartTitle: res.perditeChart,
         hint: { label: res.perditeChart, text: res.perditeChartHint },
-        chart: data.areasBelow.length ? (
+        chart: data.areas.length ? (
           <CategoryBars
             title={res.perditeChart}
             orientation="horizontal"
             compact
-            valueMax={Math.max(2, Math.ceil(data.areasBelow[0].gap))}
+            valueMax={10}
             format={fmt1it}
-            series={[{ key: 'gap', label: res.perditeChart }]}
-            rows={data.areasBelow.map((a) => ({ label: a.label, values: { gap: a.gap } }))}
-            highlight={data.areasBelow[0].label}
+            series={[
+              { key: 'avg', label: res.lossSeries },
+              { key: 'atteso', label: res.lossRef(fmt1it(ATTESO)), reference: true },
+            ]}
+            rows={data.areas.map((a) => ({ label: a.label, values: { avg: a.avg, atteso: ATTESO } }))}
+            highlight={data.worstArea?.label}
+            barNote={(label) => {
+              const gap = data.areas.find((a) => a.label === label)?.gap ?? 0
+              return `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${fmt1it(Math.abs(gap))}`
+            }}
           />
         ) : undefined,
         chartEmpty: res.perditeNoArea,
@@ -52,12 +63,6 @@ export default function PerditeInvisibiliPage() {
         opportunityLabel: res.opportunityLabel,
       }}
       impact={{ pct: data.belowPct, label: res.perditeImpact, hint: res.perditeHint(data.below, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'perdite') }}
-      suggestion={{ text: res.perditeSuggest(data.worstArea?.label ?? null, data.worstRoleInArea),  link: { label: res.goDove, to: '/assessment/dove-intervenire' } }}
-      deepDives={[
-        { label: res.deep.soft, to: '/assessment/soft-overview' },
-        { label: res.deep.hard, to: '/assessment/hard-overview' },
-        { label: res.deep.hardRes, to: '/assessment/hard-risultati' },
-      ]}
       home={home}
       demoNote={demoNote}
     />

@@ -1,4 +1,4 @@
-import { W } from '@/modules/recruiting/lib/constants'
+import { skillTarget } from '@/modules/recruiting/lib/constants'
 import { ensurePipeline } from '@/modules/recruiting/lib/pipeline'
 import { countStages, positionCandidateIds, positionStages } from '@/modules/recruiting/lib/position-funnel'
 import { bucketize } from '@/modules/recruiting/lib/quality-bands'
@@ -58,6 +58,20 @@ export function recruitingPanoramica(openings: { title: string; opening: JobOpen
   }
 }
 
+// Punto di forza e rischio di un candidato: la competenza scelta nel profilo con la distanza più
+// alta sopra e sotto l'atteso (il valore atteso scelto, altrimenti la soglia del peso).
+function strengthAndRisk(c: Candidate | undefined, flags: Record<string, SoftSkillLevel>) {
+  let strength: { name: string; gap: number } | null = null
+  let risk: { name: string; gap: number } | null = null
+  for (const [sk, lv] of Object.entries(flags)) {
+    if (!c) break
+    const gap = (c.scores[sk] || 0) - skillTarget(sk, lv)
+    if (gap > 0 && (!strength || gap > strength.gap)) strength = { name: sk, gap }
+    if (gap < 0 && (!risk || gap < risk.gap)) risk = { name: sk, gap }
+  }
+  return { strength, risk }
+}
+
 export function recruitingResults(opening: JobOpening | undefined, candidates: Candidate[], flags: Record<string, SoftSkillLevel>) {
   const byId = new Map(candidates.map((c) => [c.id, c]))
   const empty = { cv: 0, preselezionati: 0, invitati: 0, completati: 0, idonei: 0, colloquio: 0, scelti: 0 }
@@ -80,23 +94,9 @@ export function recruitingResults(opening: JobOpening | undefined, candidates: C
     .map((id) => {
       const c = byId.get(id)
       const score = c ? ahi(c).v : testScore.get(id)
-      return { id, name: c?.name ?? names.get(id) ?? '—', score: score ?? null, candidate: c }
+      return { id, name: c?.name ?? names.get(id) ?? '—', score: score ?? null, candidate: c, ...strengthAndRisk(c, flags) }
     })
     .sort((a, b) => (b.score ?? -1) - (a.score ?? -1))
-  const first = finalists[0]
-
-  // Punto di forza e rischio del primo finalista: la competenza trasversale
-  // scelta nel profilo con la distanza più alta sopra e sotto l'atteso (la
-  // soglia del peso, W[livello].t, la stessa del metodo).
-  let strength: { name: string; gap: number } | null = null
-  let risk: { name: string; gap: number } | null = null
-  if (first?.candidate) {
-    for (const [sk, lv] of Object.entries(flags)) {
-      const gap = (first.candidate.scores[sk] || 0) - W[lv].t
-      if (gap > 0 && (!strength || gap > strength.gap)) strength = { name: sk, gap }
-      if (gap < 0 && (!risk || gap < risk.gap)) risk = { name: sk, gap }
-    }
-  }
 
   return {
     counts,
@@ -111,9 +111,12 @@ export function recruitingResults(opening: JobOpening | undefined, candidates: C
     leader: rk[0] ?? null,
     finalists,
     finalistsPct: pct(finalists.length, counts.cv),
-    strength,
-    risk,
     interviewsPlanned: (p?.interviews ?? []).filter((iv) => !iv.completed).length,
+    interviewsDone: (p?.interviews ?? []).filter((iv) => iv.completed).length,
+    upcoming: (p?.interviews ?? [])
+      .filter((iv) => !iv.completed)
+      .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
+      .map((iv) => ({ id: iv.id, name: iv.name || '—', date: new Date(iv.scheduledAt).toLocaleDateString('it-IT') })),
     softSkillsChosen: Object.keys(flags).length,
   }
 }

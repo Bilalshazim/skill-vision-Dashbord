@@ -688,6 +688,10 @@ selettore in alto.
    card apre la pagina dei risultati del passo, e da lì la pagina principale
    del livello (approvato da Roberto il 2026-10-30).
 
+> **Aggiornato il 2026-11-06**: struttura e testi delle pagine dei risultati
+> sono cambiati con le «Decisioni del 2026-11-06», in fondo a questa fase. Dove
+> non coincidono con quanto segue, valgono quelle.
+
 **Le pagine dei risultati** — sette, una per finestra: quattro di Assessment,
 tre di Recruiting. Approvate da Roberto il 2026-10-30 sul modello «Le perdite
 invisibili» («vai avanti così»). Tutte con la stessa struttura:
@@ -960,6 +964,9 @@ modulo, `/` porta direttamente lì. Nessuna dashboard nuova.
 **La voce `Menu`** prende il nome della sua destinazione, "Profilo della
 ricerca".
 
+> **Superato il 2026-11-06**: il menu di Recruiting nuovo è nelle «Decisioni
+> del 2026-11-06», in fondo a questa fase. Quanto segue resta come storia.
+
 **Menu di Recruiting** — deciso da Roberto il 2026-10-23 (risposta scritta).
 Sostituisce la proposta del 2026-10-23 che spostava le voci fra i livelli.
 
@@ -998,7 +1005,8 @@ solo la struttura del menu:
 
 **Altre decisioni di Roberto (2026-10-23):**
 
-- **Profilo candidato**: le competenze trasversali si scelgono lì dentro. Al
+- **Profilo candidato** (*superato il 2026-11-06*: le competenze trasversali
+  si scelgono solo nella pagina Competenze trasversali): le competenze trasversali si scelgono lì dentro. Al
   salvataggio, in fondo alla pagina, compaiono l'annuncio pronto e il link per
   l'invio. Nessun'altra finestra o accesso ad altre pagine in quella pagina.
 - **CV elaborati**: escono le finestre Colloqui e Candidato vincitore (che
@@ -1023,6 +1031,9 @@ solo la struttura del menu:
   selezionato. Il nome del quinto stato è da confermare (Roberto ha scritto
   anche "Selezione valutatori"). Sono le fasi dell'imbuto, al posto di quelle
   scritte sotto in "Imbuto di selezione".
+
+> **Aggiornato il 2026-11-06**: si toglie il blocco titolo e sottotitolo, le
+> card diventano verticali (vedi «Decisioni del 2026-11-06»).
 
 **Profilo della ricerca** — deciso da Roberto il 2026-10-23. È la copertina di
 Recruiting, le sue "tre slide" (materiale di Roberto: `RECRUITING_Schema`):
@@ -1200,7 +1211,7 @@ solo modulo di calcolo, usato da tutti e due, così una formula corretta vale
 ovunque. Il documento «Formule % in €» non è la fonte.
 
 - **Dati in ingresso**: voci del bilancio dal file di Credit Save, caricato una
-  volta in **Dati aziendali**; dipendenti e
+  volta in **Dati aziendali** (dal 2026-11-06 prima sezione dell'Intervista); dipendenti e
   persone valutate da Anagrafica e valutazioni; valore delle competenze,
   divario dall'atteso e copertura dei ruoli dai risultati dell'assessment;
   compenso, turnover e assenze inseriti a mano nella stessa pagina.
@@ -1302,6 +1313,71 @@ non il contenuto:
   contenuti che ne hanno bisogno. Testo lungo e messaggi di chat entro la
   colonna di lettura (720px, fondamenta).
 - **Un'intestazione di pagina sola**: `PageHeader`, nei due moduli.
+
+#### Decisioni del 2026-11-06 (Roberto, risposta scritta)
+
+Valgono sopra quanto scritto prima in questa fase, dove non coincidono. Le parti superate più in alto portano un rimando qui.
+
+**Pagine dei risultati di Assessment**
+
+- **Etichetta e numeri di sezione.** Sopra il titolo, al posto della cifra da sola, l'etichetta della home: «01 · Rendimento», «02 · Costi», «03 · Talenti», «04 · Azioni», in `label-mono`. I titoli di sezione non sono più in `label-mono`: diventano titoli con l'H3 della scala del sito (24px/600, tracking −0,015em; 20px su mobile), perché le pagine dei risultati sono pagine di presentazione (manuale p. 25). Minuscoli, con il numero davanti senza zero e in `muted-foreground` («1  La situazione oggi»). Così i due numeri si distinguono per carattere, corpo e forma: Geist Mono piccolo per la finestra, Geist grande per la sezione. Vale per tutte e sette le pagine dei risultati, anche in Recruiting.
+- **«Perché è importante per la tua azienda?»**, testi definitivi:
+  - Il valore: «Misurare il rapporto tra retribuzione e rendimento significa trasformare costi fino a oggi indistinti in informazioni strategiche, riconoscendo chi contribuisce alla crescita aziendale e individuando dove si disperde valore economico: costi che si possono evitare.»
+  - Le perdite invisibili: «Competenze mancanti, capacità non espresse e ruoli non adeguati generano perdite invisibili che, una volta individuate e misurate, diventano costi evitabili.»
+  - Il potenziale: «Valorizzare le persone, riconoscendone competenze e potenzialità inespresse, significa trasformare il capitale umano già a bilancio in maggior valore economico, incrementare la produttività e ridurre i costi di ricerca, selezione e nuove assunzioni.»
+  - Dove intervenire: «Individuare i problemi non basta: occorre sapere dove intervenire prima. Skill-Vision trasforma le criticità rilevate in priorità operative, indicando quali interventi evitano i costi maggiori, quante persone coinvolgono e dove concentrare le risorse per ottenere risultati concreti e misurabili.»
+  - «Valorizzare» e «valorizzazione» sono ammessi (Roberto). «Recuperare» per i soldi resta vietato.
+- **Il valore** parla solo dei risultati: due sezioni, «1 La situazione oggi» (con dentro L'impatto) e «2 Criticità e opportunità». Via «Cosa ti suggeriamo di fare» e gli Approfondimenti. La sezione 1 si compone così:
+  - **Gauge** (un terzo della riga): valore espresso rispetto al ruolo in `centerValue`, arco in `chart-highlight`, sotto «−20% dall'atteso». Il gap di adeguatezza non ha più un riquadro suo.
+  - **Bar Chart** (due terzi della riga): le persone valutate in ordine di valore espresso, atteso 100% come linea tratteggiata con il nome, tutte le barre in `chart-mono`; chi supera il 100% ha un'etichetta lime con lo scarto («+6»), come nella classifica dei confronti. Il lime pieno di questa sezione è uno solo, quello del Gauge. Frase calcolata sopra: «[N] sotto l'atteso, [M] oltre.»
+  - **Ring** della copertura mansioni, con la percentuale in `centerValue`, scritta una volta sola.
+  - **L'impatto**: «€ [—] · In attesa dei dati di bilancio» finché il bilancio non è caricato.
+  - **Disposizione**: in alto Gauge (un terzo) e Bar Chart (due terzi) sulla stessa riga; sotto, Ring e L'impatto affiancati, a metà riga ciascuno. Su mobile uno sotto l'altro, nello stesso ordine.
+  - **Sparkline** sotto il numero del Gauge solo se c'è uno storico vero del valore espresso; senza storico, niente.
+  - «Gap medio» si toglie se coincide con il gap di adeguatezza.
+  - Frase della sezione: «Le [23] persone valutate esprimono l'[80]% di quello che chiede il loro ruolo: [19] sono sotto l'atteso, [4] lo superano.»
+- **Le perdite invisibili** parla solo delle perdite. Nel grafico della sezione 1, per ogni area la barra dell'**ottenuto** sulla scala 1–10, l'**atteso** come segno tratteggiato con il valore («Atteso 7,0») e lo scarto scritto in fondo alla barra («−1,2»): il gap si vede senza leggere i numeri. Via «Cosa ti suggeriamo di fare» e gli Approfondimenti.
+- **Il potenziale** parla solo delle risorse interne. Via «Cosa ti suggeriamo di fare» e gli Approfondimenti.
+- **Dove intervenire**: cambia solo il testo. Resta la pagina che porta alla Panoramica.
+
+**Altre pagine di Assessment**
+
+- **Intervista**: si passa da una domanda all'altra senza dover rispondere alla precedente. Le domande senza risposta restano segnate come tali nel riepilogo.
+- **Dati aziendali** diventano la prima sezione dell'Intervista, prima delle domande. La voce «Dati aziendali» esce dal menu; i link «Vai a Dati aziendali» portano a quella sezione. Il caricamento del bilancio e i campi a mano non cambiano.
+- **Panoramica**: oggi resta su «Caricamento dei dati di Assessment…» per circa 5 secondi. Va ridotto; se un blocco è lento, gli altri compaiono subito. Gli euro dicono «In attesa dei dati di bilancio», come nelle altre pagine, non «In attesa della formula».
+
+**Grafici aggregati (regola generale)**
+
+Quando i valori stanno vicini all'atteso (per esempio «Punteggio medio per cluster di competenze» e «Profilo Big Five aggregato», tutti tra 5,8 e 5,9):
+- si mostra lo **scostamento dall'atteso**, con barre in più e in meno attorno allo zero e il valore scritto («−0,1»), oppure l'ottenuto con il segno dell'atteso come sopra;
+- il valore più lontano dall'atteso è in `chart-highlight`: **un grafico senza lime non è finito**;
+- con le etichette lunghe le barre sono orizzontali: le etichette non si sovrappongono mai.
+
+**Recruiting**
+
+- **Profilo della ricerca (home)**: restano la riga Società · Campagna · CIP e le tre card. Si toglie solo il blocco «Acme Corp · Recruiting / Profilo della ricerca / Configura profilo…». Le tre card diventano grandi e verticali, a tutta altezza, come le finestre della home di Assessment, con lo stesso contenuto di oggi.
+- **Chi cerchiamo?**
+  1. **Profilatura candidato**: una frase e il pulsante «Job profile & description», che apre il Profilo candidato.
+  2. **Competenze trasversali analitiche**: apre la pagina **Competenze trasversali** (nuova, livello 1), con l'elenco delle 35 soft skill. Si scelgono quelle del profilo e per ognuna il **valore atteso da 1 a 10**. È l'unico posto dove si scelgono: **la scelta esce dal Profilo candidato**. Il riquadro mostra quante sono state scelte.
+  3. **Candidature**: CV ricevuti · CV in linea con il profilo.
+  4. **L'impatto**.
+- **Il profilo è quello della posizione attiva.** Oggi la configurazione e Risultati mostrano il profilo di «Sales Account Manager» su «Senior Frontend Engineer». Ogni ricerca ha la sua configurazione, che cambia con la posizione.
+- **Chi è più adatto?**
+  1. **Ranking**: i candidati della posizione ordinati per match CV / profilo, in %; il clic sul nome apre il CV; la colonna di selezione e «Invia link test» (il pattern che esiste). È il contenuto di oggi di `/recruiting/pagina-a`.
+  2. **Risultati**: test completati · test in attesa · primo in classifica.
+  3. **Vai ai migliori candidati**: porta alla classifica dopo il test (`/recruiting/ranking`), che nel menu si chiama **Migliori candidati**.
+  4. **L'impatto**.
+  5. **Cosa ti suggeriamo di fare**.
+- **Chi scegliamo?** è il colloquio: entra tutto l'attuale livello 4. Sezioni: «1 Colloqui» (in programma, con data, link a Prossimi colloqui) · «2 Valutazioni» (interviste strutturate e valutazioni fatte e da fare) · «3 Candidati al podio» (punti di forza e rischi) · «4 L'impatto» · «5 Cosa ti suggeriamo di fare» (link al Report finale di valutazione).
+- **Menu di Recruiting**:
+  - Profilo della ricerca · Panoramica
+  - **Chi cerchiamo?**: Profilo candidato · Competenze trasversali · CV & Esportazione · CV elaborati · Avanzamento della selezione · CV preselezionati
+  - **Chi è più adatto?**: Ranking · Migliori candidati · Confronto interno · Stato dell'arte · Imbuto di selezione
+  - **Chi scegliamo?**: Prossimi colloqui · Candidati al podio · Intervista strutturata · Valutazione candidato · Report finale di valutazione · Candidati per fascia di idoneità
+  - Strumenti · Amministrazione, come oggi.
+  - Il livello 4 sparisce. Imbuto di selezione compare una volta sola. «Classifica dopo il test» esce dal livello 1: se è la stessa pagina di Migliori candidati, la rotta resta e si annota in DECISIONI; se mostra altro, si scrive nel resoconto prima di toglierla.
+  - Le sottovoci si vedono solo con il livello aperto. È aperto un livello alla volta: quello della pagina attiva.
+- **CV dei candidati: da stimare, non da costruire.** Al salvataggio del Profilo candidato nasce il link dell'annuncio. Roberto chiede se chi apre quel link può caricare il CV e ritrovarlo subito in piattaforma, sulla posizione. Serve: se si può fare, come (pagina pubblica, consenso privacy, limiti sui file) e quanto tempo richiede. Fino all'ok di Roberto non si costruisce.
 
 ### Fase 7 — Verifica
 
@@ -1453,8 +1529,8 @@ progetto di Alessio, che è il punto di verità. Per l'interfaccia, dal
   a schermo è "i test che utilizziamo". Il nome resta solo nel codice, nelle
   variabili e nei documenti interni.
 - **Parole bandite** (manuale p. 55): soluzione, innovativo,
-  all'avanguardia, a 360 gradi, valorizzare, potenziale inespresso, sinergia,
-  chiavi in mano.
+  all'avanguardia, a 360 gradi, potenziale inespresso, sinergia, chiavi in
+  mano. «Valorizzare» è ammesso dal 2026-11-06 (Roberto).
 - **Inglese**: in dashboard restano report, gap, benchmark, feedback, team
   (etichette di lavoro, deciso il 2026-10-29); nei testi di presentazione solo
   engagement, turnover, recruiting, assessment, onboarding.
@@ -1590,7 +1666,8 @@ Si verifica guardando il componente, non chiedendo a chi lo ha portato.
 
 **Tipografia**
 - [ ] Solo Geist e Geist Mono, solo 400/500/600.
-- [ ] Corpi dalla scala interfaccia: `text-app-*`. Mai la scala del sito.
+- [ ] Corpi dalla scala interfaccia: `text-app-*`. La scala del sito solo nelle
+      pagine di presentazione (home e pagine dei risultati, cap. 7 «Testi»).
 - [ ] Etichette dei campi, sovratitoli, intestazioni di tabella, nomi delle
       metriche e tag con `label-mono`.
 - [ ] Colonne numeriche in Geist Mono o con cifre tabulari.

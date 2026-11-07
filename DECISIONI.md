@@ -2886,3 +2886,79 @@ Richiesta di Bilal: i campi a tutta riga si leggono male, le card esterne restan
 ogni campo, oltre cento righe; (b) una regola sola sul contenitore della pagina. **Presa (b)**: `FIELD_WIDTHS`, si
 cambia in un punto e una pagina nuova dell'area la riceve con una riga. Usa selettori su `data-slot`, non cambia
 l'API delle primitive. Solo in Area valutatori: altrove i campi restano come sono finché non viene chiesto.
+
+## Atteso del ruolo cercato · 2026-11-07
+Decisione del 2026-11-06. Il profilo del ruolo non ha valori attesi per nessuna delle 14 mansioni, quindi ognuno
+ripiegava sul proprio. **Presa**: 1) l'atteso del profilo, se c'è; 2) chi ricopre il ruolo tiene il suo; 3) chi viene da
+altrove si misura con la regola già usata per un dipendente nuovo: 8 sulle competenze del ruolo, 6 sulle altre.
+**Cosa cambia**: i confronti con persone di altre mansioni; il valore espresso di ciascuno sul proprio ruolo no.
+**Limite**: se chi ricopre il ruolo ha un atteso cambiato a mano, gli altri non lo seguono.
+
+## Il valore: barre e testi · 2026-11-07
+- **Barre**: CLAUDE.md dice Bar Chart e «come nella classifica dei confronti». Presa la classifica (`RoleFitRanking`):
+  ha già atteso tratteggiato con il nome ed etichetta lime con lo scarto. Non è Bklit: stessa scelta dei confronti.
+- **Gap medio**: oggi coincide (−20%) e non compare; compare sotto il Gauge se è diverso, come chiede il testo.
+- **Tolti**: la barra delle fasce e i riquadri dal 5 novembre, perché il nuovo disegno non li prevede. Le fasce restano
+  in Il potenziale e Panoramica.
+- **Sezione 2**: CLAUDE.md non ne dice il contenuto; restano i tre riquadri proposti il 5 novembre, ancora da approvare.
+  Due ripetono i numeri della frase sopra (21 e 4).
+
+## Le perdite: lo scarto in fondo alla barra · 2026-11-07
+Bklit scrive in fondo alla barra solo il valore. Aggiunto il dato della riga a `valueLabel` (`bar.tsx`) e la prop
+`barNote` a `CategoryBars`. Il valore ottenuto resta nel tooltip e nella tabella. Tutte le aree, anche quelle sopra l'atteso.
+
+## Domande saltate · 2026-11-07
+Il cursore ha sempre un valore, quindi «senza risposta» vuol dire: nessun commento e cursore al valore di partenza. Chi
+lascia il cursore al valore di partenza senza commentare risulta senza risposta. Il punteggio in cima al report continua a
+contare quei valori: togliere le domande saltate dalla formula è una scelta di metodo. **Da decidere con Roberto.**
+
+## Dati aziendali nell'Intervista · 2026-11-07
+Sezione in cima alla pagina, sopra il report. **Presa**: mentre si risponde alle domande non si vede, altrimenti spingerebbe
+il percorso sotto una pagina di moduli. Se l'Intervista non è ancora fatta, la pagina si apre comunque dai Dati aziendali.
+
+## Panoramica: euro con il bilancio caricato · 2026-11-07
+La richiesta copre il bilancio mancante, ma con il bilancio «In attesa dei dati» sarebbe falso. **Presa**: dal motore ROI gli
+importi che ha (valore a rischio = potenziali lordi, competenze, turnover, assenze, totale costi evitabili). Restano «€ [—]»,
+con il testo che lo dice, inefficienze, importi per area, per azione e cascata: il motore non li ha. **Da confermare.**
+
+## Account demo di default · 2026-11-07
+`hr@acme.example` si aggiunge a `demo@skill-vision.it` senza variabili su Railway. Quell'account nasce solo dal seed, che in
+produzione è rifiutato. Sovrascrive la scelta del 5 novembre (solo demo@skill-vision.it).
+
+## Competenze per posizione · 2026-11-07
+Decisione del 2026-11-06: ogni ricerca ha la sua configurazione. **Opzioni**: (a) una chiave nuova per posizione; (b) una mappa
+per posizione nel documento che già c'è. Il backend accetta solo un elenco chiuso di chiavi, quindi (a) richiede di toccarlo.
+**Presa (b)**: `{positions: {[openingId]: {flags, expected}}}` in `SKILL_FLAGS_KEY`. Il vecchio documento piatto si ignora: una
+posizione senza configurazione parte vuota. **Da sapere**: chi aveva scelto competenze per «Sales Account Manager» non le ritrova.
+
+## Valore atteso e punteggi · 2026-11-07
+Il valore atteso da 1 a 10 si porta sulla scala del test (×31/10) e sostituisce la soglia del peso per quella competenza. Senza
+valore resta la soglia del peso, scritta nel campo come suggerimento. **Cosa cambia**: i punteggi cambiano solo per chi scrive un
+valore. **Da confermare con Roberto.**
+
+## Menu: un livello aperto alla volta · 2026-11-07
+Aperto il livello della pagina attiva; la freccia ne apre un altro finché non si cambia pagina. Il valutatore non apre le pagine
+dei risultati: per lui il titolo apre e chiude e basta.
+
+## «Classifica dopo il test» · 2026-11-07
+CLAUDE.md: se è la stessa pagina di Migliori candidati si annota, se mostra altro si scrive nel resoconto. **Mostra altro**
+(`PipelineSectionPage section="classifica"`). Voce tolta dal menu come chiesto, rotta `/recruiting/classifica-test` conservata.
+Scritto nel resoconto per Roberto.
+
+## Ranking: il nome apre il CV · 2026-11-07
+Decisione del 2026-11-06. `CvOpenButton` con `asName`; il pulsante CV resta, nessuno ha chiesto di toglierlo. Il match è in % solo
+nel Ranking (`percent` di `CvMatchDialog`): altrove resta su 10. Tolta la colonna col punteggio, che ripeteva il numero.
+
+## Etichetta dopo il segno dell'atteso · 2026-11-07
+Nelle barre orizzontali lo scarto stava subito dopo la barra e il segno dell'atteso lo attraversava. **Opzioni**: (a) spostare il
+testo oltre il segno; (b) scriverlo dentro la barra, illeggibile sulle barre corte. **Presa (a)**: `valueLabelPast` di `bar.tsx`,
+modifica alla copia locale di Bklit. Lo scarto resta in fondo, dopo il segno quando il segno è più lontano della barra.
+
+## Tooltip dei pattern dei grafici · 2026-11-07
+Il tooltip di Bklit usa la chiave del dato come nome e arrotonda all'intero. `CategoryBars` e `TrendChart` ora passano `rows` con
+il nome della serie e il formato del grafico. Non era nella richiesta: §9 chiede che il passaggio del mouse mostri il valore.
+
+## Caricamento dei CV dal link dell'annuncio · 2026-11-07
+Stima per Roberto, **non si costruisce fino al suo ok**. Fattibile, 27–39 ore (4–5 giornate); dettaglio e domande aperte in
+`resoconto-2026-11-06.md`. Punti tecnici: `publicJobPostings` oggi è solo GET; `POST /cv` richiede l'accesso e controlla solo il
+tipo dichiarato; `syncRankingFromBackend` aggiorna i candidati presenti ma non ne aggiunge; `createLimiter` è in memoria per istanza.

@@ -19,7 +19,10 @@ type OpenState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; messa
 // (backendCvId unset) gets an honest "no CV" message instead of a dead
 // legacy link; a genuine fetch failure is shown the same way, distinct
 // wording, both non-blocking (never a false "opened").
-export function CvOpenButton({ candidate, className }: { candidate: Candidate; className?: string }) {
+//
+// Con `asName` il comando è il nome del candidato: nel Ranking il clic sul nome apre il CV
+// (Decisioni del 2026-11-06).
+export function CvOpenButton({ candidate, className, asName = false }: { candidate: Candidate; className?: string; asName?: boolean }) {
   const [state, setState] = useState<OpenState>({ kind: 'idle' })
   const pending = state.kind === 'pending'
 
@@ -57,6 +60,11 @@ export function CvOpenButton({ candidate, className }: { candidate: Candidate; c
     <div className="flex flex-col items-start gap-1">
       <Tooltip>
         <TooltipTrigger asChild>
+          {asName ? (
+            <button type="button" onClick={handleClick} disabled={pending} className="text-left text-app-small font-semibold text-foreground underline-offset-2 hover:underline focus-visible:underline disabled:opacity-60">
+              {candidate.name}
+            </button>
+          ) : (
           <Button
             type="button"
             onClick={handleClick}
@@ -68,6 +76,7 @@ export function CvOpenButton({ candidate, className }: { candidate: Candidate; c
             {pending ? <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" /> : <FileText className="size-3.5 shrink-0" aria-hidden="true" />}
             CV
           </Button>
+          )}
         </TooltipTrigger>
         <TooltipContent>Apre il CV caricato in una nuova scheda</TooltipContent>
       </Tooltip>

@@ -73,9 +73,19 @@ export const platformsApi = {
   activate: (id: string) => apiPost<BackendPlatform>(`/platforms/${id}/activate`),
 }
 
+// All'apertura la stessa società la chiedono in tre (i controlli dei moduli e la società
+// di Assessment): si aspetta la stessa risposta, una chiamata sola.
+const companyInFlight = new Map<string, Promise<BackendCompany>>()
+
 export const companiesApi = {
   list: () => apiGet<BackendCompany[]>('/companies'),
-  get: (id: string) => apiGet<BackendCompany>(`/companies/${id}`),
+  get: (id: string) => {
+    const running = companyInFlight.get(id)
+    if (running) return running
+    const request = apiGet<BackendCompany>(`/companies/${id}`).finally(() => companyInFlight.delete(id))
+    companyInFlight.set(id, request)
+    return request
+  },
   redeemAccessCode: (id: string, code: string) => apiPost<BackendCompany>(`/companies/${id}/redeem-access-code`, { code }),
   setAssessmentPackage: (id: string, assessmentPackage: AssessmentPackage) => apiPut<BackendCompany>(`/companies/${id}/assessment-package`, { assessmentPackage }),
 }

@@ -9,24 +9,27 @@ import { cn } from '@/lib/utils'
 // tacche piene in `chart-mono` invece di `chart-1`, perché una serie sola
 // prende `chart-mono` (regole di colore della Fase 5) — in DECISIONI.
 // Il punteggio è su 10 (`max`); il numero non si ripete fuori dal grafico.
+// `tone="highlight"`: l'arco in lime, se è il numero principale della pagina. Con
+// `unit` il valore si scrive così com'è anche oltre il massimo (109%): si ferma solo l'arco.
 // Misura fissa (il rapporto 21/16 di Bklit): il default di Bklit chiede almeno
 // 300px di larghezza, che in una colonna stretta scorre. `md` 240 × 183,
 // `sm` 192 × 146 per una riga di quattro card.
-export function ScoreGauge({ value, max = 10, label, size = 'md', className }: { value: number; max?: number; label: string; size?: 'sm' | 'md'; className?: string }) {
+export function ScoreGauge({ value, max = 10, label, size = 'md', tone = 'mono', unit, decimals = 1, className }: { value: number; max?: number; label: string; size?: 'sm' | 'md'; tone?: 'mono' | 'highlight'; unit?: string; decimals?: number; className?: string }) {
   const [w, h] = size === 'sm' ? [192, 146] : [240, 183]
   const v = Math.max(0, Math.min(max, value))
-  const shown = Math.round(v * 10) / 10
+  const factor = 10 ** decimals
+  const shown = Math.round((unit ? value : v) * factor) / factor
   return (
-    <div data-slot="score-gauge" role="img" aria-label={`${label}: ${shown.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} su ${max}`} className={cn('flex justify-start', className)}>
+    <div data-slot="score-gauge" role="img" aria-label={`${label}: ${shown.toLocaleString('it-IT', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}${unit ?? ` su ${max}`}`} className={cn('flex justify-start', className)}>
       <Gauge
         width={w}
         height={h}
         value={(v / max) * 100}
-        activeFill="var(--chart-mono)"
+        activeFill={tone === 'highlight' ? 'var(--chart-highlight)' : 'var(--chart-mono)'}
         centerValue={shown}
         defaultLabel={label}
-        suffix={` /${max}`}
-        formatOptions={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }}
+        suffix={unit ?? ` /${max}`}
+        formatOptions={{ minimumFractionDigits: decimals, maximumFractionDigits: decimals }}
       />
     </div>
   )

@@ -88,7 +88,10 @@ export interface BarProps {
   minBarHeight?: number;
   /** Skill Vision: writes each bar's value as a direct label (above a vertical
    * bar, after a horizontal one) — CLAUDE.md, "Barre con il valore". */
-  valueLabel?: (value: number) => string;
+  valueLabel?: (value: number, datum: Record<string, unknown>) => string;
+  /** Skill Vision: in a horizontal bar the label goes past this key's value when it is
+   * further than the bar, so it does not cross the BarReference mark on that key. */
+  valueLabelPast?: string;
 }
 
 interface BarInnerProps extends BarProps {
@@ -200,6 +203,7 @@ const BarInner = memo(function BarInner({
   perspective = false,
   minBarHeight = 0,
   valueLabel,
+  valueLabelPast,
   barScale,
   bandWidth,
   barXAccessor,
@@ -408,6 +412,8 @@ const BarInner = memo(function BarInner({
         const effectiveRx = applyRounding ? cornerRadius : 0;
         const effectiveRy = applyRounding ? cornerRadius : 0;
 
+        const pastValue = valueLabelPast ? Number(d[valueLabelPast]) : Number.NaN;
+        const pastX = Number.isFinite(pastValue) ? (scale(pastValue) ?? 0) : 0;
         const label = valueLabel ? (
           <text
             className="tabular-nums"
@@ -417,10 +423,10 @@ const BarInner = memo(function BarInner({
             key={`${barKey}-label`}
             opacity={isFaded ? fadedOpacity : 1}
             textAnchor={isHorizontal ? "start" : "middle"}
-            x={isHorizontal ? x + barW + 4 : x + barW / 2}
+            x={isHorizontal ? Math.max(x + barW, pastX) + 4 : x + barW / 2}
             y={isHorizontal ? y + barHeight / 2 : y - 4}
           >
-            {valueLabel(value)}
+            {valueLabel(value, d)}
           </text>
         ) : null;
 

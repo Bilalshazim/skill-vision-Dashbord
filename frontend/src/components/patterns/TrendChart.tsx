@@ -2,6 +2,7 @@ import { Area, ChartTooltip, ComposedChart, Grid, Line, LineSeriesTerminalMarker
 import { ChartDataTable } from '@/components/patterns/ChartDataTable'
 import { ChartLegend } from '@/components/patterns/ChartLegend'
 import { seriesColors } from '@/lib/chart-colors'
+import { fmtDec } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 export type TrendSeries = {
@@ -93,7 +94,7 @@ export function TrendChart({
               <XAxis numTicks={Math.min(points.length, 8)} />
               <YAxis formatValue={format} labelInset={barPad} />
               {hasRight ? <YAxis yAxisId="right" orientation="right" formatValue={format} labelInset={barPad} /> : null}
-              <ChartTooltip />
+              <ChartTooltip rows={(p) => series.map((s, i) => ({ color: colors[i], label: s.label, value: (format ?? fmtDec)(Number(p[s.key]) || 0) }))} />
             </>
           )}
         </ComposedChart>

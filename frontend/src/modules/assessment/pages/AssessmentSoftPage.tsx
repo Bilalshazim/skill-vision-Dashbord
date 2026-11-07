@@ -119,6 +119,30 @@ export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultVie
   )
 }
 
+function AggregateBars({ title, rows }: { title: string; rows: { label: string; ott: number; att: number }[] }) {
+  const { ui } = useAssessment()
+  const furthest = rows.reduce((best, r) => (Math.abs(r.ott - r.att) > Math.abs(best.ott - best.att) ? r : best), rows[0])
+  return (
+    <CategoryBars
+      title={title}
+      valueMax={10}
+      orientation="horizontal"
+      compact
+      series={[
+        { key: 'ott', label: ui.chartObtained },
+        { key: 'att', label: ui.chartExpected, reference: true },
+      ]}
+      rows={rows.map((r) => ({ label: r.label, values: { ott: r.ott, att: r.att } }))}
+      highlight={furthest?.label}
+      barNote={(label) => {
+        const r = rows.find((x) => x.label === label)
+        const gap = r ? round1(r.ott - r.att) : 0
+        return `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${fmt1(Math.abs(gap))}`
+      }}
+    />
+  )
+}
+
 function SoftOrgView() {
   const { state, lang, ui } = useAssessment()
   const BIGFIVE_DIMS = getBigFiveDims(lang)
@@ -138,6 +162,10 @@ function SoftOrgView() {
     bfOrgAtteso[d] = round1(avg(state.employees.flatMap((e) => ids.map((id) => (e.soft[id] || { atteso: 6 }).atteso))))
   })
   const worst = orgWorstSoftSkills(state, lang, 8)
+  // Grafici aggregati (Decisioni del 2026-11-06): i valori stanno vicini all'atteso, quindi
+  // l'ottenuto con il segno dell'atteso e lo scarto scritto; il più lontano in lime.
+  const clusterRows = clusterAvgs.map((c) => ({ label: shortCluster(c.cluster), ott: c.ott, att: c.att }))
+  const bfRows = BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, ott: bfOrg[d], att: bfOrgAtteso[d] }))
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -145,17 +173,7 @@ function SoftOrgView() {
           <CardHeader>
             <CardTitle>{ui.softClusterAvgTitle}</CardTitle>
           </CardHeader>
-          {/* G2 — cluster aziendali, ottenuto contro atteso (DECISIONI). */}
-          <CategoryBars
-            title={ui.softClusterAvgTitle}
-            valueMax={10}
-            orientation="horizontal"
-            series={[
-              { key: 'ott', label: ui.chartObtained },
-              { key: 'att', label: ui.chartExpected, reference: true },
-            ]}
-            rows={clusterAvgs.map((c) => ({ label: c.cluster, values: { ott: c.ott, att: c.att } }))}
-          />
+          <AggregateBars title={ui.softClusterAvgTitle} rows={clusterRows} />
           <Note className="mt-3">
             {ui.softClusterAvgNote}
           </Note>
@@ -164,16 +182,7 @@ function SoftOrgView() {
           <CardHeader>
             <CardTitle>{ui.softBigFiveOrgTitle}</CardTitle>
           </CardHeader>
-          {/* G1 — Big Five aziendale, ottenuto contro atteso (DECISIONI). */}
-          <CategoryBars
-            title={ui.softBigFiveOrgTitle}
-            valueMax={10}
-            series={[
-              { key: 'ott', label: ui.chartObtained },
-              { key: 'att', label: ui.chartExpected, reference: true },
-            ]}
-            rows={BF_ORDER.map((d) => ({ label: BIGFIVE_DIMS[d].label, values: { ott: bfOrg[d], att: bfOrgAtteso[d] } }))}
-          />
+          <AggregateBars title={ui.softBigFiveOrgTitle} rows={bfRows} />
         </Card>
       </div>
       <Card className="mt-4">

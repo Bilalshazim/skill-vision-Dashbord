@@ -24,6 +24,10 @@ export const ROLES: Record<string, RoleProfile> = rolesSeed as Record<string, Ro
 // migration, so this constant intentionally does not read that memory key.
 export const DEFAULT_ROLE = 'Sales Account Manager'
 export const DEFAULT_FLAGS: Record<string, SoftSkillLevel> = { ...ROLES[DEFAULT_ROLE].flags }
+// I valori attesi da 1 a 10 della posizione attiva (lib/skill-flags.ts). I punteggi del test
+// sono su 31: senza un valore scelto vale la soglia del peso, come sempre.
+export const DEFAULT_EXPECTED: Record<string, number> = {}
+export const skillTarget = (skill: string, level: SoftSkillLevel): number => (DEFAULT_EXPECTED[skill] != null ? (DEFAULT_EXPECTED[skill] * 31) / 10 : W[level].t)
 
 // I pesi delle 35 competenze si possono cambiare dal selettore del Profilo
 // della ricerca (Foglio 8): la scelta si salva sul server e rimpiazza il

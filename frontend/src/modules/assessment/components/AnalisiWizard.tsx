@@ -41,9 +41,9 @@ function toDraft(a: ExiData): Draft {
 // (0-7) Executive Human Capital Interview intake form: company setup, 5
 // slider questions with tier-colored readouts (Q1/Q2/Q4/Q5[inverted]/Q6),
 // an area-criticality multi-select grid (Q3), a decisions multi-select grid
-// (Q7), and 3-slot risk/objective text lists (Q5/Q6). Same per-step
-// required-field validation as legacy (comment/list fields required,
-// sliders always valid), same skip-ahead guard on the step pills.
+// (Q7), and 3-slot risk/objective text lists (Q5/Q6). Si passa da una domanda
+// all'altra senza dover rispondere alla precedente (Decisioni del 2026-11-06): le
+// domande senza risposta le segna il riepilogo (AssessmentAnalisiPage).
 // Le otto decisioni avevano un'emoji come icona (dizionario IT/EN): qui
 // l'icona Lucide corrispondente, per carattere (CLAUDE.md cap. 7).
 const DECISION_ICON: Record<string, LucideIcon> = {
@@ -58,79 +58,30 @@ const DECISION_ICON: Record<string, LucideIcon> = {
 }
 
 export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { initial: ExiData; startStep: number; onCancel: (() => void) | null; onGenerate: (data: ExiData) => void }) {
-  const { ui, toast } = useAssessment()
+  const { ui } = useAssessment()
   const [draft, setDraft] = useState<Draft>(() => toDraft(initial))
   const [step, setStep] = useState(startStep)
-  const [invalidStep, setInvalidStep] = useState<number | null>(null)
 
   const steps = ui.exiSteps as string[]
   const roles = ui.exiRoles as string[]
   const areas = ui.exiAreas as string[]
   const decisions = ui.exiDecisions as { ic: string; nm: string; ds: string }[]
 
-  function stepFields(n: number): (keyof Draft)[] | 'risk' | 'obj' {
-    if (n === 1) return ['q1c']
-    if (n === 2) return ['q2c']
-    if (n === 3) return ['q3c']
-    if (n === 4) return ['q4c']
-    if (n === 5) return 'risk'
-    if (n === 6) return 'obj'
-    if (n === 7) return ['q7c']
-    return []
-  }
-  function stepIsValid(n: number): boolean {
-    const f = stepFields(n)
-    if (f === 'risk') return draft.riskDraft.every((v) => v.trim().length > 0)
-    if (f === 'obj') return draft.objDraft.every((v) => v.trim().length > 0)
-    return f.every((k) => String(draft[k] ?? '').trim().length > 0)
-  }
-  function firstInvalidStep(): number | null {
-    for (let n = 1; n <= 7; n++) if (!stepIsValid(n)) return n
-    return null
-  }
-
   function goStep(i: number) {
-    if (i < 0 || i > 7) return
-    setStep(i)
-    setInvalidStep(null)
+    if (i >= 0 && i <= 7) setStep(i)
   }
   function next() {
-    if (step >= 1 && step <= 7 && !stepIsValid(step)) {
-      toast(ui.exiValidationMsg, 'err')
-      setInvalidStep(step)
-      return
-    }
     goStep(step + 1)
   }
   function prev() {
     goStep(step - 1)
   }
-  function goStepGuarded(i: number) {
-    if (i > step) {
-      for (let n = 1; n < i && n <= 7; n++) {
-        if (!stepIsValid(n)) {
-          toast(ui.exiValidationMsg, 'err')
-          goStep(n)
-          setInvalidStep(n)
-          return
-        }
-      }
-    }
-    if (i === 8) {
-      generate()
-      return
-    }
-    goStep(i)
+  function selectStep(i: number) {
+    if (i === 8) generate()
+    else goStep(i)
   }
 
   function generate() {
-    const bad = firstInvalidStep()
-    if (bad) {
-      toast(ui.exiValidationMsg, 'err')
-      goStep(bad)
-      setInvalidStep(bad)
-      return
-    }
     onGenerate({
       completed: true,
       azienda: draft.azienda,
@@ -173,10 +124,6 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
     setDraft((prev) => ({ ...prev, decSel: prev.decSel.includes(i) ? prev.decSel.filter((x) => x !== i) : [...prev.decSel, i] }))
   }
 
-  function fieldInvalid(n: number, key: string) {
-    return invalidStep === n && !String((draft as unknown as Record<string, unknown>)[key] ?? '').toString().trim()
-  }
-
   const total = steps.length - 1
   const cancelBtn = initial.completed && onCancel ? (
     <Button variant="ghost" size="sm" onClick={onCancel}>
@@ -189,7 +136,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
       <PageHeader title={ui.analisiPageTitle} description={<>{ui.exiBadge} · {ui.exiEstimatedTime}</>} actions={cancelBtn} />
       <Card className="mb-6">
         <Progress value={(step / total) * 100} className="mb-3" aria-label={`${step} / ${total}`} />
-        <StepNav steps={steps} current={step} onSelect={goStepGuarded} label={ui.analisiPageTitle} />
+        <StepNav steps={steps} current={step} onSelect={selectStep} label={ui.analisiPageTitle} />
       </Card>
 
       {step === 0 && (
@@ -232,8 +179,8 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
         </div>
       )}
 
-      {step === 1 && <SliderStep n={1} eyebrow={ui.exiQ1Eyebrow} title={ui.exiQ1Title} sub={ui.exiQ1Sub} ticks={ui.exiQ1Ticks} value={draft.q1} ph={ui.exiQ1Ph} comment={draft.q1c} invalid={fieldInvalid(1, 'q1c')} commentLabel={ui.exiCommentLabel} pointsOf10Label={ui.exiPointsOf10} backLabel={ui.exiBackBtn} nextLabel={ui.exiNextBtn} onValue={(v) => setDraft((p) => ({ ...p, q1: v }))} onComment={(v) => setDraft((p) => ({ ...p, q1c: v }))} onBack={prev} onNext={next} />}
-      {step === 2 && <SliderStep n={2} eyebrow={ui.exiQ2Eyebrow} title={ui.exiQ2Title} sub={ui.exiQ2Sub} ticks={ui.exiQ2Ticks} value={draft.q2} ph={ui.exiQ2Ph} comment={draft.q2c} invalid={fieldInvalid(2, 'q2c')} commentLabel={ui.exiCommentLabel} pointsOf10Label={ui.exiPointsOf10} backLabel={ui.exiBackBtn} nextLabel={ui.exiNextBtn} onValue={(v) => setDraft((p) => ({ ...p, q2: v }))} onComment={(v) => setDraft((p) => ({ ...p, q2c: v }))} onBack={prev} onNext={next} />}
+      {step === 1 && <SliderStep n={1} eyebrow={ui.exiQ1Eyebrow} title={ui.exiQ1Title} sub={ui.exiQ1Sub} ticks={ui.exiQ1Ticks} value={draft.q1} ph={ui.exiQ1Ph} comment={draft.q1c} commentLabel={ui.exiCommentLabel} pointsOf10Label={ui.exiPointsOf10} backLabel={ui.exiBackBtn} nextLabel={ui.exiNextBtn} onValue={(v) => setDraft((p) => ({ ...p, q1: v }))} onComment={(v) => setDraft((p) => ({ ...p, q1c: v }))} onBack={prev} onNext={next} />}
+      {step === 2 && <SliderStep n={2} eyebrow={ui.exiQ2Eyebrow} title={ui.exiQ2Title} sub={ui.exiQ2Sub} ticks={ui.exiQ2Ticks} value={draft.q2} ph={ui.exiQ2Ph} comment={draft.q2c} commentLabel={ui.exiCommentLabel} pointsOf10Label={ui.exiPointsOf10} backLabel={ui.exiBackBtn} nextLabel={ui.exiNextBtn} onValue={(v) => setDraft((p) => ({ ...p, q2: v }))} onComment={(v) => setDraft((p) => ({ ...p, q2c: v }))} onBack={prev} onNext={next} />}
 
       {step === 3 && (
         <div className="flex flex-col gap-4">
@@ -273,7 +220,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
               ))}
             </div>
             <Field label={ui.exiQ3NotesLabel}>
-              <Textarea aria-invalid={fieldInvalid(3, 'q3c')} placeholder={ui.exiQ3Ph} value={draft.q3c} onChange={(e) => setDraft((p) => ({ ...p, q3c: e.target.value }))} />
+              <Textarea placeholder={ui.exiQ3Ph} value={draft.q3c} onChange={(e) => setDraft((p) => ({ ...p, q3c: e.target.value }))} />
             </Field>
           </Card>
           <div className="flex items-center justify-between gap-3">
@@ -288,7 +235,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
         </div>
       )}
 
-      {step === 4 && <SliderStep n={4} eyebrow={ui.exiQ4Eyebrow} title={ui.exiQ4Title} sub={ui.exiQ4Sub} ticks={ui.exiQ4Ticks} value={draft.q4} ph={ui.exiQ4Ph} comment={draft.q4c} invalid={fieldInvalid(4, 'q4c')} commentLabel={ui.exiCommentLabel} pointsOf10Label={ui.exiPointsOf10} backLabel={ui.exiBackBtn} nextLabel={ui.exiNextBtn} onValue={(v) => setDraft((p) => ({ ...p, q4: v }))} onComment={(v) => setDraft((p) => ({ ...p, q4c: v }))} onBack={prev} onNext={next} />}
+      {step === 4 && <SliderStep n={4} eyebrow={ui.exiQ4Eyebrow} title={ui.exiQ4Title} sub={ui.exiQ4Sub} ticks={ui.exiQ4Ticks} value={draft.q4} ph={ui.exiQ4Ph} comment={draft.q4c} commentLabel={ui.exiCommentLabel} pointsOf10Label={ui.exiPointsOf10} backLabel={ui.exiBackBtn} nextLabel={ui.exiNextBtn} onValue={(v) => setDraft((p) => ({ ...p, q4: v }))} onComment={(v) => setDraft((p) => ({ ...p, q4c: v }))} onBack={prev} onNext={next} />}
 
       {step === 5 && (
         <div className="flex flex-col gap-4">
@@ -300,7 +247,6 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
                   key={i}
                   lead={i + 1}
                   aria-label={ui.exiRiskPh[i]}
-                  aria-invalid={fieldInvalid(5, 'riskDraft')}
                   placeholder={ui.exiRiskPh[i]}
                   value={draft.riskDraft[i]}
                   onChange={(e) =>
@@ -338,7 +284,6 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
                   key={i}
                   lead={i + 1}
                   aria-label={ui.exiObjPh[i]}
-                  aria-invalid={fieldInvalid(6, 'objDraft')}
                   placeholder={ui.exiObjPh[i]}
                   value={draft.objDraft[i]}
                   onChange={(e) =>
@@ -394,7 +339,7 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
               ))}
             </div>
             <Field label={ui.exiCommentLabel}>
-              <Textarea aria-invalid={fieldInvalid(7, 'q7c')} placeholder={ui.exiQ7Ph} value={draft.q7c} onChange={(e) => setDraft((p) => ({ ...p, q7c: e.target.value }))} />
+              <Textarea placeholder={ui.exiQ7Ph} value={draft.q7c} onChange={(e) => setDraft((p) => ({ ...p, q7c: e.target.value }))} />
             </Field>
           </Card>
           <div className="flex items-center justify-between gap-3">
@@ -459,7 +404,6 @@ function SliderStep({
   value,
   ph,
   comment,
-  invalid,
   commentLabel,
   pointsOf10Label,
   backLabel,
@@ -477,7 +421,6 @@ function SliderStep({
   value: number
   ph: string
   comment: string
-  invalid: boolean
   commentLabel: string
   pointsOf10Label: string
   backLabel: string
@@ -493,7 +436,7 @@ function SliderStep({
         <QuestionHeader count={`${n}/7`} eyebrow={eyebrow} title={title} subHtml={sub} />
         <SliderBox label={title} ticks={ticks} value={value} inverted={false} pointsOf10Label={pointsOf10Label} onChange={onValue} />
         <Field label={commentLabel}>
-          <Textarea aria-invalid={invalid} placeholder={ph} value={comment} onChange={(e) => onComment(e.target.value)} />
+          <Textarea placeholder={ph} value={comment} onChange={(e) => onComment(e.target.value)} />
         </Field>
       </Card>
       <div className="flex items-center justify-between gap-3">

@@ -12,14 +12,17 @@ import { AppShell } from '@/layouts/AppShell'
 import { AuthGuard } from '@/layouts/AuthGuard'
 import { PageTransition } from '@/layouts/PageTransition'
 import { useBackendSession } from '@/lib/api/useBackendSession'
+import { whenPreferencesLoaded } from '@/lib/preferences'
 import { BackendStatusBanner } from '@/modules/recruiting/components/BackendStatusBanner'
 import { RecruitingBreadcrumb } from '@/modules/recruiting/components/RecruitingBreadcrumb'
 import { RecruitingContextBar } from '@/modules/recruiting/components/RecruitingContextBar'
 import { RecruitingNav } from '@/modules/recruiting/components/RecruitingNav'
 import { ActivePositionProvider } from '@/modules/recruiting/lib/active-position'
 import { preloadRecruitingDemo } from '@/modules/recruiting/lib/demo-data'
+import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { loadRecruitingStore, setRecruitingNotice, useRecruitingStore } from '@/modules/recruiting/lib/recruiting-store'
 import { applySavedSkillFlags } from '@/modules/recruiting/lib/skill-flags'
+import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 
 // Recruiting nel guscio unico (Fase 4): AppShell con la barra laterale del
 // modulo. `contextVersion` cambia quando si sceglie un'altra società (barra
@@ -46,11 +49,6 @@ export default function RecruitingLayout() {
     void loadRecruitingStore()
   }, [])
 
-  // I pesi delle competenze vengono dai dati del server.
-  useEffect(() => {
-    if (store.status === 'ready') applySavedSkillFlags()
-  }, [store.status, store.remoteVersion])
-
   useEffect(() => {
     if (store.remoteVersion === shownRemote) return
     const dialogOpen = () => !!document.querySelector('[role="dialog"], [role="alertdialog"]')
@@ -70,10 +68,24 @@ export default function RecruitingLayout() {
   const pageKey = `${contextVersion}-${shownRemote}`
   const bumpContext = useCallback(() => setContextVersion((v) => v + 1), [])
 
-  // I dati dimostrativi si caricano da soli, sulla sola società demo (lib/demo-data.ts).
+  // I dati dimostrativi si caricano da soli, sulla sola società demo (lib/demo-data.ts); le
+  // competenze sono quelle della posizione attiva. Se cambia qualcosa, le pagine si ridisegnano.
+  // Si aspettano le preferenze dell'utente: è lì la sua posizione attiva, e prima di averle la
+  // scelta sembrerebbe mancare e si salverebbe sopra quella vera.
   useEffect(() => {
-    if (store.status === 'ready' && preloadRecruitingDemo()) bumpContext()
-  }, [store.status, bumpContext])
+    if (store.status !== 'ready') return
+    const before = getActiveOpening(readCvMatchingState()).opening?.id
+    let cancelled = false
+    void whenPreferencesLoaded().then(() => {
+      if (cancelled) return
+      const preloaded = preloadRecruitingDemo()
+      const moved = getActiveOpening(readCvMatchingState()).opening?.id !== before
+      if (applySavedSkillFlags() || preloaded || moved) bumpContext()
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [store.status, store.remoteVersion, bumpContext])
 
   return (
     <AuthGuard>

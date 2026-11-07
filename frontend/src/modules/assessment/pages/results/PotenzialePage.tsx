@@ -11,10 +11,11 @@ import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 // 03 · Il potenziale (CLAUDE.md, Fase 6, tabella "03 · Il potenziale").
 // Sopra la norma = Alto potenziale + Alto valore, sulle persone valutate. Il
 // grafico è la barra di distribuzione per fascia (pattern della Fase 5), le
-// cinque fasce con nome, numero e quota.
+// cinque fasce con nome, numero e quota. Parla solo delle risorse interne (Decisioni
+// del 2026-11-06): niente suggerimento né approfondimenti.
 export default function PotenzialePage() {
   const { ui } = useAssessment()
-  const { res, data, win, crumbs, home, demoNote, topThree } = useAssessmentResults('potenziale')
+  const { res, data, win, theme, crumbs, home, demoNote, topThree } = useAssessmentResults('potenziale')
   const labels = tierLabels(ui)
   const roi = useRoi()
   const band = (k: 'valorizzare' | 'top') => {
@@ -31,6 +32,7 @@ export default function PotenzialePage() {
       actions={<AssessmentModeSwitch />}
       crumbs={crumbs}
       number={win.number}
+      theme={theme}
       title={win.title}
       question={win.q}
       why={res.potenzialeWhy}
@@ -64,12 +66,6 @@ export default function PotenzialePage() {
         opportunityLabel: res.opportunityLabel,
       }}
       impact={{ pct: data.abovePct, label: res.potenzialeImpact, hint: res.potenzialeHint(data.above, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'potenziale') }}
-      suggestion={{ text: res.potenzialeSuggest, link: { label: res.goDove, to: '/assessment/dove-intervenire' } }}
-      deepDives={[
-        { label: res.deep.valore, to: '/assessment/valore' },
-        { label: res.deep.piani, to: '/assessment/feedback' },
-        { label: res.deep.cambio, to: '/assessment/cambio-ruolo' },
-      ]}
       home={home}
       demoNote={demoNote}
     />

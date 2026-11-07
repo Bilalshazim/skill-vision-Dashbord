@@ -1,4 +1,4 @@
-import { fmtScore10, sourceLabel } from '@/modules/recruiting/lib/format'
+import { sourceLabel } from '@/modules/recruiting/lib/format'
 import { CheckCircle2, Clock3, Link2, Loader2, Send, SendHorizonal, XCircle } from 'lucide-react'
 import { memo, useState } from 'react'
 
@@ -187,16 +187,12 @@ export const PaginaACandidateRow = memo(function PaginaACandidateRow({
         {alreadySent ? 'Link già inviato' : 'Promosso al test'}
       </label>
 
-      <div className="min-w-40 flex-1">
-        <div className="text-app-small font-semibold">{candidate.name}</div>
+      <div className="min-w-56 flex-1">
+        <CvOpenButton candidate={candidate} asName />
         <div className="text-app-caption text-muted-foreground">{sourceLabel(candidate.src)}</div>
         <div className="mt-1">
-          <CvMatchDialog candidate={candidate} />
+          <CvMatchDialog candidate={candidate} percent />
         </div>
-      </div>
-
-      <div className="shrink-0 font-mono text-app-body font-semibold text-foreground" title="Corrispondenza CV/profilo (solo CV)">
-        {fmtScore10(candidate.icv)}
       </div>
 
       <div className="flex shrink-0 flex-col gap-1">

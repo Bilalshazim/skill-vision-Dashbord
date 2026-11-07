@@ -46,6 +46,7 @@ import type { AssessmentLang, getUI } from '@/modules/assessment/lib/legacy-util
 import { TIER_BAND_TONE, TIER_DIST_TONE, TIER_ORDER, tierDescription, tierLabels } from '@/modules/assessment/lib/tier-display'
 import type { AssessmentState } from '@/modules/assessment/lib/types'
 import { assessmentResults } from '@/modules/assessment/lib/results'
+import { roiEuro, useRoi } from '@/modules/assessment/lib/use-roi'
 
 type UI = ReturnType<typeof getUI>
 
@@ -82,6 +83,10 @@ export default function AssessmentPanoramicaPage() {
   const labels = tierLabels(ui)
 
   const res = ui.res
+  // Gli euro dal motore ROI, quando il bilancio c'è (non blocca la pagina: finché non
+  // risponde resta il segnaposto). Dove il motore non ha l'importo, resta il segnaposto.
+  const roi = useRoi()
+  const base = roi.status === 'ready' ? roi.scenarios?.base : undefined
   // La vista sta nell'indirizzo (?vista=dettaglio), non nel browser.
   const [params, setParams] = useSearchParams()
   const vista: 'sintesi' | 'dettaglio' = params.get('vista') === 'dettaglio' ? 'dettaglio' : 'sintesi'
@@ -377,13 +382,13 @@ export default function AssessmentPanoramicaPage() {
       <Card padding="lg" className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div className="flex flex-col items-start gap-3">
           <p className="label-mono text-muted-foreground">{res.riskTitle}</p>
-          <span className="text-site-h2 text-foreground md:text-site-h1">€ [—]</span>
-          <Badge>{res.riskPending}</Badge>
+          <span className="text-site-h2 text-foreground md:text-site-h1">{base ? roiEuro(base.pool) : '€ [—]'}</span>
+          <Badge>{base ? res.roiTagEstimate : roi.status === 'blocked' ? res.roiBlocked : res.riskPending}</Badge>
           <p className="flex max-w-prose items-start gap-1 text-app-body text-muted-foreground">
-            <span>{res.riskRange}</span>
+            <span>{base ? res.riskReady : res.riskRange}</span>
             <InfoTip label={res.riskHow}>{res.riskHowText}</InfoTip>
           </p>
-          <p className="text-app-subtitle font-semibold text-foreground">{res.riskActions(activeActions.length)}</p>
+          <p className="text-app-subtitle font-semibold text-foreground">{res.riskActions(activeActions.length, base ? roiEuro(base.benefit) : null)}</p>
           <div className="flex flex-wrap gap-2">
             <Button asChild size="sm">
               <Link to="/assessment/feedback">{res.openPlan}</Link>
@@ -395,7 +400,7 @@ export default function AssessmentPanoramicaPage() {
         </div>
         <div className="flex min-w-0 flex-col gap-3">
           <p className="label-mono text-muted-foreground">{res.cascadeTitle}</p>
-          <CascadePlaceholder steps={res.cascadeSteps(activeActions.map((a) => a.label))} note={res.cascadeEmpty} />
+          <CascadePlaceholder steps={res.cascadeSteps(activeActions.map((a) => a.label))} note={base ? res.cascadeReady : res.cascadeEmpty} />
         </div>
       </Card>
 
@@ -434,14 +439,18 @@ export default function AssessmentPanoramicaPage() {
           link={summaryLink('perdite-invisibili')}
         >
           <ul className="flex flex-col gap-1 text-app-small">
-            {(res.sumLossItems as string[]).map((item) => (
-              <li key={item} className="flex justify-between gap-2">
-                <span className="text-muted-foreground">{item}</span>
-                <span className="font-mono text-foreground">€ [—]</span>
-              </li>
-            ))}
+            {(res.sumLossItems as string[]).map((item, i) => {
+              // Competenze mancanti, turnover, assenze dal motore; le inefficienze non le ha.
+              const amount = base ? [base.gapVal, base.turnVal, base.assVal][i] : undefined
+              return (
+                <li key={item} className="flex justify-between gap-2">
+                  <span className="text-muted-foreground">{item}</span>
+                  <span className="font-mono text-foreground">{amount != null ? roiEuro(amount) : '€ [—]'}</span>
+                </li>
+              )
+            })}
           </ul>
-          <p className="text-app-caption text-muted-foreground">{res.sumLossNote}</p>
+          {base ? null : <p className="text-app-caption text-muted-foreground">{res.sumLossNote}</p>}
         </SummaryCard>
         <SummaryCard
           number={win('potenziale').number}
@@ -469,7 +478,7 @@ export default function AssessmentPanoramicaPage() {
           title={win('dove-intervenire').title}
           question={win('dove-intervenire').q}
           value={res.sumActions(activeActions.length, peopleInActions)}
-          note={res.sumActionsNote}
+          note={res.sumActionsNote(base ? roiEuro(base.benefit) : null)}
           link={summaryLink('dove-intervenire')}
         />
       </div>
@@ -489,7 +498,7 @@ export default function AssessmentPanoramicaPage() {
             footer={
               <p className="flex justify-between gap-2 text-app-small">
                 <span className="font-semibold text-foreground">{res.lossTotal}</span>
-                <span className="font-mono text-foreground">€ [—]</span>
+                <span className="font-mono text-foreground">{base ? roiEuro(base.pool) : '€ [—]'}</span>
               </p>
             }
           >
@@ -509,7 +518,7 @@ export default function AssessmentPanoramicaPage() {
           </ChartCard>
         </section>
         <section>
-          <PageHeader title={res.impactTitle} description={res.impactSub} />
+          <PageHeader title={res.impactTitle} description={base ? res.impactSubReady : res.impactSub} />
           <ActionList
             ranked
             items={interventions.map((i) => ({ ...i, value: '€ [—]' }))}
@@ -518,7 +527,7 @@ export default function AssessmentPanoramicaPage() {
               <>
                 <p className="flex justify-between gap-2 text-app-small">
                   <span className="font-semibold text-foreground">{res.impactTotal}</span>
-                  <span className="font-mono text-foreground">€ [—]</span>
+                  <span className="font-mono text-foreground">{base ? roiEuro(base.benefit) : '€ [—]'}</span>
                 </p>
                 <Button asChild>
                   <Link to="/assessment/feedback">{res.openPlan}</Link>
@@ -542,7 +551,7 @@ export default function AssessmentPanoramicaPage() {
 
       <footer className="flex flex-wrap justify-between gap-3 border-t border-border pt-4 text-app-caption text-muted-foreground">
         <span>{isDemoMode() ? `Dati dimostrativi · ${company?.name ?? '—'} · ${res.peopleCount(total)}` : res.peopleCount(total)}</span>
-        <span>{res.euroFooter}</span>
+        {base ? null : <span>{res.euroFooter}</span>}
       </footer>
     </>
   )

@@ -1,15 +1,16 @@
-import { CompletionRing } from '@/components/patterns/CompletionRing'
+import { Link } from 'react-router-dom'
+
 import { ResultsPage } from '@/components/patterns/ResultsPage'
+import { ResultsTile } from '@/components/patterns/ResultsTile'
+import { Button } from '@/components/ui/button'
 import { useRecruitingResults } from '@/modules/recruiting/results/use-recruiting-results'
 
-// «Chi cerchiamo?» — Definire il candidato ideale (CLAUDE.md, Fase 6, tabella
-// "Chi cerchiamo?"). Sulla posizione attiva: CV ricevuti = Candidatura
-// acquisita, in linea con il profilo = Profilo in valutazione (i CV
-// preselezionati). Le competenze trasversali scelte sono quelle del Profilo
-// candidato. Gli euro senza sottotitolo: in Recruiting lo decide Roberto.
+// «Chi cerchiamo?» (Decisioni del 2026-11-06): 1 Profilatura candidato, 2 Competenze
+// trasversali analitiche, 3 Candidature, 4 L'impatto. Sulla posizione attiva: CV ricevuti =
+// Candidatura acquisita, in linea con il profilo = Profilo in valutazione. Gli euro senza
+// sottotitolo: in Recruiting lo decide Roberto.
 export default function ChiCerchiamoPage() {
   const { data, step, position, crumbs, home, demoNote } = useRecruitingResults('chi-cerchiamo')
-  const hint = 'I CV preselezionati, sul totale dei CV ricevuti per questa posizione.'
   return (
     <ResultsPage
       crumbs={crumbs}
@@ -17,36 +18,42 @@ export default function ChiCerchiamoPage() {
       title={step.title}
       question={step.sub}
       why="Una ricerca parte bene se il profilo è chiaro. Requisiti e competenze definiti prima di leggere i CV rendono i candidati confrontabili e tolgono tempo alla selezione."
-      situation={{
-        text: `Per ${position} sono arrivati ${data.received} CV: ${data.inLine} ${data.inLine === 1 ? 'è' : 'sono'} in linea con il profilo.`,
-        hint: { label: 'Che cosa misura l’anello', text: hint },
-        chart: data.received ? <CompletionRing value={data.inLinePct ?? 0} label="CV in linea con il profilo" center="in linea" /> : undefined,
-        chartEmpty: 'L’anello compare quando arrivano i primi CV per questa posizione.',
-      }}
-      issues={{
-        items: [
-          { title: 'CV ricevuti', value: data.received ? `${data.received} CV` : 'Nessuno oggi.', link: { label: 'Apri', to: '/recruiting/cv-elaborati' } },
-          { title: 'In linea con il profilo', value: data.inLine ? `${data.inLine} CV` : 'Nessuno oggi.', link: { label: 'Apri', to: '/recruiting/preselezionati' } },
-          {
-            title: 'Competenze trasversali scelte',
-            value: data.softSkillsChosen ? `${data.softSkillsChosen} ${data.softSkillsChosen === 1 ? 'competenza' : 'competenze'}` : 'Nessuna ancora: si scelgono nel Profilo candidato.',
-            link: { label: 'Apri', to: '/recruiting/job-profile' },
-          },
-        ],
-        opportunity: 'con il profilo definito, tutti i CV si misurano con lo stesso metro.',
-      }}
-      impact={{ pct: data.inLinePct, label: 'dei CV ricevuti è in linea con il profilo', hint }}
-      suggestion={{
-        text: 'Completare il profilo con le competenze trasversali prima di leggere i CV. Per sceglierle puoi interpellare il Senior Advisor.',
-        link: { label: 'Vai al Profilo candidato', to: '/recruiting/job-profile' },
-      }}
-      deepDives={[
-        { label: 'CV & Esportazione', to: '/recruiting/cv' },
-        { label: 'CV elaborati', to: '/recruiting/cv-elaborati' },
-        { label: 'Avanzamento della selezione', to: '/recruiting/pipeline' },
-        { label: 'CV preselezionati', to: '/recruiting/preselezionati' },
-        { label: 'Classifica dopo il test', to: '/recruiting/classifica-test' },
+      sections={[
+        {
+          title: 'Profilatura candidato',
+          content: (
+            <div className="flex max-w-prose flex-col items-start gap-3">
+              <p className="text-app-body text-foreground">{`Il profilo di ${position}: requisiti, competenze professionali e annuncio.`}</p>
+              <Button asChild>
+                <Link to="/recruiting/job-profile">Job profile & description</Link>
+              </Button>
+            </div>
+          ),
+        },
+        {
+          title: 'Competenze trasversali analitiche',
+          content: (
+            <div className="max-w-md">
+              <ResultsTile
+                title="Competenze scelte"
+                value={data.softSkillsChosen ? `${data.softSkillsChosen} su 35` : 'Nessuna ancora.'}
+                body="Le competenze del profilo e, per ognuna, il valore atteso da 1 a 10."
+                link={{ label: 'Apri Competenze trasversali', to: '/recruiting/competenze-trasversali' }}
+              />
+            </div>
+          ),
+        },
+        {
+          title: 'Candidature',
+          content: (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <ResultsTile title="CV ricevuti" value={data.received ? `${data.received} CV` : 'Nessuno oggi.'} link={{ label: 'Apri', to: '/recruiting/cv-elaborati' }} />
+              <ResultsTile title="In linea con il profilo" value={data.inLine ? `${data.inLine} CV` : 'Nessuno oggi.'} link={{ label: 'Apri', to: '/recruiting/preselezionati' }} />
+            </div>
+          ),
+        },
       ]}
+      impact={{ pct: data.inLinePct, label: 'dei CV ricevuti è in linea con il profilo', hint: 'I CV preselezionati, sul totale dei CV ricevuti per questa posizione.' }}
       home={home}
       demoNote={demoNote}
     />

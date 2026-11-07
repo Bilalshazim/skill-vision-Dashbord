@@ -27,9 +27,19 @@ export function roleSkills(state: AssessmentState, role: string, lang: Assessmen
     .sort((a, b) => b.weight - a.weight)
 }
 
-/** L'atteso di una competenza: quello del ruolo, altrimenti quello registrato sulla persona. */
+/**
+ * L'atteso di una competenza per il ruolo di riferimento: quello del profilo del ruolo.
+ * Se il profilo non lo dice, chi ricopre il ruolo tiene il suo; chi viene da un altro
+ * ruolo si misura con la regola del ruolo, 8 sulle sue competenze e 6 sulle altre (la
+ * stessa di new-employee.ts), mai con l'atteso del proprio: confronterebbe ognuno con un
+ * metro diverso (Federico Longo 36/38 e Davide Longo 38/40 davano tutti e due 95%).
+ */
 export function expectedSoft(state: AssessmentState, emp: Employee, role: string, id: string): number {
-  return state.roleProfiles[role]?.skillExpected?.[id] ?? emp.soft[id]?.atteso ?? 8
+  const rp = state.roleProfiles[role]
+  const fixed = rp?.skillExpected?.[id]
+  if (fixed != null) return fixed
+  if (emp.ruolo === role) return emp.soft[id]?.atteso ?? 8
+  return (rp?.skillWeights ? rp.skillWeights[id] : rp?.requiredSkills?.includes(id)) ? 8 : 6
 }
 
 type Totals = { got: number; expected: number }

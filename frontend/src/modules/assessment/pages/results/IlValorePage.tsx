@@ -1,67 +1,66 @@
 import { CompletionRing } from '@/components/patterns/CompletionRing'
-import { DistributionBar } from '@/components/patterns/DistributionBar'
-import { InfoTip } from '@/components/patterns/InfoTip'
+import { EuroFigure } from '@/components/patterns/EuroFigure'
 import { ResultsPage } from '@/components/patterns/ResultsPage'
-import { StaggerList } from '@/components/patterns/StaggerList'
-import { StatCard } from '@/components/patterns/StatCard'
+import { RoleFitRanking } from '@/components/patterns/RoleFitRanking'
+import { ScoreGauge } from '@/components/patterns/ScoreGauge'
 import { Card } from '@/components/ui/card'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { roiFigure } from '@/modules/assessment/components/RoiFigure'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
-import { TIER_DIST_TONE, TIER_ORDER, tierLabels } from '@/modules/assessment/lib/tier-display'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 import { useRoi } from '@/modules/assessment/lib/use-roi'
 
-// 01 · Il valore (formula di Roberto, 2026-11-05; DECISIONI). Sotto la frase, come
-// «Stato attuale» e «Fasce» della Panoramica: quattro riquadri in riga — valore
-// espresso, gap di adeguatezza, copertura mansioni, gap medio — e la distribuzione
-// per fascia. Ogni numero una volta: nell'impatto resta solo la cifra in euro.
+// 01 · Il valore (CLAUDE.md, Fase 6, Decisioni del 2026-11-06). Parla solo dei
+// risultati: due sezioni, «1 La situazione oggi», con dentro L'impatto, e «2 Criticità
+// e opportunità». In alto il Gauge (un terzo) e le persone per valore espresso (due
+// terzi); sotto, a metà riga, il Ring della copertura e L'impatto. Niente sparkline:
+// il valore espresso non ha uno storico. Il gap medio compare solo se è diverso dal
+// gap di adeguatezza.
 export default function IlValorePage() {
   const { ui } = useAssessment()
-  const { res, data, win, f, crumbs, home, demoNote } = useAssessmentResults('il-valore')
-  const labels = tierLabels(ui)
+  const { res, data, win, theme, crumbs, home, demoNote } = useAssessmentResults('il-valore')
   const roi = useRoi()
-  const label = (name: string, hint: string) => (
-    <span className="inline-flex items-center gap-1">
-      {name}
-      <InfoTip label={`Che cosa misura: ${name}`}>{hint}</InfoTip>
-    </span>
-  )
   const worst = data.worstRoleByGap
+  const index = data.index ?? 0
+  const rows = [...data.ranked]
+    .filter((r) => r.index != null)
+    .sort((a, b) => (b.index ?? 0) - (a.index ?? 0))
+    .map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, meta: r.e.ruolo || r.e.mansione, value: Math.round(r.index ?? 0), color: 'var(--chart-mono)' }))
   return (
     <ResultsPage
       actions={<AssessmentModeSwitch />}
       crumbs={crumbs}
       number={win.number}
+      theme={theme}
       title={win.title}
       question={win.q}
       why={res.valoreWhy}
       empty={data.total && data.index != null ? undefined : { title: res.noTestsTitle, description: res.noTests }}
       situation={{
-        text: res.valoreSituation(data.total, data.index ?? 0),
+        text: res.valoreSituation(data.total, index, data.belowExpected, data.aboveExpected),
         wide: true,
         chart: (
           <div className="flex flex-col gap-4">
-            <StaggerList className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard label={label(res.indexLabel, res.indexHint)} value={res.indexPct(data.index)} />
-              <StatCard label={label(res.gapLabel, res.gapHint)} value={res.gapPct(data.gap)} />
-              <StatCard label={ui.panoCoverage} value={data.coverage} unit="%" note={ui.panoCoverageNote}>
-                <CompletionRing value={data.coverage} label={ui.panoCoverage} className="mx-0" />
-              </StatCard>
-              <StatCard label={label(res.gapMedioLabel, res.gapMedioHint)} value={res.gapPct(data.gapMedio)} />
-            </StaggerList>
-            <Card className="gap-3">
-              <p className="label-mono text-muted-foreground">{res.valoreBands}</p>
-              <DistributionBar
-                segments={TIER_ORDER.map((k) => ({
-                  key: k,
-                  label: labels[k],
-                  pct: data.total ? (data.byTier[k].length / data.total) * 100 : 0,
-                  tone: TIER_DIST_TONE[k],
-                  display: `${data.byTier[k].length} · ${data.total ? Math.round((data.byTier[k].length / data.total) * 100) : 0}%`,
-                }))}
-              />
-            </Card>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <Card className="gap-3">
+                <p className="label-mono text-muted-foreground">{res.indexLabel}</p>
+                <ScoreGauge value={index} max={100} unit="%" decimals={0} tone="highlight" label={res.valoreGaugeCenter} />
+                <p className="text-app-body text-foreground">{res.valoreGaugeNote(data.gap ?? 0)}</p>
+                {data.gapMedio !== data.gap ? <p className="text-app-small text-muted-foreground">{`${res.gapMedioLabel}: ${res.gapPct(data.gapMedio)}`}</p> : null}
+              </Card>
+              <RoleFitRanking className="lg:col-span-2" label={res.valoreBarsTitle} sentence={res.valoreBars(data.belowExpected, data.aboveExpected)} rows={rows} referenceLabel={res.cmpReference} valueLabel={res.indexLabel} />
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Card className="gap-3">
+                <p className="label-mono text-muted-foreground">{ui.panoCoverage}</p>
+                <CompletionRing value={data.coverage} label={ui.panoCoverage} center={res.valoreRingCenter} className="mx-0" />
+                <p className="text-app-small text-muted-foreground">{ui.panoCoverageNote}</p>
+              </Card>
+              <Card className="gap-3">
+                <p className="label-mono text-muted-foreground">{res.impactLabel}</p>
+                <EuroFigure euro={roiFigure(res, roi, 'valore')} />
+              </Card>
+            </div>
           </div>
         ),
       }}
@@ -74,13 +73,6 @@ export default function IlValorePage() {
         opportunity: res.valoreOpportunity(worst?.label ?? null),
         opportunityLabel: res.opportunityLabel,
       }}
-      impact={{ euro: roiFigure(res, roi, 'valore') }}
-      suggestion={{ text: res.valoreSuggest(worst?.label ?? null), link: { label: res.goDove, to: '/assessment/dove-intervenire' } }}
-      deepDives={[
-        { label: res.deep.valore, to: '/assessment/valore' },
-        { label: res.deep.risultati, to: f.A ? '/assessment/soft-risultati' : '/assessment/hard-risultati' },
-        { label: res.deep.anagrafica, to: '/assessment/anagrafica' },
-      ]}
       home={home}
       demoNote={demoNote}
     />

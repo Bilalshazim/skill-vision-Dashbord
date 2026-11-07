@@ -1,4 +1,5 @@
-import { DEFAULT_FLAGS, DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
+import { activeRole } from '@/modules/recruiting/lib/active-role'
+import { DEFAULT_FLAGS } from '@/modules/recruiting/lib/constants'
 import { downloadText as downloadFile } from '@/lib/download'
 import { type AhiResult, ci, fasce, skillTierSums } from '@/modules/recruiting/lib/scoring'
 import type { Candidate } from '@/modules/recruiting/lib/types'
@@ -23,7 +24,7 @@ export function downloadCandidateReport(c: Candidate, r: AhiResult, position: nu
 
   const rows: [string, string | number][] = [
     ['Candidato', c.name],
-    ['Ruolo', DEFAULT_ROLE],
+    ['Ruolo', activeRole()],
     ['Posizione in classifica', `${position} / ${totalRanked}`],
     ['Fonte', c.src || ''],
     ['AHI /10', s10(r.v)],
@@ -54,7 +55,7 @@ export function downloadCandidateReport(c: Candidate, r: AhiResult, position: nu
 export function downloadCandidateProfileJson(c: Candidate, r: AhiResult): void {
   const out = {
     nome: c.name,
-    ruolo: DEFAULT_ROLE,
+    ruolo: activeRole(),
     ahi: r.v,
     dettaglio: r,
     compatibilita_interna: ci(c),
@@ -75,9 +76,9 @@ export function downloadCandidateProfileJson(c: Candidate, r: AhiResult): void {
 export function downloadRankingCsv(rk: { c: Candidate; r: AhiResult }[]): void {
   let csv = 'Posizione;Candidato;AHI /10;FitCompetenze /10;AffinitaBigFive /10;IndiceCV /10;RedFlag;Ruolo\n'
   rk.forEach(({ c, r }, i) => {
-    csv += `${i + 1};${c.name};${s10(r.v)};${s10(r.fc)};${s10(r.ab)};${s10(r.icv)};${r.capped ? 'SI' : 'NO'};${DEFAULT_ROLE}\n`
+    csv += `${i + 1};${c.name};${s10(r.v)};${s10(r.fc)};${s10(r.ab)};${s10(r.icv)};${r.capped ? 'SI' : 'NO'};${activeRole()}\n`
   })
-  downloadFile(`ranking_${DEFAULT_ROLE.replace(/ /g, '_')}.csv`, csv, 'text/csv')
+  downloadFile(`ranking_${activeRole().replace(/ /g, '_')}.csv`, csv, 'text/csv')
 }
 
 // PHASE 16 — ported verbatim from exportJSON() (modules/recruiting.html
@@ -87,7 +88,7 @@ export function downloadRankingCsv(rk: { c: Candidate; r: AhiResult }[]): void {
 export function downloadRankingJson(rk: { c: Candidate; r: AhiResult }[]): void {
   const out = {
     generato: new Date().toISOString(),
-    ruolo: DEFAULT_ROLE,
+    ruolo: activeRole(),
     profilo_flag: DEFAULT_FLAGS,
     formula: 'AHI = 0.55*FC + 0.30*AB + 0.15*ICV (cap 59 se essenziale < 60% target)',
     candidati: rk.map(({ c, r }, i) => ({
@@ -103,5 +104,5 @@ export function downloadRankingJson(rk: { c: Candidate; r: AhiResult }[]): void 
       big_five: c.bf,
     })),
   }
-  downloadFile(`profili_ats_${DEFAULT_ROLE.replace(/ /g, '_')}.json`, JSON.stringify(out, null, 2), 'application/json')
+  downloadFile(`profili_ats_${activeRole().replace(/ /g, '_')}.json`, JSON.stringify(out, null, 2), 'application/json')
 }

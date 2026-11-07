@@ -15,7 +15,7 @@ import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 // 10 contro 23 era l'etichetta dell'interruttore, scritta su ogni scheda
 // (DECISIONI).
 export default function DoveIntervenirePage() {
-  const { res, data, win, crumbs, home, demoNote } = useAssessmentResults('dove-intervenire')
+  const { res, data, win, theme, crumbs, home, demoNote } = useAssessmentResults('dove-intervenire')
   const critical = data.byTier.critica.length
   const { ui } = useAssessment()
   const labels = tierLabels(ui)
@@ -30,6 +30,7 @@ export default function DoveIntervenirePage() {
       actions={<AssessmentModeSwitch />}
       crumbs={crumbs}
       number={win.number}
+      theme={theme}
       title={win.title}
       question={win.q}
       why={res.doveWhy}
@@ -61,7 +62,7 @@ export default function DoveIntervenirePage() {
         opportunity: res.doveOpportunity(highUntouched?.without ?? 0, (highUntouched?.withFeedback ?? 0) + (highUntouched?.without ?? 0)),
         opportunityLabel: res.opportunityLabel,
       }}
-      impact={{ pct: data.withInterventionPct, label: res.doveImpact, hint: res.doveHint(data.withIntervention, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'dove') }}
+      impact={{ pct: data.feedbackPct, label: res.doveImpact, hint: res.doveHint(data.feedbackEvaluated, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'dove') }}
       suggestion={{ text: res.doveSuggest, link: { label: res.goPanoramica, to: '/assessment/panoramica' } }}
       deepDives={[
         { label: res.deep.piani, to: '/assessment/feedback' },

@@ -7,16 +7,19 @@ import { Hint } from '@/components/patterns/Hint'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { EssentialSkillBars } from '@/modules/recruiting/components/EssentialSkillBars'
-import { DEFAULT_FLAGS, DEFAULT_MATCH_THRESHOLD, DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
+import { activeRole } from '@/modules/recruiting/lib/active-role'
+import { DEFAULT_FLAGS, DEFAULT_MATCH_THRESHOLD } from '@/modules/recruiting/lib/constants'
 import { addPrescreenedEntry, getActiveOpening, removePrescreenedCandidate, setPrescreenStatus } from '@/modules/recruiting/lib/pipeline'
 import { linkExistingCandidateToBackend, markSentViaBackend, refreshShortlistStatuses, sendTestLinkViaBackend } from '@/modules/recruiting/lib/backend-sync'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import type { Candidate, PrescreenedEntry } from '@/modules/recruiting/lib/types'
 import { Button } from '@/components/ui/button'
 
-const ESSENTIAL_SKILLS = Object.entries(DEFAULT_FLAGS)
-  .filter(([, lv]) => lv === 3)
-  .map(([sk]) => sk)
+// Le essenziali della posizione attiva, al momento: cambiano con la posizione.
+const essentialSkills = () =>
+  Object.entries(DEFAULT_FLAGS)
+    .filter(([, lv]) => lv === 3)
+    .map(([sk]) => sk)
 
 // Legacy's own guard message for this exact failure (sendCvMatchTestLink,
 // modules/recruiting.html line 3076) — reused verbatim rather than invented.
@@ -54,7 +57,10 @@ type WriteState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'error'; mess
 // bridge existed for ("completato" isn't implemented) is unchanged and
 // still real — the user just reaches the real Pipeline screen to hit it,
 // instead of the legacy app.
-export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
+// `percent`: il match in percentuale, come chiede il Ranking (Decisioni del 2026-11-06).
+export function CvMatchDialog({ candidate, percent = false }: { candidate: Candidate; percent?: boolean }) {
+  const fmtMatch = (n: number) => (percent ? `${Math.round(n)}%` : fmtScore10(n))
+  const match = fmtMatch(candidate.icv)
   const [open, setOpen] = useState(false)
   const [already, setAlready] = useState<PrescreenedEntry | undefined>(undefined)
   const [writeState, setWriteState] = useState<WriteState>({ kind: 'idle' })
@@ -210,23 +216,23 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
           size="sm"
         >
           <Target className="size-3.5 shrink-0" aria-hidden="true" />
-          Match CV/Profilo: {fmtScore10(candidate.icv)}
+          Match CV/Profilo: {match}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{candidate.name}</DialogTitle>
           <DialogDescription>
-            Ruolo: <b className="font-semibold text-foreground">{DEFAULT_ROLE}</b>
+            Ruolo: <b className="font-semibold text-foreground">{activeRole()}</b>
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex items-center gap-4 rounded-sm border border-border bg-secondary p-4">
-          <div className={cn('text-metric-lg font-mono font-semibold tabular-nums', above ? 'text-success' : 'text-warning')}>{fmtScore10(candidate.icv)}</div>
+          <div className={cn('text-metric-lg font-mono font-semibold tabular-nums', above ? 'text-success' : 'text-warning')}>{match}</div>
           <p className="text-app-small text-muted-foreground">
             {above
-              ? `Sopra soglia (${fmtScore10(DEFAULT_MATCH_THRESHOLD)}) — link test idoneo all'invio automatico`
-              : `Sotto soglia (${fmtScore10(DEFAULT_MATCH_THRESHOLD)}) — invio manuale`}
+              ? `Sopra soglia (${fmtMatch(DEFAULT_MATCH_THRESHOLD)}) — link test idoneo all'invio automatico`
+              : `Sotto soglia (${fmtMatch(DEFAULT_MATCH_THRESHOLD)}) — invio manuale`}
           </p>
         </div>
 
@@ -238,7 +244,7 @@ export function CvMatchDialog({ candidate }: { candidate: Candidate }) {
               A).
             </p>
           ) : (
-            <EssentialSkillBars candidate={candidate} essentialSkills={ESSENTIAL_SKILLS} />
+            <EssentialSkillBars candidate={candidate} essentialSkills={essentialSkills()} />
           )}
         </div>
 

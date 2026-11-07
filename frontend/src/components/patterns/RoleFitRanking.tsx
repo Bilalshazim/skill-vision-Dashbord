@@ -50,10 +50,17 @@ export function RoleFitRanking({
             <li key={r.id} className={cn('grid grid-cols-1 items-center gap-1 transition-opacity sm:grid-cols-5 sm:gap-4', focus && focus !== r.id && 'opacity-40')}>
               <span className="flex min-w-0 items-center gap-3">
                 {ranked ? <span className="text-app-small tabular-nums text-muted-foreground">{i + 1}</span> : null}
-                <button type="button" aria-pressed={focus === r.id} onClick={() => onFocus?.(r.id)} className="min-w-0 rounded-xs text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
-                  <span className="block truncate text-app-small font-semibold text-foreground">{r.name}</span>
-                  {r.meta ? <span className="block truncate text-app-caption text-muted-foreground">{r.meta}</span> : null}
-                </button>
+                {onFocus ? (
+                  <button type="button" aria-pressed={focus === r.id} onClick={() => onFocus(r.id)} className="min-w-0 rounded-xs text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+                    <span className="block truncate text-app-small font-semibold text-foreground">{r.name}</span>
+                    {r.meta ? <span className="block truncate text-app-caption text-muted-foreground">{r.meta}</span> : null}
+                  </button>
+                ) : (
+                  <span className="min-w-0">
+                    <span className="block truncate text-app-small font-semibold text-foreground">{r.name}</span>
+                    {r.meta ? <span className="block truncate text-app-caption text-muted-foreground">{r.meta}</span> : null}
+                  </span>
+                )}
               </span>
               <div className="flex items-center gap-3 sm:col-span-4">
                 <Tooltip>

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
+import { activeRole } from '@/modules/recruiting/lib/active-role'
 import { ensurePipeline, getActiveOpening, pipelineStage, plDateFmt } from '@/modules/recruiting/lib/pipeline'
 import { countStages, positionCandidateIds, positionStages, STAGES, type StageCounts, sumStages } from '@/modules/recruiting/lib/position-funnel'
 import { type AhiResult, pendingCandidates, ranking } from '@/modules/recruiting/lib/scoring'
@@ -228,7 +228,7 @@ export function useRecruitingHomeData(): RecruitingHomeData {
 
     return {
       kpis,
-      roleLabel: DEFAULT_ROLE,
+      roleLabel: activeRole(),
       rankedCount: rk.length,
       buckets,
       openings: openingRows,

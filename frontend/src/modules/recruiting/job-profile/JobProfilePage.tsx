@@ -5,14 +5,14 @@ import { useEffect, useRef, useState } from 'react'
 
 import { useConfirm } from '@/hooks/use-confirm'
 import { Badge } from '@/components/ui/badge'
+import { TextLink } from '@/components/patterns/EuroFigure'
 import { InlineAlert } from '@/components/patterns/InlineAlert'
 import { JobPostingSection } from '@/modules/recruiting/profile-hub/JobPostingSection'
-import { SoftSkillSection } from '@/modules/recruiting/profile-hub/SoftSkillSection'
 import { useSkillFlags } from '@/modules/recruiting/lib/skill-flags'
 import { jobProfilesApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
-import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
-import { buildJdStateFromPreset, buildSoftSkillItems, loadJdTemplate, saveJdTemplate } from '@/modules/recruiting/lib/jd'
+import { activeRole } from '@/modules/recruiting/lib/active-role'
+import { buildBlankJdState, buildJdStateFromPreset, buildSoftSkillItems, loadJdTemplate, saveJdTemplate } from '@/modules/recruiting/lib/jd'
 import { loadJobProfileFromBackend, saveJobProfileToBackend } from '@/modules/recruiting/lib/backend-sync'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
@@ -43,9 +43,7 @@ const SECTION_TITLES: Record<JdSectionKey, string> = {
   kpi: 'KPI',
   valutazione: 'Cosa valuterà SKILL-VISION',
 }
-const SECTION_SUB: Partial<Record<JdSectionKey, string>> = {
-  softSkills: 'Le 35 competenze trasversali APEX 5D. Le voci con peso sono derivate dalle competenze selezionate per la posizione — imposta per ciascuna il valore atteso (scala APEX /31, decimali ammessi, es. 6.3).',
-}
+const SECTION_SUB: Partial<Record<JdSectionKey, string>> = {}
 
 // Ported literal groups order from jd_buildEditor() (modules/recruiting.html
 // ~4058-4080) — Intestazione + Compensation e Benefit first, then the 13
@@ -54,7 +52,7 @@ const SECTION_SUB: Partial<Record<JdSectionKey, string>> = {
 const SECTION_ORDER: JdSectionKey[] = ['responsabilita', 'attivita']
 const SECTION_ORDER_REST: JdSectionKey[] = ['competenzeTecniche', 'titoliStudio', 'certificazioni', 'esperienza', 'settori', 'lingue', 'disponibilita', 'personalita', 'kpi', 'valutazione']
 // Tutte le sezioni aperte all'inizio, come prima.
-const ALL_SECTIONS = ['header', 'salary', ...SECTION_ORDER, 'hard', 'softSkills', ...SECTION_ORDER_REST, 'extra']
+const ALL_SECTIONS = ['header', 'salary', ...SECTION_ORDER, 'hard', ...SECTION_ORDER_REST, 'extra']
 
 // Una sezione della scheda: voce di un Accordion a scelta multipla, dentro
 // una card. Solo l'intestazione apre e chiude; le frecce passano da una
@@ -82,7 +80,7 @@ function AccordionSection({ value, index, title, sub, children }: { value: strin
 // (lib/skill-flags.ts): una scheda salvata prima di cambiarli li aggiorna qui,
 // tenendo i valori attesi già scritti.
 function buildInitialState(): JdState {
-  const state = loadJdTemplate(DEFAULT_ROLE) || buildJdStateFromPreset('sam')
+  const state = loadJdTemplate(activeRole()) || buildBlankJdState(activeRole())
   state.sections.softSkills.items = buildSoftSkillItems(state.sections.softSkills.items)
   return state
 }
@@ -95,10 +93,8 @@ function buildInitialState(): JdState {
 // vuota", and CSV/XLSX import remain deferred (see the notice below) —
 // none of their code is ported here.
 //
-// ROLE SCOPE — React has no role-switcher (a boundary established since
-// Phase 4). This screen always operates on DEFAULT_ROLE ('Sales Account
-// Manager'), which is exactly JD_PROFILES.sam's title — the same content a
-// fresh legacy session with no role ever switched shows.
+// La scheda è quella della posizione attiva (Decisioni del 2026-11-06): se ne cambia
+// posizione, la pagina si riapre sulla sua.
 //
 // LOAD-ON-MOUNT — a deliberate, documented adaptation: legacy's own boot
 // sequence (`jd_loadProfile('sam')` at script-parse time) always shows the
@@ -135,9 +131,7 @@ export default function JobProfilePage() {
   const [approvalPending, setApprovalPending] = useState(false)
   const [approvalError, setApprovalError] = useState('')
 
-  // La scelta delle competenze sta ora in questa pagina: quando cambia un
-  // peso, la sezione "Competenze trasversali" della scheda lo segue subito,
-  // tenendo i valori attesi già scritti.
+  // La scelta delle competenze sta nella pagina Competenze trasversali: l'anteprima la segue.
   // useSkillFlags() dà un oggetto nuovo a ogni render: l'effetto segue il contenuto.
   const skillFlagsKey = JSON.stringify(useSkillFlags())
   const lastFlagsKey = useRef(skillFlagsKey)
@@ -233,7 +227,7 @@ export default function JobProfilePage() {
       // uploaded through the backend flow for it) — silently local-only,
       // exactly like every other feature gated on a backend link.
     }
-    saveJdTemplate(DEFAULT_ROLE, jdState)
+    saveJdTemplate(activeRole(), jdState)
     setSaveMessage(where)
     setMode('preview')
   }
@@ -318,7 +312,7 @@ export default function JobProfilePage() {
               </AccordionSection>
 
               <AccordionSection index={nextIdx()} title="Compensation e Benefit" value="salary">
-                <JdSalaryBenefits role={DEFAULT_ROLE} />
+                <JdSalaryBenefits role={activeRole()} />
               </AccordionSection>
 
               {SECTION_ORDER.map((key) => (
@@ -329,15 +323,6 @@ export default function JobProfilePage() {
 
               <AccordionSection index={nextIdx()} title="Competenze professionali" sub="Livello richiesto: seleziona una voce, poi Base / Intermedio / Avanzato / Esperto." value="hard">
                 <JdHardSkills groups={jdState.hardSkillGroups} onChange={updateHardSkillGroups} />
-              </AccordionSection>
-
-              <AccordionSection index={nextIdx()} title="Competenze trasversali" sub={SECTION_SUB.softSkills} value="softSkills">
-                {/* La scelta delle competenze trasversali, prima una card del
-                    Profilo della ricerca (documento del cliente, 2026-10-23). */}
-                <div className="mb-3">
-                  <SoftSkillSection />
-                </div>
-                <JdSection section={jdState.sections.softSkills} onChange={(next) => updateSection('softSkills', next)} />
               </AccordionSection>
 
               {SECTION_ORDER_REST.map((key) => (
@@ -356,10 +341,11 @@ export default function JobProfilePage() {
             </Card>
           </div>
 
+          <TextLink link={{ label: 'Le competenze trasversali si scelgono in Competenze trasversali', to: '/recruiting/competenze-trasversali' }} />
           <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
             <Button type="button" onClick={handleSave}>
               <Save className="size-4 shrink-0" aria-hidden="true" />
-              Salva JD per &quot;{DEFAULT_ROLE}&quot;
+              Salva JD per &quot;{activeRole()}&quot;
             </Button>
             {saveMessage && <span className="text-app-small font-medium text-success">{saveMessage}</span>}
             {backendNote && (

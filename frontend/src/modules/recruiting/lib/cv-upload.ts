@@ -1,4 +1,5 @@
-import { DEFAULT_MATCH_THRESHOLD, DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
+import { activeRole } from '@/modules/recruiting/lib/active-role'
+import { DEFAULT_MATCH_THRESHOLD } from '@/modules/recruiting/lib/constants'
 import { createCandidateFromCv } from '@/modules/recruiting/lib/candidates'
 import { addCandidateToPool, addPrescreenedEntry, buildDefaultJobProfile, getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
@@ -71,7 +72,7 @@ export type CvSignals = { skills: string[]; experienceYears: number; education: 
 // that list, since this is exported as an independently reusable, faithful
 // port of the real function, not narrowed to today's single caller.
 export function extractCvSignals(cvData: CvParseData | undefined, dynamicJobProfile: JobProfile | undefined): CvSignals {
-  const profile = dynamicJobProfile || buildDefaultJobProfile(DEFAULT_ROLE)
+  const profile = dynamicJobProfile || buildDefaultJobProfile(activeRole())
   const requiredSkills = toStringArray(profile?.criteria?.skills || [])
   const rawText = [
     cvData?.summary,
@@ -115,7 +116,7 @@ export type MatchResult = {
 // this computation itself is genuine and re-verified from current source
 // this phase, not assumed unchanged from Phase 15's audit.
 export function matchCandidateToProfile(cvData: CvParseData, dynamicJobProfile: JobProfile | undefined): MatchResult {
-  const profile = dynamicJobProfile || buildDefaultJobProfile(DEFAULT_ROLE)
+  const profile = dynamicJobProfile || buildDefaultJobProfile(activeRole())
   const criteria = profile?.criteria || {}
   const weights = profile?.weighting || {}
   const signals = extractCvSignals(cvData, profile)
@@ -202,7 +203,7 @@ export function uploadCvToActiveOpening(file: File | null): UploadCvResult {
   if (!company || !opening) return { ok: false, reason: 'no-active-opening' }
 
   const parsedCv = buildSimulatedCvData()
-  const jobProfile = opening.jobProfile || buildDefaultJobProfile(DEFAULT_ROLE)
+  const jobProfile = opening.jobProfile || buildDefaultJobProfile(activeRole())
   const matchResult = matchCandidateToProfile(parsedCv, jobProfile)
 
   const created = createCandidateFromCv({

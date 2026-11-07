@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { ModuleLockGate } from '@/components/ModuleLockGate'
@@ -27,6 +28,11 @@ function AssessmentShell() {
   const pageId = location.pathname.split('/')[2] || 'home'
   const meta = getPageMeta(lang, pageId)
   const trail = getPageTrail(lang, pageId)
+  // La pagina si apre dopo i dati: senza questo il suo codice partirebbe solo allora, in
+  // serie. La Panoramica è la più pesante: il codice si scarica insieme ai dati.
+  useEffect(() => {
+    if (pageId === 'panoramica') void import('@/modules/assessment/pages/AssessmentPanoramicaPage')
+  }, [pageId])
   return (
     <AppShell section="assessment" sidebarLabel="Assessment" sidebar={<AssessmentNav />}>
       <div data-module="assessment" data-portal-scope>

@@ -1,4 +1,4 @@
-import { BF, DEFAULT_FLAGS, DEFAULT_ROLE, ROLES, W } from '@/modules/recruiting/lib/constants'
+import { BF, DEFAULT_FLAGS, DEFAULT_ROLE, ROLES, skillTarget, W } from '@/modules/recruiting/lib/constants'
 import type { Candidate } from '@/modules/recruiting/lib/types'
 
 // Ported verbatim from modules/recruiting.html (fitFC/affAB/redFlags/ahi/
@@ -15,7 +15,7 @@ export function redFlags(c: Candidate, flags = DEFAULT_FLAGS): RedFlag[] {
   for (const [sk, lv] of Object.entries(flags)) {
     if (lv === 3) {
       const s = c.scores[sk] || 0
-      const t = W[3].t
+      const t = skillTarget(sk, 3)
       if (s < 0.6 * t) out.push({ sk, s, t, hard: true })
       else if (s < 0.75 * t) out.push({ sk, s, t, hard: false })
     }
@@ -27,8 +27,8 @@ export function fitFC(c: Candidate, flags = DEFAULT_FLAGS): number {
   let num = 0
   let den = 0
   for (const [sk, lv] of Object.entries(flags)) {
-    const { w, t } = W[lv]
-    num += w * Math.min((c.scores[sk] || 0) / t, 1)
+    const { w } = W[lv]
+    num += w * Math.min((c.scores[sk] || 0) / skillTarget(sk, lv), 1)
     den += w
   }
   return den ? (num / den) * 100 : 0

@@ -1,4 +1,4 @@
-import { buildJdStateFromPreset, generateJobPostingSummary, loadJdTemplate } from '@/modules/recruiting/lib/jd'
+import { buildBlankJdState, generateJobPostingSummary, loadJdTemplate } from '@/modules/recruiting/lib/jd'
 import { readJobPostingSummaries, readSurveyState, writeJobPostingSummaries, writeSurveyState } from '@/modules/recruiting/lib/storage'
 
 // Domain logic behind /recruiting/profile (the "Profilo della ricerca" hub —
@@ -66,7 +66,7 @@ export function loadJobPostingSummary(role: string): string {
 // own mount-time load, applied here for consistency rather than invented
 // fresh.
 export function generateJobPostingPreview(role: string): string {
-  const jdState = loadJdTemplate(role) || buildJdStateFromPreset('sam')
+  const jdState = loadJdTemplate(role) || buildBlankJdState(role)
   return generateJobPostingSummary(jdState)
 }
 

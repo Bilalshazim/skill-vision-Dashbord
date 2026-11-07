@@ -1,40 +1,19 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { Fragment, type ReactNode, useState } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import { EmptyState } from '@/components/patterns/EmptyState'
+import { EuroFigure, type ResultsEuro, type ResultsLink, TextLink } from '@/components/patterns/EuroFigure'
 import { InfoTip } from '@/components/patterns/InfoTip'
-import { ModalDialog } from '@/components/patterns/ModalDialog'
-import { Badge } from '@/components/ui/badge'
+import { ResultsTile, type ResultsIssue } from '@/components/patterns/ResultsTile'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
-export type ResultsLink = { label: string; to: string }
+export type { ResultsEuro, ResultsLink }
 
-export type ResultsIssue = {
-  title: string
-  /** Il dato del riquadro, già scritto ("4 persone", "Assistenza clienti"). Un riquadro senza persone lo dice a parole ("Nessuno oggi."), non con uno zero. */
-  value: ReactNode
-  body?: ReactNode
-  /** Righe brevi sotto il dato, per esempio le prime tre persone con mansione e punteggio. */
-  list?: { id: string; text: string }[]
-  link?: ResultsLink
-}
-
-/** La cifra in euro, già calcolata e scritta: il pattern non conosce il motore. `value` assente: il segnaposto, con il motivo. */
-export type ResultsEuro = {
-  value: string | null
-  pending?: string
-  tags?: string[]
-  note?: string
-  detail?: string
-  scenarios?: { label: string; value: string }[]
-  footer?: string
-  link?: ResultsLink
-  how?: { title: string; intro: string; rows: { label: string; value: string }[] }
-}
+export type { ResultsIssue }
 
 export type ResultsImpact = {
   /** La quota dai dati, in percentuale intera; `null` se non c'è il totale su cui calcolarla. Assente: la pagina non ha una quota. */
@@ -67,22 +46,26 @@ export type ResultsImpact = {
 export function ResultsPage({
   crumbs,
   number,
+  theme,
   title,
   question,
   actions,
   why,
   situation,
   issues,
+  sections,
   impact,
   suggestion,
   empty,
-  deepDives,
+  deepDives = [],
   home,
   demoNote,
 }: {
   /** Le voci prima della pagina corrente, dalla home. La corrente è `title`. */
   crumbs: ResultsLink[]
   number: string
+  /** Il tema della finestra, dopo il numero: «01 · Rendimento». */
+  theme?: string
   title: string
   question: string
   /** A destra del titolo, come in PageHeader: in Assessment il selettore CT / CP / Completo. */
@@ -91,18 +74,23 @@ export function ResultsPage({
   /** `text` è la frase grande; `detail` la riga sotto; `chartTitle` e `hint` stanno sopra il grafico. `chartEmpty` sostituisce il grafico quando non c'è niente da disegnare. */
   situation?: { text: ReactNode; detail?: ReactNode; chart?: ReactNode; chartTitle?: string; chartEmpty?: string; hint?: { label: string; text: ReactNode }; /** Il grafico sotto la frase, a tutta riga (il grafico a flussi). */ wide?: boolean }
   issues?: { items: ResultsIssue[]; opportunity: ReactNode; opportunityLabel?: string }
+  /** Sezioni libere, numerate dall'1, al posto di `situation` e `issues` (le pagine di Recruiting). L'impatto e il suggerimento seguono. */
+  sections?: { title: string; content: ReactNode }[]
   impact?: ResultsImpact
   /** `text`: la prima frase è il titolo della sezione, il resto la riga sotto. */
   suggestion?: { text: string; link?: ResultsLink }
   empty?: { title?: string; description: string; scope?: 'data' | 'all' }
-  deepDives: ResultsLink[]
+  deepDives?: ResultsLink[]
   home: ResultsLink
   /** La società, quando i dati sono dimostrativi: la pagina lo dice in fondo. */
   demoNote?: string
 }) {
-  const [howOpen, setHowOpen] = useState(false)
+  // I numeri di sezione seguono quelle che ci sono.
+  const before = sections?.length ?? (situation ? 1 : 0) + (issues ? 1 : 0)
+  const impactNumber = before + 1
+  const suggestionNumber = before + (impact ? 2 : 1)
   const impactSection = impact ? (
-    <Section label="3 · L'impatto" className={cn('grid grid-cols-1 gap-8', impact.index ? 'lg:grid-cols-3' : 'md:grid-cols-2')}>
+    <Section number={impactNumber} title="L'impatto" className={cn('grid grid-cols-1 gap-8', impact.index ? 'lg:grid-cols-3' : 'md:grid-cols-2')}>
       {impact.pct !== undefined ? (
         <div className="flex flex-col gap-1">
           <p className="flex items-center gap-2">
@@ -121,43 +109,7 @@ export function ResultsPage({
           <p className="text-app-body text-foreground">{impact.index.label}</p>
         </div>
       ) : null}
-      <div className="flex min-w-0 flex-col items-start gap-2">
-        <span className={cn('text-site-h2 tabular-nums md:text-site-h1', impact.euro?.value ? 'text-foreground' : 'text-muted-foreground')}>{impact.euro?.value ?? '€ [—]'}</span>
-        <span className="flex flex-wrap gap-1">
-          {impact.euro?.value ? (impact.euro.tags ?? []).map((t) => <Badge key={t}>{t}</Badge>) : <Badge>{impact.euro?.pending ?? 'In attesa della formula'}</Badge>}
-        </span>
-        {impact.euro?.note ?? impact.euroNote ? <p className="text-app-body text-muted-foreground">{impact.euro?.note ?? impact.euroNote}</p> : null}
-        {impact.euro?.detail ? <p className="text-app-small text-muted-foreground">{impact.euro.detail}</p> : null}
-        {impact.euro?.scenarios ? (
-          <dl className="grid w-full max-w-md grid-cols-3 gap-2 pt-1">
-            {impact.euro.scenarios.map((s) => (
-              <div key={s.label}>
-                <dt className="label-mono text-muted-foreground">{s.label}</dt>
-                <dd className="text-app-small tabular-nums text-foreground">{s.value}</dd>
-              </div>
-            ))}
-          </dl>
-        ) : null}
-        {impact.euro?.footer ? <p className="text-app-small text-muted-foreground">{impact.euro.footer}</p> : null}
-        {impact.euro?.link ? <TextLink link={impact.euro.link} /> : null}
-        {impact.euro?.how ? (
-          <Button type="button" variant="ghost" size="sm" onClick={() => setHowOpen(true)}>
-            {impact.euro.how.title}
-          </Button>
-        ) : null}
-        {howOpen && impact.euro?.how ? (
-          <ModalDialog title={impact.euro.how.title} sub={impact.euro.how.intro} onClose={() => setHowOpen(false)}>
-            <dl className="flex flex-col">
-              {impact.euro.how.rows.map((r) => (
-                <div key={r.label} className="flex justify-between gap-6 border-b border-border py-2 text-app-small last:border-b-0 last:font-semibold">
-                  <dt className="text-foreground">{r.label}</dt>
-                  <dd className="text-right tabular-nums text-foreground">{r.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </ModalDialog>
-        ) : null}
-      </div>
+      <EuroFigure euro={impact.euro} note={impact.euroNote} />
     </Section>
   ) : null
 
@@ -191,7 +143,7 @@ export function ResultsPage({
 
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-2">
-          <p className="label-mono text-muted-foreground">{number}</p>
+          <p className="label-mono text-muted-foreground">{theme ? `${number} · ${theme}` : number}</p>
           <h1 className="text-site-h3 text-foreground md:text-site-h2">{title}</h1>
           <p className="max-w-prose text-site-body-lg text-foreground">{question}</p>
         </div>
@@ -214,10 +166,15 @@ export function ResultsPage({
             emptyBlock
           ) : (
             <>
+              {sections?.map((s, i) => (
+                <Section key={s.title} number={i + 1} title={s.title}>
+                  {s.content}
+                </Section>
+              ))}
               {situation ? (
-                <Section label="1 · La situazione oggi" className={cn('grid grid-cols-1 gap-6', !situation.wide && 'lg:grid-cols-2 lg:gap-12')}>
+                <Section number={1} title="La situazione oggi" className={cn('grid grid-cols-1 gap-6', !situation.wide && 'lg:grid-cols-2 lg:gap-12')}>
                   <div className="flex flex-col gap-2">
-                    <h2 className="max-w-prose text-site-h4 text-foreground">{situation.text}</h2>
+                    <p className="max-w-prose text-site-h4 text-foreground">{situation.text}</p>
                     {situation.detail ? <p className="max-w-prose text-app-body text-muted-foreground">{situation.detail}</p> : null}
                   </div>
                   <div className="flex min-w-0 flex-col gap-2">
@@ -233,23 +190,10 @@ export function ResultsPage({
               ) : null}
 
               {issues ? (
-                <Section label="2 · Criticità e opportunità">
+                <Section number={situation ? 2 : 1} title="Criticità e opportunità">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {issues.items.slice(0, 3).map((it) => (
-                      <Card key={it.title} className="gap-1 bg-muted">
-                        {/* L'etichetta è neutra: un riquadro di criticità non è una fascia (CLAUDE.md, Fase 6). */}
-                        <h3 className="label-mono text-muted-foreground">{it.title}</h3>
-                        <div className="text-app-subtitle font-semibold text-foreground">{it.value}</div>
-                        {it.body ? <div className="text-app-small text-muted-foreground">{it.body}</div> : null}
-                        {it.list?.length ? (
-                          <ul className="mt-1 flex flex-col gap-1 text-app-small text-muted-foreground">
-                            {it.list.map((l) => (
-                              <li key={l.id}>{l.text}</li>
-                            ))}
-                          </ul>
-                        ) : null}
-                        {it.link ? <TextLink link={it.link} className="mt-auto pt-2" /> : null}
-                      </Card>
+                      <ResultsTile key={it.title} {...it} />
                     ))}
                   </div>
                   <p className="mt-4 max-w-prose text-app-body text-foreground">
@@ -263,9 +207,9 @@ export function ResultsPage({
           )}
 
           {suggestion ? (
-            <Section label="4 · Cosa ti suggeriamo di fare">
+            <Section number={suggestionNumber} title="Cosa ti suggeriamo di fare">
               <div className="flex max-w-3xl flex-col gap-2">
-                <h2 className="text-site-h4 text-foreground">{suggestHead}</h2>
+                <p className="text-site-h4 text-foreground">{suggestHead}</p>
                 {suggestRest ? <p className="text-app-body text-muted-foreground">{suggestRest}</p> : null}
                 {suggestion.link ? <TextLink link={suggestion.link} className="pt-1" /> : null}
               </div>
@@ -275,7 +219,7 @@ export function ResultsPage({
       )}
 
       {deepDives.length ? (
-        <Section label="Approfondimenti">
+        <Section title="Approfondimenti">
           <ul className="flex flex-wrap gap-2">
             {deepDives.map((d) => (
               <li key={d.to}>
@@ -302,25 +246,18 @@ export function ResultsPage({
   )
 }
 
-function Section({ label, className, children }: { label: string; className?: string; children: ReactNode }) {
+// Il titolo di sezione: H3 della scala del sito, minuscolo, con il numero davanti senza
+// zero (Decisioni del 2026-11-06). Si distingue dall'etichetta della finestra per
+// carattere, corpo e forma.
+function Section({ number, title, className, children }: { number?: number; title: string; className?: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-4 border-t border-border pt-6">
-      <p className="label-mono text-muted-foreground">{label}</p>
+      <h2 className="flex gap-2 text-site-h4 text-foreground md:text-site-h3">
+        {number ? <span className="text-muted-foreground">{number}</span> : null}
+        {title}
+      </h2>
       <div className={className}>{children}</div>
     </section>
-  )
-}
-
-// Un link nel testo, sottolineato, con la freccia: "Vai a Dove intervenire →".
-// Non è un bottone primario: l'azione della pagina è leggere.
-function TextLink({ link, className }: { link: ResultsLink; className?: string }) {
-  return (
-    <Link
-      to={link.to}
-      className={cn('inline-flex items-center gap-1 self-start rounded-xs text-app-small font-medium text-foreground underline underline-offset-4 hover:text-link focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring', className)}
-    >
-      {link.label} <ArrowRight className="size-3.5" aria-hidden="true" />
-    </Link>
   )
 }
 

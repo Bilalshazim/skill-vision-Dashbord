@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom'
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useActivePosition } from '@/modules/recruiting/lib/active-position'
-import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
 import { positionCandidateIds } from '@/modules/recruiting/lib/position-funnel'
 import { ranking } from '@/modules/recruiting/lib/scoring'
 import type { Candidate } from '@/modules/recruiting/lib/types'
@@ -15,7 +14,7 @@ export type RankingScope = 'posizione' | 'archivio'
 // conosce (bacino CV, preselezionati, test, colloqui); "Archivio CV" è tutto
 // l'archivio, com'era prima. Mai i due mescolati senza dirlo. La classifica si
 // calcola sempre sul profilo di riferimento salvato in Profilo Candidato
-// (`DEFAULT_ROLE`, oggi uno solo per tutta Recruiting): lo si dice accanto.
+// della posizione attiva: lo si dice accanto.
 // La scelta sta nell'indirizzo (`?ambito=archivio`), non nel browser.
 export function useRankingScope(candidates: Candidate[]) {
   const [params, setParams] = useSearchParams()
@@ -34,8 +33,8 @@ export function useRankingScope(candidates: Candidate[]) {
   }
   const description =
     scope === 'archivio'
-      ? `Tutto l'archivio CV · profilo di riferimento: ${DEFAULT_ROLE}`
-      : `Candidati della posizione «${opening?.title ?? '—'}» · profilo di riferimento: ${DEFAULT_ROLE}`
+      ? `Tutto l'archivio CV · profilo di riferimento: ${opening?.title ?? '—'}`
+      : `Candidati della posizione «${opening?.title ?? '—'}»`
   return { scope, setScope, rk, description }
 }
 

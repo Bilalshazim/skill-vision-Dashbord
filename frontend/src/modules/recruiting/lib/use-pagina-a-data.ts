@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
+import { positionCandidateIds } from '@/modules/recruiting/lib/position-funnel'
 import { pendingCandidates } from '@/modules/recruiting/lib/scoring'
 import { readCandidates, readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import type { Candidate, Company, JobOpening } from '@/modules/recruiting/lib/types'
@@ -27,9 +28,10 @@ export function usePaginaAData(refreshKey: number = 0): PaginaAData {
     // Deliberately unread — its only job is forcing this memo to
     // recompute when it changes; see the comment above.
     void refreshKey
-    const candidates = readCandidates()
-    const pending = pendingCandidates(candidates)
+    // Solo i candidati della posizione attiva (Decisioni del 2026-11-06).
     const { company, opening } = getActiveOpening(readCvMatchingState())
+    const ids = positionCandidateIds(opening)
+    const pending = pendingCandidates(readCandidates().filter((c) => ids.has(c.id)))
     return { pending, company, opening }
   }, [refreshKey])
 }

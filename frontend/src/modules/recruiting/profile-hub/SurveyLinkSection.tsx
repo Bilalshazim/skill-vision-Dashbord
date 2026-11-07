@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { buttonVariants } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
-import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
+import { activeRole } from '@/modules/recruiting/lib/active-role'
 import { clearSurveyLink, isValidUrl, loadSurveyLink, saveSurveyLink } from '@/modules/recruiting/lib/profile-hub'
 
 const ghostBtnClass = buttonVariants({ variant: 'outline', size: 'sm' })
@@ -28,7 +28,7 @@ const primaryBtnClass = buttonVariants({ size: 'sm' })
 // view-only mode this migration doesn't have.
 export function SurveyLinkSection() {
   const [open, setOpen] = useState(false)
-  const [link, setLink] = useState(() => loadSurveyLink(DEFAULT_ROLE))
+  const [link, setLink] = useState(() => loadSurveyLink(activeRole()))
   const [draft, setDraft] = useState(link)
   const dirty = useDirty(draft, open)
   const [error, setError] = useState('')
@@ -39,7 +39,7 @@ export function SurveyLinkSection() {
     if (next) {
       // Fresh read on every open — matches legacy re-reading CONFIG.surveyLink
       // each time openSurveyModal() runs, not just once at page load.
-      const fresh = loadSurveyLink(DEFAULT_ROLE)
+      const fresh = loadSurveyLink(activeRole())
       setLink(fresh)
       setDraft(fresh)
       setError('')
@@ -47,10 +47,10 @@ export function SurveyLinkSection() {
   }
 
   function handleClear() {
-    clearSurveyLink(DEFAULT_ROLE)
+    clearSurveyLink(activeRole())
     setLink('')
     setOpen(false)
-    setMessage(`Link al questionario rimosso per "${DEFAULT_ROLE}"`)
+    setMessage(`Link al questionario rimosso per "${activeRole()}"`)
   }
 
   function handleSave() {
@@ -63,7 +63,7 @@ export function SurveyLinkSection() {
       setError('⚠ URL non valido — deve iniziare con http:// o https://')
       return
     }
-    saveSurveyLink(DEFAULT_ROLE, v)
+    saveSurveyLink(activeRole(), v)
     setLink(v)
     setOpen(false)
     setMessage('Link al questionario salvato')
@@ -93,7 +93,7 @@ export function SurveyLinkSection() {
               Link al questionario
             </DialogTitle>
             <DialogDescription>
-              Ruolo: <b className="font-semibold text-foreground">&quot;{DEFAULT_ROLE}&quot;</b> — incolla il link del survey/questionario
+              Ruolo: <b className="font-semibold text-foreground">&quot;{activeRole()}&quot;</b> — incolla il link del survey/questionario
             </DialogDescription>
           </DialogHeader>
 

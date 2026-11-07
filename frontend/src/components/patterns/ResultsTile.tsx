@@ -1,0 +1,34 @@
+import type { ReactNode } from 'react'
+
+import { type ResultsLink, TextLink } from '@/components/patterns/EuroFigure'
+import { Card } from '@/components/ui/card'
+
+export type ResultsIssue = {
+  title: string
+  /** Il dato del riquadro, già scritto ("4 persone", "Assistenza clienti"). Un riquadro senza persone lo dice a parole ("Nessuno oggi."), non con uno zero. */
+  value: ReactNode
+  body?: ReactNode
+  /** Righe brevi sotto il dato, per esempio le prime tre persone con mansione e punteggio. */
+  list?: { id: string; text: string }[]
+  link?: ResultsLink
+}
+
+// Un riquadro delle pagine dei risultati. L'etichetta è neutra: un riquadro di criticità non è
+// una fascia (CLAUDE.md, Fase 6).
+export function ResultsTile({ title, value, body, list, link }: ResultsIssue) {
+  return (
+    <Card data-slot="results-tile" className="gap-1 bg-muted">
+      <h3 className="label-mono text-muted-foreground">{title}</h3>
+      <div className="text-app-subtitle font-semibold text-foreground">{value}</div>
+      {body ? <div className="text-app-small text-muted-foreground">{body}</div> : null}
+      {list?.length ? (
+        <ul className="mt-1 flex flex-col gap-1 text-app-small text-muted-foreground">
+          {list.map((l) => (
+            <li key={l.id}>{l.text}</li>
+          ))}
+        </ul>
+      ) : null}
+      {link ? <TextLink link={link} className="mt-auto pt-2" /> : null}
+    </Card>
+  )
+}

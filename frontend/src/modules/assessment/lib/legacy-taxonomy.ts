@@ -61,7 +61,6 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
   ] },
   { type:'link', id:'panoramica', label:'Overview', icon:'overview', requires:null },
   { type:'link', id:'analisi', label:'Interview', icon:'notes', requires:null },
-  { type:'link', id:'company', label:'Company Data', icon:'users', requires:null },
   { type:'group', groupId:'valutazioni', label:'Evaluation Area', icon:'soft', items:[
     { id:'soft', label:'Soft Skill Evaluations', requires:'A' },
     { id:'gestione-valutazioni', label:'Professional Evaluations', requires:'B' },
@@ -88,7 +87,6 @@ export const NAV_CONFIG_IT: NavConfigEntry[] = [
   ] },
   { type:'link', id:'panoramica', label:'Panoramica', icon:'overview', requires:null },
   { type:'link', id:'analisi', label:'Intervista', icon:'notes', requires:null },
-  { type:'link', id:'company', label:'Dati Aziendali', icon:'users', requires:null },
   { type:'group', groupId:'valutazioni', label:'Area Valutazioni', icon:'soft', items:[
     { id:'soft', label:'Valutazioni Soft Skill', requires:'A' },
     { id:'gestione-valutazioni', label:'Valutazioni Professionali', requires:'B' },

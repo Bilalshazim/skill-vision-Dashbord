@@ -190,6 +190,70 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-07 (2) — Parte B delle Decisioni del 2026-11-06
+Solo in locale: nessun commit, nessun push (richiesta di Bilal). Provato con `hr@acme.example` e `recruiter@acme.example`.
+Resoconto per Alessio e Roberto in `resoconto-2026-11-06.md`.
+- [x] Grafici aggregati (`/assessment/soft`): ottenuto, atteso tratteggiato, scarto scritto, una barra lime per grafico.
+- [x] Home di Recruiting: tolto il blocco titolo, tre card verticali a tutta altezza.
+- [x] Competenze trasversali (`/recruiting/competenze-trasversali`): 35 competenze, peso, atteso 1–10; scelta uscita dal
+      Profilo candidato (`SoftSkillSection.tsx` eliminato). Atteso 10 su Comunicazione: Marta 9,8 → 9,7, poi tolto.
+- [x] Competenze e profilo per posizione (`skill-flags.ts`, `activeRole()`).
+- [x] Chi è più adatto? e Chi scegliamo? con le sezioni nuove; Ranking in `/recruiting/pagina-a`.
+- [x] Menu di Recruiting: livello 4 tolto, un livello aperto alla volta.
+- [x] **Rotto e corretto:** a ogni caricamento la posizione attiva tornava su Senior Frontend Engineer.
+      `preloadRecruitingDemo` girava prima dell'arrivo delle preferenze, lo credeva un primo accesso e salvava sopra la
+      scelta. Ora `RecruitingLayout` aspetta `whenPreferencesLoaded()`. Provato: 15 pagine su un'altra posizione con
+      ricarica, nessun salvataggio; server e schermo coincidono dopo ogni cambio.
+- [x] **Rotto e corretto:** Ranking con il match in «/10» e non in %, nome non cliccabile, pulsante fuori dallo schermo a
+      390px. Ora % ordinate, il clic sul nome apre il CV, a 390px non esce.
+- [x] **Rotto e corretto:** lo scarto scritto attraversato dal segno dell'atteso (aggregati e Le perdite):
+      `valueLabelPast` in `bar.tsx`. Misurato: nessuna sovrapposizione.
+- [x] **Rotto e corretto:** il tooltip di `CategoryBars` e `TrendChart` mostrava «ott», «__highlight» e valori arrotondati.
+      Ora nome della serie e formato del grafico. Vale per tutti i grafici su questi pattern.
+- [x] Controlli: typecheck (`tsc -p tsconfig.app.json`), lint 0 errori, build, test ROI 6/6, audit senza difetti.
+- [ ] **Errore mio:** `tsc -p .` dalla cartella `frontend` non controlla niente (il tsconfig radice ha solo riferimenti):
+      alcuni controlli di oggi non valevano. La build li ha sempre fatti con `tsc -b`.
+- [ ] Non fatto: Metodo («ruolo Sales Account Manager») e Confronto interno non leggono la posizione attiva. Big Five ideale
+      e benchmark restano unici. Dati vecchi sotto «Sales Account Manager» restano, non visibili.
+- [ ] Non provato: menu del valutatore (nessun account), apertura di un CV vero, invio vero del link, produzione.
+- [ ] Difetto aperto: il dialogo del match si chiude con due Esc; causa non cercata. Errori in console di Bklit (larghezza
+      negativa mentre disegna) non corretti.
+- [ ] Non spiegato: una volta, prima della correzione, la posizione è ripartita da Northwind dopo aver scelto Acme. Non si è
+      ripetuto nella prova più severa.
+- [ ] L'elenco dei 14 punti di Alessio non è nel repository: nel resoconto la numerazione è ricostruita.
+
+## 2026-11-07 — Parte A delle Decisioni del 2026-11-06
+Solo in locale: nessun commit, nessun push (richiesta di Bilal). Numeri dai dati locali di Acme (25 persone).
+- [x] Dati dimostrativi sulla posizione attiva «Senior Frontend Engineer», da soli. Provato su `hr@acme.example`:
+      12 candidati, 5 test, 3 colloqui nel database, imbuto 12 · 9 · 7 · 3 · 1. La vecchia posizione a parte è
+      tolta da sola. Una posizione con candidati veri non si tocca. Nessun file del backend, nessun seed.
+- [x] `hr@acme.example` è fra gli account demo di default: «Dati dimostrativi» nei due menu.
+- [x] Atteso del ruolo cercato (`expectedSoft`): Federico Longo 90%, Davide Longo 95%, Francesca Gallo 98% su
+      Coordinatore amministrativo. Prima Federico e Davide davano 95%, ognuno sul proprio atteso.
+- [x] Dove intervenire: L'impatto usa lo stesso numero della frase (11 su 25 = 44%; con 10 su 23 sarebbe 43%).
+- [x] Etichette «01 · Rendimento» sopra i titoli; titoli di sezione H3 misurati 24px/600, −0,36px, in tutte e
+      sette le pagine; numero in `muted-foreground`. Testi «Perché è importante» di CLAUDE.md nelle quattro pagine.
+- [x] Il valore: due sezioni; Gauge, barre, Ring, L'impatto dentro la 1. Le perdite: ottenuto, atteso 7,0
+      tratteggiato, scarto in fondo alla barra. Il potenziale e Le perdite senza suggerimento né approfondimenti.
+- [x] Intervista: si passa avanti senza rispondere (provato su domande vuote, nessun errore). «Senza risposta» nel
+      riepilogo, provato con una risposta simulata del server, senza salvare.
+- [x] Dati aziendali prima sezione dell'Intervista, voce tolta dal menu; `/assessment/company` e «Vai a Dati
+      aziendali» portano lì (provati).
+- [x] Panoramica: testo «In attesa dei dati di bilancio» senza bilancio (risposta simulata); con il bilancio
+      importi veri dove il motore li ha, segnaposto altrove. Una sola chiamata alla società invece di tre; il
+      codice della pagina parte prima dei dati.
+- [x] Tempi su build di produzione in locale, dal via al contenuto: 804–1111ms (tre prove), prima 1564ms (una
+      prova). **In produzione non misurato**: i 5 secondi si misurano lì.
+- [x] 390px senza barra di scorrimento che occupa spazio, come su un telefono: Il valore senza scorrimento laterale.
+      Con la barra di un browser desktop a 390px restano 6px sulle quattro pagine provate (Il valore, Le perdite,
+      Intervista, Panoramica), dalla barra superiore del guscio, non da queste pagine. Controlli: typecheck, lint (0 errori), build, test
+      ROI 6/6, audit senza difetti.
+- [ ] Non fatto: Recruiting delle Decisioni del 2026-11-06 (home, sezioni, menu, Competenze trasversali, profilo per
+      posizione) e «Grafici aggregati»: fuori dalla Parte A richiesta.
+- [ ] Non provato: Valutazione e Report, stato senza test completati, salvataggio vero di un'intervista con domande
+      saltate, modalità chiara delle pagine nuove (provate in scura).
+- [ ] Il punteggio in cima al report dell'Intervista conta anche le domande saltate, con il valore di partenza.
+
 ## 2026-11-05 (5) — Area valutatori: campi più corti
 Solo in locale, non pubblicato (richiesta di Bilal, con screenshot).
 - [x] Regola unica `FIELD_WIDTHS` (`components/patterns/field-widths.ts`): testo, email, password e

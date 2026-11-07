@@ -20,6 +20,8 @@ export function useAssessmentResults(slug: string) {
     res,
     data,
     win,
+    /** L'etichetta della home sopra il titolo: «01 · Rendimento». */
+    theme: win.theme as string,
     f,
     crumbs: [{ label: res.home, to: ASSESSMENT_HOME }],
     home: { label: res.backHome, to: ASSESSMENT_HOME },

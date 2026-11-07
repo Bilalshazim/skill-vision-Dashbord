@@ -24,7 +24,7 @@ import { EvaluationCompare } from '@/modules/recruiting/evaluate/EvaluationCompa
 import { EvaluationFormsView, receivedForms, type FormKind } from '@/modules/recruiting/evaluate/EvaluationFormsView'
 import { RECOMMENDATION_LABEL } from '@/modules/recruiting/lib/evaluation-forms'
 import { usePreference } from '@/lib/preferences'
-import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
+import { activeRole } from '@/modules/recruiting/lib/active-role'
 import { importSynthesisIntoReport, ivReportHasSynthesisText } from '@/modules/recruiting/lib/interview-protocol'
 import type { SynthesisSections } from '@/modules/recruiting/lib/interview-protocol'
 
@@ -627,8 +627,8 @@ function SynthesisPanel({ campaignCandidateId, candidateName, submittedCount, fi
 
   async function handleImport() {
     if (!sections) return
-    if (ivReportHasSynthesisText(DEFAULT_ROLE) && !(await confirm({ title: 'Sostituire il testo del Report finale?', description: 'Il Report finale valutativo di questa posizione contiene già una sintesi e degli aspetti critici: verranno sostituiti con questo testo.', confirmLabel: 'Sostituisci', destructive: true }))) return
-    importSynthesisIntoReport(DEFAULT_ROLE, candidateName, sections)
+    if (ivReportHasSynthesisText(activeRole()) && !(await confirm({ title: 'Sostituire il testo del Report finale?', description: 'Il Report finale valutativo di questa posizione contiene già una sintesi e degli aspetti critici: verranno sostituiti con questo testo.', confirmLabel: 'Sostituisci', destructive: true }))) return
+    importSynthesisIntoReport(activeRole(), candidateName, sections)
     onReportChanged?.()
     setImported(true)
   }

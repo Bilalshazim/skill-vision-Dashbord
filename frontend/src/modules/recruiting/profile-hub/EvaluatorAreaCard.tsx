@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 import { FIELD_WIDTHS } from '@/components/patterns/field-widths'
 import { cn } from '@/lib/utils'
-import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
+import { activeRole } from '@/modules/recruiting/lib/active-role'
 import { loadIvEvalRecord, loadIvNotesRecord, loadIvReportRecord } from '@/modules/recruiting/lib/interview-protocol'
 import { EvaluatorsBackendPanel } from '@/modules/recruiting/profile-hub/EvaluatorsBackendPanel'
 import { IvEvalDialog } from '@/modules/recruiting/profile-hub/protocol/IvEvalDialog'
@@ -46,7 +46,7 @@ function DocumentCard({ icon: Icon, title, subtitle, savedAt, emptyLabel, childr
 // Scheda Valutazione Candidato / Report Finale Valutativo). Each dialog
 // (protocol/IvNotesDialog.tsx, IvEvalDialog.tsx, IvReportDialog.tsx) owns
 // its own open/edit/save/clear lifecycle against
-// lib/interview-protocol.ts — role-scoped only (DEFAULT_ROLE), never
+// lib/interview-protocol.ts — role-scoped only (activeRole()), never
 // candidateId/employeeId/Pipeline/CANDIDATES.
 //
 // `savedAt` is lifted here (not just inside each dialog) so the Subcard
@@ -59,7 +59,7 @@ function DocumentCard({ icon: Icon, title, subtitle, savedAt, emptyLabel, childr
 export type EvaluatorDoc = 'intervista' | 'valutazione' | 'report'
 
 export function EvaluatorAreaCard({ doc }: { doc: EvaluatorDoc }) {
-  const role = DEFAULT_ROLE
+  const role = activeRole()
   const [verbaleSavedAt, setVerbaleSavedAt] = useState<number | null>(() => loadIvNotesRecord(role)?.savedAt ?? null)
   const [valutazioneSavedAt, setValutazioneSavedAt] = useState<number | null>(() => loadIvEvalRecord(role)?.savedAt ?? null)
   const [reportSavedAt, setReportSavedAt] = useState<number | null>(() => loadIvReportRecord(role)?.savedAt ?? null)

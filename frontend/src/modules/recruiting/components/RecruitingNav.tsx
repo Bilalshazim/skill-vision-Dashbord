@@ -17,17 +17,14 @@ import { useActivePosition } from '@/modules/recruiting/lib/active-position'
 // posto per lo stesso stato (lib/active-position.tsx).
 //
 // Voci per ruolo (CLAUDE.md, Fase 6, "Menu di Recruiting"): un valutatore
-// vede solo l'Area valutatori, senza le voci `staffOnly`; le voci con `roles`
+// vede solo «Chi scegliamo?», senza le voci `staffOnly`; le voci con `roles`
 // (amministrazione) solo i ruoli elencati; le voci `demoOnly` solo l'account
 // demo. È una comodità: il limite vero lo mette il server (vedi nav-config.ts).
 //
-// Ogni livello è una voce come «Home» in Assessment, con sotto le sue pagine e la
-// pagina principale per prima: il titolo apre la pagina dei risultati ed è attivo
-// quando è aperta (CLAUDE.md, Fase 6, 2026-11-02), la freccia apre e chiude il
-// gruppo, che parte aperto. L'Area valutatori non ha una pagina dei risultati: il
-// titolo apre e chiude e basta. Una voce accesa sola: l'Imbuto di selezione è ai
-// livelli 2 e 3 sulla stessa pagina, quindi si accende la prima voce del menu che
-// corrisponde all'indirizzo. I nomi lunghi vanno a capo, non si tagliano.
+// Ogni livello è una voce come «Home» in Assessment, con sotto le sue pagine: il titolo apre la
+// pagina dei risultati ed è attivo quando è aperta (CLAUDE.md, Fase 6, 2026-11-02). Le sottovoci
+// si vedono solo con il livello aperto, uno alla volta (Decisioni del 2026-11-06). I nomi lunghi
+// vanno a capo, non si tagliano.
 export function RecruitingNav() {
   const role = getBackendUser()?.role
   const evaluator = role === 'EVALUATOR'
@@ -37,9 +34,13 @@ export function RecruitingNav() {
     .filter((g) => g.items.length > 0)
   const { pathname } = useLocation()
   const { company, companies } = useActivePosition()
-  const [closed, setClosed] = useState<Record<string, boolean>>({})
+  // Aperto un livello alla volta: quello della pagina attiva. La freccia ne apre un altro finché
+  // non si cambia pagina.
+  const [manual, setManual] = useState<{ path: string; key: string | null } | null>(null)
   // Corrispondenza sul segmento intero: "/imbuto" non accende "/imbuto-scelta".
   const activeScreen = groups.flatMap((g) => g.items).find((item) => (item.end ? pathname === item.to : pathname === item.to || pathname.startsWith(`${item.to}/`)))?.screen
+  const activeLevel = groups.find((g) => g.icon && (g.results === pathname || g.items.some((item) => item.screen === activeScreen)))?.label ?? null
+  const openLevel = manual?.path === pathname ? manual.key : activeLevel
 
   const renderItem = (item: RecruitingNavItem) => (
     <SidebarMenuItem key={item.screen}>
@@ -68,27 +69,26 @@ export function RecruitingNav() {
               </SidebarGroup>
             )
           }
-          const containsActive = group.items.some((item) => item.screen === activeScreen)
-          const isOpen = containsActive || !closed[key]
-          const toggle = () => setClosed((c) => ({ ...c, [key]: !c[key] }))
+          const isOpen = openLevel === key
+          const toggle = () => setManual({ path: pathname, key: isOpen ? null : key })
           const titleActive = pathname === group.results
+          // Il valutatore non apre la pagina dei risultati: il titolo apre e chiude e basta.
+          const results = evaluator ? undefined : group.results
           return (
             <SidebarGroup key={key}>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  {group.results ? (
+                  {results ? (
                     <>
-                      <SidebarMenuButton asChild isActive={titleActive} className={containsActive ? undefined : 'pr-9'}>
-                        <NavLink to={group.results}>
+                      <SidebarMenuButton asChild isActive={titleActive} className="pr-9">
+                        <NavLink to={results}>
                           <group.icon aria-hidden="true" />
                           <span className="min-w-0 flex-1">{group.label}</span>
                         </NavLink>
                       </SidebarMenuButton>
-                      {containsActive ? null : (
-                        <SidebarMenuAction isActive={titleActive} aria-expanded={isOpen} aria-label={group.label} onClick={toggle}>
-                          <ChevronDown aria-hidden="true" className={isOpen ? 'rotate-180' : undefined} />
-                        </SidebarMenuAction>
-                      )}
+                      <SidebarMenuAction isActive={titleActive} aria-expanded={isOpen} aria-label={group.label} onClick={toggle}>
+                        <ChevronDown aria-hidden="true" className={isOpen ? 'rotate-180' : undefined} />
+                      </SidebarMenuAction>
                     </>
                   ) : (
                     <SidebarMenuButton type="button" aria-expanded={isOpen} onClick={toggle}>

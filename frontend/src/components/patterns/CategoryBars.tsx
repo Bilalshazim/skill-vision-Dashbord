@@ -37,6 +37,7 @@ export function CategoryBars({
   format,
   highlight,
   compact = false,
+  barNote,
   className,
 }: {
   title: string
@@ -53,10 +54,13 @@ export function CategoryBars({
   highlight?: string
   /** In orizzontale: barre sottili e nomi allineati a sinistra (tavola «Colori dei grafici»), senza griglia. Il nome in evidenza è in grassetto. */
   compact?: boolean
+  /** Al posto del valore in fondo alla barra: lo scarto dall'atteso («−1,2»). Il valore resta nel tooltip e in tabella. */
+  barNote?: (rowLabel: string) => string
   className?: string
 }) {
   const colors = seriesColors(series)
   const fmt = (v: number) => (format ? format(v) : fmtDec(v))
+  const endLabel = (v: number, d: Record<string, unknown>) => (barNote ? barNote(String(d.name)) : fmt(v))
   const bars = series.filter((s) => !s.reference)
   const refs = series.filter((s) => s.reference)
   // Senza fondo scala fisso, il riferimento deve stare nel grafico: Bklit
@@ -89,14 +93,15 @@ export function CategoryBars({
         >
           {compact ? null : <Grid horizontal={orientation === 'vertical'} vertical={orientation === 'horizontal'} fadeHorizontal={false} />}
           {bars.map((s) => (
-            <Bar key={s.key} dataKey={s.key} fill={colors[series.indexOf(s)]} lineCap={4} valueLabel={(v) => (Object.is(v, -0) ? '' : fmt(v))} />
+            <Bar key={s.key} dataKey={s.key} fill={colors[series.indexOf(s)]} lineCap={4} valueLabel={(v, d) => (Object.is(v, -0) ? '' : endLabel(v, d))} valueLabelPast={refs[0]?.key} />
           ))}
-          {hl ? <Bar dataKey={HL_KEY} fill="var(--chart-highlight)" outline="var(--chart-highlight-stroke)" lineCap={4} valueLabel={(v) => (v ? fmt(v) : '')} /> : null}
+          {hl ? <Bar dataKey={HL_KEY} fill="var(--chart-highlight)" outline="var(--chart-highlight-stroke)" lineCap={4} valueLabel={(v, d) => (v ? endLabel(v, d) : '')} valueLabelPast={refs[0]?.key} /> : null}
           {refs.map((s) => (
             <BarReference key={s.key} referenceKey={s.key} />
           ))}
           {orientation === 'horizontal' ? <BarYAxis alignLeft={compact} emphasize={compact ? highlight : undefined} /> : <BarXAxis showAllLabels wrapLabels={wrapLabels} />}
-          <ChartTooltip />
+          {/* Il nome della serie, non la chiave del dato, e il valore nel formato del grafico. La riga in evidenza sta nella serie a parte. */}
+          <ChartTooltip rows={(p) => series.map((s, i) => ({ color: colors[i], label: s.label, value: fmt(Number((s.key === hl && p[HL_KEY]) || p[s.key]) || 0) }))} />
         </BarChart>
       </div>
       {series.length > 1 ? (

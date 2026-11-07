@@ -22,7 +22,7 @@ export const env = {
   /** Versione demo: i dati dimostrativi e, per l'account demo, i suoi strumenti. */
   demoMode: IS_DEV || raw.VITE_DEMO_MODE === 'true',
   /** Gli account demo: email, minuscole. Vedono l'amministrazione dei dati dimostrativi. */
-  demoAccounts: list(raw.VITE_DEMO_ACCOUNTS ?? 'demo@skill-vision.it'),
+  demoAccounts: list(raw.VITE_DEMO_ACCOUNTS ?? 'demo@skill-vision.it,hr@acme.example'),
   /** Le società demo del backend. Nessuna in una build, se non è impostata: i dati dimostrativi non partono. In locale la Acme del seed. */
   demoCompanyIds: list(raw.VITE_DEMO_COMPANY_IDS ?? (IS_DEV ? '00000000-0000-0000-0000-000000000002' : '')),
   /** Email dello staff di Skill Vision, minuscole. */

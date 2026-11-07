@@ -1,4 +1,4 @@
-import { DEFAULT_FLAGS, SKILLS } from '@/modules/recruiting/lib/constants'
+import { DEFAULT_EXPECTED, DEFAULT_FLAGS, SKILLS } from '@/modules/recruiting/lib/constants'
 import { JD_GEN_DISPONIBILITA, JD_GEN_LINGUE, JD_GEN_SETTORI, JD_GEN_TITOLI, JD_GEN_VALUTAZIONE, JD_LANG_LEVELS, JD_PROFILES } from '@/modules/recruiting/lib/jd-presets'
 import type { JdPresetId } from '@/modules/recruiting/lib/jd-presets'
 import type { JdExtraRow, JdHardSkillGroup, JdItemCheck, JdItemLevel, JdItemTool, JdItemValue, JdState, SalaryBenefitsRecord, SalaryLevelRecord } from '@/modules/recruiting/lib/jd-types'
@@ -50,7 +50,8 @@ export function buildSoftSkillItems(existing: JdItemValue[] = []): JdItemValue[]
     return {
       id: prev?.id || jdNid(),
       label,
-      valoreAtteso: prev?.valoreAtteso ?? null,
+      // L'atteso si sceglie in Competenze trasversali, da 1 a 10.
+      valoreAtteso: DEFAULT_EXPECTED[label] ?? null,
       checked: weight > 0 ? true : !!prev?.checked,
       weight,
     }
@@ -92,6 +93,24 @@ export function buildJdStateFromPreset(presetId: JdPresetId): JdState {
   }
   state.sections.softSkills.items = buildSoftSkillItems()
   return state
+}
+
+// La scheda di una posizione che non ne ha ancora una: vuota, con il titolo della posizione.
+// Prima partiva dal profilo «Sales Account Manager», qualunque fosse la posizione. Restano solo
+// gli elenchi generici (titoli di studio, settori, lingue…). I profili di partenza si scelgono
+// dal campo del titolo.
+export function buildBlankJdState(titolo: string): JdState {
+  const base = buildJdStateFromPreset('sam')
+  const header = Object.fromEntries(Object.keys(base.header).map((k) => [k, ''])) as JdState['header']
+  const none = <T extends { items: unknown[] }>(section: T): T => ({ ...section, items: [] })
+  const { sections: s } = base
+  return {
+    ...base,
+    header: { ...header, titolo },
+    scopo: '',
+    sections: { ...s, responsabilita: none(s.responsabilita), attivita: none(s.attivita), competenzeTecniche: none(s.competenzeTecniche), certificazioni: none(s.certificazioni), personalita: none(s.personalita), kpi: none(s.kpi) },
+    hardSkillGroups: [],
+  }
 }
 
 // Ported verbatim from generateJobPostingFromJd() (modules/recruiting.html

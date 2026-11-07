@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { buttonVariants } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
-import { DEFAULT_ROLE } from '@/modules/recruiting/lib/constants'
+import { activeRole } from '@/modules/recruiting/lib/active-role'
 import { JobPostingLink } from '@/modules/recruiting/components/JobPostingLink'
 import { loadJobProfileFromBackend } from '@/modules/recruiting/lib/backend-sync'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
@@ -45,7 +45,7 @@ const primaryBtnClass = buttonVariants({ size: 'sm' })
 export function JobPostingSection({ link }: { link?: string | null } = {}) {
   const [open, setOpen] = useState(false)
   const [url, setUrl] = useState('')
-  const [summary, setSummary] = useState(() => loadJobPostingSummary(DEFAULT_ROLE) || generateJobPostingPreview(DEFAULT_ROLE))
+  const [summary, setSummary] = useState(() => loadJobPostingSummary(activeRole()) || generateJobPostingPreview(activeRole()))
   const [urlDraft, setUrlDraft] = useState('')
   const [summaryDraft, setSummaryDraft] = useState(summary)
   const [urlError, setUrlError] = useState('')
@@ -73,7 +73,7 @@ export function JobPostingSection({ link }: { link?: string | null } = {}) {
   function handleOpenChange(next: boolean) {
     setOpen(next)
     if (next) {
-      const freshSummary = loadJobPostingSummary(DEFAULT_ROLE) || generateJobPostingPreview(DEFAULT_ROLE)
+      const freshSummary = loadJobPostingSummary(activeRole()) || generateJobPostingPreview(activeRole())
       setSummary(freshSummary)
       setUrlDraft(url)
       setSummaryDraft(freshSummary)
@@ -85,7 +85,7 @@ export function JobPostingSection({ link }: { link?: string | null } = {}) {
   function handleClearUrl() {
     setUrl('')
     setOpen(false)
-    setMessage(`Annuncio rimosso per "${DEFAULT_ROLE}"`)
+    setMessage(`Annuncio rimosso per "${activeRole()}"`)
   }
 
   function handleSaveUrl() {
@@ -105,7 +105,7 @@ export function JobPostingSection({ link }: { link?: string | null } = {}) {
   }
 
   function handlePublishSummary() {
-    const result = saveJobPostingSummary(DEFAULT_ROLE, summaryDraft)
+    const result = saveJobPostingSummary(activeRole(), summaryDraft)
     if (!result.ok) {
       setPublishError('Nessun riepilogo da pubblicare')
       return
@@ -121,7 +121,7 @@ export function JobPostingSection({ link }: { link?: string | null } = {}) {
   return (
     <div className="flex flex-col gap-3">
       {platformLink ? (
-        <JobPostingLink publicationLink={platformLink} positionTitle={opening?.title || DEFAULT_ROLE} />
+        <JobPostingLink publicationLink={platformLink} positionTitle={activeRole()} />
       ) : (
         <p className="text-app-caption text-muted-foreground">
           Il link dell’annuncio compare qui quando salvi e confermi la{' '}
@@ -153,7 +153,7 @@ export function JobPostingSection({ link }: { link?: string | null } = {}) {
               Annuncio
             </DialogTitle>
             <DialogDescription>
-              Posizione: <b className="font-semibold text-foreground">&quot;{DEFAULT_ROLE}&quot;</b> — incolla il link dell&apos;annuncio (LinkedIn, Indeed, sito aziendale)
+              Posizione: <b className="font-semibold text-foreground">&quot;{activeRole()}&quot;</b> — incolla il link dell&apos;annuncio (LinkedIn, Indeed, sito aziendale)
             </DialogDescription>
           </DialogHeader>
 
