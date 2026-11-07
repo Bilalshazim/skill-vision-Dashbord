@@ -190,8 +190,18 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-07 (3) — Parti A e B pubblicate, prova in produzione da fare
+- [x] Commit `d900f5e` su `main` (da `server-only`), su richiesta di Bilal. Nessuna modifica al backend, nessuna migrazione.
+- [x] Produzione controllata senza accesso: applicazione e backend rispondono 200; il bundle `index-C-mM6gXQ.js` contiene le
+      rotte nuove, online 80 secondi dopo il push; `/recruiting/competenze-trasversali` senza accesso porta al login.
+- [ ] **Non fatto: la prova in produzione con l'accesso (CLAUDE.md §9).** Nessuna credenziale di produzione in questa sessione.
+      Quindi nessun punto è «fatto»: pagine, menu a tendina, selettori, chiaro e scuro, 390px e dati dimostrativi in produzione
+      sono da provare. Da fare da Bilal o con un account di produzione. Non si sa se `demo@skill-vision.it` esista né quali
+      variabili demo siano attive su Railway.
+- [ ] I tre documenti restano aggiornati a questo stato: `resoconto-2026-11-06.md` lo dichiara in testa e per ogni punto.
+
 ## 2026-11-07 (2) — Parte B delle Decisioni del 2026-11-06
-Solo in locale: nessun commit, nessun push (richiesta di Bilal). Provato con `hr@acme.example` e `recruiter@acme.example`.
+Fatta in locale, pubblicata con la voce sopra. Provato con `hr@acme.example` e `recruiter@acme.example`.
 Resoconto per Alessio e Roberto in `resoconto-2026-11-06.md`.
 - [x] Grafici aggregati (`/assessment/soft`): ottenuto, atteso tratteggiato, scarto scritto, una barra lime per grafico.
 - [x] Home di Recruiting: tolto il blocco titolo, tre card verticali a tutta altezza.
@@ -223,7 +233,7 @@ Resoconto per Alessio e Roberto in `resoconto-2026-11-06.md`.
 - [ ] L'elenco dei 14 punti di Alessio non è nel repository: nel resoconto la numerazione è ricostruita.
 
 ## 2026-11-07 — Parte A delle Decisioni del 2026-11-06
-Solo in locale: nessun commit, nessun push (richiesta di Bilal). Numeri dai dati locali di Acme (25 persone).
+Fatta in locale, pubblicata il 2026-11-07 (`d900f5e`). Numeri dai dati locali di Acme (25 persone).
 - [x] Dati dimostrativi sulla posizione attiva «Senior Frontend Engineer», da soli. Provato su `hr@acme.example`:
       12 candidati, 5 test, 3 colloqui nel database, imbuto 12 · 9 · 7 · 3 · 1. La vecchia posizione a parte è
       tolta da sola. Una posizione con candidati veri non si tocca. Nessun file del backend, nessun seed.
