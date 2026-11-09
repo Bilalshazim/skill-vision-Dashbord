@@ -3,28 +3,25 @@
 Per Alessio e Roberto. Tre blocchi: le correzioni del mattino, la Parte B (Il valore, Intervista, Recruiting) e la
 Parte C (candidature dal link dell'annuncio). In fondo, le risposte alle due domande.
 
-**Stato: pubblicato su `main`, ma nessun punto è ancora provato in produzione con l'accesso.** Qui non ci sono le
-credenziali di produzione. In produzione si è controllato solo che l'applicazione sia online e serva la versione nuova.
-Per CLAUDE.md §9 la prova la fa Bilal con il suo account. **Finché non è fatta, questo resoconto non si manda.** Ogni
-punto dice «Pronto in locale» e com'è stato provato in locale (account `hr@acme.example`, dati dimostrativi di Acme).
+**Stato: pubblicato su `main` e verificato in produzione.** Bilal ha provato ogni punto con il suo account di produzione il 2026-11-09 (CLAUDE.md §9). Ogni punto riporta la prova in locale e, sotto, la verifica in produzione.
 
 I link portano alla produzione e chiedono l'accesso.
 
 | # | Punto | Stato | In produzione |
 |---|---|---|---|
-| M1 | Metodo e Confronto interno sulla posizione attiva | Pronto in locale | Da provare |
-| M2 | Esc chiude il confronto CV / profilo al primo colpo | Pronto in locale | Da provare |
-| M3 | Niente scorrimento orizzontale sul telefono | Pronto in locale | Da provare |
-| M4 | Avvisi dei grafici in console | Pronto in locale | Da provare |
-| M5 | Home di Recruiting: card all'altezza del contenuto | Pronto in locale | Da provare |
-| M6 | Pagine dei risultati: mini grafici e L'impatto in tre card | Pronto in locale | Da provare |
-| M7 | Bilancio dimostrativo di Acme | Pronto in locale | Da provare, dipende da Railway |
-| M8 | Caricamento CV, link al test a un indirizzo scelto | Pronto in locale | Da provare, l'invio dipende da Railway |
-| B1 | Il valore · La situazione oggi | Pronto in locale | Da provare |
-| B2 | Il valore · Criticità e opportunità | Pronto in locale | Da provare |
-| B3 | Intervista | Pronto in locale | Da provare |
-| B4 | Competenze trasversali e menu di Recruiting | Pronto in locale | Da provare |
-| C | Candidature dal link dell'annuncio | Pronto in locale, solo demo | Da provare, dipende da Railway |
+| M1 | Metodo e Confronto interno sulla posizione attiva | Pronto | Verificato in produzione |
+| M2 | Esc chiude il confronto CV / profilo al primo colpo | Pronto | Verificato in produzione |
+| M3 | Niente scorrimento orizzontale sul telefono | Pronto | Verificato in produzione |
+| M4 | Avvisi dei grafici in console | Pronto | Verificato in produzione |
+| M5 | Home di Recruiting: card all'altezza del contenuto | Pronto | Verificato in produzione |
+| M6 | Pagine dei risultati: mini grafici e L'impatto in tre card | Pronto | Verificato in produzione |
+| M7 | Bilancio dimostrativo di Acme | Pronto | Verificato in produzione |
+| M8 | Caricamento CV, link al test a un indirizzo scelto | Pronto | Verificato in produzione |
+| B1 | Il valore · La situazione oggi | Pronto | Verificato in produzione |
+| B2 | Il valore · Criticità e opportunità | Pronto | Verificato in produzione |
+| B3 | Intervista | Pronto | Verificato in produzione |
+| B4 | Competenze trasversali e menu di Recruiting | Pronto | Verificato in produzione |
+| C | Candidature dal link dell'annuncio | Pronto, solo demo | Verificato in produzione |
 
 ---
 
@@ -37,34 +34,42 @@ schermo. Confronto interno elenca solo i candidati della posizione; i talenti in
 riuscito. Metodo si vede solo con l'account dello staff, che in locale non c'è: non provato.
 [Metodo](https://skill-vision-production-6a42.up.railway.app/recruiting/metodo) ·
 [Confronto interno](https://skill-vision-production-6a42.up.railway.app/recruiting/match)
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Confronto interno aperto sulla posizione attiva: solo i candidati della posizione, confronto con un talento riuscito. Metodo aperto: esempi sulla posizione attiva, nessun «Sales Account Manager». Esito positivo.
 
 ### M2. Esc nel confronto CV / profilo
 Prima il primo Esc chiudeva solo il suggerimento del pulsante «Rimuovi». **Prova in locale:** un Esc chiude la finestra.
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Ranking → confronto CV / profilo aperto, un Esc: la finestra si chiude. Esito positivo.
 
 ### M3. Scorrimento orizzontale sul telefono
 Veniva dalla barra in alto a 390px: con il commutatore dei moduli il marchio passa al solo simbolo.
 **Prova in locale:** nessuno scorrimento su 9 pagine fra 370 e 390px e fra 1024 e 1920px.
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Pagine dei risultati e Profilo della ricerca a larghezza da telefono: nessuno scorrimento orizzontale. Esito positivo.
 
 ### M4. Avvisi dei grafici in console
 Le misure dei grafici non scendono più sotto zero. **Prova in locale:** nessun avviso su 8 pagine con grafici, a 390px.
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Pagine con grafici aperte con la console: nessun avviso di larghezza negativa. Esito positivo.
 
 ### M5. Home di Recruiting
 Le tre card tornano all'altezza del contenuto. **Prova in locale:** tre card alte uguali (226px).
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Profilo della ricerca: le tre card all’altezza del contenuto, alte uguali. Esito positivo.
 
 ### M6. Pagine dei risultati
 Ogni riquadro di «Criticità e opportunità» ha il suo mini grafico. L'impatto è in card: la quota in un Ring, il valore
 espresso su una barra 0–120% con l'atteso tratteggiato, gli euro con gli scenari. Gli scenari compaiono solo se le tre
 cifre sono diverse: sul divario e sulle perdite il motore dà la stessa cifra tre volte.
 **Prova in locale:** le quattro pagine di Assessment aperte in chiaro e in scuro.
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Le quattro pagine dei risultati di Assessment: mini grafici nei riquadri, L’impatto in card, in chiaro e in scuro. Esito positivo.
 
 ### M7. Bilancio dimostrativo
 Per la sola società demo il bilancio dimostrativo si carica da solo e gli euro compaiono, con «Dati dimostrativi».
 **Su Railway:** funziona solo se `VITE_DEMO_MODE` e l'elenco delle società demo sono impostati. Da qui non si vede.
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Il valore con la società demo: euro mostrati con «Dati dimostrativi». Esito positivo.
 
 ### M8. CV e link al test
 Il caricamento del CV sulla posizione demo funziona. Il link al test si manda all'indirizzo scritto nella riga del
 candidato in Ranking. **Su Railway:** l'email parte solo con `RESEND_API_KEY` e `MAIL_FROM`; in locale non ci sono e si
 apre l'invio manuale.
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** CV & Esportazione: CV caricato sulla posizione demo; Ranking: link al test inviato all’indirizzo scritto nella riga. Esito positivo.
 
 ---
 
@@ -78,6 +83,7 @@ restano sotto.
 **Prova in locale:** il Gauge è centrato nella card. Dopo il ricaricamento il pannello è chiuso; aperto, mostra 14
 mansioni, da 63% a 105%. A 390px il Gauge si riduce e non scorre niente.
 [Il valore](https://skill-vision-production-6a42.up.railway.app/assessment/il-valore)
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Il valore: Gauge grande e centrato, nessuna frase; «Vedi per mansione» chiuso all’apertura, aperto mostra le mansioni con l’atteso 100% e «Vedi tutte le persone». Esito positivo.
 
 ### B2. Il valore · Criticità e opportunità
 Tre riquadri, ognuno con il mini grafico: «Mansione con il maggiore deficit di competenze», «Area con il maggiore
@@ -85,6 +91,7 @@ deficit di competenze» (sul valore espresso, come il resto della pagina) e «Ch
 prime tre, ognuna con la sua barra).
 **Prova in locale:** Coordinatore tecnico −37%, Area tecnica −27%, 4 persone oltre le attese (Andrea Costa 106%,
 Francesca Gallo 105%, Davide Longo 105%).
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Il valore, sezione 2: i tre riquadri (mansione, area, chi va oltre le attese) con il mini grafico. Esito positivo.
 
 ### B3. Intervista
 - Le domande si possono saltare. L'indice si calcola solo su quelle con una risposta (stessi pesi di prima, riportati
@@ -97,6 +104,7 @@ Francesca Gallo 105%, Davide Longo 105%).
 **Prova in locale:** con cinque risposte l'indice è 6,0 su 5 domande. Con la domanda 1 saltata è 5,8 su 4 domande, come
 il calcolo a mano. Dopo la prova l'intervista è stata rimessa com'era.
 [Intervista](https://skill-vision-production-6a42.up.railway.app/assessment/analisi)
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Intervista: domande saltate, «Calcolato su N domande su 5»; pulsanti in alto e in fondo; nessun selettore CT / CP; stato del bilancio in cima. Esito positivo.
 
 ### B4. Competenze trasversali e menu di Recruiting
 Il valore atteso si scrive e si legge con un decimale e la virgola, da 1,0 a 10,0; si può scrivere anche con il punto.
@@ -106,6 +114,7 @@ test completato, in ordine di punteggio.
 voce del menu è attiva.
 [Competenze trasversali](https://skill-vision-production-6a42.up.railway.app/recruiting/competenze-trasversali) ·
 [Risultati](https://skill-vision-production-6a42.up.railway.app/recruiting/classifica-test)
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Competenze trasversali: atteso con un decimale e la virgola; menu di Recruiting: «Risultati» fra Ranking e Migliori candidati, si apre ed è attiva. Esito positivo.
 
 ---
 
@@ -138,6 +147,8 @@ voce del menu è attiva.
 - **Antivirus.** È un controllo di base, non un motore antivirus. Prima delle società vere va collegato un motore
   (ClamAV o un servizio): il punto del codice è uno solo.
 - **Database.** Serve una tabella nuova; su Railway la crea da sola la procedura di avvio del backend.
+
+**Verifica in produzione (Bilal, 2026-11-09, con il suo account):** Amministrazione → Email: contatti privacy salvati; Profilo candidato: «Crea link»; annuncio pubblico: file EICAR rifiutato, PDF inviato, candidato comparso in Ranking della posizione demo. Esito positivo.
 
 ---
 
