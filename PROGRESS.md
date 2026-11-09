@@ -248,6 +248,9 @@ credenziali di produzione qui (CLAUDE.md §9), quindi ogni punto è «pronto in 
       testo di CLAUDE.md, che vale sopra le tavole. Mini grafici nei riquadri delle pagine di Recruiting: le correzioni
       parlano delle tavole di Assessment.
 - [ ] Non fatto: prova in produzione con l'accesso (§9). La fa Bilal.
+- [x] Pubblicato: commit `e1d97fb` su `main` (da `server-only`). Nessuna modifica al backend, nessuna migrazione.
+      Controllato senza accesso: nuovo bundle `index-GDMTj2ru.js` in produzione, con i testi nuovi («Il valore espresso,
+      per area», «Vedi tutte le persone», «Compare quando le cinque domande…»); applicazione e backend rispondono 200.
 
 ## 2026-11-07 (3) — Parti A e B pubblicate, prova in produzione da fare
 - [x] Commit `d900f5e` su `main` (da `server-only`), su richiesta di Bilal. Nessuna modifica al backend, nessuna migrazione.
