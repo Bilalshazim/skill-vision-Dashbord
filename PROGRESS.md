@@ -226,6 +226,9 @@ Richiesta della sera (non ancora scritta in CLAUDE.md: il testo è nella richies
       (non nel repository) aggiunto `ASSESSMENT_DEMO_COMPANY_IDS` con l'id di Acme.
 - Controlli: typecheck frontend e backend, lint 0 errori (37 avvisi, come prima), build, test ROI 6/6, test del
   controllo file 4/4, audit senza difetti.
+- [x] Pubblicato con `4db39ca` su `main`. In produzione, senza accesso: il backend risponde 401 sulla rotta nuova
+      `/api/v1/public-applications/settings` (quindi è partito con la migrazione), health 200, il frontend serve il
+      bundle nuovo `index-BgnZnhwe.js`. **Prova con l'accesso da fare (Bilal).**
 
 ## 2026-11-09 — Correzioni di design del 2026-11-09 e punti aperti del rilascio del 7/11
 Richiesta: eseguire le «Correzioni di design del 2026-11-09» e i punti aperti, poi pubblicare su `main`. Provato in
