@@ -99,9 +99,9 @@ export function PipelineSectionCard({ section, company, opening, onMutated }: Pi
         <CardHeader>
           <CardTitle>
             <FileCheck2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            Classifica dopo il test — {p.testResults.length}
+            Risultati — {p.testResults.filter((r) => p.prescreened.some((e) => e.candidateId === r.candidateId)).length}
           </CardTitle>
-          <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">Punteggi del test dei candidati preselezionati, in ordine di classifica.</p>
+          <p className="mt-0.5 text-app-caption font-normal text-muted-foreground">I candidati che hanno superato il match CV / profilo e completato il test, in ordine di punteggio.</p>
         </CardHeader>
         <CardContent>
           <TestResultList results={p.testResults} prescreened={p.prescreened} {...target} />

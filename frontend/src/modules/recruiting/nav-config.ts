@@ -1,4 +1,5 @@
 import {
+  FileCheck2,
   ArrowLeftRight,
   CalendarDays,
   FileBarChart,
@@ -150,6 +151,9 @@ export const RECRUITING_NAV_GROUPS: RecruitingNavGroup[] = [
     results: '/recruiting/chi-e-piu-adatto',
     main: { screen: 'paginaA', label: 'Ranking', icon: Send, to: '/recruiting/pagina-a' },
     items: [
+      // «Risultati» torna nel menu (Decisioni del 2026-11-09): chi ha superato il match ed è stato
+      // preselezionato, con il test completato. È la pagina della «Classifica dopo il test».
+      { screen: 'classificaTest', label: 'Risultati', icon: FileCheck2, to: '/recruiting/classifica-test' },
       { screen: 'ranking', label: 'Migliori candidati', icon: Trophy, to: '/recruiting/ranking' },
       { screen: 'match', label: 'Confronto interno', icon: ArrowLeftRight, to: '/recruiting/match' },
       { screen: 'statoArte', label: "Stato dell'arte", icon: LayoutDashboard, to: '/recruiting/stato-dell-arte' },

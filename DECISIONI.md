@@ -2994,3 +2994,41 @@ Il cursore ha sempre un valore, quindi una domanda saltata veniva letta come una
 (nessun commento e cursore al valore di partenza) anche per gli indici. Scelta (b): non tocca il salvataggio. Limite noto:
 chi risponde esattamente il valore di partenza senza commento risulta «Senza risposta». Se va distinto, serve (a), che
 tocca i dati salvati e va deciso con Roberto.
+
+## Il valore: il Gauge da solo, centrato · 2026-11-09 (sera)
+Istruzione del 9/11 sera, che sostituisce quella del mattino: niente valore per area accanto al Gauge e niente frase
+sotto «1 La situazione oggi». Il Gauge sta su una riga sua, grande (360 × 274, 300 × 229 sotto i 640px per non far
+scorrere il telefono) e **centrato**: è un'eccezione voluta a «testo sempre a sinistra» (cap. 6), chiesta così. Sotto,
+«Vedi per mansione» (Collapsible, chiuso all'apertura) apre il valore espresso per mansione, con la stessa formula
+delle aree (somma dei rilevati ÷ somma degli attesi), dalla mansione più lontana. Sezione 2: «Area con il maggiore
+deficit di competenze» usa il valore espresso per area (scala 0–120%, atteso 100%), non la media su 10 delle Perdite
+invisibili: le tre card della pagina parlano tutte in valore espresso.
+
+## Intervista: l'indice sulle domande con risposta · 2026-11-09 (sera)
+Sostituisce «l'indice compare solo con cinque risposte» del mattino. Opzioni: (a) media semplice delle risposte date;
+(b) gli stessi pesi di prima (30 · 25 · 25 · 10 · 10), togliendo quelli delle domande saltate e riportando a 1 i
+rimasti. Scelta (b): con tutte le risposte il numero è identico a prima. Sotto il numero «Calcolato su N domande su 5».
+Il selettore CT / CP / Completo non compare nell'Intervista (eccezione a «vale per tutto Assessment»): l'Intervista è la
+percezione della Direzione, non dipende dal pacchetto. Tolto il blocco «Fase successiva — Misurazione oggettiva».
+
+## «Risultati» nel menu di Recruiting · 2026-11-09 (sera)
+Torna fra Ranking e Migliori candidati, sulla rotta che c'era (`/recruiting/classifica-test`, la «Classifica dopo il
+test»), con il titolo «Risultati». Mostra solo chi è fra i preselezionati (ha superato il match) e ha il test
+completato. Nessuna rotta nuova.
+
+## Candidature dal link pubblico (Parte C) · 2026-11-09
+- **Dove nascono i dati.** Candidato, iscrizione alla campagna e CV si creano sul server all'invio; la classifica e il
+  match di Recruiting vivono nei suoi dati (documenti per società), quindi il candidato entra nella posizione dal browser
+  di chi lavora: all'apertura di Recruiting, al cambio di posizione e ogni minuto. Opzione scartata: scrivere nei
+  documenti di Recruiting dal server, che tocca il salvataggio a versioni e rischia di sovrascrivere un collega.
+- **Chi risulta averlo caricato.** `Cv.uploadedById` è obbligatorio e il candidato non ha un account: si usa chi ha
+  approvato l'annuncio (o chi l'ha creato). L'origine vera resta nella tabella `PublicApplication` e nel registro.
+- **Solo demo.** La società deve essere in `ASSESSMENT_DEMO_COMPANY_IDS` (la stessa lista del «Reset demo»). Su Railway
+  va controllato che ci sia l'id di Acme, altrimenti il modulo non compare.
+- **Privacy.** Titolare ed email per i diritti, obbligatori, in Amministrazione → Email («Privacy delle candidature
+  online»). Senza, «Crea link» è spento e il modulo non compare. Conservazione 24 mesi, 6 mesi a scelta del candidato.
+- **Antivirus.** Controllo di base: il contenuto deve essere davvero PDF, DOC o DOCX (firma del file) e la firma di
+  prova EICAR si rifiuta prima di salvare. Non è un motore antivirus: il punto è uno solo (`backend/src/lib/fileScan.ts`)
+  e lì si collega ClamAV o un servizio esterno quando serve. Da decidere con Roberto prima delle società vere.
+- **Niente invio automatico del test** ai candidati dal link: entrano in Ranking «Da inviare» e l'HR decide, come per
+  ogni altro CV.

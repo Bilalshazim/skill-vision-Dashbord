@@ -20,6 +20,7 @@ import { RecruitingNav } from '@/modules/recruiting/components/RecruitingNav'
 import { ActivePositionProvider } from '@/modules/recruiting/lib/active-position'
 import { preloadRecruitingDemo } from '@/modules/recruiting/lib/demo-data'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
+import { importPublicApplications } from '@/modules/recruiting/lib/public-applications'
 import { loadRecruitingStore, setRecruitingNotice, useRecruitingStore } from '@/modules/recruiting/lib/recruiting-store'
 import { applySavedSkillFlags } from '@/modules/recruiting/lib/skill-flags'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
@@ -86,6 +87,26 @@ export default function RecruitingLayout() {
       cancelled = true
     }
   }, [store.status, store.remoteVersion, bumpContext])
+
+  // Le candidature dal link dell'annuncio (Parte C, 2026-11-09) entrano sulla posizione attiva
+  // da sole: all'apertura, quando cambia la posizione e poi ogni minuto. Se ne entra qualcuna,
+  // le pagine si ridisegnano e un avviso lo dice.
+  useEffect(() => {
+    if (store.status !== 'ready') return
+    let cancelled = false
+    const run = () =>
+      void importPublicApplications().then((n) => {
+        if (cancelled || !n) return
+        toast.success(n === 1 ? 'È arrivata una candidatura dal link dell’annuncio.' : `Sono arrivate ${n} candidature dal link dell’annuncio.`)
+        bumpContext()
+      })
+    run()
+    const id = setInterval(run, 60_000)
+    return () => {
+      cancelled = true
+      clearInterval(id)
+    }
+  }, [store.status, contextVersion, bumpContext])
 
   return (
     <AuthGuard>

@@ -154,6 +154,12 @@ model Company {
   // selettore CT / CP / Completo mostra solo questo (CLAUDE.md, Fase 6).
   assessmentPackage AssessmentModulo @default(AB)
   assessmentRoi     AssessmentRoi?
+  // I contatti privacy per le candidature dal link pubblico (Decisioni del 2026-11-09,
+  // Parte C): titolare del trattamento ed email per i diritti. Senza tutti e due il
+  // link di candidatura non si crea.
+  candidatePrivacyController String?
+  candidatePrivacyEmail      String?
+  publicApplications         PublicApplication[]
 
   users          User[]
   campaigns      Campaign[]
@@ -1214,4 +1220,35 @@ model AssessmentRoi {
   attesoLockedBy String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+}
+
+// Una candidatura arrivata dal link pubblico dell'annuncio (Decisioni del 2026-11-09,
+// Parte C). Candidato, iscrizione alla campagna e CV si creano subito sul server;
+// PENDING finché la piattaforma non l'ha portata nei dati di Recruiting della posizione
+// (classifica e match vivono lì), poi IMPORTED.
+enum PublicApplicationStatus {
+  PENDING
+  IMPORTED
+}
+
+model PublicApplication {
+  id                  String                  @id @default(uuid())
+  companyId           String
+  company             Company                 @relation(fields: [companyId], references: [id])
+  campaignId          String
+  jobProfileId        String
+  candidateId         String
+  campaignCandidateId String
+  cvId                String
+  fullName            String
+  email               String
+  phone               String?
+  retention           CvRetentionChoice
+  consentAt           DateTime
+  status              PublicApplicationStatus @default(PENDING)
+  importedAt          DateTime?
+  createdAt           DateTime                @default(now())
+
+  @@index([companyId, status])
+  @@index([campaignId])
 }

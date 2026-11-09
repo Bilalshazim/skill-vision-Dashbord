@@ -11,7 +11,7 @@ import { type PipelineSection, PipelineSectionCard } from '@/modules/recruiting/
 
 const PAGES: Record<PipelineSection, { title: string; description: string }> = {
   preselezionati: { title: 'CV preselezionati', description: 'Candidati passati alla preselezione, con il link al test automatizzato.' },
-  classifica: { title: 'Classifica dopo il test', description: 'Punteggi del test dei candidati preselezionati, in ordine di classifica.' },
+  classifica: { title: 'Risultati', description: 'I candidati che hanno superato il match CV / profilo e completato il test, in ordine di punteggio.' },
   colloqui: { title: 'Prossimi colloqui', description: 'I colloqui in agenda e quelli della posizione, con la scheda di valutazione.' },
   podio: { title: 'Candidati al podio', description: 'Fra i candidati intervistati, la scelta finale per la posizione.' },
 }

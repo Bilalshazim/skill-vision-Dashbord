@@ -90,13 +90,23 @@ export function personIndex(emp: Employee, state: AssessmentState, lang: Assessm
  * senza niente di misurato non compaiono.
  */
 export function areaValues(state: AssessmentState, lang: AssessmentLang): Map<string, number> {
-  const byArea = new Map<string, Totals>()
+  return groupValues(state, lang, (e) => e.area)
+}
+
+/** Il valore espresso per mansione (Decisioni del 2026-11-09, «Vedi per mansione»): la stessa formula, per mansione. */
+export function roleValues(state: AssessmentState, lang: AssessmentLang): Map<string, number> {
+  return groupValues(state, lang, (e) => e.ruolo)
+}
+
+function groupValues(state: AssessmentState, lang: AssessmentLang, keyOf: (e: Employee) => string | undefined): Map<string, number> {
+  const byKey = new Map<string, Totals>()
   for (const e of evaluatedEmployees(state)) {
     const t = personTotals(e, state, lang)
-    if (!e.area || t.expected <= 0) continue
-    byArea.set(e.area, addTotals(byArea.get(e.area) ?? { got: 0, expected: 0 }, t))
+    const key = keyOf(e)
+    if (!key || t.expected <= 0) continue
+    byKey.set(key, addTotals(byKey.get(key) ?? { got: 0, expected: 0 }, t))
   }
-  return new Map([...byArea.entries()].map(([area, t]) => [area, ratio(t)!]))
+  return new Map([...byKey.entries()].map(([k, t]) => [k, ratio(t)!]))
 }
 
 /**

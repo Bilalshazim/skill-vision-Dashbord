@@ -164,9 +164,39 @@ export const jobProfilesApi = {
 
 // La pagina pubblica dell'annuncio (Fase 5): senza accesso, solo per i profili
 // approvati. Torna il minimo che il backend espone.
-export type PublicJobPosting = { title: string | null; header: Record<string, unknown>; sections: Record<string, unknown>; hardSkillGroups: unknown[]; extraRequirements: unknown[] }
+// `application`: il modulo di candidatura (Parte C, Decisioni del 2026-11-09), con i contatti
+// privacy della società; `enabled: false` quando le candidature online non sono aperte.
+export type PublicJobPosting = {
+  title: string | null
+  header: Record<string, unknown>
+  sections: Record<string, unknown>
+  hardSkillGroups: unknown[]
+  extraRequirements: unknown[]
+  application?: { enabled: true; privacyController: string; privacyEmail: string } | { enabled: false }
+}
+export type PublicApplicationInput = { fullName: string; email: string; phone: string; retention: 'TWO_YEARS' | 'SIX_MONTHS'; consent: boolean; file: File }
 export const publicJobPostingsApi = {
   get: (token: string) => apiGetAnonymous<PublicJobPosting>(`/public/job-postings/${encodeURIComponent(token)}`),
+  apply: (token: string, input: PublicApplicationInput) => {
+    const form = new FormData()
+    form.append('fullName', input.fullName)
+    form.append('email', input.email)
+    form.append('phone', input.phone)
+    form.append('retention', input.retention)
+    form.append('consent', String(input.consent))
+    form.append('file', input.file)
+    return apiRequest<{ ok: true }>(`/public/job-postings/${encodeURIComponent(token)}/apply`, { method: 'POST', form, anonymous: true })
+  },
+}
+
+// Le candidature dal link pubblico, lato piattaforma (Parte C).
+export type PublicApplicationSettings = { companyId: string; demo: boolean; privacyController: string; privacyEmail: string; ready: boolean }
+export type PendingPublicApplication = { id: string; candidateId: string; campaignCandidateId: string; cvId: string; fullName: string; email: string; phone: string | null; retention: 'TWO_YEARS' | 'SIX_MONTHS'; createdAt: string }
+export const publicApplicationsApi = {
+  settings: (companyId?: string) => apiGet<PublicApplicationSettings>('/public-applications/settings', companyId ? { companyId } : undefined),
+  saveSettings: (input: { companyId?: string; privacyController: string; privacyEmail: string }) => apiPut<void>('/public-applications/settings', input),
+  pending: (campaignId: string) => apiGet<PendingPublicApplication[]>('/public-applications', { campaignId }),
+  imported: (id: string) => apiPost<void>(`/public-applications/${id}/imported`),
 }
 
 export const cipApi = {

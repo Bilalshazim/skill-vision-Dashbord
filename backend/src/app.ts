@@ -19,6 +19,7 @@ import { jobProfilesRouter } from './modules/jobProfiles/routes.js'
 import { originalSkillsRouter } from './modules/originalSkills/routes.js'
 import { platformsRouter } from './modules/platforms/routes.js'
 import { publicAssessmentRouter } from './modules/publicAssessment/routes.js'
+import { publicApplicationsRouter } from './modules/publicApplications/routes.js'
 import { publicJobPostingsRouter } from './modules/publicJobPostings/routes.js'
 import { recruitingStoreRouter } from './modules/recruitingStore/routes.js'
 import { shortlistRouter } from './modules/shortlist/routes.js'
@@ -118,6 +119,7 @@ export function createApp() {
   // Senza accesso, di proposito: la pagina pubblica dell'annuncio approvato.
   app.use('/api/v1/public/job-postings', publicJobPostingsRouter)
   app.use('/api/v1/public/assessment-evaluations', publicAssessmentRouter)
+  app.use('/api/v1/public-applications', publicApplicationsRouter)
   app.use('/api/v1/webhooks', webhooksRouter)
   app.use('/api/v1/assessment-ai', assessmentAiRouter)
   app.use('/api/v1/assessment', assessmentRouter)

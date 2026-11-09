@@ -190,6 +190,43 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-09 (sera) — Decisioni del 2026-11-09: Il valore, Intervista, Recruiting, Parte C
+Richiesta della sera (non ancora scritta in CLAUDE.md: il testo è nella richiesta). Provato in locale con
+`hr@acme.example` (Vite 5199, backend 4000). **In produzione non provato con l'accesso** (CLAUDE.md §9).
+- [x] **Il valore · sezione 1**: niente frase, niente valore per area accanto; Gauge grande e centrato su una riga sua
+      (360 × 274; 300 × 229 a 390px, nessuno scorrimento). «Vedi per mansione» chiuso all'apertura (provato
+      `aria-expanded=false` dopo il ricaricamento), apre il valore espresso per mansione con l'atteso 100% tratteggiato e
+      «Vedi tutte le persone». Ring della copertura e L'impatto restano sotto.
+- [x] **Il valore · sezione 2**: «Mansione con il maggiore deficit di competenze» (Coordinatore tecnico −37%), «Area con
+      il maggiore deficit di competenze» (Area tecnica −27%), «Chi va oltre le attese» (4 persone, le prime tre con la
+      barra). Ognuno con il mini grafico.
+- [x] **Intervista**: indice sulle domande con risposta, con «Calcolato su N domande su 5» (provato: 5 su 5 → 6,0;
+      domanda 1 saltata → 5,8, «4 domande su 5», uguale al calcolo a mano; intervista locale rimessa com'era).
+      «Nuova intervista» e «Modifica risposte» in alto a destra; «Stampa / PDF» e «Salva» in fondo. Tolti il selettore
+      CT / CP / Completo (solo qui) e «Fase successiva — Misurazione oggettiva». In cima ai Dati aziendali lo stato del
+      bilancio (caricato · file · data, o «Da caricare») con «Vai al bilancio».
+- [x] **Competenze trasversali**: atteso con un decimale e la virgola (1,0–10,0), anche il suggerimento («8,0»). Provato:
+      «7.25» → «7,3», «12» → «10,0»; valore rimesso com'era.
+- [x] **Menu di Recruiting**: «Risultati» fra Ranking e Migliori candidati (`/recruiting/classifica-test`), attiva quando
+      aperta; mostra solo i preselezionati con il test completato (5 sulla posizione demo).
+- [x] **Parte C · candidature dal link pubblico** (solo società demo): contatti privacy in Amministrazione → Email;
+      «Crea link» nel Profilo candidato, spento senza contatti; modulo sotto l'annuncio pubblico (nome, email, telefono,
+      CV PDF/DOC/DOCX fino a 10 MB, consenso, 24 mesi o 6 a scelta); controllo del file con rifiuto della firma EICAR;
+      il candidato entra da solo in Ranking della posizione. Provato: invio vuoto → quattro errori; file EICAR →
+      «non ha superato il controllo antivirus», nessun file salvato; PDF vero → «Candidatura inviata», Giulia Prova in
+      Ranking con «Candidatura dal link dell'annuncio», sul server consenso esplicito, 6 mesi, CV elaborato, candidatura
+      segnata come portata. Modulo a 390px senza scorrimento; in scuro leggibile.
+- [x] Migrazione `20261109180000_public_applications` (due colonne su Company, tabella PublicApplication): applicata in
+      locale con `migrate deploy`; su Railway la applica il preDeployCommand.
+- [x] Corretto durante la prova: le frasi delle due caselle del modulo uscivano in maiuscolo mono (componente Label):
+      ora testo normale. Il campo «Atteso» non collegava l'etichetta (70 avvisi in console): corretto.
+- [ ] Da controllare su Railway: `ASSESSMENT_DEMO_COMPANY_IDS` con l'id di Acme (senza, il modulo non compare).
+- [ ] Il controllo antivirus è di base (firma del file + EICAR), non un motore: da decidere prima delle società vere.
+- [ ] Dati di prova lasciati in locale: contatti privacy di Acme e la candidatura di Giulia Prova. In `backend/.env`
+      (non nel repository) aggiunto `ASSESSMENT_DEMO_COMPANY_IDS` con l'id di Acme.
+- Controlli: typecheck frontend e backend, lint 0 errori (37 avvisi, come prima), build, test ROI 6/6, test del
+  controllo file 4/4, audit senza difetti.
+
 ## 2026-11-09 — Correzioni di design del 2026-11-09 e punti aperti del rilascio del 7/11
 Richiesta: eseguire le «Correzioni di design del 2026-11-09» e i punti aperti, poi pubblicare su `main`. Provato in
 locale (account `hr@acme.example`, Vite 5199, backend 4000). **In produzione non provato con l'accesso**: niente

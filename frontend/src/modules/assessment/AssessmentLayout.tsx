@@ -28,6 +28,8 @@ function AssessmentShell() {
   const pageId = location.pathname.split('/')[2] || 'home'
   const meta = getPageMeta(lang, pageId)
   const trail = getPageTrail(lang, pageId)
+  // L'Intervista è la percezione della Direzione, non una misura per pacchetto: la
+  // scelta CT / CP / Completo lì non c'è (Decisioni del 2026-11-09).
   // La pagina si apre dopo i dati: senza questo il suo codice partirebbe solo allora, in
   // serie. La Panoramica è la più pesante: il codice si scarica insieme ai dati.
   useEffect(() => {
@@ -39,7 +41,7 @@ function AssessmentShell() {
         {/* Le pagine dei risultati non hanno una voce qui: portano da sé
             percorso, titolo e domanda (ResultsPage). */}
         {trail ? <PageBreadcrumb items={trail.items} current={trail.current} /> : null}
-        {meta.title ? <PageHeader level="page" title={meta.title} description={pageDescription ?? (meta.sub || undefined)} actions={<>{topbarActions}<AssessmentModeSwitch /></>} className="mb-6" /> : null}
+        {meta.title ? <PageHeader level="page" title={meta.title} description={pageDescription ?? (meta.sub || undefined)} actions={<>{topbarActions}{pageId === 'analisi' ? null : <AssessmentModeSwitch />}</>} className="mb-6" /> : null}
         <ModuleLockGate module="ASSESSMENT">
           <ErrorBoundary>
             <AssessmentDataGate>

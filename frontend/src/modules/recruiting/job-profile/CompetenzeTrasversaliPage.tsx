@@ -1,4 +1,5 @@
 import { RotateCcw } from 'lucide-react'
+import { useState } from 'react'
 
 import { Field } from '@/components/patterns/Field'
 import { PageHeader } from '@/components/patterns/PageHeader'
@@ -36,7 +37,7 @@ export default function CompetenzeTrasversaliPage() {
         level="page"
         className="mb-0"
         title="Competenze trasversali"
-        description="Scegli le competenze del profilo e, per ognuna, il valore atteso da 1 a 10. Classifiche e punteggi di questa posizione si aggiornano da soli."
+        description="Scegli le competenze del profilo e, per ognuna, il valore atteso da 1,0 a 10,0. Classifiche e punteggi di questa posizione si aggiornano da soli."
         actions={
           <Button type="button" variant="outline" size="sm" onClick={() => void reset()} disabled={!total}>
             <RotateCcw aria-hidden="true" />
@@ -67,20 +68,7 @@ export default function CompetenzeTrasversaliPage() {
                         ))}
                       </SelectField>
                     </Field>
-                    <Field label="Atteso" className="mb-0! w-20">
-                      <Input
-                        type="number"
-                        size="sm"
-                        min={1}
-                        max={10}
-                        step={1}
-                        disabled={!level}
-                        aria-label={`Valore atteso, da 1 a 10: ${skill}`}
-                        placeholder={level ? String(Math.round(W[level].t / 3.1)) : '—'}
-                        value={expected[skill] ?? ''}
-                        onChange={(e) => setSkillExpected(skill, e.target.value === '' ? null : Number(e.target.value))}
-                      />
-                    </Field>
+                    <ExpectedField key={`${skill}-${expected[skill] ?? ''}`} skill={skill} disabled={!level} value={expected[skill]} placeholder={level ? fmt1(Math.round(W[level].t / 3.1)) : '—'} />
                   </li>
                 )
               })}
@@ -90,5 +78,42 @@ export default function CompetenzeTrasversaliPage() {
       </div>
       {confirmDialog}
     </div>
+  )
+}
+
+/** Un decimale con la virgola, da 1,0 a 10,0 (Decisioni del 2026-11-09). */
+const fmt1 = (n: number) => n.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+
+// Il valore atteso si scrive con la virgola o con il punto; si salva all'uscita dal campo
+// (o con Invio), arrotondato a un decimale fra 1,0 e 10,0, e si rilegge con la virgola.
+function ExpectedField({ skill, value, disabled, placeholder }: { skill: string; value: number | undefined; disabled: boolean; placeholder: string }) {
+  // Il campo si rimonta quando il valore salvato cambia (la chiave lo contiene): niente effetto.
+  const [draft, setDraft] = useState(value == null ? '' : fmt1(value))
+  function commit() {
+    const text = draft.trim().replace(',', '.')
+    if (text === '') return setSkillExpected(skill, null)
+    const n = Number(text)
+    if (!Number.isFinite(n)) return setDraft(value == null ? '' : fmt1(value))
+    const v = Math.round(Math.min(10, Math.max(1, n)) * 10) / 10
+    setSkillExpected(skill, v)
+    setDraft(fmt1(v))
+  }
+  return (
+    <Field label="Atteso" className="mb-0! w-20">
+      <Input
+        type="text"
+        inputMode="decimal"
+        size="sm"
+        disabled={disabled}
+        aria-label={`Valore atteso, da 1,0 a 10,0: ${skill}`}
+        placeholder={placeholder}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') commit()
+        }}
+      />
+    </Field>
   )
 }

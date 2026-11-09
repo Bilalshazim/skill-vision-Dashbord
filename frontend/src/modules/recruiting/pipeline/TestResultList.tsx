@@ -140,7 +140,8 @@ export function TestResultList({
     onMutated()
   }
 
-  const ranked = [...results].sort((a, b) => b.score - a.score)
+  // Solo chi ha superato il match (è fra i preselezionati) e ha il test completato (Decisioni del 2026-11-09).
+  const ranked = results.filter((r) => prescreened.some((p) => p.candidateId === r.candidateId)).sort((a, b) => b.score - a.score)
 
   return (
     <div>

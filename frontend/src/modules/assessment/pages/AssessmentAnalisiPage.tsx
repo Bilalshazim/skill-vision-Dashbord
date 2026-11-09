@@ -1,5 +1,5 @@
 import { fmtDec } from '@/lib/format'
-import { ArrowRight, Download, Printer, RotateCcw } from 'lucide-react'
+import { Download, Printer, RotateCcw } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { Note } from '@/components/patterns/Note'
@@ -8,15 +8,16 @@ import { Progress } from '@/components/ui/progress'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { useConfirm } from '@/hooks/use-confirm'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardDescription, CardHeader, CardLabel, CardTitle } from '@/components/ui/card'
+import { Card, CardHeader, CardLabel, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { AnalisiWizard } from '@/modules/assessment/components/AnalisiWizard'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { exiBlankData } from '@/modules/assessment/lib/demo-data'
+import { useRoi } from '@/modules/assessment/lib/use-roi'
 import { exiRiskTier, exiScoreTier, fmt1, round1 } from '@/modules/assessment/lib/legacy-utils'
 import { printReportHtml } from '@/modules/assessment/lib/print'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import AssessmentCompanyPage from '@/modules/assessment/pages/AssessmentCompanyPage'
 import type { ExiData } from '@/modules/assessment/lib/types'
 import { assessmentAiApi } from '@/lib/api/endpoints'
@@ -65,7 +66,6 @@ function buildInterviewTranscript(a: ExiData, ui: ReturnType<typeof getUI>): { q
 // shipped only the report/display side.
 export default function AssessmentAnalisiPage() {
   const { state, setState, ui } = useAssessment()
-  const navigate = useNavigate()
   const [mode, setMode] = useState<'report' | 'wizard'>('report')
   const [wizardStartStep, setWizardStartStep] = useState(0)
   const a = state.analisiIniziale
@@ -90,17 +90,18 @@ export default function AssessmentAnalisiPage() {
     <div className="flex flex-col gap-8">
       <section id="dati-aziendali" className="scroll-mt-24">
         <PageHeader title={ui.res.dataSectionTitle} />
+        <BalanceStatus />
         <AssessmentCompanyPage />
       </section>
       <section>
         <PageHeader title={ui.res.interviewSectionTitle} />
-        <AnalisiReport a={a} onNewInterview={() => { setWizardStartStep(0); setMode('wizard') }} onEditAnswers={() => { setWizardStartStep(7); setMode('wizard') }} onStartAssessment={() => navigate('/assessment/anagrafica')} />
+        <AnalisiReport a={a} onNewInterview={() => { setWizardStartStep(0); setMode('wizard') }} onEditAnswers={() => { setWizardStartStep(7); setMode('wizard') }} />
       </section>
     </div>
   )
 }
 
-function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: { a: ExiData; onNewInterview: () => void; onEditAnswers: () => void; onStartAssessment: () => void }) {
+function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNewInterview: () => void; onEditAnswers: () => void }) {
   const { setState, lang, ui, canEdit, toast, state } = useAssessment()
   const [confirm, confirmDialog] = useConfirm()
   const [expertReview, setExpertReview] = useState<{ status: 'idle' | 'loading' | 'done' | 'error'; text?: string }>({ status: 'idle' })
@@ -120,7 +121,17 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
   // usano (indice complessivo, gap percepito) restano vuoti invece di prendere il valore
   // di partenza del cursore (Decisioni del 2026-11-06, Intervista).
   const off = unanswered(a)
-  const allAnswered = !off.q1 && !off.q2 && !off.q4 && !off.q5 && !off.q6
+  // L'indice si calcola sulle domande con una risposta: i pesi delle saltate escono e quelli
+  // rimasti si riportano a 1 (Decisioni del 2026-11-09). Sotto il numero, su quante domande.
+  const weighted = [
+    { off: off.q1, w: 0.3, v: a.q1 },
+    { off: off.q2, w: 0.25, v: a.q2 },
+    { off: off.q4, w: 0.25, v: a.q4 },
+    { off: off.q5, w: 0.1, v: 10 - a.q5 },
+    { off: off.q6, w: 0.1, v: a.q6 },
+  ]
+  const answered = weighted.filter((q) => !q.off)
+  const anyAnswered = answered.length > 0
   const gapKnown = !off.q1 && !off.q2
   const v1 = a.q1
   const v2 = a.q2
@@ -129,7 +140,8 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
   const v6 = a.q6
   const gap = round1(v2 - v1)
   const gapPc = v1 > 0 ? (gap / v1) * 100 : 0
-  const phcv = round1(v1 * 0.3 + v2 * 0.25 + v4 * 0.25 + (10 - v5) * 0.1 + v6 * 0.1)
+  const phcv = anyAnswered ? round1(answered.reduce((n, q) => n + q.w * q.v, 0) / answered.reduce((n, q) => n + q.w, 0)) : 0
+  const basis = ui.res.exiBasis(answered.length, weighted.length)
   const heroTier = exiScoreTier(phcv, lang)
   const heroText = phcv >= 7.5 ? ui.exiHeroTextHigh : phcv >= 6 ? ui.exiHeroTextMid : phcv >= 4.5 ? ui.exiHeroTextLow : ui.exiHeroTextCritical
 
@@ -171,7 +183,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
       <div>${[a.intervistato, roles[a.ruolo] || '', a.settore].filter(Boolean).join(' · ')}</div>
       <div style="font-size:12px;color:var(--color-neutral-600);margin-top:2px">${a.data || ''}</div>
       <div class="rpt-h2">${ui.exiHeroLabel}</div>
-      <div>${allAnswered ? fmt1(phcv) + '/10' : dash}</div>
+      <div>${anyAnswered ? fmt1(phcv) + '/10 · ' + basis : dash}</div>
       <table class="rpt-table"><thead><tr><th>${ui.analisiPageTitle}</th><th>/10</th></tr></thead><tbody>
         <tr><td>${String(ui.exiK1Label).replace('<br>', ' ')}</td><td>${off.q1 ? noAnswer : fmt1(v1)}</td></tr>
         <tr><td>${String(ui.exiK2Label).replace('<br>', ' ')}</td><td>${off.q2 ? noAnswer : fmt1(v2)}</td></tr>
@@ -220,14 +232,6 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
 
   useTopbarActions(
     <>
-      <Button variant="ghost" size="sm" onClick={printReport}>
-        <Printer />
-        {ui.exiPrintBtn}
-      </Button>
-      <Button variant="ghost" size="sm" onClick={exportJson}>
-        <Download />
-        {ui.exiSaveBtn}
-      </Button>
       {canEdit && (
         <Button variant="ghost" size="sm" onClick={newInterview}>
           <RotateCcw />
@@ -256,10 +260,10 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
         size="lg"
         className="mb-4"
         label={ui.exiHeroLabel}
-        value={allAnswered ? fmt1(phcv) : dash}
-        unit={allAnswered ? ui.exiPointsOf10 : undefined}
-        note={allAnswered ? heroText : ui.exiHeroPending}
-        delta={allAnswered ? { label: heroTier.label, direction: 'flat', tone: 'neutral' } : undefined}
+        value={anyAnswered ? fmt1(phcv) : dash}
+        unit={anyAnswered ? ui.exiPointsOf10 : undefined}
+        note={anyAnswered ? `${heroText} ${basis}.` : ui.exiHeroPending}
+        delta={anyAnswered ? { label: heroTier.label, direction: 'flat', tone: 'neutral' } : undefined}
       />
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
@@ -369,21 +373,6 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
         </AnswerCard>
       </div>
 
-      <Card padding="lg" className="my-6 items-start text-left">
-        <CardTitle>{ui.exiCtaTitle}</CardTitle>
-        <CardDescription className="mt-2 max-w-prose">{ui.exiCtaText}</CardDescription>
-        <Button
-          className="mt-4"
-          onClick={() => {
-            toast(ui.exiCtaToast, 'ok')
-            onStartAssessment()
-          }}
-        >
-          {ui.exiCtaBtn}
-          <ArrowRight />
-        </Button>
-      </Card>
-
       {/* "CONSIDERAZIONI DELL'ESPERTO" — a real, server-side Claude call
           (backend/src/modules/assessmentAi/routes.ts) reviewing this exact
           interview's answers, for the consultant to read with the client.
@@ -406,9 +395,43 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
         )}
       </Card>
 
+      {/* Stampa e salvataggio in fondo al riepilogo (Decisioni del 2026-11-09). */}
+      <div className="mt-6 flex flex-wrap justify-end gap-2">
+        <Button variant="outline" onClick={printReport}>
+          <Printer />
+          {ui.exiPrintBtn}
+        </Button>
+        <Button variant="outline" onClick={exportJson}>
+          <Download />
+          {ui.exiSaveBtn}
+        </Button>
+      </div>
+
       <Note as="div" size="caption" className="mt-6" dangerouslySetInnerHTML={{ __html: ui.exiFooterNote }} />
       {confirmDialog}
     </div>
+  )
+}
+
+// Lo stato del bilancio in cima ai Dati aziendali (Decisioni del 2026-11-09): caricato
+// (file e data) o da caricare, con il collegamento alla sezione del caricamento.
+function BalanceStatus() {
+  const { ui } = useAssessment()
+  const roi = useRoi()
+  const d = roi.data
+  const loaded = !!d && !!d.statement && Object.keys(d.statement).length > 0
+  const date = d?.loadedAt ? new Date(d.loadedAt).toLocaleDateString('it-IT') : ''
+  return (
+    <Card className="mb-6 flex-row flex-wrap items-center gap-3">
+      <span className="label-mono text-muted-foreground">{ui.res.balanceLabel}</span>
+      <Badge tone={loaded ? 'success' : 'warning'} dot>
+        {loaded ? ui.res.balanceLoaded : ui.res.balanceMissing}
+      </Badge>
+      {loaded ? <span className="text-app-small text-muted-foreground">{[d?.fileName, date].filter(Boolean).join(' · ')}</span> : null}
+      <a href="#bilancio" className="text-app-small text-foreground underline underline-offset-4">
+        {ui.res.balanceGo}
+      </a>
+    </Card>
   )
 }
 

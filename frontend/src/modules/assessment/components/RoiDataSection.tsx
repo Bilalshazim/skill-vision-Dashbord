@@ -66,7 +66,7 @@ export function RoiDataSection() {
 
   const loaded = STATEMENT_KEYS.filter((k) => draft.statement[k] != null)
   return (
-    <section className="mt-8">
+    <section id="bilancio" className="mt-8 scroll-mt-24">
       <PageHeader title={res.roiDataTitle} description={res.roiDataSub} level="subsection" />
       <Card className="gap-4">
         {canEdit ? (

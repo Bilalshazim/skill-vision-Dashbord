@@ -15,6 +15,7 @@ import { campaignsApi, companiesApi, emailConfigApi } from '@/lib/api/endpoints'
 import { useBackendSession } from '@/lib/api/useBackendSession'
 import type { BackendCampaign, BackendCompany, BackendEmailServiceConfig, BackendEmailTemplate, BackendSenderConfig } from '@/lib/api/types'
 import { EmptyState } from '@/components/patterns/EmptyState'
+import { CandidatePrivacyCard } from '@/modules/recruiting/admin/CandidatePrivacyCard'
 
 // See CipAdminPage.tsx's identical comment — same duplicated-className
 // cleanup, now the shared buttonVariants() instead of a local copy.
@@ -256,6 +257,8 @@ export default function EmailConfigAdminPage() {
               )}
             </CardContent>
           </Card>
+
+          {companyId ? <CandidatePrivacyCard companyId={companyId} canEdit={canEditCompanyConfig} /> : null}
 
           <Card>
             <CardHeader>

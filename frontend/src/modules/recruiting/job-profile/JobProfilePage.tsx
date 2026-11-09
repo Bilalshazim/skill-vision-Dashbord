@@ -18,6 +18,7 @@ import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
 import type { JdPresetId } from '@/modules/recruiting/lib/jd-presets'
 import type { JdExtraRow, JdHardSkillGroup, JdSectionKey, JdState } from '@/modules/recruiting/lib/jd-types'
+import { ApplicationLinkControl } from '@/modules/recruiting/job-profile/ApplicationLinkControl'
 import { JdExtraRequirements } from '@/modules/recruiting/job-profile/JdExtraRequirements'
 import { JdHardSkills } from '@/modules/recruiting/job-profile/JdHardSkills'
 import { JdHeaderFields } from '@/modules/recruiting/job-profile/JdHeaderFields'
@@ -389,6 +390,7 @@ export default function JobProfilePage() {
           conferma (documento del cliente, 2026-10-23). */}
       <Card className="max-w-3xl gap-3">
         <h2 className="text-app-section font-semibold">Annuncio di lavoro</h2>
+        <ApplicationLinkControl openingId={getActiveOpening(readCvMatchingState()).opening?.id} approved={approved} canCreate={!!backendProfileId} pending={approvalPending} onCreate={() => void handleToggleApproval()} />
         <JobPostingSection link={approved ? publicationLink : null} />
       </Card>
       {confirmDialog}

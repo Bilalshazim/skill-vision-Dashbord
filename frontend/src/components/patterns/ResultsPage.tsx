@@ -76,7 +76,7 @@ export function ResultsPage({
   actions?: ReactNode
   why: string
   /** `text` è la frase grande; `detail` la riga sotto; `chartTitle` e `hint` stanno sopra il grafico. `chartEmpty` sostituisce il grafico quando non c'è niente da disegnare. */
-  situation?: { text: ReactNode; detail?: ReactNode; chart?: ReactNode; chartTitle?: string; chartEmpty?: string; hint?: { label: string; text: ReactNode }; /** Il grafico sotto la frase, a tutta riga (il grafico a flussi). */ wide?: boolean }
+  situation?: { /** Senza frase la sezione mostra solo il grafico (Il valore, Decisioni del 2026-11-09). */ text?: ReactNode; detail?: ReactNode; chart?: ReactNode; chartTitle?: string; chartEmpty?: string; hint?: { label: string; text: ReactNode }; /** Il grafico sotto la frase, a tutta riga (il grafico a flussi). */ wide?: boolean }
   issues?: { items: ResultsIssue[]; opportunity: ReactNode; opportunityLabel?: string }
   /** Sezioni libere, numerate dall'1, al posto di `situation` e `issues` (le pagine di Recruiting). L'impatto e il suggerimento seguono. */
   sections?: { title: string; content: ReactNode }[]
@@ -197,10 +197,12 @@ export function ResultsPage({
               ))}
               {situation ? (
                 <Section number={1} title="La situazione oggi" className={cn('grid grid-cols-1 gap-6', !situation.wide && 'lg:grid-cols-2 lg:gap-12')}>
-                  <div className="flex flex-col gap-2">
-                    <p className="max-w-prose text-site-h4 text-foreground">{situation.text}</p>
-                    {situation.detail ? <p className="max-w-prose text-app-body text-muted-foreground">{situation.detail}</p> : null}
-                  </div>
+                  {situation.text ? (
+                    <div className="flex flex-col gap-2">
+                      <p className="max-w-prose text-site-h4 text-foreground">{situation.text}</p>
+                      {situation.detail ? <p className="max-w-prose text-app-body text-muted-foreground">{situation.detail}</p> : null}
+                    </div>
+                  ) : null}
                   <div className="flex min-w-0 flex-col gap-2">
                     {situation.chartTitle || situation.hint ? (
                       <p className="flex items-center gap-1 text-app-small text-muted-foreground">
