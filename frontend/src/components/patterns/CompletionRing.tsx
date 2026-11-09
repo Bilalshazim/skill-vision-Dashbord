@@ -9,10 +9,11 @@ import { cn } from '@/lib/utils'
 // `center`: quando l'anello è il grafico di una frase e non sta in una
 // StatCard (pagine dei risultati), il numero va al centro con `centerValue`
 // di Bklit, e l'anello è più grande perché il numero si legga.
-const RING_COLOR = { mono: 'var(--chart-mono)', success: 'var(--success)', warning: 'var(--warning)', destructive: 'var(--destructive)' } as const
+const RING_COLOR = { mono: 'var(--chart-mono)', highlight: 'var(--chart-highlight)', success: 'var(--success)', warning: 'var(--warning)', destructive: 'var(--destructive)' } as const
 
 // `tone`: `mono` di default; success / warning / destructive solo per una
-// fascia con la parola accanto (il colore non è l'unico segnale).
+// fascia con la parola accanto (il colore non è l'unico segnale). `highlight`: il
+// numero della sezione nell'Impatto delle pagine dei risultati (correzioni del 2026-11-09).
 export function CompletionRing({
   value,
   label,
@@ -28,7 +29,7 @@ export function CompletionRing({
   className?: string
 }) {
   const v = Math.max(0, Math.min(100, value))
-  const big = !!center
+  const big = center !== undefined
   return (
     <div data-slot="completion-ring" role="img" aria-label={`${label}: ${Math.round(v)}%`} className={cn(big ? 'size-40' : 'mx-auto size-24', className)}>
       <RingChart data={[{ label, value: v, maxValue: 100, color: RING_COLOR[tone] }]} strokeWidth={big ? 12 : 8} baseInnerRadius={big ? 60 : 32} size={big ? 160 : 96}>

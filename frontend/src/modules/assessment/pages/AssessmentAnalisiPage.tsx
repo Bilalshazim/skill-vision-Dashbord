@@ -116,6 +116,12 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
     }
   }
 
+  // Una domanda saltata non ha un valore: niente numero, niente fascia, e i dati che la
+  // usano (indice complessivo, gap percepito) restano vuoti invece di prendere il valore
+  // di partenza del cursore (Decisioni del 2026-11-06, Intervista).
+  const off = unanswered(a)
+  const allAnswered = !off.q1 && !off.q2 && !off.q4 && !off.q5 && !off.q6
+  const gapKnown = !off.q1 && !off.q2
   const v1 = a.q1
   const v2 = a.q2
   const v4 = a.q4
@@ -128,11 +134,11 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
   const heroText = phcv >= 7.5 ? ui.exiHeroTextHigh : phcv >= 6 ? ui.exiHeroTextMid : phcv >= 4.5 ? ui.exiHeroTextLow : ui.exiHeroTextCritical
 
   const KS = [
-    { v: v1, color: 'var(--primary)', label: ui.exiK1Label, sub: ui.exiK1Sub, inverted: false },
-    { v: v2, color: 'var(--success)', label: ui.exiK2Label, sub: ui.exiK2Sub, inverted: false },
-    { v: v4, color: 'var(--gold)', label: ui.exiK4Label, sub: ui.exiK4Sub, inverted: false },
-    { v: v5, color: 'var(--danger)', label: ui.exiK5Label, sub: ui.exiK5Sub, inverted: true },
-    { v: v6, color: 'var(--warning)', label: ui.exiK6Label, sub: ui.exiK6Sub, inverted: false },
+    { off: off.q1, v: v1, color: 'var(--primary)', label: ui.exiK1Label, sub: ui.exiK1Sub, inverted: false },
+    { off: off.q2, v: v2, color: 'var(--success)', label: ui.exiK2Label, sub: ui.exiK2Sub, inverted: false },
+    { off: off.q4, v: v4, color: 'var(--gold)', label: ui.exiK4Label, sub: ui.exiK4Sub, inverted: false },
+    { off: off.q5, v: v5, color: 'var(--danger)', label: ui.exiK5Label, sub: ui.exiK5Sub, inverted: true },
+    { off: off.q6, v: v6, color: 'var(--warning)', label: ui.exiK6Label, sub: ui.exiK6Sub, inverted: false },
   ]
 
   const gapText = gap < 0 ? ui.exiGapTextNegative(fmt1(Math.abs(gap)), fmtDec(Math.abs(gapPc))) : gap === 0 ? ui.exiGapTextZero : ui.exiGapTextPositive
@@ -141,8 +147,8 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
   const risk = (a.rischi || []).filter(Boolean)
   const obj = (a.obiettivi || []).filter(Boolean)
   const meta = [a.intervistato, ui.exiRoles[a.ruolo], a.settore, a.data].filter(Boolean).join(' · ')
-  const off = unanswered(a)
   const noAnswer = ui.exiUnanswered as string
+  const dash = '—'
 
   async function newInterview() {
     if (!canEdit) return
@@ -165,16 +171,16 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
       <div>${[a.intervistato, roles[a.ruolo] || '', a.settore].filter(Boolean).join(' · ')}</div>
       <div style="font-size:12px;color:var(--color-neutral-600);margin-top:2px">${a.data || ''}</div>
       <div class="rpt-h2">${ui.exiHeroLabel}</div>
-      <div>${fmt1(phcv)}/10</div>
+      <div>${allAnswered ? fmt1(phcv) + '/10' : dash}</div>
       <table class="rpt-table"><thead><tr><th>${ui.analisiPageTitle}</th><th>/10</th></tr></thead><tbody>
-        <tr><td>${String(ui.exiK1Label).replace('<br>', ' ')}</td><td>${fmt1(v1)}</td></tr>
-        <tr><td>${String(ui.exiK2Label).replace('<br>', ' ')}</td><td>${fmt1(v2)}</td></tr>
-        <tr><td>${String(ui.exiK4Label).replace('<br>', ' ')}</td><td>${fmt1(v4)}</td></tr>
-        <tr><td>${String(ui.exiK5Label).replace('<br>', ' ')}</td><td>${fmt1(v5)}</td></tr>
-        <tr><td>${String(ui.exiK6Label).replace('<br>', ' ')}</td><td>${fmt1(v6)}</td></tr>
+        <tr><td>${String(ui.exiK1Label).replace('<br>', ' ')}</td><td>${off.q1 ? noAnswer : fmt1(v1)}</td></tr>
+        <tr><td>${String(ui.exiK2Label).replace('<br>', ' ')}</td><td>${off.q2 ? noAnswer : fmt1(v2)}</td></tr>
+        <tr><td>${String(ui.exiK4Label).replace('<br>', ' ')}</td><td>${off.q4 ? noAnswer : fmt1(v4)}</td></tr>
+        <tr><td>${String(ui.exiK5Label).replace('<br>', ' ')}</td><td>${off.q5 ? noAnswer : fmt1(v5)}</td></tr>
+        <tr><td>${String(ui.exiK6Label).replace('<br>', ' ')}</td><td>${off.q6 ? noAnswer : fmt1(v6)}</td></tr>
       </tbody></table>
       <div class="rpt-h2">${ui.exiGapTitle}</div>
-      <div>${gap >= 0 ? '+' : ''}${fmt1(gap)}</div>
+      <div>${gapKnown ? (gap >= 0 ? '+' : '') + fmt1(gap) : dash}</div>
       ${areaRows ? `<div class="rpt-h2">${ui.exiAreasTitle}</div><table class="rpt-table"><thead><tr><th>${ui.analisiPageTitle}</th><th>${ui.exiAreaCriticalityLabel}</th></tr></thead><tbody>${areaRows}</tbody></table>` : ''}
       ${riskLis ? `<div class="rpt-h2">${ui.exiAns5Title}</div><ul>${riskLis}</ul>` : ''}
       ${objLis ? `<div class="rpt-h2">${ui.exiAns6Title}</div><ul>${objLis}</ul>` : ''}
@@ -250,15 +256,16 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
         size="lg"
         className="mb-4"
         label={ui.exiHeroLabel}
-        value={fmt1(phcv)}
-        unit={ui.exiPointsOf10}
-        note={heroText}
-        delta={{ label: heroTier.label, direction: 'flat', tone: 'neutral' }}
+        value={allAnswered ? fmt1(phcv) : dash}
+        unit={allAnswered ? ui.exiPointsOf10 : undefined}
+        note={allAnswered ? heroText : ui.exiHeroPending}
+        delta={allAnswered ? { label: heroTier.label, direction: 'flat', tone: 'neutral' } : undefined}
       />
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {KS.map((k, i) => {
           const tier = k.inverted ? exiRiskTier(k.v, lang) : exiScoreTier(k.v, lang)
+          if (k.off) return <StatCard key={i} size="sm" label={k.label.replace(/<br\s*\/?>/gi, ' ')} value={dash} note={noAnswer} />
           return (
             <StatCard
               key={i}
@@ -286,9 +293,10 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
             <CardTitle>{ui.exiGapTitle}</CardTitle>
           </CardHeader>
           <div className="flex flex-col gap-3">
-            <ScoreRow label={ui.exiGapLabel1} value={v1} />
-            <ScoreRow label={ui.exiGapLabel2} value={v2} />
+            {off.q1 ? <Note>{`${ui.exiGapLabel1}: ${noAnswer}`}</Note> : <ScoreRow label={ui.exiGapLabel1} value={v1} />}
+            {off.q2 ? <Note>{`${ui.exiGapLabel2}: ${noAnswer}`}</Note> : <ScoreRow label={ui.exiGapLabel2} value={v2} />}
           </div>
+          {gapKnown ? (
           <StatCard
             className="mt-4"
             surface="none"
@@ -298,6 +306,9 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: 
             {/* gapText (exiGapText*) porta tag <strong>: viene dal dizionario. */}
             <Note as="div" dangerouslySetInnerHTML={{ __html: gapText }} />
           </StatCard>
+          ) : (
+            <Note className="mt-4">{ui.exiGapPending}</Note>
+          )}
         </Card>
 
         <Card>

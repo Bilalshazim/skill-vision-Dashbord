@@ -5,9 +5,16 @@ import { useMemo } from 'react'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Card } from '@/components/ui/card'
 import { BF, DEFAULT_ROLE, ROLES } from '@/modules/recruiting/lib/constants'
+import { useActivePosition } from '@/modules/recruiting/lib/active-position'
 import { fmtScore10 } from '@/modules/recruiting/lib/format'
+import { positionCandidateIds } from '@/modules/recruiting/lib/position-funnel'
 import { ranking } from '@/modules/recruiting/lib/scoring'
 import { readCandidates } from '@/modules/recruiting/lib/storage'
+
+// Il profilo Big Five con cui ranking() calcola AB: lo stesso del calcolo,
+// così l'esempio torna con il numero a schermo (DECISIONI, «Metodo e
+// Confronto interno sulla posizione attiva»).
+const REF_BF = ROLES[DEFAULT_ROLE].bf
 
 // Migrated from modules/recruiting.html #scr-formule ("Come decide il
 // sistema?", ~528-576) plus its two live-computed examples (renderExamples(),
@@ -21,11 +28,18 @@ import { readCandidates } from '@/modules/recruiting/lib/storage'
 // leggono sulla scala di 10 a cui arrivano a schermo, le soglie sono
 // 8,5 / 7,0 / 6,0. Nel codice gli indici restano su 100.
 export function MetodoContent() {
+  // Gli esempi sono sul primo candidato della posizione attiva, non
+  // dell'archivio (CLAUDE.md, Fase 6: la posizione attiva è una sola).
+  const { opening } = useActivePosition()
   const candidates = useMemo(() => readCandidates(), [])
-  const rk = useMemo(() => ranking(candidates), [candidates])
+  const rk = useMemo(() => {
+    const ids = positionCandidateIds(opening)
+    return ranking(candidates.filter((c) => ids.has(c.id)))
+  }, [candidates, opening])
   const top = rk[0]
+  const positionTitle = opening?.title ?? 'Nessuna posizione'
 
-  const emptyExampleText = 'Nessun candidato in archivio ancora — carica i primi CV per vedere qui un esempio calcolato sui dati reali.'
+  const emptyExampleText = `Nessun candidato della posizione «${positionTitle}» ancora: gli esempi si calcolano sul primo in classifica quando arrivano i CV.`
 
   return (
     <div className="flex flex-col gap-4">
@@ -51,7 +65,7 @@ export function MetodoContent() {
         <p className="mt-3 text-app-small leading-relaxed text-muted-foreground">
           {top ? (
             <>
-              <b className="font-semibold text-foreground">Esempio con i dati reali di oggi</b> — {top.c.name}, ruolo {DEFAULT_ROLE}: FC ={' '}
+              <b className="font-semibold text-foreground">Esempio con i dati reali di oggi</b> — {top.c.name}, posizione {positionTitle}: FC ={' '}
               <b className="font-semibold text-foreground">{fmtScore10(top.r.fc)}</b>. Significa che copre il {fmtDec(top.r.fc)}% del profilo che hai flaggato, con le
               essenziali che pesano il triplo delle utili.
             </>
@@ -82,8 +96,8 @@ export function MetodoContent() {
           {top ? (
             <>
               <b className="font-semibold text-foreground">Esempio</b> — {top.c.name}: distanze per fattore{' '}
-              {BF.map((k) => `|${top.c.bf[k]}−${ROLES[DEFAULT_ROLE].bf[k]}|=${Math.abs(top.c.bf[k] - ROLES[DEFAULT_ROLE].bf[k])}`).join(' · ')} → media{' '}
-              {fmtDec(BF.reduce((a, k) => a + Math.abs(top.c.bf[k] - ROLES[DEFAULT_ROLE].bf[k]), 0) / 5, 1)} → AB = <b className="font-semibold text-foreground">{fmtScore10(top.r.ab)}</b>.
+              {BF.map((k) => `|${top.c.bf[k]}−${REF_BF[k]}|=${Math.abs(top.c.bf[k] - REF_BF[k])}`).join(' · ')} → media{' '}
+              {fmtDec(BF.reduce((a, k) => a + Math.abs(top.c.bf[k] - REF_BF[k]), 0) / 5, 1)} → AB = <b className="font-semibold text-foreground">{fmtScore10(top.r.ab)}</b>.
             </>
           ) : (
             emptyExampleText

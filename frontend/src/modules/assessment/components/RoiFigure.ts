@@ -20,6 +20,19 @@ export function roiFigure(res: Res, roi: RoiResult, page: 'valore' | 'perdite' |
   const s = roi.input
   const { prud, base, espa } = roi.scenarios
   const footer = [res.roiNoSum, annual].filter(Boolean).join(' ')
+  // Gli scenari prudenziale · base · espansivo della cifra della pagina (correzioni del
+  // 2026-11-09, «L'impatto ha tre card»): l'importo grande resta lo scenario base.
+  type Key = 'gapVal' | 'pool' | 'l1' | 'benefit'
+  // Se i tre scenari danno la stessa cifra (il divario non dipende dallo scenario), non si
+  // mostrano: tre numeri uguali farebbero credere a una stima a forbice che non c'è.
+  const scenarios = (k: Key) =>
+    new Set([prud[k], base[k], espa[k]].map((v) => Math.round(v))).size === 1
+      ? undefined
+      : [
+          { label: res.roiScenPrud, value: roiEuro(prud[k]) },
+          { label: res.roiScenBase, value: roiEuro(base[k]) },
+          { label: res.roiScenEspa, value: roiEuro(espa[k]) },
+        ]
   const dataRows = [
     { label: res.roiRowHcva, value: roiEuro(base.HCVA) },
     { label: res.roiRowGap, value: `${res.indexPct(s.gap)} (${res.roiRowGapNote(res.indexPct(s.comp), res.indexPct(s.comp + s.gap))})` },
@@ -30,6 +43,7 @@ export function roiFigure(res: Res, roi: RoiResult, page: 'valore' | 'perdite' |
       value: roiEuro(base.gapVal),
       tags: [res.roiTagPotential, res.roiTagEstimate],
       note: res.roiValoreNote,
+      scenarios: scenarios('gapVal'),
       footer,
       how: { title: res.roiHowTitle, intro: res.roiHowValore, rows: [...dataRows, { label: res.roiRowResult, value: roiEuro(base.gapVal) }] },
     }
@@ -39,6 +53,7 @@ export function roiFigure(res: Res, roi: RoiResult, page: 'valore' | 'perdite' |
       value: roiEuro(base.pool),
       tags: [res.roiTagPotential, res.roiTagEstimate],
       note: res.perditeEuro,
+      scenarios: scenarios('pool'),
       footer,
       how: {
         title: res.roiHowTitle,
@@ -57,6 +72,7 @@ export function roiFigure(res: Res, roi: RoiResult, page: 'valore' | 'perdite' |
       value: roiEuro(base.l1),
       tags: [res.roiTagEstimate],
       note: res.potenzialeEuro,
+      scenarios: scenarios('l1'),
       footer,
       how: { title: res.roiHowTitle, intro: res.roiHowPotenziale, rows: [{ label: res.roiRowDivario, value: roiEuro(base.gapVal) }, { label: res.roiRowEffect, value: `${pct(s.el)} × ${pct(s.r1)}` }, { label: res.roiRowResult, value: roiEuro(base.l1) }] },
     }
@@ -66,11 +82,7 @@ export function roiFigure(res: Res, roi: RoiResult, page: 'valore' | 'perdite' |
     tags: [res.roiTagBase, res.roiTagEstimate],
     note: res.doveEuro,
     detail: res.roiVerifiable(roiEuro(base.costBen)),
-    scenarios: [
-      { label: res.roiScenPrud, value: roiEuro(prud.benefit) },
-      { label: res.roiScenBase, value: roiEuro(base.benefit) },
-      { label: res.roiScenEspa, value: roiEuro(espa.benefit) },
-    ],
+    scenarios: scenarios('benefit'),
     footer,
     how: {
       title: res.roiHowTitle,

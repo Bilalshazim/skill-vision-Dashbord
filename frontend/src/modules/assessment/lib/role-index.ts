@@ -85,6 +85,21 @@ export function personIndex(emp: Employee, state: AssessmentState, lang: Assessm
 }
 
 /**
+ * Il valore espresso per area (correzioni del 2026-11-09, «Il valore»): la stessa
+ * formula dell'azienda, con le somme delle persone valutate dell'area. Le aree
+ * senza niente di misurato non compaiono.
+ */
+export function areaValues(state: AssessmentState, lang: AssessmentLang): Map<string, number> {
+  const byArea = new Map<string, Totals>()
+  for (const e of evaluatedEmployees(state)) {
+    const t = personTotals(e, state, lang)
+    if (!e.area || t.expected <= 0) continue
+    byArea.set(e.area, addTotals(byArea.get(e.area) ?? { got: 0, expected: 0 }, t))
+  }
+  return new Map([...byArea.entries()].map(([area, t]) => [area, ratio(t)!]))
+}
+
+/**
  * I due dati dell'azienda, sulle persone valutate. `valore`: la stessa formula, con
  * le somme di tutti. `gapMedio`: la media dei gap di adeguatezza delle singole
  * persone (valore espresso − 100). `null` se nessuno ha niente di misurato.

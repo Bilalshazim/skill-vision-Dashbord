@@ -24,6 +24,10 @@ export default function PotenzialePage() {
       title: labels[k],
       value: list.length ? res.people(list.length) : res.nobody,
       list: topThree(list),
+      // Una riga per persona con la sua barra (correzioni del 2026-11-09).
+      chart: list.length
+        ? { kind: 'people' as const, rows: list.slice(0, 3).map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome} · ${r.e.ruolo || r.e.mansione}`, value: Math.round(r.index ?? 0) })), max: 120, expected: 100, expectedLabel: res.cmpReference, format: (n: number) => `${n}%` }
+        : undefined,
       link: { label: res.seeList, to: `/assessment/valore?fascia=${k}` },
     }
   }
@@ -59,13 +63,14 @@ export default function PotenzialePage() {
             title: res.potenzialeSkill,
             value: data.bestSoft ? data.bestSoft.name : res.potenzialeNoSkill,
             body: data.bestSoft ? res.pointsAbove(fmt1it(data.bestSoft.gap)) : undefined,
+            chart: data.bestSoft ? { kind: 'scale' as const, label: data.bestSoft.name, value: data.bestSoft.value, max: 10, expected: data.bestSoft.expected, expectedLabel: res.expectedAt(fmt1it(data.bestSoft.expected)), format: fmt1it } : undefined,
             link: { label: res.open, to: '/assessment/soft-overview' },
           },
         ],
         opportunity: res.potenzialeOpportunity(data.above),
         opportunityLabel: res.opportunityLabel,
       }}
-      impact={{ pct: data.abovePct, label: res.potenzialeImpact, hint: res.potenzialeHint(data.above, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'potenziale') }}
+      impact={{ pct: data.abovePct, dots: { n: data.above, total: data.total }, label: res.potenzialeImpact, hint: res.potenzialeHint(data.above, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'potenziale') }}
       home={home}
       demoNote={demoNote}
     />

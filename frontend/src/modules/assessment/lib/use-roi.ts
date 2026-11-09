@@ -1,13 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { assessmentApi, type RoiData } from '@/lib/api/assessment'
 import { annualize, blockingProblems } from '@/lib/roi/checks'
 import { model, type RoiModel, type RoiState } from '@/lib/roi/model'
 import { SCEN, scenOverrides } from '@/lib/roi/scenarios'
+import { isOnDemoCompany } from '@/lib/demo-mode'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { activeEmployees, evaluatedEmployees, homeStats, roleCoveragePct } from '@/modules/assessment/lib/calculations'
+import { demoRoiData } from '@/modules/assessment/lib/demo-roi'
 import { orgValue } from '@/modules/assessment/lib/role-index'
+
+// Le società demo per cui il bilancio dimostrativo è già stato chiesto in questa sessione:
+// il hook è usato da più componenti nella stessa pagina, il caricamento parte una volta.
+const demoStatementRequested = new Set<string>()
 
 // Dalla dashboard al motore ROI (CLAUDE.md, Fase 6, "Euro dal motore ROI"). Dati
 // di bilancio e voci a mano dal server, salvati in Dati aziendali; organico e
@@ -30,7 +36,7 @@ export type RoiResult = {
 }
 
 export function useRoi() {
-  const { state, lang, company, canEdit } = useAssessment()
+  const { state, lang, company, canEdit, ui } = useAssessment()
   const queryClient = useQueryClient()
   const companyId = company?.id ?? null
   const key = ['assessment', 'roi', companyId]
@@ -100,6 +106,16 @@ export function useRoi() {
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: key }),
   })
+
+  // Gli euro nella demo (correzioni del 2026-11-09): sulla società demo, se il bilancio
+  // non c'è, si carica quello dimostrativo, come gli altri dati demo. Solo chi può
+  // modificare; le società vere restano «In attesa dei dati di bilancio».
+  const statementMissing = !!q.data && !Object.keys(q.data.data?.statement ?? {}).length
+  useEffect(() => {
+    if (!statementMissing || !companyId || !canEdit || !isOnDemoCompany() || demoStatementRequested.has(companyId)) return
+    demoStatementRequested.add(companyId)
+    save.mutate(demoRoiData(ui.res.roiDemoFile))
+  }, [statementMissing, companyId, canEdit, save, ui])
 
   return { ...result, data: q.data?.data ?? null, isError: q.isError, save, canEdit }
 }

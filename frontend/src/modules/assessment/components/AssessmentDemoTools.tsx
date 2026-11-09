@@ -9,12 +9,10 @@ import { useModuleEntitlement } from '@/lib/entitlements'
 import { AssessmentDataGate } from '@/modules/assessment/components/AssessmentDataGate'
 import { AssessmentProvider, useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { generateDemoData } from '@/modules/assessment/lib/demo-data'
+import { demoRoiData } from '@/modules/assessment/lib/demo-roi'
 import { errorReason } from '@/modules/assessment/lib/server-sync'
 import { useRoi } from '@/modules/assessment/lib/use-roi'
 
-// Solo per la demo: un bilancio inventato, dichiarato tale a schermo.
-const DEMO_STATEMENT: Record<string, number> = { ric: 9400000, vdp: 9650000, costiProd: 8700000, cp: 2100000, sal: 1520000, amm: 310000, acc: 40000, ebit: 950000, ebitda: 1300000, un: 610000, ante: 870000, imposte: 260000 }
-const DEMO_MANUAL = { inv: 18000, turn: 6, ass: 4.5 }
 
 // Gli strumenti demo di Assessment, nell'amministrazione dell'account demo (CLAUDE.md
 // §9): erano nel menu del modulo e in Dati aziendali. La pagina sta dentro Recruiting,
@@ -41,7 +39,7 @@ function Tools() {
 
   async function loadStatement() {
     if (!(await confirm({ title: res.roiDemoLoad, description: res.roiDemoConfirm, confirmLabel: res.roiDemoLoad, cancelLabel: ui.confirmCancel }))) return
-    const data: RoiData = { statement: DEMO_STATEMENT, months: 12, fileName: res.roiDemoFile, loadedAt: new Date().toISOString(), ...DEMO_MANUAL }
+    const data: RoiData = demoRoiData(res.roiDemoFile)
     roi.save.mutate(data, { onSuccess: () => toast(res.roiSaved, 'ok'), onError: () => toast(res.roiSaveFailed, 'err') })
   }
 

@@ -219,7 +219,15 @@ export function CvMatchDialog({ candidate, percent = false }: { candidate: Candi
           Match CV/Profilo: {match}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      {/* All'apertura il fuoco va sulla finestra, non sul primo pulsante:
+          era «Rimuovi dalla preselezione», che apriva il suo tooltip e il
+          primo Esc chiudeva quello invece della finestra. */}
+      <DialogContent
+        onOpenAutoFocus={(e) => {
+          e.preventDefault()
+          ;(e.currentTarget as HTMLElement | null)?.focus()
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{candidate.name}</DialogTitle>
           <DialogDescription>

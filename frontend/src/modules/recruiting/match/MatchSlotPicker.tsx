@@ -21,6 +21,9 @@ export function MatchSlotPicker({
   onSelect: (id: string) => void
   filled: 'cand' | 'it'
 }) {
+  // Un candidato si presenta con la posizione per cui concorre (`job`), un
+  // talento interno con il ruolo che ricopre.
+  const roleOf = (c: Candidate) => (filled === 'cand' ? c.job || c.role : c.role)
   const picked = pool.find((c) => c.id === selectedId)
   const topScores = picked
     ? Object.entries(picked.scores || {})
@@ -41,7 +44,7 @@ export function MatchSlotPicker({
         {pool.map((c) => (
           <option key={c.id} value={c.id}>
             {c.name}
-            {c.role ? ` — ${c.role}` : ''}
+            {roleOf(c) ? ` — ${roleOf(c)}` : ''}
           </option>
         ))}
       </SelectField>
@@ -49,7 +52,7 @@ export function MatchSlotPicker({
         <div className="text-app-caption">
           <div className="font-semibold text-foreground">{picked.name}</div>
           <div className="text-muted-foreground">
-            {picked.role || '—'}
+            {roleOf(picked) || '—'}
             {picked.isInternalTalent && (
               <span className="label-mono ml-1.5 rounded-full bg-primary/10 px-2 py-0.5 text-primary">INT</span>
             )}

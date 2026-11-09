@@ -55,9 +55,9 @@ export default function PerditeInvisibiliPage() {
       }}
       issues={{
         items: [
-          { title: res.perditeArea, value: data.worstArea ? data.worstArea.label : res.perditeNoArea, body: data.worstArea ? res.pointsBelow(fmt1it(data.worstArea.gap)) : undefined },
-          { title: res.perditeRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined },
-          { title: res.perditeSkill, value: data.worstSkill ? data.worstSkill.name : res.perditeNoSkill, body: data.worstSkill ? res.pointsBelow(fmt1it(-data.worstSkill.gap)) : undefined },
+          { title: res.perditeArea, value: data.worstArea ? data.worstArea.label : res.perditeNoArea, body: data.worstArea ? res.pointsBelow(fmt1it(data.worstArea.gap)) : undefined, chart: data.worstArea ? { kind: 'scale' as const, label: data.worstArea.label, value: ATTESO - data.worstArea.gap, max: 10, expected: ATTESO, expectedLabel: res.expectedAt(fmt1it(ATTESO)), format: fmt1it } : undefined },
+          { title: res.perditeRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, chart: data.worstRole ? { kind: 'scale' as const, label: data.worstRole.label, value: ATTESO - data.worstRole.gap, max: 10, expected: ATTESO, expectedLabel: res.expectedAt(fmt1it(ATTESO)), format: fmt1it } : undefined },
+          { title: res.perditeSkill, value: data.worstSkill ? data.worstSkill.name : res.perditeNoSkill, body: data.worstSkill ? res.pointsBelow(fmt1it(-data.worstSkill.gap)) : undefined, chart: data.worstSkill ? { kind: 'scale' as const, label: data.worstSkill.name, value: data.worstSkill.value, max: 10, expected: data.worstSkill.expected, expectedLabel: res.expectedAt(fmt1it(data.worstSkill.expected)), format: fmt1it } : undefined },
         ],
         opportunity: res.perditeOpportunity(data.worstArea?.label ?? null),
         opportunityLabel: res.opportunityLabel,

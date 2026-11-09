@@ -3,6 +3,8 @@ import { FileSpreadsheet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { LegacyBridgeButton } from '@/modules/recruiting/components/LegacyBridgeButton'
+import { useActivePosition } from '@/modules/recruiting/lib/active-position'
+import { positionCandidateIds } from '@/modules/recruiting/lib/position-funnel'
 import { getInternalTalents, ranking } from '@/modules/recruiting/lib/scoring'
 import { readCandidates } from '@/modules/recruiting/lib/storage'
 import type { MatchPick } from '@/modules/recruiting/match/MatchCompare'
@@ -30,9 +32,18 @@ const TALENT_SLOTS = [
 // Pagina A's selection Set is local state: it's ephemeral UI state, not
 // data. No writes, no localStorage keys touched.
 export default function MatchPage() {
-  const candidates = useMemo(() => readCandidates(), [])
-  const talents = useMemo(() => getInternalTalents(candidates), [candidates])
+  // I candidati sono quelli della posizione attiva, non l'archivio intero
+  // (CLAUDE.md, Fase 6: la posizione attiva è una sola). I talenti interni
+  // sono dipendenti: non appartengono a una posizione e restano com'erano.
+  const { opening } = useActivePosition()
+  const archive = useMemo(() => readCandidates(), [])
+  const candidates = useMemo(() => {
+    const ids = positionCandidateIds(opening)
+    return archive.filter((c) => ids.has(c.id))
+  }, [archive, opening])
+  const talents = useMemo(() => getInternalTalents(archive), [archive])
   const noCandidates = useMemo(() => ranking(candidates).length === 0, [candidates])
+  const positionTitle = opening?.title ?? 'Nessuna posizione'
 
   const [selection, setSelection] = useState<Record<string, string>>({})
 
@@ -54,12 +65,12 @@ export default function MatchPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader level="page" className="mb-0" title={<>Confronto candidati &amp; talenti interni</>} description={<>Seleziona fino a 2 candidati e 5 talenti interni per confrontarli sullo stesso schermo.</>} />
+      <PageHeader level="page" className="mb-0" title={<>Confronto candidati &amp; talenti interni</>} description={<>Seleziona fino a 2 candidati della posizione e 5 talenti interni per confrontarli sullo stesso schermo.</>} />
 
       {noCandidates ? (
         <p className="py-6 text-app-small text-muted-foreground">
-          Nessun candidato in archivio. Carica i primi CV dalla pagina <b className="font-semibold text-foreground">CV & Esportazione</b> per confrontarli
-          con i vostri talenti interni.
+          Nessun candidato della posizione «{positionTitle}» con il test completato. Carica i CV dalla pagina <b className="font-semibold text-foreground">CV & Esportazione</b> per
+          confrontarli con i vostri talenti interni.
         </p>
       ) : (
         <>

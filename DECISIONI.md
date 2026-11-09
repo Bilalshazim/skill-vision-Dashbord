@@ -2962,3 +2962,35 @@ il nome della serie e il formato del grafico. Non era nella richiesta: §9 chied
 Stima per Roberto, **non si costruisce fino al suo ok**. Fattibile, 27–39 ore (4–5 giornate); dettaglio e domande aperte in
 `resoconto-2026-11-06.md`. Punti tecnici: `publicJobPostings` oggi è solo GET; `POST /cv` richiede l'accesso e controlla solo il
 tipo dichiarato; `syncRankingFromBackend` aggiorna i candidati presenti ma non ne aggiunge; `createLimiter` è in memoria per istanza.
+
+## Metodo e Confronto interno sulla posizione attiva · 2026-11-09
+Opzioni: (a) filtrare i candidati sulla posizione attiva e lasciare il calcolo com'è; (b) calcolare anche il profilo Big
+Five di riferimento sulla posizione. Cambia che (b) tocca il calcolo della classifica, che oggi usa un solo profilo di
+riferimento (`ROLES[DEFAULT_ROLE]`) per tutte le posizioni. Raccomandazione e scelta: (a). A schermo non compare più
+«Sales Account Manager»; l'esempio di AB usa lo stesso profilo del calcolo, così il numero torna. Il profilo di
+riferimento per posizione resta un punto aperto (già nel registro del 7/11). I talenti interni non sono di una
+posizione e restano com'erano.
+
+## Il marchio sul telefono, con il commutatore dei moduli · 2026-11-09
+La barra superiore usciva dallo schermo di 6–14px a 390px con la barra di scorrimento del desktop. Opzioni: stringere gli
+spazi, nascondere il commutatore, usare il simbolo al posto del lockup. Scelta: il simbolo, solo sotto `sm` e solo quando
+c'è il commutatore (cap. 7: «sotto gli 80px il lockup lascia il posto al simbolo»). Sopra `sm` nulla cambia.
+
+## L'impatto in tre card: dove i numeri non cambiano · 2026-11-09
+Gli scenari prudenziale · base · espansivo si mostrano solo se le tre cifre sono diverse: sul divario (Il valore) e sulle
+perdite il motore dà la stessa cifra nei tre scenari, e tre numeri uguali farebbero credere a una forbice che non c'è.
+Il valore non ha la terza card del valore espresso nell'Impatto: il valore espresso è il Gauge della stessa sezione, e
+il numero si scrive una volta. Restano Ring della copertura e card degli euro a metà riga (Decisioni del 2026-11-06).
+
+## Bilancio dimostrativo caricato da solo · 2026-11-09
+Opzioni: (a) lasciarlo al pulsante negli strumenti demo; (b) caricarlo da solo sulla società demo. Scelta (b), come chiede
+la correzione del 9/11 («con lo stesso meccanismo degli altri dati demo»): Recruiting carica già da solo i suoi dati
+demo. Condizioni: società demo (`isOnDemoCompany`), utente che può modificare, bilancio assente; una volta per sessione.
+Mai sulle società vere, mai con il seed. Il pulsante negli strumenti demo resta.
+
+## Intervista: le domande saltate fuori dagli indici · 2026-11-09
+Il cursore ha sempre un valore, quindi una domanda saltata veniva letta come una risposta al valore di partenza. Opzioni:
+(a) salvare quali domande hanno una risposta (campo nuovo nei dati salvati); (b) usare la regola già in uso nel riepilogo
+(nessun commento e cursore al valore di partenza) anche per gli indici. Scelta (b): non tocca il salvataggio. Limite noto:
+chi risponde esattamente il valore di partenza senza commento risulta «Senza risposta». Se va distinto, serve (a), che
+tocca i dati salvati e va deciso con Roberto.

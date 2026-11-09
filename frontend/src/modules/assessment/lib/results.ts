@@ -1,6 +1,6 @@
 import { evaluatedEmployees, orgCriticalAreas, orgCriticalRoles, primaryScore, roleCoveragePct, tierFor, worstCompetenza } from '@/modules/assessment/lib/calculations'
 import { getSoftSkills, round1, type AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
-import { orgValue, personIndex } from '@/modules/assessment/lib/role-index'
+import { areaValues, orgValue, personIndex } from '@/modules/assessment/lib/role-index'
 import { TIER_ORDER, type TierKey } from '@/modules/assessment/lib/tier-display'
 import type { AssessmentState, Employee } from '@/modules/assessment/lib/types'
 
@@ -49,13 +49,14 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
 
   // Competenza più forte: la competenza trasversale con la distanza positiva
   // più alta dall'atteso, sulla media delle persone valutate.
-  let bestSoft: { name: string; gap: number } | null = null
+  let bestSoft: { name: string; gap: number; value: number; expected: number } | null = null
   if (f.A && total) {
     for (const s of getSoftSkills(lang)) {
       const vals = evaluated.map((e) => e.soft[s.id]).filter((v): v is { ottenuto: number; atteso: number } => !!v && v.ottenuto > 0)
       if (!vals.length) continue
       const gap = round1(vals.reduce((n, v) => n + (v.ottenuto - v.atteso), 0) / vals.length)
-      if (gap > 0 && (!bestSoft || gap > bestSoft.gap)) bestSoft = { name: s.name, gap }
+      if (gap > 0 && (!bestSoft || gap > bestSoft.gap))
+        bestSoft = { name: s.name, gap, value: round1(vals.reduce((n, v) => n + v.ottenuto, 0) / vals.length), expected: round1(vals.reduce((n, v) => n + v.atteso, 0) / vals.length) }
     }
   }
 
@@ -89,6 +90,9 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
   const shown = ranked.flatMap((r) => (r.index == null ? [] : [Math.round(r.index)]))
   const byRole = new Map<string, number[]>()
   ranked.forEach((r) => r.index != null && r.e.ruolo && byRole.set(r.e.ruolo, [...(byRole.get(r.e.ruolo) ?? []), r.index]))
+  // Il valore espresso per area, nell'ordine delle aree delle Perdite invisibili (correzioni del 2026-11-09).
+  const byAreaValue = total ? areaValues(state, lang) : new Map<string, number>()
+  const withIndex = ranked.filter((r) => r.index != null)
   const roleGaps = [...byRole.entries()].map(([label, list]) => ({ label, gap: Math.round(mean(list)) - 100 })).sort((a, b) => a.gap - b.gap)
 
   return {
@@ -100,6 +104,10 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
     coverage: roleCoveragePct(state, lang),
     belowExpected: shown.filter((v) => v < 100).length,
     aboveExpected: shown.filter((v) => v > 100).length,
+    areaValues: allAreas.flatMap((a) => (byAreaValue.has(a.area) ? [{ label: a.area, value: Math.round(byAreaValue.get(a.area)!) }] : [])),
+    /** Le tre persone più lontane sotto l'atteso e le tre più oltre, per le righe dei riquadri. */
+    belowPeople: withIndex.filter((r) => Math.round(r.index!) < 100).sort((a, b) => a.index! - b.index!).slice(0, 3),
+    abovePeople: withIndex.filter((r) => Math.round(r.index!) > 100).sort((a, b) => b.index! - a.index!).slice(0, 3),
     worstRoleByGap: roleGaps[0] && roleGaps[0].gap < 0 ? roleGaps[0] : null,
     total,
     employees: state.employees.length,

@@ -1379,6 +1379,17 @@ Quando i valori stanno vicini all'atteso (per esempio «Punteggio medio per clus
   - Le sottovoci si vedono solo con il livello aperto. È aperto un livello alla volta: quello della pagina attiva.
 - **CV dei candidati: da stimare, non da costruire.** Al salvataggio del Profilo candidato nasce il link dell'annuncio. Roberto chiede se chi apre quel link può caricare il CV e ritrovarlo subito in piattaforma, sulla posizione. Serve: se si può fare, come (pagina pubblica, consenso privacy, limiti sui file) e quanto tempo richiede. Fino all'ok di Roberto non si costruisce.
 
+#### Correzioni di design del 2026-11-09 (Alessio, dopo il rilascio del 7/11)
+
+Valgono sopra le «Decisioni del 2026-11-06» dove non coincidono. Disegno: tela «Skill-Vision · Benvenuto» (https://claude.ai/artifact/Qb6fZn9nPAqsGX88ixhZfm), riga «9 novembre», tavole «Recruiting · Home», «Il valore», «Le perdite invisibili», «Il potenziale» e «Dove intervenire». Le cifre delle tavole sono d'esempio: a schermo si calcolano dai dati.
+
+- **Home di Recruiting: le card tornano all'altezza di prima.** Verticali sì, a tutta altezza no: l'altezza la dà il contenuto, con numero e titolo in alto e i verbi in fondo, senza un vuoto sopra il titolo. Resta tolto solo il blocco titolo e sottotitolo.
+- **Il valore · sezione 1: niente elenco delle persone.** Le 23 barre fanno una colonna lunghissima accanto a un Gauge piccolo. Al loro posto un **Bar Chart orizzontale del valore espresso per area** (le stesse aree delle Perdite invisibili): una barra per area in `chart-mono`, il valore scritto («68%»), l'atteso 100% tratteggiato con il nome. Gauge e Bar Chart hanno **la stessa altezza**; sotto il grafico, il link «Vedi tutte le persone» alla pagina tecnica. Il lime pieno resta solo sul Gauge.
+- **L'impatto, in tutte le pagine dei risultati: ogni percentuale ha la sua forma.** Una quota va in un **Ring** con il numero in `centerValue` («30% delle persone è sotto la norma»), come dice la regola «Un numero che ha una forma la mostra». Niente percentuali scritte da sole.
+- **L'impatto ha tre card in fila**: il dato della pagina in un Ring (lime, il numero della sezione); il «Valore espresso rispetto al ruolo» come **barra orizzontale** su scala 0–120% con l'atteso 100% tratteggiato, in inchiostro, con «−27% dall'atteso»; la card degli euro con gli scenari prudenziale · base · espansivo, «Gli importi non si sommano» e «Come è calcolato». Nel Potenziale il dato della pagina è una fila di pallini (4 su 23), per non ripetere il Ring della sezione 1.
+- **2 Criticità e opportunità: ogni riquadro ha un mini grafico.** Sotto il nome, una barra sulla sua scala (1–10 o 0–120%) con l'atteso tratteggiato e il valore scritto; nei riquadri con le persone, una riga per persona con la sua barra; per i conteggi, una fila di pallini o un Ring piccolo. In inchiostro, mai lime.
+- **Gli euro nella demo.** Per la società demo (Acme, solo l'account demo) si carica un **bilancio dimostrativo** in Dati aziendali, con lo stesso meccanismo degli altri dati demo e mai con il seed in produzione. Così il motore ROI calcola gli euro e L'impatto li mostra con gli scenari e «Come è calcolato». La pagina dice «Dati dimostrativi». Le società vere continuano a mostrare «In attesa dei dati di bilancio» finché il loro bilancio non è caricato.
+
 ### Fase 7 — Verifica
 
 Esegui `scripts/audit-identita.mjs` (paragrafo 9) e correggi quello che trova.
@@ -1750,6 +1761,12 @@ stato provato così:
 5. **Ogni frase del resoconto è verificata**: non si scrive che una cosa
    succede («i manager non compaiono») se non c'è il modo di controllarlo.
 
+**La prova la fa Bilal** (2026-11-09). Se l'assistente non ha accesso alla
+produzione, Bilal la fa a mano con il suo account di produzione, oppure fa
+l'accesso nel browser che l'assistente usa (l'assistente non inserisce
+password). Un resoconto con «non verificato in produzione» non si manda:
+lo studio e il cliente non fanno la verifica al posto suo.
+
 Nel resoconto, **per ogni punto, una riga su come è stato verificato in
 produzione** (pagina, azione fatta, risultato). Quello che non è stato
 provato, o non funziona, si scrive «non fatto» con il motivo: un «non fatto»
@@ -1763,6 +1780,7 @@ dichiarato vale più di un «fatto» che si rompe al primo clic.
 |---|---|
 | `globals.css` | Il tema. Unico posto dove stanno i valori. Dopo la Fase 1 fa fede la copia nel repository, che ha in più gli alias di Bklit e la scala dei livelli: le modifiche dallo studio arrivano come elenco di valori da applicare, non come file da sostituire. |
 | `skill-vision-fondamenta.md` | Il sistema completo: regole, contrasti verificati, motivazioni. |
+| La tela «Skill-Vision · Benvenuto» | https://claude.ai/artifact/Qb6fZn9nPAqsGX88ixhZfm — le tavole di riferimento. Se una tavola e questo file non coincidono, vale questo file. |
 | `assets/logo-*.svg` | Il marchio nelle due versioni. Non ricomporlo mai. |
 | `scripts/audit-identita.mjs` | La verifica del sorgente. Si lancia a ogni fase. |
 

@@ -210,8 +210,10 @@ const ChartCore = memo(function ChartCore({
   // Extract bar configs synchronously from children
   const lines = useMemo(() => extractBarConfigs(children), [children]);
 
-  const innerWidth = width - margin.left - margin.right;
-  const innerHeight = height - margin.top - margin.bottom;
+  // Mai negativo: in un riquadro più stretto dei margini Bklit disegnava
+  // rettangoli con larghezza negativa (errori in console).
+  const innerWidth = Math.max(0, width - margin.left - margin.right);
+  const innerHeight = Math.max(0, height - margin.top - margin.bottom);
 
   // Category accessor function - returns string for categorical scale
   const categoryAccessor = useCallback(

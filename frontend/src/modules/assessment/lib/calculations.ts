@@ -293,15 +293,16 @@ export function roleCoveragePct(state: AssessmentState, lang: AssessmentLang): n
   return Math.round((covered / roles.length) * 100)
 }
 
-export function worstCompetenza(state: AssessmentState, lang: AssessmentLang, f: { A: boolean; B: boolean }): { name: string; gap: number } | null {
-  const candidates: { name: string; gap: number }[] = []
+// `value` e `expected`: l'ottenuto medio e l'atteso, per la barra del riquadro (correzioni del 2026-11-09).
+export function worstCompetenza(state: AssessmentState, lang: AssessmentLang, f: { A: boolean; B: boolean }): { name: string; gap: number; value: number; expected: number } | null {
+  const candidates: { name: string; gap: number; value: number; expected: number }[] = []
   if (f.A) {
     const s = orgWorstSoftSkills(state, lang, 1)[0]
-    if (s) candidates.push({ name: s.name, gap: s.gap })
+    if (s) candidates.push({ name: s.name, gap: s.gap, value: s.ottenuto, expected: s.atteso })
   }
   if (f.B) {
     const d = orgWorstHardDims(state, lang, 1)[0]
-    if (d) candidates.push({ name: d.name, gap: round1(d.avg - 7) })
+    if (d) candidates.push({ name: d.name, gap: round1(d.avg - 7), value: d.avg, expected: 7 })
   }
   if (!candidates.length) return null
   candidates.sort((a, b) => a.gap - b.gap)

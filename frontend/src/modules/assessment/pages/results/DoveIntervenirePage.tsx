@@ -4,6 +4,7 @@ import { AssessmentModeSwitch } from '@/modules/assessment/components/Assessment
 import { roiFigure } from '@/modules/assessment/components/RoiFigure'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
+import { ATTESO } from '@/modules/assessment/lib/results'
 import { TIER_COLORS, TIER_ORDER, tierLabels } from '@/modules/assessment/lib/tier-display'
 import { useRoi } from '@/modules/assessment/lib/use-roi'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
@@ -55,9 +56,9 @@ export default function DoveIntervenirePage() {
       }}
       issues={{
         items: [
-          { title: res.doveCritical, value: critical ? res.people(critical) : res.nobody, body: res.doveCriticalBody, link: { label: res.seeList, to: '/assessment/valore?fascia=critica' } },
-          { title: res.doveFeedback, value: data.feedbackDue ? res.people(data.feedbackDue) : res.nobody, body: res.doveFeedbackBody, link: { label: res.open, to: '/assessment/feedback' } },
-          { title: res.doveRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, link: { label: res.open, to: '/assessment/valore' } },
+          { title: res.doveCritical, value: critical ? res.people(critical) : res.nobody, body: res.doveCriticalBody, chart: { kind: 'dots', label: res.doveCritical, n: critical, total: data.total }, link: { label: res.seeList, to: '/assessment/valore?fascia=critica' } },
+          { title: res.doveFeedback, value: data.feedbackDue ? res.people(data.feedbackDue) : res.nobody, body: res.doveFeedbackBody, chart: { kind: 'dots', label: res.doveFeedback, n: data.feedbackDue, total: data.employees }, link: { label: res.open, to: '/assessment/feedback' } },
+          { title: res.doveRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, chart: data.worstRole ? { kind: 'scale' as const, label: data.worstRole.label, value: ATTESO - data.worstRole.gap, max: 10, expected: ATTESO, expectedLabel: res.expectedAt(fmt1it(ATTESO)), format: fmt1it } : undefined, link: { label: res.open, to: '/assessment/valore' } },
         ],
         opportunity: res.doveOpportunity(highUntouched?.without ?? 0, (highUntouched?.withFeedback ?? 0) + (highUntouched?.without ?? 0)),
         opportunityLabel: res.opportunityLabel,

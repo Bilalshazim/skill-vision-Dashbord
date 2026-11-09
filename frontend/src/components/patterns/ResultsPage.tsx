@@ -2,9 +2,11 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { Fragment, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
+import { CompletionRing } from '@/components/patterns/CompletionRing'
 import { EmptyState } from '@/components/patterns/EmptyState'
 import { EuroFigure, type ResultsEuro, type ResultsLink, TextLink } from '@/components/patterns/EuroFigure'
 import { InfoTip } from '@/components/patterns/InfoTip'
+import { DotRow, ScaleBar } from '@/components/patterns/MiniChart'
 import { ResultsTile, type ResultsIssue } from '@/components/patterns/ResultsTile'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
@@ -28,6 +30,8 @@ export type ResultsImpact = {
   euro?: ResultsEuro
   /** Il valore espresso rispetto al ruolo, in percentuale intera, con il suo tooltip. */
   index?: { value: number | null; label: string; hint: ReactNode }
+  /** Al posto del Ring, una fila di pallini (`n` su `total`): dove il Ring c'è già nella sezione 1 (Il potenziale). */
+  dots?: { n: number; total: number }
 }
 
 // La pagina dei risultati di una finestra (CLAUDE.md, Fase 6, "Le pagine dei
@@ -89,27 +93,47 @@ export function ResultsPage({
   const before = sections?.length ?? (situation ? 1 : 0) + (issues ? 1 : 0)
   const impactNumber = before + 1
   const suggestionNumber = before + (impact ? 2 : 1)
+  // L'impatto in card affiancate (correzioni del 2026-11-09): la quota della pagina in un
+  // Ring lime con il numero al centro (o una fila di pallini, dove il Ring c'è già sopra);
+  // il valore espresso come barra 0–120% con l'atteso 100% tratteggiato, in inchiostro;
+  // gli euro con gli scenari. Ogni percentuale ha la sua forma, nessuna scritta da sola.
+  const impactCards = impact ? [impact.pct !== undefined, !!impact.index, true].filter(Boolean).length : 0
   const impactSection = impact ? (
-    <Section number={impactNumber} title="L'impatto" className={cn('grid grid-cols-1 gap-8', impact.index ? 'lg:grid-cols-3' : 'md:grid-cols-2')}>
+    <Section number={impactNumber} title="L'impatto" className={cn('grid grid-cols-1 items-stretch gap-4', impactCards === 3 ? 'lg:grid-cols-3' : 'md:grid-cols-2')}>
       {impact.pct !== undefined ? (
-        <div className="flex flex-col gap-1">
-          <p className="flex items-center gap-2">
-            <span className="text-site-h2 tabular-nums text-foreground md:text-site-h1">{impact.pct == null ? '—' : `${impact.pct}%`}</span>
+        <Card className="h-full gap-3">
+          {impact.dots && impact.pct != null ? (
+            <DotRow n={impact.dots.n} total={impact.dots.total} label={impact.label ?? ''} />
+          ) : impact.pct != null ? (
+            <CompletionRing value={impact.pct} label={impact.label ?? ''} tone="highlight" center="" className="mx-0" />
+          ) : (
+            <span className="text-site-h2 tabular-nums text-muted-foreground">—</span>
+          )}
+          <p className="flex items-start gap-2 text-app-body text-foreground">
+            <span>{impact.dots && impact.pct != null ? `${impact.pct}% ${impact.label}` : impact.label}</span>
             {impact.hint ? <InfoTip label={`Che cosa misura: ${impact.label}`}>{impact.hint}</InfoTip> : null}
           </p>
-          <p className="text-app-body text-foreground">{impact.label}</p>
-        </div>
+        </Card>
       ) : null}
       {impact.index ? (
-        <div className="flex flex-col gap-1">
+        <Card className="h-full gap-3">
           <p className="flex items-center gap-2">
-            <span className="text-site-h2 tabular-nums text-foreground md:text-site-h1">{impact.index.value == null ? '—' : `${impact.index.value}%`}</span>
+            <span className="label-mono text-muted-foreground">{impact.index.label}</span>
             <InfoTip label={`Che cosa misura: ${impact.index.label}`}>{impact.index.hint}</InfoTip>
           </p>
-          <p className="text-app-body text-foreground">{impact.index.label}</p>
-        </div>
+          {impact.index.value == null ? (
+            <span className="text-site-h2 tabular-nums text-muted-foreground">—</span>
+          ) : (
+            <>
+              <ScaleBar label={impact.index.label} value={impact.index.value} max={120} expected={100} expectedLabel="Atteso 100%" format={(n) => `${n}%`} size="md" />
+              <p className="text-app-body text-foreground">{gapText(impact.index.value - 100)}</p>
+            </>
+          )}
+        </Card>
       ) : null}
-      <EuroFigure euro={impact.euro} note={impact.euroNote} />
+      <Card className="h-full gap-3">
+        <EuroFigure euro={impact.euro} note={impact.euroNote} />
+      </Card>
     </Section>
   ) : null
 
@@ -259,6 +283,12 @@ function Section({ number, title, className, children }: { number?: number; titl
       <div className={className}>{children}</div>
     </section>
   )
+}
+
+/** Lo scarto dall'atteso, senza decimali: «−27% dall'atteso», «+6% oltre l'atteso», «In linea con l'atteso». */
+function gapText(gap: number): string {
+  if (gap === 0) return 'In linea con l’atteso'
+  return gap < 0 ? `−${Math.abs(gap)}% dall’atteso` : `+${gap}% oltre l’atteso`
 }
 
 /** La prima frase e il resto: "Cominciare dalle persone critiche. I compiti…" → ["Cominciare dalle persone critiche.", "I compiti…"]. */

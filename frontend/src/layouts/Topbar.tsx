@@ -41,12 +41,16 @@ export function Topbar({ menuTrigger }: { menuTrigger?: ReactNode }) {
 
   return (
     <header className="sticky top-0 z-(--z-header) flex h-16 shrink-0 items-center gap-2 border-b border-border bg-card px-3 sm:gap-3 sm:px-6">
-      {menuTrigger}
+      {menuTrigger ? <div className="flex shrink-0 items-center">{menuTrigger}</div> : null}
+      {/* Su telefono, con il commutatore dei moduli accanto, il marchio intero
+          non ci sta (la barra usciva dallo schermo di 6–14px): resta il simbolo
+          (CLAUDE.md cap. 7, «Il marchio»). */}
       <Link to="/" aria-label="Skill-Vision — scelta del modulo" className="flex shrink-0 items-center rounded-xs outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
-        <Logo />
+        <Logo className={both ? 'max-sm:hidden' : undefined} />
+        {both ? <Logo compact className="sm:hidden" /> : null}
       </Link>
       {both ? <ModuleSwitcher className="sm:ml-2" /> : null}
-      <div className="ml-auto flex items-center gap-1 sm:gap-2">
+      <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
         <Hint label="Impostazioni">
           <Button variant="outline" size="icon" onClick={() => setSettingsOpen(true)} aria-label="Impostazioni">
             <Settings />

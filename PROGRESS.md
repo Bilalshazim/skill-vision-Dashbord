@@ -190,6 +190,65 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-09 — Correzioni di design del 2026-11-09 e punti aperti del rilascio del 7/11
+Richiesta: eseguire le «Correzioni di design del 2026-11-09» e i punti aperti, poi pubblicare su `main`. Provato in
+locale (account `hr@acme.example`, Vite 5199, backend 4000). **In produzione non provato con l'accesso**: niente
+credenziali di produzione qui (CLAUDE.md §9), quindi ogni punto è «pronto in locale», non «fatto».
+- [x] **Metodo e Confronto interno sulla posizione attiva**: gli esempi di Metodo si calcolano sul primo candidato della
+      posizione attiva (prima l'archivio intero, con «ruolo Sales Account Manager» scritto a schermo); Confronto interno
+      elenca solo i candidati della posizione (provato: 12 candidati di «Senior Frontend Engineer», confronto con un
+      talento interno funziona). Il candidato si presenta con la posizione (`job`), non con il ruolo del CV. I talenti
+      interni restano com'erano (dipendenti, non di una posizione). Il profilo Big Five di riferimento resta quello del
+      calcolo (DECISIONI). Metodo per lo staff non provato a schermo: in locale non c'è un account staff.
+- [x] **Esc sul dialogo del match**: all'apertura il fuoco andava su «Rimuovi dalla preselezione», che apriva il suo
+      tooltip; il primo Esc chiudeva quello. Ora il fuoco va sulla finestra: un Esc la chiude (provato, nessun livello
+      aperto dopo). Tab raggiunge ancora i pulsanti.
+- [x] **I 6px di scorrimento orizzontale**: non erano delle pagine dei risultati ma della barra superiore a 390px con la
+      barra di scorrimento del desktop (fino a 14px). Sul telefono, con il commutatore dei moduli, il marchio diventa il
+      simbolo (cap. 7, «Il marchio»); menu e azioni non si stringono più (il bottone del menu era schiacciato a 16px).
+      Provato a 370px utili su 9 pagine: nessuno scorrimento. Da 1024 a 1920px non c'era e non c'è.
+- [x] **Errori «width negativo» di Bklit**: le barre orizzontali in un riquadro più stretto dei margini (208px a sinistra)
+      avevano un'area di disegno negativa. `innerWidth/innerHeight` non scendono sotto zero in `bar-chart`,
+      `scatter-chart-shell`, `time-series-chart-shell`. Nessun errore su 8 pagine con grafici a 390px.
+- [x] **Home di Recruiting**: le card tornano all'altezza del contenuto (226px, uguali), numero e titolo in alto, verbi in
+      fondo. Tolta la prop `tall` da `WindowCard`.
+- [x] **Il valore · sezione 1**: al posto dell'elenco delle 23 persone, il valore espresso per area (Bar Chart orizzontale,
+      barre in `chart-mono`, valore scritto, atteso 100% tratteggiato) con «Vedi tutte le persone» → Valori complessivi.
+      Gauge e grafico alla stessa altezza (378px). Lime pieno solo sul Gauge. Nuovo calcolo `areaValues` (role-index.ts):
+      la formula di Roberto sulle somme dell'area, non la media delle persone.
+- [x] **Criticità e opportunità: un mini grafico per riquadro** nelle quattro pagine di Assessment (nuovo pattern
+      `MiniChart`: barra sulla scala con l'atteso tratteggiato, una riga per persona, fila di pallini), in inchiostro.
+      Valore al passaggio del mouse e con il fuoco. `worstCompetenza` e `bestSoft` portano anche ottenuto e atteso.
+- [x] **L'impatto in tre card** (pattern `ResultsPage`, quindi anche Recruiting): la quota della pagina in un Ring lime con il
+      numero al centro (nel Potenziale una fila di pallini), il valore espresso come barra 0–120% con l'atteso 100%
+      tratteggiato e «−20% dall'atteso», la card degli euro. Gli scenari prudenziale · base · espansivo compaiono dove
+      sono diversi (Potenziale, Dove intervenire); sul divario e sulle perdite il motore dà tre cifre uguali e non si
+      mostrano (DECISIONI). Il valore ha la sezione 1 con Ring e Impatto a metà riga, come deciso il 2026-11-06.
+- [x] **Bilancio dimostrativo per la demo**: si carica da solo sulla società demo (`isOnDemoCompany`, solo chi può
+      modificare, una volta per sessione) con le cifre che gli strumenti demo avevano già (`lib/demo-roi.ts`). Le società
+      vere restano «In attesa dei dati di bilancio». Con il bilancio caricato la nota in fondo dice solo «Dati
+      dimostrativi · Acme Corp». **In produzione dipende da `VITE_DEMO_MODE` e dalla lista delle società demo su
+      Railway, che da qui non vedo.**
+- [x] **Intervista con domande saltate**: si salva e resta dopo il ricaricamento (provato: «Nuova intervista», salto al
+      Report, sei «Senza risposta»). Difetto trovato e corretto: gli indici in alto prendevano il valore di partenza del
+      cursore come risposta («Valore percepito 7,0 · Buono», «Gap −1,0» su un'intervista vuota). Ora: «—» e «Senza
+      risposta» sugli indici saltati, indice complessivo e gap solo con le domande che servono, anche nella stampa.
+      Il salvataggio non cambia. L'intervista locale di prova è stata ripristinata dopo il test (PUT, 204).
+- [x] **Invio del link a un indirizzo scelto**: esiste già. In Ranking ogni riga ha il campo email; l'invio usa quello.
+      Provato con `prova.invio@example.com`: il backend crea il link per quell'indirizzo; in locale la posta non è
+      configurata (`RESEND_API_KEY`/`MAIL_FROM`) e si apre l'invio manuale. **In produzione l'email parte solo se le due
+      variabili sono su Railway: da verificare.** Lasciato in locale: Luca Ferrante «Link pronto» con l'indirizzo di prova.
+- [x] **Caricamento CV sulla posizione demo**: funziona già, nessun blocco per la demo. Provato con un PDF di prova:
+      «Nuovo candidato (da CV) salvato sul server … in Migliori Candidati». L'analisi del CV è simulata (nota demo della
+      pagina). Lasciato in locale il candidato di prova. **Il caricamento dal link pubblico dell'annuncio non è costruito**:
+      resta la stima di 27–39 ore e serve l'ok di Roberto (CLAUDE.md, «CV dei candidati: da stimare, non da costruire»).
+- [x] Controlli: typecheck (`tsc -p tsconfig.app.json`), lint 0 errori (37 avvisi, nessuno nei file toccati), build,
+      test ROI 6/6, audit senza difetti. Chiaro e scuro su Il valore, Le perdite, Il potenziale, Home di Recruiting.
+- [ ] Non fatto: confronto con le tavole del 9 novembre. La tela non si apre da qui (mostra solo «Loading…»): fatto sul
+      testo di CLAUDE.md, che vale sopra le tavole. Mini grafici nei riquadri delle pagine di Recruiting: le correzioni
+      parlano delle tavole di Assessment.
+- [ ] Non fatto: prova in produzione con l'accesso (§9). La fa Bilal.
+
 ## 2026-11-07 (3) — Parti A e B pubblicate, prova in produzione da fare
 - [x] Commit `d900f5e` su `main` (da `server-only`), su richiesta di Bilal. Nessuna modifica al backend, nessuna migrazione.
 - [x] Produzione controllata senza accesso: applicazione e backend rispondono 200; il bundle `index-C-mM6gXQ.js` contiene le

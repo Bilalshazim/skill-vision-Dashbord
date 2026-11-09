@@ -15,8 +15,8 @@ import { RECRUITING_STEPS } from '@/modules/recruiting/results/use-recruiting-re
 // (CLAUDE.md, Fase 6, deciso da Roberto il 2026-10-23, "le tre slide"):
 //  1. Società · Campagna · CIP, modificabili solo qui (RecruitingHeader);
 //     la scelta della posizione attiva sta nella barra sopra (RecruitingContextBar);
-//  2. tre card grandi e verticali, a tutta altezza come le finestre della Home di Assessment,
-//     con la freccia fra l'una e l'altra, numerate, con titolo, sottotitolo, contenuto e verbi
+//  2. tre card verticali, alte quanto il contenuto (correzioni del 2026-11-09: non più a tutta
+//     altezza, numero e titolo in alto, i verbi in fondo), con la freccia fra l'una e l'altra, numerate, con titolo, sottotitolo, contenuto e verbi
 //     (Decisioni del 2026-11-06: via il blocco di titolo e sottotitolo). Senza numeri di dati
 //     (Roberto non li vuole qui); il clic apre la pagina dei risultati del passo.
 // Niente riga dell'esito (2026-10-29), niente "Report AI" nella terza card.
@@ -48,11 +48,11 @@ export default function ProfileHubPage() {
   }
 
   return (
-    <div className="flex min-h-home flex-col gap-4">
+    <div className="flex flex-col gap-4">
       {/* Società · Campagna · CIP in cima, come nella tavola: si modificano solo qui. */}
       <RecruitingHeader />
 
-      <ol className="grid flex-1 grid-cols-1 items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]">
+      <ol className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]">
         {RECRUITING_STEPS.map((s, i) => (
           <Fragment key={s.slug}>
             {i > 0 ? (
@@ -61,7 +61,7 @@ export default function ProfileHubPage() {
               </li>
             ) : null}
             <li className="min-w-0">
-              <WindowCard tall to={`/recruiting/${s.slug}`} number={s.number} title={s.title} subtitle={s.sub} content={s.content} verbs={s.verbs} />
+              <WindowCard to={`/recruiting/${s.slug}`} number={s.number} title={s.title} subtitle={s.sub} content={s.content} verbs={s.verbs} />
             </li>
           </Fragment>
         ))}
