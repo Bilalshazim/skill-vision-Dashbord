@@ -190,3 +190,39 @@ pronti e i cinque valori si possono modificare. Si salva con le altre scelte del
 - **Le due stime** da approvare.
 - **In attesa di Roberto**, come scritto in CLAUDE.md: la card degli euro senza bilancio, peso e soglia delle
   Competenze trasversali, e l'Area valutazioni.
+
+---
+
+## D · Una sola fonte per società e posizioni (proposta, da decidere)
+
+**Che cosa si è visto in produzione.** In Assessment la società è «Acme Corp»; in Recruiting il selettore «Società»
+mostrava «EMEXxxxC S.p.A.» e «Northwind Ops», con la campagna «Sales Account Manager». Non è un errore del codice: è la
+società demo di Recruiting, rinominata con la matita in Profilo della ricerca. Le due schede leggono la società da due
+posti diversi.
+
+- **Assessment** legge la società dell'account, sul server.
+- **Recruiting** usa un suo elenco di società e posizioni, salvato nei suoi dati e collegato al server per nome.
+
+Per la demo, Bilal ha già rimesso a mano i nomi con la matita: «Acme Corp» e «Senior Frontend Engineer».
+
+**La proposta: una sola fonte, il server.**
+- **Un solo elenco.** Società, campagne e la posizione attiva arrivano dal server per tutte e due le schede.
+- **Rinomine condivise.** Una rinomina vale ovunque.
+- **Posizioni legate per identificativo.** Le posizioni di Recruiting si collegano alla campagna per identificativo,
+  non per nome.
+- **Migrazione una tantum dei dati di oggi.** Prima un'anteprima a secco di ogni azione, poi l'applicazione con
+  registro e un modo per tornare indietro. Si prova su una copia dei dati di produzione prima della produzione.
+
+**Stima: 30–45 ore**, circa metà per la migrazione e la sua prova.
+
+**Da decidere con Roberto, prima di cominciare:**
+
+1. **Società che non sono clienti.** Northwind Ops esiste solo nei dati di Recruiting. Diventa una società vera sul
+   server, o si toglie?
+2. **Holding.** Il selettore mostra solo le società, o anche il gruppo (struttura gruppo → società)?
+3. **Chi può rinominare.** Con il nome del server, una rinomina cambia per tutti, Assessment compreso. Solo gli
+   amministratori?
+4. **Quando.** Ora, con i dati di EMEXxxxC, o dopo il login nuovo (Fase 8), che deve arrivare prima dei dati reali in
+   produzione?
+
+Fino alla decisione non si tocca niente: tocca il salvataggio dei dati (CLAUDE.md §5).

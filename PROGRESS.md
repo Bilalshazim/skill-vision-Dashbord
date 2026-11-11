@@ -190,6 +190,13 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-11 (2) — Società e posizioni: una sola fonte (proposta)
+- [x] Proposta scritta in DECISIONI («Una sola fonte per società e posizioni») e nel resoconto del 10/11 (parte D):
+      endpoint unico, rinomine sul server, posizioni legate per id, migrazione con anteprima e ritorno. Stima 30–45 ore.
+- [ ] In attesa di Roberto: le quattro decisioni (società non clienti, holding, chi rinomina, quando). Nessun codice.
+- Causa del caso di produzione: la società demo di Recruiting (`company-acme`) rinominata «EMEXxxxC S.p.A.» con la
+  matita; Bilal ha rimesso a mano «Acme Corp» e «Senior Frontend Engineer».
+
 ## 2026-11-11 — Posizione attiva: Profilo candidato e Confronto interno
 Dalla prova in produzione di Bilal: «Sales Account Manager» al posto della posizione attiva.
 - [x] **Profilo candidato**: il titolo della scheda (anteprima, annuncio, salvataggio) è sempre quello della posizione

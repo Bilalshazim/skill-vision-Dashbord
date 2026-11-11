@@ -3070,3 +3070,40 @@ Il caricamento era già nell'Intervista, ma in fondo ai Dati aziendali, dopo sed
 trovava. La sezione del bilancio va in cima, con lo stato («Bilancio caricato il [data]» o «Carica il bilancio»), il
 nome del file e il pulsante «Carica il bilancio» / «Sostituisci il bilancio». Tolta la card con «Vai al bilancio».
 Stesso file del motore ROI (Credit Save: .xlsx, .xls, .csv), stesso lettore (`lib/roi/importer`).
+
+## Una sola fonte per società e posizioni (Recruiting e Assessment) · 2026-11-11 — PROPOSTA, in attesa di Roberto
+**Stato: non costruito.** Da decidere con Roberto (punti 1–4 sotto) prima di qualunque migrazione. Tocca il
+salvataggio dei dati (CLAUDE.md §5): non si parte senza approvazione.
+
+**Il problema.** Assessment legge la società dal server (`Company`, la società dell'account). Recruiting tiene un
+suo elenco di società e posizioni dentro il documento `apex5d_cv_matching_state` e lo collega alle tabelle del server
+(`Company`, `Campaign`) per nome, la prima volta che un CV passa dal server (`lib/backend-link.ts`). Le due fonti
+possono divergere: in produzione la società demo di Recruiting (`company-acme`) è stata rinominata con la matita
+«EMEXxxxC S.p.A.», mentre Assessment mostrava «Acme Corp». Dopo una rinomina, una posizione non ancora collegata
+cercherebbe la società sul server con il nome nuovo, e non la troverebbe.
+
+**La proposta.**
+1. Un endpoint unico per il contesto: le società visibili (la propria; tutte per lo staff), le loro campagne, la
+   società e la posizione attive come preferenza dell'utente sul server. Lo leggono Recruiting e Assessment.
+2. Le rinomine con la matita aggiornano `Company.name` e `Campaign.name`: le due schede leggono lo stesso nome.
+3. L'elenco del documento di Recruiting smette di essere una fonte: le posizioni puntano alla campagna per id, non
+   per nome. Candidati, test e colloqui restano dove sono, legati all'id della campagna.
+4. Migrazione una tantum: ogni posizione di Recruiting si collega alla sua campagna per id; quelle senza campagna ne
+   ricevono una nuova. Prima un'anteprima a secco che elenca ogni azione, poi l'applicazione con registro e un modo per
+   tornare indietro. Prova su una copia dei dati di produzione prima della produzione.
+5. Assessment segue la stessa scelta: cambiando società in una scheda resta nell'altra.
+
+**Stima: 30–45 ore**, di cui circa metà per la migrazione e la sua prova sulla copia dei dati.
+
+**Decisioni per Roberto**
+1. **Società che non sono clienti veri.** Northwind Ops (e il nome «EMEXxxxC» di Acme) esistono solo nei dati di
+   Recruiting: nel modello unico diventerebbero società vere sul server. Restano o si tolgono?
+2. **Holding.** CLAUDE.md prevede la struttura gruppo → società: il selettore unico mostra solo le società o anche il
+   gruppo?
+3. **Chi può rinominare.** Oggi qualunque recruiter rinomina la società nei dati di Recruiting. Con il nome del server
+   cambierebbe per tutti, Assessment compreso: solo gli amministratori?
+4. **Quando.** Niente dati reali in produzione prima del login nuovo (Fase 8): la migrazione va fatta ora, con i dati
+   di EMEXxxxC, o dopo la Fase 8?
+
+**Intanto.** Per la demo i nomi si riallineano a mano con la matita in Profilo della ricerca («Acme Corp», «Senior
+Frontend Engineer»): la rinomina cambia solo l'etichetta, non i candidati né la scheda.
