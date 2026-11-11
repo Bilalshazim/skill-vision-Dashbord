@@ -3107,3 +3107,19 @@ cercherebbe la società sul server con il nome nuovo, e non la troverebbe.
 
 **Intanto.** Per la demo i nomi si riallineano a mano con la matita in Profilo della ricerca («Acme Corp», «Senior
 Frontend Engineer»): la rinomina cambia solo l'etichetta, non i candidati né la scheda.
+
+## Correzioni del 2026-11-10 verificate in produzione · 2026-11-11
+Bilal Shazim ha verificato in produzione l'11/11/2026, con il suo account, su Acme Corp · Senior Frontend Engineer,
+i sei controlli delle correzioni di Roberto del 10/11:
+1. Un verde per sezione nelle quattro pagine dei risultati di Assessment («Un verde per sezione: un alias per gli
+   archi», «La barra sotto il mouse: un'estensione di Bklit»).
+2. «Perché è importante» come titolo e sottotitolo fuori dal riquadro («“Perché è importante” su mobile: 24px, non 26»).
+3. Il valore: «Gap medio» sotto il Gauge, al posto di «dall'atteso».
+4. Panoramica senza «e cosa fare lunedì».
+5. Intervista: le domande saltate non contano, con «Calcolato su N domande su 5» («Intervista: l'indice sulle domande
+   con risposta»).
+6. Menu di Assessment: Anagrafica subito sotto Intervista.
+
+Le decisioni dietro questi punti restano valide così come sono scritte sopra. Non ancora verificati in produzione: il
+bilancio in cima ai Dati aziendali («Il bilancio in cima ai Dati aziendali») e l'antivirus («Antivirus: ClamAV,
+fail-closed»), che richiede prima un servizio ClamAV su Railway o `ANTIVIRUS_ALLOW_BASIC=true` per la demo.

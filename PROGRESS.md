@@ -190,6 +190,12 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-11 (3) — Verifica in produzione delle correzioni del 10/11
+- [x] Bilal Shazim ha verificato in produzione (Acme Corp · Senior Frontend Engineer) sei controlli: un verde per
+      sezione, «Perché è importante», Gap medio, Panoramica senza «lunedì», domande saltate dell'Intervista, Anagrafica
+      nel menu. Registrato nel resoconto del 10/11 e in DECISIONI.
+- [ ] Ancora da provare in produzione: bilancio in cima ai Dati aziendali; antivirus (serve ClamAV su Railway).
+
 ## 2026-11-11 (2) — Società e posizioni: una sola fonte (proposta)
 - [x] Proposta scritta in DECISIONI («Una sola fonte per società e posizioni») e nel resoconto del 10/11 (parte D):
       endpoint unico, rinomine sul server, posizioni legate per id, migrazione con anteprima e ritorno. Stima 30–45 ore.

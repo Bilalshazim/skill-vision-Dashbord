@@ -8,8 +8,14 @@ prima di costruire.
 (CLAUDE.md §9). I valori qui scritti sono **misurati in locale** dall'assistente, sull'account `hr@acme.example` e sui
 dati dimostrativi di Acme, che sono gli stessi della demo in produzione. L'assistente non ha l'accesso alla
 produzione. Per la Parte A, Bilal ha confermato la prova in produzione dei punti del 9/11; dove ha letto un valore
-diverso da quello qui sotto, la riga va corretta. **La Parte B non è ancora provata in produzione**: è pubblicata con
-questo rilascio, e la prova con l'accesso la fa Bilal prima di mandare il resoconto.
+diverso da quello qui sotto, la riga va corretta.
+
+**Stato della Parte B (aggiornato l'11/11/2026).** Bilal Shazim ha verificato in produzione, con il suo account, su
+Acme Corp · Senior Frontend Engineer, sei controlli: un verde per sezione (B1), titolo «Perché è importante» (B2), Gap
+medio sotto il Gauge (B3), Panoramica senza «e cosa fare lunedì» (B4), domande saltate nell'Intervista, menu con
+Anagrafica sotto Intervista (B5). Le righe «Verifica in produzione» riportano la sua conferma; i valori accanto sono
+quelli misurati in locale. **Non ancora verificati in produzione:** il bilancio in cima ai Dati aziendali (B6) e
+l'antivirus (B7, che richiede ClamAV su Railway).
 
 ---
 
@@ -47,6 +53,8 @@ risposta non contano.
   della pagina la riga è ancora lì. Calcolo a mano: (0,3 × 6,5 + 0,25 × 6,5 + 0,1 × 4 + 0,1 × 7,5) ÷ 0,75 = 6,3.
 - Dopo ogni prova l'intervista del demo è stata rimessa com'era.
 
+**Verifica in produzione:** confermata da Bilal Shazim l’11/11/2026, con il suo account, su Acme Corp · Senior Frontend Engineer: si va avanti senza rispondere, le domande saltate non contano e lo dice la riga «Calcolato su … domande su 5».
+
 ### Il gap medio: la formula
 
 - **Gauge, valore espresso**: somma dei valori rilevati ÷ somma dei valori attesi, su tutte le persone valutate
@@ -61,7 +69,7 @@ risposta non contano.
 
 ## B · Le correzioni del 10 novembre
 
-Pronte in locale; **in produzione da provare** (Bilal).
+B1–B5 e le domande saltate verificati in produzione da Bilal Shazim l’11/11/2026; B6 e B7 ancora da provare.
 
 ### B1. Un verde per sezione
 Nelle quattro pagine dei risultati di Assessment, in chiaro e in scuro, nessun colore nuovo:
@@ -80,6 +88,8 @@ Nelle quattro pagine dei risultati di Assessment, in chiaro e in scuro, nessun c
   #8C980B.
 - **Il potenziale**: primo riquadro #DDEE1C; pallini dell'Impatto #DDEE1C.
 
+**Verifica in produzione:** confermata da Bilal Shazim l’11/11/2026, con il suo account, su Acme Corp · Senior Frontend Engineer, nelle quattro pagine dei risultati di Assessment.
+
 ### B2. «Perché è importante per la tua azienda?» come titolo e sottotitolo
 Fuori dal riquadro, in tutte e sette le pagine dei risultati. I testi non cambiano.
 **Valori misurati in locale:** su tutte e sette (quattro di Assessment, tre di Recruiting) titolo 32px/600, testo
@@ -87,19 +97,27 @@ Fuori dal riquadro, in tutte e sette le pagine dei risultati. I testi non cambia
 32px, nessuno scorrimento. Le fondamenta dicono 26px su mobile, ma la scala del tema ha solo i valori desktop e scende
 di un gradino: è in DECISIONI.
 
+**Verifica in produzione:** confermata da Bilal Shazim l’11/11/2026, con il suo account, su Acme Corp · Senior Frontend Engineer.
+
 ### B3. Il valore · Gap medio
 Sotto il Gauge, al posto di «−20% dall'atteso»: «Gap medio» in stile label, il valore in grande, ⓘ con «La distanza
 media dal valore atteso, su tutte le persone valutate: chi lo supera compensa chi resta sotto.»
 **Valore misurato in locale:** Gauge 80%, sotto «GAP MEDIO −20%». La pagina mostra così i tre dati che vanno al ROI:
 valore espresso 80%, gap medio −20%, copertura mansioni 93%.
 
+**Verifica in produzione:** confermata da Bilal Shazim l’11/11/2026, con il suo account, su Acme Corp · Senior Frontend Engineer.
+
 ### B4. Panoramica senza «e cosa fare lunedì»
 L'unico punto era il titolo della Sintesi, che ora è «Dove l'azienda perde valore».
 **Valore misurato in locale:** «lunedì» non compare in nessun testo della Panoramica; nel codice non ne resta nessuno.
 Caricamento della Panoramica: 2,1 secondi in locale.
 
+**Verifica in produzione:** confermata da Bilal Shazim l’11/11/2026, con il suo account, su Acme Corp · Senior Frontend Engineer.
+
 ### B5. Anagrafica nel menu
 **Valore misurato in locale:** l'ordine del menu è Panoramica · Intervista · Anagrafica · Area Valutazioni.
+
+**Verifica in produzione:** confermata da Bilal Shazim l’11/11/2026, con il suo account, su Acme Corp · Senior Frontend Engineer.
 
 ### B6. Il bilancio dentro l'Intervista
 Il caricamento era già nell'Intervista, ma in fondo ai Dati aziendali. Ora è la prima cosa della sezione: lo stato,
@@ -107,6 +125,8 @@ il nome del file e il pulsante per caricarlo o sostituirlo. Il link «Vai al bil
 file Credit Save del motore ROI (.xlsx, .xls, .csv) e lo legge nello stesso modo.
 **Valore misurato in locale:** in cima a Dati aziendali «BILANCIO CARICATO IL 05/11/2026», il file «Bilancio
 dimostrativo (cifre inventate)» e il pulsante «Sostituisci il bilancio».
+
+**Verifica in produzione:** non ancora fatta.
 
 ### B7. Antivirus: il motore, fail-closed
 Collegato ClamAV nel punto già predisposto, senza librerie in più. Con il motore spento, irraggiungibile, lento oltre
@@ -121,6 +141,8 @@ Collegato ClamAV nel punto già predisposto, senza librerie in più. Con il moto
 Finché non c'è, il modulo di candidatura della demo **rifiuta tutti i CV**. Per tenere la demo aperta senza motore
 c'è `ANTIVIRUS_ALLOW_BASIC=true`: vale solo per le società demo e lascia il solo controllo di base. Una società vera
 non passa mai senza motore.
+
+**Verifica in produzione:** non ancora fatta: serve prima ClamAV su Railway, oppure `ANTIVIRUS_ALLOW_BASIC=true` per la demo.
 
 ---
 
@@ -184,7 +206,8 @@ pronti e i cinque valori si possono modificare. Si salva con le altre scelte del
 
 ## Cosa resta
 
-- **Prova in produzione della Parte B** con l'accesso: Bilal.
+- **Prova in produzione di B6 (bilancio) e B7 (antivirus)**: B1–B5 e le domande saltate sono verificati da Bilal
+  l’11/11/2026.
 - **ClamAV su Railway** (`CLAMAV_HOST`), oppure `ANTIVIRUS_ALLOW_BASIC=true` per la sola demo. Senza, il modulo di
   candidatura della demo rifiuta i CV.
 - **Le due stime** da approvare.
