@@ -179,8 +179,20 @@ export function loadJdTemplate(role: string): JdState | null {
   // Le voci dei preset salvate prima della traduzione si aprono in italiano
   // (jd-preset-translations.ts); il dato salvato cambia al prossimo salvataggio.
   const cloned: JdState = convertJdState(tmpl)
-  if (cloned.header) cloned.header.titolo = cloned.header.titolo || cloned.header.title || role
+  // Il titolo è quello della posizione (la chiave della scheda): vedi withPositionTitle.
+  if (cloned.header) cloned.header.titolo = (role !== 'Nessuna posizione' && role) || cloned.header.titolo || cloned.header.title || ''
   return cloned
+}
+
+/**
+ * Il titolo della scheda è il titolo della posizione attiva (CLAUDE.md, Fase 6: la posizione
+ * attiva è una sola). Una scheda salvata partendo da un altro profilo (per esempio il preset
+ * «Sales Account Manager») si apre con il titolo della posizione, e così va nell'anteprima,
+ * nell'annuncio e nel salvataggio. Il resto del contenuto resta quello scritto.
+ */
+export function withPositionTitle(jd: JdState, title: string): JdState {
+  if (!title || title === 'Nessuna posizione') return jd
+  return { ...jd, header: { ...jd.header, titolo: title } }
 }
 
 export function loadSalaryBenefits(role: string): SalaryBenefitsRecord | null {

@@ -12,7 +12,7 @@ import { useSkillFlags } from '@/modules/recruiting/lib/skill-flags'
 import { jobProfilesApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
 import { activeRole } from '@/modules/recruiting/lib/active-role'
-import { buildBlankJdState, buildJdStateFromPreset, buildSoftSkillItems, loadJdTemplate, saveJdTemplate } from '@/modules/recruiting/lib/jd'
+import { buildBlankJdState, buildJdStateFromPreset, buildSoftSkillItems, loadJdTemplate, saveJdTemplate, withPositionTitle } from '@/modules/recruiting/lib/jd'
 import { loadJobProfileFromBackend, saveJobProfileToBackend } from '@/modules/recruiting/lib/backend-sync'
 import { getActiveOpening } from '@/modules/recruiting/lib/pipeline'
 import { readCvMatchingState } from '@/modules/recruiting/lib/storage'
@@ -157,7 +157,7 @@ export default function JobProfilePage() {
     void loadJobProfileFromBackend(opening.id).then((result) => {
       if (cancelled) return
       if (result.ok) {
-        setJdState(result.jdState)
+        setJdState(withPositionTitle(result.jdState, activeRole()))
         setBackendNote('Scheda caricata dal server')
         setBackendProfileId(result.profileId)
         setApproved(result.approved)
@@ -184,7 +184,7 @@ export default function JobProfilePage() {
   // legacy exactly; only the explicit "Salva JD" button writes storage.
   async function handleSelectPreset(pid: JdPresetId) {
     if (!(await confirm({ title: 'Cambiare profilo di partenza?', description: 'Le selezioni correnti della scheda verranno sovrascritte.', confirmLabel: 'Cambia profilo', destructive: true }))) return
-    setJdState(buildJdStateFromPreset(pid))
+    setJdState(withPositionTitle(buildJdStateFromPreset(pid), activeRole()))
     setSaveMessage('')
     setBackendNote('')
   }
@@ -209,7 +209,7 @@ export default function JobProfilePage() {
     // conferma e niente link.
     let where = `Salvata come modello · ${when}. Non è ancora un annuncio: per confermarla e avere il link serve una posizione aperta collegata al server.`
     if (opening) {
-      const backendResult = await saveJobProfileToBackend(opening.id, jdState)
+      const backendResult = await saveJobProfileToBackend(opening.id, withPositionTitle(jdState, opening.title))
       if (backendResult.ok) {
         where = `Salvata sul server · ${when}. La trovi da qualunque computer, per la posizione «${opening.title}».`
         setBackendNote('')
@@ -228,7 +228,7 @@ export default function JobProfilePage() {
       // uploaded through the backend flow for it) — silently local-only,
       // exactly like every other feature gated on a backend link.
     }
-    saveJdTemplate(activeRole(), jdState)
+    saveJdTemplate(activeRole(), withPositionTitle(jdState, activeRole()))
     setSaveMessage(where)
     setMode('preview')
   }

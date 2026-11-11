@@ -1,6 +1,7 @@
 import { fmtDec } from '@/lib/format'
 import { SelectField } from '@/components/patterns/SelectField'
 import { cn } from '@/lib/utils'
+import { useActivePosition } from '@/modules/recruiting/lib/active-position'
 import type { Candidate } from '@/modules/recruiting/lib/types'
 
 // Migrated from _buildMatchSlots()/_pickMatchSlot()/_renderSlotPreview()
@@ -23,7 +24,10 @@ export function MatchSlotPicker({
 }) {
   // Un candidato si presenta con la posizione per cui concorre (`job`), un
   // talento interno con il ruolo che ricopre.
-  const roleOf = (c: Candidate) => (filled === 'cand' ? c.job || c.role : c.role)
+  // I candidati sono tutti della posizione attiva: si presentano con quella, non con il ruolo
+  // scritto nel CV o nell'archivio importato (che può essere «Sales Account Manager»).
+  const { opening } = useActivePosition()
+  const roleOf = (c: Candidate) => (filled === 'cand' ? opening?.title || c.job || c.role : c.role)
   const picked = pool.find((c) => c.id === selectedId)
   const topScores = picked
     ? Object.entries(picked.scores || {})

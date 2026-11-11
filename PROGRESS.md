@@ -190,6 +190,20 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-11 — Posizione attiva: Profilo candidato e Confronto interno
+Dalla prova in produzione di Bilal: «Sales Account Manager» al posto della posizione attiva.
+- [x] **Profilo candidato**: il titolo della scheda (anteprima, annuncio, salvataggio) è sempre quello della posizione
+      attiva (`withPositionTitle`). Prima restava il titolo salvato con il preset «Sales Account Manager». In locale:
+      anteprima «Senior Frontend Engineer». Il bottone «Salva JD per …» legge già la posizione attiva.
+- [x] **Confronto interno**: i candidati si presentano con la posizione attiva, non con il ruolo del CV o
+      dell'archivio. In locale: «Marta Bellini — Senior Frontend Engineer».
+- [x] **Metodo**: nel codice titolo, esempi e stato vuoto leggono già la posizione attiva; nessun testo fisso.
+- [x] Menu: Ranking · Risultati · Migliori candidati (verificato in locale).
+- [ ] Lo «Scopo della posizione» della scheda è testo scritto (preset Sales Account Manager): va riscritto nella
+      scheda, non si cambia da solo.
+- [ ] Se in produzione la barra del contesto mostra anch'essa «Sales Account Manager», è la posizione attiva
+      dell'account: si cambia dal Profilo della ricerca.
+
 ## 2026-11-10 — Correzioni di Roberto del 2026-11-10
 Provato in locale con `hr@acme.example` (Vite 5199, backend 4000), in chiaro e in scuro. In produzione da provare
 dopo il rilascio (Bilal).
