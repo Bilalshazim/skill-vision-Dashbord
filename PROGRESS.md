@@ -213,6 +213,8 @@ dopo il rilascio (Bilal).
 - [ ] Stime (non costruite): importazione Excel dell'Anagrafica 23–33 ore; Big Five ideale per posizione 18–27 ore.
 - Controlli: typecheck frontend e backend, lint 0 errori (37 avvisi, come prima), build, test ROI 6/6, test
   antivirus 9/9, audit senza difetti.
+- [x] Pubblicato con `a3ec5b0` su `main`. In produzione, senza accesso: frontend con il bundle nuovo
+      `index-DYZGZ6ue.js`, backend health 200. **Prova con l'accesso da fare (Bilal).**
 
 ## 2026-11-09 (sera) — Decisioni del 2026-11-09: Il valore, Intervista, Recruiting, Parte C
 Richiesta della sera (non ancora scritta in CLAUDE.md: il testo è nella richiesta). Provato in locale con
