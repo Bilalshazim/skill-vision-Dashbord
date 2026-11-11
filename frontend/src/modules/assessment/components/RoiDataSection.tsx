@@ -6,6 +6,7 @@ import { Field } from '@/components/patterns/Field'
 import { FieldGrid } from '@/components/patterns/FieldGrid'
 import { InlineAlert } from '@/components/patterns/InlineAlert'
 import { PageHeader } from '@/components/patterns/PageHeader'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -65,22 +66,31 @@ export function RoiDataSection() {
   }
 
   const loaded = STATEMENT_KEYS.filter((k) => draft.statement[k] != null)
+  // Lo stato è quello salvato sul server, non la bozza: «caricato» solo dopo «Salva».
+  const saved = roi.data
+  const savedLoaded = !!saved?.statement && Object.keys(saved.statement).length > 0
+  const savedDate = saved?.loadedAt ? new Date(saved.loadedAt).toLocaleDateString('it-IT') : ''
   return (
-    <section id="bilancio" className="mt-8 scroll-mt-24">
+    <section id="bilancio" className="mb-8 scroll-mt-24">
       <PageHeader title={res.roiDataTitle} description={res.roiDataSub} level="subsection" />
       <Card className="gap-4">
-        {canEdit ? (
-          <div className="flex flex-wrap items-center gap-3">
-            <Button asChild variant="outline" size="sm">
+        {/* Stato, data, file e pulsante nella sezione stessa (correzioni di Roberto del 2026-11-10).
+            Il file è quello del motore ROI (Credit Save): .xlsx, .xls o .csv, letto da lib/roi/importer. */}
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge tone={savedLoaded ? 'success' : 'warning'} dot>
+            {savedLoaded ? res.balanceLoadedOn(savedDate) : res.balanceUploadCta}
+          </Badge>
+          {draft.fileName ? <span className="text-app-small text-muted-foreground">{draft.fileName}</span> : null}
+          {canEdit ? (
+            <Button asChild variant={savedLoaded ? 'outline' : 'default'} size="sm">
               <label className="cursor-pointer">
                 <Upload aria-hidden="true" />
-                {res.roiUpload}
+                {savedLoaded ? res.balanceReplace : res.roiUpload}
                 <input type="file" accept=".xlsx,.xls,.csv,.txt" className="sr-only" onChange={onFile} />
               </label>
             </Button>
-            {draft.fileName ? <span className="text-app-small text-muted-foreground">{draft.fileName}</span> : null}
-          </div>
-        ) : null}
+          ) : null}
+        </div>
         {fileError ? <InlineAlert>{fileError}</InlineAlert> : null}
         {loaded.length ? (
           <dl className="grid grid-cols-1 gap-x-8 gap-y-1 text-app-small sm:grid-cols-2 lg:grid-cols-3">

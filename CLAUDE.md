@@ -562,7 +562,9 @@ Conseguenze sui grafici di oggi:
   inchiostro, benchmark tratteggiato, lime sul valore da guardare.
 - Gauge e Ring: arco pieno in `chart-mono`, oppure `chart-highlight` se è il
   numero principale della pagina; la traccia resta quella di default di Bklit
-  (`--border`).
+  (`--border`). *Dal 2026-11-10: in chiaro un arco verde è `accent-600`, mai
+  `accent-400` (fondamenta); un verde per sezione, vedi «Correzioni di
+  Roberto del 2026-11-10».*
 
 E nessun grafico affida il significato al solo colore: etichette dirette sulle
 serie, non una legenda a lato che costringe a confrontare due punti dello
@@ -699,7 +701,9 @@ invisibili» («vai avanti così»). Tutte con la stessa struttura:
 - la **riga del percorso** in cima («Home / Le perdite invisibili»), ogni voce
   cliccabile, e «Torna alla home» in fondo;
 - titolo e domanda della finestra;
-- **«Perché è importante per la tua azienda?»**, due righe sotto il titolo;
+- **«Perché è importante per la tua azienda?»**, due righe sotto il titolo
+  (*dal 2026-11-10 titolo H2 e sottotitolo, fuori dal riquadro: vedi
+  «Correzioni di Roberto del 2026-11-10»*);
 - **1 · La situazione oggi** — una frase e un grafico;
 - **2 · Criticità e opportunità** — al massimo tre riquadri e una riga
   sull'opportunità;
@@ -843,7 +847,8 @@ uno solo, e vale per tutte e due le pagine.
 
    **«Da fare adesso» e «Cosa fare, in ordine di impatto» non sono doppioni.**
    Il primo elenca compiti di chi lavora (chi seguire, quale colloquio fare,
-   quale scheda sollecitare): risponde a «cosa faccio lunedì». Il secondo
+   quale scheda sollecitare): risponde a «cosa faccio lunedì» (frase interna:
+   a schermo non compare, 2026-11-10). Il secondo
    elenca interventi (formazione, coaching, riorganizzazione) con il valore
    che recuperano: risponde a «dove conviene investire». Nella Sintesi ci sono
    tutti e due; nel Dettaglio, «Da fare adesso» non ripete gli interventi, che
@@ -1006,7 +1011,9 @@ solo la struttura del menu:
 **Altre decisioni di Roberto (2026-10-23):**
 
 - **Profilo candidato** (*superato il 2026-11-06*: le competenze trasversali
-  si scelgono solo nella pagina Competenze trasversali): le competenze trasversali si scelgono lì dentro. Al
+  si scelgono solo nella pagina Competenze trasversali; *superato il
+  2026-11-09*: il link si crea con il pulsante «Crea link», vedi «Decisioni del
+  2026-11-09»): le competenze trasversali si scelgono lì dentro. Al
   salvataggio, in fondo alla pagina, compaiono l'annuncio pronto e il link per
   l'invio. Nessun'altra finestra o accesso ad altre pagine in quella pagina.
 - **CV elaborati**: escono le finestre Colloqui e Candidato vincitore (che
@@ -1201,7 +1208,8 @@ Dove una tavola e questo testo non coincidono, vale questo testo.
 rilascio del 30 ottobre è rimasto solo nella Panoramica; Roberto l'ha visto
 sparire e non l'aveva chiesto. Torna **dov'era prima del rilascio** (stessa
 posizione, stesso comportamento: lo ritrovi nella cronologia del repository) e
-vale per **tutto Assessment**, home e pagine dei risultati comprese. La scelta
+vale per **tutto Assessment**, home e pagine dei risultati comprese, **tranne
+l'Intervista** (Roberto, 2026-11-09). La scelta
 resta mentre si naviga. Se il cliente ha acquistato un solo pacchetto, il
 selettore mostra solo quello.
 
@@ -1238,6 +1246,9 @@ ovunque. Il documento «Formule % in €» non è la fonte.
   ruolo» (85%) e «Gap di adeguatezza» (−15%), senza decimali; il valore esatto
   resta nel calcolo e nel ROI. Oltre 100% è un'eccedenza, non un errore.
   Verso il ROI vanno solo tre dati: valore %, gap medio %, copertura ruoli %.
+  **Gap medio** = media dei gap di tutte le persone: chi supera l'atteso
+  compensa chi resta sotto (Roberto, 2026-11-09). Il «gap medio sotto soglia»
+  del motore non si usa.
 
 **Verifica in produzione del 2026-11-02 — correzioni:**
 
@@ -1327,8 +1338,8 @@ Valgono sopra quanto scritto prima in questa fase, dove non coincidono. Le parti
   - Il potenziale: «Valorizzare le persone, riconoscendone competenze e potenzialità inespresse, significa trasformare il capitale umano già a bilancio in maggior valore economico, incrementare la produttività e ridurre i costi di ricerca, selezione e nuove assunzioni.»
   - Dove intervenire: «Individuare i problemi non basta: occorre sapere dove intervenire prima. Skill-Vision trasforma le criticità rilevate in priorità operative, indicando quali interventi evitano i costi maggiori, quante persone coinvolgono e dove concentrare le risorse per ottenere risultati concreti e misurabili.»
   - «Valorizzare» e «valorizzazione» sono ammessi (Roberto). «Recuperare» per i soldi resta vietato.
-- **Il valore** parla solo dei risultati: due sezioni, «1 La situazione oggi» (con dentro L'impatto) e «2 Criticità e opportunità». Via «Cosa ti suggeriamo di fare» e gli Approfondimenti. La sezione 1 si compone così:
-  - **Gauge** (un terzo della riga): valore espresso rispetto al ruolo in `centerValue`, arco in `chart-highlight`, sotto «−20% dall'atteso». Il gap di adeguatezza non ha più un riquadro suo.
+- **Il valore** parla solo dei risultati: due sezioni, «1 La situazione oggi» (con dentro L'impatto) e «2 Criticità e opportunità». Via «Cosa ti suggeriamo di fare» e gli Approfondimenti. La sezione 1 si compone così (*rivista il 2026-11-09: Gauge grande e centrato, nessuna frase, dettaglio per mansione con un clic; vedi «Decisioni del 2026-11-09»*):
+  - **Gauge** (un terzo della riga): valore espresso rispetto al ruolo in `centerValue`, arco in `chart-highlight`, sotto «−20% dall'atteso» (*dal 2026-11-10 al suo posto «Gap medio»*). Il gap di adeguatezza non ha più un riquadro suo.
   - **Bar Chart** (due terzi della riga): le persone valutate in ordine di valore espresso, atteso 100% come linea tratteggiata con il nome, tutte le barre in `chart-mono`; chi supera il 100% ha un'etichetta lime con lo scarto («+6»), come nella classifica dei confronti. Il lime pieno di questa sezione è uno solo, quello del Gauge. Frase calcolata sopra: «[N] sotto l'atteso, [M] oltre.»
   - **Ring** della copertura mansioni, con la percentuale in `centerValue`, scritta una volta sola.
   - **L'impatto**: «€ [—] · In attesa dei dati di bilancio» finché il bilancio non è caricato.
@@ -1342,7 +1353,7 @@ Valgono sopra quanto scritto prima in questa fase, dove non coincidono. Le parti
 
 **Altre pagine di Assessment**
 
-- **Intervista**: si passa da una domanda all'altra senza dover rispondere alla precedente. Le domande senza risposta restano segnate come tali nel riepilogo.
+- **Intervista**: si passa da una domanda all'altra senza dover rispondere alla precedente. Le domande senza risposta restano segnate come tali nel riepilogo. (*Il 2026-11-09 esteso alle sottodomande, con punteggio e impaginazione nuovi: vedi «Decisioni del 2026-11-09».*)
 - **Dati aziendali** diventano la prima sezione dell'Intervista, prima delle domande. La voce «Dati aziendali» esce dal menu; i link «Vai a Dati aziendali» portano a quella sezione. Il caricamento del bilancio e i campi a mano non cambiano.
 - **Panoramica**: oggi resta su «Caricamento dei dati di Assessment…» per circa 5 secondi. Va ridotto; se un blocco è lento, gli altri compaiono subito. Gli euro dicono «In attesa dei dati di bilancio», come nelle altre pagine, non «In attesa della formula».
 
@@ -1369,7 +1380,7 @@ Quando i valori stanno vicini all'atteso (per esempio «Punteggio medio per clus
   4. **L'impatto**.
   5. **Cosa ti suggeriamo di fare**.
 - **Chi scegliamo?** è il colloquio: entra tutto l'attuale livello 4. Sezioni: «1 Colloqui» (in programma, con data, link a Prossimi colloqui) · «2 Valutazioni» (interviste strutturate e valutazioni fatte e da fare) · «3 Candidati al podio» (punti di forza e rischi) · «4 L'impatto» · «5 Cosa ti suggeriamo di fare» (link al Report finale di valutazione).
-- **Menu di Recruiting**:
+- **Menu di Recruiting** (*il 2026-11-09 «Risultati» rientra in Chi è più adatto?, tra Ranking e Migliori candidati: vedi «Decisioni del 2026-11-09»*):
   - Profilo della ricerca · Panoramica
   - **Chi cerchiamo?**: Profilo candidato · Competenze trasversali · CV & Esportazione · CV elaborati · Avanzamento della selezione · CV preselezionati
   - **Chi è più adatto?**: Ranking · Migliori candidati · Confronto interno · Stato dell'arte · Imbuto di selezione
@@ -1377,18 +1388,125 @@ Quando i valori stanno vicini all'atteso (per esempio «Punteggio medio per clus
   - Strumenti · Amministrazione, come oggi.
   - Il livello 4 sparisce. Imbuto di selezione compare una volta sola. «Classifica dopo il test» esce dal livello 1: se è la stessa pagina di Migliori candidati, la rotta resta e si annota in DECISIONI; se mostra altro, si scrive nel resoconto prima di toglierla.
   - Le sottovoci si vedono solo con il livello aperto. È aperto un livello alla volta: quello della pagina attiva.
-- **CV dei candidati: da stimare, non da costruire.** Al salvataggio del Profilo candidato nasce il link dell'annuncio. Roberto chiede se chi apre quel link può caricare il CV e ritrovarlo subito in piattaforma, sulla posizione. Serve: se si può fare, come (pagina pubblica, consenso privacy, limiti sui file) e quanto tempo richiede. Fino all'ok di Roberto non si costruisce.
+- **CV dei candidati: da stimare, non da costruire.** (*Superato il 2026-11-09: approvato, da costruire; vedi «Decisioni del 2026-11-09».*) Al salvataggio del Profilo candidato nasce il link dell'annuncio. Roberto chiede se chi apre quel link può caricare il CV e ritrovarlo subito in piattaforma, sulla posizione. Serve: se si può fare, come (pagina pubblica, consenso privacy, limiti sui file) e quanto tempo richiede. Fino all'ok di Roberto non si costruisce.
 
 #### Correzioni di design del 2026-11-09 (Alessio, dopo il rilascio del 7/11)
 
 Valgono sopra le «Decisioni del 2026-11-06» dove non coincidono. Disegno: tela «Skill-Vision · Benvenuto» (https://claude.ai/artifact/Qb6fZn9nPAqsGX88ixhZfm), riga «9 novembre», tavole «Recruiting · Home», «Il valore», «Le perdite invisibili», «Il potenziale» e «Dove intervenire». Le cifre delle tavole sono d'esempio: a schermo si calcolano dai dati.
 
 - **Home di Recruiting: le card tornano all'altezza di prima.** Verticali sì, a tutta altezza no: l'altezza la dà il contenuto, con numero e titolo in alto e i verbi in fondo, senza un vuoto sopra il titolo. Resta tolto solo il blocco titolo e sottotitolo.
-- **Il valore · sezione 1: niente elenco delle persone.** Le 23 barre fanno una colonna lunghissima accanto a un Gauge piccolo. Al loro posto un **Bar Chart orizzontale del valore espresso per area** (le stesse aree delle Perdite invisibili): una barra per area in `chart-mono`, il valore scritto («68%»), l'atteso 100% tratteggiato con il nome. Gauge e Bar Chart hanno **la stessa altezza**; sotto il grafico, il link «Vedi tutte le persone» alla pagina tecnica. Il lime pieno resta solo sul Gauge.
+- **Il valore · sezione 1: niente elenco delle persone.** (*Superato il 2026-11-09 dalle «Decisioni del 2026-11-09»: Gauge grande e centrato, il dettaglio per mansione si apre con un clic; la tavola «Il valore» non vale più per la sezione 1.*) Le 23 barre fanno una colonna lunghissima accanto a un Gauge piccolo. Al loro posto un **Bar Chart orizzontale del valore espresso per area** (le stesse aree delle Perdite invisibili): una barra per area in `chart-mono`, il valore scritto («68%»), l'atteso 100% tratteggiato con il nome. Gauge e Bar Chart hanno **la stessa altezza**; sotto il grafico, il link «Vedi tutte le persone» alla pagina tecnica. Il lime pieno resta solo sul Gauge.
 - **L'impatto, in tutte le pagine dei risultati: ogni percentuale ha la sua forma.** Una quota va in un **Ring** con il numero in `centerValue` («30% delle persone è sotto la norma»), come dice la regola «Un numero che ha una forma la mostra». Niente percentuali scritte da sole.
 - **L'impatto ha tre card in fila**: il dato della pagina in un Ring (lime, il numero della sezione); il «Valore espresso rispetto al ruolo» come **barra orizzontale** su scala 0–120% con l'atteso 100% tratteggiato, in inchiostro, con «−27% dall'atteso»; la card degli euro con gli scenari prudenziale · base · espansivo, «Gli importi non si sommano» e «Come è calcolato». Nel Potenziale il dato della pagina è una fila di pallini (4 su 23), per non ripetere il Ring della sezione 1.
-- **2 Criticità e opportunità: ogni riquadro ha un mini grafico.** Sotto il nome, una barra sulla sua scala (1–10 o 0–120%) con l'atteso tratteggiato e il valore scritto; nei riquadri con le persone, una riga per persona con la sua barra; per i conteggi, una fila di pallini o un Ring piccolo. In inchiostro, mai lime.
+- **2 Criticità e opportunità: ogni riquadro ha un mini grafico.** Sotto il nome, una barra sulla sua scala (1–10 o 0–120%) con l'atteso tratteggiato e il valore scritto; nei riquadri con le persone, una riga per persona con la sua barra; per i conteggi, una fila di pallini o un Ring piccolo. In inchiostro, mai lime. (*Superato il 2026-11-10: verde il mini grafico del primo riquadro, con il verde del fondo; vedi «Correzioni di Roberto del 2026-11-10».*)
 - **Gli euro nella demo.** Per la società demo (Acme, solo l'account demo) si carica un **bilancio dimostrativo** in Dati aziendali, con lo stesso meccanismo degli altri dati demo e mai con il seed in produzione. Così il motore ROI calcola gli euro e L'impatto li mostra con gli scenari e «Come è calcolato». La pagina dice «Dati dimostrativi». Le società vere continuano a mostrare «In attesa dei dati di bilancio» finché il loro bilancio non è caricato.
+
+#### Decisioni del 2026-11-09 (Roberto, risposta scritta)
+
+Valgono sopra le «Correzioni di design del 2026-11-09» e le «Decisioni del 2026-11-06», dove non coincidono.
+
+**Il valore**
+
+- **Sotto «1 La situazione oggi» nessuna frase.** Via la frase della sezione («Le [23] persone valutate esprimono…») e quella sopra il grafico («[N] sotto l'atteso, [M] oltre»): i numeri li dicono già il Gauge e i riquadri.
+- **Il Gauge è grande e centrato**, da solo sulla sua riga: è il dato principale della pagina. Sotto, «[−20]% dall'atteso». (*Dal 2026-11-10 al suo posto «Gap medio −20%»: vedi «Correzioni di Roberto del 2026-11-10».*)
+- **Il dettaglio si apre con un clic.** Sotto il Gauge, un pulsante `outline` «Vedi per mansione» apre (Collapsible di shadcn) un **Bar Chart orizzontale del valore espresso per mansione**: una barra per mansione in `chart-mono`, dalla più lontana dall'atteso, il valore scritto («68%»), l'atteso 100% tratteggiato con il nome, nessun lime. All'apertura della pagina è chiuso. Le barre sono mansioni e non persone, così il grafico regge anche un'azienda di 400 dipendenti. In fondo al dettaglio, «Vedi tutte le persone» porta alla pagina tecnica. Sostituisce il Bar Chart per area delle correzioni del 9/11. È un'eccezione voluta alla regola «tutto visibile all'apertura», decisa da Roberto.
+- Ring della copertura mansioni e L'impatto restano come nelle correzioni del 9/11.
+- **2 Criticità e opportunità, i tre riquadri**, ognuno con il suo mini grafico (correzioni del 9/11):
+  - «Mansione con il maggiore deficit di competenze»: il nome della mansione e il suo valore espresso, con la barra e l'atteso 100% tratteggiato;
+  - «Area con il maggiore deficit di competenze»: come sopra, per area;
+  - «Chi va oltre le attese»: quante persone superano il 100% e le prime tre, con mansione e valore espresso; nessuno: «Nessuno oggi».
+
+**Intervista** (`/assessment/analisi`)
+
+- **Si va avanti anche senza rispondere alle sottodomande.** Prima del 7/11 non si passava alla domanda successiva se una sottodomanda era vuota: ogni domanda e ogni sottodomanda si può saltare.
+- **Le risposte mancanti non contano nel punteggio.** Una domanda conta se ha almeno una sottodomanda con risposta, e si calcola solo sulle sottodomande con risposta. Sotto il punteggio: «Calcolato su [6] domande su [7]». Con tutte le risposte la riga non c'è.
+- **Impaginazione**: «Nuova intervista» e «Modifica risposte» in alto a destra, nelle azioni del `PageHeader`. «Stampa / PDF» e «Salva» in fondo alla pagina, Salva primario. Via le caselle CT · CP · CT+CP: il selettore CT / CP / Completo non compare nell'Intervista. Via il blocco «Fase successiva · Misurazione oggettiva».
+- **Il bilancio**: Dati aziendali resta la prima sezione dell'Intervista (2026-11-06), visibile anche nella vista del riepilogo, in cima, con lo stato («Bilancio caricato il [data]» oppure «Carica il bilancio»). Accetta lo stesso file del motore ROI (Credit Save) e si carica nello stesso modo: nessun formato diverso. (*Il 2026-11-10: il caricamento sta dentro l'Intervista, non in un'altra pagina; vedi «Correzioni di Roberto del 2026-11-10».*)
+
+**Recruiting**
+
+- **Competenze trasversali: il valore atteso con un decimale**, da 1,0 a 10,0 a passi di 0,1, scritto con la virgola («6,4»), nel campo e a schermo.
+- **Peso e soglia delle Competenze trasversali: in attesa di Roberto.** La logica di oggi (atteso scritto, altrimenti la soglia del peso) non si tocca.
+- **«Risultati» torna nel menu.** I tre passi di Chi è più adatto?, come li descrive Roberto:
+  1. **Ranking**: la classifica per match CV / profilo, in %; più è alto, più il candidato è in linea.
+  2. **Risultati**: chi ha superato il match (CV in linea con il profilo) e ha completato il test delle soft skill. È la pagina «Classifica dopo il test» (`/recruiting/classifica-test`), che torna nel menu con questo nome. Se oggi mostra anche chi non ha completato il test, lo si toglie dall'elenco: quelli in attesa li conta il riquadro.
+  3. **Migliori candidati**: la classifica dopo il test (`/recruiting/ranking`).
+
+  Il riquadro «2 Risultati» della pagina Chi è più adatto? porta a Risultati. Menu del livello: Ranking · Risultati · Migliori candidati · Confronto interno · Stato dell'arte · Imbuto di selezione.
+- **Big Five ideale per posizione: in attesa di Roberto.** Non toccarlo. (*Il 2026-11-10 si chiede la stima: vedi «Correzioni di Roberto del 2026-11-10».*)
+
+**CV caricati dal link dell'annuncio — da costruire** (approvato da Roberto il 2026-11-09; stima 27–39 ore, più 4–6 per l'antivirus)
+
+- **Titolare del trattamento: l'azienda cliente.** Informativa e consenso portano il nome dell'azienda cliente: nella società servono ragione sociale, sede e un contatto per la privacy, compilati in Amministrazione. Senza questi dati il link non si crea.
+- **Il link si crea con un pulsante.** Nel Profilo candidato, «Crea link»: si attiva quando i campi obbligatori sono compilati; il clic crea il link e mostra l'annuncio pronto e il link da copiare. Il link non nasce più all'approvazione né al salvataggio. Se l'approvazione del profilo serve ad altro, resta.
+- **Conservazione**: di base **24 mesi**. Nel modulo una casella, **non spuntata**, «Conservate il mio CV solo per 6 mesi»: se il candidato la spunta, vale 6 mesi. Le due durate sono impostazioni della società, non valori scritti nel codice. Alla scadenza CV e dati del candidato si cancellano da soli. Si registrano data dell'invio, durata scelta e versione dell'informativa.
+- **Antivirus sui file: sì.** (*Il 2026-11-10: il controllo di base non basta, serve un motore; vedi «Correzioni di Roberto del 2026-11-10».*)
+- **Il testo dell'informativa** non è nella stima e arriva dallo studio. Fino ad allora un segnaposto dichiarato, e il modulo pubblico resta attivo **solo per la società demo**: per le società vere si accende quando l'informativa è al suo posto.
+
+#### Correzioni di Roberto del 2026-11-10 (e residui del giro del 9/11)
+
+Valgono sopra le «Decisioni del 2026-11-09», le «Correzioni di design del 2026-11-09» e le «Decisioni del 2026-11-06», dove non coincidono. Sono tradotte nell'identità dallo studio: si prende quello che Roberto chiede, non come lo chiede.
+
+**Un verde per sezione, più la barra sotto il mouse**
+
+Roberto vuole più verde nei grafici. Si dà, senza tornare al «tutto verde» del 2026-10-26: **un solo elemento verde per sezione**, più la barra sotto il mouse. **Nessun colore nuovo e nessun token nuovo**: si usano i verdi delle fondamenta, quello giusto per il fondo.
+
+- **I verdi, per fondo** (fondamenta, «Dati e grafici» e «Regole d'uso»):
+  - **fondo scuro**: `accent-400`, per barre, archi, anelli e pallini;
+  - **fondo chiaro, barre e pallini**: `accent-400` con il bordo `chart-highlight-stroke` (`neutral-800`, 1,5px);
+  - **fondo chiaro, linee, archi e anelli** (Gauge, Ring): `accent-600`. Le fondamenta lo dicono già: «`accent-400` non si usa mai come linea o area di grafico su fondo chiaro». È la risposta a «il giallo su fondo chiaro contrasta poco»: oggi l'arco del Gauge in chiaro è `accent-400`, e non deve esserlo.
+- **Cosa è verde**, nelle pagine dei risultati di Assessment (Il valore, Le perdite invisibili, Il potenziale, Dove intervenire), in chiaro e in scuro:
+  - **sezione 1**: il valore che conta del grafico principale, come oggi (il Gauge ne Il valore);
+  - **la barra sotto il mouse**, in ogni Bar Chart della pagina, compreso «Vedi per mansione»: è sempre una sola e solo mentre la si guarda, quindi non conta nel verde della sezione;
+  - **2 Criticità e opportunità**: il mini grafico del **primo riquadro** (la mansione o l'area più lontana dall'atteso, il riquadro principale della sezione). Gli altri mini grafici in `chart-mono`;
+  - **3 L'impatto**: il Ring del dato della pagina, come oggi (nel Potenziale i pallini).
+- **Restano in inchiostro** (`chart-mono`): il Ring della copertura mansioni, la barra del valore espresso e gli scenari dell'Impatto, gli altri mini grafici. La cifra in euro resta nel colore del testo. L'atteso resta tratteggiato in `chart-reference`.
+
+**«Perché è importante per la tua azienda?» diventa titolo e sottotitolo**
+
+In tutte e sette le pagine dei risultati (anche in Recruiting, perché restino uguali):
+
+- **esce dal riquadro**: niente fondo `card` né bordo, sta sulla pagina;
+- la domanda in **H2 del sito** (32px/600, tracking −0,02em; 26px su mobile);
+- il testo a **20px/400**, interlinea 1,5 (18px su mobile), colore del testo primario, nella colonna di lettura (720px).
+
+La gerarchia diventa: titolo della pagina H1 (44px) › «Perché è importante» H2 (32px) › titoli di sezione H3 (24px). I testi non cambiano.
+
+**Il valore · il gap medio si vede**
+
+Roberto: manca «il valore del gap mancante a raggiungere il valore atteso», uno dei tre dati che vanno al ROI.
+
+- Sotto il Gauge, al posto della riga «[−20]% dall'atteso», il dato con il suo nome: «Gap medio» in `label-mono` e il valore in H3 («−20%»), con ⓘ: «La distanza media dal valore atteso, su tutte le persone valutate: chi lo supera compensa chi resta sotto.»
+- Il numero si scrive una volta: la riga «dall'atteso» sotto il Gauge sparisce.
+- Così la pagina mostra i tre dati che vanno al ROI: valore espresso (Gauge), gap medio (sotto il Gauge), copertura mansioni (Ring).
+- **Da verificare**: il Gap medio è la media dei gap delle persone (Roberto, 9/11). Se il Gauge è la media dei valori espressi delle persone, gap medio = Gauge − 100 e i due numeri tornano. Se il Gauge è calcolato in un altro modo (per esempio somme su tutta l'azienda), i due numeri non tornano: scrivilo nel resoconto con i due valori dei dati demo, e per il gap medio usa comunque la media delle persone, come va al ROI.
+- «Mansione con il maggiore deficit di competenze»: già nelle «Decisioni del 2026-11-09», Roberto lo conferma.
+
+**Panoramica**
+
+- Via «e cosa fare lunedì» da ogni testo a schermo in cui compare (sottotitolo, titolo di un blocco, tooltip). Il resto della Panoramica non cambia: sui colori Roberto torna più avanti.
+
+**Anagrafica**
+
+- **Nel menu**: subito sotto Intervista, prima di Area valutazioni, allo stesso livello. Intervista e Anagrafica stanno vicine perché raccolgono i dati dell'azienda.
+- **Importazione da Excel: da stimare, non da costruire.** Roberto la vuole; prima di costruirla servono fattibilità e ore, come per i CV. Cosa deve fare:
+  - «Scarica il modello»: un file .xlsx generato dalla piattaforma dai campi dell'Anagrafica (una colonna per campo, nomi in italiano, un foglio di istruzioni con formato e obbligatorietà di ogni campo), così il modello non diverge dalla pagina;
+  - «Carica file»: prima di salvare, un'anteprima con quante persone entrano e gli errori riga per riga (riga, campo, problema); niente salvataggio parziale senza dirlo;
+  - nel resoconto: che cosa esiste già (un import CSV?); le persone già presenti si aggiornano o si aggiungono, e con quale chiave; dove finiscono i dati importati, visto che Assessment oggi salva nel browser; le ore.
+
+**Intervista · il bilancio**
+
+- **Il caricamento sta dentro l'Intervista.** È deciso dal 6/11 e dal 9/11: Dati aziendali è la prima sezione dell'Intervista e lì si carica il file del motore ROI (Credit Save). Il resoconto del 9/11 parla di uno stato del bilancio con «Vai al bilancio», e Roberto non trova dove caricarlo: se il caricamento oggi sta in un'altra pagina, va portato nell'Intervista. Stato, data, nome del file e il pulsante per caricarlo o sostituirlo stanno nella sezione stessa. Nel resoconto, conferma che accetta il file Credit Save del motore ROI.
+- **[In attesa di Roberto]** proposta: per le società vere, senza bilancio caricato **la card degli euro non compare**, al posto di «€ [—] · In attesa dei dati di bilancio»; L'impatto mostra solo le percentuali. Nella demo resta il bilancio dimostrativo di Acme. Fino alla risposta non si tocca.
+
+**Recruiting**
+
+- **Antivirus: serve un motore.** Il controllo del 9/11 (tipo di file e firma EICAR) è un controllo di base. Roberto ha approvato l'antivirus: si collega un motore (ClamAV o un servizio) nel punto del codice già predisposto, prima che il modulo si accenda per una società vera. Con il motore spento o irraggiungibile il file si rifiuta, non passa.
+- **Big Five ideale per posizione: da stimare, non da costruire.** Oggi il calcolo usa sempre il profilo di «Sales Account Manager» (`roles-seed.json`), qualunque sia la posizione. La proposta a Roberto: impostarlo per posizione nella pagina Competenze trasversali, partendo da uno degli otto profili già pronti, con i cinque valori modificabili. Nel resoconto: le ore, e cosa cambia nei punteggi già calcolati.
+- **Peso, soglia e regola di blocco: in attesa di Roberto** (proposta: atteso obbligatorio, peso tolto, regola di blocco sul 60% dell'atteso scritto). Fino alla risposta non si toccano.
+
+**Area valutazioni**: Roberto la riprende più avanti. Non si tocca.
+
 
 ### Fase 7 — Verifica
 
@@ -1772,6 +1890,13 @@ produzione** (pagina, azione fatta, risultato). Quello che non è stato
 provato, o non funziona, si scrive «non fatto» con il motivo: un «non fatto»
 dichiarato vale più di un «fatto» che si rompe al primo clic.
 
+**La riga di verifica dice cosa si è visto** (2026-11-10). Non «esito
+positivo», ma il valore letto a schermo o l'azione con il suo risultato
+(«Il valore: Gap medio −20%, Gauge 80%»; «Intervista salvata con la domanda 2
+saltata, ricaricata: risposte al loro posto, "Calcolato su 4 domande su 5"»).
+Dove serve, una schermata allegata. Ogni punto chiesto nel messaggio del giro
+compare nel resoconto, anche se la risposta è «non fatto».
+
 ---
 
 ## 10. Materiali
@@ -1818,4 +1943,3 @@ le regole che seguono servono a non rifare la migrazione fra sei mesi.
 - **L'audit gira a ogni push.** `node scripts/audit-identita.mjs` in CI: il
   numero di difetti non sale mai. Se un difetto è voluto, si motiva in
   `DECISIONI.md` e si esclude in modo esplicito, non si ignora.
-

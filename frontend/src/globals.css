@@ -253,6 +253,10 @@
   --chart-mono:             var(--color-neutral-800);
   --chart-highlight:        var(--color-accent-400);
   --chart-highlight-stroke: var(--color-neutral-800);
+  /* Il verde di linee, archi e anelli (Gauge, Ring): su fondo chiaro accent-400 non si usa
+     come linea (fondamenta, «Regole d'uso»), quindi accent-600; in scuro accent-400.
+     Correzioni di Roberto del 2026-11-10. Nessun colore nuovo: un alias dei due verdi. */
+  --chart-highlight-line:   var(--color-accent-600);
   --chart-reference:        var(--color-neutral-500);
   --chart-compare:          var(--color-neutral-300);
   --chart-1: var(--color-chart-1-light);
@@ -346,6 +350,7 @@
   --chart-mono:             var(--color-neutral-400);
   --chart-highlight:        var(--color-accent-400);
   --chart-highlight-stroke: var(--color-accent-400);
+  --chart-highlight-line:   var(--color-accent-400);
   --chart-reference:        var(--color-neutral-200);
   --chart-compare:          var(--color-neutral-600);
   --chart-1: var(--color-chart-1-dark);
@@ -445,6 +450,7 @@
   --color-chart-mono: var(--chart-mono);
   --color-chart-highlight: var(--chart-highlight);
   --color-chart-highlight-stroke: var(--chart-highlight-stroke);
+  --color-chart-highlight-line: var(--chart-highlight-line);
   --color-chart-reference: var(--chart-reference);
   --color-chart-compare: var(--chart-compare);
   --color-chart-1: var(--chart-1);

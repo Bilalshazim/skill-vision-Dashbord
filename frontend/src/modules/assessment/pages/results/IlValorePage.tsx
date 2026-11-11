@@ -52,8 +52,13 @@ export default function IlValorePage() {
               <p className="label-mono text-muted-foreground">{res.indexLabel}</p>
               <div className="flex flex-col items-center gap-2">
                 <ScoreGauge value={index} max={100} unit="%" decimals={0} tone="highlight" size="lg" label={res.valoreGaugeCenter} className="justify-center" />
-                <p className="text-app-body text-foreground">{res.valoreGaugeNote(data.gap ?? 0)}</p>
-                {data.gapMedio !== data.gap ? <p className="text-app-small text-muted-foreground">{`${res.gapMedioLabel}: ${res.gapPct(data.gapMedio)}`}</p> : null}
+                {/* Il gap medio con il suo nome, al posto di «−20% dall'atteso» (correzioni di
+                    Roberto del 2026-11-10): la media dei gap delle persone, il dato che va al ROI. */}
+                <p className="flex items-center gap-2">
+                  <span className="label-mono text-muted-foreground">{res.gapMedioLabel}</span>
+                  <InfoTip label={res.gapMedioLabel}>{res.gapMedioHint}</InfoTip>
+                </p>
+                <p className="text-site-h3 tabular-nums text-foreground">{res.gapPct(data.gapMedio)}</p>
               </div>
               {data.roleValues.length ? (
                 <Collapsible className="flex flex-col gap-3">
@@ -72,6 +77,7 @@ export default function IlValorePage() {
                       title={res.valoreRoleTitle}
                       orientation="horizontal"
                       compact
+                      hoverHighlight
                       valueMax={120}
                       format={pct}
                       series={[

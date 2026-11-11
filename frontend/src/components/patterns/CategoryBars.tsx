@@ -38,6 +38,7 @@ export function CategoryBars({
   highlight,
   compact = false,
   barNote,
+  hoverHighlight = false,
   className,
 }: {
   title: string
@@ -56,6 +57,8 @@ export function CategoryBars({
   compact?: boolean
   /** Al posto del valore in fondo alla barra: lo scarto dall'atteso («−1,2»). Il valore resta nel tooltip e in tabella. */
   barNote?: (rowLabel: string) => string
+  /** La barra sotto il mouse in verde, con il suo bordo (correzioni di Roberto del 2026-11-10: pagine dei risultati di Assessment). */
+  hoverHighlight?: boolean
   className?: string
 }) {
   const colors = seriesColors(series)
@@ -93,7 +96,7 @@ export function CategoryBars({
         >
           {compact ? null : <Grid horizontal={orientation === 'vertical'} vertical={orientation === 'horizontal'} fadeHorizontal={false} />}
           {bars.map((s) => (
-            <Bar key={s.key} dataKey={s.key} fill={colors[series.indexOf(s)]} lineCap={4} valueLabel={(v, d) => (Object.is(v, -0) ? '' : endLabel(v, d))} valueLabelPast={refs[0]?.key} />
+            <Bar key={s.key} dataKey={s.key} fill={colors[series.indexOf(s)]} hoverFill={hoverHighlight ? 'var(--chart-highlight)' : undefined} hoverOutline={hoverHighlight ? 'var(--chart-highlight-stroke)' : undefined} lineCap={4} valueLabel={(v, d) => (Object.is(v, -0) ? '' : endLabel(v, d))} valueLabelPast={refs[0]?.key} />
           ))}
           {hl ? <Bar dataKey={HL_KEY} fill="var(--chart-highlight)" outline="var(--chart-highlight-stroke)" lineCap={4} valueLabel={(v, d) => (v ? endLabel(v, d) : '')} valueLabelPast={refs[0]?.key} /> : null}
           {refs.map((s) => (

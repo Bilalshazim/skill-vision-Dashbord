@@ -63,6 +63,14 @@ export const env = {
   // azzerare ("Reset demo"). id separati da virgole. Vuoto: nessuna, il reset
   // risponde 403. Una società reale non va mai in questo elenco.
   assessmentDemoCompanyIds: (process.env.ASSESSMENT_DEMO_COMPANY_IDS || '').split(',').map((s) => s.trim()).filter(Boolean),
+  // Antivirus dei CV dal link pubblico (correzioni di Roberto del 2026-11-10): il motore ClamAV
+  // (clamd, protocollo INSTREAM su TCP). Senza CLAMAV_HOST il motore è spento e il file si rifiuta,
+  // salvo ANTIVIRUS_ALLOW_BASIC=true, che vale solo per le società demo e lascia il solo controllo
+  // di base (tipo di file e firma EICAR). Una società vera non passa mai senza motore.
+  clamavHost: process.env.CLAMAV_HOST || '',
+  clamavPort: Number(process.env.CLAMAV_PORT || 3310),
+  clamavTimeoutMs: Number(process.env.CLAMAV_TIMEOUT_MS || 15000),
+  antivirusAllowBasic: process.env.ANTIVIRUS_ALLOW_BASIC === 'true',
 }
 
 // Name kept as `smtpConfigured` — shortlist/routes.ts and emailConfig/routes.ts

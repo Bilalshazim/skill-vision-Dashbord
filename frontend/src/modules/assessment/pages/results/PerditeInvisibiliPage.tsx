@@ -37,6 +37,7 @@ export default function PerditeInvisibiliPage() {
             title={res.perditeChart}
             orientation="horizontal"
             compact
+            hoverHighlight
             valueMax={10}
             format={fmt1it}
             series={[

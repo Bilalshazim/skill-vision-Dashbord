@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 // `center`: quando l'anello è il grafico di una frase e non sta in una
 // StatCard (pagine dei risultati), il numero va al centro con `centerValue`
 // di Bklit, e l'anello è più grande perché il numero si legga.
-const RING_COLOR = { mono: 'var(--chart-mono)', highlight: 'var(--chart-highlight)', success: 'var(--success)', warning: 'var(--warning)', destructive: 'var(--destructive)' } as const
+const RING_COLOR = { mono: 'var(--chart-mono)', highlight: 'var(--chart-highlight-line)', success: 'var(--success)', warning: 'var(--warning)', destructive: 'var(--destructive)' } as const
 
 // `tone`: `mono` di default; success / warning / destructive solo per una
 // fascia con la parola accanto (il colore non è l'unico segnale). `highlight`: il

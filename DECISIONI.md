@@ -3032,3 +3032,41 @@ completato. Nessuna rotta nuova.
   e lì si collega ClamAV o un servizio esterno quando serve. Da decidere con Roberto prima delle società vere.
 - **Niente invio automatico del test** ai candidati dal link: entrano in Ranking «Da inviare» e l'HR decide, come per
   ogni altro CV.
+
+## Un verde per sezione: un alias per gli archi · 2026-11-10
+Correzioni di Roberto del 2026-11-10. In chiaro le linee, gli archi e gli anelli (Gauge, Ring) non possono essere
+`accent-400` (fondamenta: «non si usa mai come linea su fondo chiaro»), le barre e i pallini sì, con il bordo
+`chart-highlight-stroke`. Opzioni: (a) scegliere il verde in ogni componente secondo la modalità; (b) un alias
+semantico `--chart-highlight-line` (`accent-600` in chiaro, `accent-400` in scuro). Scelta (b): nessun colore nuovo,
+due verdi delle fondamenta, e i componenti non conoscono la modalità. Gauge e Ring in evidenza lo usano; barre e
+pallini restano su `chart-highlight` con il bordo di 1,5px. Il mini grafico verde è quello del primo riquadro di
+«Criticità e opportunità»: lo decide `ResultsPage`, non la pagina, così vale uguale nelle quattro pagine.
+
+## La barra sotto il mouse: un'estensione di Bklit · 2026-11-10
+Bklit sotto il mouse attenua le altre barre ma non colora quella guardata. Aggiunte a `components/charts/bar.tsx` due
+prop (`hoverFill`, `hoverOutline`), come le altre estensioni Skill Vision già nel file (etichette dei valori, bordo):
+il comportamento di Bklit non cambia, cambia solo il colore della barra guardata. `CategoryBars` le accende con
+`hoverHighlight`, usato nelle pagine dei risultati di Assessment (Il valore · Vedi per mansione, Le perdite
+invisibili). Nella stessa revisione, in `bar.tsx`, un segmento impilato a zero dava una larghezza negativa (più di 300
+errori in console su Le perdite invisibili e in Panoramica): ora si ferma a zero. Era sfuggito alla prova del 9/11.
+
+## «Perché è importante» su mobile: 24px, non 26 · 2026-11-10
+Le fondamenta danno all'H2 26px su mobile, ma la scala del sito nel tema ha solo i valori desktop e la regola «sotto
+`md` si scende di un gradino»: su mobile l'H2 diventa `site-h3` (24px), come i titoli delle altre pagine di
+presentazione. Il testo a 20px/400 usa la misura di `site-h4` con peso 400 e interlinea 1,5 (nessun token nuovo); su
+mobile `site-body-lg` (18px). Se lo studio vuole il 26px esatto, serve il valore mobile nella scala del tema.
+
+## Antivirus: ClamAV, fail-closed · 2026-11-10
+Il motore è ClamAV, tramite clamd (protocollo INSTREAM su TCP: nessuna dipendenza in più), in `backend/src/lib/fileScan.ts`.
+Variabili: `CLAMAV_HOST`, `CLAMAV_PORT` (3310), `CLAMAV_TIMEOUT_MS` (15000). Motore spento, irraggiungibile, lento o
+con una risposta che non si capisce: il file si rifiuta (503, «il controllo antivirus non è disponibile»), niente si
+salva. Unica eccezione, solo per le società demo: `ANTIVIRUS_ALLOW_BASIC=true` senza motore lascia il controllo di base
+(tipo di file e firma EICAR). **Conseguenza in produzione**: finché su Railway non c'è un servizio ClamAV con
+`CLAMAV_HOST`, o `ANTIVIRUS_ALLOW_BASIC=true`, il modulo di candidatura della demo rifiuta i CV. Opzione scartata:
+lasciar passare i file quando il motore manca, che è proprio quello che Roberto ha escluso.
+
+## Il bilancio in cima ai Dati aziendali · 2026-11-10
+Il caricamento era già nell'Intervista, ma in fondo ai Dati aziendali, dopo sedi, contatti e ruoli: Roberto non lo
+trovava. La sezione del bilancio va in cima, con lo stato («Bilancio caricato il [data]» o «Carica il bilancio»), il
+nome del file e il pulsante «Carica il bilancio» / «Sostituisci il bilancio». Tolta la card con «Vai al bilancio».
+Stesso file del motore ROI (Credit Save: .xlsx, .xls, .csv), stesso lettore (`lib/roi/importer`).

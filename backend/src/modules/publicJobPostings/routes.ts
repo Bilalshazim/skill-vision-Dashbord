@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 import { audit } from '../../lib/audit.js'
 import { env } from '../../lib/env.js'
-import { BadRequestError, NotFoundError, TooManyRequestsError } from '../../lib/errors.js'
+import { BadRequestError, NotFoundError, ServiceDisabledError, TooManyRequestsError } from '../../lib/errors.js'
 import { scanUpload } from '../../lib/fileScan.js'
 import { createLimiter } from '../../lib/rateLimit.js'
 import { prisma } from '../../lib/prisma.js'
@@ -96,11 +96,17 @@ async function apply(req: import('express').Request, res: import('express').Resp
 
   const file = req.file
   if (!file) throw new BadRequestError('Allega il CV (PDF, DOC o DOCX).')
-  const scan = scanUpload(file.buffer, file.originalname)
+  // L'antivirus decide prima di ogni scrittura. Senza motore il solo controllo di base vale
+  // per la società demo, e solo con ANTIVIRUS_ALLOW_BASIC=true (lib/fileScan.ts).
+  const scan = await scanUpload(file.buffer, file.originalname, { allowBasic: env.assessmentDemoCompanyIds.includes(company.id) })
   if (!scan.ok) {
     if (scan.reason === 'infected') {
       await audit(prisma, { actorUserId: null, action: 'publicApplication.rejected_infected', entityType: 'JobProfile', entityId: p.id, metadata: { filename: file.originalname } })
       throw new BadRequestError('Il file non ha superato il controllo antivirus e non è stato salvato.')
+    }
+    if (scan.reason === 'unavailable') {
+      await audit(prisma, { actorUserId: null, action: 'publicApplication.rejected_scan_unavailable', entityType: 'JobProfile', entityId: p.id })
+      throw new ServiceDisabledError('Il controllo antivirus non è disponibile in questo momento: il CV non è stato salvato. Riprova più tardi.')
     }
     throw new BadRequestError('Il CV deve essere un file PDF, DOC o DOCX.')
   }

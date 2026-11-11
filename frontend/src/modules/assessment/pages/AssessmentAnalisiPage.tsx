@@ -14,7 +14,7 @@ import { Icon } from '@/modules/assessment/components/Icon'
 import { AnalisiWizard } from '@/modules/assessment/components/AnalisiWizard'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { exiBlankData } from '@/modules/assessment/lib/demo-data'
-import { useRoi } from '@/modules/assessment/lib/use-roi'
+import { RoiDataSection } from '@/modules/assessment/components/RoiDataSection'
 import { exiRiskTier, exiScoreTier, fmt1, round1 } from '@/modules/assessment/lib/legacy-utils'
 import { printReportHtml } from '@/modules/assessment/lib/print'
 import { useLocation } from 'react-router-dom'
@@ -90,7 +90,9 @@ export default function AssessmentAnalisiPage() {
     <div className="flex flex-col gap-8">
       <section id="dati-aziendali" className="scroll-mt-24">
         <PageHeader title={ui.res.dataSectionTitle} />
-        <BalanceStatus />
+        {/* Il bilancio in cima ai Dati aziendali, con stato, data, file e il pulsante per
+            caricarlo o sostituirlo (correzioni di Roberto del 2026-11-10). */}
+        <RoiDataSection />
         <AssessmentCompanyPage />
       </section>
       <section>
@@ -141,7 +143,8 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
   const gap = round1(v2 - v1)
   const gapPc = v1 > 0 ? (gap / v1) * 100 : 0
   const phcv = anyAnswered ? round1(answered.reduce((n, q) => n + q.w * q.v, 0) / answered.reduce((n, q) => n + q.w, 0)) : 0
-  const basis = ui.res.exiBasis(answered.length, weighted.length)
+  // Con tutte le risposte la riga non c'è (Decisioni del 2026-11-09).
+  const basis = answered.length < weighted.length ? ui.res.exiBasis(answered.length, weighted.length) : ''
   const heroTier = exiScoreTier(phcv, lang)
   const heroText = phcv >= 7.5 ? ui.exiHeroTextHigh : phcv >= 6 ? ui.exiHeroTextMid : phcv >= 4.5 ? ui.exiHeroTextLow : ui.exiHeroTextCritical
 
@@ -183,7 +186,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
       <div>${[a.intervistato, roles[a.ruolo] || '', a.settore].filter(Boolean).join(' · ')}</div>
       <div style="font-size:12px;color:var(--color-neutral-600);margin-top:2px">${a.data || ''}</div>
       <div class="rpt-h2">${ui.exiHeroLabel}</div>
-      <div>${anyAnswered ? fmt1(phcv) + '/10 · ' + basis : dash}</div>
+      <div>${anyAnswered ? fmt1(phcv) + '/10' + (basis ? ' · ' + basis : '') : dash}</div>
       <table class="rpt-table"><thead><tr><th>${ui.analisiPageTitle}</th><th>/10</th></tr></thead><tbody>
         <tr><td>${String(ui.exiK1Label).replace('<br>', ' ')}</td><td>${off.q1 ? noAnswer : fmt1(v1)}</td></tr>
         <tr><td>${String(ui.exiK2Label).replace('<br>', ' ')}</td><td>${off.q2 ? noAnswer : fmt1(v2)}</td></tr>
@@ -262,7 +265,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
         label={ui.exiHeroLabel}
         value={anyAnswered ? fmt1(phcv) : dash}
         unit={anyAnswered ? ui.exiPointsOf10 : undefined}
-        note={anyAnswered ? `${heroText} ${basis}.` : ui.exiHeroPending}
+        note={anyAnswered ? (basis ? `${heroText} ${basis}.` : heroText) : ui.exiHeroPending}
         delta={anyAnswered ? { label: heroTier.label, direction: 'flat', tone: 'neutral' } : undefined}
       />
 
@@ -410,28 +413,6 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
       <Note as="div" size="caption" className="mt-6" dangerouslySetInnerHTML={{ __html: ui.exiFooterNote }} />
       {confirmDialog}
     </div>
-  )
-}
-
-// Lo stato del bilancio in cima ai Dati aziendali (Decisioni del 2026-11-09): caricato
-// (file e data) o da caricare, con il collegamento alla sezione del caricamento.
-function BalanceStatus() {
-  const { ui } = useAssessment()
-  const roi = useRoi()
-  const d = roi.data
-  const loaded = !!d && !!d.statement && Object.keys(d.statement).length > 0
-  const date = d?.loadedAt ? new Date(d.loadedAt).toLocaleDateString('it-IT') : ''
-  return (
-    <Card className="mb-6 flex-row flex-wrap items-center gap-3">
-      <span className="label-mono text-muted-foreground">{ui.res.balanceLabel}</span>
-      <Badge tone={loaded ? 'success' : 'warning'} dot>
-        {loaded ? ui.res.balanceLoaded : ui.res.balanceMissing}
-      </Badge>
-      {loaded ? <span className="text-app-small text-muted-foreground">{[d?.fileName, date].filter(Boolean).join(' · ')}</span> : null}
-      <a href="#bilancio" className="text-app-small text-foreground underline underline-offset-4">
-        {ui.res.balanceGo}
-      </a>
-    </Card>
   )
 }
 

@@ -63,6 +63,10 @@ export interface BarProps {
   /** Skill Vision: bordo della barra (1,5px), per il valore in evidenza in lime
    *  che su fondo chiaro ha bisogno del bordo scuro (`chart-highlight-stroke`). */
   outline?: string;
+  /** Skill Vision (correzioni del 2026-11-10, «la barra sotto il mouse»): il colore della barra
+   *  mentre è sotto il mouse o il fuoco, con il suo bordo. Senza, la barra resta del suo colore. */
+  hoverFill?: string;
+  hoverOutline?: string;
   /** Line cap style for bar ends: "round", "butt", or a number for custom radius. Default: "round" */
   lineCap?: BarLineCap;
   /** Whether to animate the bars. Default: true */
@@ -208,6 +212,8 @@ const BarInner = memo(function BarInner({
   bandWidth,
   barXAccessor,
   outline,
+  hoverFill,
+  hoverOutline,
 }: BarInnerProps) {
   const {
     data,
@@ -309,7 +315,9 @@ const BarInner = memo(function BarInner({
           if (stacked && stackOffsets) {
             const offset = stackOffsets.get(i)?.get(dataKey) ?? 0;
             x = scale(offset) ?? 0;
-            barW = valuePos - x;
+            // Skill Vision: un segmento impilato a zero (la serie in evidenza di
+            // CategoryBars sulle altre righe) darebbe una larghezza negativa.
+            barW = Math.max(0, valuePos - x);
             // Apply stack gap for horizontal: shift right and reduce width
             const gapOffset = seriesIndex * stackGap;
             x += gapOffset;
@@ -400,6 +408,9 @@ const BarInner = memo(function BarInner({
 
         const isFaded =
           (hoveredBarIndex !== null && hoveredBarIndex !== i) || isLegendDimmed;
+        const isHovered = hoverFill !== undefined && hoveredBarIndex === i && !isLegendDimmed;
+        const barFill = isHovered ? hoverFill : fill;
+        const barOutline = isHovered ? (hoverOutline ?? outline) : outline;
 
         // Use categoryValue as key since it's the unique identifier from data
         const barKey = `bar-${dataKey}-${categoryValue}`;
@@ -437,14 +448,14 @@ const BarInner = memo(function BarInner({
                 animationType={animationType}
                 enterTransition={enterTransition}
                 fadedOpacity={fadedOpacity}
-                fill={fill}
+                fill={barFill}
                 height={barHeight}
                 index={i}
                 innerHeight={innerHeight}
                 isFaded={isFaded}
                 isHorizontal={isHorizontal}
                 key={barKey}
-                outline={outline}
+                outline={barOutline}
                 revealEpoch={revealEpoch}
                 rx={effectiveRx}
                 ry={effectiveRy}
@@ -462,11 +473,11 @@ const BarInner = memo(function BarInner({
         return (
           <Fragment key={barKey}>
             <rect
-              fill={fill}
+              fill={barFill}
               height={barHeight}
               key={barKey}
-              stroke={outline}
-              strokeWidth={outline ? 1.5 : undefined}
+              stroke={barOutline}
+              strokeWidth={barOutline ? 1.5 : undefined}
               opacity={isFaded ? fadedOpacity : 1}
               rx={effectiveRx}
               ry={effectiveRy}

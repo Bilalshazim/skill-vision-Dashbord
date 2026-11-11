@@ -61,11 +61,11 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
   ] },
   { type:'link', id:'panoramica', label:'Overview', icon:'overview', requires:null },
   { type:'link', id:'analisi', label:'Interview', icon:'notes', requires:null },
+  { type:'link', id:'anagrafica', label:'Employee Directory', icon:'users', requires:null },
   { type:'group', groupId:'valutazioni', label:'Evaluation Area', icon:'soft', items:[
     { id:'soft', label:'Soft Skill Evaluations', requires:'A' },
     { id:'gestione-valutazioni', label:'Professional Evaluations', requires:'B' },
   ] },
-  { type:'link', id:'anagrafica', label:'Employee Directory', icon:'users', requires:null },
   { type:'group', groupId:'risultati', label:'Results Area', icon:'value', items:[
     { id:'soft-risultati', label:'Cross-Functional Evaluation Results', requires:'A' },
     { id:'hard-risultati', label:'Professional Evaluation Results', requires:'B' },
@@ -87,11 +87,12 @@ export const NAV_CONFIG_IT: NavConfigEntry[] = [
   ] },
   { type:'link', id:'panoramica', label:'Panoramica', icon:'overview', requires:null },
   { type:'link', id:'analisi', label:'Intervista', icon:'notes', requires:null },
+  // Anagrafica subito sotto Intervista: raccolgono i dati dell'azienda (correzioni di Roberto del 2026-11-10).
+  { type:'link', id:'anagrafica', label:'Anagrafica', icon:'users', requires:null },
   { type:'group', groupId:'valutazioni', label:'Area Valutazioni', icon:'soft', items:[
     { id:'soft', label:'Valutazioni Soft Skill', requires:'A' },
     { id:'gestione-valutazioni', label:'Valutazioni Professionali', requires:'B' },
   ] },
-  { type:'link', id:'anagrafica', label:'Anagrafica', icon:'users', requires:null },
   { type:'group', groupId:'risultati', label:'Area Risultati', icon:'value', items:[
     { id:'soft-risultati', label:'Risultati Valutazioni Trasversali', requires:'A' },
     { id:'hard-risultati', label:'Risultati Valutazioni Professionali', requires:'B' },

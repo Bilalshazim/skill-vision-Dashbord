@@ -190,6 +190,30 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-10 — Correzioni di Roberto del 2026-11-10
+Provato in locale con `hr@acme.example` (Vite 5199, backend 4000), in chiaro e in scuro. In produzione da provare
+dopo il rilascio (Bilal).
+- [x] **Un verde per sezione** nelle quattro pagine dei risultati di Assessment: archi in `accent-600` in chiaro
+      (misurato #8C980B) e `accent-400` in scuro (#DDEE1C), alias `--chart-highlight-line`; mini grafico del primo
+      riquadro in `accent-400` con bordo `neutral-800` in chiaro, gli altri in inchiostro; pallini dell'Impatto del
+      Potenziale verdi; barra sotto il mouse verde in «Vedi per mansione» e in Le perdite invisibili.
+- [x] **«Perché è importante»** fuori dal riquadro nelle sette pagine: H2 32px/600, testo 20px/400 interlinea 30px;
+      su mobile 24px / 18px. H1 44px (32px su mobile).
+- [x] **Il valore**: «Gap medio −20%» con ⓘ sotto il Gauge (80%), al posto della riga «dall'atteso».
+- [x] **Panoramica**: tolto «e cosa fare lunedì» (titolo della Sintesi, IT e EN). Nessun «lunedì» a schermo.
+- [x] **Menu di Assessment**: Panoramica · Intervista · Anagrafica · Area Valutazioni.
+- [x] **Bilancio** in cima ai Dati aziendali dell'Intervista, con stato, data, file e pulsante.
+- [x] **Intervista**: la riga «Calcolato su…» non c'è con tutte le risposte (come chiede la decisione del 9/11).
+- [x] **Antivirus ClamAV** fail-closed (clamd INSTREAM); 9 test con un clamd finto. Senza motore il modulo pubblico
+      risponde «il controllo antivirus non è disponibile» (provato in locale).
+- [x] Corretto: larghezze negative nelle barre impilate (338 errori in console su Le perdite invisibili, 332 in
+      Panoramica, ora 0). Sfuggito alla prova del 9/11.
+- [ ] Su Railway: servizio ClamAV e `CLAMAV_HOST`, oppure `ANTIVIRUS_ALLOW_BASIC=true` per la sola demo. Senza, il
+      modulo di candidatura della demo rifiuta i CV.
+- [ ] Stime (non costruite): importazione Excel dell'Anagrafica 23–33 ore; Big Five ideale per posizione 18–27 ore.
+- Controlli: typecheck frontend e backend, lint 0 errori (37 avvisi, come prima), build, test ROI 6/6, test
+  antivirus 9/9, audit senza difetti.
+
 ## 2026-11-09 (sera) — Decisioni del 2026-11-09: Il valore, Intervista, Recruiting, Parte C
 Richiesta della sera (non ancora scritta in CLAUDE.md: il testo è nella richiesta). Provato in locale con
 `hr@acme.example` (Vite 5199, backend 4000). **In produzione non provato con l'accesso** (CLAUDE.md §9).

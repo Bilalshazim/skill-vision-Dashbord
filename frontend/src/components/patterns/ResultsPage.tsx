@@ -103,7 +103,7 @@ export function ResultsPage({
       {impact.pct !== undefined ? (
         <Card className="h-full gap-3">
           {impact.dots && impact.pct != null ? (
-            <DotRow n={impact.dots.n} total={impact.dots.total} label={impact.label ?? ''} />
+            <DotRow n={impact.dots.n} total={impact.dots.total} label={impact.label ?? ''} tone="highlight" />
           ) : impact.pct != null ? (
             <CompletionRing value={impact.pct} label={impact.label ?? ''} tone="highlight" center="" className="mx-0" />
           ) : (
@@ -168,16 +168,20 @@ export function ResultsPage({
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-2">
           <p className="label-mono text-muted-foreground">{theme ? `${number} · ${theme}` : number}</p>
-          <h1 className="text-site-h3 text-foreground md:text-site-h2">{title}</h1>
+          <h1 className="text-site-h2 text-foreground md:text-site-h1">{title}</h1>
           <p className="max-w-prose text-site-body-lg text-foreground">{question}</p>
         </div>
         {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
       </header>
 
-      <Card padding="lg" className="max-w-4xl gap-2 bg-muted">
-        <h2 className="text-app-subtitle font-semibold text-foreground">Perché è importante per la tua azienda?</h2>
-        <p className="max-w-prose text-app-body text-foreground">{why}</p>
-      </Card>
+      {/* «Perché è importante» fuori dal riquadro, come titolo e sottotitolo (correzioni di
+          Roberto del 2026-11-10): H2 del sito (32px; un gradino sotto su mobile, come il resto
+          della pagina) e il testo a 20px/400, interlinea 1,5 (18px su mobile), nella colonna di
+          lettura. Gerarchia: H1 44 › H2 32 › titoli di sezione H3 24. */}
+      <section className="flex max-w-prose flex-col gap-3">
+        <h2 className="text-site-h3 text-foreground md:text-site-h2">Perché è importante per la tua azienda?</h2>
+        <p className="text-site-body-lg text-foreground md:text-site-h4 md:leading-normal md:font-normal md:tracking-normal">{why}</p>
+      </section>
 
       {hideAll ? (
         <>
@@ -218,8 +222,10 @@ export function ResultsPage({
               {issues ? (
                 <Section number={situation ? 2 : 1} title="Criticità e opportunità">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    {issues.items.slice(0, 3).map((it) => (
-                      <ResultsTile key={it.title} {...it} />
+                    {/* Un verde per sezione (correzioni di Roberto del 2026-11-10): il mini grafico
+                        del primo riquadro, il principale della sezione; gli altri in inchiostro. */}
+                    {issues.items.slice(0, 3).map((it, i) => (
+                      <ResultsTile key={it.title} {...it} chart={it.chart ? { ...it.chart, tone: i === 0 ? 'highlight' : 'mono' } : undefined} />
                     ))}
                   </div>
                   <p className="mt-4 max-w-prose text-app-body text-foreground">

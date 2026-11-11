@@ -29,7 +29,7 @@ export function ScoreGauge({ value, max = 10, label, size = 'md', tone = 'mono',
         width={w}
         height={h}
         value={(v / max) * 100}
-        activeFill={tone === 'highlight' ? 'var(--chart-highlight)' : 'var(--chart-mono)'}
+        activeFill={tone === 'highlight' ? 'var(--chart-highlight-line)' : 'var(--chart-mono)'}
         centerValue={shown}
         defaultLabel={label}
         suffix={unit ?? ` /${max}`}
