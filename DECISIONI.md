@@ -3123,3 +3123,60 @@ i sei controlli delle correzioni di Roberto del 10/11:
 Le decisioni dietro questi punti restano valide così come sono scritte sopra. Non ancora verificati in produzione: il
 bilancio in cima ai Dati aziendali («Il bilancio in cima ai Dati aziendali») e l'antivirus («Antivirus: ClamAV,
 fail-closed»), che richiede prima un servizio ClamAV su Railway o `ANTIVIRUS_ALLOW_BASIC=true` per la demo.
+
+## Dati demo di Acme: correzione una tantum, senza seed · 2026-11-12
+Section A: l'Intervista diceva «Demo Company S.r.l.», le email erano `@democompany.com` e il sesso dei dati demo era
+estratto a caso. Opzioni: (a) rigenerare i dati demo (seed o «Reset demo»), che cancella punteggi e valutazioni; (b)
+correggere solo quei valori sui dati già salvati. Scelta (b), decisa con Bilal: `fixDemoIdentity` cambia sesso (dal
+nome, solo per i nomi dell'elenco demo), dominio delle email (`@acme.example`, come Recruiting) e nome nell'Intervista.
+Gira da sola, una volta, solo sulla società demo e solo per chi può scrivere; la seconda volta non trova niente da
+cambiare. Il generatore usa gli stessi valori; l'estrazione del sesso resta nella sequenza casuale, così il resto della
+popolazione demo non cambia.
+
+## Il bilancio dimostrativo guarda la società aperta · 2026-11-12
+Si caricava solo se l'account apparteneva alla società demo (`isOnDemoCompany`): lo staff non ha una società sua, e il
+12/11 con l'account di Alessio su Acme il bilancio non c'era. Ora conta la società aperta (`isDemoCompanyId`). Il
+bilancio è della società sul server: una volta caricato lo vede ogni account di Acme.
+
+## Analisi predittiva: apertura al passaggio del mouse · 2026-11-12
+Un gruppo della barra laterale che si apre al passaggio del mouse dopo 350 ms e non si richiude quando il mouse esce;
+clic, tocco e Invio aprono e chiudono; con una delle tre pagine attiva resta aperto. Il ritardo evita che si apra a
+ogni passaggio di sfuggita. Nessuna animazione oltre a quella del gruppo della Sidebar.
+
+## Dati dell'azienda: dove si salvano · 2026-11-12
+Nome e partita IVA esistono già sul server nella società (`Company.name`, `vatNumber`); titolare ed email per la
+privacy dei CV nella società anche loro. Scriverli dalla finestra cambierebbe il nome della società in Recruiting,
+Assessment e nell'informativa: è la «fonte unica» della proposta D, in attesa di Roberto. Quindi la finestra parte da
+quei dati quando è vuota e salva nel profilo aziendale di Assessment (campo `details`, migrazione solo di aggiunta).
+Sedi e contatti di prima restano nei dati, non più a schermo. Quando la proposta D sarà decisa, la finestra potrà
+leggere e scrivere i campi della società.
+
+## Intervista: ripristino da bb565c1 · 2026-11-12
+Riferimento: il commit `bb565c1`, l'ultimo che tocca l'Intervista prima di `d900f5e` (rilascio del 7/11). La pagina del
+riepilogo è quella, con solo il punteggio sulle risposte date e «Calcolato su N domande su M» quando manca qualcosa; le
+domande saltate mostrano «—» nel riquadro (senza, un cursore al valore di partenza sembrerebbe una risposta). Il percorso
+delle domande (AnalisiWizard) resta senza obbligo: la sua unica differenza da `bb565c1` è il controllo tolto. Senza
+nessuna risposta il riquadro principale non scrive frase né fascia: solo «Calcolato su 0 domande su 5».
+
+## Importazione dell'anagrafica: il modello e il salvataggio · 2026-11-12
+- **Il modello**: finché non arriva quello di Roberto, «Scarica il modello» dà un file provvisorio generato dalle colonne
+  di `IMPORT_COLUMNS` (lib/anagrafica-import.ts), con un foglio di istruzioni. Quando arriva il suo, si mette nel
+  progetto, il link scarica quello e si adattano le colonne in quel solo punto.
+- **Tutto o niente**: il salvataggio è una sola chiamata e una sola transazione sul server (persone e mansioni nuove).
+  Con un errore nel file non si salva niente; con un errore del server non resta niente a metà.
+- **Mansioni nuove**: una persona con una mansione che non c'è la porta con sé (come «Aggiungi dipendente»).
+- **Probabili doppioni**: senza email, stesso nome, cognome e mansione di una persona presente: non si aggiornano e
+  non si aggiungono; l'anteprima lo dice. **Chi non è nel file** non si archivia.
+
+## ClamAV su Railway: le istruzioni · 2026-11-12
+Non provato: richiede l'accesso a Railway. Quello che serve:
+1. Nel progetto Railway, nuovo servizio da immagine Docker `clamav/clamav:stable` (immagine ufficiale), senza dominio
+   pubblico. Memoria: almeno 2 GB (le firme ne occupano circa 1,2). Al primo avvio scarica le firme: 2–5 minuti prima
+   che risponda.
+2. Sul servizio Backend: `CLAMAV_HOST=<nome del servizio>.railway.internal`, `CLAMAV_PORT=3310`.
+3. La rete privata di Railway è IPv6: clamd deve ascoltare anche su `::`. Se il backend non si collega, nel servizio
+   ClamAV va la configurazione `TCPAddr ::` (variabile o file `clamd.conf`).
+4. Prova: dal modulo pubblico della demo un PDF vero entra, il file EICAR viene rifiutato; con il servizio fermo il CV
+   viene rifiutato con «Il controllo antivirus non è disponibile».
+Finché ClamAV non c'è, per la sola società demo si può tenere aperto il modulo con `ANTIVIRUS_ALLOW_BASIC=true`
+(solo controllo di base). Una società vera non passa mai senza motore.

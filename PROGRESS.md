@@ -227,6 +227,10 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
       (con mansione nuova «Data analyst»), 1 aggiornata per email (reparto cambiato, 35 punteggi e 6,3 restano),
       1 probabile doppione non toccato; un lotto con una persona non valida → 400 e nessuna salvata. Dati di prova
       tolti dal database locale. A 390px nessuno scorrimento.
+- [x] **Passo 7 · Antivirus**: nessun codice nuovo (il motore è collegato dal 10/11). Istruzioni per ClamAV su Railway
+      in DECISIONI («ClamAV su Railway: le istruzioni»); non provate, serve l'accesso a Railway. In attesa:
+      `ANTIVIRUS_ALLOW_BASIC=true` solo per la demo.
+- [ ] Da fare dopo la prova in produzione di Bilal: `resoconto-2026-11-12.md` con i valori letti in produzione.
 
 ## 2026-11-11 (3) — Verifica in produzione delle correzioni del 10/11
 - [x] Bilal Shazim ha verificato in produzione (Acme Corp · Senior Frontend Engineer) sei controlli: un verde per
