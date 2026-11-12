@@ -1,6 +1,6 @@
 import { fmtDec } from '@/lib/format'
-import { Download, Printer, RotateCcw } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { ArrowRight, Download, Printer, RotateCcw } from 'lucide-react'
+import { useState } from 'react'
 
 import { Note } from '@/components/patterns/Note'
 import { StatCard } from '@/components/patterns/StatCard'
@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { useConfirm } from '@/hooks/use-confirm'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardHeader, CardLabel, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardLabel, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { AnalisiWizard } from '@/modules/assessment/components/AnalisiWizard'
@@ -16,24 +16,27 @@ import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/Assess
 import { exiBlankData } from '@/modules/assessment/lib/demo-data'
 import { exiRiskTier, exiScoreTier, fmt1, round1 } from '@/modules/assessment/lib/legacy-utils'
 import { printReportHtml } from '@/modules/assessment/lib/print'
-import { useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { ExiData } from '@/modules/assessment/lib/types'
 import { assessmentAiApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
 import type { getUI } from '@/modules/assessment/lib/legacy-utils'
 import { JSON_TYPE, downloadText } from '@/lib/download'
 
-// Le domande saltate (Decisioni del 2026-11-06): senza commento e con il cursore al valore
-// di partenza. Il cursore ha sempre un valore, quindi non si legge da solo.
+// L'Intervista com'era prima del rilascio del 7/11 (Decisioni di Roberto del 2026-11-12): questo file
+// è quello del commit bb565c1, l'ultimo prima di d900f5e. Del lavoro successivo restano solo due
+// cose: si va avanti senza rispondere (AnalisiWizard non ha più l'obbligo), e le risposte mancanti
+// non contano nel punteggio, con «Calcolato su N domande su M» sotto il punteggio solo quando
+// manca qualcosa. Una domanda è senza risposta quando non ha commento e il cursore è al valore di
+// partenza (il cursore ha sempre un valore: da solo non si legge).
 function unanswered(a: ExiData) {
   const blank = exiBlankData('')
   return {
     q1: !a.q1c.trim() && a.q1 === blank.q1,
     q2: !a.q2c.trim() && a.q2 === blank.q2,
     q4: !a.q4c.trim() && a.q4 === blank.q4,
-    q5: !a.rischi.length && a.q5 === blank.q5,
-    q6: !a.obiettivi.length && a.q6 === blank.q6,
-    q7: !a.q7c.trim() && !(a.decisioni || []).length,
+    q5: !(a.rischi || []).some((x) => x.trim()) && a.q5 === blank.q5,
+    q6: !(a.obiettivi || []).some((x) => x.trim()) && a.q6 === blank.q6,
   }
 }
 
@@ -43,14 +46,13 @@ function unanswered(a: ExiData) {
 // shape so the prompt built server-side stays simple and doesn't need to
 // know this module's internal field names.
 function buildInterviewTranscript(a: ExiData, ui: ReturnType<typeof getUI>): { question: string; answer: string }[] {
-  const off = unanswered(a)
   return [
-    { question: ui.exiQ1Title, answer: off.q1 ? '' : `${a.q1}/10 — ${a.q1c}` },
-    { question: ui.exiQ2Title, answer: off.q2 ? '' : `${a.q2}/10 — ${a.q2c}` },
+    { question: ui.exiQ1Title, answer: `${a.q1}/10 — ${a.q1c}` },
+    { question: ui.exiQ2Title, answer: `${a.q2}/10 — ${a.q2c}` },
     { question: ui.exiQ3Title, answer: [a.q3c, ...a.q3Altro].filter(Boolean).join('; ') },
-    { question: ui.exiQ4Title, answer: off.q4 ? '' : `${a.q4}/10 — ${a.q4c}` },
-    { question: ui.exiQ5Title, answer: off.q5 ? '' : [...a.rischi, `${a.q5}/10`].filter(Boolean).join('; ') },
-    { question: ui.exiQ6Title, answer: off.q6 ? '' : [...a.obiettivi, `${a.q6}/10`].filter(Boolean).join('; ') },
+    { question: ui.exiQ4Title, answer: `${a.q4}/10 — ${a.q4c}` },
+    { question: ui.exiQ5Title, answer: [...a.rischi, a.q5 ? `${a.q5}/10` : ''].filter(Boolean).join('; ') },
+    { question: ui.exiQ6Title, answer: [...a.obiettivi, a.q6 ? `${a.q6}/10` : ''].filter(Boolean).join('; ') },
     { question: ui.exiQ7Title, answer: [a.q7c, ...a.q7Altro].filter(Boolean).join('; ') },
   ].filter((qa) => qa.answer.trim().length > 0)
 }
@@ -63,15 +65,11 @@ function buildInterviewTranscript(a: ExiData, ui: ReturnType<typeof getUI>): { q
 // 25) the 8-step edit wizard, print view, and JSON export. Phase 24 had
 // shipped only the report/display side.
 export default function AssessmentAnalisiPage() {
-  const { state, setState, ui } = useAssessment()
+  const { state, setState } = useAssessment()
+  const navigate = useNavigate()
   const [mode, setMode] = useState<'report' | 'wizard'>('report')
   const [wizardStartStep, setWizardStartStep] = useState(0)
   const a = state.analisiIniziale
-  const { hash } = useLocation()
-  // I link «Vai a Dati aziendali» portano alla sezione.
-  useEffect(() => {
-    if (hash) document.getElementById(hash.slice(1))?.scrollIntoView()
-  }, [hash])
 
   function commitAndReturn(data: ExiData) {
     setState((prev) => ({ ...prev, analisiIniziale: data }))
@@ -82,19 +80,10 @@ export default function AssessmentAnalisiPage() {
     return <AnalisiWizard initial={a} startStep={wizardStartStep} onCancel={a.completed ? () => setMode('report') : null} onGenerate={commitAndReturn} />
   }
 
-  // Dati aziendali sono la prima sezione dell'Intervista, prima delle domande (Decisioni
-  // del 2026-11-06). Mentre si risponde restano fuori: il percorso delle domande è a sé.
-  return (
-    <div className="flex flex-col gap-8">
-      <section>
-        <PageHeader title={ui.res.interviewSectionTitle} />
-        <AnalisiReport a={a} onNewInterview={() => { setWizardStartStep(0); setMode('wizard') }} onEditAnswers={() => { setWizardStartStep(7); setMode('wizard') }} />
-      </section>
-    </div>
-  )
+  return <AnalisiReport a={a} onNewInterview={() => { setWizardStartStep(0); setMode('wizard') }} onEditAnswers={() => { setWizardStartStep(7); setMode('wizard') }} onStartAssessment={() => navigate('/assessment/anagrafica')} />
 }
 
-function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNewInterview: () => void; onEditAnswers: () => void }) {
+function AnalisiReport({ a, onNewInterview, onEditAnswers, onStartAssessment }: { a: ExiData; onNewInterview: () => void; onEditAnswers: () => void; onStartAssessment: () => void }) {
   const { setState, lang, ui, canEdit, toast, state } = useAssessment()
   const [confirm, confirmDialog] = useConfirm()
   const [expertReview, setExpertReview] = useState<{ status: 'idle' | 'loading' | 'done' | 'error'; text?: string }>({ status: 'idle' })
@@ -110,32 +99,26 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
     }
   }
 
-  // Una domanda saltata non ha un valore: niente numero, niente fascia, e i dati che la
-  // usano (indice complessivo, gap percepito) restano vuoti invece di prendere il valore
-  // di partenza del cursore (Decisioni del 2026-11-06, Intervista).
-  const off = unanswered(a)
-  // L'indice si calcola sulle domande con una risposta: i pesi delle saltate escono e quelli
-  // rimasti si riportano a 1 (Decisioni del 2026-11-09). Sotto il numero, su quante domande.
-  const weighted = [
-    { off: off.q1, w: 0.3, v: a.q1 },
-    { off: off.q2, w: 0.25, v: a.q2 },
-    { off: off.q4, w: 0.25, v: a.q4 },
-    { off: off.q5, w: 0.1, v: 10 - a.q5 },
-    { off: off.q6, w: 0.1, v: a.q6 },
-  ]
-  const answered = weighted.filter((q) => !q.off)
-  const anyAnswered = answered.length > 0
-  const gapKnown = !off.q1 && !off.q2
   const v1 = a.q1
   const v2 = a.q2
   const v4 = a.q4
   const v5 = a.q5
   const v6 = a.q6
+  const off = unanswered(a)
+  const weighted = [
+    { off: off.q1, w: 0.3, v: v1 },
+    { off: off.q2, w: 0.25, v: v2 },
+    { off: off.q4, w: 0.25, v: v4 },
+    { off: off.q5, w: 0.1, v: 10 - v5 },
+    { off: off.q6, w: 0.1, v: v6 },
+  ]
+  const answered = weighted.filter((q) => !q.off)
+  const basis = answered.length < weighted.length ? ui.res.exiBasis(answered.length, weighted.length) : ''
+  const dash = '—'
   const gap = round1(v2 - v1)
   const gapPc = v1 > 0 ? (gap / v1) * 100 : 0
-  const phcv = anyAnswered ? round1(answered.reduce((n, q) => n + q.w * q.v, 0) / answered.reduce((n, q) => n + q.w, 0)) : 0
-  // Con tutte le risposte la riga non c'è (Decisioni del 2026-11-09).
-  const basis = answered.length < weighted.length ? ui.res.exiBasis(answered.length, weighted.length) : ''
+  // Stessi pesi di prima; quelli delle domande senza risposta escono e i rimasti si riportano a 1.
+  const phcv = answered.length ? round1(answered.reduce((n, q) => n + q.w * q.v, 0) / answered.reduce((n, q) => n + q.w, 0)) : 0
   const heroTier = exiScoreTier(phcv, lang)
   const heroText = phcv >= 7.5 ? ui.exiHeroTextHigh : phcv >= 6 ? ui.exiHeroTextMid : phcv >= 4.5 ? ui.exiHeroTextLow : ui.exiHeroTextCritical
 
@@ -153,8 +136,6 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
   const risk = (a.rischi || []).filter(Boolean)
   const obj = (a.obiettivi || []).filter(Boolean)
   const meta = [a.intervistato, ui.exiRoles[a.ruolo], a.settore, a.data].filter(Boolean).join(' · ')
-  const noAnswer = ui.exiUnanswered as string
-  const dash = '—'
 
   async function newInterview() {
     if (!canEdit) return
@@ -177,16 +158,16 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
       <div>${[a.intervistato, roles[a.ruolo] || '', a.settore].filter(Boolean).join(' · ')}</div>
       <div style="font-size:12px;color:var(--color-neutral-600);margin-top:2px">${a.data || ''}</div>
       <div class="rpt-h2">${ui.exiHeroLabel}</div>
-      <div>${anyAnswered ? fmt1(phcv) + '/10' + (basis ? ' · ' + basis : '') : dash}</div>
+      <div>${answered.length ? fmt1(phcv) + '/10' + (basis ? ' · ' + basis : '') : dash}</div>
       <table class="rpt-table"><thead><tr><th>${ui.analisiPageTitle}</th><th>/10</th></tr></thead><tbody>
-        <tr><td>${String(ui.exiK1Label).replace('<br>', ' ')}</td><td>${off.q1 ? noAnswer : fmt1(v1)}</td></tr>
-        <tr><td>${String(ui.exiK2Label).replace('<br>', ' ')}</td><td>${off.q2 ? noAnswer : fmt1(v2)}</td></tr>
-        <tr><td>${String(ui.exiK4Label).replace('<br>', ' ')}</td><td>${off.q4 ? noAnswer : fmt1(v4)}</td></tr>
-        <tr><td>${String(ui.exiK5Label).replace('<br>', ' ')}</td><td>${off.q5 ? noAnswer : fmt1(v5)}</td></tr>
-        <tr><td>${String(ui.exiK6Label).replace('<br>', ' ')}</td><td>${off.q6 ? noAnswer : fmt1(v6)}</td></tr>
+        <tr><td>${String(ui.exiK1Label).replace('<br>', ' ')}</td><td>${fmt1(v1)}</td></tr>
+        <tr><td>${String(ui.exiK2Label).replace('<br>', ' ')}</td><td>${fmt1(v2)}</td></tr>
+        <tr><td>${String(ui.exiK4Label).replace('<br>', ' ')}</td><td>${fmt1(v4)}</td></tr>
+        <tr><td>${String(ui.exiK5Label).replace('<br>', ' ')}</td><td>${fmt1(v5)}</td></tr>
+        <tr><td>${String(ui.exiK6Label).replace('<br>', ' ')}</td><td>${fmt1(v6)}</td></tr>
       </tbody></table>
       <div class="rpt-h2">${ui.exiGapTitle}</div>
-      <div>${gapKnown ? (gap >= 0 ? '+' : '') + fmt1(gap) : dash}</div>
+      <div>${gap >= 0 ? '+' : ''}${fmt1(gap)}</div>
       ${areaRows ? `<div class="rpt-h2">${ui.exiAreasTitle}</div><table class="rpt-table"><thead><tr><th>${ui.analisiPageTitle}</th><th>${ui.exiAreaCriticalityLabel}</th></tr></thead><tbody>${areaRows}</tbody></table>` : ''}
       ${riskLis ? `<div class="rpt-h2">${ui.exiAns5Title}</div><ul>${riskLis}</ul>` : ''}
       ${objLis ? `<div class="rpt-h2">${ui.exiAns6Title}</div><ul>${objLis}</ul>` : ''}
@@ -226,6 +207,14 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
 
   useTopbarActions(
     <>
+      <Button variant="ghost" size="sm" onClick={printReport}>
+        <Printer />
+        {ui.exiPrintBtn}
+      </Button>
+      <Button variant="ghost" size="sm" onClick={exportJson}>
+        <Download />
+        {ui.exiSaveBtn}
+      </Button>
       {canEdit && (
         <Button variant="ghost" size="sm" onClick={newInterview}>
           <RotateCcw />
@@ -254,16 +243,16 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
         size="lg"
         className="mb-4"
         label={ui.exiHeroLabel}
-        value={anyAnswered ? fmt1(phcv) : dash}
-        unit={anyAnswered ? ui.exiPointsOf10 : undefined}
-        note={anyAnswered ? (basis ? `${heroText} ${basis}.` : heroText) : ui.exiHeroPending}
-        delta={anyAnswered ? { label: heroTier.label, direction: 'flat', tone: 'neutral' } : undefined}
+        value={answered.length ? fmt1(phcv) : dash}
+        unit={answered.length ? ui.exiPointsOf10 : undefined}
+        note={!answered.length ? `${basis}.` : basis ? `${heroText} ${basis}.` : heroText}
+        delta={answered.length ? { label: heroTier.label, direction: 'flat', tone: 'neutral' } : undefined}
       />
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {KS.map((k, i) => {
           const tier = k.inverted ? exiRiskTier(k.v, lang) : exiScoreTier(k.v, lang)
-          if (k.off) return <StatCard key={i} size="sm" label={k.label.replace(/<br\s*\/?>/gi, ' ')} value={dash} note={noAnswer} />
+          if (k.off) return <StatCard key={i} size="sm" label={k.label.replace(/<br\s*\/?>/gi, ' ')} value={dash} note={ui.exiUnanswered as string} />
           return (
             <StatCard
               key={i}
@@ -291,10 +280,9 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
             <CardTitle>{ui.exiGapTitle}</CardTitle>
           </CardHeader>
           <div className="flex flex-col gap-3">
-            {off.q1 ? <Note>{`${ui.exiGapLabel1}: ${noAnswer}`}</Note> : <ScoreRow label={ui.exiGapLabel1} value={v1} />}
-            {off.q2 ? <Note>{`${ui.exiGapLabel2}: ${noAnswer}`}</Note> : <ScoreRow label={ui.exiGapLabel2} value={v2} />}
+            <ScoreRow label={ui.exiGapLabel1} value={v1} />
+            <ScoreRow label={ui.exiGapLabel2} value={v2} />
           </div>
-          {gapKnown ? (
           <StatCard
             className="mt-4"
             surface="none"
@@ -304,9 +292,6 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
             {/* gapText (exiGapText*) porta tag <strong>: viene dal dizionario. */}
             <Note as="div" dangerouslySetInnerHTML={{ __html: gapText }} />
           </StatCard>
-          ) : (
-            <Note className="mt-4">{ui.exiGapPending}</Note>
-          )}
         </Card>
 
         <Card>
@@ -327,16 +312,16 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <AnswerCard eyebrow={ui.exiQ1Eyebrow} title={ui.exiAns1Title} quote={a.q1c} noAnswer={off.q1 ? noAnswer : undefined}>
+        <AnswerCard eyebrow={ui.exiQ1Eyebrow} title={ui.exiAns1Title} quote={a.q1c}>
           <TierValue value={v1} tier={exiScoreTier(v1, lang)} unit={ui.exiPointsOf10} />
         </AnswerCard>
-        <AnswerCard eyebrow={ui.exiQ2Eyebrow} title={ui.exiAns2Title} quote={a.q2c} noAnswer={off.q2 ? noAnswer : undefined}>
+        <AnswerCard eyebrow={ui.exiQ2Eyebrow} title={ui.exiAns2Title} quote={a.q2c}>
           <TierValue value={v2} tier={exiScoreTier(v2, lang)} unit={ui.exiPointsOf10} />
         </AnswerCard>
-        <AnswerCard eyebrow={ui.exiQ4Eyebrow} title={ui.exiAns4Title} quote={a.q4c} noAnswer={off.q4 ? noAnswer : undefined}>
+        <AnswerCard eyebrow={ui.exiQ4Eyebrow} title={ui.exiAns4Title} quote={a.q4c}>
           <TierValue value={v4} tier={exiScoreTier(v4, lang)} unit={ui.exiPointsOf10} />
         </AnswerCard>
-        <AnswerCard eyebrow={ui.exiQ5Eyebrow} title={ui.exiAns5Title} noAnswer={off.q5 ? noAnswer : undefined}>
+        <AnswerCard eyebrow={ui.exiQ5Eyebrow} title={ui.exiAns5Title}>
           <TierValue prefix={ui.exiRiskInlineLabel} value={v5} tier={exiRiskTier(v5, lang)} unit={ui.exiPointsOf10} />
           {risk.length > 0 && (
             <ol className="mt-3 list-decimal pl-5 text-app-small">
@@ -346,7 +331,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
             </ol>
           )}
         </AnswerCard>
-        <AnswerCard eyebrow={ui.exiQ6Eyebrow} title={ui.exiAns6Title} noAnswer={off.q6 ? noAnswer : undefined}>
+        <AnswerCard eyebrow={ui.exiQ6Eyebrow} title={ui.exiAns6Title}>
           <TierValue prefix={ui.exiUrgencyInlineLabel} value={v6} tier={exiScoreTier(v6, lang)} unit={ui.exiPointsOf10} />
           {obj.length > 0 && (
             <ol className="mt-3 list-decimal pl-5 text-app-small">
@@ -356,7 +341,7 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
             </ol>
           )}
         </AnswerCard>
-        <AnswerCard eyebrow={ui.exiQ7Eyebrow} title={ui.exiAns7Title} quote={a.q7c} noAnswer={off.q7 ? noAnswer : undefined}>
+        <AnswerCard eyebrow={ui.exiQ7Eyebrow} title={ui.exiAns7Title} quote={a.q7c}>
           {(a.decisioni || []).length ? (
             <div className="flex flex-wrap gap-2">
               {a.decisioni.map((i) => (ui.exiDecisions[i] ? <Badge key={i}>{ui.exiDecisions[i].nm}</Badge> : null))}
@@ -366,6 +351,21 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
           )}
         </AnswerCard>
       </div>
+
+      <Card padding="lg" className="my-6 items-start text-left">
+        <CardTitle>{ui.exiCtaTitle}</CardTitle>
+        <CardDescription className="mt-2 max-w-prose">{ui.exiCtaText}</CardDescription>
+        <Button
+          className="mt-4"
+          onClick={() => {
+            toast(ui.exiCtaToast, 'ok')
+            onStartAssessment()
+          }}
+        >
+          {ui.exiCtaBtn}
+          <ArrowRight />
+        </Button>
+      </Card>
 
       {/* "CONSIDERAZIONI DELL'ESPERTO" — a real, server-side Claude call
           (backend/src/modules/assessmentAi/routes.ts) reviewing this exact
@@ -388,18 +388,6 @@ function AnalisiReport({ a, onNewInterview, onEditAnswers }: { a: ExiData; onNew
           </p>
         )}
       </Card>
-
-      {/* Stampa e salvataggio in fondo al riepilogo (Decisioni del 2026-11-09). */}
-      <div className="mt-6 flex flex-wrap justify-end gap-2">
-        <Button variant="outline" onClick={printReport}>
-          <Printer />
-          {ui.exiPrintBtn}
-        </Button>
-        <Button variant="outline" onClick={exportJson}>
-          <Download />
-          {ui.exiSaveBtn}
-        </Button>
-      </div>
 
       <Note as="div" size="caption" className="mt-6" dangerouslySetInnerHTML={{ __html: ui.exiFooterNote }} />
       {confirmDialog}
@@ -436,12 +424,12 @@ function TierValue({ prefix, value, tier, unit }: { prefix?: string; value: numb
 
 // Una risposta dell'Intervista nel report: sovratitolo, domanda, valore,
 // e il commento citato dell'intervistato se c'è.
-function AnswerCard({ eyebrow, title, quote, noAnswer, children }: { eyebrow: string; title: string; quote?: string; noAnswer?: string; children: React.ReactNode }) {
+function AnswerCard({ eyebrow, title, quote, children }: { eyebrow: string; title: string; quote?: string; children: React.ReactNode }) {
   return (
     <Card>
       <CardLabel>{eyebrow}</CardLabel>
       <CardTitle className="mt-1 mb-3 text-app-subtitle">{title}</CardTitle>
-      {noAnswer ? <Badge className="self-start">{noAnswer}</Badge> : children}
+      {children}
       {quote ? <blockquote className="mt-3 border-l-2 border-border-strong pl-3 text-app-small text-muted-foreground italic">“{quote}”</blockquote> : null}
     </Card>
   )

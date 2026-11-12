@@ -212,6 +212,12 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
       P. IVA 12345678901, ATECO, 85, 23, altra sede Via Torino 5 · Torino); sedi, contatti e i cinque campi ROI ancora
       nei dati; il bilancio si salva al caricamento senza toccarli; 1 colonna a 390px, 2 su desktop. Nome e partita IVA
       non si scrivono nella società (proposta D): la finestra parte da lì e salva nel profilo.
+- [x] **Passo 5 · Intervista com'era**: la pagina del riepilogo è quella del commit `bb565c1` (l'ultimo prima di
+      `d900f5e`), con solo il punteggio sulle risposte date e «Calcolato su N domande su M» quando manca qualcosa;
+      tornano le caselle CT · CP · CT+CP, i quattro pulsanti in alto e «Fase successiva». Il percorso delle domande
+      resta senza obbligo. In locale: tutte le risposte → 6,0 senza la riga; domanda 2 saltata → 6,3 «Calcolato su 4
+      domande su 5»; nuova intervista fino in fondo senza rispondere → «—», «Calcolato su 0 domande su 5», cinque
+      «Senza risposta». Intervista demo rimessa com'era.
 
 ## 2026-11-11 (3) — Verifica in produzione delle correzioni del 10/11
 - [x] Bilal Shazim ha verificato in produzione (Acme Corp · Senior Frontend Engineer) sei controlli: un verde per
