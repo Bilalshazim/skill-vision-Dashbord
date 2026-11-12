@@ -14,11 +14,9 @@ import { Icon } from '@/modules/assessment/components/Icon'
 import { AnalisiWizard } from '@/modules/assessment/components/AnalisiWizard'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { exiBlankData } from '@/modules/assessment/lib/demo-data'
-import { RoiDataSection } from '@/modules/assessment/components/RoiDataSection'
 import { exiRiskTier, exiScoreTier, fmt1, round1 } from '@/modules/assessment/lib/legacy-utils'
 import { printReportHtml } from '@/modules/assessment/lib/print'
 import { useLocation } from 'react-router-dom'
-import AssessmentCompanyPage from '@/modules/assessment/pages/AssessmentCompanyPage'
 import type { ExiData } from '@/modules/assessment/lib/types'
 import { assessmentAiApi } from '@/lib/api/endpoints'
 import { ApiError } from '@/lib/api/client'
@@ -88,13 +86,6 @@ export default function AssessmentAnalisiPage() {
   // del 2026-11-06). Mentre si risponde restano fuori: il percorso delle domande è a sé.
   return (
     <div className="flex flex-col gap-8">
-      <section id="dati-aziendali" className="scroll-mt-24">
-        <PageHeader title={ui.res.dataSectionTitle} />
-        {/* Il bilancio in cima ai Dati aziendali, con stato, data, file e il pulsante per
-            caricarlo o sostituirlo (correzioni di Roberto del 2026-11-10). */}
-        <RoiDataSection />
-        <AssessmentCompanyPage />
-      </section>
       <section>
         <PageHeader title={ui.res.interviewSectionTitle} />
         <AnalisiReport a={a} onNewInterview={() => { setWizardStartStep(0); setMode('wizard') }} onEditAnswers={() => { setWizardStartStep(7); setMode('wizard') }} />

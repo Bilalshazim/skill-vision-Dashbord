@@ -5,7 +5,7 @@ import type { getUI } from '@/modules/assessment/lib/legacy-utils'
 type Res = ReturnType<typeof getUI>['res']
 const pct = (n: number) => `${n.toLocaleString('it-IT', { maximumFractionDigits: 1 })}%`
 
-const DATA_LINK = '/assessment/analisi#dati-aziendali'
+const DATA_LINK = '/assessment/company'
 
 // Le cifre delle quattro pagine dei risultati: una leva del motore per pagina
 // (DECISIONI, "Quale cifra del motore su quale pagina"). L'importo da leggere come

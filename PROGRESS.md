@@ -204,6 +204,14 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
       resta aperto uscendo; clic chiude, Invio riapre; aperto con Anagrafica attiva; percorso «Home / Analisi
       predittiva / Anagrafica»; a 390px il tocco apre il gruppo e il pannello resta aperto. Titolo non in maiuscolo.
       Un passaggio più breve del ritardo non si riproduce con l'automazione (ogni movimento dura circa un secondo).
+- [x] **Passo 4 · Dati aziendali, pagina sua** (`/assessment/company`): finestra «Dati dell'azienda» con gli 11 campi,
+      Ruoli chiave sotto, bilancio in fondo. Tolti dalla pagina (non dai dati): durata, compenso, costo azioni,
+      turnover, assenze, «Atteso 7,0», «Totale dipendenti per tipologia», Sedi e Contatti. Nuovo campo `details` nel
+      profilo aziendale (migrazione `20261112120000_company_profile_details`, solo aggiunta). In locale: parte da
+      Acme Corp / Via Roma 12 / Milano / hr@acme.example; quattro errori sotto i campi; salvato e ricaricato (PEC,
+      P. IVA 12345678901, ATECO, 85, 23, altra sede Via Torino 5 · Torino); sedi, contatti e i cinque campi ROI ancora
+      nei dati; il bilancio si salva al caricamento senza toccarli; 1 colonna a 390px, 2 su desktop. Nome e partita IVA
+      non si scrivono nella società (proposta D): la finestra parte da lì e salva nel profilo.
 
 ## 2026-11-11 (3) — Verifica in produzione delle correzioni del 10/11
 - [x] Bilal Shazim ha verificato in produzione (Acme Corp · Senior Frontend Engineer) sei controlli: un verde per

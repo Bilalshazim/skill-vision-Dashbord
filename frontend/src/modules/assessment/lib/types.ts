@@ -116,7 +116,22 @@ export type AssessmentSettings = {
 
 export type CompanyContact = { label: string; name: string; email: string; phone: string }
 export type CompanyLocation = { name: string; address: string; city: string }
+/** «Dati dell'azienda» (Decisioni di Roberto del 2026-11-12). I due numeri sono scritti a mano: null se vuoti. */
+export type CompanyDetails = {
+  name: string
+  address: string
+  city: string
+  otherSites: { address: string; city: string }[]
+  email: string
+  pec: string
+  phone: string
+  vat: string
+  ateco: string
+  employees: number | null
+  toEvaluate: number | null
+}
 export type CompanyProfile = {
+  details?: CompanyDetails
   locations: CompanyLocation[]
   contacts: CompanyContact[]
   referente: { name: string; email: string; phone: string }

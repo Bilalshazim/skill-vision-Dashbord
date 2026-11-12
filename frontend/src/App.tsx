@@ -46,6 +46,7 @@ const EvaluatorDocumentPage = lazy(() => import('@/modules/recruiting/profile-hu
 const AssessmentAiPage = lazy(() => import('@/modules/assessment/pages/AssessmentAiPage'))
 const AssessmentAnagraficaPage = lazy(() => import('@/modules/assessment/pages/AssessmentAnagraficaPage'))
 const AssessmentAnalisiPage = lazy(() => import('@/modules/assessment/pages/AssessmentAnalisiPage'))
+const AssessmentCompanyPage = lazy(() => import('@/modules/assessment/pages/AssessmentCompanyPage'))
 const AssessmentCustomerCarePage = lazy(() => import('@/modules/assessment/pages/AssessmentCustomerCarePage'))
 const AssessmentEvaluatePage = lazy(() => import('@/modules/assessment/pages/AssessmentEvaluatePage'))
 const AssessmentFeedbackPage = lazy(() => import('@/modules/assessment/pages/AssessmentFeedbackPage'))
@@ -181,7 +182,7 @@ function App() {
               <Route path="soft-overview" element={<AssessmentSoftOverviewPage />} />
               <Route path="hard-overview" element={<AssessmentHardOverviewPage />} />
               {/* Dati aziendali sono la prima sezione dell'Intervista (2026-11-06). */}
-              <Route path="company" element={<Navigate to="/assessment/analisi#dati-aziendali" replace />} />
+              <Route path="company" element={<AssessmentCompanyPage />} />
               <Route path="anagrafica" element={<AssessmentAnagraficaPage />} />
               <Route path="analisi" element={<AssessmentAnalisiPage />} />
               <Route path="soft" element={<AssessmentSoftPage />} />

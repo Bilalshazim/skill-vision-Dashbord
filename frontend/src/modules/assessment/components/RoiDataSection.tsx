@@ -2,14 +2,11 @@ import { Upload } from 'lucide-react'
 import { type ChangeEvent, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { Field } from '@/components/patterns/Field'
-import { FieldGrid } from '@/components/patterns/FieldGrid'
 import { InlineAlert } from '@/components/patterns/InlineAlert'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import type { RoiData } from '@/lib/api/assessment'
 import { parseCsv, readRows } from '@/lib/roi/importer'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
@@ -17,9 +14,10 @@ import { roiEuro, useRoi } from '@/modules/assessment/lib/use-roi'
 
 const STATEMENT_KEYS = ['ric', 'vdp', 'costiProd', 'cp', 'sal', 'amm', 'acc', 'ebit', 'ebitda', 'un', 'ante', 'imposte'] as const
 
-// I dati del motore ROI in Dati aziendali (CLAUDE.md, Fase 6): il bilancio si
-// carica una volta dal file, compenso, turnover e assenze si scrivono a mano. La
-// durata dell'esercizio si chiede sempre: un periodo parziale si riporta all'anno.
+// Il bilancio in fondo a Dati aziendali (Decisioni di Roberto del 2026-11-12): stato, nome del
+// file e il pulsante per caricarlo o sostituirlo. Il file è quello del motore ROI (Credit Save)
+// e si salva al caricamento. Durata dell'esercizio, compenso, costo delle azioni, turnover e
+// assenze escono dalla pagina, non dai dati: i valori salvati restano e il calcolo li usa.
 export function RoiDataSection() {
   const { ui, canEdit } = useAssessment()
   const res = ui.res
@@ -29,12 +27,6 @@ export function RoiDataSection() {
   useEffect(() => {
     if (roi.data) setDraft({ statement: {}, months: 12, ...roi.data })
   }, [roi.data])
-
-  const num = (k: 'months' | 'inv' | 'invAz' | 'turn' | 'ass') => (e: ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value.replace(',', '.')
-    setDraft((d) => ({ ...d, [k]: v === '' ? undefined : Number(v) }))
-  }
-  const dirtyInvalid = draft.months == null || draft.months < 1 || draft.months > 36 || !Number.isInteger(draft.months)
 
   async function onFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -55,7 +47,12 @@ export function RoiDataSection() {
         setFileError(res.roiFileEmpty)
         return
       }
-      setDraft((d) => ({ ...d, statement, fileName: file.name, loadedAt: new Date().toISOString(), months: values.mesi ?? d.months ?? 12 }))
+      // Il file si salva subito (Decisioni di Roberto del 2026-11-12: il pulsante «Salva i dati»
+      // esce con i campi a mano). Durata, compenso, costo delle azioni, turnover e assenze già
+      // salvati restano come sono; la durata la porta il file, se la scrive.
+      const next: RoiData = { ...draft, statement, fileName: file.name, loadedAt: new Date().toISOString(), months: values.mesi ?? draft.months ?? 12 }
+      setDraft(next)
+      save(next)
     } catch {
       setFileError(res.roiFileError)
     }
@@ -104,33 +101,7 @@ export function RoiDataSection() {
         ) : (
           <p className="text-app-small text-muted-foreground">{res.roiNoFile}</p>
         )}
-        <FieldGrid>
-          <Field label={res.roiMonths} hint={res.roiMonthsHint}>
-            <Input type="number" min={1} max={36} value={draft.months ?? ''} onChange={num('months')} disabled={!canEdit} />
-          </Field>
-          <Field label={res.roiInv}>
-            <Input type="number" min={0} value={draft.inv ?? ''} onChange={num('inv')} disabled={!canEdit} />
-          </Field>
-          <Field label={res.roiInvAz}>
-            <Input type="number" min={0} value={draft.invAz ?? ''} onChange={num('invAz')} disabled={!canEdit} />
-          </Field>
-          <Field label={res.roiTurn}>
-            <Input type="number" min={0} max={100} step="0.1" value={draft.turn ?? ''} onChange={num('turn')} disabled={!canEdit} />
-          </Field>
-          <Field label={res.roiAss}>
-            <Input type="number" min={0} max={50} step="0.1" value={draft.ass ?? ''} onChange={num('ass')} disabled={!canEdit} />
-          </Field>
-        </FieldGrid>
-        {draft.months !== 12 && !dirtyInvalid ? <InlineAlert tone="warning">{res.roiAnnualized(draft.months)}</InlineAlert> : null}
         {roi.status === 'blocked' ? <InlineAlert tone="warning">{roi.problems.join(' ')}</InlineAlert> : null}
-        <p className="text-app-small text-muted-foreground">{res.roiAttesoValue(roi.atteso.toLocaleString('it-IT', { minimumFractionDigits: 1 }))}</p>
-        {canEdit ? (
-          <div>
-            <Button type="button" onClick={() => save(draft)} disabled={roi.save.isPending || dirtyInvalid}>
-              {res.roiSave}
-            </Button>
-          </div>
-        ) : null}
       </Card>
     </section>
   )

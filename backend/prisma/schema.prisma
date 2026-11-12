@@ -1159,6 +1159,9 @@ model AssessmentCompanyProfile {
   referente Json     @default("{}")
   ceo       Json     @default("{}")
   cfo       Json     @default("{}")
+  // «Dati dell'azienda» di Dati aziendali (Decisioni di Roberto del 2026-11-12): nome, sede,
+  // altre sedi, contatti, partita IVA, ATECO, numeri. Sedi e contatti di prima restano sopra.
+  details   Json     @default("{}")
   updatedAt DateTime @updatedAt
 }
 

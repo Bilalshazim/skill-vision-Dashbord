@@ -48,6 +48,7 @@ export function hydrate(parsed: Partial<AssessmentState> & { employees: Assessme
   if (!parsed.company.referente) parsed.company.referente = { name: '', email: '', phone: '' }
   if (!parsed.company.ceo) parsed.company.ceo = { name: '', email: '' }
   if (!parsed.company.cfo) parsed.company.cfo = { name: '', email: '' }
+  if (!parsed.company.details || typeof parsed.company.details !== 'object') parsed.company.details = undefined
   parsed.evalAssignments.forEach((a) => {
     if (a.evaluatorEmail === undefined) a.evaluatorEmail = ''
   })

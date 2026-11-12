@@ -146,6 +146,7 @@ export const companyProfileSchema = z.object({
   referente: z.record(z.unknown()).default({}),
   ceo: z.record(z.unknown()).default({}),
   cfo: z.record(z.unknown()).default({}),
+  details: z.record(z.unknown()).default({}),
 })
 export const interviewSchema = z.record(z.unknown())
 
@@ -285,7 +286,7 @@ export async function readState(tx: Tx, companyId: string, canSeeRal: boolean) {
     evalAssignments: assignments.map(assignmentOut),
     evalPeriods: periods.map((p) => ({ id: p.clientId, label: p.label, date: dayString(p.date) })),
     analisiIniziale: interview ? interview.data : null,
-    company: profile ? { locations: profile.locations, contacts: profile.contacts, referente: profile.referente, ceo: profile.ceo, cfo: profile.cfo } : null,
+    company: profile ? { locations: profile.locations, contacts: profile.contacts, referente: profile.referente, ceo: profile.ceo, cfo: profile.cfo, details: profile.details } : null,
   }
 }
 
