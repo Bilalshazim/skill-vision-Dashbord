@@ -16,6 +16,7 @@ import { EmptyState } from '@/components/patterns/EmptyState'
 import { FilterBar } from '@/components/patterns/FilterBar'
 import { FilterToggle } from '@/components/patterns/FilterToggle'
 import { Button } from '@/components/ui/button'
+import { AnagraficaImport } from '@/modules/assessment/components/AnagraficaImport'
 import { AddEmployeeModal } from '@/modules/assessment/components/AddEmployeeModal'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { EmployeeSoftSkillModal } from '@/modules/assessment/components/EmployeeSoftSkillModal'
@@ -261,6 +262,9 @@ export default function AssessmentAnagraficaPage() {
           },
         ]}
       />
+
+      {/* L'ultima cosa della pagina (Decisioni di Roberto del 2026-11-12). */}
+      <AnagraficaImport />
 
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
       {softSkillModalId && <EmployeeSoftSkillModal employeeId={softSkillModalId} onClose={() => setSoftSkillModalId(null)} />}

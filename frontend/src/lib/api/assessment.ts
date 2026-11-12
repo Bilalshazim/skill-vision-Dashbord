@@ -50,6 +50,9 @@ export const assessmentApi = {
   lockAtteso: (companyId: string, value: number, criteria: string) => apiPost<{ atteso: number }>(`${base(companyId)}/roi/atteso`, { value, criteria }),
   state: (companyId: string) => apiGet<ServerAssessmentState>(`${base(companyId)}/state`),
   putEmployee: (companyId: string, e: Employee) => apiPut<Employee>(`${base(companyId)}/employees/${id(e.id)}`, e),
+  /** L'importazione dell'anagrafica da Excel: tutto in una transazione, o niente (Decisioni di Roberto del 2026-11-12). */
+  importEmployees: (companyId: string, employees: Employee[], roleProfiles: { roleName: string; profile: RoleProfile }[]) =>
+    apiPost<{ employees: number; roleProfiles: number }>(`${base(companyId)}/employees/import`, { employees: employees.map((e) => ({ clientId: e.id, data: e })), roleProfiles }),
   putPeriod: (companyId: string, p: EvalPeriod) => apiPut<EvalPeriod>(`${base(companyId)}/periods/${id(p.id)}`, p),
   deletePeriod: (companyId: string, periodId: string) => apiDelete<void>(`${base(companyId)}/periods/${id(periodId)}`),
   putRoleProfile: (companyId: string, roleName: string, r: RoleProfile) => apiPut<RoleProfile>(`${base(companyId)}/role-profiles/${id(roleName)}`, r),

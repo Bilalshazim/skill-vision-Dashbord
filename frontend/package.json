@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "test": "node --test src/lib/roi/model.test.ts",
+    "test": "node --test src/lib/roi/model.test.ts src/modules/assessment/lib/anagrafica-import.test.ts",
     "preview": "vite preview",
     "start": "node scripts/serve-combined.mjs dist $PORT",
     "serve:combined": "node scripts/serve-combined.mjs dist 8300"

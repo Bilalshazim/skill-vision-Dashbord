@@ -218,6 +218,15 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
       resta senza obbligo. In locale: tutte le risposte → 6,0 senza la riga; domanda 2 saltata → 6,3 «Calcolato su 4
       domande su 5»; nuova intervista fino in fondo senza rispondere → «—», «Calcolato su 0 domande su 5», cinque
       «Senza risposta». Intervista demo rimessa com'era.
+- [x] **Passo 6 · Importazione dell'anagrafica da Excel**: riquadro in fondo all'Anagrafica (trascinamento,
+      «Carica file», «Scarica il modello»), anteprima con errori riga per riga, riconoscimento per email, probabili
+      doppioni senza email (nome + cognome + mansione), salvataggio sul server tutto insieme (`POST …/employees/import`,
+      una transazione, limite 20 MB), nessuna archiviazione, RAL solo per gli amministratori (anche sul server). Le
+      colonne stanno in `IMPORT_COLUMNS`; il modello oggi è provvisorio, generato da lì, finché non arriva quello di
+      Roberto. 7 test automatici. In locale: file con errori → 7 errori, «Importa» spento; file buono → 1 nuova
+      (con mansione nuova «Data analyst»), 1 aggiornata per email (reparto cambiato, 35 punteggi e 6,3 restano),
+      1 probabile doppione non toccato; un lotto con una persona non valida → 400 e nessuna salvata. Dati di prova
+      tolti dal database locale. A 390px nessuno scorrimento.
 
 ## 2026-11-11 (3) — Verifica in produzione delle correzioni del 10/11
 - [x] Bilal Shazim ha verificato in produzione (Acme Corp · Senior Frontend Engineer) sei controlli: un verde per

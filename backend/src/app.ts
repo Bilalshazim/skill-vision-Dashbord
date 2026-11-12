@@ -100,7 +100,9 @@ export function createApp() {
     },
   })
   // I documenti di Recruiting hanno un limite loro (recruitingStore/routes.ts).
-  app.use((req, res, next) => (req.path.startsWith('/api/v1/recruiting-store') ? next() : jsonBody(req, res, next)))
+  // L'importazione dell'anagrafica manda tutte le persone insieme: un limite suo.
+  const importBody = express.json({ limit: '20mb' })
+  app.use((req, res, next) => (req.path.startsWith('/api/v1/recruiting-store') ? next() : req.path.endsWith('/employees/import') ? importBody(req, res, next) : jsonBody(req, res, next)))
 
   app.use('/health', healthRouter)
   app.use('/api/v1/auth', authRouter)

@@ -93,6 +93,37 @@ assessmentRouter.put('/companies/:companyId/employees/:clientId', requireRole(..
   }
 })
 
+// Importazione dell'anagrafica da Excel (Decisioni di Roberto del 2026-11-12): le persone nuove e
+// quelle da aggiornare, più le mansioni nuove che servono, in una sola transazione. O entrano tutte
+// o nessuna. La RAL la scrive solo chi la può vedere (amministratori): per gli altri resta quella
+// salvata. L'archivio non si tocca: chi non è nel file resta com'è.
+const employeeImportSchema = z.object({
+  employees: z.array(z.object({ clientId: clientIdSchema, data: employeeSchema })).min(1).max(5000),
+  roleProfiles: z.array(z.object({ roleName: z.string().trim().min(1).max(200), profile: roleProfileSchema })).max(500).default([]),
+})
+
+assessmentRouter.post('/companies/:companyId/employees/import', requireRole(...WRITE_ROLES), validateBody(employeeImportSchema), async (req, res, next) => {
+  try {
+    const company = await companyFor(req)
+    const body = req.body as z.infer<typeof employeeImportSchema>
+    const ral = canSeeRal(req)
+    await prisma.$transaction(
+      async (tx) => {
+        for (const r of body.roleProfiles) {
+          const data = roleProfileData(r.profile)
+          await tx.jobRoleProfile.upsert({ where: { companyId_roleName: { companyId: company.id, roleName: r.roleName } }, create: { companyId: company.id, roleName: r.roleName, ...data }, update: data })
+        }
+        for (const e of body.employees) await writeEmployee(tx, company.id, e.clientId, e.data, ral)
+      },
+      { timeout: 180_000, maxWait: 10_000 },
+    )
+    await log(req, 'assessment.employees.imported', 'Company', company.id)
+    res.json({ employees: body.employees.length, roleProfiles: body.roleProfiles.length })
+  } catch (err) {
+    next(err)
+  }
+})
+
 // ---------- periodi ----------
 
 assessmentRouter.put('/companies/:companyId/periods/:clientId', requireRole(...WRITE_ROLES), validateBody(periodSchema), async (req, res, next) => {
