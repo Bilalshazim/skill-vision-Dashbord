@@ -7,10 +7,12 @@ import { toast as sonnerToast } from 'sonner'
 import { useSharedLang } from '@/hooks/use-shared-lang'
 import { useTheme } from '@/hooks/use-theme'
 import { assessmentApi } from '@/lib/api/assessment'
+import { isDemoCompanyId } from '@/lib/demo-mode'
 import type { BackendCompany } from '@/lib/api/types'
 import type { AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import { getUI } from '@/modules/assessment/lib/legacy-utils'
 import { errorReason, fromServer, runSync, type Baseline } from '@/modules/assessment/lib/server-sync'
+import { fixDemoIdentity } from '@/modules/assessment/lib/demo-data'
 import { hydrate } from '@/modules/assessment/lib/storage'
 import type { AssessmentState } from '@/modules/assessment/lib/types'
 import { useAssessmentCompanies } from '@/modules/assessment/lib/use-assessment-company'
@@ -187,6 +189,18 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
     [canEdit, flush],
   )
   const persist = useCallback((next: AssessmentState) => setState(() => next), [setState])
+
+  // La correzione una tantum dei dati dimostrativi (Section A del 12/11): solo sulla società
+  // demo, solo per chi può scrivere, una volta per società e sessione. Cambia sesso ed email
+  // venuti dai dati demo e il nome nell'Intervista; se non c'è niente da cambiare non scrive.
+  const demoFixed = useRef(new Set<string>())
+  useEffect(() => {
+    const c = org.company
+    if (!c || loadedFor !== c.id || !canEdit || !isDemoCompanyId(c.id) || demoFixed.current.has(c.id)) return
+    demoFixed.current.add(c.id)
+    const fixed = fixDemoIdentity(stateRef.current, c.name)
+    if (fixed) setState(() => fixed)
+  }, [loadedFor, org.company, canEdit, setState])
 
   // Tornando sulla scheda si rilegge il server: un valutatore esterno o un
   // collega può aver salvato nel frattempo, e salvare un dipendente sopra una

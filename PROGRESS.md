@@ -190,6 +190,12 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-12 — Decisioni di Roberto del 2026-11-12 (Analisi predittiva) e Section A
+- [x] **Passo 1 · Dati demo di Acme**: il generatore usa «Acme Corp» e `@acme.example`, il sesso segue il nome
+      (stessa sequenza casuale: popolazione invariata). Correzione una tantum sui dati già salvati, solo sulla società
+      demo e solo per chi scrive, senza seed (`fixDemoIdentity`). In locale: sesso sbagliato 17 → 0 sui 24 nomi
+      demo (2 record di prova fuori elenco non toccati), email `@democompany.com` 25 → 0, Intervista «Acme Corp».
+
 ## 2026-11-11 (3) — Verifica in produzione delle correzioni del 10/11
 - [x] Bilal Shazim ha verificato in produzione (Acme Corp · Senior Frontend Engineer) sei controlli: un verde per
       sezione, «Perché è importante», Gap medio, Panoramica senza «lunedì», domande saltate dell'Intervista, Anagrafica

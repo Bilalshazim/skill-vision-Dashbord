@@ -15,6 +15,19 @@ import type { AssessmentState, Employee, ExiData } from '@/modules/assessment/li
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v))
 
 const DEMO_NOMI = ['Marco', 'Giulia', 'Alessandro', 'Francesca', 'Andrea', 'Chiara', 'Matteo', 'Sara', 'Davide', 'Elena', 'Luca', 'Valentina', 'Simone', 'Martina', 'Federico', 'Alessia', 'Riccardo', 'Silvia', 'Giovanni', 'Laura', 'Stefano', 'Elisa', 'Nicola', 'Federica', 'Antonio', 'Ilaria']
+// I nomi femminili dell'elenco: il sesso dei dati dimostrativi segue il nome (Section A del
+// 12/11: prima era a caso, e «Antonio Bianchi» poteva risultare Femminile). Andrea, Luca e
+// Nicola sono maschili.
+const DEMO_FEMALE = new Set(['Giulia', 'Francesca', 'Chiara', 'Sara', 'Elena', 'Valentina', 'Martina', 'Alessia', 'Silvia', 'Laura', 'Elisa', 'Federica', 'Ilaria'])
+/** Il sesso di un nome dell'elenco dei dati dimostrativi; `null` per un nome che non è nell'elenco. */
+export function demoGenderOf(nome: string): 'F' | 'M' | null {
+  return DEMO_NOMI.includes(nome) ? (DEMO_FEMALE.has(nome) ? 'F' : 'M') : null
+}
+/** Il nome della società demo e il dominio delle email, gli stessi di Recruiting. */
+export const DEMO_COMPANY_NAME = 'Acme Corp'
+const DEMO_DOMAIN = '@acme.example'
+const OLD_DEMO_DOMAIN = '@democompany.com'
+const OLD_DEMO_NAME = 'Demo Company S.r.l.'
 const DEMO_COGNOMI = ['Bianchi', 'Ferrari', 'Russo', 'Colombo', 'Ricci', 'Marino', 'Greco', 'Bruno', 'Gallo', 'Conti', 'De Luca', 'Costa', 'Fontana', 'Rinaldi', 'Moretti', 'Rizzo', 'Barbieri', 'Villa', 'Longo', 'Mancini', 'Grasso', 'Pellegrini', 'Leone', 'Rossi', 'Romano', 'Ferrara']
 
 export const ROLE_FOCUS_SKILLS: Record<string, string[]> = {
@@ -152,7 +165,7 @@ info@skill-vision.it · www.skill-vision.it`
 export function exiDefaultData(): ExiData {
   return {
     completed: true,
-    azienda: 'Demo Company S.r.l.',
+    azienda: DEMO_COMPANY_NAME,
     settore: 'Servizi professionali',
     intervistato: 'Marco Bianchi',
     ruolo: 0,
@@ -252,18 +265,21 @@ export function generateDemoData(): AssessmentState {
         const ral = Math.round((ralBase + rnd() * 20000) / 500) * 500
         const assenzeProgrammate = rnd() < 0.2 ? [{ dal: '2026-08-10', al: '2026-08-24', category: 'ferie' as const }] : []
         const tRand = rnd()
+        // Prima il sesso era un'estrazione a caso: l'estrazione resta (stessa sequenza, stessa
+        // popolazione demo), il sesso segue il nome.
+        void rnd()
         const emp: Employee = {
           id: uid('emp'),
           nome,
           cognome,
-          email: (nome + '.' + cognome).toLowerCase().replace(/\s+/g, '') + '@democompany.com',
+          email: (nome + '.' + cognome).toLowerCase().replace(/\s+/g, '') + DEMO_DOMAIN,
           area: areaCfg.area,
           reparto: '',
           ruolo: role,
           mansione: 'Attività operative e di supporto per ' + role.toLowerCase(),
           tipoProfilo: 'Employee',
           tipoContratto: tRand < 0.84 ? 'dipendente' : tRand < 0.9 ? 'cocopro' : tRand < 0.96 ? 'partitaIva' : 'esterno',
-          sesso: rnd() < 0.5 ? 'F' : 'M',
+          sesso: demoGenderOf(nome) ?? 'M',
           livelloCcnl: CCNL_LEVELS_DEMO[Math.floor(rnd() * CCNL_LEVELS_DEMO.length)],
           ral,
           benefit: BENEFIT_OPTIONS_DEMO[Math.floor(rnd() * BENEFIT_OPTIONS_DEMO.length)],
@@ -291,7 +307,7 @@ export function generateDemoData(): AssessmentState {
   return {
     settings: {
       modulo: 'AB',
-      companyName: 'Demo Company S.r.l.',
+      companyName: DEMO_COMPANY_NAME,
       testsAcquired: 50,
       testsDispatched: 32,
       surveyLink: '',
@@ -311,10 +327,50 @@ export function generateDemoData(): AssessmentState {
     analisiIniziale: exiDefaultData(),
     company: {
       locations: [{ name: 'Sede Centrale', address: 'Via Roma 12', city: 'Milano' }],
-      contacts: [{ label: 'Risorse Umane', name: 'Laura Moretti', email: 'hr@democompany.com', phone: '+39 02 1234567' }],
-      referente: { name: 'Laura Moretti', email: 'hr@democompany.com', phone: '+39 02 1234567' },
-      ceo: { name: 'Alberto Colombo', email: 'ceo@democompany.com' },
-      cfo: { name: 'Sara Ricci', email: 'cfo@democompany.com' },
+      contacts: [{ label: 'Risorse Umane', name: 'Laura Moretti', email: 'hr' + DEMO_DOMAIN, phone: '+39 02 1234567' }],
+      referente: { name: 'Laura Moretti', email: 'hr' + DEMO_DOMAIN, phone: '+39 02 1234567' },
+      ceo: { name: 'Alberto Colombo', email: 'ceo' + DEMO_DOMAIN },
+      cfo: { name: 'Sara Ricci', email: 'cfo' + DEMO_DOMAIN },
     },
   }
+}
+
+/**
+ * La correzione una tantum dei dati dimostrativi già salvati (Section A del 12/11): niente seed,
+ * si cambiano solo i valori venuti dai dati demo. Il sesso di chi ha un nome dell'elenco, il
+ * dominio `@democompany.com` → `@acme.example` nelle email delle persone e dei contatti, e
+ * «Demo Company S.r.l.» → il nome della società nell'Intervista. Punteggi, RAL, valutazioni e
+ * tutto il resto non si toccano. `null` se non c'è niente da correggere: la seconda volta
+ * non fa niente. Chi chiama la usa solo sulla società demo.
+ */
+export function fixDemoIdentity(state: AssessmentState, companyName: string): AssessmentState | null {
+  let changed = false
+  const mail = (v: string | undefined) => {
+    if (!v || !v.toLowerCase().endsWith(OLD_DEMO_DOMAIN)) return v
+    changed = true
+    return v.slice(0, -OLD_DEMO_DOMAIN.length) + DEMO_DOMAIN
+  }
+  const employees = state.employees.map((e) => {
+    const sesso = demoGenderOf(e.nome)
+    const email = mail(e.email)
+    if ((sesso && e.sesso !== sesso) || email !== e.email) {
+      changed = true
+      return { ...e, sesso: sesso ?? e.sesso, email: email ?? e.email }
+    }
+    return e
+  })
+  const c = state.company
+  const company = {
+    ...c,
+    contacts: c.contacts.map((x) => ({ ...x, email: mail(x.email) ?? '' })),
+    referente: { ...c.referente, email: mail(c.referente.email) ?? '' },
+    ceo: { ...c.ceo, email: mail(c.ceo.email) ?? '' },
+    cfo: { ...c.cfo, email: mail(c.cfo.email) ?? '' },
+  }
+  let analisiIniziale = state.analisiIniziale
+  if (analisiIniziale?.azienda === OLD_DEMO_NAME && companyName) {
+    changed = true
+    analisiIniziale = { ...analisiIniziale, azienda: companyName }
+  }
+  return changed ? { ...state, employees, company, analisiIniziale } : null
 }

@@ -37,6 +37,13 @@ Il divario vero è sotto:
 | Lingua | solo italiano | IT/EN completo |
 | Dati | localStorage + backend reale | solo localStorage |
 
+> **Aggiornato il 2026-11-12** (resoconto di Bilal del 10/11): le persone
+> dell'Anagrafica di Assessment stanno sul server, una riga per persona; il
+> browser serve solo a portare sul server, una volta, i dati vecchi. Dove più
+> sotto si legge che Assessment «salva nel browser», per l'Anagrafica non vale
+> più. Per il resto vale il codice: se trovi altre parti già sul server,
+> scrivilo nel resoconto.
+
 **L'obiettivo è una dashboard fatta a componenti: modulare e scalabile.**
 Ogni schermata si compone da una libreria unica — primitive shadcn, pattern
 condivisi, componenti di dominio — e nessuna pagina porta stile proprio. Il
@@ -671,7 +678,9 @@ tre livelli, sempre nello stesso ordine:
 i moduli si acquistano separati. In demo si passa dall'una all'altra con il
 selettore in alto.
 
-1. **Home di Assessment** — prima voce del menu («Home»). Titolo «Quello che
+1. **Home di Assessment** — prima voce del menu («Home»; *dal 2026-11-12 la
+   prima voce è «Analisi predittiva» e Home è la seconda: vedi «Decisioni di
+   Roberto del 2026-11-12»*). Titolo «Quello che
    devi sapere» e quattro finestre in griglia 2×2, ognuna con numero, titolo,
    sottotitolo e domanda, **nessun numero e nessun grafico**:
    - 01 **Il valore** · il divario tra retribuzione e rendimento · Quanto mi
@@ -1123,7 +1132,9 @@ Come deve essere:
    disponibile" sparisce: basta l'aggiornamento automatico (cap. 7, 2026-10-02).
 
 Il menu di Assessment: **Home** (prima voce, le quattro finestre),
-**Panoramica** (seconda voce, Sintesi e Dettaglio), poi come oggi.
+**Panoramica** (seconda voce, Sintesi e Dettaglio), poi come oggi. (*Dal
+2026-11-12 la prima voce è il gruppo «Analisi predittiva»: vedi «Decisioni di
+Roberto del 2026-11-12».*)
 
 **Le pagine dei risultati nel menu** — deciso il 2026-11-02, dopo la verifica
 in produzione: aperta una pagina dei risultati, nel menu non era attiva
@@ -1209,7 +1220,9 @@ rilascio del 30 ottobre è rimasto solo nella Panoramica; Roberto l'ha visto
 sparire e non l'aveva chiesto. Torna **dov'era prima del rilascio** (stessa
 posizione, stesso comportamento: lo ritrovi nella cronologia del repository) e
 vale per **tutto Assessment**, home e pagine dei risultati comprese, **tranne
-l'Intervista** (Roberto, 2026-11-09). La scelta
+l'Intervista** (Roberto, 2026-11-09; *dal 2026-11-12 l'Intervista torna com'era
+prima del 7/11, con quello che aveva allora: vedi «Decisioni di Roberto del
+2026-11-12»*). La scelta
 resta mentre si naviga. Se il cliente ha acquistato un solo pacchetto, il
 selettore mostra solo quello.
 
@@ -1219,10 +1232,13 @@ solo modulo di calcolo, usato da tutti e due, così una formula corretta vale
 ovunque. Il documento «Formule % in €» non è la fonte.
 
 - **Dati in ingresso**: voci del bilancio dal file di Credit Save, caricato una
-  volta in **Dati aziendali** (dal 2026-11-06 prima sezione dell'Intervista); dipendenti e
+  volta in **Dati aziendali** (dal 2026-11-06 prima sezione dell'Intervista;
+  *dal 2026-11-12 di nuovo una pagina sua, sotto «Analisi predittiva»*); dipendenti e
   persone valutate da Anagrafica e valutazioni; valore delle competenze,
   divario dall'atteso e copertura dei ruoli dai risultati dell'assessment;
-  compenso, turnover e assenze inseriti a mano nella stessa pagina.
+  compenso, turnover e assenze inseriti a mano nella stessa pagina (*dal
+  2026-11-12 escono dalla pagina, i dati salvati restano: vedi «Decisioni di
+  Roberto del 2026-11-12»*).
 - **Il periodo del bilancio**: se l'esercizio non dura 12 mesi (cambio di
   data di chiusura), il calcolo lo segnala e riporta i valori all'anno. Mai un
   periodo parziale usato come annuo.
@@ -1353,8 +1369,8 @@ Valgono sopra quanto scritto prima in questa fase, dove non coincidono. Le parti
 
 **Altre pagine di Assessment**
 
-- **Intervista**: si passa da una domanda all'altra senza dover rispondere alla precedente. Le domande senza risposta restano segnate come tali nel riepilogo. (*Il 2026-11-09 esteso alle sottodomande, con punteggio e impaginazione nuovi: vedi «Decisioni del 2026-11-09».*)
-- **Dati aziendali** diventano la prima sezione dell'Intervista, prima delle domande. La voce «Dati aziendali» esce dal menu; i link «Vai a Dati aziendali» portano a quella sezione. Il caricamento del bilancio e i campi a mano non cambiano.
+- **Intervista**: si passa da una domanda all'altra senza dover rispondere alla precedente. Le domande senza risposta restano segnate come tali nel riepilogo. (*Il 2026-11-09 esteso alle sottodomande, con punteggio e impaginazione nuovi: vedi «Decisioni del 2026-11-09». Dal 2026-11-12 l'impaginazione torna com'era prima del 7/11: vedi «Decisioni di Roberto del 2026-11-12».*)
+- **Dati aziendali** diventano la prima sezione dell'Intervista, prima delle domande. La voce «Dati aziendali» esce dal menu; i link «Vai a Dati aziendali» portano a quella sezione. Il caricamento del bilancio e i campi a mano non cambiano. (*Superato il 2026-11-12: Dati aziendali torna una pagina sua, con campi nuovi; vedi «Decisioni di Roberto del 2026-11-12».*)
 - **Panoramica**: oggi resta su «Caricamento dei dati di Assessment…» per circa 5 secondi. Va ridotto; se un blocco è lento, gli altri compaiono subito. Gli euro dicono «In attesa dei dati di bilancio», come nelle altre pagine, non «In attesa della formula».
 
 **Grafici aggregati (regola generale)**
@@ -1399,7 +1415,7 @@ Valgono sopra le «Decisioni del 2026-11-06» dove non coincidono. Disegno: tela
 - **L'impatto, in tutte le pagine dei risultati: ogni percentuale ha la sua forma.** Una quota va in un **Ring** con il numero in `centerValue` («30% delle persone è sotto la norma»), come dice la regola «Un numero che ha una forma la mostra». Niente percentuali scritte da sole.
 - **L'impatto ha tre card in fila**: il dato della pagina in un Ring (lime, il numero della sezione); il «Valore espresso rispetto al ruolo» come **barra orizzontale** su scala 0–120% con l'atteso 100% tratteggiato, in inchiostro, con «−27% dall'atteso»; la card degli euro con gli scenari prudenziale · base · espansivo, «Gli importi non si sommano» e «Come è calcolato». Nel Potenziale il dato della pagina è una fila di pallini (4 su 23), per non ripetere il Ring della sezione 1.
 - **2 Criticità e opportunità: ogni riquadro ha un mini grafico.** Sotto il nome, una barra sulla sua scala (1–10 o 0–120%) con l'atteso tratteggiato e il valore scritto; nei riquadri con le persone, una riga per persona con la sua barra; per i conteggi, una fila di pallini o un Ring piccolo. In inchiostro, mai lime. (*Superato il 2026-11-10: verde il mini grafico del primo riquadro, con il verde del fondo; vedi «Correzioni di Roberto del 2026-11-10».*)
-- **Gli euro nella demo.** Per la società demo (Acme, solo l'account demo) si carica un **bilancio dimostrativo** in Dati aziendali, con lo stesso meccanismo degli altri dati demo e mai con il seed in produzione. Così il motore ROI calcola gli euro e L'impatto li mostra con gli scenari e «Come è calcolato». La pagina dice «Dati dimostrativi». Le società vere continuano a mostrare «In attesa dei dati di bilancio» finché il loro bilancio non è caricato.
+- **Gli euro nella demo.** Per la società demo (Acme, solo l'account demo) si carica un **bilancio dimostrativo** in Dati aziendali, con lo stesso meccanismo degli altri dati demo e mai con il seed in produzione. Così il motore ROI calcola gli euro e L'impatto li mostra con gli scenari e «Come è calcolato». La pagina dice «Dati dimostrativi». Le società vere continuano a mostrare «In attesa dei dati di bilancio» finché il loro bilancio non è caricato. (*Il 2026-11-12 in produzione, con l'account di Alessio su Acme, il bilancio non c'era: vedi «Decisioni di Roberto del 2026-11-12», «Il bilancio».*)
 
 #### Decisioni del 2026-11-09 (Roberto, risposta scritta)
 
@@ -1418,10 +1434,15 @@ Valgono sopra le «Correzioni di design del 2026-11-09» e le «Decisioni del 20
 
 **Intervista** (`/assessment/analisi`)
 
+> *Superato il 2026-11-12 per impaginazione, caselle e «Fase successiva»:
+> l'Intervista torna com'era prima del 7/11. Restano solo il salto delle
+> domande e delle sottodomande e il punteggio sulle sole risposte date. Vedi
+> «Decisioni di Roberto del 2026-11-12».*
+
 - **Si va avanti anche senza rispondere alle sottodomande.** Prima del 7/11 non si passava alla domanda successiva se una sottodomanda era vuota: ogni domanda e ogni sottodomanda si può saltare.
 - **Le risposte mancanti non contano nel punteggio.** Una domanda conta se ha almeno una sottodomanda con risposta, e si calcola solo sulle sottodomande con risposta. Sotto il punteggio: «Calcolato su [6] domande su [7]». Con tutte le risposte la riga non c'è.
 - **Impaginazione**: «Nuova intervista» e «Modifica risposte» in alto a destra, nelle azioni del `PageHeader`. «Stampa / PDF» e «Salva» in fondo alla pagina, Salva primario. Via le caselle CT · CP · CT+CP: il selettore CT / CP / Completo non compare nell'Intervista. Via il blocco «Fase successiva · Misurazione oggettiva».
-- **Il bilancio**: Dati aziendali resta la prima sezione dell'Intervista (2026-11-06), visibile anche nella vista del riepilogo, in cima, con lo stato («Bilancio caricato il [data]» oppure «Carica il bilancio»). Accetta lo stesso file del motore ROI (Credit Save) e si carica nello stesso modo: nessun formato diverso. (*Il 2026-11-10: il caricamento sta dentro l'Intervista, non in un'altra pagina; vedi «Correzioni di Roberto del 2026-11-10».*)
+- **Il bilancio**: Dati aziendali resta la prima sezione dell'Intervista (2026-11-06), visibile anche nella vista del riepilogo, in cima, con lo stato («Bilancio caricato il [data]» oppure «Carica il bilancio»). Accetta lo stesso file del motore ROI (Credit Save) e si carica nello stesso modo: nessun formato diverso. (*Il 2026-11-10: il caricamento sta dentro l'Intervista, non in un'altra pagina; vedi «Correzioni di Roberto del 2026-11-10». Dal 2026-11-12 sta in Dati aziendali, pagina sua.*)
 
 **Recruiting**
 
@@ -1488,13 +1509,16 @@ Roberto: manca «il valore del gap mancante a raggiungere il valore atteso», un
 
 **Anagrafica**
 
-- **Nel menu**: subito sotto Intervista, prima di Area valutazioni, allo stesso livello. Intervista e Anagrafica stanno vicine perché raccolgono i dati dell'azienda.
-- **Importazione da Excel: da stimare, non da costruire.** Roberto la vuole; prima di costruirla servono fattibilità e ore, come per i CV. Cosa deve fare:
+- **Nel menu**: subito sotto Intervista, prima di Area valutazioni, allo stesso livello. Intervista e Anagrafica stanno vicine perché raccolgono i dati dell'azienda. (*Dal 2026-11-12 Anagrafica sta nel gruppo «Analisi predittiva»: vedi «Decisioni di Roberto del 2026-11-12».*)
+- **Importazione da Excel: da stimare, non da costruire.** (*Superato il 2026-11-12: approvata, da costruire, con il modello di Roberto; vedi «Decisioni di Roberto del 2026-11-12».*) Roberto la vuole; prima di costruirla servono fattibilità e ore, come per i CV. Cosa deve fare:
   - «Scarica il modello»: un file .xlsx generato dalla piattaforma dai campi dell'Anagrafica (una colonna per campo, nomi in italiano, un foglio di istruzioni con formato e obbligatorietà di ogni campo), così il modello non diverge dalla pagina;
   - «Carica file»: prima di salvare, un'anteprima con quante persone entrano e gli errori riga per riga (riga, campo, problema); niente salvataggio parziale senza dirlo;
-  - nel resoconto: che cosa esiste già (un import CSV?); le persone già presenti si aggiornano o si aggiungono, e con quale chiave; dove finiscono i dati importati, visto che Assessment oggi salva nel browser; le ore.
+  - nel resoconto: che cosa esiste già (un import CSV?); le persone già presenti si aggiornano o si aggiungono, e con quale chiave; dove finiscono i dati importati, visto che Assessment oggi salva nel browser (*risposta del 10/11: le persone sono sul server*); le ore.
 
 **Intervista · il bilancio**
+
+> *Superato il 2026-11-12: il bilancio sta in Dati aziendali, che torna una
+> pagina sua. Vedi «Decisioni di Roberto del 2026-11-12».*
 
 - **Il caricamento sta dentro l'Intervista.** È deciso dal 6/11 e dal 9/11: Dati aziendali è la prima sezione dell'Intervista e lì si carica il file del motore ROI (Credit Save). Il resoconto del 9/11 parla di uno stato del bilancio con «Vai al bilancio», e Roberto non trova dove caricarlo: se il caricamento oggi sta in un'altra pagina, va portato nell'Intervista. Stato, data, nome del file e il pulsante per caricarlo o sostituirlo stanno nella sezione stessa. Nel resoconto, conferma che accetta il file Credit Save del motore ROI.
 - **[In attesa di Roberto]** proposta: per le società vere, senza bilancio caricato **la card degli euro non compare**, al posto di «€ [—] · In attesa dei dati di bilancio»; L'impatto mostra solo le percentuali. Nella demo resta il bilancio dimostrativo di Acme. Fino alla risposta non si tocca.
@@ -1502,10 +1526,76 @@ Roberto: manca «il valore del gap mancante a raggiungere il valore atteso», un
 **Recruiting**
 
 - **Antivirus: serve un motore.** Il controllo del 9/11 (tipo di file e firma EICAR) è un controllo di base. Roberto ha approvato l'antivirus: si collega un motore (ClamAV o un servizio) nel punto del codice già predisposto, prima che il modulo si accenda per una società vera. Con il motore spento o irraggiungibile il file si rifiuta, non passa.
-- **Big Five ideale per posizione: da stimare, non da costruire.** Oggi il calcolo usa sempre il profilo di «Sales Account Manager» (`roles-seed.json`), qualunque sia la posizione. La proposta a Roberto: impostarlo per posizione nella pagina Competenze trasversali, partendo da uno degli otto profili già pronti, con i cinque valori modificabili. Nel resoconto: le ore, e cosa cambia nei punteggi già calcolati.
+- **Big Five ideale per posizione: da stimare, non da costruire.** Oggi il calcolo usa sempre il profilo di «Sales Account Manager» (`roles-seed.json`), qualunque sia la posizione. La proposta a Roberto: impostarlo per posizione nella pagina Competenze trasversali, partendo da uno degli otto profili già pronti, con i cinque valori modificabili. Nel resoconto: le ore, e cosa cambia nei punteggi già calcolati. (*Stima del 10/11: 18–27 ore. In attesa di Roberto.*)
 - **Peso, soglia e regola di blocco: in attesa di Roberto** (proposta: atteso obbligatorio, peso tolto, regola di blocco sul 60% dell'atteso scritto). Fino alla risposta non si toccano.
 
 **Area valutazioni**: Roberto la riprende più avanti. Non si tocca.
+
+#### Decisioni di Roberto del 2026-11-12 · Analisi predittiva
+
+Valgono sopra tutte le sezioni precedenti, dove non coincidono. Roberto comincia a reimpostare Assessment come l'ha in mente: questa è la prima parte, le altre arrivano dopo. Si prende quello che chiede, tradotto nell'identità.
+
+**Il menu: «Analisi predittiva» è la prima voce**
+
+- Prima voce del menu di Assessment, sopra Home: il gruppo **«Analisi predittiva»**, con sotto, in quest'ordine, **Dati aziendali · Intervista · Anagrafica**. Intervista e Anagrafica escono da dove sono oggi; Dati aziendali torna una voce sua.
+- Ordine del menu: Analisi predittiva · Home · Panoramica · Area valutazioni · il resto come oggi.
+- **Al passaggio del mouse si vedono le tre voci** (Roberto). Traduzione: il gruppo si apre al passaggio del mouse sul suo titolo, con un breve ritardo perché non si apra a ogni passaggio di sfuggita, e **resta aperto** (non si richiude quando il mouse esce, così le voci sotto non saltano). Si apre e si chiude anche con clic, tocco e Invio: telefono e tastiera non hanno il passaggio del mouse. È aperto quando la pagina attiva è una delle tre. Nessun movimento oltre l'apertura del gruppo della Sidebar.
+- Il titolo del gruppo non apre una pagina: apre le tre voci. Si scrive «Analisi predittiva», non in maiuscolo (regola 8).
+- L'ingresso di Assessment non cambia: `/assessment` apre la Home.
+
+**Dati aziendali: una pagina sua**
+
+- Torna una **pagina propria**, non più la prima sezione dell'Intervista. I link «Vai a Dati aziendali» (per esempio in L'impatto) portano qui.
+- **Escono dalla pagina**, com'erano in produzione il 12/11: Durata dell'esercizio, Compenso dell'assessment, Costo delle azioni di sviluppo, Turnover, Assenze, la riga «Atteso: 7,0 su 10» e il suo «Salva i dati»; il blocco «Totale dipendenti per tipologia»; le sezioni Sedi e Contatti come sono oggi (il loro contenuto passa nella finestra unica, sotto).
+- **Escono dalla pagina, non dai dati.** I valori già salvati restano, compresi quelli di Acme. Durata, compenso, costo delle azioni, turnover e assenze entrano nel calcolo degli euro: nel resoconto, per ognuno, quale calcolo del motore ROI lo usa e che cosa succede agli euro senza (la cifra sparisce, il calcolo usa un valore di base, cambia formula). Non si inventano valori sostitutivi. Roberto decide dopo dove raccoglierli, se servono.
+- **Una finestra sola, «Dati dell'azienda»**: una card, i campi in quest'ordine:
+  1. **Nome** (dell'azienda; non più «Nome sede»)
+  2. **Indirizzo**
+  3. **Città**
+  4. **Altre sedi**: elenco ripetibile, ogni riga Indirizzo · Città, con «Aggiungi sede» e il cestino; vuoto all'inizio
+  5. **Email**
+  6. **PEC**
+  7. **Telefono**
+  8. **Partita IVA**
+  9. **Codice ATECO**
+  10. **Numero dipendenti** (scritto a mano)
+  11. **Numero di persone che andranno in valutazione** (scritto a mano)
+
+  Etichette in `label-mono` (cap. 7). Due colonne sopra i 1024px, Altre sedi a tutta riga; una colonna su telefono. Un solo «Salva» per la finestra. Controlli leggeri, con l'errore scritto sotto il campo: email e PEC in formato email, partita IVA di 11 cifre, i due numeri interi da 0 in su. Obbligatorio solo il Nome.
+- **Un dato una volta sola.** Nome, sede e contatti della società esistono già sul server (ragione sociale, sede e contatto per l'informativa dei CV, in Amministrazione). Se sono gli stessi dati, la finestra legge e scrive quelli, non una seconda copia. Se legarli richiede la «fonte unica» della proposta D del 10/11 (in attesa di Roberto), scrivilo nel resoconto e non toccare il salvataggio.
+- **Ruoli chiave aziendali**: restano come sono, sotto la finestra.
+- **Il bilancio**: Roberto non ne parla. Resta in Dati aziendali, **in fondo alla pagina**, sotto Ruoli chiave, con stato, nome del file e il pulsante per caricarlo o sostituirlo (come B6 del 10/11), finché Roberto non dice altro. Il bilancio è della società, **sul server**: lo vede ogni account della società. Il 12/11, con l'account di Alessio su Acme, Dati aziendali diceva «Nessun bilancio caricato» e L'impatto «In attesa dei dati di bilancio»: il bilancio dimostrativo va caricato in produzione per Acme, senza il seed.
+
+**Intervista: com'era prima**
+
+- Roberto: «è cambiato tutto e non si capisce più niente; prima era molto meglio; avevo chiesto solo che non ci fosse l'obbligo delle risposte». L'Intervista torna **com'era prima del rilascio del 7/11** (il commit prima di `d900f5e`): impaginazione, testi, pulsanti e la loro posizione, caselle CT · CP · CT+CP, «Fase successiva», riepilogo. Si ripristina dalla cronologia del repository, non si ricostruisce a memoria. Nel resoconto: quale commit hai preso come riferimento.
+- Del lavoro successivo restano solo due cose:
+  - si passa alla domanda e alla sottodomanda successiva **senza rispondere**: nessun obbligo;
+  - le risposte mancanti **non contano nel punteggio**, e solo quando manca qualcosa, sotto il punteggio, «Calcolato su [N] domande su [M]».
+- Dati aziendali non è più nell'Intervista (sopra).
+- Il salvataggio non cambia: le interviste salvate si riaprono con le loro risposte.
+- Roberto la riprende più avanti («poi lo rivedremo»): nel frattempo non si migliora niente.
+
+**Anagrafica: importazione da Excel, da costruire**
+
+- Approvata da Roberto il 12/11, sulla stima del 10/11 (23–33 ore).
+- **Ultima cosa della pagina** Anagrafica: un riquadro «Importa l'anagrafica da Excel», con la zona di trascinamento del file, il pulsante «Carica file» e il link «Scarica il modello».
+- **Il modello è quello di Roberto**: un Excel vuoto già pronto, che lo studio dà al cliente. Arriva tramite Alessio; si mette nel progetto e «Scarica il modello» scarica quello: non si genera dai campi. La lettura del file segue le sue colonne. Se una colonna del modello non ha un campo in Anagrafica, o un campo obbligatorio dell'Anagrafica non ha la sua colonna, l'elenco va nel resoconto: non si aggiungono campi e non si modifica il modello da soli.
+- Se il modello non è ancora arrivato, si costruisce il resto sui campi dell'Anagrafica e la corrispondenza delle colonne per ultima.
+- **Comportamento** (la proposta del 10/11, presa così):
+  - anteprima prima di salvare: quante persone entrano, quante si aggiornano, gli errori riga per riga (riga, campo, problema);
+  - salvataggio sul server tutto insieme: o entrano tutte o nessuna;
+  - persone già presenti riconosciute per **email**; senza email, nome + cognome + mansione, segnalate nell'anteprima come «probabile doppione» e non aggiornate da sole;
+  - una persona trovata si aggiorna nei campi del file e tiene le valutazioni; una non trovata si aggiunge;
+  - chi non è nel file **non si archivia** (fuori dalla stima);
+  - la RAL la importano solo gli amministratori.
+- Stati: la zona vuota dice che file caricare; durante la lettura, lo stato di caricamento; ogni errore dice cosa è successo e cosa fare (cap. 8, «Testi»).
+
+**Antivirus dei CV**
+
+- Il motore è ClamAV, come servizio su Railway, con `CLAMAV_HOST` sul backend. `ANTIVIRUS_ALLOW_BASIC=true` è ammesso solo per la società demo e solo finché ClamAV non è attivo. Nessuna società vera passa senza motore.
+
+**In attesa di Roberto** (non toccare): Big Five ideale per posizione (stima 18–27 ore); una sola fonte per società e posizioni (proposta D del 10/11, 30–45 ore, quattro domande); la card degli euro senza bilancio; peso, soglia e regola di blocco delle Competenze trasversali; Area valutazioni.
 
 
 ### Fase 7 — Verifica
@@ -1896,6 +1986,14 @@ positivo», ma il valore letto a schermo o l'azione con il suo risultato
 saltata, ricaricata: risposte al loro posto, "Calcolato su 4 domande su 5"»).
 Dove serve, una schermata allegata. Ogni punto chiesto nel messaggio del giro
 compare nel resoconto, anche se la risposta è «non fatto».
+
+**Il valore si legge in produzione, non in locale** (2026-11-12). I valori
+misurati in locale non sostituiscono quelli letti in produzione, e «confermato»
+senza il valore non è una riga di verifica. Il 12/11, in produzione su Acme, il
+bilancio dimostrativo non c'era (L'impatto «In attesa dei dati di bilancio»)
+mentre il resoconto del 10/11 riportava € 578.249 misurato in locale; e l'Area
+tecnica era al 71% (−29%), non al 73% (−27%). Se il valore in produzione è
+diverso da quello in locale, si scrivono tutti e due e il motivo.
 
 ---
 

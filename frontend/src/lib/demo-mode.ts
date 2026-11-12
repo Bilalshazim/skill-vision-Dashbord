@@ -21,3 +21,16 @@ export function isOnDemoCompany(): boolean {
   const companyId = getBackendUser()?.companyId?.toLowerCase()
   return isDemoAccount() || (env.demoMode && !!companyId && env.demoCompanyIds.includes(companyId))
 }
+
+/**
+ * La società che si guarda è quella demo? Guarda la società aperta, non quella dell'account:
+ * lo staff (PLATFORM_ADMIN) non ha una società sua e su Acme `isOnDemoCompany()` è falso
+ * (il 12/11, con l'account di Alessio, il bilancio dimostrativo non si caricava per questo).
+ * Mai vero per una società non elencata in `VITE_DEMO_COMPANY_IDS`, salvo l'account demo sulla sua.
+ */
+export function isDemoCompanyId(companyId: string | null | undefined): boolean {
+  if (!companyId || !env.demoMode) return false
+  const id = companyId.toLowerCase()
+  if (env.demoCompanyIds.includes(id)) return true
+  return isDemoAccount() && getBackendUser()?.companyId?.toLowerCase() === id
+}
