@@ -195,6 +195,10 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
       (stessa sequenza casuale: popolazione invariata). Correzione una tantum sui dati già salvati, solo sulla società
       demo e solo per chi scrive, senza seed (`fixDemoIdentity`). In locale: sesso sbagliato 17 → 0 sui 24 nomi
       demo (2 record di prova fuori elenco non toccati), email `@democompany.com` 25 → 0, Intervista «Acme Corp».
+- [x] **Passo 2 · Bilancio anche per lo staff**: il bilancio dimostrativo si carica guardando la società aperta
+      (`isDemoCompanyId`), non quella dell'account. Causa del 12/11: l'account di Alessio (staff) non ha una società
+      sua. In locale con `admin@skill-vision.it` su Acme a bilancio vuoto: ricaricato da solo sul server (12 voci),
+      Il valore € 578.249. È della società: lo vede ogni account di Acme.
 
 ## 2026-11-11 (3) — Verifica in produzione delle correzioni del 10/11
 - [x] Bilal Shazim ha verificato in produzione (Acme Corp · Senior Frontend Engineer) sei controlli: un verde per

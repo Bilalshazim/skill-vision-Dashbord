@@ -5,7 +5,7 @@ import { assessmentApi, type RoiData } from '@/lib/api/assessment'
 import { annualize, blockingProblems } from '@/lib/roi/checks'
 import { model, type RoiModel, type RoiState } from '@/lib/roi/model'
 import { SCEN, scenOverrides } from '@/lib/roi/scenarios'
-import { isOnDemoCompany } from '@/lib/demo-mode'
+import { isDemoCompanyId } from '@/lib/demo-mode'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { activeEmployees, evaluatedEmployees, homeStats, roleCoveragePct } from '@/modules/assessment/lib/calculations'
 import { demoRoiData } from '@/modules/assessment/lib/demo-roi'
@@ -109,10 +109,11 @@ export function useRoi() {
 
   // Gli euro nella demo (correzioni del 2026-11-09): sulla società demo, se il bilancio
   // non c'è, si carica quello dimostrativo, come gli altri dati demo. Solo chi può
-  // modificare; le società vere restano «In attesa dei dati di bilancio».
+  // modificare; le società vere restano «In attesa dei dati di bilancio». Conta la società aperta,
+  // non quella dell'account: lo staff non ne ha una sua (il 12/11 su Acme non si caricava).
   const statementMissing = !!q.data && !Object.keys(q.data.data?.statement ?? {}).length
   useEffect(() => {
-    if (!statementMissing || !companyId || !canEdit || !isOnDemoCompany() || demoStatementRequested.has(companyId)) return
+    if (!statementMissing || !companyId || !canEdit || !isDemoCompanyId(companyId) || demoStatementRequested.has(companyId)) return
     demoStatementRequested.add(companyId)
     save.mutate(demoRoiData(ui.res.roiDemoFile))
   }, [statementMissing, companyId, canEdit, save, ui])
