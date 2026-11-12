@@ -199,6 +199,11 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
       (`isDemoCompanyId`), non quella dell'account. Causa del 12/11: l'account di Alessio (staff) non ha una società
       sua. In locale con `admin@skill-vision.it` su Acme a bilancio vuoto: ricaricato da solo sul server (12 voci),
       Il valore € 578.249. È della società: lo vede ogni account di Acme.
+- [x] **Passo 3 · Menu «Analisi predittiva»**: prima voce, con Dati aziendali · Intervista · Anagrafica; poi Home,
+      Panoramica, Area valutazioni. In locale: `/assessment` apre la Home; al passaggio del mouse si apre dopo 397 ms e
+      resta aperto uscendo; clic chiude, Invio riapre; aperto con Anagrafica attiva; percorso «Home / Analisi
+      predittiva / Anagrafica»; a 390px il tocco apre il gruppo e il pannello resta aperto. Titolo non in maiuscolo.
+      Un passaggio più breve del ritardo non si riproduce con l'automazione (ogni movimento dura circa un secondo).
 
 ## 2026-11-11 (3) — Verifica in produzione delle correzioni del 10/11
 - [x] Bilal Shazim ha verificato in produzione (Acme Corp · Senior Frontend Engineer) sei controlli: un verde per

@@ -48,7 +48,9 @@ export function getNavConfig(lang: AssessmentLang) {
 export function getPageTrail(lang: AssessmentLang, pageId: string): { items: { label: string; to: string }[]; current: string } | null {
   if (pageId === 'home') return null
   const nav = getNavConfig(lang)
-  const home = { label: nav[0].label, to: '/assessment/home' }
+  // La Home non è più la prima voce (Analisi predittiva, 2026-11-12): si cerca il suo gruppo.
+  const homeEntry = nav.find((e) => e.type === 'group' && e.homeId === 'home')
+  const home = { label: homeEntry?.label ?? 'Home', to: '/assessment/home' }
   for (const e of nav) {
     if (e.type === 'link' && e.id === pageId) return { items: [home], current: e.label }
     if (e.type === 'group') {

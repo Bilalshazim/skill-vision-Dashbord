@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeftRight, Brain, ChevronDown, ClipboardList, Coins, FileText, Home, LayoutDashboard, type LucideIcon, MessageSquareText, RotateCcw, Sparkles, Upload, Users, Wrench } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { ArrowLeftRight, Brain, ChevronDown, ClipboardList, Coins, FileText, Home, LayoutDashboard, type LucideIcon, MessageSquareText, RotateCcw, Sparkles, Telescope, Upload, Users, Wrench } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 
 import { CompanySwitcher } from '@/components/patterns/CompanySwitcher'
@@ -39,7 +39,12 @@ const ICONS: Record<string, LucideIcon> = {
   feedback: MessageSquareText,
   ai: Sparkles,
   transfer: ArrowLeftRight,
+  predict: Telescope,
 }
+
+// Il ritardo dell'apertura al passaggio del mouse (Analisi predittiva): un passaggio di
+// sfuggita non apre il gruppo.
+const HOVER_OPEN_MS = 350
 const iconFor = (name?: string) => (name && ICONS[name]) || ClipboardList
 
 // Il contenuto della barra laterale di Assessment nel guscio unico. Stesse
@@ -62,6 +67,15 @@ export function AssessmentNav() {
   // vedono subito sotto (richiesta del cliente, 2026-10-13). Si possono chiudere.
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ home: true, valutazioni: true, risultati: true })
   const [showMethodology, setShowMethodology] = useState(false)
+  // Il gruppo che si apre al passaggio del mouse: aperto resta aperto (non si richiude quando
+  // il mouse esce, così le voci sotto non saltano); si chiude con clic, tocco o Invio.
+  const hoverTimer = useRef<number | undefined>(undefined)
+  useEffect(() => () => window.clearTimeout(hoverTimer.current), [])
+  const hoverOpen = (groupId: string) => {
+    window.clearTimeout(hoverTimer.current)
+    hoverTimer.current = window.setTimeout(() => setOpenGroups((p) => (p[groupId] ? p : { ...p, [groupId]: true })), HOVER_OPEN_MS)
+  }
+  const hoverCancel = () => window.clearTimeout(hoverTimer.current)
   const demo = isDemoMode()
   const nav = getNavConfig(lang)
   const flags = { A: state.settings.modulo === 'A' || state.settings.modulo === 'AB', B: state.settings.modulo === 'B' || state.settings.modulo === 'AB' }
@@ -187,7 +201,17 @@ export function AssessmentNav() {
               )}
             </>
           ) : (
-            <SidebarMenuButton type="button" aria-expanded={isOpen} onClick={toggle}>
+            <SidebarMenuButton
+              type="button"
+              aria-expanded={isOpen}
+              onClick={() => {
+                hoverCancel()
+                // Con la pagina attiva dentro il gruppo resta aperto: c'è la voce accesa.
+                if (!containsActive) toggle()
+              }}
+              onMouseEnter={entry.hoverOpen ? () => hoverOpen(entry.groupId) : undefined}
+              onMouseLeave={entry.hoverOpen ? hoverCancel : undefined}
+            >
               <Icon aria-hidden="true" />
               <span className="min-w-0 flex-1">{entry.label}</span>
             </SidebarMenuButton>
