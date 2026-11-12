@@ -230,6 +230,9 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 - [x] **Passo 7 · Antivirus**: nessun codice nuovo (il motore è collegato dal 10/11). Istruzioni per ClamAV su Railway
       in DECISIONI («ClamAV su Railway: le istruzioni»); non provate, serve l'accesso a Railway. In attesa:
       `ANTIVIRUS_ALLOW_BASIC=true` solo per la demo.
+- [x] Pubblicato fino a `a8d4a70`. In produzione, senza accesso: frontend con il bundle nuovo `index-CImx9Mhg.js`
+      (contiene «Analisi predittiva»), backend health 200. Che il backend nuovo e la migrazione `details` siano attivi
+      non si vede senza accesso (ogni indirizzo di Assessment risponde 401): lo conferma Dati aziendali che salva.
 - [ ] Da fare dopo la prova in produzione di Bilal: `resoconto-2026-11-12.md` con i valori letti in produzione.
 
 ## 2026-11-11 (3) — Verifica in produzione delle correzioni del 10/11
