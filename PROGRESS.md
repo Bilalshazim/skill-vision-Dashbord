@@ -190,6 +190,42 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-16 — «Spero siano gli ultimi ritocchi» (Roberto, 16/11)
+- [x] **Dati aziendali**: etichette di Roberto, «% Turnover attuale», «% assenteismo + malattia attuale», «Valore del
+      contratto €». Salvataggio, campi e impaginazione restano quelli di `577cb03`. Il salvataggio in produzione
+      con l'account di Roberto resta da provare (Bilal).
+- [x] **Testi**: «Quanto rende realmente ogni persona in forza?» al posto di «Quanto mi rendono davvero le persone che
+      pago?» (una sola fonte: la finestra 01, usata dalla Home e dalla pagina); «Perché è importante» di Il valore con
+      il testo di Roberto.
+- [x] **Il valore**: «Vedi per competenze» al posto di «Vedi per mansione»: il valore espresso per competenza
+      (`skillValues`, stessa formula, trasversali del ruolo + le cinque dimensioni 5P con l'atteso 7), dalla più
+      lontana. In locale: Delega 50%, Strategia 56%, Pensiero analitico 56%… L'impatto = leve 1 + 2 + 3 del motore
+      (produttività, turnover evitato, assenteismo ridotto): in locale € 220.012 (€ 202.387 + € 17.625), prudenziale
+      € 128.160, espansivo € 300.299. «Criticità e opportunità» tolta.
+- [x] **Le perdite invisibili**: sei riquadri (i suoi tre e i tre di Il valore, su due righe); in L'impatto tolta la
+      card «Valore espresso rispetto al ruolo»; la card della percentuale si intitola «% delle persone da potenziare»
+      e dice «delle persone valutate è da potenziare: nelle fasce Da potenziare e Critici» (28% in locale); euro = solo
+      il potenziale lordo del divario (`gapVal`), senza turnover e assenze: in locale € 578.249.
+- [x] **Il potenziale** e **Dove intervenire**: tolta la card «Valore espresso rispetto al ruolo». Gli scenari, in
+      tutte le pagine dei risultati, in tre riquadri; Base con la cifra più grande e il bordo di 2px `ring`
+      (accent-600, leggibile anche in chiaro).
+- [x] **Menu, nuovo indice**: Home (4 pagine) · Panoramica · Predictive analysis (Dati aziendali con Ruoli chiave e
+      Bilancio, Intervista, Anagrafica) · Dashboarding (Anagrafica, 1. Competenze trasversali, 2. Competenze
+      professionali, con «Somministrazione») · Reporting (1. Valutazioni trasversali con Risultati e Area; 2.
+      Valutazioni professionali con i sei capitoli `?tab=`; Confronta persone; Cambio ruolo; Valori complessivi) ·
+      Profitability (Piani di sviluppo, Assistenza IA, Note metodologiche). In locale: «Raccolta valutazioni» apre il
+      capitolo 3 e si accende solo lei; «Bilancio» apre Dati aziendali sul bilancio; percorso «Home / Predictive
+      analysis / Dati aziendali» e «Home / Reporting / Confronta persone».
+- [x] Controlli: typecheck, lint, 13 test, build, audit 0 difetti; 390px senza scorrimento orizzontale su Il valore,
+      Le perdite invisibili, Dove intervenire, Dati aziendali; Dove intervenire in chiaro e scuro.
+- [ ] **Non fatto, da proporre**: il grafico di Il potenziale, sezione 1 (CLAUDE.md, Fase 5: un grafico nuovo si
+      propone e si applica dopo l'ok). La stima in euro di Il potenziale resta la leva produttività, in attesa di
+      Roberto.
+- [ ] Da chiarire con Roberto: Il valore e Dove intervenire ora danno la stessa cifra; nomi del menu in inglese;
+      Panoramica e «Risultati valutazioni professionali» (hard-risultati) non sono nel suo indice; sei riquadri invece
+      di tre, con area e mansione due volte su due scale.
+- [ ] In produzione da provare (Bilal) dopo il deploy.
+
 ## 2026-11-13 (4) — Il valore: cifra verificata in produzione
 - [x] Bilal ha letto in produzione, Il valore › «Come è calcolato» (Acme Corp, dopo `577cb03`): HCVA € 23.940.143;
       divario dall'atteso 20% (80% rilevato, 100% atteso); persone valutate 23 / 23; potenziale del divario

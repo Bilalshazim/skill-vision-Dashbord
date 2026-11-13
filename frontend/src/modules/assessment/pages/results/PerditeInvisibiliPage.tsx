@@ -3,7 +3,7 @@ import { ResultsPage } from '@/components/patterns/ResultsPage'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { roiFigure } from '@/modules/assessment/components/RoiFigure'
 import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
-import { ATTESO } from '@/modules/assessment/lib/results'
+import { ATTESO, type RankedPerson } from '@/modules/assessment/lib/results'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 import { useRoi } from '@/modules/assessment/lib/use-roi'
 
@@ -17,6 +17,12 @@ import { useRoi } from '@/modules/assessment/lib/use-roi'
 export default function PerditeInvisibiliPage() {
   const { res, data, win, theme, crumbs, home, demoNote } = useAssessmentResults('perdite-invisibili')
   const roi = useRoi()
+  // I tre riquadri che erano in Il valore (Roberto, 2026-11-16): sulla scala del valore espresso, 0–120% con l'atteso 100%.
+  const pct = (n: number) => `${Math.round(n)}%`
+  const scale = { min: 0, max: 120, expected: 100, expectedLabel: res.cmpReference, format: pct }
+  const people = (list: RankedPerson[]) => list.map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, value: Math.round(r.index ?? 0) }))
+  const worstRole = data.worstRoleByGap
+  const worstAreaValue = data.worstAreaByValue
   return (
     <ResultsPage
       actions={<AssessmentModeSwitch />}
@@ -59,11 +65,12 @@ export default function PerditeInvisibiliPage() {
           { title: res.perditeArea, value: data.worstArea ? data.worstArea.label : res.perditeNoArea, body: data.worstArea ? res.pointsBelow(fmt1it(data.worstArea.gap)) : undefined, chart: data.worstArea ? { kind: 'scale' as const, label: data.worstArea.label, value: ATTESO - data.worstArea.gap, max: 10, expected: ATTESO, expectedLabel: res.expectedAt(fmt1it(ATTESO)), format: fmt1it } : undefined },
           { title: res.perditeRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, chart: data.worstRole ? { kind: 'scale' as const, label: data.worstRole.label, value: ATTESO - data.worstRole.gap, max: 10, expected: ATTESO, expectedLabel: res.expectedAt(fmt1it(ATTESO)), format: fmt1it } : undefined },
           { title: res.perditeSkill, value: data.worstSkill ? data.worstSkill.name : res.perditeNoSkill, body: data.worstSkill ? res.pointsBelow(fmt1it(-data.worstSkill.gap)) : undefined, chart: data.worstSkill ? { kind: 'scale' as const, label: data.worstSkill.name, value: data.worstSkill.value, max: 10, expected: data.worstSkill.expected, expectedLabel: res.expectedAt(fmt1it(data.worstSkill.expected)), format: fmt1it } : undefined },
+{ title: res.valoreWorstRole, value: worstRole ? worstRole.label : res.valoreNoRole, body: worstRole ? res.gapPct(worstRole.gap) : undefined, chart: worstRole ? { kind: 'scale' as const, label: worstRole.label, value: 100 + worstRole.gap, ...scale } : undefined },          { title: res.valoreWorstArea, value: worstAreaValue ? worstAreaValue.label : res.valoreNoArea, body: worstAreaValue ? res.gapPct(worstAreaValue.gap) : undefined, chart: worstAreaValue ? { kind: 'scale' as const, label: worstAreaValue.label, value: 100 + worstAreaValue.gap, ...scale } : undefined },          { title: res.valoreAbove, value: data.aboveExpected ? res.people(data.aboveExpected) : res.nobody, body: res.valoreAboveBody, chart: data.abovePeople.length ? { kind: 'people' as const, rows: people(data.abovePeople), ...scale } : undefined },
         ],
         opportunity: res.perditeOpportunity(data.worstArea?.label ?? null),
         opportunityLabel: res.opportunityLabel,
       }}
-      impact={{ pct: data.belowPct, label: res.perditeImpact, hint: res.perditeHint(data.below, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'perdite') }}
+      impact={{ pct: data.belowPct, title: res.perditeImpactTitle, label: res.perditeImpact, hint: res.perditeHint(data.below, data.total), euro: roiFigure(res, roi, 'perdite') }}
       home={home}
       demoNote={demoNote}
     />

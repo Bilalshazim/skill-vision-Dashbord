@@ -12,30 +12,23 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { roiFigure } from '@/modules/assessment/components/RoiFigure'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
-import type { RankedPerson } from '@/modules/assessment/lib/results'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 import { useRoi } from '@/modules/assessment/lib/use-roi'
 
 const pct = (n: number) => `${Math.round(n)}%`
 
-// 01 · Il valore (CLAUDE.md, Fase 6; Decisioni del 2026-11-09, che sostituiscono le correzioni
-// del mattino). «1 La situazione oggi» non ha frase: il Gauge del valore espresso, grande e
-// centrato, su una riga da solo (l'unico lime della sezione). Sotto, «Vedi per mansione»
-// apre (chiuso all'apertura) il valore espresso per mansione, con l'atteso 100% tratteggiato
-// e il link a tutte le persone. Poi, a metà riga, il Ring della copertura e L'impatto.
-// «2 Criticità e opportunità»: mansione e area con il maggiore deficit, e chi va oltre le
-// attese, ognuno con il suo mini grafico in inchiostro.
+// 01 · Il valore (CLAUDE.md, Fase 6; Roberto, 2026-11-13 e 2026-11-16). Una sezione sola,
+// «1 La situazione oggi»: due finestre uguali, valore espresso (Gauge lime) e skill-gap
+// mancante; «Vedi per competenze» apre il valore espresso per competenza, con l'atteso 100%
+// tratteggiato; sotto, la copertura delle mansioni e L'impatto (produttività, turnover e
+// assenteismo). «Criticità e opportunità» è passata in Le perdite invisibili.
 export default function IlValorePage() {
   const { ui } = useAssessment()
   const { res, data, win, theme, crumbs, home, demoNote } = useAssessmentResults('il-valore')
   const roi = useRoi()
-  const worst = data.worstRoleByGap
-  const worstArea = data.worstAreaByValue
   const index = data.index ?? 0
   // Lo skill-gap mancante: il gap medio senza segno. Se in media si supera l'atteso non manca niente.
   const gapMissing = Math.max(0, -(data.gapMedio ?? 0))
-  const people = (list: RankedPerson[]) => list.map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, value: Math.round(r.index ?? 0) }))
-  const scale = { min: 0, max: 120, expected: 100, expectedLabel: res.cmpReference, format: pct }
   return (
     <ResultsPage
       actions={<AssessmentModeSwitch />}
@@ -70,22 +63,22 @@ export default function IlValorePage() {
                 <ScoreGauge value={gapMissing} max={100} unit="%" decimals={0} label={res.valoreGapCenter} className="justify-center" />
               </Card>
             </div>
-            {data.roleValues.length ? (
+            {data.skillValues.length ? (
               <Collapsible className="flex flex-col gap-3">
                 <CollapsibleTrigger asChild>
                   <Button variant="outline" className="group self-center">
-                    {res.valoreByRole}
+                    {res.valoreBySkill}
                     <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
                   </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <Card className="gap-3">
                     <p className="flex items-center gap-2">
-                      <span className="label-mono text-muted-foreground">{res.valoreRoleTitle}</span>
-                      <InfoTip label={res.valoreRoleTitle}>{res.valoreRoleHint}</InfoTip>
+                      <span className="label-mono text-muted-foreground">{res.valoreSkillTitle}</span>
+                      <InfoTip label={res.valoreSkillTitle}>{res.valoreSkillHint}</InfoTip>
                     </p>
                     <CategoryBars
-                      title={res.valoreRoleTitle}
+                      title={res.valoreSkillTitle}
                       orientation="horizontal"
                       compact
                       hoverHighlight
@@ -95,7 +88,7 @@ export default function IlValorePage() {
                         { key: 'value', label: res.indexLabel },
                         { key: 'atteso', label: res.cmpReference, reference: true },
                       ]}
-                      rows={data.roleValues.map((r) => ({ label: r.label, values: { value: r.value, atteso: 100 } }))}
+                      rows={data.skillValues.map((r) => ({ label: r.label, values: { value: r.value, atteso: 100 } }))}
                     />
                     <TextLink link={{ label: res.valoreSeeAll, to: '/assessment/valore' }} />
                   </Card>
@@ -115,30 +108,6 @@ export default function IlValorePage() {
             </div>
           </div>
         ),
-      }}
-      issues={{
-        items: [
-          {
-            title: res.valoreWorstRole,
-            value: worst ? worst.label : res.valoreNoRole,
-            body: worst ? res.gapPct(worst.gap) : undefined,
-            chart: worst ? { kind: 'scale', label: worst.label, value: 100 + worst.gap, ...scale } : undefined,
-          },
-          {
-            title: res.valoreWorstArea,
-            value: worstArea ? worstArea.label : res.valoreNoArea,
-            body: worstArea ? res.gapPct(worstArea.gap) : undefined,
-            chart: worstArea ? { kind: 'scale', label: worstArea.label, value: 100 + worstArea.gap, ...scale } : undefined,
-          },
-          {
-            title: res.valoreAbove,
-            value: data.aboveExpected ? res.people(data.aboveExpected) : res.nobody,
-            body: res.valoreAboveBody,
-            chart: data.abovePeople.length ? { kind: 'people', rows: people(data.abovePeople), ...scale } : undefined,
-          },
-        ],
-        opportunity: res.valoreOpportunity(worst?.label ?? null),
-        opportunityLabel: res.opportunityLabel,
       }}
       home={home}
       demoNote={demoNote}

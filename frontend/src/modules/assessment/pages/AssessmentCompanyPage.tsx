@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { Field } from '@/components/patterns/Field'
 import { InlineAlert } from '@/components/patterns/InlineAlert'
@@ -41,6 +42,15 @@ export default function AssessmentCompanyPage() {
   useEffect(() => {
     if (roi.data && roiFields === null) setRoiFields({ turn: fmt(roi.data.turn), ass: fmt(roi.data.ass), inv: fmt(roi.data.inv) })
   }, [roi.data, roiFields])
+  // Ruoli chiave e Bilancio sono voci del menu (nuovo indice, 2026-11-16): aprono la pagina sulla sezione.
+  // Si ripete quando arrivano i dati del bilancio, che allungano la pagina e spostano le sezioni.
+  const { hash } = useLocation()
+  const roiLoaded = !!roi.data
+  useEffect(() => {
+    if (!hash) return
+    const id = window.setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' }), 50)
+    return () => window.clearTimeout(id)
+  }, [hash, roiLoaded])
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   // Un profilo mai salvato arriva dal server come {}: vale come vuoto e parte dai dati presenti.
@@ -191,7 +201,7 @@ export default function AssessmentCompanyPage() {
         {saveError ? <InlineAlert>{saveError}</InlineAlert> : null}
       </Card>
 
-      <section>
+      <section id="ruoli-chiave" className="scroll-mt-24">
         <PageHeader title={ui.companyKeyRolesTitle} description={ui.companyKeyRolesSub} level="subsection" />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           <Card>

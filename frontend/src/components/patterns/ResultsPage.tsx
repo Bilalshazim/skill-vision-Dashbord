@@ -30,6 +30,8 @@ export type ResultsImpact = {
   euro?: ResultsEuro
   /** Il valore espresso rispetto al ruolo, in percentuale intera, con il suo tooltip. */
   index?: { value: number | null; label: string; hint: ReactNode }
+  /** Il titolo della card della percentuale, in stile label: che cosa conta la quota (Le perdite invisibili, 2026-11-16). */
+  title?: string
   /** Al posto del Ring, una fila di pallini (`n` su `total`): dove il Ring c'è già nella sezione 1 (Il potenziale). */
   dots?: { n: number; total: number }
 }
@@ -102,6 +104,7 @@ export function ResultsPage({
     <Section number={impactNumber} title="L'impatto" className={cn('grid grid-cols-1 items-stretch gap-4', impactCards === 3 ? 'lg:grid-cols-3' : 'md:grid-cols-2')}>
       {impact.pct !== undefined ? (
         <Card className="h-full gap-3">
+          {impact.title ? <p className="label-mono text-muted-foreground">{impact.title}</p> : null}
           {impact.dots && impact.pct != null ? (
             <DotRow n={impact.dots.n} total={impact.dots.total} label={impact.label ?? ''} tone="highlight" />
           ) : impact.pct != null ? (
@@ -224,7 +227,9 @@ export function ResultsPage({
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {/* Un verde per sezione (correzioni di Roberto del 2026-11-10): il mini grafico
                         del primo riquadro, il principale della sezione; gli altri in inchiostro. */}
-                    {issues.items.slice(0, 3).map((it, i) => (
+                    {/* Fino a sei: in Le perdite invisibili entrano anche i tre riquadri di Il valore
+                        (Roberto, 2026-11-16), su due righe da tre. */}
+                    {issues.items.slice(0, 6).map((it, i) => (
                       <ResultsTile key={it.title} {...it} chart={it.chart ? { ...it.chart, tone: i === 0 ? 'highlight' : 'mono' } : undefined} />
                     ))}
                   </div>

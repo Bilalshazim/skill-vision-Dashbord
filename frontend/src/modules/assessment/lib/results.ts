@@ -1,6 +1,6 @@
 import { evaluatedEmployees, orgCriticalAreas, orgCriticalRoles, primaryScore, roleCoveragePct, tierFor, worstCompetenza } from '@/modules/assessment/lib/calculations'
 import { getSoftSkills, round1, type AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
-import { areaValues, orgValue, personIndex, roleValues } from '@/modules/assessment/lib/role-index'
+import { areaValues, orgValue, personIndex, roleValues, skillValues } from '@/modules/assessment/lib/role-index'
 import { TIER_ORDER, type TierKey } from '@/modules/assessment/lib/tier-display'
 import type { AssessmentState, Employee } from '@/modules/assessment/lib/types'
 
@@ -108,6 +108,8 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
     /** Il valore espresso per mansione, dalla più lontana dall'atteso («Vedi per mansione»). */
     roleValues: [...(total ? roleValues(state, lang) : new Map<string, number>()).entries()].map(([label, v]) => ({ label, value: Math.round(v) })).sort((a, b) => a.value - b.value),
     /** L'area con il valore espresso più basso, se è sotto l'atteso. */
+    /** Il valore espresso per competenza, dalla più lontana dall'atteso («Vedi per competenze», 2026-11-16). */
+    skillValues: [...(total ? skillValues(state, lang) : new Map<string, number>()).entries()].map(([label, v]) => ({ label, value: Math.round(v) })).sort((a, b) => a.value - b.value),
     worstAreaByValue: (() => {
       const w = [...byAreaValue.entries()].map(([label, v]) => ({ label, value: Math.round(v) })).sort((a, b) => a.value - b.value)[0]
       return w && w.value < 100 ? { label: w.label, gap: w.value - 100 } : null

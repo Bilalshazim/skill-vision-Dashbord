@@ -16,7 +16,7 @@ export type ResultsEuro = {
   tags?: string[]
   note?: string
   detail?: string
-  scenarios?: { label: string; value: string }[]
+  scenarios?: { label: string; value: string; main?: boolean }[]
   footer?: string
   link?: ResultsLink
   how?: { title: string; intro: string; rows: { label: string; value: string }[] }
@@ -34,11 +34,14 @@ export function EuroFigure({ euro, note, className }: { euro?: ResultsEuro; note
       {text ? <p className="text-app-body text-muted-foreground">{text}</p> : null}
       {euro?.detail ? <p className="text-app-small text-muted-foreground">{euro.detail}</p> : null}
       {euro?.scenarios ? (
-        <dl className="grid w-full max-w-md grid-cols-3 gap-2 pt-1">
+        // I tre scenari in evidenza, ognuno nel suo riquadro; quello base (l'importo grande, il
+        // risultato del motore ROI) con il bordo di 2px degli stati attivi e la cifra più grande
+        // (Roberto, 2026-11-16: «le cifre le evidenzierei meglio per tutti e tre i valori»).
+        <dl className="grid w-full grid-cols-1 gap-2 pt-1 sm:grid-cols-3">
           {euro.scenarios.map((s) => (
-            <div key={s.label}>
+            <div key={s.label} className={cn('flex flex-col gap-1 rounded-sm p-3', s.main ? 'border-2 border-ring' : 'border border-border')}>
               <dt className="label-mono text-muted-foreground">{s.label}</dt>
-              <dd className="text-app-small tabular-nums text-foreground">{s.value}</dd>
+              <dd className={cn('tabular-nums text-foreground', s.main ? 'text-app-title' : 'text-app-subtitle')}>{s.value}</dd>
             </div>
           ))}
         </dl>

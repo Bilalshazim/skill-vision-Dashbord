@@ -38,12 +38,15 @@ export const ICONS = {
 
 /* ---------------------- NAVIGATION CONFIGURATION ---------------------- */
 export type NavConfigEntry =
-  | { type: 'link'; id: string; label: string; icon: string; requires: string | null; badge?: boolean }
+  // `key`: due voci sulla stessa pagina. `sub`: una seconda riga sotto il nome («Somministrazione»).
+  | { type: 'link'; id: string; key?: string; label: string; sub?: string; icon: string; requires: string | null; badge?: boolean }
   // `homeId`: il titolo del gruppo è una pagina (la Home, con sotto le pagine dei risultati).
   // `hoverOpen`: il gruppo si apre anche al passaggio del mouse (Analisi predittiva, 2026-11-12).
-  | { type: 'group'; groupId: string; homeId?: string; hoverOpen?: boolean; label: string; icon: string; items: { id: string; label: string; requires: string | null }[] }
+  // `to` di una voce: un punto della pagina, `pagina#sezione` o `pagina?tab=capitolo`.
+  | { type: 'group'; groupId: string; homeId?: string; hoverOpen?: boolean; label: string; icon: string; items: { id: string; key?: string; to?: string; label: string; requires: string | null }[] }
   | { type: 'action'; id: string; label: string; icon: string; action: string; editOnly?: boolean }
-  | { type: 'section'; label: string; editOnly?: boolean }
+  // `note`: la riga sotto il titolo della sezione («Strategie e cure»).
+  | { type: 'section'; label: string; note?: string; editOnly?: boolean }
 // Client-requested 14-section order (2026 revision). "Logica Customer
 // Care" and "Caricamento Dati Risorse" (the latter already inert — see the
 // openImportModal special-case in AssessmentLayout.tsx) are removed from
@@ -53,12 +56,15 @@ export type NavConfigEntry =
 // 2026-10-13 (cliente): "Area Valutazioni" subito sotto "Dati Aziendali", con
 // le due voci "Valutazioni Soft Skill" e "Valutazioni Hard Skill" (la seconda è
 // la Valutazione 5P, prima "Gestione valutazioni"), aperte di default.
+// «Nuovo indice» di Roberto (2026-11-16): Home con le quattro pagine dei risultati, poi
+// quattro sezioni con il loro titolo in stile label (Predictive analysis · Dashboarding ·
+// Reporting · Profitability: i nomi sono di Roberto). Panoramica non è nell'indice di Roberto
+// ma resta, subito sotto Home: nessuna pagina esce dal menu senza che lo dica (CLAUDE.md, Fase 4).
+// Una voce con `to` apre un punto della pagina (`#` una sezione, `?tab=` un capitolo) e si
+// accende solo lì; `key` distingue due voci sulla stessa pagina (Anagrafica compare due volte).
+// «Risultati valutazioni professionali» (hard-risultati) non è nell'indice: il capitolo 5 della
+// pagina delle Valutazioni professionali porta lo stesso nome; la rotta resta.
 export const NAV_CONFIG_EN: NavConfigEntry[] = [
-  { type:'group', groupId:'predittiva', hoverOpen:true, label:'Predictive analysis', icon:'predict', items:[
-    { id:'company', label:'Company data', requires:null },
-    { id:'analisi', label:'Interview', requires:null },
-    { id:'anagrafica', label:'Employee Directory', requires:null },
-  ] },
   { type:'group', groupId:'home', homeId:'home', label:'Home', icon:'home', items:[
     { id:'il-valore', label:'Value', requires:null },
     { id:'perdite-invisibili', label:'Invisible losses', requires:null },
@@ -66,30 +72,39 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
     { id:'dove-intervenire', label:'Where to act', requires:null },
   ] },
   { type:'link', id:'panoramica', label:'Overview', icon:'overview', requires:null },
-  { type:'group', groupId:'valutazioni', label:'Evaluation Area', icon:'soft', items:[
-    { id:'soft', label:'Soft Skill Evaluations', requires:'A' },
-    { id:'gestione-valutazioni', label:'Professional Evaluations', requires:'B' },
+  { type:'section', label:'Predictive analysis' },
+  { type:'group', groupId:'company', homeId:'company', label:'Company data', icon:'predict', items:[
+    { id:'company', key:'company-ruoli', to:'company#ruoli-chiave', label:'Key roles', requires:null },
+    { id:'company', key:'company-bilancio', to:'company#bilancio', label:'Financial statement', requires:null },
   ] },
-  { type:'group', groupId:'risultati', label:'Results Area', icon:'value', items:[
-    { id:'soft-risultati', label:'Cross-Functional Evaluation Results', requires:'A' },
-    { id:'hard-risultati', label:'Professional Evaluation Results', requires:'B' },
+  { type:'link', id:'analisi', label:'Interview', icon:'notes', requires:null },
+  { type:'link', id:'anagrafica', label:'Employee Directory', icon:'users', requires:null },
+  { type:'section', label:'Dashboarding', note:'Analytical application – administration' },
+  { type:'link', id:'anagrafica', key:'anagrafica-dashboarding', label:'Employee Directory', icon:'users', requires:null },
+  { type:'link', id:'soft-overview', label:'1. Cross-functional competencies', sub:'Administration', icon:'soft', requires:null },
+  { type:'link', id:'hard-overview', label:'2. Professional competencies', sub:'Administration', icon:'hard', requires:null },
+  { type:'section', label:'Reporting' },
+  { type:'group', groupId:'val-trasversali', label:'1. Cross-functional evaluations', icon:'soft', items:[
+    { id:'soft-risultati', label:'Cross-functional evaluation results', requires:'A' },
+    { id:'soft', label:'Cross-functional evaluations area', requires:'A' },
   ] },
-  { type:'link', id:'soft-overview', label:'Cross-Functional Competencies', icon:'soft', requires:null },
-  { type:'link', id:'hard-overview', label:'Professional Competencies: the 5 Ps', icon:'hard', requires:null },
+  { type:'group', groupId:'val-professionali', homeId:'gestione-valutazioni', label:'2. Professional evaluations', icon:'hard', items:[
+    { id:'gestione-valutazioni', key:'gv-piano', to:'gestione-valutazioni?tab=piano', label:'Evaluation plan', requires:'B' },
+    { id:'gestione-valutazioni', key:'gv-invio', to:'gestione-valutazioni?tab=invio', label:'Sending forms to evaluators', requires:'B' },
+    { id:'gestione-valutazioni', key:'gv-racc', to:'gestione-valutazioni?tab=racc', label:'Collecting evaluations', requires:'B' },
+    { id:'gestione-valutazioni', key:'gv-att', to:'gestione-valutazioni?tab=att', label:'Assigning expected values', requires:'B' },
+    { id:'gestione-valutazioni', key:'gv-res', to:'gestione-valutazioni?tab=res', label:'Professional evaluation results', requires:'B' },
+    { id:'gestione-valutazioni', key:'gv-rep', to:'gestione-valutazioni?tab=rep', label:'Final people report', requires:'B' },
+  ] },
+  { type:'link', id:'confronto', label:'Compare people', icon:'users', requires:null },
+  { type:'link', id:'cambio-ruolo', label:'Role change', icon:'transfer', requires:null },
   { type:'link', id:'valore', label:'Overall Value', icon:'value', requires:null },
-  { type:'link', id:'cambio-ruolo', label:'Role Change and Transfers', icon:'transfer', requires:null },
+  { type:'section', label:'Profitability', note:'Strategies and remedies' },
   { type:'link', id:'feedback', label:'Development Plans', icon:'feedback', requires:null, badge:true },
-  { type:'link', id:'ai', label:'AI Assistant', icon:'ai', requires:null },
+  { type:'link', id:'ai', label:'AI Assistance', icon:'ai', requires:null },
   { type:'action', id:'methodology', label:'Methodology Notes', icon:'notes', action:'openMethodologyModal' },
 ];
 export const NAV_CONFIG_IT: NavConfigEntry[] = [
-  // «Analisi predittiva» prima voce, sopra Home (Decisioni di Roberto del 2026-11-12): Dati
-  // aziendali · Intervista · Anagrafica. Il titolo non apre una pagina, apre le tre voci.
-  { type:'group', groupId:'predittiva', hoverOpen:true, label:'Analisi predittiva', icon:'predict', items:[
-    { id:'company', label:'Dati aziendali', requires:null },
-    { id:'analisi', label:'Intervista', requires:null },
-    { id:'anagrafica', label:'Anagrafica', requires:null },
-  ] },
   { type:'group', groupId:'home', homeId:'home', label:'Home', icon:'home', items:[
     { id:'il-valore', label:'Il valore', requires:null },
     { id:'perdite-invisibili', label:'Le perdite invisibili', requires:null },
@@ -97,21 +112,37 @@ export const NAV_CONFIG_IT: NavConfigEntry[] = [
     { id:'dove-intervenire', label:'Dove intervenire', requires:null },
   ] },
   { type:'link', id:'panoramica', label:'Panoramica', icon:'overview', requires:null },
-  { type:'group', groupId:'valutazioni', label:'Area Valutazioni', icon:'soft', items:[
-    { id:'soft', label:'Valutazioni Soft Skill', requires:'A' },
-    { id:'gestione-valutazioni', label:'Valutazioni Professionali', requires:'B' },
+  { type:'section', label:'Predictive analysis' },
+  { type:'group', groupId:'company', homeId:'company', label:'Dati aziendali', icon:'predict', items:[
+    { id:'company', key:'company-ruoli', to:'company#ruoli-chiave', label:'Ruoli chiave', requires:null },
+    { id:'company', key:'company-bilancio', to:'company#bilancio', label:'Bilancio', requires:null },
   ] },
-  { type:'group', groupId:'risultati', label:'Area Risultati', icon:'value', items:[
-    { id:'soft-risultati', label:'Risultati Valutazioni Trasversali', requires:'A' },
-    { id:'hard-risultati', label:'Risultati Valutazioni Professionali', requires:'B' },
+  { type:'link', id:'analisi', label:'Intervista', icon:'notes', requires:null },
+  { type:'link', id:'anagrafica', label:'Anagrafica', icon:'users', requires:null },
+  { type:'section', label:'Dashboarding', note:'Applicazione analitica – somministrazione' },
+  { type:'link', id:'anagrafica', key:'anagrafica-dashboarding', label:'Anagrafica', icon:'users', requires:null },
+  { type:'link', id:'soft-overview', label:'1. Competenze trasversali', sub:'Somministrazione', icon:'soft', requires:null },
+  { type:'link', id:'hard-overview', label:'2. Competenze professionali', sub:'Somministrazione', icon:'hard', requires:null },
+  { type:'section', label:'Reporting' },
+  { type:'group', groupId:'val-trasversali', label:'1. Valutazioni trasversali', icon:'soft', items:[
+    { id:'soft-risultati', label:'Risultati valutazioni trasversali', requires:'A' },
+    { id:'soft', label:'Area valutazioni trasversali', requires:'A' },
   ] },
-  { type:'link', id:'soft-overview', label:'Competenze Trasversali', icon:'soft', requires:null },
-  { type:'link', id:'hard-overview', label:'Competenze Professionali: le 5 P', icon:'hard', requires:null },
-  { type:'link', id:'valore', label:'Valori Complessivi', icon:'value', requires:null },
-  { type:'link', id:'cambio-ruolo', label:'Cambio ruolo e trasferimenti', icon:'transfer', requires:null },
-  { type:'link', id:'feedback', label:'Piani di Sviluppo', icon:'feedback', requires:null, badge:true },
-  { type:'link', id:'ai', label:'Assistente IA', icon:'ai', requires:null },
-  { type:'action', id:'methodology', label:'Note Metodologiche', icon:'notes', action:'openMethodologyModal' },
+  { type:'group', groupId:'val-professionali', homeId:'gestione-valutazioni', label:'2. Valutazioni professionali', icon:'hard', items:[
+    { id:'gestione-valutazioni', key:'gv-piano', to:'gestione-valutazioni?tab=piano', label:'Piano di valutazione', requires:'B' },
+    { id:'gestione-valutazioni', key:'gv-invio', to:'gestione-valutazioni?tab=invio', label:'Invio schede ai valutatori', requires:'B' },
+    { id:'gestione-valutazioni', key:'gv-racc', to:'gestione-valutazioni?tab=racc', label:'Raccolta valutazioni', requires:'B' },
+    { id:'gestione-valutazioni', key:'gv-att', to:'gestione-valutazioni?tab=att', label:'Assegnazione valori attesi', requires:'B' },
+    { id:'gestione-valutazioni', key:'gv-res', to:'gestione-valutazioni?tab=res', label:'Risultati valutazioni professionali', requires:'B' },
+    { id:'gestione-valutazioni', key:'gv-rep', to:'gestione-valutazioni?tab=rep', label:'Report finale persone', requires:'B' },
+  ] },
+  { type:'link', id:'confronto', label:'Confronta persone', icon:'users', requires:null },
+  { type:'link', id:'cambio-ruolo', label:'Cambio ruolo', icon:'transfer', requires:null },
+  { type:'link', id:'valore', label:'Valori complessivi', icon:'value', requires:null },
+  { type:'section', label:'Profitability', note:'Strategie e cure' },
+  { type:'link', id:'feedback', label:'Piani di sviluppo', icon:'feedback', requires:null, badge:true },
+  { type:'link', id:'ai', label:'Assistenza IA', icon:'ai', requires:null },
+  { type:'action', id:'methodology', label:'Note metodologiche', icon:'notes', action:'openMethodologyModal' },
 ];
 
 /* ---------------------- TAXONOMY — 35 SOFT SKILLS (Module A) ----------------------

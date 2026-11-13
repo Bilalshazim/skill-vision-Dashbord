@@ -98,6 +98,34 @@ export function roleValues(state: AssessmentState, lang: AssessmentLang): Map<st
   return groupValues(state, lang, (e) => e.ruolo)
 }
 
+/**
+ * Il valore espresso per competenza («Vedi per competenze», Roberto, 2026-11-16): la stessa
+ * formula, somma dei rilevati ÷ somma degli attesi, competenza per competenza, sulle persone
+ * valutate. Trasversali: le competenze del ruolo di ognuno (tutte le 35 se il ruolo non ne ha
+ * scelte). Professionali: le cinque dimensioni delle 5P, con l'atteso 7. Segue la vista scelta.
+ */
+export function skillValues(state: AssessmentState, lang: AssessmentLang): Map<string, number> {
+  const m = state.settings.modulo
+  const names = new Map(getSoftSkills(lang).map((s) => [s.id, s.name]))
+  const byKey = new Map<string, Totals>()
+  const add = (key: string, t: Totals) => byKey.set(key, addTotals(byKey.get(key) ?? { got: 0, expected: 0 }, t))
+  for (const e of evaluatedEmployees(state)) {
+    if (m !== 'B') {
+      const skills = roleSkills(state, e.ruolo, lang)
+      const ids = skills.length ? skills.map((s) => s.id) : [...names.keys()]
+      for (const id of ids) {
+        const got = e.soft[id]?.ottenuto ?? 0
+        const expected = expectedSoft(state, e, e.ruolo, id)
+        if (got > 0 && expected > 0) add(names.get(id) ?? id, { got, expected })
+      }
+    }
+    if (m !== 'A' && Object.values(e.hard || {}).some((src) => Object.values(src || {}).some((v) => v > 0))) {
+      for (const d of computeHardSummary(e, lang).dims) if (d.mediaTotale > 0) add(d.name, { got: d.mediaTotale, expected: HARD_EXPECTED })
+    }
+  }
+  return new Map([...byKey.entries()].map(([k, t]) => [k, ratio(t)!]))
+}
+
 function groupValues(state: AssessmentState, lang: AssessmentLang, keyOf: (e: Employee) => string | undefined): Map<string, number> {
   const byKey = new Map<string, Totals>()
   for (const e of evaluatedEmployees(state)) {

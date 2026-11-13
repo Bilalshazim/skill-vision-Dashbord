@@ -51,12 +51,24 @@ export function getPageTrail(lang: AssessmentLang, pageId: string): { items: { l
   // La Home non è più la prima voce (Analisi predittiva, 2026-11-12): si cerca il suo gruppo.
   const homeEntry = nav.find((e) => e.type === 'group' && e.homeId === 'home')
   const home = { label: homeEntry?.label ?? 'Home', to: '/assessment/home' }
-  for (const e of nav) {
-    if (e.type === 'link' && e.id === pageId) return { items: [home], current: e.label }
+  // Nuovo indice (2026-11-16): le voci stanno in sezioni con un titolo; la sezione porta alla
+  // sua prima pagina. Una voce che apre un punto della pagina (`to`) non dà il nome alla pagina.
+  const pageOf = (e: (typeof nav)[number]) => (e.type === 'link' ? e.id : e.type === 'group' ? (e.homeId ?? e.items[0]?.id) : undefined)
+  let section: { label: string; to: string } | null = null
+  for (let i = 0; i < nav.length; i++) {
+    const e = nav[i]
+    if (e.type === 'section') {
+      const first = nav.slice(i + 1).map(pageOf).find(Boolean)
+      section = first ? { label: e.label, to: `/assessment/${first}` } : null
+      continue
+    }
+    const lead = section ? [home, section] : [home]
+    if (e.type === 'link' && e.id === pageId) return { items: lead, current: e.label }
     if (e.type === 'group') {
-      const item = e.items.find((i) => i.id === pageId)
+      if (e.homeId === pageId && e.homeId !== 'home') return { items: lead, current: e.label }
+      const item = e.items.find((it) => it.id === pageId && !it.to)
       if (item && e.homeId) return null
-      if (item) return { items: [home, { label: e.label, to: `/assessment/${e.items[0].id}` }], current: item.label }
+      if (item) return { items: [...lead, { label: e.label, to: `/assessment/${e.items[0].id}` }], current: item.label }
     }
   }
   const title = getPageMeta(lang, pageId).title

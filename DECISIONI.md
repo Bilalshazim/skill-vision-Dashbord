@@ -3224,3 +3224,32 @@ Verificato in produzione (Acme Corp): € 1.677.267 = HCVA € 23.940.143 × div
 la leva «Produttività dal divario di competenza» del motore. La stima di € 213.686 valeva per il bilancio
 dimostrativo, sostituito in produzione dal bilancio caricato da Roberto. Decisione: nessun valore forzato nel codice e
 nessun ripristino del bilancio dimostrativo su Acme senza una richiesta di Roberto.
+
+## Ritocchi di Roberto del 16/11: le scelte · 2026-11-16
+Documento «spero siano gli ultimi ritocchi 16_11». Si prende quello che chiede; le scelte non ovvie:
+
+- **Il valore · euro con turnover e assenteismo.** Opzioni: (a) leve 1 + 2 + 3 del motore (produttività, turnover
+  evitato, assenteismo ridotto, tutte nette dello scenario); (b) produttività netta + potenziali lordi di turnover e
+  assenze. (b) mescola lordo e netto e non è una grandezza del motore. Presa **(a)**. Conseguenza: con la leva 4 spenta
+  coincide con il beneficio di Dove intervenire (in locale € 220.012 tutte e due). Da confermare con Roberto.
+- **Le perdite invisibili · euro «solo il 20%».** Presa la cifra lorda del divario (`gapVal`), cioè la parte delle
+  perdite che resta togliendo turnover e assenze; Roberto scrive «vediamo poi cosa metterci»: provvisoria.
+- **Il potenziale · «la stima va rivista».** Nessuna indicazione: resta la leva produttività. In attesa di Roberto.
+- **Il potenziale · «migliorare il grafico del punto 1».** Non applicato: un grafico diverso si propone e si applica
+  dopo l'ok (CLAUDE.md, Fase 5). Proposta da fare con dato, grafico di oggi e grafico Bklit proposto.
+- **«Vedi per competenze».** Roberto chiede se non sia più giusto parlare di competenze: cambiare solo la scritta
+  avrebbe lasciato barre per mansione sotto un nome sbagliato. Il grafico mostra il valore espresso per competenza,
+  con la stessa formula (somma rilevati ÷ somma attesi): trasversali del ruolo di ognuno, professionali come le
+  cinque dimensioni 5P con l'atteso 7.
+- **Sei riquadri in Le perdite invisibili.** La regola delle pagine dei risultati è «al massimo tre riquadri»; Roberto
+  chiede di mettere quelli di Il valore insieme agli altri. Fatto su due righe da tre. Area e mansione compaiono due
+  volte su due scale (punti su 10 e valore espresso %): da rivedere con Roberto.
+- **Nomi del menu in inglese** (Predictive analysis, Dashboarding, Reporting, Profitability): la regola dei testi
+  ammette in dashboard solo report, gap, benchmark, feedback, team. Sono i nomi scelti da Roberto: presi così, in stile
+  label (maiuscolo solo lì), con la riga «Applicazione analitica – somministrazione» e «Strategie e cure». Da
+  segnalare ad Alessio.
+- **Voci fuori dall'indice.** Panoramica non è nell'indice ma Roberto dice di lasciarla com'è: resta, sotto Home.
+  «Risultati valutazioni professionali» (hard-risultati) non è nell'indice: il capitolo 5 delle Valutazioni
+  professionali ha lo stesso nome; la rotta resta, da confermare che non serva più.
+- **Base in evidenza.** Bordo di 2px (stati attivi) in `ring` (accent-600): il lime `primary` come linea su fondo
+  chiaro non si legge (fondamenta). Cifra più grande; gli altri due scenari in riquadri con il bordo sottile.

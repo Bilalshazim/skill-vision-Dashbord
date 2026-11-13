@@ -63,7 +63,7 @@ export default function DoveIntervenirePage() {
         opportunity: res.doveOpportunity(highUntouched?.without ?? 0, (highUntouched?.withFeedback ?? 0) + (highUntouched?.without ?? 0)),
         opportunityLabel: res.opportunityLabel,
       }}
-      impact={{ pct: data.feedbackPct, label: res.doveImpact, hint: res.doveHint(data.feedbackEvaluated, data.total), index: { value: data.index, label: res.indexLabel, hint: res.indexHint }, euro: roiFigure(res, roi, 'dove') }}
+      impact={{ pct: data.feedbackPct, label: res.doveImpact, hint: res.doveHint(data.feedbackEvaluated, data.total), euro: roiFigure(res, roi, 'dove') }}
       suggestion={{ text: res.doveSuggest, link: { label: res.goPanoramica, to: '/assessment/panoramica' } }}
       deepDives={[
         { label: res.deep.piani, to: '/assessment/feedback' },

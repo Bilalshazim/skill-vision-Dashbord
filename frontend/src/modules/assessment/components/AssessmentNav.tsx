@@ -23,6 +23,7 @@ import { isDemoAccount, isDemoMode } from '@/lib/demo-mode'
 import { MethodologyModal } from '@/modules/assessment/components/MethodologyModal'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { getNavConfig } from '@/modules/assessment/lib/legacy-utils'
+import { cn } from '@/lib/utils'
 import { errorReason } from '@/modules/assessment/lib/server-sync'
 import { clearBrowserAssessment, readBrowser5p, readBrowserAssessment } from '@/modules/assessment/lib/browser-import'
 
@@ -60,12 +61,22 @@ export function AssessmentNav() {
   const [busy, setBusy] = useState(false)
   const [confirm, confirmDialog] = useConfirm()
   const location = useLocation()
-  // Il confronto è una vista dei risultati trasversali: nel menu resta accesa quella voce.
-  const pathPage = location.pathname.split('/')[2] || 'home'
-  const currentPage = pathPage === 'confronto' ? 'soft-risultati' : pathPage
+  // Confronta persone ha la sua voce (nuovo indice, 2026-11-16): ogni pagina accende la sua.
+  const currentPage = location.pathname.split('/')[2] || 'home'
+  // Una voce che apre un punto della pagina (`#sezione`, `?tab=capitolo`) si accende solo lì;
+  // senza capitolo nell'indirizzo, la pagina delle Valutazioni professionali apre il primo.
+  const isItemActive = (it: { id: string; to?: string }) => {
+    if (it.id !== currentPage) return false
+    if (!it.to) return true
+    const hash = it.to.split('#')[1]
+    if (hash !== undefined) return location.hash === `#${hash}`
+    const tab = new URLSearchParams(it.to.split('?')[1] ?? '').get('tab')
+    const current = new URLSearchParams(location.search).get('tab')
+    return tab === current || (!current && tab === 'piano')
+  }
   // "Area Valutazioni" e "Area Risultati" partono aperte: le loro voci si
   // vedono subito sotto (richiesta del cliente, 2026-10-13). Si possono chiudere.
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ home: true, valutazioni: true, risultati: true })
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ home: true, company: true, 'val-trasversali': true, 'val-professionali': true })
   const [showMethodology, setShowMethodology] = useState(false)
   // Il gruppo che si apre al passaggio del mouse: aperto resta aperto (non si richiude quando
   // il mouse esce, così le voci sotto non saltano); si chiude con clic, tocco o Invio.
@@ -141,9 +152,9 @@ export function AssessmentNav() {
   // Raggruppa per sezione: una voce `section` apre un gruppo con etichetta.
   // Un gruppo che resterebbe vuoto non compare.
   type Entry = (typeof nav)[number]
-  const groups: { label?: string; entries: Entry[] }[] = [{ entries: [] }]
+  const groups: { label?: string; note?: string; entries: Entry[] }[] = [{ entries: [] }]
   for (const entry of nav) {
-    if (entry.type === 'section') groups.push({ label: entry.label, entries: [] })
+    if (entry.type === 'section') groups.push({ label: entry.label, note: entry.note, entries: [] })
     else groups[groups.length - 1].entries.push(entry)
   }
 
@@ -151,11 +162,14 @@ export function AssessmentNav() {
     if (entry.type === 'link') {
       const Icon = iconFor(entry.icon)
       return (
-        <SidebarMenuItem key={entry.id}>
-          <SidebarMenuButton asChild isActive={entry.id === currentPage} className={emphasisClass(entry.id)}>
+        <SidebarMenuItem key={entry.key ?? entry.id}>
+          <SidebarMenuButton asChild isActive={entry.id === currentPage} className={cn(entry.sub && 'h-auto', emphasisClass(entry.id))}>
             <NavLink to={`/assessment/${entry.id}`}>
               <Icon aria-hidden="true" />
-              <span className="min-w-0 flex-1">{entry.label}</span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span>{entry.label}</span>
+                {entry.sub ? <span className="text-app-caption text-muted-foreground">{entry.sub}</span> : null}
+              </span>
               {entry.badge && feedbackBadge > 0 ? <SidebarMenuBadge aria-label={`${feedbackBadge}`}>{feedbackBadge}</SidebarMenuBadge> : null}
             </NavLink>
           </SidebarMenuButton>
@@ -177,13 +191,14 @@ export function AssessmentNav() {
     if (entry.type === 'group') {
       const visibleItems = entry.items
       if (!visibleItems.length) return null
-      const containsActive = visibleItems.some((it) => it.id === currentPage)
+      const itemActive = visibleItems.some(isItemActive)
+      const containsActive = itemActive || entry.homeId === currentPage
       const isOpen = containsActive || !!openGroups[entry.groupId]
       const Icon = iconFor(entry.icon)
       const toggle = () => setOpenGroups((p) => ({ ...p, [entry.groupId]: !p[entry.groupId] }))
       // "Home" apre la home e ha sotto le pagine dei risultati (CLAUDE.md, Fase 6,
       // 2026-11-02): il titolo è un link, quindi si apre e chiude con la freccia.
-      const homeActive = entry.homeId === currentPage
+      const homeActive = entry.homeId === currentPage && !itemActive
       return (
         <SidebarMenuItem key={entry.groupId}>
           {entry.homeId ? (
@@ -219,9 +234,9 @@ export function AssessmentNav() {
           {isOpen ? (
             <SidebarMenuSub>
               {visibleItems.map((it) => (
-                <SidebarMenuItem key={it.id}>
-                  <SidebarMenuButton asChild isActive={it.id === currentPage} className={emphasisClass(it.id)}>
-                    <NavLink to={`/assessment/${it.id}`}>{it.label}</NavLink>
+                <SidebarMenuItem key={it.key ?? it.id}>
+                  <SidebarMenuButton asChild isActive={isItemActive(it)} className={emphasisClass(it.id)}>
+                    <NavLink to={`/assessment/${it.to ?? it.id}`}>{it.label}</NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -244,7 +259,12 @@ export function AssessmentNav() {
           if (!items.length) return null
           return (
             <SidebarGroup key={i}>
-              {g.label ? <SidebarGroupLabel>{g.label}</SidebarGroupLabel> : null}
+              {g.label ? (
+                <SidebarGroupLabel title={g.note}>
+                  {g.label}
+                  {g.note ? <span className="block font-sans text-app-caption normal-case tracking-normal">{g.note}</span> : null}
+                </SidebarGroupLabel>
+              ) : null}
               <SidebarMenu>{items}</SidebarMenu>
             </SidebarGroup>
           )
