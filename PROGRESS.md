@@ -190,6 +190,11 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-13 (2) — Resoconto del 12–13/11
+- [x] `resoconto-2026-11-12.md`: parti A, B, C con i valori letti in produzione da Bilal (13/11) accanto a quelli
+      locali, commit di riferimento `bb565c1`, tabella delle colonne Excel, analisi dei cinque campi ROI, antivirus.
+- [ ] Non verificati in produzione: importazione da Excel, salvataggio di «Dati dell'azienda». Non fatto: ClamAV su Railway.
+
 ## 2026-11-13 — Dati demo di Acme corretti sul server
 - [x] Causa della mancata correzione in produzione: `VITE_DEMO_COMPANY_IDS` vuota nella build (il distintivo «Dati
       dimostrativi» dipende solo da `VITE_DEMO_MODE`), quindi il browser non riconosceva Acme come società demo. Stessa
