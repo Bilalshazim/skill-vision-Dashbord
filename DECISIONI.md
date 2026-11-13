@@ -3218,3 +3218,9 @@ elasticità × attuabilità); la Leva 2 è «Costo del turnover evitato» (`m.l2
 Roberto: sotto Analisi predittiva l'Anagrafica serve solo a caricare i dati. Tolte dalla tabella «Soft Skill assegnate»
 e il punteggio complessivo, e l'ordinamento per punteggio. L'assegnazione individuale delle soft skill si apriva solo
 da quella colonna: per non perdere la funzione si apre dal pannello della persona (pulsante «Soft Skill assegnate»).
+
+## Il valore: la cifra segue il bilancio caricato · 2026-11-13
+Verificato in produzione (Acme Corp): € 1.677.267 = HCVA € 23.940.143 × divario 20% × 23/23 valutate × 50% × 70%,
+la leva «Produttività dal divario di competenza» del motore al euro. La stima di € 213.686 valeva per il bilancio
+dimostrativo, sostituito in produzione dal bilancio caricato da Roberto. Decisione: nessun valore forzato nel codice e
+nessun ripristino del bilancio dimostrativo su Acme senza una richiesta di Roberto.

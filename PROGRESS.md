@@ -190,6 +190,16 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-13 (4) — Il valore: cifra verificata in produzione
+- [x] Bilal ha letto in produzione, Il valore › «Come è calcolato» (Acme Corp, dopo `577cb03`): HCVA € 23.940.143;
+      divario dall'atteso 20% (80% rilevato, 100% atteso); persone valutate 23 / 23; potenziale del divario
+      € 4.792.192; elasticità × attuabilità 50% × 70%; risultato € 1.677.267 (prudenziale € 958.438 · espansivo
+      € 2.300.252). Torna al euro con la formula del motore (23.940.143 × 20% × 23/23 × 50% × 70%).
+- [x] Perché non € 213.686: quella stima veniva dal bilancio dimostrativo (HCVA circa € 3 milioni). Roberto ha
+      caricato in produzione il suo bilancio su Acme, che ha sostituito quello dimostrativo: tutte le cifre in euro
+      scalano con lui. Nessuna modifica al codice: Il valore e Il potenziale usano lo stesso calcolo e gli stessi dati.
+- [ ] Il bilancio di Roberto su Acme **non si tocca**: si rimette quello dimostrativo solo se lo chiede lui.
+
 ## 2026-11-13 (3) — Richieste di Roberto del 13/11 (verifica della produzione)
 - [x] **Dati aziendali · salvataggio**: «Salva» di «Dati dell'azienda» non passa più dalla coda comune delle
       modifiche (`runSync`, che si ferma alla prima chiamata che fallisce): scrive il profilo con
