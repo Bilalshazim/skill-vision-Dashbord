@@ -1,4 +1,5 @@
 import { createApp } from './app.js'
+import { fixDemoCompanies } from './lib/demoFix.js'
 import { env } from './lib/env.js'
 import { logger } from './lib/logger.js'
 import { prisma } from './lib/prisma.js'
@@ -7,6 +8,9 @@ const app = createApp()
 
 const server = app.listen(env.port, () => {
   logger.info({ port: env.port }, 'Recruiting backend listening')
+  // I dati dimostrativi di Acme, corretti sul server (lib/demoFix.ts): non blocca l'avvio, e un
+  // errore qui non ferma il servizio, si scrive nel registro.
+  void fixDemoCompanies(prisma).catch((err) => logger.error({ err }, 'demoFix: correzione dei dati demo non riuscita'))
 })
 
 // Phase 34 §18 — stop accepting new connections, let in-flight requests

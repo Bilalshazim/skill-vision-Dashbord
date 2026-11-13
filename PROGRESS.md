@@ -190,6 +190,17 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-13 — Dati demo di Acme corretti sul server
+- [x] Causa della mancata correzione in produzione: `VITE_DEMO_COMPANY_IDS` vuota nella build (il distintivo «Dati
+      dimostrativi» dipende solo da `VITE_DEMO_MODE`), quindi il browser non riconosceva Acme come società demo. Stessa
+      causa per il bilancio dimostrativo, mai caricato in produzione dal 9/11.
+- [x] Correzione all'avvio del backend (`lib/demoFix.ts`): società di `ASSESSMENT_DEMO_COMPANY_IDS` più «Acme Corp» con
+      l'impronta dei dati demo. In locale, dati messi come in produzione e lista vuota: sesso sbagliato 23 → 0 (Antonio
+      Bianchi M, Sara Colombo F, Laura De Luca F, Andrea Costa M), `@democompany.com` 26 → 0, Intervista «Acme Corp»,
+      contatti `@acme.example`, bilancio caricato (12 voci, turnover 6 conservato). Seconda esecuzione: nessuna modifica.
+      Dati locali rimessi com'erano.
+- [ ] In produzione da provare dopo il deploy (Bilal). Consigliato: `VITE_DEMO_COMPANY_IDS` su Railway con l'id di Acme.
+
 ## 2026-11-12 — Decisioni di Roberto del 2026-11-12 (Analisi predittiva) e Section A
 - [x] **Passo 1 · Dati demo di Acme**: il generatore usa «Acme Corp» e `@acme.example`, il sesso segue il nome
       (stessa sequenza casuale: popolazione invariata). Correzione una tantum sui dati già salvati, solo sulla società

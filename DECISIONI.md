@@ -3180,3 +3180,17 @@ Non provato: richiede l'accesso a Railway. Quello che serve:
    viene rifiutato con «Il controllo antivirus non è disponibile».
 Finché ClamAV non c'è, per la sola società demo si può tenere aperto il modulo con `ANTIVIRUS_ALLOW_BASIC=true`
 (solo controllo di base). Una società vera non passa mai senza motore.
+
+## Dati demo di Acme: la correzione passa al server · 2026-11-13
+In produzione la correzione del 12/11 (dati demo e bilancio dimostrativo) non è partita. Causa: il browser riconosce la
+società demo solo da `VITE_DEMO_COMPANY_IDS`, che nella build di produzione è vuota se la variabile non è impostata su
+Railway; il distintivo «Dati dimostrativi» invece dipende solo da `VITE_DEMO_MODE`. Per lo stesso motivo il bilancio
+dimostrativo non si era mai caricato in produzione dal 9/11. Non era un problema di dati già salvati: in locale la
+correzione aveva convertito record esistenti (17 sessi, 25 email).
+Scelta: la correzione gira anche sul server, all'avvio del backend (`lib/demoFix.ts`), senza dipendere dal browser.
+Società: quelle di `ASSESSMENT_DEMO_COMPANY_IDS`, più «Acme Corp» se porta ancora l'impronta dei dati demo (email
+`@democompany.com` o «Demo Company S.r.l.» nell'Intervista). Cambia solo sesso (dal nome, nomi dell'elenco demo), dominio
+delle email, nome nell'Intervista e, se manca, il bilancio dimostrativo; punteggi, RAL e valutazioni no. Idempotente:
+ai riavvii successivi non trova niente. Consigliato comunque su Railway: `VITE_DEMO_COMPANY_IDS` con l'id di Acme in
+produzione (il registro del backend lo scrive alla riga «demoFix: società demo controllata»), così anche gli strumenti
+demo del browser riconoscono la società.
