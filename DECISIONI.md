@@ -3194,3 +3194,27 @@ delle email, nome nell'Intervista e, se manca, il bilancio dimostrativo; puntegg
 ai riavvii successivi non trova niente. Consigliato comunque su Railway: `VITE_DEMO_COMPANY_IDS` con l'id di Acme in
 produzione (il registro del backend lo scrive alla riga «demoFix: società demo controllata»), così anche gli strumenti
 demo del browser riconoscono la società.
+
+## Il valore: quale cifra è la «Leva 2» di Roberto · 2026-11-13
+Roberto chiede per L'impatto di Il valore la cifra di «LEVA 2 – Produttività dal divario di competenza». Nel motore ROI
+(roi.skill-vision.it, `index.html` e `glossary.js`) quel nome è la **Leva 1** (`m.l1` = potenziale lordo del divario ×
+elasticità × attuabilità); la Leva 2 è «Costo del turnover evitato» (`m.l2`).
+- Opzioni: (a) il nome, `l1`; (b) il numero, `l2` (turnover, che non c'entra con il divario di competenza).
+- Raccomandazione e presa: **(a)**. Con i dati demo in locale € 202.387 (prima € 578.249, il lordo `gapVal`).
+- Conseguenza: Il valore e Il potenziale mostrano la stessa cifra. Da confermare con Roberto.
+
+## Dati aziendali: tre campi ROI, salvataggio diretto, impaginazione compatta · 2026-11-13
+- % turnover, % assenteismo + malattia, Valore del contratto tornano nella finestra «Dati dell'azienda» (Roberto, 13/11)
+  e si salvano nei dati del motore ROI già esistenti (`turn`, `ass`, `inv` = «Corrispettivo dell'assessment» del motore),
+  non nel profilo: il calcolo li legge da lì da sempre. Durata dell'esercizio e costo delle azioni restano fuori pagina.
+- Il «Salva» scrive profilo e dati ROI direttamente sul server (`saveCompanyProfile` nel contesto), non nella coda delle
+  modifiche: una chiamata precedente rifiutata nella coda fermava anche il profilo, e la pagina diceva «salvati» prima
+  della risposta. Opzione scartata: correggere la coda in generale (tocca tutto Assessment, senza poter riprodurre il
+  caso di produzione).
+- Compatta per il portatile: tre colonne sopra i 1280px (la regola del 12/11 diceva due sopra i 1024px; tra 1024 e
+  1280 restano due).
+
+## Anagrafica senza punteggi · 2026-11-13
+Roberto: sotto Analisi predittiva l'Anagrafica serve solo a caricare i dati. Tolte dalla tabella «Soft Skill assegnate»
+e il punteggio complessivo, e l'ordinamento per punteggio. L'assegnazione individuale delle soft skill si apriva solo
+da quella colonna: per non perdere la funzione si apre dal pannello della persona (pulsante «Soft Skill assegnate»).

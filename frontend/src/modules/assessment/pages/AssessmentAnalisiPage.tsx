@@ -65,9 +65,14 @@ function buildInterviewTranscript(a: ExiData, ui: ReturnType<typeof getUI>): { q
 // 25) the 8-step edit wizard, print view, and JSON export. Phase 24 had
 // shipped only the report/display side.
 export default function AssessmentAnalisiPage() {
-  const { state, setState } = useAssessment()
+  const { state, setState, canEdit, ui, company } = useAssessment()
   const navigate = useNavigate()
-  const [mode, setMode] = useState<'report' | 'wizard'>('report')
+  // 2026-11-13 (Roberto): aprendo l'Intervista si vede subito il modulo vuoto da compilare,
+  // non il riepilogo con «Nuova intervista». L'intervista salvata non si tocca finché la nuova
+  // non è generata, e resta raggiungibile con «Vedi l'intervista salvata». Chi legge soltanto
+  // vede il riepilogo, come prima.
+  const [mode, setMode] = useState<'report' | 'wizard' | 'fresh'>(canEdit ? 'fresh' : 'report')
+  const [fresh] = useState(() => exiBlankData(company?.name || state.settings.companyName))
   const [wizardStartStep, setWizardStartStep] = useState(0)
   const a = state.analisiIniziale
 
@@ -76,6 +81,9 @@ export default function AssessmentAnalisiPage() {
     setMode('report')
   }
 
+  if (mode === 'fresh') {
+    return <AnalisiWizard initial={fresh} startStep={0} onCancel={a.completed ? () => setMode('report') : null} cancelLabel={ui.exiShowSavedBtn} onGenerate={commitAndReturn} />
+  }
   if (mode === 'wizard') {
     return <AnalisiWizard initial={a} startStep={wizardStartStep} onCancel={a.completed ? () => setMode('report') : null} onGenerate={commitAndReturn} />
   }

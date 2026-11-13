@@ -57,7 +57,7 @@ const DECISION_ICON: Record<string, LucideIcon> = {
   '🎓': GraduationCap,
 }
 
-export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { initial: ExiData; startStep: number; onCancel: (() => void) | null; onGenerate: (data: ExiData) => void }) {
+export function AnalisiWizard({ initial, startStep, onCancel, cancelLabel, onGenerate }: { initial: ExiData; startStep: number; onCancel: (() => void) | null; cancelLabel?: string; onGenerate: (data: ExiData) => void }) {
   const { ui } = useAssessment()
   const [draft, setDraft] = useState<Draft>(() => toDraft(initial))
   const [step, setStep] = useState(startStep)
@@ -125,9 +125,9 @@ export function AnalisiWizard({ initial, startStep, onCancel, onGenerate }: { in
   }
 
   const total = steps.length - 1
-  const cancelBtn = initial.completed && onCancel ? (
+  const cancelBtn = onCancel ? (
     <Button variant="ghost" size="sm" onClick={onCancel}>
-      {ui.exiCancelEditBtn}
+      {cancelLabel ?? ui.exiCancelEditBtn}
     </Button>
   ) : null
 

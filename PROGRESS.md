@@ -190,6 +190,34 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-13 (3) — Richieste di Roberto del 13/11 (verifica della produzione)
+- [x] **Dati aziendali · salvataggio**: «Salva» di «Dati dell'azienda» non passa più dalla coda comune delle
+      modifiche (`runSync`, che si ferma alla prima chiamata che fallisce): scrive il profilo con
+      `saveCompanyProfile` del contesto, direttamente sul server, e dice «salvati» solo dopo la risposta; se il
+      server rifiuta, l'errore resta sotto il pulsante. Stesso percorso per «Salva profilo azienda» (Ruoli chiave).
+      In locale il vecchio percorso funzionava (PUT 204): la causa in produzione non si vede senza accesso; il
+      sospetto è una modifica precedente nella coda che il server rifiuta e ferma anche il profilo.
+- [x] **Dati aziendali · tre campi**: % turnover, % assenteismo + malattia, Valore del contratto, nella finestra,
+      salvati nei dati del motore ROI (`turn`, `ass`, `inv`) con lo stesso «Salva». Campo vuoto = valore salvato
+      invariato. In locale: ATECO 62.01.00 e turnover 7 salvati (PUT company-profile 204, PUT roi 204), ricaricata
+      la pagina: valori al loro posto; turnover rimesso a 6.
+- [x] **Dati aziendali · compatta**: campi `sm`, spazi 12px, tre colonne sopra i 1280px (due fra 1024 e 1280,
+      una su telefono). A 1366×768 la finestra intera sta in 540px circa; a 390px nessuno scorrimento orizzontale.
+- [x] **Intervista**: si apre sul modulo vuoto (passo «Setup», ragione sociale della società attiva). L'intervista
+      salvata non cambia finché la nuova non è generata; «Vedi l'intervista salvata» in alto riporta al riepilogo.
+      Chi legge soltanto vede il riepilogo come prima.
+- [x] **Anagrafica**: tolte le colonne «Soft Skill assegnate» e del punteggio complessivo, e l'ordinamento per
+      punteggio. L'assegnazione delle soft skill (si apriva solo da quella colonna) si apre ora dal pannello della
+      persona, pulsante «Soft Skill assegnate»: provato in locale, si apre sopra il pannello.
+- [x] **Il valore**: due finestre uguali affiancate, «Valore espresso» 80% (Gauge lime) e «Skill-gap mancante» 20%
+      (Gauge in inchiostro, gap medio senza segno); «Vedi per mansione» sotto; Copertura mansioni invariata.
+      L'impatto = leva «Produttività dal divario di competenza» del motore (`l1` = lordo × elasticità 50% ×
+      attuabilità 70%): in locale € 578.249 → € 202.387. In produzione atteso € 610.530 × 0,35 ≈ € 213.686.
+- [x] Controlli: typecheck, lint (nessun errore nuovo), test, build, audit 0 difetti (prima 1).
+- [ ] Da provare in produzione (Bilal): salvataggio di Dati aziendali con l'account di Roberto/Alessio, cifra di Il valore.
+- [ ] Da chiarire con Roberto: ha scritto «Leva 2», ma nel motore «Produttività dal divario di competenza» è la
+      leva 1 (la 2 è il turnover). Preso il nome, non il numero. Ora Il valore e Il potenziale mostrano la stessa cifra.
+
 ## 2026-11-13 (2) — Resoconto del 12–13/11
 - [x] `resoconto-2026-11-12.md`: parti A, B, C con i valori letti in produzione da Bilal (13/11) accanto a quelli
       locali, commit di riferimento `bb565c1`, tabella delle colonne Excel, analisi dei cinque campi ROI, antivirus.

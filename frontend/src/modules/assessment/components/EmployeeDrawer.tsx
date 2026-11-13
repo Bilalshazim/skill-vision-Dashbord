@@ -13,6 +13,7 @@ import { CardLabel } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { EmployeeEditForm } from '@/modules/assessment/components/EmployeeEditForm'
+import { EmployeeSoftSkillModal } from '@/modules/assessment/components/EmployeeSoftSkillModal'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { StatTile } from '@/modules/assessment/components/StatTile'
 import { ProfileRadar } from '@/components/patterns/ProfileRadar'
@@ -45,6 +46,9 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
   const [feedbackNeeded, setFeedbackNeeded] = useState<boolean | null>(null)
   const [devPlan, setDevPlan] = useState<Employee['developmentPlan'] | null>(null)
   const [editDirty, setEditDirty] = useState(false)
+  // Le soft skill della persona: prima si aprivano dalla colonna dell'Anagrafica, tolta il
+  // 2026-11-13 (Roberto: l'Anagrafica sotto Analisi predittiva serve solo a caricare i dati).
+  const [softOpen, setSoftOpen] = useState(false)
   // Il pannello si apre nel guscio di Assessment (data-portal-scope), come
   // ModalDialog: così tiene le variabili del modulo.
   const [container, setContainer] = useState<HTMLElement | null | undefined>(undefined)
@@ -139,7 +143,7 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
                 </InlineAlert>
               ) : (
                 canEdit && (
-                  <div className="mb-4 flex gap-2">
+                  <div className="mb-4 flex flex-wrap gap-2">
                     <Button variant="outline" size="sm" onClick={() => setEditMode(true)}>
                       <Icon name="edit" />
                       {ui.editProfileBtn}
@@ -148,6 +152,11 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
                       <Icon name="download" />
                       {ui.reportBtn}
                     </Button>
+                    {f.A ? (
+                      <Button variant="outline" size="sm" onClick={() => setSoftOpen(true)}>
+                        {ui.anagColSoftAssigned}
+                      </Button>
+                    ) : null}
                   </div>
                 )
               )}
@@ -240,6 +249,7 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
         </SheetBody>
         </SheetContent>
       </Sheet>
+      {softOpen ? <EmployeeSoftSkillModal employeeId={emp.id} onClose={() => setSoftOpen(false)} /> : null}
     </>
   )
 }

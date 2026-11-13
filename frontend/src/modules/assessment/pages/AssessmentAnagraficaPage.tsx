@@ -8,7 +8,6 @@ import { Field } from '@/components/patterns/Field'
 import { Input } from '@/components/ui/input'
 import { Hint } from '@/components/patterns/Hint'
 import { Badge } from '@/components/ui/badge'
-import { chipTone } from '@/modules/assessment/lib/chip-tone'
 import { Initials } from '@/components/ui/avatar'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { DataTable } from '@/components/patterns/DataTable'
@@ -19,13 +18,12 @@ import { Button } from '@/components/ui/button'
 import { AnagraficaImport } from '@/modules/assessment/components/AnagraficaImport'
 import { AddEmployeeModal } from '@/modules/assessment/components/AddEmployeeModal'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
-import { EmployeeSoftSkillModal } from '@/modules/assessment/components/EmployeeSoftSkillModal'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { RoleCensusModal } from '@/modules/assessment/components/RoleCensusModal'
 import { SurveyLinkModal } from '@/modules/assessment/components/SurveyLinkModal'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
-import { activeEmployees, areasList, primaryScore, primaryScoreLabel } from '@/modules/assessment/lib/calculations'
-import { fmtCurrency, fmt1, genderDisplayLabel, getSoftSkills, semanticChip } from '@/modules/assessment/lib/legacy-utils'
+import { activeEmployees, areasList } from '@/modules/assessment/lib/calculations'
+import { fmtCurrency, genderDisplayLabel } from '@/modules/assessment/lib/legacy-utils'
 import type { Employee } from '@/modules/assessment/lib/types'
 
 const PAGE_SIZE = 10
@@ -39,11 +37,10 @@ export default function AssessmentAnagraficaPage() {
   const { state, setState, lang, ui, canEdit, isAdmin } = useAssessment()
   const [search, setSearch] = useState('')
   const [areaFilter, setAreaFilter] = useState('all')
-  const [sort, setSort] = useState<'cognome' | 'area' | 'score'>('cognome')
+  const [sort, setSort] = useState<'cognome' | 'area'>('cognome')
   const [showArchived, setShowArchived] = useState(false)
   const [page, setPage] = useState(1)
   const [drawerId, setDrawerId] = useState<string | null>(null)
-  const [softSkillModalId, setSoftSkillModalId] = useState<string | null>(null)
   const [archiveModalId, setArchiveModalId] = useState<string | null>(null)
   const [showRoleCensus, setShowRoleCensus] = useState(false)
   const [showSurveyLink, setShowSurveyLink] = useState(false)
@@ -59,8 +56,6 @@ export default function AssessmentAnagraficaPage() {
     [canEdit, ui],
   )
 
-  const SOFT_SKILLS = getSoftSkills(lang)
-
   const list = useMemo(() => {
     let l = showArchived ? state.employees.filter((e) => e.archived) : activeEmployees(state)
     if (areaFilter !== 'all') l = l.filter((e) => e.area === areaFilter)
@@ -71,17 +66,8 @@ export default function AssessmentAnagraficaPage() {
     l = [...l]
     if (sort === 'cognome') l.sort((a, b) => a.cognome.localeCompare(b.cognome))
     if (sort === 'area') l.sort((a, b) => a.area.localeCompare(b.area))
-    if (sort === 'score') l.sort((a, b) => primaryScore(b, state, lang) - primaryScore(a, state, lang))
     return l
-  }, [state, lang, showArchived, areaFilter, search, sort])
-
-  function softAssignedLabel(empId: string) {
-    const e = state.employees.find((x) => x.id === empId)!
-    const totalSkills = SOFT_SKILLS.length
-    const done = Object.values(e.soft || {}).filter((v) => v && v.ottenuto > 0).length
-    const cls = done >= totalSkills ? 'chip-green' : done > 0 ? 'chip-amber' : 'chip-gray'
-    return { cls, text: `${done}/${totalSkills}` }
-  }
+  }, [state, showArchived, areaFilter, search, sort])
 
   function restoreEmployee(id: string) {
     if (!canEdit) return
@@ -145,7 +131,6 @@ export default function AssessmentAnagraficaPage() {
               >
                 <option value="cognome">{ui.anagSortLastName}</option>
                 <option value="area">{ui.anagSortArea}</option>
-                <option value="score">{ui.anagSortScore}</option>
               </SelectField>
               <FilterToggle>
                 <Checkbox
@@ -199,38 +184,9 @@ export default function AssessmentAnagraficaPage() {
           // La RAL solo agli amministratori (decisione 3 del 2026-10-14).
           ...(isAdmin ? [{ key: 'ral', header: ui.anagColRal, emphasis: 'muted' as const, nowrap: true, align: 'end' as const, cell: (e: Employee) => (e.ral ? fmtCurrency(e.ral) : '—') }] : []),
           { key: 'benefit', header: ui.anagColBenefit, emphasis: 'muted', truncate: 'sm', cell: (e) => e.benefit || '—' },
-          {
-            key: 'soft',
-            header: ui.anagColSoftAssigned,
-            cell: (e) => {
-              const soft = softAssignedLabel(e.id)
-              return (
-                <Hint label={ui.anagColSoftAssigned}>
-                  <button
-                    type="button"
-                    className="rounded-full"
-                    onClick={(ev) => {
-                      ev.stopPropagation()
-                      setSoftSkillModalId(e.id)
-                    }}
-                  >
-                    <Badge tone={chipTone(soft.cls)} dot>
-                      {soft.text}
-                    </Badge>
-                  </button>
-                </Hint>
-              )
-            },
-          },
-          {
-            key: 'score',
-            header: primaryScoreLabel(state, lang),
-            cell: (e) => (
-              <Badge tone={chipTone(semanticChip(primaryScore(e, state, lang)))} dot>
-                {fmt1(primaryScore(e, state, lang))}
-              </Badge>
-            ),
-          },
+          // Niente punteggi qui (Roberto, 2026-11-13): sotto Analisi predittiva l'Anagrafica serve a
+          // caricare i dati. Soft skill e punteggio complessivo stanno nelle pagine delle valutazioni;
+          // le soft skill della persona si aprono dal suo pannello.
           {
             key: 'actions',
             header: '',
@@ -267,7 +223,6 @@ export default function AssessmentAnagraficaPage() {
       <AnagraficaImport />
 
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
-      {softSkillModalId && <EmployeeSoftSkillModal employeeId={softSkillModalId} onClose={() => setSoftSkillModalId(null)} />}
       {showRoleCensus && <RoleCensusModal onClose={() => setShowRoleCensus(false)} />}
       {showSurveyLink && <SurveyLinkModal onClose={() => setShowSurveyLink(false)} />}
       {showAddEmployee && <AddEmployeeModal onClose={() => setShowAddEmployee(false)} />}

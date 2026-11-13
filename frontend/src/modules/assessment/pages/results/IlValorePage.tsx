@@ -32,6 +32,8 @@ export default function IlValorePage() {
   const worst = data.worstRoleByGap
   const worstArea = data.worstAreaByValue
   const index = data.index ?? 0
+  // Lo skill-gap mancante: il gap medio senza segno. Se in media si supera l'atteso non manca niente.
+  const gapMissing = Math.max(0, -(data.gapMedio ?? 0))
   const people = (list: RankedPerson[]) => list.map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, value: Math.round(r.index ?? 0) }))
   const scale = { min: 0, max: 120, expected: 100, expectedLabel: res.cmpReference, format: pct }
   return (
@@ -48,27 +50,36 @@ export default function IlValorePage() {
         wide: true,
         chart: (
           <div className="flex flex-col gap-4">
-            <Card className="gap-3">
-              <p className="label-mono text-muted-foreground">{res.indexLabel}</p>
-              <div className="flex flex-col items-center gap-2">
-                <ScoreGauge value={index} max={100} unit="%" decimals={0} tone="highlight" size="lg" label={res.valoreGaugeCenter} className="justify-center" />
-                {/* Il gap medio con il suo nome, al posto di «−20% dall'atteso» (correzioni di
-                    Roberto del 2026-11-10): la media dei gap delle persone, il dato che va al ROI. */}
+            {/* Roberto, 2026-11-13: due finestre uguali affiancate, «80% valore espresso» e «20%
+                skill-gap mancante», al posto del Gauge con il gap medio sotto. Il lime resta
+                uno solo, sul valore espresso; lo skill-gap è il gap medio delle persone (il dato
+                che va al ROI), in inchiostro. */}
+            <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
+              <Card className="h-full gap-3">
                 <p className="flex items-center gap-2">
-                  <span className="label-mono text-muted-foreground">{res.gapMedioLabel}</span>
-                  <InfoTip label={res.gapMedioLabel}>{res.gapMedioHint}</InfoTip>
+                  <span className="label-mono text-muted-foreground">{res.valoreExpressedTitle}</span>
+                  <InfoTip label={res.valoreExpressedTitle}>{res.indexHint}</InfoTip>
                 </p>
-                <p className="text-site-h3 tabular-nums text-foreground">{res.gapPct(data.gapMedio)}</p>
-              </div>
-              {data.roleValues.length ? (
-                <Collapsible className="flex flex-col gap-3">
-                  <CollapsibleTrigger asChild>
-                    <Button variant="outline" className="group self-center">
-                      {res.valoreByRole}
-                      <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="flex flex-col gap-3 border-t border-border pt-4">
+                <ScoreGauge value={index} max={100} unit="%" decimals={0} tone="highlight" label={res.valoreGaugeCenter} className="justify-center" />
+              </Card>
+              <Card className="h-full gap-3">
+                <p className="flex items-center gap-2">
+                  <span className="label-mono text-muted-foreground">{res.valoreGapTitle}</span>
+                  <InfoTip label={res.valoreGapTitle}>{res.valoreGapHint}</InfoTip>
+                </p>
+                <ScoreGauge value={gapMissing} max={100} unit="%" decimals={0} label={res.valoreGapCenter} className="justify-center" />
+              </Card>
+            </div>
+            {data.roleValues.length ? (
+              <Collapsible className="flex flex-col gap-3">
+                <CollapsibleTrigger asChild>
+                  <Button variant="outline" className="group self-center">
+                    {res.valoreByRole}
+                    <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <Card className="gap-3">
                     <p className="flex items-center gap-2">
                       <span className="label-mono text-muted-foreground">{res.valoreRoleTitle}</span>
                       <InfoTip label={res.valoreRoleTitle}>{res.valoreRoleHint}</InfoTip>
@@ -87,10 +98,10 @@ export default function IlValorePage() {
                       rows={data.roleValues.map((r) => ({ label: r.label, values: { value: r.value, atteso: 100 } }))}
                     />
                     <TextLink link={{ label: res.valoreSeeAll, to: '/assessment/valore' }} />
-                  </CollapsibleContent>
-                </Collapsible>
-              ) : null}
-            </Card>
+                  </Card>
+                </CollapsibleContent>
+              </Collapsible>
+            ) : null}
             <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
               <Card className="h-full gap-3">
                 <p className="label-mono text-muted-foreground">{ui.panoCoverage}</p>

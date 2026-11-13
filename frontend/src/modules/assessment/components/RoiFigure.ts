@@ -39,13 +39,20 @@ export function roiFigure(res: Res, roi: RoiResult, page: 'valore' | 'perdite' |
     { label: res.roiRowEvaluated, value: `${s.nVal} / ${s.N}` },
   ]
   if (page === 'valore') {
+    // Roberto, 2026-11-13: Il valore mostra la cifra della leva «Produttività dal divario di
+    // competenza» del motore (m.l1, numerata «Leva 1» nel motore), non il potenziale lordo
+    // del divario (m.gapVal), che era più alto. Prima il lordo, poi elasticità × attuabilità.
     return {
-      value: roiEuro(base.gapVal),
-      tags: [res.roiTagPotential, res.roiTagEstimate],
+      value: roiEuro(base.l1),
+      tags: [res.roiTagEstimate],
       note: res.roiValoreNote,
-      scenarios: scenarios('gapVal'),
+      scenarios: scenarios('l1'),
       footer,
-      how: { title: res.roiHowTitle, intro: res.roiHowValore, rows: [...dataRows, { label: res.roiRowResult, value: roiEuro(base.gapVal) }] },
+      how: {
+        title: res.roiHowTitle,
+        intro: res.roiHowValore,
+        rows: [...dataRows, { label: res.roiRowDivario, value: roiEuro(base.gapVal) }, { label: res.roiRowEffect, value: `${pct(s.el)} × ${pct(s.r1)}` }, { label: res.roiRowResult, value: roiEuro(base.l1) }],
+      },
     }
   }
   if (page === 'perdite') {
