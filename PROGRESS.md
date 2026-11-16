@@ -200,7 +200,7 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
       altre spente; «% delle persone da potenziare» bordo lime, anello centrato (scarto 0); Dove intervenire,
       «Espansivo» lime e 1,05, Prudenziale e Base invariati; Il potenziale senza scorrimento orizzontale. Le perdite
       invisibili non mostra gli scenari: la cifra del divario è la stessa nei tre (comportamento di prima).
-- [ ] Non pubblicato: in attesa dell'ok di Bilal per il push.
+- [x] Pubblicato su main su richiesta di Bilal (16/11). In produzione da provare.
 
 ## 2026-11-16 (2) — Il valore: le finestre si accendono al passaggio del mouse
 - [x] Pattern `HoverHighlightCard` (libreria): al passaggio del mouse bordo lime e grafico lime, un poco più grande
