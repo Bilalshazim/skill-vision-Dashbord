@@ -3260,5 +3260,5 @@ Va contro due regole scritte: «La card di un grafico è una card… non hover:b
 clicca» e, per le finestre della home, «al passaggio del mouse cambiano solo il fondo e il bordo… nessuno spostamento».
 Anche «un verde per sezione» si piega: sotto il mouse le finestre accese possono essere due (il Gauge del valore
 espresso è sempre lime). Presa come eccezione voluta, solo su Il valore, con un pattern della libreria
-() e non con classi nella pagina; lime  per leggibilità in chiaro; niente
+(`HoverHighlightCard`) e non con classi nella pagina; lime `chart-highlight-line` per leggibilità in chiaro; niente
 crescita con prefers-reduced-motion. Da confermare con Alessio prima di estenderla ad altre pagine.
