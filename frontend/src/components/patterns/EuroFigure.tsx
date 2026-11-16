@@ -27,7 +27,8 @@ export type ResultsEuro = {
 // `hoverScenarios`: i riquadri degli scenari si accendono al passaggio del mouse come le finestre
 // di Il valore (HoverHighlightCard, Bilal 2026-11-16): bordo e cifra in `chart-highlight-line`
 // (accent-600 in chiaro, accent-400 in scuro: mai lime più chiaro come testo su fondo chiaro) e
-// la cifra un poco più grande; con prefers-reduced-motion non cresce.
+// la cifra un poco più grande; con prefers-reduced-motion non cresce. Con il passaggio del mouse
+// lo scenario base non ha il bordo lime fisso (Bilal, 2026-11-16): resta la cifra più grande.
 export function EuroFigure({ euro, note, hoverScenarios, className }: { euro?: ResultsEuro; note?: string; hoverScenarios?: boolean; className?: string }) {
   const [howOpen, setHowOpen] = useState(false)
   const text = euro?.note ?? note
@@ -45,7 +46,7 @@ export function EuroFigure({ euro, note, hoverScenarios, className }: { euro?: R
           {euro.scenarios.map((s) => (
             <div
               key={s.label}
-              className={cn('flex flex-col gap-1 rounded-sm p-3', s.main ? 'border-2 border-ring' : 'border border-border', hoverScenarios && 'group/scenario transition-colors duration-200 hover:border-chart-highlight-line')}
+              className={cn('flex flex-col gap-1 rounded-sm p-3', s.main && !hoverScenarios ? 'border-2 border-ring' : 'border border-border', hoverScenarios && 'group/scenario transition-colors duration-200 hover:border-chart-highlight-line')}
             >
               <dt className="label-mono text-muted-foreground">{s.label}</dt>
               <dd

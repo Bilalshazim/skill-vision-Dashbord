@@ -199,7 +199,9 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 - [x] Lo stesso sui tre riquadri degli scenari di L'impatto (`EuroFigure` con `hoverScenarios`, solo Il valore): bordo
       e cifra in `chart-highlight-line`, cifra a 1,05. In locale su Prudenziale: bordo e cifra rgb(221,238,28),
       scale 1.05; Base ed Espansivo invariati. Ring di Copertura mansioni centrato nella card (scarto 0 px).
-- [ ] Non pubblicato: da vedere in locale prima (eccezione alle regole, sotto).
+- [x] In Il valore lo scenario Base non ha più il bordo lime fisso (Bilal): tre riquadri con lo stesso bordo sottile,
+      lime solo sotto il mouse; Base tiene la cifra più grande. Dove intervenire e le altre pagine invariate.
+- [x] Pubblicato su main su richiesta di Bilal (16/11). In produzione da provare.
 
 ## 2026-11-16 — «Spero siano gli ultimi ritocchi» (Roberto, 16/11)
 - [x] **Dati aziendali**: etichette di Roberto, «% Turnover attuale», «% assenteismo + malattia attuale», «Valore del
