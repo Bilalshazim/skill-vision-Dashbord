@@ -190,6 +190,14 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-16 (2) — Il valore: le finestre si accendono al passaggio del mouse
+- [x] Pattern `HoverHighlightCard` (libreria): al passaggio del mouse bordo lime e grafico lime, un poco più grande
+      (scala 1,05 in 0,3 s; con prefers-reduced-motion niente crescita). Lime = `chart-highlight-line` (accent-600 in
+      chiaro, accent-400 in scuro). Usato sulle quattro finestre di Il valore: Valore espresso, Skill-gap mancante,
+      Copertura mansioni (si accendono Gauge e Ring) e L'impatto (solo il bordo). In locale: bordo rgb(221,238,28),
+      arco `chart-highlight-line`, scale 1.05; le altre card restano spente; uscendo tornano com'erano.
+- [ ] Non pubblicato: da vedere in locale prima (eccezione alle regole, sotto).
+
 ## 2026-11-16 — «Spero siano gli ultimi ritocchi» (Roberto, 16/11)
 - [x] **Dati aziendali**: etichette di Roberto, «% Turnover attuale», «% assenteismo + malattia attuale», «Valore del
       contratto €». Salvataggio, campi e impaginazione restano quelli di `577cb03`. Il salvataggio in produzione

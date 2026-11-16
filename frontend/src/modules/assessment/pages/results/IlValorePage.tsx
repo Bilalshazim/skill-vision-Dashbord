@@ -3,6 +3,7 @@ import { ChevronDown } from 'lucide-react'
 import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { CompletionRing } from '@/components/patterns/CompletionRing'
 import { EuroFigure, TextLink } from '@/components/patterns/EuroFigure'
+import { HoverHighlightCard } from '@/components/patterns/HoverHighlightCard'
 import { InfoTip } from '@/components/patterns/InfoTip'
 import { ResultsPage } from '@/components/patterns/ResultsPage'
 import { ScoreGauge } from '@/components/patterns/ScoreGauge'
@@ -48,20 +49,20 @@ export default function IlValorePage() {
                 uno solo, sul valore espresso; lo skill-gap è il gap medio delle persone (il dato
                 che va al ROI), in inchiostro. */}
             <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
-              <Card className="h-full gap-3">
+              {/* Al passaggio del mouse le quattro finestre si accendono: bordo lime, grafico lime
+                  e un poco più grande (Bilal, 2026-11-16; HoverHighlightCard). */}
+              <HoverHighlightCard chart={() => <ScoreGauge value={index} max={100} unit="%" decimals={0} tone="highlight" label={res.valoreGaugeCenter} className="justify-center" />}>
                 <p className="flex items-center gap-2">
                   <span className="label-mono text-muted-foreground">{res.valoreExpressedTitle}</span>
                   <InfoTip label={res.valoreExpressedTitle}>{res.indexHint}</InfoTip>
                 </p>
-                <ScoreGauge value={index} max={100} unit="%" decimals={0} tone="highlight" label={res.valoreGaugeCenter} className="justify-center" />
-              </Card>
-              <Card className="h-full gap-3">
+              </HoverHighlightCard>
+              <HoverHighlightCard chart={(active) => <ScoreGauge value={gapMissing} max={100} unit="%" decimals={0} tone={active ? 'highlight' : 'mono'} label={res.valoreGapCenter} className="justify-center" />}>
                 <p className="flex items-center gap-2">
                   <span className="label-mono text-muted-foreground">{res.valoreGapTitle}</span>
                   <InfoTip label={res.valoreGapTitle}>{res.valoreGapHint}</InfoTip>
                 </p>
-                <ScoreGauge value={gapMissing} max={100} unit="%" decimals={0} label={res.valoreGapCenter} className="justify-center" />
-              </Card>
+              </HoverHighlightCard>
             </div>
             {data.skillValues.length ? (
               <Collapsible className="flex flex-col gap-3">
@@ -96,15 +97,17 @@ export default function IlValorePage() {
               </Collapsible>
             ) : null}
             <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
-              <Card className="h-full gap-3">
+              <HoverHighlightCard
+                origin="left"
+                chart={(active) => <CompletionRing value={data.coverage} label={ui.panoCoverage} center={res.valoreRingCenter} tone={active ? 'highlight' : 'mono'} className="mx-0" />}
+                after={<p className="text-app-small text-muted-foreground">{ui.panoCoverageNote}</p>}
+              >
                 <p className="label-mono text-muted-foreground">{ui.panoCoverage}</p>
-                <CompletionRing value={data.coverage} label={ui.panoCoverage} center={res.valoreRingCenter} className="mx-0" />
-                <p className="text-app-small text-muted-foreground">{ui.panoCoverageNote}</p>
-              </Card>
-              <Card className="h-full gap-3">
+              </HoverHighlightCard>
+              <HoverHighlightCard>
                 <p className="label-mono text-muted-foreground">{res.impactLabel}</p>
                 <EuroFigure euro={roiFigure(res, roi, 'valore')} />
-              </Card>
+              </HoverHighlightCard>
             </div>
           </div>
         ),

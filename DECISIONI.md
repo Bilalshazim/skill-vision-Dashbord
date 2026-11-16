@@ -3253,3 +3253,12 @@ Documento «spero siano gli ultimi ritocchi 16_11». Si prende quello che chiede
   professionali ha lo stesso nome; la rotta resta, da confermare che non serva più.
 - **Base in evidenza.** Bordo di 2px (stati attivi) in `ring` (accent-600): il lime `primary` come linea su fondo
   chiaro non si legge (fondamenta). Cifra più grande; gli altri due scenari in riquadri con il bordo sottile.
+
+## Il valore: finestre che si accendono al passaggio del mouse · 2026-11-16
+Richiesta di Bilal: al passaggio del mouse il grafico diventa lime e un poco più grande, la card prende il bordo lime.
+Va contro due regole scritte: «La card di un grafico è una card… non hover:border-primary su una card che non si
+clicca» e, per le finestre della home, «al passaggio del mouse cambiano solo il fondo e il bordo… nessuno spostamento».
+Anche «un verde per sezione» si piega: sotto il mouse le finestre accese possono essere due (il Gauge del valore
+espresso è sempre lime). Presa come eccezione voluta, solo su Il valore, con un pattern della libreria
+() e non con classi nella pagina; lime  per leggibilità in chiaro; niente
+crescita con prefers-reduced-motion. Da confermare con Alessio prima di estenderla ad altre pagine.
