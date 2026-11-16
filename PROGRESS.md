@@ -196,6 +196,9 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
       chiaro, accent-400 in scuro). Usato sulle quattro finestre di Il valore: Valore espresso, Skill-gap mancante,
       Copertura mansioni (si accendono Gauge e Ring) e L'impatto (solo il bordo). In locale: bordo rgb(221,238,28),
       arco `chart-highlight-line`, scale 1.05; le altre card restano spente; uscendo tornano com'erano.
+- [x] Lo stesso sui tre riquadri degli scenari di L'impatto (`EuroFigure` con `hoverScenarios`, solo Il valore): bordo
+      e cifra in `chart-highlight-line`, cifra a 1,05. In locale su Prudenziale: bordo e cifra rgb(221,238,28),
+      scale 1.05; Base ed Espansivo invariati. Ring di Copertura mansioni centrato nella card (scarto 0 px).
 - [ ] Non pubblicato: da vedere in locale prima (eccezione alle regole, sotto).
 
 ## 2026-11-16 — «Spero siano gli ultimi ritocchi» (Roberto, 16/11)

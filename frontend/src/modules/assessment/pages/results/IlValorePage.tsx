@@ -98,15 +98,14 @@ export default function IlValorePage() {
             ) : null}
             <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
               <HoverHighlightCard
-                origin="left"
-                chart={(active) => <CompletionRing value={data.coverage} label={ui.panoCoverage} center={res.valoreRingCenter} tone={active ? 'highlight' : 'mono'} className="mx-0" />}
+                chart={(active) => <CompletionRing value={data.coverage} label={ui.panoCoverage} center={res.valoreRingCenter} tone={active ? 'highlight' : 'mono'} className="mx-auto" />}
                 after={<p className="text-app-small text-muted-foreground">{ui.panoCoverageNote}</p>}
               >
                 <p className="label-mono text-muted-foreground">{ui.panoCoverage}</p>
               </HoverHighlightCard>
               <HoverHighlightCard>
                 <p className="label-mono text-muted-foreground">{res.impactLabel}</p>
-                <EuroFigure euro={roiFigure(res, roi, 'valore')} />
+                <EuroFigure euro={roiFigure(res, roi, 'valore')} hoverScenarios />
               </HoverHighlightCard>
             </div>
           </div>

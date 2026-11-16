@@ -24,7 +24,11 @@ export type ResultsEuro = {
 
 // La cifra dell'impatto, nelle pagine dei risultati: l'importo o il segnaposto,
 // i suoi segni, gli scenari e «Come è calcolato».
-export function EuroFigure({ euro, note, className }: { euro?: ResultsEuro; note?: string; className?: string }) {
+// `hoverScenarios`: i riquadri degli scenari si accendono al passaggio del mouse come le finestre
+// di Il valore (HoverHighlightCard, Bilal 2026-11-16): bordo e cifra in `chart-highlight-line`
+// (accent-600 in chiaro, accent-400 in scuro: mai lime più chiaro come testo su fondo chiaro) e
+// la cifra un poco più grande; con prefers-reduced-motion non cresce.
+export function EuroFigure({ euro, note, hoverScenarios, className }: { euro?: ResultsEuro; note?: string; hoverScenarios?: boolean; className?: string }) {
   const [howOpen, setHowOpen] = useState(false)
   const text = euro?.note ?? note
   return (
@@ -39,9 +43,20 @@ export function EuroFigure({ euro, note, className }: { euro?: ResultsEuro; note
         // (Roberto, 2026-11-16: «le cifre le evidenzierei meglio per tutti e tre i valori»).
         <dl className="grid w-full grid-cols-1 gap-2 pt-1 sm:grid-cols-3">
           {euro.scenarios.map((s) => (
-            <div key={s.label} className={cn('flex flex-col gap-1 rounded-sm p-3', s.main ? 'border-2 border-ring' : 'border border-border')}>
+            <div
+              key={s.label}
+              className={cn('flex flex-col gap-1 rounded-sm p-3', s.main ? 'border-2 border-ring' : 'border border-border', hoverScenarios && 'group/scenario transition-colors duration-200 hover:border-chart-highlight-line')}
+            >
               <dt className="label-mono text-muted-foreground">{s.label}</dt>
-              <dd className={cn('tabular-nums text-foreground', s.main ? 'text-app-title' : 'text-app-subtitle')}>{s.value}</dd>
+              <dd
+                className={cn(
+                  'tabular-nums text-foreground',
+                  s.main ? 'text-app-title' : 'text-app-subtitle',
+                  hoverScenarios && 'origin-left transition-[color,scale] duration-300 ease-out group-hover/scenario:scale-105 group-hover/scenario:text-chart-highlight-line motion-reduce:transition-colors motion-reduce:group-hover/scenario:scale-100',
+                )}
+              >
+                {s.value}
+              </dd>
             </div>
           ))}
         </dl>
