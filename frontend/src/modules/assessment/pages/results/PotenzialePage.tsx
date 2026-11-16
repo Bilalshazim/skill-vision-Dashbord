@@ -73,6 +73,7 @@ export default function PotenzialePage() {
       impact={{ pct: data.abovePct, dots: { n: data.above, total: data.total }, label: res.potenzialeImpact, hint: res.potenzialeHint(data.above, data.total), euro: roiFigure(res, roi, 'potenziale') }}
       home={home}
       demoNote={demoNote}
+      hoverCards
     />
   )
 }

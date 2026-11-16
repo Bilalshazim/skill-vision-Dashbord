@@ -73,6 +73,7 @@ export default function PerditeInvisibiliPage() {
       impact={{ pct: data.belowPct, title: res.perditeImpactTitle, label: res.perditeImpact, hint: res.perditeHint(data.below, data.total), euro: roiFigure(res, roi, 'perdite') }}
       home={home}
       demoNote={demoNote}
+      hoverCards
     />
   )
 }

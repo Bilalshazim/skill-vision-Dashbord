@@ -190,6 +190,18 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-16 (3) — Il passaggio del mouse su tutte le pagine dei risultati di Assessment
+- [x] Le perdite invisibili, Il potenziale e Dove intervenire come Il valore (Bilal: «in ogni scheda»): `ResultsPage`
+      con `hoverCards`, `ResultsTile` con `hover`. Riquadri di Criticità e opportunità: bordo e mini grafico lime,
+      grafico a 1,05 dal centro (le barre restano dentro la card); card della percentuale: bordo lime, anello al centro;
+      card degli euro: bordo lime e scenari che si accendono uno per uno; Base senza bordo lime fisso anche in Dove
+      intervenire (resta la cifra più grande). Le pagine dei risultati di Recruiting non cambiano.
+- [x] In locale: Perdite, «Mansione più a rischio» sotto il mouse bordo rgb(221,238,28), scala 1,05, barra lime, le
+      altre spente; «% delle persone da potenziare» bordo lime, anello centrato (scarto 0); Dove intervenire,
+      «Espansivo» lime e 1,05, Prudenziale e Base invariati; Il potenziale senza scorrimento orizzontale. Le perdite
+      invisibili non mostra gli scenari: la cifra del divario è la stessa nei tre (comportamento di prima).
+- [ ] Non pubblicato: in attesa dell'ok di Bilal per il push.
+
 ## 2026-11-16 (2) — Il valore: le finestre si accendono al passaggio del mouse
 - [x] Pattern `HoverHighlightCard` (libreria): al passaggio del mouse bordo lime e grafico lime, un poco più grande
       (scala 1,05 in 0,3 s; con prefers-reduced-motion niente crescita). Lime = `chart-highlight-line` (accent-600 in

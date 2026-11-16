@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { CompletionRing } from '@/components/patterns/CompletionRing'
 import { EmptyState } from '@/components/patterns/EmptyState'
 import { EuroFigure, type ResultsEuro, type ResultsLink, TextLink } from '@/components/patterns/EuroFigure'
+import { HoverHighlightCard } from '@/components/patterns/HoverHighlightCard'
 import { InfoTip } from '@/components/patterns/InfoTip'
 import { DotRow, ScaleBar } from '@/components/patterns/MiniChart'
 import { ResultsTile, type ResultsIssue } from '@/components/patterns/ResultsTile'
@@ -66,6 +67,7 @@ export function ResultsPage({
   deepDives = [],
   home,
   demoNote,
+  hoverCards,
 }: {
   /** Le voci prima della pagina corrente, dalla home. La corrente è `title`. */
   crumbs: ResultsLink[]
@@ -90,6 +92,8 @@ export function ResultsPage({
   home: ResultsLink
   /** La società, quando i dati sono dimostrativi: la pagina lo dice in fondo. */
   demoNote?: string
+  /** Le card si accendono al passaggio del mouse: riquadri, percentuale e euro con gli scenari (pagine dei risultati di Assessment, Bilal 2026-11-16). */
+  hoverCards?: boolean
 }) {
   // I numeri di sezione seguono quelle che ci sono.
   const before = sections?.length ?? (situation ? 1 : 0) + (issues ? 1 : 0)
@@ -103,20 +107,35 @@ export function ResultsPage({
   const impactSection = impact ? (
     <Section number={impactNumber} title="L'impatto" className={cn('grid grid-cols-1 items-stretch gap-4', impactCards === 3 ? 'lg:grid-cols-3' : 'md:grid-cols-2')}>
       {impact.pct !== undefined ? (
-        <Card className="h-full gap-3">
-          {impact.title ? <p className="label-mono text-muted-foreground">{impact.title}</p> : null}
-          {impact.dots && impact.pct != null ? (
-            <DotRow n={impact.dots.n} total={impact.dots.total} label={impact.label ?? ''} tone="highlight" />
-          ) : impact.pct != null ? (
-            <CompletionRing value={impact.pct} label={impact.label ?? ''} tone="highlight" center="" className="mx-0" />
+        (() => {
+          const chart =
+            impact.dots && impact.pct != null ? (
+              <DotRow n={impact.dots.n} total={impact.dots.total} label={impact.label ?? ''} tone="highlight" />
+            ) : impact.pct != null ? (
+              <CompletionRing value={impact.pct} label={impact.label ?? ''} tone="highlight" center="" className={hoverCards ? 'mx-auto' : 'mx-0'} />
+            ) : (
+              <span className="text-site-h2 tabular-nums text-muted-foreground">—</span>
+            )
+          const title = impact.title ? <p className="label-mono text-muted-foreground">{impact.title}</p> : null
+          const caption = (
+            <p className="flex items-start gap-2 text-app-body text-foreground">
+              <span>{impact.dots && impact.pct != null ? `${impact.pct}% ${impact.label}` : impact.label}</span>
+              {impact.hint ? <InfoTip label={`Che cosa misura: ${impact.label}`}>{impact.hint}</InfoTip> : null}
+            </p>
+          )
+          // Con il passaggio del mouse l'anello sta al centro della card, come in Il valore.
+          return hoverCards ? (
+            <HoverHighlightCard origin={impact.dots ? 'left' : 'center'} chart={() => chart} after={caption}>
+              {title}
+            </HoverHighlightCard>
           ) : (
-            <span className="text-site-h2 tabular-nums text-muted-foreground">—</span>
-          )}
-          <p className="flex items-start gap-2 text-app-body text-foreground">
-            <span>{impact.dots && impact.pct != null ? `${impact.pct}% ${impact.label}` : impact.label}</span>
-            {impact.hint ? <InfoTip label={`Che cosa misura: ${impact.label}`}>{impact.hint}</InfoTip> : null}
-          </p>
-        </Card>
+            <Card className="h-full gap-3">
+              {title}
+              {chart}
+              {caption}
+            </Card>
+          )
+        })()
       ) : null}
       {impact.index ? (
         <Card className="h-full gap-3">
@@ -134,9 +153,15 @@ export function ResultsPage({
           )}
         </Card>
       ) : null}
-      <Card className="h-full gap-3">
-        <EuroFigure euro={impact.euro} note={impact.euroNote} />
-      </Card>
+      {hoverCards ? (
+        <HoverHighlightCard>
+          <EuroFigure euro={impact.euro} note={impact.euroNote} hoverScenarios />
+        </HoverHighlightCard>
+      ) : (
+        <Card className="h-full gap-3">
+          <EuroFigure euro={impact.euro} note={impact.euroNote} />
+        </Card>
+      )}
     </Section>
   ) : null
 
@@ -230,7 +255,7 @@ export function ResultsPage({
                     {/* Fino a sei: in Le perdite invisibili entrano anche i tre riquadri di Il valore
                         (Roberto, 2026-11-16), su due righe da tre. */}
                     {issues.items.slice(0, 6).map((it, i) => (
-                      <ResultsTile key={it.title} {...it} chart={it.chart ? { ...it.chart, tone: i === 0 ? 'highlight' : 'mono' } : undefined} />
+                      <ResultsTile key={it.title} {...it} hover={hoverCards} chart={it.chart ? { ...it.chart, tone: i === 0 ? 'highlight' : 'mono' } : undefined} />
                     ))}
                   </div>
                   <p className="mt-4 max-w-prose text-app-body text-foreground">

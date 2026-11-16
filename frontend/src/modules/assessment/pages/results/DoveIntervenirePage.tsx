@@ -71,6 +71,7 @@ export default function DoveIntervenirePage() {
       ]}
       home={home}
       demoNote={demoNote}
+      hoverCards
     />
   )
 }

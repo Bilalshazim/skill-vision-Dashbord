@@ -3262,3 +3262,9 @@ Anche «un verde per sezione» si piega: sotto il mouse le finestre accese posso
 espresso è sempre lime). Presa come eccezione voluta, solo su Il valore, con un pattern della libreria
 (`HoverHighlightCard`) e non con classi nella pagina; lime `chart-highlight-line` per leggibilità in chiaro; niente
 crescita con prefers-reduced-motion. Da confermare con Alessio prima di estenderla ad altre pagine.
+
+## Passaggio del mouse esteso alle quattro pagine dei risultati · 2026-11-16
+Bilal chiede le stesse impostazioni «in ogni scheda»: prese come le quattro pagine della Home di Assessment. Le pagine
+dei risultati di Recruiting e la Panoramica non cambiano (stesso schema, ma nessuno l'ha chiesto). Conseguenza: in Dove
+intervenire lo scenario Base perde il bordo lime fisso chiesto da Roberto il 16/11; resta in evidenza con la cifra più
+grande e si accende sotto il mouse. Da far vedere a Roberto.
