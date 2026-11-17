@@ -2,6 +2,15 @@
 
 Formato:  — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Dashboarding e Reporting dopo il 17/11 · 2026-11-17
+
+- **Area – Ruolo – Mansione**: Roberto nomina tre campi e il dipendente ne ha tre (`area`, `ruolo`, `mansione`); si mostrano con i suoi nomi. Altrove in Assessment `ruolo` è etichettato «Mansione» e `mansione` «Attività» (CLAUDE.md, cap. 7): da chiarire con Alessio quale nome tenere, qui vale la richiesta di Roberto.
+- **Salvataggio esplicito** delle competenze per persona (bozza + «Salva») al posto del salvataggio a ogni casella. Opzioni: tenere il salvataggio automatico e mostrare solo lo stato; oppure la bozza con «Salva». Presa la seconda, perché Roberto vuole un'azione chiara: dice «salvato» solo dopo la risposta del server.
+- **«Invia link test» e «Nuova valutazione» tolti anche da «Area valutazioni trasversali»**: è la stessa pagina di Risultati valutazioni trasversali (altra scheda iniziale), quindi spostare i pulsanti li toglie da entrambe. Le azioni vivono in Dashboarding.
+- **Metodo** (la scheda 7 del 5P) resta in tutte e due le sezioni: Roberto ha diviso solo i sei capitoli numerati.
+- **La vecchia pagina «Competenze professionali: le 5 P»** (introduzione e due card verso `/assessment/hard` e `hard-risultati`) è sostituita dai capitoli 1–4. Perché `/assessment/hard` (inserimento a mano, con le sue schede) non resti senza ingresso, la raggiunge il pulsante «Inserisci una valutazione a mano» in Dashboarding. Le rotte restano.
+- **Il lime del titolo in Home**: Roberto chiede `#DDEE1C`. In scuro si usa il lime del tema (accent-400); in chiaro `accent-600`, perché il lime chiaro come testo su fondo chiaro non si legge (regola 6). Nessun esadecimale nel codice (regola 1).
+
 ## Primo accesso con password provvisoria · 2026-11-03
 Richiesta di Roberto: creando un utente la password non deve essere
 obbligatoria; al primo accesso l'utente ne crea una sua, salvata sul server.

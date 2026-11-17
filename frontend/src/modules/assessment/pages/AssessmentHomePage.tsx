@@ -22,7 +22,7 @@ export default function AssessmentHomePage() {
       <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2 md:auto-rows-fr">
         {ui.res.windows.map((w: { slug: string; number: string; title: string; sub: string; q: string; theme: string }, i: number) => (
           <motion.div key={w.slug} initial={reduced ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: i * 0.06 }} className="min-w-0">
-            <WindowCard to={`/assessment/${w.slug}`} number={w.number} theme={w.theme} title={w.title} subtitle={w.sub} question={w.q} />
+            <WindowCard to={`/assessment/${w.slug}`} number={w.number} theme={w.theme} title={w.title} subtitle={w.sub} question={w.q} accentHover />
           </motion.div>
         ))}
       </div>

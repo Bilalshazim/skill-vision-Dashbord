@@ -167,8 +167,8 @@ export default function AssessmentPanoramicaPage() {
   const todo: ActionItem[] = [
     { key: 'critical', label: ui.panoTodoCritical, description: ui.panoTodoCriticalDesc, count: critical, unit: people, to: '/assessment/valore?fascia=critica', linkLabel: ui.panoOpen },
     { key: 'feedback', label: ui.panoTodoFeedback, description: ui.panoTodoFeedbackDesc, count: hs.feedbackDue, unit: people, to: '/assessment/feedback', linkLabel: ui.panoOpen },
-    { key: 'collect', label: ui.panoTodoCollect, description: ui.panoTodoCollectDesc, count: toCollect, unit: ui.panoEvaluatorsUnit, to: '/assessment/gestione-valutazioni', linkLabel: ui.panoOpen },
-    { key: 'send', label: ui.panoTodoSend, description: ui.panoTodoSendDesc, count: toSend, unit: ui.panoEvaluatorsUnit, to: '/assessment/gestione-valutazioni', linkLabel: ui.panoOpen },
+    { key: 'collect', label: ui.panoTodoCollect, description: ui.panoTodoCollectDesc, count: toCollect, unit: ui.panoEvaluatorsUnit, to: '/assessment/hard-overview?tab=racc', linkLabel: ui.panoOpen },
+    { key: 'send', label: ui.panoTodoSend, description: ui.panoTodoSendDesc, count: toSend, unit: ui.panoEvaluatorsUnit, to: '/assessment/hard-overview?tab=invio', linkLabel: ui.panoOpen },
   ]
   // Le azioni di sviluppo per tipo, con la loro nota modificabile (salvata
   // nelle impostazioni del modulo, come nella vecchia Home). Non stanno in "Da
@@ -225,7 +225,8 @@ export default function AssessmentPanoramicaPage() {
       .sort((a, b) => b.gap - a.gap)
   const gapAreas = gapRows(orgCriticalAreas(state, lang, 6).map((a) => ({ label: a.area, avg: a.avg })))
   const gapRoles = gapRows(orgCriticalRoles(state, lang, 6).map((r) => ({ label: r.ruolo, avg: r.avg })))
-  const competenze = both ? (computeAvgMetric(state, lang, 'soft') <= computeAvgMetric(state, lang, 'hard') ? 'soft-overview' : 'hard-overview') : f.A ? 'soft-overview' : 'hard-overview'
+  // I risultati stanno in Reporting (2026-11-17): Dashboarding è solo somministrazione.
+  const competenze = both ? (computeAvgMetric(state, lang, 'soft') <= computeAvgMetric(state, lang, 'hard') ? 'soft-risultati' : 'gestione-valutazioni') : f.A ? 'soft-risultati' : 'gestione-valutazioni'
 
   const dettaglio = (
     <>

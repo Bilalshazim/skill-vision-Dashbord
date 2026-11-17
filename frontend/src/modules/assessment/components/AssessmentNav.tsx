@@ -46,6 +46,8 @@ const ICONS: Record<string, LucideIcon> = {
 // Il ritardo dell'apertura al passaggio del mouse (Analisi predittiva): un passaggio di
 // sfuggita non apre il gruppo.
 const HOVER_OPEN_MS = 350
+// Il primo capitolo di ogni pagina a capitoli: si apre quando l'indirizzo non ne dice uno.
+const FIRST_TAB: Record<string, string> = { 'hard-overview': 'piano', 'gestione-valutazioni': 'res' }
 const iconFor = (name?: string) => (name && ICONS[name]) || ClipboardList
 
 // Il contenuto della barra laterale di Assessment nel guscio unico. Stesse
@@ -64,7 +66,8 @@ export function AssessmentNav() {
   // Confronta persone ha la sua voce (nuovo indice, 2026-11-16): ogni pagina accende la sua.
   const currentPage = location.pathname.split('/')[2] || 'home'
   // Una voce che apre un punto della pagina (`#sezione`, `?tab=capitolo`) si accende solo lì;
-  // senza capitolo nell'indirizzo, la pagina delle Valutazioni professionali apre il primo.
+  // senza capitolo nell'indirizzo, la pagina apre il suo primo capitolo (Dashboarding: piano;
+  // Reporting: risultati, 2026-11-17).
   const isItemActive = (it: { id: string; to?: string }) => {
     if (it.id !== currentPage) return false
     if (!it.to) return true
@@ -72,11 +75,11 @@ export function AssessmentNav() {
     if (hash !== undefined) return location.hash === `#${hash}`
     const tab = new URLSearchParams(it.to.split('?')[1] ?? '').get('tab')
     const current = new URLSearchParams(location.search).get('tab')
-    return tab === current || (!current && tab === 'piano')
+    return tab === current || (!current && tab === FIRST_TAB[it.id])
   }
   // "Area Valutazioni" e "Area Risultati" partono aperte: le loro voci si
   // vedono subito sotto (richiesta del cliente, 2026-10-13). Si possono chiudere.
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ home: true, company: true, 'val-trasversali': true, 'val-professionali': true })
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ home: true, company: true, 'comp-professionali': true, 'val-trasversali': true, 'val-professionali': true })
   const [showMethodology, setShowMethodology] = useState(false)
   // Il gruppo che si apre al passaggio del mouse: aperto resta aperto (non si richiude quando
   // il mouse esce, così le voci sotto non saltano); si chiude con clic, tocco o Invio.
@@ -168,7 +171,7 @@ export function AssessmentNav() {
               <Icon aria-hidden="true" />
               <span className="flex min-w-0 flex-1 flex-col">
                 <span>{entry.label}</span>
-                {entry.sub ? <span className="text-app-caption text-muted-foreground">{entry.sub}</span> : null}
+                {entry.sub ? <span className="text-app-caption opacity-75">{entry.sub}</span> : null}
               </span>
               {entry.badge && feedbackBadge > 0 ? <SidebarMenuBadge aria-label={`${feedbackBadge}`}>{feedbackBadge}</SidebarMenuBadge> : null}
             </NavLink>

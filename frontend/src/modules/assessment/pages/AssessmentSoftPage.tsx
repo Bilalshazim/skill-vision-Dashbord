@@ -19,10 +19,7 @@ import { Button } from '@/components/ui/button'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { ProfileRadar } from '@/components/patterns/ProfileRadar'
-import { Icon } from '@/modules/assessment/components/Icon'
-import { SoftEvalModal } from '@/modules/assessment/components/SoftEvalModal'
 import { StatTile } from '@/modules/assessment/components/StatTile'
-import { SurveyLinkModal } from '@/modules/assessment/components/SurveyLinkModal'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { computeSoftSummary, gapInterpretation, orgWorstSoftSkills } from '@/modules/assessment/lib/calculations'
 import { avg, fmt1, getBigFiveDims, getSoftClusters, getSoftSkills, round1 } from '@/modules/assessment/lib/legacy-utils'
@@ -49,8 +46,10 @@ const BF_ORDER = ['O', 'C', 'E', 'A', 'S'] as const
 // tab set on a different default tab, rather than duplicating all 6 tabs'
 // chart/calculation logic into a second page — see
 // pages/AssessmentSoftRisultatiPage.tsx.
+// Roberto, 2026-11-17: «Invia link test» e «Nuova valutazione» sono passati in Dashboarding →
+// Competenze trasversali (AssessmentSoftOverviewPage): qui, in Reporting, solo i risultati.
 export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultView?: SoftView }) {
-  const { canEdit, ui } = useAssessment()
+  const { ui } = useAssessment()
   // Lets Home's "Confronta Aree" (see AssessmentHomePage.tsx's Il Valore
   // card) deep-link straight into the Area tab instead of always landing
   // on defaultView — read once on mount, same as defaultView itself.
@@ -59,8 +58,6 @@ export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultVie
   const requestedView = searchParams.get('view') as SoftView | null
   const initialView = requestedView && SOFT_VIEWS.includes(requestedView) ? requestedView : defaultView
   const [view, setView] = useState<SoftView>(initialView)
-  const [showEvalModal, setShowEvalModal] = useState(false)
-  const [showSurveyLink, setShowSurveyLink] = useState(false)
   const [drawerId, setDrawerId] = useState<string | null>(null)
   const [selectedEmp, setSelectedEmp] = useState<string | null>(null)
   const [rankSort, setRankSort] = useState<'score' | 'gap'>('score')
@@ -70,20 +67,8 @@ export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultVie
       <Button asChild variant="outline">
         <Link to="/assessment/confronto">{ui.res.cmpOpen}</Link>
       </Button>
-      {canEdit ? (
-      <>
-        <Button variant="outline" onClick={() => setShowSurveyLink(true)}>
-          <Icon name="notes" />
-          {ui.surveyInviaLinkTestBtn}
-        </Button>
-        <Button variant="default" onClick={() => setShowEvalModal(true)}>
-          <Icon name="plus" />
-          {ui.newEvaluation}
-        </Button>
-      </>
-      ) : null}
     </>,
-    [canEdit, ui],
+    [ui],
   )
 
   const tabs: { id: SoftView; label: string }[] = [
@@ -112,8 +97,6 @@ export default function AssessmentSoftPage({ defaultView = 'org' }: { defaultVie
       {view === 'individuale' && <SoftIndividualeView selectedEmp={selectedEmp} onSelectEmp={setSelectedEmp} />}
       {view === 'ranking' && <SoftRankingView sort={rankSort} onSort={setRankSort} onOpenDrawer={setDrawerId} />}
 
-      {showEvalModal && <SoftEvalModal onClose={() => setShowEvalModal(false)} />}
-      {showSurveyLink && <SurveyLinkModal onClose={() => setShowSurveyLink(false)} />}
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
     </div>
   )

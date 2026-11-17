@@ -58,6 +58,8 @@ type Ctx = {
    * si salva non deve fermare il profilo, e «Salvato» si dice solo a salvataggio avvenuto.
    */
   saveCompanyProfile: (company: AssessmentState['company']) => Promise<void>
+  /** Salva subito un dipendente sul server e risolve a salvataggio avvenuto (competenze trasversali di Dashboarding, 2026-11-17). */
+  saveEmployee: (employee: AssessmentState['employees'][number]) => Promise<void>
 }
 
 const AssessmentCtx = createContext<Ctx | null>(null)
@@ -214,6 +216,24 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
     [companyId, queryClient, ui],
   )
 
+  const saveEmployee = useCallback(
+    async (employee: AssessmentState['employees'][number]) => {
+      if (!companyId) throw new Error(ui.serverOffline)
+      await assessmentApi.putEmployee(companyId, employee)
+      const swap = <T extends { id: string }>(list: T[]) => (list.some((e) => e.id === employee.id) ? list.map((e) => (e.id === employee.id ? (structuredClone(employee) as unknown as T) : e)) : list)
+      if (baselineRef.current) baselineRef.current = { ...baselineRef.current, employees: swap(baselineRef.current.employees) }
+      stateRef.current = { ...stateRef.current, employees: swap(stateRef.current.employees) }
+      setStateRaw(stateRef.current)
+      const stateKey = ['assessment', 'state', companyId]
+      const cached = queryClient.getQueryData<Baseline>(stateKey)
+      if (cached) {
+        queryClient.setQueryData(stateKey, { ...cached, employees: swap(cached.employees) })
+        ownWriteAt.current = queryClient.getQueryState(stateKey)?.dataUpdatedAt ?? null
+      }
+    },
+    [companyId, queryClient, ui],
+  )
+
   // La correzione una tantum dei dati dimostrativi (Section A del 12/11): solo sulla società
   // demo, solo per chi può scrivere, una volta per società e sessione. Cambia sesso ed email
   // venuti dai dati demo e il nome nell'Intervista; se non c'è niente da cambiare non scrive.
@@ -271,8 +291,9 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
       company: org.company,
       setCompanyId: org.setCompanyId,
       saveCompanyProfile,
+      saveEmployee,
     }),
-    [shared, state, setState, persist, status, failure, ui, retry, org.companies, org.company, org.setCompanyId, saveCompanyProfile],
+    [shared, state, setState, persist, status, failure, ui, retry, org.companies, org.company, org.setCompanyId, saveCompanyProfile, saveEmployee],
   )
   return <AssessmentCtx.Provider value={value}>{children}</AssessmentCtx.Provider>
 }

@@ -64,7 +64,7 @@ export default function PotenzialePage() {
             value: data.bestSoft ? data.bestSoft.name : res.potenzialeNoSkill,
             body: data.bestSoft ? res.pointsAbove(fmt1it(data.bestSoft.gap)) : undefined,
             chart: data.bestSoft ? { kind: 'scale' as const, label: data.bestSoft.name, value: data.bestSoft.value, max: 10, expected: data.bestSoft.expected, expectedLabel: res.expectedAt(fmt1it(data.bestSoft.expected)), format: fmt1it } : undefined,
-            link: { label: res.open, to: '/assessment/soft-overview' },
+            link: { label: res.open, to: '/assessment/soft-risultati' },
           },
         ],
         opportunity: res.potenzialeOpportunity(data.above),

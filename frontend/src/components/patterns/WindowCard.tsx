@@ -20,6 +20,7 @@ export function WindowCard({
   content,
   verbs,
   theme,
+  accentHover,
   className,
 }: {
   to: string
@@ -31,6 +32,12 @@ export function WindowCard({
   verbs?: string
   /** La tavola «Home · senza dati»: l'etichetta con numero e tema; la freccia non si muove. */
   theme?: string
+  /**
+   * Home di Assessment (Roberto, 2026-11-17): al passaggio del mouse (e con il focus da tastiera)
+   * bordo e titolo in lime. Il lime come testo è `chart-highlight-line`: accent-600 in chiaro,
+   * accent-400 in scuro (regola 6: mai lime chiaro come testo su fondo chiaro).
+   */
+  accentHover?: boolean
   /** Solo per il posizionamento nella griglia. */
   className?: string
 }) {
@@ -40,7 +47,8 @@ export function WindowCard({
       to={to}
       data-slot="window-card"
       className={cn(
-        'group flex h-full min-h-56 min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-6 text-left text-card-foreground outline-none transition-colors hover:border-border-strong hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        'group flex h-full min-h-56 min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-6 text-left text-card-foreground outline-none transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        accentHover ? 'hover:border-chart-highlight-line focus-visible:border-chart-highlight-line' : 'hover:border-border-strong',
         className,
       )}
     >
@@ -51,7 +59,7 @@ export function WindowCard({
       ) : (
         <span className="label-mono text-muted-foreground">{number}</span>
       )}
-      <span className={cn('text-site-h3 text-foreground md:text-site-h2', theme && 'mt-auto')}>{title}</span>
+      <span className={cn('text-site-h3 text-foreground md:text-site-h2', theme && 'mt-auto', accentHover && 'transition-colors group-hover:text-chart-highlight-line group-focus-visible:text-chart-highlight-line')}>{title}</span>
       <span className="text-app-body text-muted-foreground">{subtitle}</span>
       {content ? <span className="mt-4 text-app-small text-foreground">{content}</span> : null}
       <span className={cn('flex items-end justify-between gap-4', theme ? 'border-t border-border pt-3' : verbs ? 'mt-auto border-t border-border pt-3' : 'mt-auto pt-6')}>

@@ -190,6 +190,40 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-17 — Dashboarding, Reporting e Home (Roberto, 17/11)
+
+- [x] **Dashboarding → Competenze trasversali**: solo somministrazione, nessun risultato. Via le due
+      card verso Area/Risultati valutazioni trasversali; al loro posto la card «Somministrazione» con
+      «Invia link test» (primario) e «Nuova valutazione». Accanto al nome: Area · Ruolo · Mansione
+      (campi `area`, `ruolo`, `mansione` del dipendente), anche nell'elenco del menu a tendina.
+      Verificato in locale: Leone Nicola → Area commerciale · Responsabile clienti · Attività operative…
+- [x] **Salva** per le competenze scelte: le caselle restano in bozza («1 persona con modifiche da
+      salvare», «· da salvare» nell'elenco), «Salva» scrive sul server con `saveEmployee` (diretto, non
+      dalla coda) e dice «Competenze trasversali salvate per 1 persona» solo dopo la risposta; in caso
+      di errore le modifiche restano. Verificato in locale: spuntate Innovazione e Leadership, Salva,
+      ricaricata la pagina → «2 selezionate», le due caselle spuntate. Poi ripristinato e salvato.
+- [x] **Reporting → Risultati valutazioni trasversali** (e Area valutazioni trasversali, stessa pagina):
+      via «Invia link test» e «Nuova valutazione»; resta «Confronta persone». Verificato in locale.
+- [x] **Competenze professionali** divise: Dashboarding → «2. Competenze professionali» (hard-overview)
+      con i capitoli 1–4 (Piano, Invio schede, Raccolta, Valori attesi) + Metodo, nel menu e nella
+      pagina; Reporting → «2. Valutazioni professionali» (gestione-valutazioni) con 5 Risultati e 6
+      Report persona + Metodo. Salva/Apri/Nuovo progetto e «Inserisci una valutazione a mano» solo in
+      Dashboarding. Un vecchio link `gestione-valutazioni?tab=racc` porta a `hard-overview?tab=racc`.
+      Verificato in locale: schede e voce del menu attive giuste nei due casi.
+- [x] Panoramica: «Da fare adesso» (raccolta, invio schede) porta ai capitoli di Dashboarding; il link
+      «aree e mansioni sotto il benchmark» porta ai risultati in Reporting (prima a Dashboarding, che ora
+      non mostra risultati). Il Potenziale: «Competenza più forte» porta a Risultati valutazioni trasversali.
+- [x] **Home di Assessment**: al passaggio del mouse (e con il focus da tastiera) bordo e titolo della
+      finestra in lime (`chart-highlight-line`: accent-400 in scuro, accent-600 in chiaro). Verificato
+      in locale in chiaro e in scuro.
+- [x] Menu: la riga «Somministrazione» sotto la voce attiva (fondo lime) era quasi illeggibile: ora
+      eredita il colore della voce.
+- [ ] Larghezza da telefono (390px): le pagine sono larghe 475px, **anche la Panoramica non toccata**:
+      viene dal guscio, non da questo giro. Non corretto (non richiesto), da guardare.
+- Controlli: typecheck, lint (nessun errore), test 13/13, build, audit «Nessun difetto».
+- [ ] In produzione da provare (Bilal).
+
+
 ## 2026-11-16 (3) — Il passaggio del mouse su tutte le pagine dei risultati di Assessment
 - [x] Le perdite invisibili, Il potenziale e Dove intervenire come Il valore (Bilal: «in ogni scheda»): `ResultsPage`
       con `hoverCards`, `ResultsTile` con `hover`. Riquadri di Criticità e opportunità: bordo e mini grafico lime,

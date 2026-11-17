@@ -64,6 +64,9 @@ export type NavConfigEntry =
 // accende solo lì; `key` distingue due voci sulla stessa pagina (Anagrafica compare due volte).
 // «Risultati valutazioni professionali» (hard-risultati) non è nell'indice: il capitolo 5 della
 // pagina delle Valutazioni professionali porta lo stesso nome; la rotta resta.
+// Roberto, 2026-11-17: i quattro capitoli operativi del 5P (piano, invio, raccolta, valori attesi)
+// stanno in Dashboarding → Competenze professionali (hard-overview); in Reporting → Valutazioni
+// professionali restano i due capitoli dei risultati (risultati, report finale persone).
 export const NAV_CONFIG_EN: NavConfigEntry[] = [
   { type:'group', groupId:'home', homeId:'home', label:'Home', icon:'home', items:[
     { id:'il-valore', label:'Value', requires:null },
@@ -82,17 +85,18 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
   { type:'section', label:'Dashboarding', note:'Analytical application – administration' },
   { type:'link', id:'anagrafica', key:'anagrafica-dashboarding', label:'Employee Directory', icon:'users', requires:null },
   { type:'link', id:'soft-overview', label:'1. Cross-functional competencies', sub:'Administration', icon:'soft', requires:null },
-  { type:'link', id:'hard-overview', label:'2. Professional competencies', sub:'Administration', icon:'hard', requires:null },
+  { type:'group', groupId:'comp-professionali', homeId:'hard-overview', label:'2. Professional competencies', icon:'hard', items:[
+    { id:'hard-overview', key:'ho-piano', to:'hard-overview?tab=piano', label:'Evaluation plan', requires:'B' },
+    { id:'hard-overview', key:'ho-invio', to:'hard-overview?tab=invio', label:'Sending forms to evaluators', requires:'B' },
+    { id:'hard-overview', key:'ho-racc', to:'hard-overview?tab=racc', label:'Collecting evaluations', requires:'B' },
+    { id:'hard-overview', key:'ho-att', to:'hard-overview?tab=att', label:'Assigning expected values', requires:'B' },
+  ] },
   { type:'section', label:'Reporting' },
   { type:'group', groupId:'val-trasversali', label:'1. Cross-functional evaluations', icon:'soft', items:[
     { id:'soft-risultati', label:'Cross-functional evaluation results', requires:'A' },
     { id:'soft', label:'Cross-functional evaluations area', requires:'A' },
   ] },
   { type:'group', groupId:'val-professionali', homeId:'gestione-valutazioni', label:'2. Professional evaluations', icon:'hard', items:[
-    { id:'gestione-valutazioni', key:'gv-piano', to:'gestione-valutazioni?tab=piano', label:'Evaluation plan', requires:'B' },
-    { id:'gestione-valutazioni', key:'gv-invio', to:'gestione-valutazioni?tab=invio', label:'Sending forms to evaluators', requires:'B' },
-    { id:'gestione-valutazioni', key:'gv-racc', to:'gestione-valutazioni?tab=racc', label:'Collecting evaluations', requires:'B' },
-    { id:'gestione-valutazioni', key:'gv-att', to:'gestione-valutazioni?tab=att', label:'Assigning expected values', requires:'B' },
     { id:'gestione-valutazioni', key:'gv-res', to:'gestione-valutazioni?tab=res', label:'Professional evaluation results', requires:'B' },
     { id:'gestione-valutazioni', key:'gv-rep', to:'gestione-valutazioni?tab=rep', label:'Final people report', requires:'B' },
   ] },
@@ -122,17 +126,18 @@ export const NAV_CONFIG_IT: NavConfigEntry[] = [
   { type:'section', label:'Dashboarding', note:'Applicazione analitica – somministrazione' },
   { type:'link', id:'anagrafica', key:'anagrafica-dashboarding', label:'Anagrafica', icon:'users', requires:null },
   { type:'link', id:'soft-overview', label:'1. Competenze trasversali', sub:'Somministrazione', icon:'soft', requires:null },
-  { type:'link', id:'hard-overview', label:'2. Competenze professionali', sub:'Somministrazione', icon:'hard', requires:null },
+  { type:'group', groupId:'comp-professionali', homeId:'hard-overview', label:'2. Competenze professionali', icon:'hard', items:[
+    { id:'hard-overview', key:'ho-piano', to:'hard-overview?tab=piano', label:'Piano di valutazione', requires:'B' },
+    { id:'hard-overview', key:'ho-invio', to:'hard-overview?tab=invio', label:'Invio schede ai valutatori', requires:'B' },
+    { id:'hard-overview', key:'ho-racc', to:'hard-overview?tab=racc', label:'Raccolta valutazioni', requires:'B' },
+    { id:'hard-overview', key:'ho-att', to:'hard-overview?tab=att', label:'Assegnazione valori attesi', requires:'B' },
+  ] },
   { type:'section', label:'Reporting' },
   { type:'group', groupId:'val-trasversali', label:'1. Valutazioni trasversali', icon:'soft', items:[
     { id:'soft-risultati', label:'Risultati valutazioni trasversali', requires:'A' },
     { id:'soft', label:'Area valutazioni trasversali', requires:'A' },
   ] },
   { type:'group', groupId:'val-professionali', homeId:'gestione-valutazioni', label:'2. Valutazioni professionali', icon:'hard', items:[
-    { id:'gestione-valutazioni', key:'gv-piano', to:'gestione-valutazioni?tab=piano', label:'Piano di valutazione', requires:'B' },
-    { id:'gestione-valutazioni', key:'gv-invio', to:'gestione-valutazioni?tab=invio', label:'Invio schede ai valutatori', requires:'B' },
-    { id:'gestione-valutazioni', key:'gv-racc', to:'gestione-valutazioni?tab=racc', label:'Raccolta valutazioni', requires:'B' },
-    { id:'gestione-valutazioni', key:'gv-att', to:'gestione-valutazioni?tab=att', label:'Assegnazione valori attesi', requires:'B' },
     { id:'gestione-valutazioni', key:'gv-res', to:'gestione-valutazioni?tab=res', label:'Risultati valutazioni professionali', requires:'B' },
     { id:'gestione-valutazioni', key:'gv-rep', to:'gestione-valutazioni?tab=rep', label:'Report finale persone', requires:'B' },
   ] },
@@ -396,12 +401,12 @@ export const PAGE_META_TEXT_EN: Record<string, { title: string; sub: string }> =
   home: { title: '', sub: '' },
   panoramica: { title: '', sub: '' },
   'soft-overview': { title: 'Cross-Functional Competencies', sub: 'What they are and how they are measured — Soft Skills & Big Five' },
-  'hard-overview': { title: 'Professional Competencies', sub: 'What they are and how they are measured — multi-source APEX 5D protocol' },
+  'hard-overview': { title: 'Professional Competencies', sub: '5P evaluation administration: plan, forms to evaluators, collection, expected values' },
   company: { title: 'Company data', sub: 'Company details, key company roles and the financial statement' },
   anagrafica: { title: 'Employee Directory', sub: 'Employee list, roles, duties, and role requirements' },
   analisi: { title: 'Interview', sub: 'Executive Human Capital Interview — Leadership perception before the objective Assessment' },
   soft: { title: 'Cross-Functional Evaluation Area', sub: 'Soft Skills & Big Five — data entry' },
-  'gestione-valutazioni': { title: 'Professional Evaluations', sub: '5P multi-source evaluation: Manager, Peer, Self-assessment' },
+  'gestione-valutazioni': { title: 'Professional Evaluations', sub: '5P multi-source evaluation results and final people report' },
   hard: { title: 'Professional Evaluation Area', sub: 'Multi-source APEX 5D Protocol — data entry' },
   'soft-risultati': { title: 'Cross-Functional Evaluation Results', sub: 'Soft Skills & Big Five — reporting' },
   'hard-risultati': { title: 'Professional Evaluation Results', sub: 'Multi-source APEX 5D Protocol — reporting' },
@@ -415,12 +420,12 @@ export const PAGE_META_TEXT_IT: Record<string, { title: string; sub: string }> =
   home: { title: '', sub: '' },
   panoramica: { title: '', sub: '' },
   'soft-overview': { title: 'Competenze Trasversali', sub: 'Cosa sono e come si misurano — competenze trasversali e Big Five' },
-  'hard-overview': { title: 'Competenze Professionali: le 5 P', sub: 'Cosa sono e come si misurano — protocollo APEX 5D a più fonti' },
+  'hard-overview': { title: 'Competenze Professionali', sub: 'Somministrazione della valutazione 5P: piano, schede ai valutatori, raccolta, valori attesi' },
   company: { title: 'Dati aziendali', sub: 'Dati dell’azienda, ruoli chiave e bilancio' },
   anagrafica: { title: 'Anagrafica Risorse', sub: 'Elenco dipendenti, mansioni, attività e requisiti di mansione' },
   analisi: { title: 'Intervista', sub: 'Intervista alla Direzione sul capitale umano — la percezione della Direzione prima della misurazione oggettiva' },
   soft: { title: 'Area Valutazioni Trasversali', sub: 'Competenze trasversali e Big Five — inserimento dati' },
-  'gestione-valutazioni': { title: 'Valutazioni Professionali', sub: 'Valutazione 5P multi-fonte: dirigente, colleghi, autovalutazione' },
+  'gestione-valutazioni': { title: 'Valutazioni Professionali', sub: 'Risultati della valutazione 5P multi-fonte e report finale delle persone' },
   hard: { title: 'Area Valutazioni Professionali', sub: 'Protocollo APEX 5D a più fonti — inserimento dati' },
   'soft-risultati': { title: 'Risultati Valutazioni Trasversali', sub: 'Competenze trasversali e Big Five — reportistica' },
   'hard-risultati': { title: 'Risultati Valutazioni Professionali', sub: 'Protocollo APEX 5D a più fonti — reportistica' },

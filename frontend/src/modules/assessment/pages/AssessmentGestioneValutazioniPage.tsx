@@ -1,6 +1,6 @@
 import { Check, CloudOff } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { EmptyState } from '@/components/patterns/EmptyState'
 import { LoadingState } from '@/components/patterns/LoadingState'
@@ -32,6 +32,15 @@ const TABS = [
 ] as const
 type TabId = (typeof TABS)[number][0]
 
+// Roberto, 2026-11-17: i capitoli si dividono fra le due sezioni del menu. In Dashboarding →
+// Competenze professionali (hard-overview) i quattro operativi; in Reporting → Valutazioni
+// professionali (gestione-valutazioni) i due dei risultati. Il Metodo sta in tutte e due.
+export type Section5p = 'dashboarding' | 'reporting'
+const SECTIONS: Record<Section5p, { path: string; tabs: TabId[] }> = {
+  dashboarding: { path: '/assessment/hard-overview', tabs: ['piano', 'invio', 'racc', 'att', 'met'] },
+  reporting: { path: '/assessment/gestione-valutazioni', tabs: ['res', 'rep', 'met'] },
+}
+
 // Stato di ogni passo, sotto il nome della scheda: dice a che punto si è
 // senza aprirla. `done` accende la spunta.
 function stepStatus(s: State5p): Partial<Record<TabId, { text: string; done: boolean }>> {
@@ -57,14 +66,20 @@ function stepStatus(s: State5p): Partial<Record<TabId, { text: string; done: boo
 // modello; il progetto si salva in un file e si riapre anche da un altro PC.
 // Con i dati sul server il 5P si salva lì (use5pState), e le sue persone sono i
 // dipendenti dell'anagrafica (gestione5p/employees.ts).
-export default function AssessmentGestioneValutazioniPage() {
+export default function AssessmentGestioneValutazioniPage({ section = 'reporting' }: { section?: Section5p }) {
   const { toast, ui, canEdit, state: assessment, setState: setAssessment } = useAssessment()
   const { state, update, replace, status: loadStatus, error, retry } = use5pState()
   // La scheda aperta sta nell'indirizzo (?tab=), non nel browser: ricaricando
   // si torna lì, e il link si può mandare a un collega.
   const [params, setParams] = useSearchParams()
+  const navigate = useNavigate()
+  const own = SECTIONS[section]
+  const other = SECTIONS[section === 'dashboarding' ? 'reporting' : 'dashboarding']
   const fromUrl = params.get('tab') as TabId | null
-  const tab: TabId = fromUrl && TABS.some((x) => x[0] === fromUrl) ? fromUrl : 'piano'
+  // Un capitolo dell'altra sezione (un vecchio link a gestione-valutazioni?tab=piano) porta là.
+  const elsewhere = fromUrl && !own.tabs.includes(fromUrl) && other.tabs.includes(fromUrl) ? fromUrl : null
+  const tab: TabId = fromUrl && own.tabs.includes(fromUrl) ? fromUrl : own.tabs[0]
+  const tabs = TABS.filter(([id]) => own.tabs.includes(id))
   const [incoming, setIncoming] = useState<File[] | null>(null)
   const [confirm, confirmDialog] = useConfirm()
   const projRef = useRef<HTMLInputElement>(null)
@@ -86,6 +101,11 @@ export default function AssessmentGestioneValutazioniPage() {
   }, [loadStatus, canEdit, state.people, assessment.employees])
 
   function go(t: TabId) {
+    if (!own.tabs.includes(t)) {
+      navigate(`${other.path}?tab=${t}`)
+      window.scrollTo(0, 0)
+      return
+    }
     setParams(
       (p) => {
         const next = new URLSearchParams(p)
@@ -103,6 +123,7 @@ export default function AssessmentGestioneValutazioniPage() {
     }
   }
 
+  if (elsewhere) return <Navigate to={`${other.path}?tab=${elsewhere}`} replace />
   if (loadStatus === 'loading') return <LoadingState label={ui.serverLoading} rows={6} />
   if (loadStatus === 'error')
     return (
@@ -125,7 +146,12 @@ export default function AssessmentGestioneValutazioniPage() {
           <h2 className="text-app-title text-foreground">Valutazione 5P</h2>
           <span className="text-app-small text-muted-foreground">SKILL-VISION · Dirigente · Colleghi · Autovalutazione</span>
         </div>
+        {section === 'dashboarding' ? (
         <div className="flex flex-wrap items-center gap-2">
+          {/* L'inserimento a mano di una valutazione professionale (la vecchia Area valutazioni). */}
+          <Button asChild variant="outline" size="sm">
+            <Link to="/assessment/hard">{ui.hardAreaLink}</Link>
+          </Button>
           <label htmlFor="g5p-company" className="text-app-small text-muted-foreground">
             Azienda
           </label>
@@ -159,20 +185,23 @@ export default function AssessmentGestioneValutazioniPage() {
             Nuovo
           </Button>
         </div>
+        ) : null}
       </div>
       {state.demo ? (
         <div className="flex flex-wrap items-center gap-3 rounded-md surface-warning px-4 py-3 text-app-small text-warning">
           <span>
             <b className="font-semibold">Dati di esempio.</b> Persone e voti inventati per mostrare come funziona. Per lavorare su un&apos;azienda reale avvia un nuovo progetto.
           </span>
-          <Button variant="outline" size="sm" onClick={() => void newProject('Cancellare i dati di esempio?')}>
-            Nuovo progetto vuoto
-          </Button>
+          {section === 'dashboarding' ? (
+            <Button variant="outline" size="sm" onClick={() => void newProject('Cancellare i dati di esempio?')}>
+              Nuovo progetto vuoto
+            </Button>
+          ) : null}
         </div>
       ) : null}
       <Tabs value={tab} onValueChange={(v) => go(v as TabId)}>
         <TabsList className="max-w-full overflow-x-auto">
-          {TABS.map(([id, n, label]) => {
+          {tabs.map(([id, n, label]) => {
             const st = status[id]
             return (
               <TabsTrigger key={id} value={id} title={st ? `${label}: ${st.text}` : label}>
