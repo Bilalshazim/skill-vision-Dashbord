@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
-import type { JdState } from '@/modules/recruiting/lib/jd-types'
+import type { JdItemTool, JdState } from '@/modules/recruiting/lib/jd-types'
+import { certificationFor, isRequired, qcerOf, qcerText } from '@/modules/recruiting/lib/qcer'
 
 function TagBlock({ items }: { items: { label: string }[] }) {
   if (!items.length) return <p className="text-app-caption italic text-muted-foreground">Nessuna voce selezionata</p>
@@ -29,6 +30,27 @@ function LevelBlock({ items, valueKey }: { items: { label: string; level?: strin
   )
 }
 
+// Le lingue sul QCER (2026-11-19): il livello per dimensione e la certificazione di riferimento.
+function LanguageBlock({ items }: { items: JdItemTool[] }) {
+  if (!items.length) return <p className="text-app-caption italic text-muted-foreground">Nessuna voce selezionata</p>
+  return (
+    <div className="flex flex-col">
+      {items.map((i) => {
+        const cert = certificationFor(i.label)
+        return (
+          <div key={i.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-border py-1 text-app-small last:border-0">
+            <span className="text-foreground">
+              {i.label}
+              {cert ? <span className="text-muted-foreground"> · {cert}</span> : null}
+            </span>
+            <span className="label-mono text-muted-foreground">{qcerText(qcerOf(i))}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function PreviewSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="mb-5 last:mb-0">
@@ -46,7 +68,7 @@ type CheckOrValueKey = 'responsabilita' | 'attivita' | 'softSkills' | 'titoliStu
 
 export function JdPreview({ jd, eyebrow = 'Scheda professionale · Anteprima' }: { jd: JdState; eyebrow?: string }) {
   const checked = (key: CheckOrValueKey) => jd.sections[key].items.filter((i) => i.checked)
-  const toolsActive = (key: 'competenzeTecniche' | 'lingue') => jd.sections[key].items.filter((i) => i.level && i.level !== 'Non richiesto')
+  const toolsActive = (key: 'competenzeTecniche') => jd.sections[key].items.filter((i) => i.level && i.level !== 'Non richiesto')
   const extraActive = jd.extra.filter((r) => r.label.trim() !== '')
   const hardAll = jd.hardSkillGroups.flatMap((g) => g.items.filter((i) => i.checked).map((i) => ({ ...i, group: g.label })))
 
@@ -140,7 +162,7 @@ export function JdPreview({ jd, eyebrow = 'Scheda professionale · Anteprima' }:
         <TagBlock items={checked('settori')} />
       </PreviewSection>
       <PreviewSection title="Lingue">
-        <LevelBlock items={toolsActive('lingue')} valueKey="level" />
+        <LanguageBlock items={jd.sections.lingue.items.filter(isRequired)} />
       </PreviewSection>
       <PreviewSection title="Disponibilità">
         <TagBlock items={checked('disponibilita')} />

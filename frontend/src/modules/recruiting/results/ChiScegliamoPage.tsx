@@ -21,6 +21,7 @@ export default function ChiScegliamoPage() {
   const podium = data.finalists.slice(0, 3)
   return (
     <ResultsPage
+      hoverCards
       crumbs={crumbs}
       number={step.number}
       title={step.title}

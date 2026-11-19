@@ -2,6 +2,15 @@
 
 Formato:  — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Recruiting: i tre passi e le lingue sul QCER · 2026-11-19
+
+- **Titoli delle card «DEFINIRE · VALUTARE · SCEGLIERE»**: scritti «Definire · Valutare · Scegliere». Il maiuscolo esiste solo nello stile label (regola 8); un titolo di card è minuscolo.
+- **Dove va la domanda** («Chi cerchiamo?»): nell'etichetta con il numero, come «01 · Rendimento» nella Home di Assessment. Opzioni: toglierla (il clic porta a una pagina che si chiama «Chi cerchiamo?» senza che la card lo dica) o tenerla nell'etichetta. Presa la seconda. Pagine dei risultati e menu restano «Chi cerchiamo?» ecc.: rinominarle lo decide Roberto.
+- **«Il Recruiting in 3 passi»**: nessun titolo con questo nome esiste nella pagina (il blocco titolo è stato tolto il 2026-11-06). Non aggiunto: da confermare con Roberto se lo vuole come titolo della home.
+- **Il bordo lime al passaggio del mouse «su tutte le finestre di Recruiting»**: applicato alle finestre che si cliccano o che sono riquadri di presentazione (le tre card della home e le finestre delle pagine dei risultati, come in Assessment). Non alle card delle pagine di lavoro (tabelle, moduli): il fascicolo vieta il bordo primario al passaggio su una card che non si clicca (Fase 5).
+- **Livello QCER per dimensione**: un menu per Comprensione, Parlato e Scritto, con «Non richiesto». Le definizioni dei sei livelli stanno in una legenda sopra l'elenco, non nei tooltip delle voci: il menu di Radix non mostra il tooltip di una voce, e la legenda si legge anche su telefono e con la tastiera.
+- **Le schede vecchie** (un livello solo) non si convertono nel dato salvato: si leggono come A2 · B1 · C1 · C2 e si salvano sul QCER alla prima modifica. Il campo \`level\` resta («QCER» o «Non richiesto») per chi legge solo quello.
+
 ## Dashboarding e Reporting dopo il 17/11 · 2026-11-17
 
 - **Area – Ruolo – Mansione**: Roberto nomina tre campi e il dipendente ne ha tre (`area`, `ruolo`, `mansione`); si mostrano con i suoi nomi. Altrove in Assessment `ruolo` è etichettato «Mansione» e `mansione` «Attività» (CLAUDE.md, cap. 7): da chiarire con Alessio quale nome tenere, qui vale la richiesta di Roberto.

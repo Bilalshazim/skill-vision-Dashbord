@@ -14,6 +14,7 @@ export default function ChiEPiuAdattoPage() {
   const best = { label: 'Vai ai migliori candidati', to: '/recruiting/ranking' }
   return (
     <ResultsPage
+      hoverCards
       crumbs={crumbs}
       number={step.number}
       title={step.title}

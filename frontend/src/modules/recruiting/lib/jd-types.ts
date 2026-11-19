@@ -14,7 +14,9 @@ export type JdItemLevel = { id: string; label: string; checked: boolean; level: 
 // read-only derivation from DEFAULT_FLAGS (see lib/jd.ts), never written
 // back to it.
 export type JdItemValue = { id: string; label: string; checked: boolean; valoreAtteso: number | null; weight: number }
-export type JdItemTool = { id: string; label: string; level: string }
+/** Il livello QCER desiderato per lingua (A1…C2, '' = non richiesto): solo nella sezione Lingue (2026-11-19). */
+export type JdQcer = { comprensione: string; parlato: string; scritto: string }
+export type JdItemTool = { id: string; label: string; level: string; qcer?: JdQcer }
 
 export type JdSectionCheck = { label: string; kind: 'check'; items: JdItemCheck[] }
 export type JdSectionValue = { label: string; kind: 'value'; items: JdItemValue[] }

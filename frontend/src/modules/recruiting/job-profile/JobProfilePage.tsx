@@ -24,6 +24,7 @@ import { JdHardSkills } from '@/modules/recruiting/job-profile/JdHardSkills'
 import { JdHeaderFields } from '@/modules/recruiting/job-profile/JdHeaderFields'
 import { JdPreview } from '@/modules/recruiting/job-profile/JdPreview'
 import { JdSalaryBenefits } from '@/modules/recruiting/job-profile/JdSalaryBenefits'
+import { JdLanguages } from '@/modules/recruiting/job-profile/JdLanguages'
 import { JdSection } from '@/modules/recruiting/job-profile/JdSection'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Card } from '@/components/ui/card'
@@ -44,7 +45,9 @@ const SECTION_TITLES: Record<JdSectionKey, string> = {
   kpi: 'KPI',
   valutazione: 'Cosa valuterà SKILL-VISION',
 }
-const SECTION_SUB: Partial<Record<JdSectionKey, string>> = {}
+const SECTION_SUB: Partial<Record<JdSectionKey, string>> = {
+  lingue: 'Livello desiderato sul QCER (A1–C2) per comprensione, parlato e scritto.',
+}
 
 // Ported literal groups order from jd_buildEditor() (modules/recruiting.html
 // ~4058-4080) — Intestazione + Compensation e Benefit first, then the 13
@@ -328,7 +331,11 @@ export default function JobProfilePage() {
 
               {SECTION_ORDER_REST.map((key) => (
                 <AccordionSection key={key} index={nextIdx()} title={SECTION_TITLES[key]} sub={SECTION_SUB[key]} value={key}>
-                  <JdSection section={jdState.sections[key]} onChange={(next) => updateSection(key, next)} />
+                  {key === 'lingue' ? (
+                    <JdLanguages section={jdState.sections.lingue} onChange={(next) => updateSection('lingue', next)} />
+                  ) : (
+                    <JdSection section={jdState.sections[key]} onChange={(next) => updateSection(key, next)} />
+                  )}
                 </AccordionSection>
               ))}
 

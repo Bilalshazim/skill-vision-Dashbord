@@ -21,6 +21,7 @@ export function WindowCard({
   verbs,
   theme,
   accentHover,
+  size = 'default',
   className,
 }: {
   to: string
@@ -38,6 +39,8 @@ export function WindowCard({
    * accent-400 in scuro (regola 6: mai lime chiaro come testo su fondo chiaro).
    */
   accentHover?: boolean
+  /** `lg`: le tre finestre della home di Recruiting, più grandi (Roberto, 2026-11-19). */
+  size?: 'default' | 'lg'
   /** Solo per il posizionamento nella griglia. */
   className?: string
 }) {
@@ -47,7 +50,8 @@ export function WindowCard({
       to={to}
       data-slot="window-card"
       className={cn(
-        'group flex h-full min-h-56 min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-6 text-left text-card-foreground outline-none transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        'group flex h-full min-w-0 flex-col gap-2 rounded-lg border border-border bg-card text-left text-card-foreground outline-none transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        size === 'lg' ? 'min-h-80 gap-3 p-6 lg:min-h-96 lg:p-8' : 'min-h-56 p-6',
         accentHover ? 'hover:border-chart-highlight-line focus-visible:border-chart-highlight-line' : 'hover:border-border-strong',
         className,
       )}
@@ -59,7 +63,7 @@ export function WindowCard({
       ) : (
         <span className="label-mono text-muted-foreground">{number}</span>
       )}
-      <span className={cn('text-site-h3 text-foreground md:text-site-h2', theme && 'mt-auto', accentHover && 'transition-colors group-hover:text-chart-highlight-line group-focus-visible:text-chart-highlight-line')}>{title}</span>
+      <span className={cn('text-foreground', size === 'lg' ? 'text-site-h2 md:text-site-h1' : 'text-site-h3 md:text-site-h2', theme && 'mt-auto', accentHover && 'transition-colors group-hover:text-chart-highlight-line group-focus-visible:text-chart-highlight-line')}>{title}</span>
       <span className="text-app-body text-muted-foreground">{subtitle}</span>
       {content ? <span className="mt-4 text-app-small text-foreground">{content}</span> : null}
       <span className={cn('flex items-end justify-between gap-4', theme ? 'border-t border-border pt-3' : verbs ? 'mt-auto border-t border-border pt-3' : 'mt-auto pt-6')}>

@@ -13,6 +13,7 @@ export default function ChiCerchiamoPage() {
   const { data, step, position, crumbs, home, demoNote } = useRecruitingResults('chi-cerchiamo')
   return (
     <ResultsPage
+      hoverCards
       crumbs={crumbs}
       number={step.number}
       title={step.title}

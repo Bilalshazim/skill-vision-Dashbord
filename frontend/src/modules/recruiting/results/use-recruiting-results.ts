@@ -7,18 +7,23 @@ import { recruitingResults } from '@/modules/recruiting/lib/results'
 import { useSkillFlags } from '@/modules/recruiting/lib/skill-flags'
 import { readCandidates } from '@/modules/recruiting/lib/storage'
 
-/** I tre passi del Profilo della ricerca (CLAUDE.md, Fase 6): la card e la sua pagina dei risultati. */
+/**
+ * I tre passi del Profilo della ricerca (CLAUDE.md, Fase 6): la card e la sua pagina dei risultati.
+ * `cardTitle`: il titolo della card (Roberto, 2026-11-19: Definire · Valutare · Scegliere, scritti
+ * minuscoli per la regola 8); la domanda (`title`) resta il nome della pagina dei risultati e del menu.
+ */
 export const RECRUITING_STEPS = [
   {
     slug: 'chi-cerchiamo',
     number: '01',
+    cardTitle: 'Definire',
     title: 'Chi cerchiamo?',
     sub: 'Definire il candidato ideale',
     content: 'Ruolo, requisiti, hard e soft skill',
     verbs: 'Crea posizione · Pubblica · Ricevi CV',
   },
-  { slug: 'chi-e-piu-adatto', number: '02', title: 'Chi è più adatto?', sub: 'Valutare tutti in un unico elenco', content: 'Matching CV, Test, Colloquio', verbs: 'Approfondisci · Esamina · Approva' },
-  { slug: 'chi-scegliamo', number: '03', title: 'Chi scegliamo?', sub: 'Confrontare i finalisti', content: 'Punti di forza, Rischi', verbs: 'Confronta · Decidi · Chiudi' },
+  { slug: 'chi-e-piu-adatto', number: '02', cardTitle: 'Valutare', title: 'Chi è più adatto?', sub: 'Valutare tutti in un unico elenco', content: 'Matching CV, Test, Colloquio', verbs: 'Approfondisci · Esamina · Approva' },
+  { slug: 'chi-scegliamo', number: '03', cardTitle: 'Scegliere', title: 'Chi scegliamo?', sub: 'Confrontare i finalisti', content: 'Punti di forza, Rischi', verbs: 'Confronta · Decidi · Chiudi' },
 ] as const
 
 // Quello che le tre pagine dei risultati di Recruiting hanno in comune: la

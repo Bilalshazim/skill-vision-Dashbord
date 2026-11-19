@@ -190,6 +190,30 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-19 — Recruiting: i tre passi e le lingue sul QCER (Roberto, 19/11)
+
+- [x] **Profilo della ricerca, le tre card**: titoli «Definire · Valutare · Scegliere» (minuscoli, regola 8);
+      la domanda («Chi cerchiamo?» …) passa nell'etichetta con il numero («01 · Chi cerchiamo?»), perché
+      resta il nome della pagina dei risultati e del menu. Card più grandi (`WindowCard size="lg"`: alte
+      almeno 320px, 384px da 1024px, titolo H1 del sito da 768px). Al passaggio del mouse bordo e titolo
+      lime come nella Home di Assessment. Verificato in locale a 1366px in chiaro.
+- [x] **Pagine dei risultati di Recruiting** (Chi cerchiamo? · Chi è più adatto? · Chi scegliamo?):
+      `hoverCards`, lo stesso passaggio del mouse delle pagine dei risultati di Assessment.
+- [x] **Profilo candidato → Lingue sul QCER**: per ogni lingua Comprensione · Parlato · Scritto, ognuna da
+      A1 a C2 («B2 · Intermedio avanzato») o «Non richiesto»; sopra, i sei livelli con la definizione.
+      Proposte anche Cinese mandarino (HSK), Giapponese (JLPT), Coreano (TOPIK), Russo (TORFL / TRKI),
+      Arabo e Hindi (Diverse certificazioni), con la certificazione accanto al nome. Anteprima e annuncio
+      pubblico: «Inglese — Parlato C1», «Cinese mandarino · HSK — Comprensione B2». Le schede salvate con
+      il livello unico (Base · Intermedio · Avanzato · Madrelingua) si leggono come A2 · B1 · C1 · C2 nelle
+      tre dimensioni. Dato: `JdItemTool.qcer`, dentro `sections.lingue` (modello e server, come il resto
+      della scheda). Verificato in locale: scelti Cinese mandarino Comprensione B2 e Inglese Parlato C1,
+      «Salva JD», ricaricata la pagina → i due valori al loro posto.
+- [ ] Non fatto: le «Lingue conosciute» del candidato (dal CV) non esistono nei dati; oggi c'è solo il
+      livello desiderato della posizione. Da chiarire con Roberto se servono e da dove arrivano.
+- Controlli: typecheck, lint (nessun errore), test 13/13, build, audit «Nessun difetto».
+- [ ] In produzione da provare (Bilal).
+
+
 ## 2026-11-17 — Dashboarding, Reporting e Home (Roberto, 17/11)
 
 - [x] **Dashboarding → Competenze trasversali**: solo somministrazione, nessun risultato. Via le due

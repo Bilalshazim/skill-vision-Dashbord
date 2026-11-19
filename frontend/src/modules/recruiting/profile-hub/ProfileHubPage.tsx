@@ -19,6 +19,9 @@ import { RECRUITING_STEPS } from '@/modules/recruiting/results/use-recruiting-re
 //     altezza, numero e titolo in alto, i verbi in fondo), con la freccia fra l'una e l'altra, numerate, con titolo, sottotitolo, contenuto e verbi
 //     (Decisioni del 2026-11-06: via il blocco di titolo e sottotitolo). Senza numeri di dati
 //     (Roberto non li vuole qui); il clic apre la pagina dei risultati del passo.
+// Roberto, 2026-11-19: titoli Definire · Valutare · Scegliere (la domanda passa nell'etichetta
+// con il numero), card più grandi e, al passaggio del mouse, bordo e titolo lime come nella Home
+// di Assessment.
 // Niente riga dell'esito (2026-10-29), niente "Report AI" nella terza card.
 // Prima la pagina era la scheda della posizione (prossimo passo, cosa
 // cerchiamo, a che punto siamo, con i numeri): quei contenuti stanno nelle
@@ -61,7 +64,7 @@ export default function ProfileHubPage() {
               </li>
             ) : null}
             <li className="min-w-0">
-              <WindowCard to={`/recruiting/${s.slug}`} number={s.number} title={s.title} subtitle={s.sub} content={s.content} verbs={s.verbs} />
+              <WindowCard to={`/recruiting/${s.slug}`} number={s.number} theme={s.title} title={s.cardTitle} subtitle={s.sub} content={s.content} verbs={s.verbs} size="lg" accentHover />
             </li>
           </Fragment>
         ))}
