@@ -179,13 +179,18 @@ export function readPeople(body: unknown, codes: Set<string>): { people: OsImpor
 
 const isoDay = (d: Date) => d.toISOString().slice(0, 10)
 
-export type Fetcher = (cfg: OsConfig, from: string, to: string, codes: string[]) => Promise<unknown>
+export type Fetcher = (cfg: OsConfig, from: string, to: string, codes: string[], timeoutMs?: number) => Promise<unknown>
+
+// Le finestre più vecchie possono essere lente: per l'importazione si aspetta di più dell'anteprima.
+const IMPORT_TIMEOUT_MS = 30_000
 
 /**
  * Le `limit` persone con il test più recente. L'API non pagina e accetta meno
  * di 90 giorni per chiamata: si va indietro a finestre di 89 giorni finché le
  * persone bastano o le finestre finiscono. Una persona con più test conta una
  * volta, con il più recente (stessa email; senza email, lo stesso test).
+ * Se una finestra più vecchia non risponde, si tiene quello che si ha già e
+ * lo si dice (`failedWindows`); se non risponde la prima, l'errore sale.
  */
 export async function collectRecent(cfg: OsConfig, limit: number, opts: { maxWindows?: number; now?: Date; fetcher?: Fetcher } = {}) {
   const maxWindows = opts.maxWindows ?? 8
@@ -197,10 +202,20 @@ export async function collectRecent(cfg: OsConfig, limit: number, opts: { maxWin
   let windows = 0
   let invalidRows = 0
   let discardedRows = 0
+  let failedWindows = 0
   let from = to
   while (windows < maxWindows && byKey.size < limit) {
-    from = new Date(to.getTime() - (MAX_RANGE_DAYS - 1) * DAY)
-    const out = readPeople(await fetcher(cfg, isoDay(from), isoDay(to), codes), codeSet)
+    const start = new Date(to.getTime() - (MAX_RANGE_DAYS - 1) * DAY)
+    let body: unknown
+    try {
+      body = await fetcher(cfg, isoDay(start), isoDay(to), codes, IMPORT_TIMEOUT_MS)
+    } catch (err) {
+      if (!windows) throw err
+      failedWindows++
+      break
+    }
+    from = start
+    const out = readPeople(body, codeSet)
     windows++
     invalidRows += out.invalidRows
     discardedRows += out.discardedRows
@@ -212,7 +227,7 @@ export async function collectRecent(cfg: OsConfig, limit: number, opts: { maxWin
     to = new Date(from.getTime() - DAY)
   }
   const people = [...byKey.values()].sort((a, b) => (b.completedAt?.getTime() ?? 0) - (a.completedAt?.getTime() ?? 0)).slice(0, limit)
-  return { people, windows, from: isoDay(from), invalidRows, discardedRows }
+  return { people, windows, failedWindows, from: isoDay(from), invalidRows, discardedRows }
 }
 
 // ---------- scrittura ----------

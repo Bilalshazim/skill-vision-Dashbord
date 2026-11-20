@@ -10,6 +10,7 @@ import { Card, CardTitle } from '@/components/ui/card'
 import { originalSkillsApi, type OriginalSkillsImportReport } from '@/lib/api/endpoints'
 import { useSession } from '@/lib/auth/session'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
+import { ApiError } from '@/lib/api/client'
 import { errorReason } from '@/modules/assessment/lib/server-sync'
 
 // «Importa le persone dai test» (2026-11-20): le persone più recenti che hanno completato i test,
@@ -35,7 +36,7 @@ export function TestPeopleImport() {
       setPhase({ kind: 'preview', report: await originalSkillsApi.importPeople(companyId, LIMIT, true) })
     } catch (err) {
       setPhase({ kind: 'idle' })
-      toast(ui.osImportFailed(errorReason(err, ui.serverOffline)), 'err')
+      toast(ui.osImportFailed(reason(err)), 'err')
     }
   }
 
@@ -48,7 +49,7 @@ export function TestPeopleImport() {
       setPhase({ kind: 'idle' })
     } catch (err) {
       setPhase({ kind: 'preview', report })
-      toast(ui.osImportFailed(errorReason(err, ui.serverOffline)), 'err')
+      toast(ui.osImportFailed(reason(err)), 'err')
     }
   }
 
@@ -60,6 +61,12 @@ export function TestPeopleImport() {
     } catch (err) {
       toast(ui.osImportRemoveFailed(errorReason(err, ui.serverOffline)), 'err')
     }
+  }
+
+  // Un errore del servizio dei test (502 del backend) dice cosa è successo, non «il server non risponde».
+  function reason(err: unknown) {
+    if (err instanceof ApiError && err.code === 'bad_gateway') return ui.osImportUpstream(err.message.replace(/^Il Comitato scientifico /, ''))
+    return errorReason(err, ui.serverOffline)
   }
 
   const report = phase.kind === 'preview' || phase.kind === 'saving' ? phase.report : null
@@ -85,6 +92,7 @@ export function TestPeopleImport() {
         <div className="flex flex-col gap-3">
           <p className="text-app-body text-foreground">{ui.osImportCounts(report.people, report.created, report.updated)}</p>
           <p className="text-app-small text-muted-foreground">{ui.osImportDetail(report.employees, report.candidates, report.withoutEmail, report.withoutScores)}</p>
+          {report.failedWindows ? <Note>{ui.osImportPartial(new Date(report.from).toLocaleDateString('it-IT'))}</Note> : null}
           {report.unmappedSkills.length ? <Note>{ui.osImportUnmapped(report.unmappedSkills.join(', '))}</Note> : null}
           <div className="flex flex-wrap items-center gap-3">
             <Button type="button" disabled={phase.kind === 'saving' || !report.people} onClick={() => void confirm(report)}>

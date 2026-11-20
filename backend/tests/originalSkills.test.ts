@@ -220,4 +220,19 @@ describe('Original Skills — importazione nell’Anagrafica', () => {
     const ids = (await prisma.employee.findMany({ where: { companyId: fx.company.id } })).map((e) => e.externalId).sort()
     expect(ids).toEqual(['2', '3'])
   })
+it('se una finestra più vecchia non risponde, tiene le persone già lette e lo dice; se non risponde la prima, 502', async () => {
+    const fx = await assessmentCompany()
+    let n = 0
+    vi.stubGlobal('fetch', vi.fn(async () => (++n === 1 ? new Response(JSON.stringify([full('7')]), { status: 200 }) : new Response(JSON.stringify({ Cause: 'x' }), { status: 500 }))))
+    const token = await loginAs(fx.platformAdmin.email)
+    const res = await api.post('/api/v1/original-skills/import').set(authHeader(token)).send({ companyId: fx.company.id, limit: 100 })
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({ people: 1, windows: 1, failedWindows: 1 })
+
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ Cause: 'x' }), { status: 500 })))
+    const bad = await api.post('/api/v1/original-skills/import').set(authHeader(token)).send({ companyId: fx.company.id, limit: 50 })
+    expect(bad.status).toBe(502)
+    expect(bad.body.error.code).toBe('bad_gateway')
+  })
 })
+

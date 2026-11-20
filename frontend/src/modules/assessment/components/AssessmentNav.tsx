@@ -77,6 +77,14 @@ export function AssessmentNav() {
     const current = new URLSearchParams(location.search).get('tab')
     return tab === current || (!current && tab === FIRST_TAB[it.id])
   }
+  // Una pagina che sta in due sezioni del menu (Anagrafica: Predictive analysis e Dashboarding,
+  // nuovo indice di Roberto) accende solo la voce da cui si è entrati: quella di Dashboarding
+  // porta `?da=dashboarding` nell'indirizzo, l'altra no.
+  const isLinkActive = (it: { id: string; to?: string }) => {
+    if (it.id !== currentPage) return false
+    const want = new URLSearchParams(it.to?.split('?')[1] ?? '').get('da')
+    return want === new URLSearchParams(location.search).get('da')
+  }
   // "Area Valutazioni" e "Area Risultati" partono aperte: le loro voci si
   // vedono subito sotto (richiesta del cliente, 2026-10-13). Si possono chiudere.
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ home: true, company: true, 'comp-professionali': true, 'val-trasversali': true, 'val-professionali': true })
@@ -166,8 +174,8 @@ export function AssessmentNav() {
       const Icon = iconFor(entry.icon)
       return (
         <SidebarMenuItem key={entry.key ?? entry.id}>
-          <SidebarMenuButton asChild isActive={entry.id === currentPage} className={cn(entry.sub && 'h-auto', emphasisClass(entry.id))}>
-            <NavLink to={`/assessment/${entry.id}`}>
+          <SidebarMenuButton asChild isActive={isLinkActive(entry)} className={cn(entry.sub && 'h-auto', emphasisClass(entry.id))}>
+            <NavLink to={`/assessment/${entry.to ?? entry.id}`}>
               <Icon aria-hidden="true" />
               <span className="flex min-w-0 flex-1 flex-col">
                 <span>{entry.label}</span>

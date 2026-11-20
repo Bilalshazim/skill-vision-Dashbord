@@ -964,6 +964,8 @@ export const UI_EN = {
   osImportConfirm: (n) => 'Import ' + n + (n === 1 ? ' person' : ' people'),
   osImportDone: (add, upd) => 'Import complete: ' + add + ' new, ' + upd + ' updated.',
   osImportFailed: (reason) => 'Import failed: ' + reason + '. Try again in a few minutes.',
+  osImportPartial: (from) => 'Partial list: the older tests did not respond. It includes people tested from ' + from + ' on.',
+  osImportUpstream: (reason) => 'the test service did not respond (' + reason + ')',
   osImportRemove: 'Remove imported people',
   osImportRemoveTitle: 'Remove imported people?',
   osImportRemoveBody: 'Everyone imported from the tests leaves the directory, with their scores and history. People added by hand stay.',

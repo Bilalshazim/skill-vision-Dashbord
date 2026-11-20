@@ -39,7 +39,7 @@ export const ICONS = {
 /* ---------------------- NAVIGATION CONFIGURATION ---------------------- */
 export type NavConfigEntry =
   // `key`: due voci sulla stessa pagina. `sub`: una seconda riga sotto il nome («Somministrazione»).
-  | { type: 'link'; id: string; key?: string; label: string; sub?: string; icon: string; requires: string | null; badge?: boolean }
+  | { type: 'link'; id: string; key?: string; to?: string; label: string; sub?: string; icon: string; requires: string | null; badge?: boolean }
   // `homeId`: il titolo del gruppo è una pagina (la Home, con sotto le pagine dei risultati).
   // `hoverOpen`: il gruppo si apre anche al passaggio del mouse (Analisi predittiva, 2026-11-12).
   // `to` di una voce: un punto della pagina, `pagina#sezione` o `pagina?tab=capitolo`.
@@ -83,7 +83,7 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
   { type:'link', id:'analisi', label:'Interview', icon:'notes', requires:null },
   { type:'link', id:'anagrafica', label:'Employee Directory', icon:'users', requires:null },
   { type:'section', label:'Dashboarding', note:'Analytical application – administration' },
-  { type:'link', id:'anagrafica', key:'anagrafica-dashboarding', label:'Employee Directory', icon:'users', requires:null },
+  { type:'link', id:'anagrafica', key:'anagrafica-dashboarding', to:'anagrafica?da=dashboarding', label:'Employee Directory', icon:'users', requires:null },
   { type:'link', id:'soft-overview', label:'1. Cross-functional competencies', sub:'Administration', icon:'soft', requires:null },
   { type:'group', groupId:'comp-professionali', homeId:'hard-overview', label:'2. Professional competencies', icon:'hard', items:[
     { id:'hard-overview', key:'ho-piano', to:'hard-overview?tab=piano', label:'Evaluation plan', requires:'B' },
@@ -124,7 +124,7 @@ export const NAV_CONFIG_IT: NavConfigEntry[] = [
   { type:'link', id:'analisi', label:'Intervista', icon:'notes', requires:null },
   { type:'link', id:'anagrafica', label:'Anagrafica', icon:'users', requires:null },
   { type:'section', label:'Dashboarding', note:'Applicazione analitica – somministrazione' },
-  { type:'link', id:'anagrafica', key:'anagrafica-dashboarding', label:'Anagrafica', icon:'users', requires:null },
+  { type:'link', id:'anagrafica', key:'anagrafica-dashboarding', to:'anagrafica?da=dashboarding', label:'Anagrafica', icon:'users', requires:null },
   { type:'link', id:'soft-overview', label:'1. Competenze trasversali', sub:'Somministrazione', icon:'soft', requires:null },
   { type:'group', groupId:'comp-professionali', homeId:'hard-overview', label:'2. Competenze professionali', icon:'hard', items:[
     { id:'hard-overview', key:'ho-piano', to:'hard-overview?tab=piano', label:'Piano di valutazione', requires:'B' },

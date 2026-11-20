@@ -190,6 +190,24 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-20 (2) — Importazione dai test: errore in produzione; Anagrafica accesa due volte
+
+- [ ] **In produzione «Vedi l'anteprima» finiva con «il server non risponde»** (Bilal, 20/11). Il messaggio
+      copre sia la rete sia un 502 del backend, quindi la causa vera non si vedeva; senza la CLI di Railway
+      i registri non li ho letti. Correzioni: ogni chiamata all'API dei test aspetta 30 s (erano 15); se una
+      finestra più vecchia non risponde si tengono le persone già lette e il riquadro dice «Elenco
+      parziale»; se non risponde la prima, il riquadro dice «il servizio dei test non ha risposto (…)» con
+      lo stato; il registro del Backend scrive stato e `Cause` dell'API (`[original-skills] …`), senza dati
+      di persone. La conferma importa l'elenco dell'anteprima (in memoria 10 minuti), senza rileggere l'API.
+      Test backend nuovo per il caso parziale. **Da provare in produzione**: se l'errore resta, la riga
+      `[original-skills]` nei registri del Backend dice perché.
+- [x] **Anagrafica accesa due volte nel menu**: la voce sta in Predictive analysis e in Dashboarding (nuovo
+      indice di Roberto), e si accendevano tutte e due. Ora quella di Dashboarding apre
+      `/assessment/anagrafica?da=dashboarding` e si accende solo la voce da cui si è entrati. Verificato in
+      locale: clic su ognuna, una sola attiva.
+- Controlli: typecheck, lint senza errori, test frontend 13/13, build, audit «Nessun difetto»; backend
+      Original Skills 10/10, `protected-routes` ancora rosso per la rotta pubblica dell'annuncio (non toccata).
+
 ## 2026-11-20 — Persone dai test in Acme Corp (prova)
 
 - [x] **Backend**: `POST /api/v1/original-skills/import` (anteprima con `dryRun`, poi importazione in una

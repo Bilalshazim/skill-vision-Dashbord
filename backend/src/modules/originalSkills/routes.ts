@@ -80,6 +80,9 @@ const importSchema = z.object({
   dryRun: z.boolean().default(true),
 })
 
+const PREVIEW_TTL_MS = 10 * 60_000
+const previewCache = new Map<string, { at: number; found: Awaited<ReturnType<typeof collectRecent>> }>()
+
 async function assessmentCompany(companyId: string) {
   const company = await prisma.company.findUnique({ where: { id: companyId }, select: { id: true, purchasedModules: true } })
   if (!company) throw new NotFoundError('Società non trovata')
@@ -92,7 +95,13 @@ originalSkillsRouter.post('/import', requireRole('PLATFORM_ADMIN'), validateBody
     const body = req.body as z.infer<typeof importSchema>
     const cfg = readConfig()
     const company = await assessmentCompany(body.companyId)
-    const found = await collectRecent(cfg, body.limit)
+    // La conferma importa le stesse persone dell'anteprima, senza rileggere l'API: l'elenco resta in
+    // memoria 10 minuti, per chi l'ha chiesto, per società e numero. Dopo, si rilegge.
+    const cacheKey = `${req.auth!.sub}|${company.id}|${body.limit}`
+    const cached = previewCache.get(cacheKey)
+    const found = !body.dryRun && cached && cached.at > Date.now() - PREVIEW_TTL_MS ? cached.found : await collectRecent(cfg, body.limit)
+    if (body.dryRun) previewCache.set(cacheKey, { at: Date.now(), found })
+    else previewCache.delete(cacheKey)
     const report = body.dryRun
       ? await prisma.$transaction((tx) => applyImport(tx, company.id, found.people, true))
       : await prisma.$transaction((tx) => applyImport(tx, company.id, found.people, false), { timeout: 180_000, maxWait: 10_000 })
@@ -106,7 +115,7 @@ originalSkillsRouter.post('/import', requireRole('PLATFORM_ADMIN'), validateBody
         metadata: { from: found.from, windows: found.windows, people: report.people, created: report.created, updated: report.updated },
       })
     }
-    res.json({ ...report, from: found.from, windows: found.windows, invalidRows: found.invalidRows })
+    res.json({ ...report, from: found.from, windows: found.windows, failedWindows: found.failedWindows, invalidRows: found.invalidRows })
   } catch (err) {
     next(err)
   }

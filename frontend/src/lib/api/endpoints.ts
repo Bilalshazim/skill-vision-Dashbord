@@ -349,4 +349,6 @@ export type OriginalSkillsImportReport = {
   unmappedSkills: string[]
   from: string
   windows: number
+  /** Finestre di 89 giorni che non hanno risposto: l'elenco è parziale. */
+  failedWindows: number
 }

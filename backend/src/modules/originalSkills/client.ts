@@ -36,19 +36,31 @@ export function readConfig(): OsConfig {
   return { url, authKey, authCompany, companies }
 }
 
-export async function fetchExport(cfg: OsConfig, from: string, to: string, codes: string[]): Promise<unknown> {
+export async function fetchExport(cfg: OsConfig, from: string, to: string, codes: string[], timeoutMs = TIMEOUT_MS): Promise<unknown> {
   let res: Response
   try {
     res = await fetch(cfg.url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', authKey: cfg.authKey, authCompany: cfg.authCompany },
       body: JSON.stringify({ dataDa: from, dataA: to, lingua: 'IT', codAzienda: codes }),
-      signal: AbortSignal.timeout(TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     })
-  } catch {
+  } catch (err) {
+    // Nel registro solo il tipo di errore e l'intervallo: niente credenziali, codici o persone.
+    console.warn(`[original-skills] nessuna risposta per ${from}…${to}: ${err instanceof Error ? err.name : 'errore'}`)
     throw new BadGatewayError('Il Comitato scientifico non risponde')
   }
-  if (!res.ok) throw new BadGatewayError(`Il Comitato scientifico ha risposto ${res.status}`)
+  if (!res.ok) {
+    // `Cause` è il testo generico dell'API («date range must be smaller than 90 days»).
+    let cause = ''
+    try {
+      cause = String(((await res.json()) as { Cause?: unknown }).Cause ?? '').slice(0, 200)
+    } catch {
+      cause = ''
+    }
+    console.warn(`[original-skills] ${res.status} per ${from}…${to}${cause ? `: ${cause}` : ''}`)
+    throw new BadGatewayError(`Il Comitato scientifico ha risposto ${res.status}`)
+  }
   try {
     return await res.json()
   } catch {

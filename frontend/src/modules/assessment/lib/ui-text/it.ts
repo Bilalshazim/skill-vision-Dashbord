@@ -954,6 +954,8 @@ export const UI_IT = {
   osImportConfirm: (n) => 'Importa ' + n + (n === 1 ? ' persona' : ' persone'),
   osImportDone: (add, upd) => 'Importazione completata: ' + add + (add === 1 ? ' persona nuova, ' : ' persone nuove, ') + upd + ' aggiornate.',
   osImportFailed: (reason) => 'Importazione non riuscita: ' + reason + '. Riprova tra qualche minuto.',
+  osImportPartial: (from) => 'Elenco parziale: i test più vecchi non hanno risposto. Ci sono le persone con il test dal ' + from + ' in poi.',
+  osImportUpstream: (reason) => 'il servizio dei test non ha risposto (' + reason + ')',
   osImportRemove: 'Rimuovi le persone importate',
   osImportRemoveTitle: 'Rimuovere le persone importate?',
   osImportRemoveBody: 'Escono dall’anagrafica tutte le persone importate dai test, con i loro punteggi e il loro storico. Le persone inserite a mano restano.',
