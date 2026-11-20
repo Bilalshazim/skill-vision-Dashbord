@@ -956,6 +956,8 @@ export const UI_IT = {
   osImportFailed: (reason) => 'Importazione non riuscita: ' + reason + '. Riprova tra qualche minuto.',
   osImportPartial: (from) => 'Elenco parziale: i test più vecchi non hanno risposto. Ci sono le persone con il test dal ' + from + ' in poi.',
   osImportUpstream: (reason) => 'il servizio dei test non ha risposto (' + reason + ')',
+  osImportDisabled: (detail) => 'il collegamento ai test non è attivo su questo server (' + detail + '). Va acceso nelle impostazioni del Backend',
+  osImportOff: (detail) => 'Importazione non riuscita: ' + detail + '.',
   osImportRemove: 'Rimuovi le persone importate',
   osImportRemoveTitle: 'Rimuovere le persone importate?',
   osImportRemoveBody: 'Escono dall’anagrafica tutte le persone importate dai test, con i loro punteggi e il loro storico. Le persone inserite a mano restano.',

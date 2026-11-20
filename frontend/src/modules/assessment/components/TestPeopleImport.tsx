@@ -36,7 +36,7 @@ export function TestPeopleImport() {
       setPhase({ kind: 'preview', report: await originalSkillsApi.importPeople(companyId, LIMIT, true) })
     } catch (err) {
       setPhase({ kind: 'idle' })
-      toast(ui.osImportFailed(reason(err)), 'err')
+      toast(failMessage(err), 'err')
     }
   }
 
@@ -49,7 +49,7 @@ export function TestPeopleImport() {
       setPhase({ kind: 'idle' })
     } catch (err) {
       setPhase({ kind: 'preview', report })
-      toast(ui.osImportFailed(reason(err)), 'err')
+      toast(failMessage(err), 'err')
     }
   }
 
@@ -65,9 +65,14 @@ export function TestPeopleImport() {
 
   // Un errore del servizio dei test (502 del backend) dice cosa è successo, non «il server non risponde».
   function reason(err: unknown) {
+    // 503 «non attiva / non configurata»: mancano le variabili sul Backend, non è il server che non risponde.
+    if (err instanceof ApiError && err.code === 'service_disabled') return ui.osImportDisabled(/configurata/.test(err.message) ? 'non configurato' : 'spento')
     if (err instanceof ApiError && err.code === 'bad_gateway') return ui.osImportUpstream(err.message.replace(/^Il Comitato scientifico /, ''))
     return errorReason(err, ui.serverOffline)
   }
+
+  // «Riprova tra qualche minuto» non serve se il collegamento è spento: si accende, non si aspetta.
+  const failMessage = (err: unknown) => (err instanceof ApiError && err.code === 'service_disabled' ? ui.osImportOff(reason(err)) : ui.osImportFailed(reason(err)))
 
   const report = phase.kind === 'preview' || phase.kind === 'saving' ? phase.report : null
 

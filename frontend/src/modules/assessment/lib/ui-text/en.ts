@@ -966,6 +966,8 @@ export const UI_EN = {
   osImportFailed: (reason) => 'Import failed: ' + reason + '. Try again in a few minutes.',
   osImportPartial: (from) => 'Partial list: the older tests did not respond. It includes people tested from ' + from + ' on.',
   osImportUpstream: (reason) => 'the test service did not respond (' + reason + ')',
+  osImportDisabled: (detail) => 'the connection to the tests is not active on this server (' + detail + '). It must be switched on in the Backend settings',
+  osImportOff: (detail) => 'Import failed: ' + detail + '.',
   osImportRemove: 'Remove imported people',
   osImportRemoveTitle: 'Remove imported people?',
   osImportRemoveBody: 'Everyone imported from the tests leaves the directory, with their scores and history. People added by hand stay.',

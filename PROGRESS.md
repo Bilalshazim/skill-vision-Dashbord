@@ -190,6 +190,19 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-20 (3) — Importazione dai test: la causa dell'errore
+
+- [x] **«Il server non risponde» era un 503 «integrazione non attiva»**: il frontend trattava ogni 502–504 come
+      server spento. In locale il Backend risponde 503 `service_disabled` perché non ha le variabili
+      `ORIGINAL_SKILLS_*`; in produzione l'errore torna subito, quindi quasi certamente lo stesso: una
+      variabile manca o `ORIGINAL_SKILLS_ENABLED` non è `true` sul Backend. Il riquadro ora dice «il
+      collegamento ai test non è attivo su questo server (spento / non configurato). Va acceso nelle
+      impostazioni del Backend», senza «riprova». Verificato in locale su http://localhost:8300 (app intera
+      con `serve-combined.mjs`).
+- [ ] Su Railway (Bilal): controllare sul servizio Backend `ORIGINAL_SKILLS_ENABLED=true`,
+      `ORIGINAL_SKILLS_API_URL`, `ORIGINAL_SKILLS_AUTH_KEY`, `ORIGINAL_SKILLS_AUTH_COMPANY`,
+      `ORIGINAL_SKILLS_COMPANY_MAP`.
+
 ## 2026-11-20 (2) — Importazione dai test: errore in produzione; Anagrafica accesa due volte
 
 - [ ] **In produzione «Vedi l'anteprima» finiva con «il server non risponde»** (Bilal, 20/11). Il messaggio
