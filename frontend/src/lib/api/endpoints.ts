@@ -332,4 +332,21 @@ export const originalSkillsApi = {
   companies: () => apiGet<{ companies: OriginalSkillsCompany[]; maxRangeDays: number }>('/original-skills/companies'),
   results: (q: { from: string; to: string; company?: string }) =>
     apiGet<OriginalSkillsResults>('/original-skills/results', q.company ? q : { from: q.from, to: q.to }),
+  /** Le persone più recenti dei test nell'Anagrafica di una società: anteprima (dryRun) o importazione. Solo PLATFORM_ADMIN. */
+  importPeople: (companyId: string, limit: number, dryRun: boolean) => apiPost<OriginalSkillsImportReport>('/original-skills/import', { companyId, limit, dryRun }),
+  removeImported: (companyId: string) => apiDelete<{ removed: number }>(`/original-skills/import/${encodeURIComponent(companyId)}`),
+}
+
+export type OriginalSkillsImportReport = {
+  dryRun: boolean
+  people: number
+  created: number
+  updated: number
+  withoutEmail: number
+  withoutScores: number
+  employees: number
+  candidates: number
+  unmappedSkills: string[]
+  from: string
+  windows: number
 }

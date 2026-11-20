@@ -2,6 +2,19 @@
 
 Formato:  — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Persone dai test in Acme Corp, per prova · 2026-11-20
+
+- **Dove entrano**: richiesta di Bilal del 20/11: le 100 persone più recenti dei test nella società Acme Corp, per provare; più avanti nella società giusta. Sono persone reali in una società che finora aveva solo dati dimostrativi: le pagine di Acme continuano a dire «Dati dimostrativi», e chiunque abbia accesso ad Acme le vede. Per toglierle c'è «Rimuovi le persone importate», che cancella solo le persone importate (riconosciute da `externalSource`).
+- **Chi può importare**: solo PLATFORM_ADMIN, perché sono dati di persone reali. Gli amministratori della società non vedono il riquadro.
+- **API, non la pagina `interviste-trovate`**: si usa l'API ExportData già collegata (chiave e codici su Railway). Leggere la pagina con un utente e una password vorrebbe dire conservare la password di una persona, si romperebbe a ogni cambio della loro pagina, ed esce dall'accordo, che copre l'API.
+- **«Le 100 più recenti»**: l'API non pagina e accetta meno di 90 giorni: si va indietro a finestre di 89 giorni (al massimo 8, circa due anni) finché le persone sono 100. Una persona con più test conta una volta, con il più recente (stessa email; senza email, lo stesso test).
+- **Dipendenti e candidati insieme**: entrano tutti e due i tipi, perché la richiesta è «100 persone»; il tipo resta scritto nei dati del test. Per una società vera si terranno solo i dipendenti.
+- **Dati anagrafici**: richiesti per intero (Bilal, 20/11). Sesso nel campo esistente; anno di nascita in un campo suo; lingua, paese, regione, provincia, sede, titolo di studio, tipo e data del test nei dati del test, in sola lettura. La RAL e il codice azienda non si importano. L'anteprima in sola lettura del Comitato scientifico continua a non mostrarli.
+- **Riconoscimento**: per numero del test, poi per email; mai per nome. Una persona già presente aggiorna nome, sesso, dati del test e punteggi trasversali; mansione, area, RAL e competenze professionali restano.
+- **L'atteso**: quello già salvato resta; per una competenza nuova l'obiettivo della società, altrimenti 6, come nell'inserimento a mano. Il «valore atteso» del test si conserva nei dati del test, non si usa.
+- **«Engagement lavorativo»**: non corrisponde a nessuna delle 35 (CLAUDE.md, cap. 7): si conserva nei dati del test e l'anteprima lo dice.
+- **Nomi a schermo**: «Importa le persone dai test», «i test che utilizziamo»: il fornitore non si nomina (cap. 7, «Testi»).
+
 ## Recruiting: i tre passi e le lingue sul QCER · 2026-11-19
 
 - **Titoli delle card «DEFINIRE · VALUTARE · SCEGLIERE»**: scritti «Definire · Valutare · Scegliere». Il maiuscolo esiste solo nello stile label (regola 8); un titolo di card è minuscolo.

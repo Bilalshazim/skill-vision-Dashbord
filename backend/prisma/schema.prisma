@@ -977,6 +977,15 @@ model Employee {
   archiveReason        EmployeeArchiveReason?
   archiveNote          String?
   surveySentAt         DateTime?
+  // Persone importate dai test (Original Skills, 2026-11-20): da dove vengono
+  // e l'identificativo del test, così una nuova importazione aggiorna invece
+  // di duplicare. I dati anagrafici del test stanno qui e non nei campi che il
+  // browser salva interi: un salvataggio dalla pagina non li cancella.
+  externalSource       String?
+  externalId           String?
+  externalUpdatedAt    DateTime?
+  birthYear            Int?
+  externalProfile      Json?
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
 
@@ -989,6 +998,7 @@ model Employee {
   testInvitations TestInvitation[]
 
   @@unique([companyId, clientId])
+  @@unique([companyId, externalSource, externalId])
   @@index([companyId])
 }
 

@@ -58,7 +58,31 @@ export type Employee = {
   hardNotes?: Partial<Record<ApexSourceKey, Record<string, string>>>
   /** ISO timestamp of the last successful "INVIA LINK TEST" send to this employee — see components/SurveyLinkModal.tsx. */
   surveySentAt?: string
+  /** Persone importate dai test (2026-11-20): dati del test in sola lettura, li scrive solo il server. */
+  external?: EmployeeExternal
 }
+
+export type EmployeeExternalProfile = {
+  testId?: string
+  completedAt?: string | null
+  lingua?: string
+  paese?: string
+  regione?: string
+  provincia?: string
+  sede?: string
+  ragioneSociale?: string
+  tipoCandidatura?: string
+  titoloStudio?: string
+  livello?: string
+  area?: string
+  ruolo?: string
+  esperienza?: string
+  istruzione?: string
+  dataAssunzione?: string
+  dataDimissioni?: string
+  risultato?: number
+}
+export type EmployeeExternal = { source: string; testId: string; completedAt: string | null; birthYear: number | null; profile: EmployeeExternalProfile }
 
 // Two genuinely different shapes in legacy (not a single unified snapshot):
 // emp.hardHistory entries come from submitHardEval()/submitRestrictedEval()
@@ -77,7 +101,8 @@ export type HardHistoryEntry = {
 export type SoftHistoryEntry = {
   module: 'transversal'
   date: string
-  source: 'manual'
+  /** 'manual', oppure 'original-skills' per i punteggi importati dai test. */
+  source: string
   overallOttenuto: number
   overallAtteso: number
 }

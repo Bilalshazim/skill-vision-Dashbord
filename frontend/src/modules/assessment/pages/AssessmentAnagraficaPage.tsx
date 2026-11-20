@@ -21,6 +21,7 @@ import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { Icon } from '@/modules/assessment/components/Icon'
 import { RoleCensusModal } from '@/modules/assessment/components/RoleCensusModal'
 import { SurveyLinkModal } from '@/modules/assessment/components/SurveyLinkModal'
+import { TestPeopleImport } from '@/modules/assessment/components/TestPeopleImport'
 import { useAssessment, useTopbarActions } from '@/modules/assessment/lib/AssessmentContext'
 import { activeEmployees, areasList } from '@/modules/assessment/lib/calculations'
 import { fmtCurrency, genderDisplayLabel } from '@/modules/assessment/lib/legacy-utils'
@@ -221,6 +222,7 @@ export default function AssessmentAnagraficaPage() {
 
       {/* L'ultima cosa della pagina (Decisioni di Roberto del 2026-11-12). */}
       <AnagraficaImport />
+      <TestPeopleImport />
 
       {drawerId && <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} />}
       {showRoleCensus && <RoleCensusModal onClose={() => setShowRoleCensus(false)} />}

@@ -24,7 +24,7 @@ import { archiveReasonLabel, assessmentSourceLabel, contractTypeDisplayLabel, fm
 import { printReportHtml } from '@/modules/assessment/lib/print'
 import { getEmployeeExpectedSkillIds, getEmployeeSkillWeight, weightLabel } from '@/modules/assessment/lib/role-census'
 import { absenceCategoryOf } from '@/modules/assessment/lib/absences'
-import type { AbsenceCategory, Employee } from '@/modules/assessment/lib/types'
+import type { AbsenceCategory, Employee, EmployeeExternal } from '@/modules/assessment/lib/types'
 
 const BF_ORDER = ['O', 'C', 'E', 'A', 'S'] as const
 
@@ -186,6 +186,7 @@ export function EmployeeDrawer({ employeeId, onClose }: { employeeId: string; on
                 ) : null}
                 {' · '} <b>{ui.benefitLabel}</b> {emp.benefit || '—'}
               </div>
+              {emp.external ? <TestData external={emp.external} /> : null}
               {emp.assenzeProgrammate?.length > 0 && (
                 <div className="mb-4 text-app-small text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
                   <b>{ui.scheduledAbsencesLabel}</b> {emp.assenzeProgrammate.map((a) => `${a.dal || '—'} → ${a.al || '—'}${absenceCategoryOf(a) ? ` (${ui.absenceCategories[absenceCategoryOf(a) as AbsenceCategory]})` : ''}`).join('; ')}
@@ -349,5 +350,40 @@ function ModuleBDetail({ emp }: { emp: Employee }) {
       </ul>
       <Separator className="my-4" />
     </>
+  )
+}
+
+// I dati del test delle persone importate (2026-11-20): anno di nascita ed età, lingua, luogo,
+// titolo di studio, tipo e data del test. Solo i campi con un valore.
+function TestData({ external }: { external: EmployeeExternal }) {
+  const { ui } = useAssessment()
+  const p = external.profile
+  const age = external.birthYear ? new Date().getFullYear() - external.birthYear : null
+  const done = external.completedAt ? new Date(external.completedAt).toLocaleDateString('it-IT') : ''
+  const rows: [string, string][] = [
+    [ui.osBirthYear, external.birthYear ? `${external.birthYear}${age !== null ? ` (${ui.osAge(age)})` : ''}` : ''],
+    [ui.osLanguage, p.lingua ?? ''],
+    [ui.osCountry, p.paese ?? ''],
+    [ui.osRegion, p.regione ?? ''],
+    [ui.osProvince, p.provincia ?? ''],
+    [ui.osSite, p.sede ?? ''],
+    [ui.osEducation, p.titoloStudio ?? ''],
+    [ui.osApplicationType, p.tipoCandidatura ?? ''],
+    [ui.osCompletedAt, done],
+  ]
+  const shown = rows.filter(([, v]) => v)
+  if (!shown.length) return null
+  return (
+    <div className="mb-4">
+      <CardLabel className="mb-2">{ui.osTestDataTitle}</CardLabel>
+      <dl className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+        {shown.map(([k, v]) => (
+          <div key={k} className="flex min-w-0 flex-col">
+            <dt className="label-mono text-muted-foreground">{k}</dt>
+            <dd className="text-app-small text-foreground">{v}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   )
 }

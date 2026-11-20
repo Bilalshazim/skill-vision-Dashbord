@@ -1,11 +1,14 @@
+import { Prisma } from '@prisma/client'
 import { Router } from 'express'
 import { z } from 'zod'
 
 import { audit } from '../../lib/audit.js'
-import { BadRequestError } from '../../lib/errors.js'
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from '../../lib/errors.js'
 import { prisma } from '../../lib/prisma.js'
 import { requireAuth, requireRole } from '../../middleware/auth.js'
+import { validateBody } from '../../middleware/validate.js'
 import { fetchExport, MAX_RANGE_DAYS, readConfig, type OsConfig } from './client.js'
+import { applyImport, collectRecent, SOURCE } from './import.js'
 import { normalizeExport } from './normalize.js'
 
 // Anteprima in sola lettura di Original Skills (PROPOSTA-ORIGINAL-SKILLS.md):
@@ -62,6 +65,69 @@ originalSkillsRouter.get('/results', requireRole('PLATFORM_ADMIN'), async (req, 
       metadata: { from, to, companies: selected.map((c) => c.key), people: out.people.length, discardedRows: out.discardedRows },
     })
     res.json({ from, to, companies: await companyLabels({ ...cfg, companies: selected }), ...out })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Importazione delle persone più recenti nell'Anagrafica di una società
+// (2026-11-20, prova su Acme Corp). Prima l'anteprima (dryRun), poi la
+// conferma: tutto in una transazione, o niente. Solo PLATFORM_ADMIN. Le
+// letture all'API sono quelle dell'anteprima, a finestre di 89 giorni.
+const importSchema = z.object({
+  companyId: z.string().uuid(),
+  limit: z.number().int().min(1).max(200).default(100),
+  dryRun: z.boolean().default(true),
+})
+
+async function assessmentCompany(companyId: string) {
+  const company = await prisma.company.findUnique({ where: { id: companyId }, select: { id: true, purchasedModules: true } })
+  if (!company) throw new NotFoundError('Società non trovata')
+  if (!company.purchasedModules.includes('ASSESSMENT')) throw new ForbiddenError('Il modulo Assessment non è attivo per questa società')
+  return company
+}
+
+originalSkillsRouter.post('/import', requireRole('PLATFORM_ADMIN'), validateBody(importSchema), async (req, res, next) => {
+  try {
+    const body = req.body as z.infer<typeof importSchema>
+    const cfg = readConfig()
+    const company = await assessmentCompany(body.companyId)
+    const found = await collectRecent(cfg, body.limit)
+    const report = body.dryRun
+      ? await prisma.$transaction((tx) => applyImport(tx, company.id, found.people, true))
+      : await prisma.$transaction((tx) => applyImport(tx, company.id, found.people, false), { timeout: 180_000, maxWait: 10_000 })
+    if (!body.dryRun) {
+      // Solo conteggi: nessun nome, email o codice azienda nel registro.
+      await audit(prisma, {
+        actorUserId: req.auth!.sub,
+        action: 'originalSkills.imported',
+        entityType: 'Company',
+        entityId: company.id,
+        metadata: { from: found.from, windows: found.windows, people: report.people, created: report.created, updated: report.updated },
+      })
+    }
+    res.json({ ...report, from: found.from, windows: found.windows, invalidRows: found.invalidRows })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Toglie dalla società tutte le persone importate dai test, con i loro
+// punteggi e il loro storico. Le persone inserite a mano restano.
+originalSkillsRouter.delete('/import/:companyId', requireRole('PLATFORM_ADMIN'), async (req, res, next) => {
+  try {
+    const company = await assessmentCompany(String(req.params.companyId))
+    let removed = 0
+    try {
+      removed = (await prisma.employee.deleteMany({ where: { companyId: company.id, externalSource: SOURCE } })).count
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
+        throw new ConflictError('Alcune persone importate hanno un invito al test collegato: toglilo prima di rimuoverle')
+      }
+      throw err
+    }
+    await audit(prisma, { actorUserId: req.auth!.sub, action: 'originalSkills.importRemoved', entityType: 'Company', entityId: company.id, metadata: { removed } })
+    res.json({ removed })
   } catch (err) {
     next(err)
   }

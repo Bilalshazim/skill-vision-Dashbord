@@ -190,6 +190,34 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-20 — Persone dai test in Acme Corp (prova)
+
+- [x] **Backend**: `POST /api/v1/original-skills/import` (anteprima con `dryRun`, poi importazione in una
+      transazione) e `DELETE /api/v1/original-skills/import/:companyId` (toglie solo le persone
+      importate). Solo PLATFORM_ADMIN. Le 100 persone più recenti, a finestre di 89 giorni. Employee ha
+      `externalSource`, `externalId` (numero del test, unico per società), `externalUpdatedAt`,
+      `birthYear`, `externalProfile` (migrazione `20261120120000_employee_external`). Punteggi in
+      `EmployeeSoftScore`, una voce di storico per test; competenze professionali non toccate. Registro
+      con soli conteggi.
+- [x] **Anagrafica**: riquadro «Importa le persone dai test» in fondo alla pagina, solo per PLATFORM_ADMIN:
+      «Vedi l'anteprima» → conteggi (nuove, da aggiornare, dipendenti/candidati, senza email, senza
+      punteggi, competenze non collegate) → «Importa 100 persone»; «Rimuovi le persone importate» con
+      conferma. Scheda della persona: «Dati del test» (anno di nascita ed età, lingua, paese, regione,
+      provincia, sede, titolo di studio, tipo, data del test).
+- [x] Verificato in locale con una finta API e persone inventate (le chiavi vere stanno solo su
+      Railway): anteprima «100 persone trovate: 100 nuove, 0 da aggiornare · 75 dipendenti, 25
+      candidati · 7 senza email»; importate → 126 dipendenti; seconda importazione → «0 nuove, 100
+      aggiornate», ancora 126; scheda di «Giulia Prova 1»: Femminile, 1970 (56 anni), Lombardia, test del
+      19/11/2026, trasversali 5,3 su atteso 6,0; Il valore calcola su 126 persone. Contrasto in scuro ≥ 6:1.
+      Poi «Rimuovi le persone importate» → «100 persone rimosse», di nuovo 26.
+- Controlli: typecheck (frontend e backend), lint senza errori, test frontend 13/13, build, audit
+      «Nessun difetto». Backend 192/193: fallisce `protected-routes`, che non ha in elenco la rotta
+      pubblica `POST /public/job-postings/:id/apply` (CV dal link dell'annuncio, dall'11/11): non
+      causato da questo lavoro, non corretto.
+- [ ] In produzione (Bilal): dopo il deploy, Anagrafica di Acme con un account PLATFORM_ADMIN →
+      anteprima → importa; prima, `ORIGINAL_SKILLS_ENABLED=true` e la mappa dei codici sul Backend
+      (già impostate il 2026-10-03).
+
 ## 2026-11-19 — Recruiting: i tre passi e le lingue sul QCER (Roberto, 19/11)
 
 - [x] **Profilo della ricerca, le tre card**: titoli «Definire · Valutare · Scegliere» (minuscoli, regola 8);

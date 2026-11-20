@@ -212,6 +212,11 @@ export function employeeOut(e: EmployeeRow, canSeeRal: boolean) {
     ...(e.softSkillOverrides !== null ? { softSkillOverrides: e.softSkillOverrides } : {}),
     ...(e.responsabileClientId ? { responsabileId: e.responsabileClientId } : {}),
     ...(e.surveySentAt ? { surveySentAt: e.surveySentAt.toISOString() } : {}),
+    // Dati del test per le persone importate (2026-11-20): in sola lettura,
+    // writeEmployee non li riceve e non li tocca.
+    ...(e.externalSource
+      ? { external: { source: e.externalSource, testId: e.externalId ?? '', completedAt: e.externalUpdatedAt?.toISOString() ?? null, birthYear: e.birthYear, profile: e.externalProfile ?? {} } }
+      : {}),
   }
 }
 
