@@ -52,7 +52,9 @@ export default function ProfileHubPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Società · Campagna · CIP in cima, come nella tavola: si modificano solo qui. */}
+      {/* Roberto, conferma del 2026-11-24: il titolo della pagina, come «Quello che devi sapere» nella Home di Assessment. */}
+      <PageHeader level="presentation" className="mb-0" title="Il Recruiting in 3 passi" />
+      {/* Società · Campagna · CIP, come nella tavola: si modificano solo qui. */}
       <RecruitingHeader />
 
       <ol className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]">

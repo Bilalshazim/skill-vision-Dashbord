@@ -15,7 +15,7 @@ import type { ReactNode } from 'react'
 
 function DocumentCard({ icon: Icon, title, subtitle, savedAt, emptyLabel, children }: { icon: LucideIcon; title: string; subtitle: string; savedAt: number | null; emptyLabel: string; children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-3 rounded-lg border-2 border-border p-4 transition-colors hover:border-primary">
+    <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
       <div className="flex items-start gap-3">
         <Icon className="mt-0.5 size-6 shrink-0 text-foreground" strokeWidth={1.5} aria-hidden="true" />
         <div className="min-w-0 flex-1">
@@ -90,7 +90,7 @@ export function EvaluatorAreaCard({ doc }: { doc: EvaluatorDoc }) {
           valutazioni si vedono, si confrontano e si sintetizzano da qui. La
           sintesi può essere riportata nel Report finale (`onReportChanged`
           ne aggiorna lo stato). */}
-      <section className="flex flex-col gap-3 rounded-lg border-2 border-border p-4">
+      <section className="flex flex-col gap-3 rounded-lg border border-border p-4">
         <div className="flex items-center gap-2">
           <Users className="size-5 text-muted-foreground" aria-hidden="true" />
           <h4 className="text-app-section text-card-foreground">Valutatori esterni</h4>

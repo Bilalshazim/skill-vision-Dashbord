@@ -24,7 +24,7 @@ export function SkillTierSums({ sums }: { sums: SkillTierSumsData }) {
         </div>
       ))}
       <div
-        className="flex flex-col items-start justify-center rounded-sm border-2 border-foreground bg-secondary px-3 py-3"
+        className="flex flex-col items-start justify-center rounded-sm border border-border-strong bg-secondary px-3 py-3"
         title={`${fmtDec(sums.total.sum)} punti su ${sums.total.count * 31 || 0} disponibili`}
       >
         <div className="label-mono">Punteggio totale</div>

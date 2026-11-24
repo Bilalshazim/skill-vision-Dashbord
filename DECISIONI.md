@@ -2,6 +2,12 @@
 
 Formato:  — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Recruiting: titolo e bordi · 2026-11-24
+
+- **«Il Recruiting in 3 passi»**: confermato da Roberto, torna un titolo di pagina (il blocco titolo era stato tolto il 2026-11-06). Solo il titolo, senza sottotitolo.
+- **«DEFINIRE · VALUTARE · SCEGLIERE» in maiuscolo**: restano «Definire · Valutare · Scegliere». La regola 8 ammette il maiuscolo solo nello stile label; un titolo di card è minuscolo. Se Roberto li vuole in maiuscolo, la strada è l'etichetta in `label-mono`, non il titolo.
+- **«Il solito bordino» su tutte le finestre**: letto come il bordo standard delle card (1px, `border-border`). Il bordo lime al passaggio del mouse resta solo dove la card si clicca (le tre card e le pagine dei risultati): su una card che non si clicca è vietato (Fase 5).
+
 ## Persone dai test in Acme Corp, per prova · 2026-11-20
 
 - **Dove entrano**: richiesta di Bilal del 20/11: le 100 persone più recenti dei test nella società Acme Corp, per provare; più avanti nella società giusta. Sono persone reali in una società che finora aveva solo dati dimostrativi: le pagine di Acme continuano a dire «Dati dimostrativi», e chiunque abbia accesso ad Acme le vede. Per toglierle c'è «Rimuovi le persone importate», che cancella solo le persone importate (riconosciute da `externalSource`).

@@ -190,6 +190,20 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-24 — Recruiting: «Il Recruiting in 3 passi» e bordi uniformi (conferma di Roberto)
+
+- [x] **Titolo della pagina** «Il Recruiting in 3 passi» in cima al Profilo della ricerca (`PageHeader` di
+      presentazione, come «Quello che devi sapere» in Assessment), sopra Società · Campagna · CIP.
+- [x] **Bordi delle card di Recruiting** allineati alla card standard (1px, `border-border`, `rounded-lg`):
+      `EvaluatorAreaCard` (2px e bordo lime al passaggio su una card che non si clicca → 1px, senza passaggio)
+      e il riquadro «Punteggio totale» di `SkillTierSums` (2px scuro → 1px `border-border-strong`).
+      Restano a 2px i campi della riga Società · Campagna · CIP e la zona di caricamento dei CV, che sono
+      controlli, non card.
+- Già fatto il 2026-11-19 (`4af1620`): tre card Definire · Valutare · Scegliere, più grandi, bordo lime al
+      passaggio; lingue sul QCER solo nel Profilo candidato, con le certificazioni.
+- Controlli: typecheck, lint senza errori, test 13/13, build, audit «Nessun difetto».
+- [ ] Non verificato nel browser: Playwright non si collegava in questa sessione.
+
 ## 2026-11-20 (3) — Importazione dai test: la causa dell'errore
 
 - [x] **«Il server non risponde» era un 503 «integrazione non attiva»**: il frontend trattava ogni 502–504 come
