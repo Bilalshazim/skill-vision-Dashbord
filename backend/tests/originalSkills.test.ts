@@ -176,7 +176,7 @@ describe('Original Skills — importazione nell’Anagrafica', () => {
     expect(maria.softSnapshots).toHaveLength(1)
     expect(maria.externalProfile).toMatchObject({ paese: 'Italia', regione: 'Lombardia', lingua: 'Italiano', tipoCandidatura: "Dipendente dell'impresa" })
     expect(JSON.stringify(maria.externalProfile)).not.toContain('AAA111')
-    expect(maria.ral).toBeNull()
+    expect(Number(maria.ral)).toBe(30000) // la RAL del test riempie la colonna (2026-11-25)
 
     // L'atteso cambiato a mano resta; una competenza professionale resta.
     await prisma.employeeSoftScore.updateMany({ where: { employeeId: maria.id, skillId: 'ps3' }, data: { atteso: 8 } })
@@ -234,5 +234,18 @@ it('se una finestra più vecchia non risponde, tiene le persone già lette e lo 
     expect(bad.status).toBe(502)
     expect(bad.body.error.code).toBe('bad_gateway')
   })
+it('area, mansione, livello e RAL del test riempiono le colonne dell’anagrafica, anche con i nomi in maiuscolo', async () => {
+    const fx = await assessmentCompany()
+    upstream([full('300', { Area: 'Commerciale', ' Ruolo ': 'Venditore', livello: 'Quadro', ral: '32500.00' }), full('301', { email: 'x@example.invalid', ral: '' })])
+    const token = await loginAs(fx.platformAdmin.email)
+    const dry = await api.post('/api/v1/original-skills/import').set(authHeader(token)).send({ companyId: fx.company.id })
+    expect(dry.body.fieldsFound).toEqual({ area: 1, ruolo: 1, livello: 1, ral: 1 })
+    await api.post('/api/v1/original-skills/import').set(authHeader(token)).send({ companyId: fx.company.id, dryRun: false })
+    const e = await prisma.employee.findFirstOrThrow({ where: { companyId: fx.company.id, externalId: '300' } })
+    expect([e.area, e.ruolo, e.livelloCcnl, Number(e.ral)]).toEqual(['Commerciale', 'Venditore', 'Quadro', 32500])
+    const other = await prisma.employee.findFirstOrThrow({ where: { companyId: fx.company.id, externalId: '301' } })
+    expect([other.area, other.ruolo, other.ral]).toEqual(['', '', null])
+  })
 })
+
 

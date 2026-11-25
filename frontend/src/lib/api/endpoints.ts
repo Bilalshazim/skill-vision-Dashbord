@@ -351,4 +351,6 @@ export type OriginalSkillsImportReport = {
   windows: number
   /** Finestre di 89 giorni che non hanno risposto: l'elenco è parziale. */
   failedWindows: number
+  /** Persone con il campo compilato nel test: zero = il test non lo manda. */
+  fieldsFound: { area: number; ruolo: number; livello: number; ral: number }
 }

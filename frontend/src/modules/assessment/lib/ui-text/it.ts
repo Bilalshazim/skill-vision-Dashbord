@@ -945,7 +945,7 @@ export const UI_IT = {
   anagImportNothing: 'Niente da importare: tutte le righe sono doppioni.',
   // Persone dai test (2026-11-20): solo per gli amministratori della piattaforma.
   osImportTitle: 'Importa le persone dai test',
-  osImportDesc: (n) => 'Le ' + n + ' persone più recenti che hanno completato i test che utilizziamo, con i dati anagrafici e i punteggi delle competenze trasversali. Le competenze professionali, la mansione e la RAL non cambiano.',
+  osImportDesc: (n) => 'Le ' + n + ' persone più recenti che hanno completato i test che utilizziamo, con i dati anagrafici e i punteggi delle competenze trasversali. Area, mansione, livello CCNL e RAL entrano quando i test li hanno; le competenze professionali non cambiano.',
   osImportPreview: 'Vedi l’anteprima',
   osImportReading: 'Lettura dei test…',
   osImportCounts: (n, add, upd) => n + (n === 1 ? ' persona trovata: ' : ' persone trovate: ') + add + (add === 1 ? ' nuova, ' : ' nuove, ') + upd + ' da aggiornare.',
@@ -958,6 +958,7 @@ export const UI_IT = {
   osImportUpstream: (reason) => 'il servizio dei test non ha risposto (' + reason + ')',
   osImportDisabled: (detail) => 'il collegamento ai test non è attivo su questo server (' + detail + '). Va acceso nelle impostazioni del Backend',
   osImportOff: (detail) => 'Importazione non riuscita: ' + detail + '.',
+  osImportFields: (f, n) => 'Dati di lavoro presenti nei test, su ' + n + ' persone: area ' + f.area + ' · mansione ' + f.ruolo + ' · livello CCNL ' + f.livello + ' · RAL ' + f.ral + '. Dove ci sono, riempiono le colonne dell’anagrafica; reparto, attività e benefit i test non li hanno.',
   osImportRemove: 'Rimuovi le persone importate',
   osImportRemoveTitle: 'Rimuovere le persone importate?',
   osImportRemoveBody: 'Escono dall’anagrafica tutte le persone importate dai test, con i loro punteggi e il loro storico. Le persone inserite a mano restano.',

@@ -97,6 +97,7 @@ export function TestPeopleImport() {
         <div className="flex flex-col gap-3">
           <p className="text-app-body text-foreground">{ui.osImportCounts(report.people, report.created, report.updated)}</p>
           <p className="text-app-small text-muted-foreground">{ui.osImportDetail(report.employees, report.candidates, report.withoutEmail, report.withoutScores)}</p>
+          {report.fieldsFound ? <Note>{ui.osImportFields(report.fieldsFound, report.people)}</Note> : null}
           {report.failedWindows ? <Note>{ui.osImportPartial(new Date(report.from).toLocaleDateString('it-IT'))}</Note> : null}
           {report.unmappedSkills.length ? <Note>{ui.osImportUnmapped(report.unmappedSkills.join(', '))}</Note> : null}
           <div className="flex flex-wrap items-center gap-3">

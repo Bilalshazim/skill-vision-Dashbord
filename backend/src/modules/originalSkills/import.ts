@@ -46,10 +46,23 @@ const rawRow = z
     istruzione: str,
     'data assunzione': str,
     'data dimissioni': str,
+    ral: str,
     competenze: z.array(z.object({ nome: str, punteggio: str }).passthrough()).catch([]),
     'competenze ruolo': z.array(z.object({ nome: str, punteggio: str, 'valore atteso': str, diff: str }).passthrough()).catch([]),
   })
   .passthrough()
+
+// I nomi dei campi arrivano con maiuscole non uniformi (`Cognome` ma `email`): se un campo atteso non c'è
+// con il suo nome, si cerca lo stesso nome senza maiuscole e spazi ai lati («Area», « ruolo »).
+const SCHEMA_KEYS = Object.keys(rawRow.shape)
+function canon(raw: unknown): unknown {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw
+  const src = raw as Record<string, unknown>
+  const lower = new Map(Object.entries(src).map(([k, v]) => [k.trim().toLowerCase(), v]))
+  const out: Record<string, unknown> = { ...src }
+  for (const k of SCHEMA_KEYS) if (out[k] === undefined && lower.has(k.toLowerCase())) out[k] = lower.get(k.toLowerCase())
+  return out
+}
 
 const num = (s: string): number | null => {
   if (!s) return null
@@ -97,6 +110,8 @@ export type OsImportPerson = {
   birthYear: number | null
   completedAt: Date | null
   scores: Record<string, number>
+  /** I campi dell'Anagrafica che il test può dare: vuoti = il test non li ha. */
+  work: { area: string; ruolo: string; livello: string; ral: number | null }
   profile: OsProfile
 }
 
@@ -106,7 +121,7 @@ export function readPeople(body: unknown, codes: Set<string>): { people: OsImpor
   let invalidRows = 0
   let discardedRows = 0
   for (const raw of rows) {
-    const p = rawRow.safeParse(raw)
+    const p = rawRow.safeParse(canon(raw))
     if (!p.success || !p.data['numero intervista']) {
       invalidRows++
       continue
@@ -142,6 +157,7 @@ export function readPeople(body: unknown, codes: Set<string>): { people: OsImpor
       birthYear: Number.isInteger(year) && year > 1900 && year < 2100 ? year : null,
       completedAt,
       scores,
+      work: { area: r.area, ruolo: r.ruolo, livello: r.livello, ral: (() => { const v = num(r.ral.replace(/[€\s]/g, '')); return v !== null && v > 0 ? v : null })() },
       profile: {
         testId: r['numero intervista'],
         completedAt: completedAt?.toISOString() ?? null,
@@ -242,6 +258,8 @@ export type OsImportReport = {
   employees: number
   candidates: number
   unmappedSkills: string[]
+  /** Quante persone hanno il campo compilato nel test: zero = il test non lo manda. */
+  fieldsFound: { area: number; ruolo: number; livello: number; ral: number }
 }
 
 type Tx = Prisma.TransactionClient
@@ -249,8 +267,10 @@ type Tx = Prisma.TransactionClient
 /**
  * Crea o aggiorna le persone nella società. Si riconosce prima per test, poi
  * per email; mai per nome. Di una persona già presente si aggiornano nome,
- * dati del test e punteggi trasversali: mansione, area, RAL, competenze
- * professionali e tutto il resto restano come sono. L'atteso di una
+ * dati del test e punteggi trasversali; area, mansione (`ruolo`), livello CCNL e
+ * RAL solo quando il test li ha (Bilal, 2026-11-25: «riempiti nel campo
+ * giusto»), altrimenti restano quelli di Skill-Vision. Reparto, attività,
+ * benefit e competenze professionali il test non li ha: restano come sono. L'atteso di una
  * competenza già valutata resta; per una nuova vale l'obiettivo della società
  * o, senza, 6 come nell'inserimento a mano.
  */
@@ -266,7 +286,7 @@ export async function applyImport(tx: Tx, companyId: string, people: OsImportPer
   const settings = await tx.assessmentSettings.findUnique({ where: { companyId }, select: { softSkillTargets: true } })
   const targets = (settings?.softSkillTargets ?? {}) as Record<string, number>
 
-  const report: OsImportReport = { dryRun, people: people.length, created: 0, updated: 0, withoutEmail: 0, withoutScores: 0, employees: 0, candidates: 0, unmappedSkills: [] }
+  const report: OsImportReport = { dryRun, people: people.length, created: 0, updated: 0, withoutEmail: 0, withoutScores: 0, employees: 0, candidates: 0, unmappedSkills: [], fieldsFound: { area: 0, ruolo: 0, livello: 0, ral: 0 } }
   const unmapped = new Set<string>()
 
   for (const p of people) {
@@ -275,6 +295,10 @@ export async function applyImport(tx: Tx, companyId: string, people: OsImportPer
     if (/dipendente/i.test(p.profile.tipoCandidatura ?? '')) report.employees++
     else if (/candidatura/i.test(p.profile.tipoCandidatura ?? '')) report.candidates++
     for (const c of p.profile.competenzeNonCollegate) unmapped.add(c.nome)
+    if (p.work.area) report.fieldsFound.area++
+    if (p.work.ruolo) report.fieldsFound.ruolo++
+    if (p.work.livello) report.fieldsFound.livello++
+    if (p.work.ral !== null) report.fieldsFound.ral++
 
     const match = byTest.get(p.testId) ?? (p.email ? byEmail.get(p.email) : undefined)
     if (match) report.updated++
@@ -287,6 +311,10 @@ export async function applyImport(tx: Tx, companyId: string, people: OsImportPer
       externalUpdatedAt: p.completedAt,
       birthYear: p.birthYear,
       externalProfile: p.profile as unknown as Prisma.InputJsonValue,
+      ...(p.work.area ? { area: p.work.area } : {}),
+      ...(p.work.ruolo ? { ruolo: p.work.ruolo } : {}),
+      ...(p.work.livello ? { livelloCcnl: p.work.livello } : {}),
+      ...(p.work.ral !== null ? { ral: new Prisma.Decimal(p.work.ral) } : {}),
     }
     const oldAtteso = new Map((match?.softScores ?? []).map((s) => [s.skillId, s.atteso]))
     const scoreRows = Object.entries(p.scores).map(([skillId, ottenuto]) => ({ skillId, ottenuto, atteso: oldAtteso.get(skillId) ?? targets[skillId] ?? DEFAULT_ATTESO }))

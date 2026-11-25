@@ -2,6 +2,12 @@
 
 Formato:  — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Importazione dai test: i dati di lavoro e la RAL · 2026-11-25
+
+- **La RAL del test entra nella colonna RAL** (richiesta di Bilal: i campi «riempiti nel campo giusto»). Il 20/11 era esclusa; ora la importa solo chi la può vedere, perché l'importazione è riservata ai PLATFORM_ADMIN, e in Anagrafica la vedono come sempre solo gli amministratori.
+- **Il test vince solo se ha un valore**: un campo vuoto nel test non cancella quello scritto in Skill-Vision.
+- **`ruolo` del test → colonna Mansione** (in Assessment il campo `ruolo` si chiama «Mansione» a schermo, cap. 7).
+
 ## Recruiting: titolo e bordi · 2026-11-24
 
 - **«Il Recruiting in 3 passi»**: confermato da Roberto, torna un titolo di pagina (il blocco titolo era stato tolto il 2026-11-06). Solo il titolo, senza sottotitolo.

@@ -955,7 +955,7 @@ export const UI_EN = {
   anagImportNothing: 'Nothing to import: all rows are duplicates.',
   // People from the tests (2026-11-20): platform administrators only.
   osImportTitle: 'Import people from the tests',
-  osImportDesc: (n) => 'The ' + n + ' most recent people who completed the tests we use, with their personal details and soft-skill scores. Professional skills, duties and salary do not change.',
+  osImportDesc: (n) => 'The ' + n + ' most recent people who completed the tests we use, with their personal details and soft-skill scores. Area, job title, CCNL level and salary come in when the tests have them; professional skills do not change.',
   osImportPreview: 'Show preview',
   osImportReading: 'Reading the tests…',
   osImportCounts: (n, add, upd) => n + (n === 1 ? ' person found: ' : ' people found: ') + add + ' new, ' + upd + ' to update.',
@@ -968,6 +968,7 @@ export const UI_EN = {
   osImportUpstream: (reason) => 'the test service did not respond (' + reason + ')',
   osImportDisabled: (detail) => 'the connection to the tests is not active on this server (' + detail + '). It must be switched on in the Backend settings',
   osImportOff: (detail) => 'Import failed: ' + detail + '.',
+  osImportFields: (f, n) => 'Work data present in the tests, out of ' + n + ' people: area ' + f.area + ' · job title ' + f.ruolo + ' · CCNL level ' + f.livello + ' · salary ' + f.ral + '. Where present they fill the directory columns; department, activity and benefits are not in the tests.',
   osImportRemove: 'Remove imported people',
   osImportRemoveTitle: 'Remove imported people?',
   osImportRemoveBody: 'Everyone imported from the tests leaves the directory, with their scores and history. People added by hand stay.',

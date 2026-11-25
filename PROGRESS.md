@@ -190,6 +190,22 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-25 — Importazione dai test: area, mansione, livello CCNL e RAL nelle colonne
+
+- [x] Prima l'importazione teneva area, ruolo e livello del test solo nei dati del test e non leggeva la RAL:
+      le colonne dell'Anagrafica restavano vuote anche se il test le avesse avute (Bilal, 25/11). Ora, quando
+      il test li ha, riempiono Area, Mansione (`ruolo`), Livello (CCNL) e RAL, per le persone nuove e per quelle
+      già importate (alla prossima importazione). Se il campo del test è vuoto resta il valore di Skill-Vision.
+      I nomi dei campi si leggono anche con maiuscole diverse («Area», « Ruolo »). Reparto, Attività e Benefit
+      il test non li ha.
+- [x] L'anteprima dice quante persone hanno ogni campo nel test: «area N · mansione N · livello CCNL N · RAL N».
+      Se in produzione è tutto a 0, è il test che non li manda (come risultava a ottobre): va chiesto a Original
+      Skills.
+- [x] Verificato in locale su http://localhost:8300 con la finta API (metà persone con i campi): anteprima «area
+      50 · mansione 50 · livello CCNL 50 · RAL 50»; dopo l'importazione le righe mostrano Commerciale · Addetto
+      vendite · Impiegato 3° livello · € 31.000; poi rimosse.
+- Controlli: backend Original Skills 11/11, typecheck, lint senza errori, test frontend 13/13, build, audit.
+
 ## 2026-11-24 — Recruiting: «Il Recruiting in 3 passi» e bordi uniformi (conferma di Roberto)
 
 - [x] **Titolo della pagina** «Il Recruiting in 3 passi» in cima al Profilo della ricerca (`PageHeader` di
