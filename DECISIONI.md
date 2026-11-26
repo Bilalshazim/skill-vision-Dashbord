@@ -2,6 +2,19 @@
 
 Formato:  — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Home, Panoramica e Indice (Roberto, 26/11) · 2026-11-26
+
+- **«Quanto posso recuperare»**: eccezione esplicita del cliente al divieto del cap. 7 («mai "recuperare" per i soldi»). Vale solo come titolo della card degli euro in Le perdite invisibili; il resto dei testi resta «costi evitabili».
+- **«VALORI COMPLESSIVI» in maiuscolo e grassetto nell'indice**: eccezione esplicita del cliente alla regola 8. Solo la voce del menu (proprietà `strong` della voce, il testo in maiuscolo); nel percorso in cima alla pagina e nel titolo resta «Valori complessivi».
+- **Lo scambio degli euro fra Il valore e Le perdite invisibili**: il documento dice «scambio importo e titolo», ma descrive i contenuti al contrario di come sono nel codice. In Il valore c'erano le leve 1+2+3 del motore (produttività, turnover, assenteismo); in Le perdite invisibili il lordo del divario (`gapVal`), che è la cifra più grande (in produzione € 3.591.439, l'esempio del documento). Si è seguito lo scambio: Il valore mostra il lordo del divario come «Quanto mi sta costando», Le perdite invisibili le leve 1+2+3 come «Quanto posso recuperare». Così anche i titoli tornano: il divario è quanto costa, le leve sono quanto si può evitare. **Da confermare con Roberto**: se vuole il contrario, è uno scambio di due righe in `RoiFigure.ts`.
+- **«La prima area non compare»**: non era un'area tolta. Le persone importate dai test arrivano senza area e senza mansione (le dà l'azienda con l'Excel, Roberto 20/11): il loro gruppo diventava una barra senza nome, la prima perché la più bassa. Ora si chiama «Area non indicata» / «Mansione non indicata» in grafici ed elenchi; il dato resta vuoto.
+- **Le quattro finestre di Le perdite invisibili**: tutte sulla scala su 10 del grafico della sezione 1, con l'atteso 7,0. Il dato in alto è la media (delle aree, dei ruoli, di tutte le persone valutate, delle competenze trasversali); l'elenco si apre in una finestra, dal peggiore al migliore. Persone elenca solo Da potenziare e Critici. Nuovo pattern `MetricListCard`, nel catalogo.
+- **Top Talent** è la fascia Alto valore: il nome della fascia resta, «Top Talent» è il titolo della finestra.
+- **«Personale complesso»** letto come la fascia Critici (con «Personale da potenziare» = Da potenziare). «Complessivo» (tutto il personale) darebbe sempre il 100%. **Da confermare con Roberto.**
+- **Dove intervenire · La situazione oggi**: solo le due finestre; il grafico a flussi (fasce → colloquio di restituzione) esce con le sezioni 2 e 3, perché il documento tiene il titolo e mette al suo posto le finestre.
+- **I tre blocchi spostati dalla Panoramica** escono dalla Sintesi (dove avevano quei titoli). Il Dettaglio della Panoramica (la vista operativa) non cambia: ha un suo «Da fare adesso» e le sue fasce. I blocchi stanno in `PanoramicaBlocks.tsx`, i compiti in `use-panoramica-todo.ts`, usati da tutte e due le pagine.
+- **Il potenziale**: tolta L'impatto con la sua cifra (la leva 1 del motore); la cifra resta nel motore, la pagina non la mostra più. «L'opportunità» resta in fondo alla sezione 2, come in Le perdite invisibili.
+
 ## Importazione dai test: i dati di lavoro e la RAL · 2026-11-25
 
 - **La RAL del test entra nella colonna RAL** (richiesta di Bilal: i campi «riempiti nel campo giusto»). Il 20/11 era esclusa; ora la importa solo chi la può vedere, perché l'importazione è riservata ai PLATFORM_ADMIN, e in Anagrafica la vedono come sempre solo gli amministratori.

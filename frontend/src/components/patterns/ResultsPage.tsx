@@ -35,6 +35,8 @@ export type ResultsImpact = {
   title?: string
   /** Al posto del Ring, una fila di pallini (`n` su `total`): dove il Ring c'è già nella sezione 1 (Il potenziale). */
   dots?: { n: number; total: number }
+  /** Il titolo della card degli euro, in stile label («Quanto posso recuperare», Decisioni del 2026-11-26). */
+  euroTitle?: string
 }
 
 // La pagina dei risultati di una finestra (CLAUDE.md, Fase 6, "Le pagine dei
@@ -81,12 +83,15 @@ export function ResultsPage({
   why: string
   /** `text` è la frase grande; `detail` la riga sotto; `chartTitle` e `hint` stanno sopra il grafico. `chartEmpty` sostituisce il grafico quando non c'è niente da disegnare. */
   situation?: { /** Senza frase la sezione mostra solo il grafico (Il valore, Decisioni del 2026-11-09). */ text?: ReactNode; detail?: ReactNode; chart?: ReactNode; chartTitle?: string; chartEmpty?: string; hint?: { label: string; text: ReactNode }; /** Il grafico sotto la frase, a tutta riga (il grafico a flussi). */ wide?: boolean }
-  issues?: { items: ResultsIssue[]; opportunity: ReactNode; opportunityLabel?: string }
+  /** La sezione 2. `title`: «Criticità e opportunità» se assente («Opportunità» in Il potenziale, 2026-11-26).
+   *  `content`: finestre proprie al posto dei riquadri (`items`). `opportunity`: la riga in fondo, se c'è. */
+  issues?: { title?: string; items?: ResultsIssue[]; content?: ReactNode; opportunity?: ReactNode; opportunityLabel?: string }
   /** Sezioni libere, numerate dall'1, al posto di `situation` e `issues` (le pagine di Recruiting). L'impatto e il suggerimento seguono. */
   sections?: { title: string; content: ReactNode }[]
   impact?: ResultsImpact
   /** `text`: la prima frase è il titolo della sezione, il resto la riga sotto. */
-  suggestion?: { text: string; link?: ResultsLink }
+  /** `content`: blocchi sotto il collegamento (in Dove intervenire, quelli spostati dalla Panoramica il 2026-11-26). */
+  suggestion?: { text: string; link?: ResultsLink; content?: ReactNode }
   empty?: { title?: string; description: string; scope?: 'data' | 'all' }
   deepDives?: ResultsLink[]
   home: ResultsLink
@@ -155,10 +160,12 @@ export function ResultsPage({
       ) : null}
       {hoverCards ? (
         <HoverHighlightCard>
+          {impact.euroTitle ? <p className="label-mono text-muted-foreground">{impact.euroTitle}</p> : null}
           <EuroFigure euro={impact.euro} note={impact.euroNote} hoverScenarios />
         </HoverHighlightCard>
       ) : (
         <Card className="h-full gap-3">
+          {impact.euroTitle ? <p className="label-mono text-muted-foreground">{impact.euroTitle}</p> : null}
           <EuroFigure euro={impact.euro} note={impact.euroNote} />
         </Card>
       )}
@@ -248,19 +255,23 @@ export function ResultsPage({
               ) : null}
 
               {issues ? (
-                <Section number={situation ? 2 : 1} title="Criticità e opportunità">
+                <Section number={situation ? 2 : 1} title={issues.title ?? 'Criticità e opportunità'}>
+                  {issues.content ?? (
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {/* Un verde per sezione (correzioni di Roberto del 2026-11-10): il mini grafico
                         del primo riquadro, il principale della sezione; gli altri in inchiostro. */}
                     {/* Fino a sei: in Le perdite invisibili entrano anche i tre riquadri di Il valore
                         (Roberto, 2026-11-16), su due righe da tre. */}
-                    {issues.items.slice(0, 6).map((it, i) => (
+                    {(issues.items ?? []).slice(0, 6).map((it, i) => (
                       <ResultsTile key={it.title} {...it} hover={hoverCards} chart={it.chart ? { ...it.chart, tone: i === 0 ? 'highlight' : 'mono' } : undefined} />
                     ))}
                   </div>
-                  <p className="mt-4 max-w-prose text-app-body text-foreground">
-                    <span className="font-semibold">{issues.opportunityLabel ?? 'L’opportunità:'}</span> {issues.opportunity}
-                  </p>
+                  )}
+                  {issues.opportunity ? (
+                    <p className="mt-4 max-w-prose text-app-body text-foreground">
+                      <span className="font-semibold">{issues.opportunityLabel ?? 'L’opportunità:'}</span> {issues.opportunity}
+                    </p>
+                  ) : null}
                 </Section>
               ) : null}
 
@@ -275,6 +286,7 @@ export function ResultsPage({
                 {suggestRest ? <p className="text-app-body text-muted-foreground">{suggestRest}</p> : null}
                 {suggestion.link ? <TextLink link={suggestion.link} className="pt-1" /> : null}
               </div>
+              {suggestion.content ? <div className="mt-6 flex flex-col gap-8">{suggestion.content}</div> : null}
             </Section>
           ) : null}
         </>

@@ -174,7 +174,7 @@ export function AssessmentNav() {
       const Icon = iconFor(entry.icon)
       return (
         <SidebarMenuItem key={entry.key ?? entry.id}>
-          <SidebarMenuButton asChild isActive={isLinkActive(entry)} className={cn(entry.sub && 'h-auto', emphasisClass(entry.id))}>
+          <SidebarMenuButton asChild isActive={isLinkActive(entry)} className={cn(entry.sub && 'h-auto', emphasisClass(entry.id), entry.strong && 'font-semibold')}>
             <NavLink to={`/assessment/${entry.to ?? entry.id}`}>
               <Icon aria-hidden="true" />
               <span className="flex min-w-0 flex-1 flex-col">

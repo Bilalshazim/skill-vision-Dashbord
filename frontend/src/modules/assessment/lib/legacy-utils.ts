@@ -63,7 +63,8 @@ export function getPageTrail(lang: AssessmentLang, pageId: string): { items: { l
       continue
     }
     const lead = section ? [home, section] : [home]
-    if (e.type === 'link' && e.id === pageId) return { items: lead, current: e.label }
+    // «VALORI COMPLESSIVI» è in maiuscolo solo nell'indice (2026-11-26): nel percorso torna minuscolo.
+    if (e.type === 'link' && e.id === pageId) return { items: lead, current: e.strong ? e.label.charAt(0) + e.label.slice(1).toLowerCase() : e.label }
     if (e.type === 'group') {
       if (e.homeId === pageId && e.homeId !== 'home') return { items: lead, current: e.label }
       const item = e.items.find((it) => it.id === pageId && !it.to)

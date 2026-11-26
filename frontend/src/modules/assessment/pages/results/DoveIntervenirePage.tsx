@@ -1,77 +1,74 @@
-import { FlowChart } from '@/components/patterns/FlowChart'
+import { useState } from 'react'
+
+import { MetricListCard } from '@/components/patterns/MetricListCard'
 import { ResultsPage } from '@/components/patterns/ResultsPage'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
-import { roiFigure } from '@/modules/assessment/components/RoiFigure'
-import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
+import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
+import { PeopleBandsBlock, TodoNowBlock, ValueLossBlock } from '@/modules/assessment/components/PanoramicaBlocks'
 import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
-import { ATTESO } from '@/modules/assessment/lib/results'
-import { TIER_COLORS, TIER_ORDER, tierLabels } from '@/modules/assessment/lib/tier-display'
-import { useRoi } from '@/modules/assessment/lib/use-roi'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 
-// 04 · Dove intervenire (CLAUDE.md, Fase 6, tabella "04 · Dove intervenire").
-// Dalle fasce al piano di sviluppo (Sankey di Bklit, tavola del 2 novembre). I
-// colloqui di restituzione sono le persone con il colloquio segnato in Piani di
-// sviluppo (`feedbackNeeded`), lo stesso numero della Panoramica: l'"incongruenza"
-// 10 contro 23 era l'etichetta dell'interruttore, scritta su ogni scheda
-// (DECISIONI).
+// 04 · Dove intervenire (CLAUDE.md, Fase 6; Decisioni di Roberto del 2026-11-26).
+// 1 · La situazione oggi: due finestre, Personale da potenziare (la fascia Da potenziare) e
+// Personale complesso (la fascia Critici), con quante persone, la quota sulle persone valutate e
+// l'elenco dal punteggio più basso. Tolti i punti 2 (Da seguire subito, Colloqui di restituzione,
+// Mansione da cui partire) e 3 (L'impatto in euro). «Cosa ti suggeriamo di fare» resta, con il
+// link alla Panoramica, e sotto i tre blocchi spostati dalla Panoramica: Da fare adesso, Dove si
+// perde valore, Le persone fascia per fascia.
 export default function DoveIntervenirePage() {
   const { res, data, win, theme, crumbs, home, demoNote } = useAssessmentResults('dove-intervenire')
-  const critical = data.byTier.critica.length
-  const { ui } = useAssessment()
-  const labels = tierLabels(ui)
-  const roi = useRoi()
-  // Dalle cinque fasce a cosa prevede il piano di sviluppo. Il colore della fascia
-  // accompagna il suo nome; la fascia più alta e "nella norma" restano neutre.
-  const n = TIER_ORDER.length
-  const emptyBands = TIER_ORDER.filter((k) => !data.byTier[k].length).map((k) => labels[k])
-  const highUntouched = data.flows.find((f) => f.tier === 'valorizzare')
-  return (
-    <ResultsPage
-      actions={<AssessmentModeSwitch />}
-      crumbs={crumbs}
-      number={win.number}
-      theme={theme}
-      title={win.title}
-      question={win.q}
-      why={res.doveWhy}
-      empty={data.total ? undefined : { title: res.noTestsTitle, description: res.noTests }}
-      situation={{
-        text: res.doveSituation(data.feedbackEvaluated, data.total, labels.valorizzare, highUntouched?.withFeedback ?? 0, (highUntouched?.withFeedback ?? 0) + (highUntouched?.without ?? 0)),
-        wide: true,
-        chart: (
-          <FlowChart
-            title={res.doveChart}
-            nodes={[...TIER_ORDER.map((k) => ({ name: labels[k], color: TIER_COLORS[k] })), { name: res.doveFlowNone, color: 'var(--chart-compare)' }, { name: res.doveFlowFeedback, color: 'var(--chart-mono)' }]}
-            links={data.flows.flatMap((f, i) => [
-              { source: i, target: n, value: f.without },
-              { source: i, target: n + 1, value: f.withFeedback },
-            ])}
-            note={res.doveFlowNote(emptyBands)}
-            formatValue={res.people}
-            sourceLabel={res.doveFlowFrom}
-            targetLabel={res.doveFlowTo}
-          />
-        ),
-      }}
-      issues={{
-        items: [
-          { title: res.doveCritical, value: critical ? res.people(critical) : res.nobody, body: res.doveCriticalBody, chart: { kind: 'dots', label: res.doveCritical, n: critical, total: data.total }, link: { label: res.seeList, to: '/assessment/valore?fascia=critica' } },
-          { title: res.doveFeedback, value: data.feedbackDue ? res.people(data.feedbackDue) : res.nobody, body: res.doveFeedbackBody, chart: { kind: 'dots', label: res.doveFeedback, n: data.feedbackDue, total: data.employees }, link: { label: res.open, to: '/assessment/feedback' } },
-          { title: res.doveRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, chart: data.worstRole ? { kind: 'scale' as const, label: data.worstRole.label, value: ATTESO - data.worstRole.gap, max: 10, expected: ATTESO, expectedLabel: res.expectedAt(fmt1it(ATTESO)), format: fmt1it } : undefined, link: { label: res.open, to: '/assessment/valore' } },
-        ],
-        opportunity: res.doveOpportunity(highUntouched?.without ?? 0, (highUntouched?.withFeedback ?? 0) + (highUntouched?.without ?? 0)),
-        opportunityLabel: res.opportunityLabel,
-      }}
-      impact={{ pct: data.feedbackPct, label: res.doveImpact, hint: res.doveHint(data.feedbackEvaluated, data.total), euro: roiFigure(res, roi, 'dove') }}
-      suggestion={{ text: res.doveSuggest, link: { label: res.goPanoramica, to: '/assessment/panoramica' } }}
-      deepDives={[
-        { label: res.deep.piani, to: '/assessment/feedback' },
-        { label: res.deep.panoramica, to: '/assessment/panoramica' },
-      ]}
-      home={home}
-      demoNote={demoNote}
-      hoverCards
+  const [drawerId, setDrawerId] = useState<string | null>(null)
+  const pctOf = (n: number) => (data.total ? Math.round((n / data.total) * 100) : 0)
+  const staffWindow = (list: typeof data.byTier.sviluppo, title: string, caption: string) => (
+    <MetricListCard
+      hover
+      title={title}
+      value={res.countPct(list.length, pctOf(list.length))}
+      caption={caption}
+      listTitle={res.listBandLow(title)}
+      listSub={res.listOpenHint}
+      items={[...list]
+        .sort((a, b) => a.score - b.score)
+        .map((r) => ({ id: r.e.id, label: `${r.e.nome} ${r.e.cognome}`, meta: r.e.ruolo || r.e.mansione || undefined, value: res.winOutOf10(fmt1it(r.score)), onClick: () => setDrawerId(r.e.id) }))}
+      emptyText={res.nobody}
     />
+  )
+  return (
+    <>
+      <ResultsPage
+        actions={<AssessmentModeSwitch />}
+        crumbs={crumbs}
+        number={win.number}
+        theme={theme}
+        title={win.title}
+        question={win.q}
+        why={res.doveWhy}
+        empty={data.total ? undefined : { title: res.noTestsTitle, description: res.noTests }}
+        situation={{
+          wide: true,
+          chart: (
+            <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
+              {staffWindow(data.byTier.sviluppo, res.doveBelowTitle, res.doveBelowCaption)}
+              {staffWindow(data.byTier.critica, res.doveComplexTitle, res.doveComplexCaption)}
+            </div>
+          ),
+        }}
+        suggestion={{
+          text: res.doveSuggest,
+          link: { label: res.goPanoramica, to: '/assessment/panoramica' },
+          content: (
+            <>
+              <TodoNowBlock />
+              <ValueLossBlock />
+              <PeopleBandsBlock />
+            </>
+          ),
+        }}
+        home={home}
+        demoNote={demoNote}
+        hoverCards
+      />
+      {drawerId ? <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} /> : null}
+    </>
   )
 }

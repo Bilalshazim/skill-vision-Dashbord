@@ -54,6 +54,7 @@ import { InfoTip } from '@/components/patterns/InfoTip'
 import { PageBreadcrumb } from '@/components/patterns/PageBreadcrumb'
 import { CascadePlaceholder } from '@/components/patterns/CascadePlaceholder'
 import { SummaryCard } from '@/components/patterns/SummaryCard'
+import { MetricListCard } from '@/components/patterns/MetricListCard'
 import { ResultsPage } from '@/components/patterns/ResultsPage'
 import { WindowCard } from '@/components/patterns/WindowCard'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
@@ -1043,6 +1044,29 @@ const ENTRIES: Entry[] = [
       <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
         <SummaryCard number="04" title="Dove intervenire" question="Cosa devo fare per migliorare i risultati economici?" value="3 azioni · 9 persone" note="€ [—] di costi evitabili l’anno, stima" link={{ label: 'Vedi le azioni', to: '/dev/components' }} />
         <CascadePlaceholder steps={['Valore a rischio', 'Formazione', 'Coaching', 'Riorganizzazione', 'Rischio residuo']} note="La cascata compare quando è definita la formula del valore a rischio." />
+      </div>
+    ),
+  },
+  {
+    name: 'MetricListCard',
+    level: 'Pattern',
+    source: 'components/patterns/MetricListCard.tsx',
+    render: () => (
+      <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
+        <MetricListCard
+          title="Aree"
+          value="5,6 /10"
+          caption="Media delle aree · atteso 7,0"
+          listTitle="Aree, dalla più lontana dall’atteso"
+          items={[
+            { id: 'a1', label: 'Assistenza clienti', meta: '4 persone', value: '5,3 /10' },
+            { id: 'a2', label: 'Area tecnica', meta: '5 persone', value: '5,6 /10' },
+            { id: 'a3', label: 'Amministrazione', meta: '3 persone', value: '7,3 /10' },
+          ]}
+          emptyText="Nessuna area valutata."
+        />
+        <MetricListCard title="Top Talent" listTitle="Top Talent" items={[]} emptyText="Nessuno oggi." />
+        <MetricListCard hover title="Personale da potenziare" value="7 persone · 30%" listTitle="Personale da potenziare" items={[{ id: 'p1', label: 'Mario Rossi', meta: 'Capo linea', value: '4,0 /10' }]} emptyText="Nessuno oggi." />
       </div>
     ),
   },

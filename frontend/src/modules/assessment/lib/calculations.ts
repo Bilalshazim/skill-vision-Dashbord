@@ -123,6 +123,13 @@ export function activeEmployees(state: AssessmentState): Employee[] {
 export function filterByArea(state: AssessmentState, area: string): Employee[] {
   return state.employees.filter((e) => e.area === area)
 }
+// Il nome di un'area o di una mansione vuota, nei grafici e negli elenchi (Decisioni di Roberto del
+// 2026-11-26, «la prima area non compare»): le persone importate dai test arrivano senza area e
+// senza mansione (le dà l'azienda con l'Excel), e il loro gruppo aveva un'etichetta vuota. Il dato
+// resta vuoto: cambia solo come si mostra.
+export const areaLabel = (area: string, lang: AssessmentLang) => area || (lang === 'en' ? 'Area not set' : 'Area non indicata')
+export const roleLabel = (ruolo: string, lang: AssessmentLang) => ruolo || (lang === 'en' ? 'Job title not set' : 'Mansione non indicata')
+
 export function areasList(state: AssessmentState): string[] {
   return [...new Set(state.employees.map((e) => e.area))]
 }

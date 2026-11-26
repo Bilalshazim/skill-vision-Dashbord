@@ -39,7 +39,7 @@ export const ICONS = {
 /* ---------------------- NAVIGATION CONFIGURATION ---------------------- */
 export type NavConfigEntry =
   // `key`: due voci sulla stessa pagina. `sub`: una seconda riga sotto il nome («Somministrazione»).
-  | { type: 'link'; id: string; key?: string; to?: string; label: string; sub?: string; icon: string; requires: string | null; badge?: boolean }
+  | { type: 'link'; id: string; key?: string; to?: string; label: string; sub?: string; icon: string; requires: string | null; badge?: boolean; /** In grassetto (Decisioni di Roberto del 2026-11-26: «VALORI COMPLESSIVI»). */ strong?: boolean }
   // `homeId`: il titolo del gruppo è una pagina (la Home, con sotto le pagine dei risultati).
   // `hoverOpen`: il gruppo si apre anche al passaggio del mouse (Analisi predittiva, 2026-11-12).
   // `to` di una voce: un punto della pagina, `pagina#sezione` o `pagina?tab=capitolo`.
@@ -102,7 +102,7 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
   ] },
   { type:'link', id:'confronto', label:'Compare people', icon:'users', requires:null },
   { type:'link', id:'cambio-ruolo', label:'Role change', icon:'transfer', requires:null },
-  { type:'link', id:'valore', label:'Overall Value', icon:'value', requires:null },
+  { type:'link', id:'valore', label:'OVERALL VALUE', strong:true, icon:'value', requires:null },
   { type:'section', label:'Profitability', note:'Strategies and remedies' },
   { type:'link', id:'feedback', label:'Development Plans', icon:'feedback', requires:null, badge:true },
   { type:'link', id:'ai', label:'AI Assistance', icon:'ai', requires:null },
@@ -143,7 +143,7 @@ export const NAV_CONFIG_IT: NavConfigEntry[] = [
   ] },
   { type:'link', id:'confronto', label:'Confronta persone', icon:'users', requires:null },
   { type:'link', id:'cambio-ruolo', label:'Cambio ruolo', icon:'transfer', requires:null },
-  { type:'link', id:'valore', label:'Valori complessivi', icon:'value', requires:null },
+  { type:'link', id:'valore', label:'VALORI COMPLESSIVI', strong:true, icon:'value', requires:null },
   { type:'section', label:'Profitability', note:'Strategie e cure' },
   { type:'link', id:'feedback', label:'Piani di sviluppo', icon:'feedback', requires:null, badge:true },
   { type:'link', id:'ai', label:'Assistenza IA', icon:'ai', requires:null },

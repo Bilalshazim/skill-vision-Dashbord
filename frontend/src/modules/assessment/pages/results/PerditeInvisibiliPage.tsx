@@ -1,79 +1,135 @@
+import { useState } from 'react'
+
 import { CategoryBars } from '@/components/patterns/CategoryBars'
+import { MetricListCard } from '@/components/patterns/MetricListCard'
 import { ResultsPage } from '@/components/patterns/ResultsPage'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
+import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { roiFigure } from '@/modules/assessment/components/RoiFigure'
+import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
-import { ATTESO, type RankedPerson } from '@/modules/assessment/lib/results'
+import { ATTESO } from '@/modules/assessment/lib/results'
+import { tierLabels } from '@/modules/assessment/lib/tier-display'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 import { useRoi } from '@/modules/assessment/lib/use-roi'
 
-// 02 · Le perdite invisibili (CLAUDE.md, Fase 6). È il modello delle sette
-// pagine (tavola «Assessment · 2 Risultati · Le perdite invisibili»). I testi
-// sono quelli della verifica in produzione del 2026-11-02; i numeri vengono
-// dagli stessi calcoli della Panoramica: persone sotto la norma (Da potenziare
-// + Critici), aree, mansioni e competenze sotto l'atteso 7,0. Parla solo delle perdite
-// (Decisioni del 2026-11-06): per ogni area l'ottenuto, l'atteso tratteggiato con il
-// valore e lo scarto in fondo alla barra; niente suggerimento né approfondimenti.
+// 02 · Le perdite invisibili (CLAUDE.md, Fase 6; Decisioni di Roberto del 2026-11-26).
+// 1 · La situazione oggi: le aree, ottenuto contro l'atteso 7,0 tratteggiato, con lo scarto in
+// fondo alla barra (le persone senza area stanno sotto «Area non indicata»: prima la loro barra
+// non aveva nome). 2 · quattro finestre — Aree, Ruoli, Persone, Competenze — con il dato medio
+// in alto e l'elenco dal peggiore al migliore; Persone elenca solo Da potenziare e Critici.
+// 3 · L'impatto: la quota da potenziare e «Quanto posso recuperare» (le leve del motore ROI che
+// erano in Il valore).
 export default function PerditeInvisibiliPage() {
+  const { ui } = useAssessment()
   const { res, data, win, theme, crumbs, home, demoNote } = useAssessmentResults('perdite-invisibili')
   const roi = useRoi()
-  // I tre riquadri che erano in Il valore (Roberto, 2026-11-16): sulla scala del valore espresso, 0–120% con l'atteso 100%.
-  const pct = (n: number) => `${Math.round(n)}%`
-  const scale = { min: 0, max: 120, expected: 100, expectedLabel: res.cmpReference, format: pct }
-  const people = (list: RankedPerson[]) => list.map((r) => ({ id: r.e.id, name: `${r.e.nome} ${r.e.cognome}`, value: Math.round(r.index ?? 0) }))
-  const worstRole = data.worstRoleByGap
-  const worstAreaValue = data.worstAreaByValue
+  const labels = tierLabels(ui)
+  const [drawerId, setDrawerId] = useState<string | null>(null)
+  const ten = (n: number) => res.winOutOf10(fmt1it(n))
+  const attesoText = fmt1it(ATTESO)
   return (
-    <ResultsPage
-      actions={<AssessmentModeSwitch />}
-      crumbs={crumbs}
-      number={win.number}
-      theme={theme}
-      title={win.title}
-      question={win.q}
-      why={res.perditeWhy}
-      empty={data.total ? undefined : { title: res.noTestsTitle, description: res.noTests }}
-      situation={{
-        text: res.perditeSituation(data.areasBelow.length),
-        detail: res.perditeDetail(data.worstArea?.label ?? null),
-        chartTitle: res.perditeChart,
-        hint: { label: res.perditeChart, text: res.perditeChartHint },
-        chart: data.areas.length ? (
-          <CategoryBars
-            title={res.perditeChart}
-            orientation="horizontal"
-            compact
-            hoverHighlight
-            valueMax={10}
-            format={fmt1it}
-            series={[
-              { key: 'avg', label: res.lossSeries },
-              { key: 'atteso', label: res.lossRef(fmt1it(ATTESO)), reference: true },
-            ]}
-            rows={data.areas.map((a) => ({ label: a.label, values: { avg: a.avg, atteso: ATTESO } }))}
-            highlight={data.worstArea?.label}
-            barNote={(label) => {
-              const gap = data.areas.find((a) => a.label === label)?.gap ?? 0
-              return `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${fmt1it(Math.abs(gap))}`
-            }}
-          />
-        ) : undefined,
-        chartEmpty: res.perditeNoArea,
-      }}
-      issues={{
-        items: [
-          { title: res.perditeArea, value: data.worstArea ? data.worstArea.label : res.perditeNoArea, body: data.worstArea ? res.pointsBelow(fmt1it(data.worstArea.gap)) : undefined, chart: data.worstArea ? { kind: 'scale' as const, label: data.worstArea.label, value: ATTESO - data.worstArea.gap, max: 10, expected: ATTESO, expectedLabel: res.expectedAt(fmt1it(ATTESO)), format: fmt1it } : undefined },
-          { title: res.perditeRole, value: data.worstRole ? data.worstRole.label : res.perditeNoRole, body: data.worstRole ? res.pointsBelow(fmt1it(data.worstRole.gap)) : undefined, chart: data.worstRole ? { kind: 'scale' as const, label: data.worstRole.label, value: ATTESO - data.worstRole.gap, max: 10, expected: ATTESO, expectedLabel: res.expectedAt(fmt1it(ATTESO)), format: fmt1it } : undefined },
-          { title: res.perditeSkill, value: data.worstSkill ? data.worstSkill.name : res.perditeNoSkill, body: data.worstSkill ? res.pointsBelow(fmt1it(-data.worstSkill.gap)) : undefined, chart: data.worstSkill ? { kind: 'scale' as const, label: data.worstSkill.name, value: data.worstSkill.value, max: 10, expected: data.worstSkill.expected, expectedLabel: res.expectedAt(fmt1it(data.worstSkill.expected)), format: fmt1it } : undefined },
-{ title: res.valoreWorstRole, value: worstRole ? worstRole.label : res.valoreNoRole, body: worstRole ? res.gapPct(worstRole.gap) : undefined, chart: worstRole ? { kind: 'scale' as const, label: worstRole.label, value: 100 + worstRole.gap, ...scale } : undefined },          { title: res.valoreWorstArea, value: worstAreaValue ? worstAreaValue.label : res.valoreNoArea, body: worstAreaValue ? res.gapPct(worstAreaValue.gap) : undefined, chart: worstAreaValue ? { kind: 'scale' as const, label: worstAreaValue.label, value: 100 + worstAreaValue.gap, ...scale } : undefined },          { title: res.valoreAbove, value: data.aboveExpected ? res.people(data.aboveExpected) : res.nobody, body: res.valoreAboveBody, chart: data.abovePeople.length ? { kind: 'people' as const, rows: people(data.abovePeople), ...scale } : undefined },
-        ],
-        opportunity: res.perditeOpportunity(data.worstArea?.label ?? null),
-        opportunityLabel: res.opportunityLabel,
-      }}
-      impact={{ pct: data.belowPct, title: res.perditeImpactTitle, label: res.perditeImpact, hint: res.perditeHint(data.below, data.total), euro: roiFigure(res, roi, 'perdite') }}
-      home={home}
-      demoNote={demoNote}
-      hoverCards
-    />
+    <>
+      <ResultsPage
+        actions={<AssessmentModeSwitch />}
+        crumbs={crumbs}
+        number={win.number}
+        theme={theme}
+        title={win.title}
+        question={win.q}
+        why={res.perditeWhy}
+        empty={data.total ? undefined : { title: res.noTestsTitle, description: res.noTests }}
+        situation={{
+          // Roberto, 2026-11-26: via la riga «Cinque aree restano sotto…»; resta dove è la distanza maggiore.
+          text: res.perditeDetail(data.worstArea?.label ?? null),
+          chartTitle: res.perditeChart,
+          hint: { label: res.perditeChart, text: res.perditeChartHint },
+          chart: data.areas.length ? (
+            <CategoryBars
+              title={res.perditeChart}
+              orientation="horizontal"
+              compact
+              hoverHighlight
+              valueMax={10}
+              format={fmt1it}
+              series={[
+                { key: 'avg', label: res.lossSeries },
+                { key: 'atteso', label: res.lossRef(attesoText), reference: true },
+              ]}
+              rows={data.areas.map((a) => ({ label: a.label, values: { avg: a.avg, atteso: ATTESO } }))}
+              highlight={data.worstArea?.label}
+              barNote={(label) => {
+                const gap = data.areas.find((a) => a.label === label)?.gap ?? 0
+                return `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${fmt1it(Math.abs(gap))}`
+              }}
+            />
+          ) : undefined,
+          chartEmpty: res.perditeNoArea,
+        }}
+        issues={{
+          content: (
+            <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <MetricListCard
+                hover
+                title={res.winAreas}
+                value={data.areaAvg != null ? ten(data.areaAvg) : undefined}
+                caption={res.winAvgCaption(attesoText)}
+                listTitle={res.listAreas}
+                items={data.areaList.map((a) => ({ id: a.label, label: a.label, meta: res.winCount(a.count), value: ten(a.avg) }))}
+                emptyText={res.noArea}
+              />
+              <MetricListCard
+                hover
+                title={res.winRoles}
+                value={data.roleAvg != null ? ten(data.roleAvg) : undefined}
+                caption={res.winAvgCaption(attesoText)}
+                listTitle={res.listRoles}
+                items={data.roleList.map((r) => ({ id: r.label, label: r.label, meta: res.winCount(r.count), value: ten(r.avg) }))}
+                emptyText={res.noRole}
+              />
+              <MetricListCard
+                hover
+                title={res.winPeople}
+                value={data.peopleAvg != null ? ten(data.peopleAvg) : undefined}
+                caption={res.winPeopleCaption(data.belowList.length, attesoText)}
+                listTitle={res.listPeople}
+                listSub={res.listOpenHint}
+                items={data.belowList.map((r) => ({
+                  id: r.e.id,
+                  label: `${r.e.nome} ${r.e.cognome}`,
+                  meta: [r.e.ruolo || r.e.mansione, labels[r.tier]].filter(Boolean).join(' · '),
+                  value: ten(r.score),
+                  onClick: () => setDrawerId(r.e.id),
+                }))}
+                emptyText={res.nobody}
+              />
+              <MetricListCard
+                hover
+                title={res.winSkills}
+                value={data.skillAvg != null ? ten(data.skillAvg) : undefined}
+                caption={res.winAvgCaption(attesoText)}
+                listTitle={res.listSkills}
+                items={data.skillList.map((s) => ({ id: s.label, label: s.label, meta: res.expectedAt(fmt1it(s.expected)), value: ten(s.avg) }))}
+                emptyText={res.noSkill}
+              />
+            </div>
+          ),
+          opportunity: res.perditeOpportunity(data.worstArea?.label ?? null),
+          opportunityLabel: res.opportunityLabel,
+        }}
+        impact={{
+          pct: data.belowPct,
+          title: res.perditeImpactTitle,
+          label: res.perditeImpact,
+          hint: res.perditeHint(data.below, data.total),
+          euroTitle: res.perditeRecoverTitle,
+          euro: roiFigure(res, roi, 'perdite'),
+        }}
+        home={home}
+        demoNote={demoNote}
+        hoverCards
+      />
+      {drawerId ? <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} /> : null}
+    </>
   )
 }

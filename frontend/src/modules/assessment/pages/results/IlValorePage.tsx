@@ -1,7 +1,9 @@
 import { ChevronDown } from 'lucide-react'
+import { useState } from 'react'
 
 import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { CompletionRing } from '@/components/patterns/CompletionRing'
+import { DataTable } from '@/components/patterns/DataTable'
 import { EuroFigure, TextLink } from '@/components/patterns/EuroFigure'
 import { HoverHighlightCard } from '@/components/patterns/HoverHighlightCard'
 import { InfoTip } from '@/components/patterns/InfoTip'
@@ -11,7 +13,10 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
+import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { roiFigure } from '@/modules/assessment/components/RoiFigure'
+import { fmt1it } from '@/modules/assessment/lib/legacy-utils'
+import { tierLabels } from '@/modules/assessment/lib/tier-display'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { useAssessmentResults } from '@/modules/assessment/lib/use-results'
 import { useRoi } from '@/modules/assessment/lib/use-roi'
@@ -25,6 +30,8 @@ const pct = (n: number) => `${Math.round(n)}%`
 // assenteismo). «Criticità e opportunità» è passata in Le perdite invisibili.
 export default function IlValorePage() {
   const { ui } = useAssessment()
+  const labels = tierLabels(ui)
+  const [drawerId, setDrawerId] = useState<string | null>(null)
   const { res, data, win, theme, crumbs, home, demoNote } = useAssessmentResults('il-valore')
   const roi = useRoi()
   const index = data.index ?? 0
@@ -104,10 +111,35 @@ export default function IlValorePage() {
                 <p className="label-mono text-muted-foreground">{ui.panoCoverage}</p>
               </HoverHighlightCard>
               <HoverHighlightCard>
-                <p className="label-mono text-muted-foreground">{res.impactLabel}</p>
+                <p className="label-mono text-muted-foreground">{res.valoreCostTitle}</p>
                 <EuroFigure euro={roiFigure(res, roi, 'valore')} hoverScenarios />
               </HoverHighlightCard>
             </div>
+            {/* Decisioni di Roberto del 2026-11-26: l'elenco completo delle persone valutate, dal
+                risultato più alto (il punteggio complessivo su 10, lo stesso delle fasce). Un clic apre
+                la scheda della persona. */}
+            <Card className="gap-3">
+              <div className="flex flex-col gap-1">
+                <p className="label-mono text-muted-foreground">{res.valorePeopleTitle}</p>
+                <p className="text-app-small text-muted-foreground">{res.valorePeopleSub(data.ranked.length)} {res.listOpenHint}</p>
+              </div>
+              <DataTable
+                rows={data.ranked}
+                getRowId={(r) => r.e.id}
+                rowLabel={(r) => `${r.e.nome} ${r.e.cognome}`}
+                onRowClick={(r) => setDrawerId(r.e.id)}
+                columns={[
+                  { key: 'rank', header: res.colRank, nowrap: true, cell: (r) => data.ranked.indexOf(r) + 1 },
+                  { key: 'name', header: res.colPerson, cell: (r) => `${r.e.nome} ${r.e.cognome}` },
+                  { key: 'role', header: res.colRole, emphasis: 'muted', truncate: 'md', cell: (r) => r.e.ruolo || r.e.mansione || '—' },
+                  { key: 'area', header: res.colArea, emphasis: 'muted', cell: (r) => r.e.area || '—' },
+                  { key: 'band', header: res.colBand, nowrap: true, cell: (r) => labels[r.tier] },
+                  { key: 'score', header: res.colScore, nowrap: true, cell: (r) => <span className="font-mono tabular-nums">{fmt1it(r.score)}</span> },
+                  { key: 'value', header: res.colValue, nowrap: true, cell: (r) => <span className="font-mono tabular-nums">{r.index == null ? '—' : pct(r.index)}</span> },
+                ]}
+              />
+            </Card>
+            {drawerId ? <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} /> : null}
           </div>
         ),
       }}

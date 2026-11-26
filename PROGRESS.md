@@ -190,6 +190,39 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-26 — Home, Panoramica e Indice (Decisioni di Roberto del 26/11)
+
+- [x] **Il valore**: restano valore espresso, skill-gap mancante, copertura mansioni. Nuovo elenco di tutte le
+      persone valutate, dal punteggio più alto (n., persona, mansione, area, fascia, punteggio /10, valore
+      espresso; un clic apre la scheda). La card degli euro si chiama «Quanto mi sta costando» e mostra il lordo
+      del divario (era in Le perdite invisibili).
+- [x] **Le perdite invisibili**: tolta la riga «Cinque aree restano…»; corretta «la prima area non compare»
+      (le persone senza area avevano una barra senza nome: ora «Area non indicata»); tolti i 6 riquadri; quattro
+      finestre Aree · Ruoli · Persone · Competenze con la media in alto e «Vedi elenco» dal peggiore al migliore
+      (Persone: solo Da potenziare e Critici). L'impatto: resta la quota da potenziare; la card degli euro si
+      chiama «Quanto posso recuperare» e mostra produttività + turnover + assenteismo (era in Il valore).
+- [x] **Il potenziale**: sezione 2 «Opportunità» con Top Talent · Alto potenziale · Nella norma, ognuna con
+      persone, quota e «Vedi elenco»; tolta L'impatto con la stima in euro.
+- [x] **Dove intervenire**: La situazione oggi con Personale da potenziare e Personale complesso (persone e %,
+      con l'elenco); tolte le sezioni 2 e 3; «Cosa ti suggeriamo di fare» con «Vai alla Panoramica» e sotto Da
+      fare adesso · Dove si perde valore · Le persone fascia per fascia.
+- [x] **Panoramica (Sintesi)**: tolti «Valore a rischio a 12 mesi» e i tre blocchi spostati; le quattro card
+      riallineate alle pagine (82% valore espresso · skill-gap 18% · Quanto mi sta costando; sotto la norma ·
+      Quanto posso recuperare; distribuzione per fascia; da potenziare · complesse).
+- [x] **Indice**: «VALORI COMPLESSIVI» in maiuscolo e grassetto (nel percorso resta «Valori complessivi»).
+- [x] Nuovo pattern `MetricListCard` (catalogo); `ResultsPage` accetta titolo e finestre proprie nella sezione
+      2, il titolo della card degli euro e blocchi sotto il suggerimento.
+- [x] Verificato in locale (http://localhost:5180, Playwright) con 100 persone finte senza area dalla finta API:
+      il grafico mostra «Area non indicata»; gli elenchi Ruoli, Persone e Competenze si aprono e sono in ordine
+      dal peggiore; Il valore «Quanto mi sta costando € 545.672» e 125 persone in elenco; Le perdite invisibili
+      «Quanto posso recuperare € 208.610»; Il potenziale «2 Opportunità», Top Talent «Nessuno oggi.»; Dove
+      intervenire con i tre blocchi; Panoramica senza i blocchi tolti. Scuro e larghezza da telefono: nessun
+      testo nuovo sotto 4,5:1, nessuno scorrimento orizzontale (la tabella di Il valore scorre nel suo riquadro,
+      come l'Anagrafica). Persone finte poi rimosse.
+- Controlli: typecheck, lint senza errori, test 13/13, build, audit «Nessun difetto».
+- [ ] **Da confermare con Roberto** (DECISIONI): il verso dello scambio degli euro; «Personale complesso» = Critici.
+- [ ] In produzione da provare (Bilal).
+
 ## 2026-11-25 — Importazione dai test: area, mansione, livello CCNL e RAL nelle colonne
 
 - [x] Prima l'importazione teneva area, ruolo e livello del test solo nei dati del test e non leggeva la RAL:

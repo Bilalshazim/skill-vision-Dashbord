@@ -1,4 +1,4 @@
-import { evaluatedEmployees, orgCriticalAreas, orgCriticalRoles, primaryScore, roleCoveragePct, tierFor, worstCompetenza } from '@/modules/assessment/lib/calculations'
+import { areaLabel, evaluatedEmployees, orgCriticalAreas, orgCriticalRoles, primaryScore, roleCoveragePct, roleLabel, tierFor, worstCompetenza } from '@/modules/assessment/lib/calculations'
 import { getSoftSkills, round1, type AssessmentLang } from '@/modules/assessment/lib/legacy-utils'
 import { areaValues, orgValue, personIndex, roleValues, skillValues } from '@/modules/assessment/lib/role-index'
 import { TIER_ORDER, type TierKey } from '@/modules/assessment/lib/tier-display'
@@ -68,13 +68,13 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
       .filter((r) => r.gap > 0.05)
       .sort((a, b) => b.gap - a.gap)
   const allAreas = total ? orgCriticalAreas(state, lang, 50) : []
-  const areasBelow = gapRows(allAreas.map((a) => ({ label: a.area, avg: a.avg })))
-  const rolesBelow = total ? gapRows(orgCriticalRoles(state, lang, 50).map((r) => ({ label: r.ruolo, avg: r.avg }))) : []
+  const areasBelow = gapRows(allAreas.map((a) => ({ label: areaLabel(a.area, lang), avg: a.avg })))
+  const rolesBelow = total ? gapRows(orgCriticalRoles(state, lang, 50).map((r) => ({ label: roleLabel(r.ruolo, lang), avg: r.avg }))) : []
   const worstSkill = total ? worstCompetenza(state, lang, f) : null
   // La mansione più lontana dentro l'area più lontana: è da lì che si suggerisce di partire.
   const worstAreaName = areasBelow[0]?.label
   const inArea = new Map<string, number[]>()
-  ranked.filter((r) => r.e.area === worstAreaName && r.e.ruolo).forEach((r) => inArea.set(r.e.ruolo, [...(inArea.get(r.e.ruolo) ?? []), r.score]))
+  ranked.filter((r) => areaLabel(r.e.area, lang) === worstAreaName && r.e.ruolo).forEach((r) => inArea.set(r.e.ruolo, [...(inArea.get(r.e.ruolo) ?? []), r.score]))
   const mean = (l: number[]) => l.reduce((n, v) => n + v, 0) / l.length
   const worstRoleInArea = [...inArea.entries()].sort((a, b) => mean(a[1]) - mean(b[1]))[0]?.[0] ?? null
 
@@ -95,7 +95,32 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
   const withIndex = ranked.filter((r) => r.index != null)
   const roleGaps = [...byRole.entries()].map(([label, list]) => ({ label, gap: Math.round(mean(list)) - 100 })).sort((a, b) => a.gap - b.gap)
 
+  // Le finestre di Le perdite invisibili (Decisioni di Roberto del 2026-11-26): per aree, mansioni,
+  // persone e competenze il dato medio in alto e l'elenco dal peggiore al migliore. Tutto su 10,
+  // la scala del grafico della sezione 1, con l'atteso 7,0.
+  const meanOf = (l: number[]) => (l.length ? round1(l.reduce((n, v) => n + v, 0) / l.length) : null)
+  const areaList = allAreas.map((a) => ({ label: areaLabel(a.area, lang), avg: a.avg, count: a.count }))
+  const roleList = total ? orgCriticalRoles(state, lang, 500).map((r) => ({ label: roleLabel(r.ruolo, lang), avg: r.avg, count: r.count })) : []
+  const belowList = [...byTier.sviluppo, ...byTier.critica].sort((a, b) => a.score - b.score)
+  const skillList: { label: string; avg: number; expected: number }[] = []
+  if (f.A && total) {
+    for (const s of getSoftSkills(lang)) {
+      const vals = evaluated.map((e) => e.soft[s.id]).filter((v): v is { ottenuto: number; atteso: number } => !!v && v.ottenuto > 0)
+      if (vals.length) skillList.push({ label: s.name, avg: meanOf(vals.map((v) => v.ottenuto))!, expected: meanOf(vals.map((v) => v.atteso))! })
+    }
+    skillList.sort((a, b) => a.avg - a.expected - (b.avg - b.expected))
+  }
+
   return {
+    areaList,
+    areaAvg: meanOf(areaList.map((a) => a.avg)),
+    roleList,
+    roleAvg: meanOf(roleList.map((r) => r.avg)),
+    /** Le persone nelle fasce Da potenziare e Critici, dalla più bassa. */
+    belowList,
+    peopleAvg: meanOf(ranked.map((r) => r.score)),
+    skillList,
+    skillAvg: meanOf(skillList.map((s) => s.avg)),
     flows,
     feedbackEvaluated: flows.reduce((n, f) => n + f.withFeedback, 0),
     index,
@@ -129,7 +154,7 @@ export function assessmentResults(state: AssessmentState, lang: AssessmentLang) 
     interventi,
     withIntervention,
     withInterventionPct: pct(withIntervention),
-    areas: allAreas.map((a) => ({ label: a.area, avg: a.avg, gap: round1(a.avg - ATTESO) })),
+    areas: allAreas.map((a) => ({ label: areaLabel(a.area, lang), avg: a.avg, gap: round1(a.avg - ATTESO) })),
     /** Quota del colloquio di restituzione sulle persone valutate: lo stesso numero della frase di Dove intervenire. */
     feedbackPct: pct(flows.reduce((n, f) => n + f.withFeedback, 0)),
     mostFrequent: mostFrequent && mostFrequent.count > 0 ? mostFrequent : null,

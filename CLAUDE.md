@@ -1597,6 +1597,58 @@ Valgono sopra tutte le sezioni precedenti, dove non coincidono. Roberto comincia
 
 **In attesa di Roberto** (non toccare): Big Five ideale per posizione (stima 18–27 ore); una sola fonte per società e posizioni (proposta D del 10/11, 30–45 ore, quattro domande); la card degli euro senza bilancio; peso, soglia e regola di blocco delle Competenze trasversali; Area valutazioni.
 
+#### Decisioni di Roberto del 2026-11-26 · Home, Panoramica e Indice
+
+Valgono sopra tutte le sezioni precedenti, dove non coincidono (`MODIFICHE DEL 26_11.docx`). Si applicano le scelte funzionali e di contenuto richieste dal cliente mantenendo i token e le regole dell'identità visiva.
+
+**Il valore**
+
+- **1 · La situazione oggi**: restano *Valore espresso*, *Skill-Gap mancante* e *Copertura mansioni*.
+- **Elenco dei dipendenti**: inserire l'elenco completo di tutti i dipendenti valutati, ordinati per risultato (dal più alto al più basso).
+- **L'impatto (scambio importo e titolo)**: spostare qui il calcolo economico in euro precedentemente mostrato su *Le perdite invisibili* (inclusa l'incidenza di turnover e assenze, es. € 3.591.439 sui dati in produzione) e rinominare il riquadro/sezione in **«Quanto mi sta costando»** (in `label-mono` dove previsto dalla gerarchia).
+
+**Le perdite invisibili**
+
+- **1 · La situazione oggi**:
+  - mantenere il titolo «1 La situazione oggi»;
+  - **correzione bug**: verificare e risolvere il motivo per cui la prima area non compare nell'elenco/grafico delle aree;
+  - rimuovere la riga «Cinque aree restano sotto quello che chiede la loro mansione».
+- **Rimozione riquadri precedenti**: eliminare i 6 riquadri *Area più lontana*, *Mansione più a rischio*, *Competenza più debole*, *Mansione con il maggiore deficit di competenze*, *Area con il maggiore deficit di competenze* e *Chi va oltre le attese*.
+- **Nuove finestre (Aree · Ruoli · Persone · Competenze)**:
+  - **Aree**: mantiene l'elenco attuale delle aree.
+  - **Ruoli**, **Persone**, **Competenze**: ciascuna finestra mostra in alto il dato generico medio e sotto un collegamento cliccabile che apre l'elenco ordinato **dal peggiore al migliore**. Nella finestra **Persone** l'elenco mostra esclusivamente le persone nelle fasce **Da potenziare** e **Critiche**.
+- **3 · L'impatto (scambio importo e titolo)**:
+  - mantenere la percentuale delle persone da potenziare;
+  - spostare qui il calcolo economico in euro precedentemente mostrato su *Il valore* (solo impatto dal divario di competenze, senza turnover e assenze) e rinominarlo **«Quanto posso recuperare»** *(nota: registrare in `DECISIONI.md` l'eccezione esplicita chiesta dal cliente rispetto al divieto generale del cap. 7 sulla parola «recuperare»)*.
+
+**Il potenziale**
+
+- **1 · La situazione oggi**: mantenere invariati il titolo e la banda con i dati.
+- **2 · Opportunità**:
+  - rinominare la sezione in **«2 Opportunità»** rimuovendo la parola «Criticità»;
+  - strutturare la sezione con **3 finestre**: **Top Talent**, **Alto potenziale** e **Nella norma**, ciascuna dotata del pulsante/link **«Vedi elenco»**.
+- **Rimozione di 3 · L'impatto**: eliminare completamente la sezione *L'impatto* e la relativa stima in euro (es. € 1.257.003).
+
+**Dove intervenire**
+
+- **1 · La situazione oggi**: mantenere il titolo e inserire **2 finestre**:
+  1. **Personale da potenziare** (numero di persone e relativa percentuale);
+  2. **Personale complesso** (numero di persone e relativa percentuale).
+- **Rimozione sezioni 2 e 3**: eliminare completamente il punto 2 (*Da seguire subito*, *Colloqui di restituzione da fare*, *Mansione da cui partire*) e il punto 3 (*L'impatto* con l'importo in euro, es. € 1.437.433).
+- **4 · Cosa ti suggeriamo di fare**: mantenere il link *Vai alla Panoramica* e **spostare qui dalla Panoramica** i tre blocchi:
+  1. **Da fare adesso**
+  2. **Dove si perde valore**
+  3. **Le persone fascia per fascia**
+
+**Panoramica**
+
+- **Rimozioni**: eliminare completamente il blocco **«Valore a rischio a 12 mesi»** e rimuovere **«Da fare adesso»**, **«Dove si perde valore»** e **«Le persone fascia per fascia»** (spostati su *Dove intervenire*).
+- **Riallineamento riquadri di sintesi**: aggiornare contenuti e importi delle 4 finestre (*Il valore*, *Le perdite invisibili*, *Il potenziale*, *Dove intervenire*) in coerenza con le modifiche sopra.
+
+**Indice (menu laterale)**
+
+- La voce **«VALORI COMPLESSIVI»** va mostrata in **maiuscolo e in grassetto** *(registrare in `DECISIONI.md` come eccezione esplicita alla regola 8 richiesta dal cliente)*.
+
 
 ### Fase 7 — Verifica
 
@@ -1936,7 +1988,7 @@ console del browser su ogni schermata e in entrambe le modalità.
 
 Il resoconto va al cliente e allo studio, che **non fanno il collaudo**. Il
 rilascio del 4 novembre è arrivato con errori visibili al primo clic: i menu
-«Cambia» e «+ Aggiungi» dei confronti si aprivano vuoti, i due pulsanti di un
+«Cambia» e «+ Aggiungi» dei confronti si apano vuoti, i due pulsanti di un
 selettore erano accesi insieme, il passaggio del mouse non mostrava niente, il
 pulsante «Carica dati dimostrativi» stava nel menu di produzione. Non deve
 ripetersi.

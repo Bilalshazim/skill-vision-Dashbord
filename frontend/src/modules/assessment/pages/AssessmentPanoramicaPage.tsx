@@ -8,10 +8,7 @@ import { CategoryBars } from '@/components/patterns/CategoryBars'
 import { ChartCard } from '@/components/patterns/ChartCard'
 import { CompletionRing } from '@/components/patterns/CompletionRing'
 import { DistributionBar } from '@/components/patterns/DistributionBar'
-import { InfoTip } from '@/components/patterns/InfoTip'
-import { CascadePlaceholder } from '@/components/patterns/CascadePlaceholder'
 import { SummaryCard } from '@/components/patterns/SummaryCard'
-import { Badge } from '@/components/ui/badge'
 import { isDemoMode } from '@/lib/demo-mode'
 import { PageHeader } from '@/components/patterns/PageHeader'
 import { ScoreGauge } from '@/components/patterns/ScoreGauge'
@@ -24,10 +21,10 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { CSV_TYPE, downloadText } from '@/lib/download'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
-import { allEvaluators, evStatus, norm } from '@/modules/assessment/gestione5p/model'
-import { use5pState } from '@/modules/assessment/gestione5p/use5pState'
+import { usePanoramicaTodo } from '@/modules/assessment/lib/use-panoramica-todo'
 import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import {
+  areaLabel,
   bothActive,
   computeAvgMetric,
   evaluatedEmployees,
@@ -38,6 +35,7 @@ import {
   orgTrend,
   primaryScore,
   roleCoveragePct,
+  roleLabel,
   tierFor,
   worstCompetenza,
 } from '@/modules/assessment/lib/calculations'
@@ -72,7 +70,6 @@ const signed = (n: number) => `${n > 0 ? '+' : ''}${fmt1it(n)}`
 // operativa, dove "Da fare adesso" non ripete gli interventi.
 export default function AssessmentPanoramicaPage() {
   const { state, setState, lang, ui, canEdit, company } = useAssessment()
-  const { state: s5 } = use5pState()
   const navigate = useNavigate()
   const [drawerId, setDrawerId] = useState<string | null>(null)
 
@@ -145,18 +142,8 @@ export default function AssessmentPanoramicaPage() {
   const lastTwo = trendPoints.slice(-2).map((t) => avgOf([f.A ? t.soft : null, f.B ? t.hard : null]))
   const trendDelta = lastTwo.length === 2 && lastTwo[0] != null && lastTwo[1] != null ? round1(lastTwo[1] - lastTwo[0]) : null
 
-  // Da fare adesso, dalla più urgente. Le schede 5P: un valutatore senza
-  // risposte e non ancora segnato come inviato ha la scheda da inviare; uno
-  // segnato come inviato ma con risposte mancanti ha valutazioni da
-  // raccogliere (gli stessi stati di "Invio schede"). Più le valutazioni
-  // esterne in attesa.
-  const evaluators = allEvaluators(s5)
-  const toSend = evaluators.filter((e) => !s5.sent[norm(e.name)] && evStatus(s5, e.name).rec === 0).length
-  const toCollect =
-    evaluators.filter((e) => {
-      const st = evStatus(s5, e.name)
-      return !!s5.sent[norm(e.name)] && st.rec < st.exp
-    }).length + state.evalAssignments.filter((a) => a.status === 'pending').length
+  // Da fare adesso, dalla più urgente: gli stessi compiti di Dove intervenire (PanoramicaBlocks).
+  const todo = usePanoramicaTodo()
   const worstSkill = worstCompetenza(state, lang, f)
   const note = (key: string, fallback: string): ActionItem['note'] => ({
     value: state.settings.actionNotes?.[key] ?? fallback,
@@ -164,12 +151,6 @@ export default function AssessmentPanoramicaPage() {
     readOnly: !canEdit,
   })
   const people = ui.homeQ4PeopleUnit
-  const todo: ActionItem[] = [
-    { key: 'critical', label: ui.panoTodoCritical, description: ui.panoTodoCriticalDesc, count: critical, unit: people, to: '/assessment/valore?fascia=critica', linkLabel: ui.panoOpen },
-    { key: 'feedback', label: ui.panoTodoFeedback, description: ui.panoTodoFeedbackDesc, count: hs.feedbackDue, unit: people, to: '/assessment/feedback', linkLabel: ui.panoOpen },
-    { key: 'collect', label: ui.panoTodoCollect, description: ui.panoTodoCollectDesc, count: toCollect, unit: ui.panoEvaluatorsUnit, to: '/assessment/hard-overview?tab=racc', linkLabel: ui.panoOpen },
-    { key: 'send', label: ui.panoTodoSend, description: ui.panoTodoSendDesc, count: toSend, unit: ui.panoEvaluatorsUnit, to: '/assessment/hard-overview?tab=invio', linkLabel: ui.panoOpen },
-  ]
   // Le azioni di sviluppo per tipo, con la loro nota modificabile (salvata
   // nelle impostazioni del modulo, come nella vecchia Home). Non stanno in "Da
   // fare adesso" (sono interventi, non compiti: CLAUDE.md, Fase 6) ma in "Cosa
@@ -184,9 +165,6 @@ export default function AssessmentPanoramicaPage() {
 
   // Le quattro domande, ognuna con il suo dato (le stesse quote delle pagine dei risultati).
   const rd = useMemo(() => assessmentResults(state, lang), [state, lang])
-  // Dove si perde valore: tutte le aree, dalla più bassa, contro l'atteso tratteggiato.
-  const lossRows = orgCriticalAreas(state, lang, 50).map((a) => ({ label: a.area, values: { avg: a.avg, atteso: hs.benchmark } }))
-  const worstLoss = lossRows[0] && lossRows[0].values.avg < hs.benchmark ? lossRows[0].label : undefined
 
   // Le persone per fascia, dalla più alta in punteggio (per le prime tre).
   const ranked = useMemo(
@@ -223,8 +201,8 @@ export default function AssessmentPanoramicaPage() {
       .map((r) => ({ label: r.label, gap: round1(hs.benchmark - r.avg) }))
       .filter((r) => r.gap > 0.05)
       .sort((a, b) => b.gap - a.gap)
-  const gapAreas = gapRows(orgCriticalAreas(state, lang, 6).map((a) => ({ label: a.area, avg: a.avg })))
-  const gapRoles = gapRows(orgCriticalRoles(state, lang, 6).map((r) => ({ label: r.ruolo, avg: r.avg })))
+  const gapAreas = gapRows(orgCriticalAreas(state, lang, 6).map((a) => ({ label: areaLabel(a.area, lang), avg: a.avg })))
+  const gapRoles = gapRows(orgCriticalRoles(state, lang, 6).map((r) => ({ label: roleLabel(r.ruolo, lang), avg: r.avg })))
   // I risultati stanno in Reporting (2026-11-17): Dashboarding è solo somministrazione.
   const competenze = both ? (computeAvgMetric(state, lang, 'soft') <= computeAvgMetric(state, lang, 'hard') ? 'soft-risultati' : 'gestione-valutazioni') : f.A ? 'soft-risultati' : 'gestione-valutazioni'
 
@@ -373,86 +351,35 @@ export default function AssessmentPanoramicaPage() {
   // cascata (segnaposto finché non c'è la formula), le quattro domande con il
   // loro dato, Da fare adesso, dove si perde valore accanto a cosa fare in
   // ordine di impatto, le persone fascia per fascia in una card sola.
-  const activeActions = interventions.filter((i) => i.count > 0)
-  const peopleInActions = activeActions.reduce((n, i) => n + i.count, 0)
   const win = (slug: string) => res.windows.find((w: { slug: string }) => w.slug === slug) as { slug: string; number: string; title: string; q: string }
   const summaryLink = (slug: string) => ({ label: (res.sumLinks as Record<string, string>)[slug], to: `/assessment/${slug}` })
 
+  // Decisioni di Roberto del 2026-11-26: via «Valore a rischio a 12 mesi»; Da fare adesso, Dove si
+  // perde valore e Le persone fascia per fascia passano in Dove intervenire. Le quattro card dicono
+  // quello che dicono le pagine: Il valore il valore espresso, lo skill-gap e «Quanto mi sta
+  // costando»; Le perdite invisibili chi è sotto la norma e «Quanto posso recuperare»; Il potenziale
+  // la distribuzione per fascia; Dove intervenire il personale da potenziare e quello complesso.
   const sintesi = (
     <>
-      <Card padding="lg" className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <div className="flex flex-col items-start gap-3">
-          <p className="label-mono text-muted-foreground">{res.riskTitle}</p>
-          <span className="text-site-h2 text-foreground md:text-site-h1">{base ? roiEuro(base.pool) : '€ [—]'}</span>
-          <Badge>{base ? res.roiTagEstimate : roi.status === 'blocked' ? res.roiBlocked : res.riskPending}</Badge>
-          <p className="flex max-w-prose items-start gap-1 text-app-body text-muted-foreground">
-            <span>{base ? res.riskReady : res.riskRange}</span>
-            <InfoTip label={res.riskHow}>{res.riskHowText}</InfoTip>
-          </p>
-          <p className="text-app-subtitle font-semibold text-foreground">{res.riskActions(activeActions.length, base ? roiEuro(base.benefit) : null)}</p>
-          <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm">
-              <Link to="/assessment/feedback">{res.openPlan}</Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link to="/assessment/ai">{res.askAssistant}</Link>
-            </Button>
-          </div>
-        </div>
-        <div className="flex min-w-0 flex-col gap-3">
-          <p className="label-mono text-muted-foreground">{res.cascadeTitle}</p>
-          <CascadePlaceholder steps={res.cascadeSteps(activeActions.map((a) => a.label))} note={base ? res.cascadeReady : res.cascadeEmpty} />
-        </div>
-      </Card>
-
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           number={win('il-valore').number}
           title={win('il-valore').title}
           question={win('il-valore').q}
-          value={evaluated ? fmt1it(hs.orgAvg) : undefined}
-          unit={evaluated ? '/10' : undefined}
-          note={evaluated ? res.sumScoreNote(fmt1it(hs.benchmark), trendDelta != null ? ui.panoTrendDelta(signed(trendDelta)) : null) : res.sumScorePending}
+          value={rd.index != null ? `${rd.index}%` : undefined}
+          unit={rd.index != null ? res.valoreExpressedTitle.toLowerCase() : undefined}
+          note={rd.index != null ? res.sumValoreNote(Math.max(0, -(rd.gapMedio ?? 0)), base ? roiEuro(base.gapVal) : null) : res.sumScorePending}
           link={summaryLink('il-valore')}
-        >
-          {sparkPoints.length >= 2 ? (
-            <TrendChart
-              title={ui.panoTrendTitle}
-              variant="compact"
-              scale={{ left: [0, 10] }}
-              format={fmt1it}
-              markLast="v"
-              series={[
-                { key: 'v', label: ui.panoScore, kind: 'area' },
-                { key: 'b', label: res.lossRef(fmt1it(hs.benchmark)), reference: true },
-              ]}
-              points={sparkPoints.map((pt) => ({ date: pt.date, label: monthLabel(pt.date), values: { v: pt.v, b: hs.benchmark } }))}
-            />
-          ) : null}
-        </SummaryCard>
+        />
         <SummaryCard
           number={win('perdite-invisibili').number}
           title={win('perdite-invisibili').title}
           question={win('perdite-invisibili').q}
           value={rd.total ? rd.below : undefined}
           unit={rd.total ? res.sumBelow(rd.below, rd.total) : undefined}
-          note={rd.total ? undefined : res.noTestsTitle}
+          note={rd.total ? res.sumPerditeNote(base ? roiEuro(base.l1 + base.l2 + base.l3) : null) : res.noTestsTitle}
           link={summaryLink('perdite-invisibili')}
-        >
-          <ul className="flex flex-col gap-1 text-app-small">
-            {(res.sumLossItems as string[]).map((item, i) => {
-              // Competenze mancanti, turnover, assenze dal motore; le inefficienze non le ha.
-              const amount = base ? [base.gapVal, base.turnVal, base.assVal][i] : undefined
-              return (
-                <li key={item} className="flex justify-between gap-2">
-                  <span className="text-muted-foreground">{item}</span>
-                  <span className="font-mono text-foreground">{amount != null ? roiEuro(amount) : '€ [—]'}</span>
-                </li>
-              )
-            })}
-          </ul>
-          {base ? null : <p className="text-app-caption text-muted-foreground">{res.sumLossNote}</p>}
-        </SummaryCard>
+        />
         <SummaryCard
           number={win('potenziale').number}
           title={win('potenziale').title}
@@ -478,46 +405,13 @@ export default function AssessmentPanoramicaPage() {
           number={win('dove-intervenire').number}
           title={win('dove-intervenire').title}
           question={win('dove-intervenire').q}
-          value={res.sumActions(activeActions.length, peopleInActions)}
-          note={res.sumActionsNote(base ? roiEuro(base.benefit) : null)}
+          value={rd.total ? res.sumDoveValue(rd.byTier.sviluppo.length, rd.byTier.critica.length) : undefined}
+          note={rd.total ? res.sumDoveNote(Math.round((rd.byTier.sviluppo.length / rd.total) * 100), Math.round((rd.byTier.critica.length / rd.total) * 100)) : res.noTestsTitle}
           link={summaryLink('dove-intervenire')}
         />
       </div>
 
-      <section>
-        <PageHeader title={ui.panoTodoTitle} description={ui.panoTodoSub} actions={<SeeMore to="/assessment/feedback">{res.seeAll}</SeeMore>} />
-        <ActionList items={todo} empty={{ title: ui.panoTodoEmpty, description: ui.panoTodoEmptySub }} />
-      </section>
-
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
-        <section>
-          <PageHeader title={res.lossTitle} description={res.lossSub(fmt1it(hs.benchmark))} actions={<SeeMore to={`/assessment/${competenze}`}>{ui.panoGapLink}</SeeMore>} />
-          <ChartCard
-            title={res.lossTitle}
-            height="auto"
-            empty={lossRows.length ? undefined : { title: res.lossNone }}
-            footer={
-              <p className="flex justify-between gap-2 text-app-small">
-                <span className="font-semibold text-foreground">{res.lossTotal}</span>
-                <span className="font-mono text-foreground">{base ? roiEuro(base.pool) : '€ [—]'}</span>
-              </p>
-            }
-          >
-            <CategoryBars
-              title={res.lossTitle}
-              orientation="horizontal"
-              compact
-              valueMax={10}
-              format={fmt1it}
-              series={[
-                { key: 'avg', label: res.lossSeries },
-                { key: 'atteso', label: res.lossRef(fmt1it(hs.benchmark)), reference: true },
-              ]}
-              rows={lossRows}
-              highlight={worstLoss}
-            />
-          </ChartCard>
-        </section>
+      <div className="grid grid-cols-1 items-start gap-4">
         <section>
           <PageHeader title={res.impactTitle} description={base ? res.impactSubReady : res.impactSub} />
           <ActionList
@@ -538,17 +432,6 @@ export default function AssessmentPanoramicaPage() {
           />
         </section>
       </div>
-
-      <section>
-        <PageHeader title={res.peopleTitle} description={ui.panoDistSub(total)} actions={<SeeMore to="/assessment/valore">{ui.panoDistLink}</SeeMore>} />
-        <Card padding="lg">
-          {total ? (
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-5">{bands(true)}</div>
-          ) : (
-            <p className="text-app-small text-muted-foreground">{ui.panoEmptySub}</p>
-          )}
-        </Card>
-      </section>
 
       <footer className="flex flex-wrap justify-between gap-3 border-t border-border pt-4 text-app-caption text-muted-foreground">
         <span>{isDemoMode() ? `Dati dimostrativi · ${company?.name ?? '—'} · ${res.peopleCount(total)}` : res.peopleCount(total)}</span>

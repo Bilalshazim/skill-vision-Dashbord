@@ -42,7 +42,10 @@ export function roiFigure(res: Res, roi: RoiResult, page: 'valore' | 'perdite' |
     { label: res.roiRowGap, value: `${res.indexPct(s.gap)} (${res.roiRowGapNote(res.indexPct(s.comp), res.indexPct(s.comp + s.gap))})` },
     { label: res.roiRowEvaluated, value: `${s.nVal} / ${s.N}` },
   ]
-  if (page === 'valore') {
+  // Decisioni di Roberto del 2026-11-26: le cifre di Il valore e di Le perdite invisibili si scambiano.
+  // Le perdite invisibili («Quanto posso recuperare») prende le leve 1, 2 e 3 (produttività, turnover,
+  // assenteismo); Il valore («Quanto mi sta costando») il lordo del divario (m.gapVal).
+  if (page === 'perdite') {
     // Roberto, 2026-11-13: la leva «Produttività dal divario di competenza» (m.l1), non il lordo
     // del divario. Roberto, 2026-11-16: in più l'incidenza di % turnover e % assenteismo, le
     // leve «Turnover evitato» (m.l2) e «Assenteismo comprimibile» (m.l3) del motore, con le
@@ -66,7 +69,7 @@ export function roiFigure(res: Res, roi: RoiResult, page: 'valore' | 'perdite' |
       },
     }
   }
-  if (page === 'perdite') {
+  if (page === 'valore') {
     // Roberto, 2026-11-16: solo l'impatto del divario di competenze (il 20%), senza turnover e
     // assenteismo, che stanno in Il valore. È il potenziale lordo del divario (m.gapVal).
     // Provvisorio: «vediamo poi cosa metterci».
