@@ -71,11 +71,35 @@ export default function IlValorePage() {
                 </p>
               </HoverHighlightCard>
             </div>
+            {/* Roberto, 2026-11-26 e 2026-11-27: al posto di «Vedi per competenze», l'elenco delle
+                persone valutate, dal risultato più alto (il punteggio complessivo su 10, lo stesso delle
+                fasce; un clic apre la scheda). Sotto, «Le competenze valutate», chiuso: si apre con un clic. */}
+            <Card className="gap-3">
+              <div className="flex flex-col gap-1">
+                <p className="label-mono text-muted-foreground">{res.valorePeopleTitle}</p>
+                <p className="text-app-small text-muted-foreground">{res.valorePeopleSub(data.ranked.length)} {res.listOpenHint}</p>
+              </div>
+              <DataTable
+                rows={data.ranked}
+                getRowId={(r) => r.e.id}
+                rowLabel={(r) => `${r.e.nome} ${r.e.cognome}`}
+                onRowClick={(r) => setDrawerId(r.e.id)}
+                columns={[
+                  { key: 'rank', header: res.colRank, nowrap: true, cell: (r) => data.ranked.indexOf(r) + 1 },
+                  { key: 'name', header: res.colPerson, cell: (r) => `${r.e.nome} ${r.e.cognome}` },
+                  { key: 'role', header: res.colRole, emphasis: 'muted', truncate: 'md', cell: (r) => r.e.ruolo || r.e.mansione || '—' },
+                  { key: 'area', header: res.colArea, emphasis: 'muted', cell: (r) => r.e.area || '—' },
+                  { key: 'band', header: res.colBand, nowrap: true, cell: (r) => labels[r.tier] },
+                  { key: 'score', header: res.colScore, nowrap: true, cell: (r) => <span className="font-mono tabular-nums">{fmt1it(r.score)}</span> },
+                  { key: 'value', header: res.colValue, nowrap: true, cell: (r) => <span className="font-mono tabular-nums">{r.index == null ? '—' : pct(r.index)}</span> },
+                ]}
+              />
+            </Card>
             {data.skillValues.length ? (
               <Collapsible className="flex flex-col gap-3">
                 <CollapsibleTrigger asChild>
                   <Button variant="outline" className="group self-center">
-                    {res.valoreBySkill}
+                    {res.valoreSkillsToggle}
                     <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
                   </Button>
                 </CollapsibleTrigger>
@@ -115,30 +139,6 @@ export default function IlValorePage() {
                 <EuroFigure euro={roiFigure(res, roi, 'valore')} hoverScenarios />
               </HoverHighlightCard>
             </div>
-            {/* Decisioni di Roberto del 2026-11-26: l'elenco completo delle persone valutate, dal
-                risultato più alto (il punteggio complessivo su 10, lo stesso delle fasce). Un clic apre
-                la scheda della persona. */}
-            <Card className="gap-3">
-              <div className="flex flex-col gap-1">
-                <p className="label-mono text-muted-foreground">{res.valorePeopleTitle}</p>
-                <p className="text-app-small text-muted-foreground">{res.valorePeopleSub(data.ranked.length)} {res.listOpenHint}</p>
-              </div>
-              <DataTable
-                rows={data.ranked}
-                getRowId={(r) => r.e.id}
-                rowLabel={(r) => `${r.e.nome} ${r.e.cognome}`}
-                onRowClick={(r) => setDrawerId(r.e.id)}
-                columns={[
-                  { key: 'rank', header: res.colRank, nowrap: true, cell: (r) => data.ranked.indexOf(r) + 1 },
-                  { key: 'name', header: res.colPerson, cell: (r) => `${r.e.nome} ${r.e.cognome}` },
-                  { key: 'role', header: res.colRole, emphasis: 'muted', truncate: 'md', cell: (r) => r.e.ruolo || r.e.mansione || '—' },
-                  { key: 'area', header: res.colArea, emphasis: 'muted', cell: (r) => r.e.area || '—' },
-                  { key: 'band', header: res.colBand, nowrap: true, cell: (r) => labels[r.tier] },
-                  { key: 'score', header: res.colScore, nowrap: true, cell: (r) => <span className="font-mono tabular-nums">{fmt1it(r.score)}</span> },
-                  { key: 'value', header: res.colValue, nowrap: true, cell: (r) => <span className="font-mono tabular-nums">{r.index == null ? '—' : pct(r.index)}</span> },
-                ]}
-              />
-            </Card>
             {drawerId ? <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} /> : null}
           </div>
         ),

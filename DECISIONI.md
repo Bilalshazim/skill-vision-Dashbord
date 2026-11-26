@@ -2,6 +2,10 @@
 
 Formato:  — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Il valore: persone e competenze · 2026-11-27
+
+- Roberto: «dove hai messo vedi le competenze metti LE PERSONE VALUTATE e sotto LE COMPETENZE VALUTATE, non l'elenco aperto ma apribile cliccandoci». Letto così: l'elenco delle persone resta aperto e prende il posto di «Vedi per competenze»; il grafico per competenza va sotto, chiuso, con il pulsante «Le competenze valutate». Opzione scartata: chiudere anche l'elenco delle persone. Se Roberto voleva chiuso anche quello, è un pulsante in più.
+
 ## Home, Panoramica e Indice (Roberto, 26/11) · 2026-11-26
 
 - **«Quanto posso recuperare»**: eccezione esplicita del cliente al divieto del cap. 7 («mai "recuperare" per i soldi»). Vale solo come titolo della card degli euro in Le perdite invisibili; il resto dei testi resta «costi evitabili».

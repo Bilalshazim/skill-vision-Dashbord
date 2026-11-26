@@ -190,6 +190,17 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-27 — Il valore: persone valutate al posto di «Vedi per competenze» (Roberto)
+
+- [x] Sotto valore espresso e skill-gap ora c'è «Le persone valutate» (l'elenco, dal risultato più alto; un
+      clic apre la scheda). Sotto, il pulsante «Le competenze valutate» apre il valore espresso per competenza:
+      chiuso all'apertura della pagina. Poi copertura mansioni e «Quanto mi sta costando», come prima.
+- [x] Verificato in locale (Playwright): ordine gauge → persone → «Le competenze valutate» → copertura e costo;
+      il pulsante parte con aria-expanded=false e il grafico nascosto, al clic si apre. Scuro: contrasto minimo
+      6,0:1. Larghezza da telefono: nessuno scorrimento orizzontale.
+- Controlli: typecheck, lint senza errori, test 13/13, build, audit «Nessun difetto».
+- [ ] In produzione da provare (Bilal).
+
 ## 2026-11-26 — Home, Panoramica e Indice (Decisioni di Roberto del 26/11)
 
 - [x] **Il valore**: restano valore espresso, skill-gap mancante, copertura mansioni. Nuovo elenco di tutte le

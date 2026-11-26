@@ -27,6 +27,7 @@ export const UI_IT = {
     valoreSeeAll: 'Vedi tutte le persone',
     valoreByRole: 'Vedi per mansione',
     valoreBySkill: 'Vedi per competenze',
+    valoreSkillsToggle: 'Le competenze valutate',
     valoreSkillTitle: 'Il valore espresso, per competenza',
     valoreSkillHint: 'Per ogni competenza, la somma dei valori rilevati delle persone valutate sulla somma dei valori attesi per il loro ruolo. Le professionali sono le cinque dimensioni delle 5P, con l’atteso 7. 100% = la competenza raggiunge l’atteso.',
     valoreRoleTitle: 'Il valore espresso, per mansione',

@@ -27,6 +27,7 @@ export const UI_EN = {
     valoreSeeAll: 'See all people',
     valoreByRole: 'See by role',
     valoreBySkill: 'See by competency',
+    valoreSkillsToggle: 'Skills evaluated',
     valoreSkillTitle: 'Value expressed, by competency',
     valoreSkillHint: 'For each competency, the sum of the measured values of the people assessed over the sum of the values expected for their role. Professional ones are the five 5P dimensions, expected 7. 100% = the competency meets expectations.',
     valoreRoleTitle: 'Value expressed, by role',
