@@ -190,6 +190,15 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-27 (3) — Il valore: i due pulsanti affiancati (Bilal)
+
+- [x] «Le persone valutate» e «Le competenze valutate» stanno sulla stessa riga, centrati; ognuno apre il suo
+      elenco a tutta riga, sotto, e si richiude con un altro clic. Tutti e due chiusi all'apertura.
+- [x] Verificato in locale (Playwright): stessa riga a 1366px e a 390px; aria-expanded=false all'apertura;
+      «Le persone valutate» apre la tabella (25 righe), «Le competenze valutate» il grafico, un secondo clic
+      richiude. A 390px nessuno scorrimento orizzontale, con il grafico chiuso e aperto.
+- Controlli: typecheck, lint senza errori, test 13/13, build, audit «Nessun difetto».
+
 ## 2026-11-27 (2) — Il valore: anche le persone chiuse; modello 5P con l'anagrafica (Roberto)
 
 - [x] **Il valore**: «Le persone valutate» si apre solo con un clic, come «Le competenze valutate» (Roberto: «chiudilo,

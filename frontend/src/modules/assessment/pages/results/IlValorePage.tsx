@@ -11,7 +11,7 @@ import { ResultsPage } from '@/components/patterns/ResultsPage'
 import { ScoreGauge } from '@/components/patterns/ScoreGauge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { AssessmentModeSwitch } from '@/modules/assessment/components/AssessmentModeSwitch'
 import { EmployeeDrawer } from '@/modules/assessment/components/EmployeeDrawer'
 import { roiFigure } from '@/modules/assessment/components/RoiFigure'
@@ -32,6 +32,8 @@ export default function IlValorePage() {
   const { ui } = useAssessment()
   const labels = tierLabels(ui)
   const [drawerId, setDrawerId] = useState<string | null>(null)
+  const [openPeople, setOpenPeople] = useState(false)
+  const [openSkills, setOpenSkills] = useState(false)
   const { res, data, win, theme, crumbs, home, demoNote } = useAssessmentResults('il-valore')
   const roi = useRoi()
   const index = data.index ?? 0
@@ -73,48 +75,49 @@ export default function IlValorePage() {
             </div>
             {/* Roberto, 2026-11-26 e 2026-11-27: al posto di «Vedi per competenze», l'elenco delle
                 persone valutate, dal risultato più alto (il punteggio complessivo su 10, lo stesso delle
-                fasce; un clic apre la scheda). Sotto, «Le competenze valutate». Tutti e due chiusi: «si
-                deve aprire solo se interrogato» (Roberto, 2026-11-27). */}
-            <Collapsible className="flex flex-col gap-3">
-              <CollapsibleTrigger asChild>
-                <Button variant="outline" className="group self-center">
-                  {res.valorePeopleTitle}
+                fasce; un clic apre la scheda), e «Le competenze valutate». Tutti e due chiusi: «si deve
+                aprire solo se interrogato» (Roberto, 2026-11-27). I due pulsanti stanno affiancati
+                (Bilal, 2026-11-27); ognuno apre il suo elenco a tutta riga, sotto. */}
+            <div className="flex flex-wrap justify-center gap-3">
+              <Button variant="outline" className="group" aria-expanded={openPeople} aria-controls="valore-persone" data-state={openPeople ? 'open' : 'closed'} onClick={() => setOpenPeople((v) => !v)}>
+                {res.valorePeopleTitle}
+                <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
+              </Button>
+              {data.skillValues.length ? (
+                <Button variant="outline" className="group" aria-expanded={openSkills} aria-controls="valore-competenze" data-state={openSkills ? 'open' : 'closed'} onClick={() => setOpenSkills((v) => !v)}>
+                  {res.valoreSkillsToggle}
                   <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
                 </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-            <Card className="gap-3">
-              <div className="flex flex-col gap-1">
-                <p className="label-mono text-muted-foreground">{res.valorePeopleTitle}</p>
-                <p className="text-app-small text-muted-foreground">{res.valorePeopleSub(data.ranked.length)} {res.listOpenHint}</p>
-              </div>
-              <DataTable
-                rows={data.ranked}
-                getRowId={(r) => r.e.id}
-                rowLabel={(r) => `${r.e.nome} ${r.e.cognome}`}
-                onRowClick={(r) => setDrawerId(r.e.id)}
-                columns={[
-                  { key: 'rank', header: res.colRank, nowrap: true, cell: (r) => data.ranked.indexOf(r) + 1 },
-                  { key: 'name', header: res.colPerson, cell: (r) => `${r.e.nome} ${r.e.cognome}` },
-                  { key: 'role', header: res.colRole, emphasis: 'muted', truncate: 'md', cell: (r) => r.e.ruolo || r.e.mansione || '—' },
-                  { key: 'area', header: res.colArea, emphasis: 'muted', cell: (r) => r.e.area || '—' },
-                  { key: 'band', header: res.colBand, nowrap: true, cell: (r) => labels[r.tier] },
-                  { key: 'score', header: res.colScore, nowrap: true, cell: (r) => <span className="font-mono tabular-nums">{fmt1it(r.score)}</span> },
-                  { key: 'value', header: res.colValue, nowrap: true, cell: (r) => <span className="font-mono tabular-nums">{r.index == null ? '—' : pct(r.index)}</span> },
-                ]}
-              />
-            </Card>
+              ) : null}
+            </div>
+            <Collapsible open={openPeople}>
+              <CollapsibleContent id="valore-persone">
+                <Card className="gap-3">
+                  <div className="flex flex-col gap-1">
+                    <p className="label-mono text-muted-foreground">{res.valorePeopleTitle}</p>
+                    <p className="text-app-small text-muted-foreground">{res.valorePeopleSub(data.ranked.length)} {res.listOpenHint}</p>
+                  </div>
+                  <DataTable
+                    rows={data.ranked}
+                    getRowId={(r) => r.e.id}
+                    rowLabel={(r) => `${r.e.nome} ${r.e.cognome}`}
+                    onRowClick={(r) => setDrawerId(r.e.id)}
+                    columns={[
+                      { key: 'rank', header: res.colRank, nowrap: true, cell: (r) => data.ranked.indexOf(r) + 1 },
+                      { key: 'name', header: res.colPerson, cell: (r) => `${r.e.nome} ${r.e.cognome}` },
+                      { key: 'role', header: res.colRole, emphasis: 'muted', truncate: 'md', cell: (r) => r.e.ruolo || r.e.mansione || '—' },
+                      { key: 'area', header: res.colArea, emphasis: 'muted', cell: (r) => r.e.area || '—' },
+                      { key: 'band', header: res.colBand, nowrap: true, cell: (r) => labels[r.tier] },
+                      { key: 'score', header: res.colScore, nowrap: true, cell: (r) => <span className="font-mono tabular-nums">{fmt1it(r.score)}</span> },
+                      { key: 'value', header: res.colValue, nowrap: true, cell: (r) => <span className="font-mono tabular-nums">{r.index == null ? '—' : pct(r.index)}</span> },
+                    ]}
+                  />
+                </Card>
               </CollapsibleContent>
             </Collapsible>
             {data.skillValues.length ? (
-              <Collapsible className="flex flex-col gap-3">
-                <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="group self-center">
-                    {res.valoreSkillsToggle}
-                    <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
+              <Collapsible open={openSkills}>
+                <CollapsibleContent id="valore-competenze">
                   <Card className="gap-3">
                     <p className="flex items-center gap-2">
                       <span className="label-mono text-muted-foreground">{res.valoreSkillTitle}</span>
