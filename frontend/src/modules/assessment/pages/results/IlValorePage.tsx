@@ -73,7 +73,19 @@ export default function IlValorePage() {
                 </p>
               </HoverHighlightCard>
             </div>
-            {/* Roberto, 2026-11-26 e 2026-11-27: al posto di «Vedi per competenze», l'elenco delle
+            <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
+              <HoverHighlightCard
+                chart={(active) => <CompletionRing value={data.coverage} label={ui.panoCoverage} center={res.valoreRingCenter} tone={active ? 'highlight' : 'mono'} className="mx-auto" />}
+                after={<p className="text-app-small text-muted-foreground">{ui.panoCoverageNote}</p>}
+              >
+                <p className="label-mono text-muted-foreground">{ui.panoCoverage}</p>
+              </HoverHighlightCard>
+              <HoverHighlightCard>
+                <p className="label-mono text-muted-foreground">{res.valoreCostTitle}</p>
+                <EuroFigure euro={roiFigure(res, roi, 'valore')} hoverScenarios />
+              </HoverHighlightCard>
+            </div>
+            {/* Sotto le quattro finestre (Bilal, 2026-11-27: un 2×2 con lo stesso spazio fra tutte). Roberto, 2026-11-26 e 2026-11-27: al posto di «Vedi per competenze», l'elenco delle
                 persone valutate, dal risultato più alto (il punteggio complessivo su 10, lo stesso delle
                 fasce; un clic apre la scheda), e «Le competenze valutate». Tutti e due chiusi: «si deve
                 aprire solo se interrogato» (Roberto, 2026-11-27). I due pulsanti stanno affiancati
@@ -144,18 +156,6 @@ export default function IlValorePage() {
                 </CollapsibleContent>
               </Collapsible>
             ) : null}
-            <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
-              <HoverHighlightCard
-                chart={(active) => <CompletionRing value={data.coverage} label={ui.panoCoverage} center={res.valoreRingCenter} tone={active ? 'highlight' : 'mono'} className="mx-auto" />}
-                after={<p className="text-app-small text-muted-foreground">{ui.panoCoverageNote}</p>}
-              >
-                <p className="label-mono text-muted-foreground">{ui.panoCoverage}</p>
-              </HoverHighlightCard>
-              <HoverHighlightCard>
-                <p className="label-mono text-muted-foreground">{res.valoreCostTitle}</p>
-                <EuroFigure euro={roiFigure(res, roi, 'valore')} hoverScenarios />
-              </HoverHighlightCard>
-            </div>
             {drawerId ? <EmployeeDrawer employeeId={drawerId} onClose={() => setDrawerId(null)} /> : null}
           </div>
         ),

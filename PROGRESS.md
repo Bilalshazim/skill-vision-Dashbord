@@ -190,6 +190,16 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-27 (5) — Il valore: le quattro finestre in un 2×2, i pulsanti sotto (Bilal)
+
+- [x] I pulsanti «Le persone valutate» e «Le competenze valutate» stavano fra le due righe di finestre, che
+      così erano lontane fra loro più che fra le colonne. Ora le quattro finestre (valore espresso, skill-gap,
+      copertura mansioni, Quanto mi sta costando) sono un 2×2 con lo stesso spazio, e i due pulsanti stanno
+      subito sotto, con i loro elenchi. Verificato in locale (Playwright, 1366px): 16px fra le colonne e fra le
+      righe, bordi allineati, pulsanti 16px sotto le finestre; «Le persone valutate» apre 25 righe. Nessuno
+      scorrimento orizzontale.
+- Controlli: typecheck, lint senza errori, test 13/13, build, audit «Nessun difetto».
+
 ## 2026-11-27 (4) — Il valore: spazio uguale sopra e sotto i due pulsanti (Bilal)
 
 - [x] Sotto i pulsanti lo spazio era doppio: i due elenchi chiusi restavano nella colonna, vuoti, e ognuno
