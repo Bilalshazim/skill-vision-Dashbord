@@ -190,6 +190,14 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-27 (4) — Il valore: spazio uguale sopra e sotto i due pulsanti (Bilal)
+
+- [x] Sotto i pulsanti lo spazio era doppio: i due elenchi chiusi restavano nella colonna, vuoti, e ognuno
+      aggiungeva lo spazio della griglia. Ora un elenco esiste solo quando è aperto. Verificato in locale
+      (Playwright, 1366px): 16px sopra e 16px sotto, con gli elenchi chiusi e con «Le persone valutate» aperto
+      (25 righe).
+- Controlli: typecheck, lint senza errori, test 13/13, build, audit «Nessun difetto».
+
 ## 2026-11-27 (3) — Il valore: i due pulsanti affiancati (Bilal)
 
 - [x] «Le persone valutate» e «Le competenze valutate» stanno sulla stessa riga, centrati; ognuno apre il suo

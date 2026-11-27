@@ -79,18 +79,20 @@ export default function IlValorePage() {
                 aprire solo se interrogato» (Roberto, 2026-11-27). I due pulsanti stanno affiancati
                 (Bilal, 2026-11-27); ognuno apre il suo elenco a tutta riga, sotto. */}
             <div className="flex flex-wrap justify-center gap-3">
-              <Button variant="outline" className="group" aria-expanded={openPeople} aria-controls="valore-persone" data-state={openPeople ? 'open' : 'closed'} onClick={() => setOpenPeople((v) => !v)}>
+              <Button variant="outline" className="group" aria-expanded={openPeople} aria-controls={openPeople ? 'valore-persone' : undefined} data-state={openPeople ? 'open' : 'closed'} onClick={() => setOpenPeople((v) => !v)}>
                 {res.valorePeopleTitle}
                 <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
               </Button>
               {data.skillValues.length ? (
-                <Button variant="outline" className="group" aria-expanded={openSkills} aria-controls="valore-competenze" data-state={openSkills ? 'open' : 'closed'} onClick={() => setOpenSkills((v) => !v)}>
+                <Button variant="outline" className="group" aria-expanded={openSkills} aria-controls={openSkills ? 'valore-competenze' : undefined} data-state={openSkills ? 'open' : 'closed'} onClick={() => setOpenSkills((v) => !v)}>
                   {res.valoreSkillsToggle}
                   <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
                 </Button>
               ) : null}
             </div>
-            <Collapsible open={openPeople}>
+            {/* Un elenco chiuso non occupa posto nella colonna: altrimenti lascia uno spazio doppio sotto i pulsanti. */}
+            {openPeople ? (
+            <Collapsible open>
               <CollapsibleContent id="valore-persone">
                 <Card className="gap-3">
                   <div className="flex flex-col gap-1">
@@ -115,8 +117,9 @@ export default function IlValorePage() {
                 </Card>
               </CollapsibleContent>
             </Collapsible>
-            {data.skillValues.length ? (
-              <Collapsible open={openSkills}>
+            ) : null}
+            {data.skillValues.length && openSkills ? (
+              <Collapsible open>
                 <CollapsibleContent id="valore-competenze">
                   <Card className="gap-3">
                     <p className="flex items-center gap-2">
