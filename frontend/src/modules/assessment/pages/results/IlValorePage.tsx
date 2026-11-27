@@ -90,17 +90,24 @@ export default function IlValorePage() {
                 fasce; un clic apre la scheda), e «Le competenze valutate». Tutti e due chiusi: «si deve
                 aprire solo se interrogato» (Roberto, 2026-11-27). I due pulsanti stanno affiancati
                 (Bilal, 2026-11-27); ognuno apre il suo elenco a tutta riga, sotto. */}
-            <div className="flex flex-wrap justify-center gap-3">
-              <Button variant="outline" className="group" aria-expanded={openPeople} aria-controls={openPeople ? 'valore-persone' : undefined} data-state={openPeople ? 'open' : 'closed'} onClick={() => setOpenPeople((v) => !v)}>
-                {res.valorePeopleTitle}
-                <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
-              </Button>
-              {data.skillValues.length ? (
-                <Button variant="outline" className="group" aria-expanded={openSkills} aria-controls={openSkills ? 'valore-competenze' : undefined} data-state={openSkills ? 'open' : 'closed'} onClick={() => setOpenSkills((v) => !v)}>
-                  {res.valoreSkillsToggle}
+            {/* I due pulsanti seguono le colonne delle finestre (Bilal, 2026-11-27): il bordo destro di «Le persone
+                valutate» sotto il bordo destro di Copertura mansioni, il bordo sinistro di «Le competenze valutate»
+                sotto il bordo sinistro di Quanto mi sta costando. Su telefono, dove le finestre vanno in colonna, centrati. */}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
+              <div className="flex justify-center md:justify-end">
+                <Button variant="outline" className="group" aria-expanded={openPeople} aria-controls={openPeople ? 'valore-persone' : undefined} data-state={openPeople ? 'open' : 'closed'} onClick={() => setOpenPeople((v) => !v)}>
+                  {res.valorePeopleTitle}
                   <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
                 </Button>
-              ) : null}
+              </div>
+              <div className="flex justify-center md:justify-start">
+                {data.skillValues.length ? (
+                  <Button variant="outline" className="group" aria-expanded={openSkills} aria-controls={openSkills ? 'valore-competenze' : undefined} data-state={openSkills ? 'open' : 'closed'} onClick={() => setOpenSkills((v) => !v)}>
+                    {res.valoreSkillsToggle}
+                    <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
+                  </Button>
+                ) : null}
+              </div>
             </div>
             {/* Un elenco chiuso non occupa posto nella colonna: altrimenti lascia uno spazio doppio sotto i pulsanti. */}
             {openPeople ? (

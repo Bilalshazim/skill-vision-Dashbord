@@ -190,6 +190,15 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-27 (6) — Il valore: i due pulsanti allineati alle colonne delle finestre (Bilal)
+
+- [x] Il bordo destro di «Le persone valutate» sotto il bordo destro di Copertura mansioni, il bordo sinistro di
+      «Le competenze valutate» sotto il bordo sinistro di Quanto mi sta costando: fra i due pulsanti lo stesso
+      spazio che c'è fra le colonne. Su telefono (finestre in colonna) i pulsanti restano centrati.
+- [x] Verificato in locale (Playwright, 1366px): Copertura destra 1486 = pulsante 1486; Quanto sinistra 1502 =
+      pulsante 1502; 16px sotto le finestre; i due elenchi si aprono (25 righe; il grafico per competenza).
+- Controlli: typecheck, lint senza errori, test 13/13, build, audit «Nessun difetto».
+
 ## 2026-11-27 (5) — Il valore: le quattro finestre in un 2×2, i pulsanti sotto (Bilal)
 
 - [x] I pulsanti «Le persone valutate» e «Le competenze valutate» stavano fra le due righe di finestre, che
