@@ -83,7 +83,7 @@ export function RisultatiTab({ state, update, toast, onOpen }: { state: State5p;
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1 basis-96">
             <h3 className="text-app-section text-foreground">Risultati</h3>
@@ -125,7 +125,7 @@ export function RisultatiTab({ state, update, toast, onOpen }: { state: State5p;
         <StatCard label="Si sopravvalutano" value={over} tone={over ? 'warning' : 'neutral'} note={`autovalutazione da ${fmtDec(THR / 10)} punti sopra il voto`} />
       </div>
 
-      <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
         <h3 className="text-app-section text-foreground">Media per P</h3>
         <Note size="caption">{withTarget ? 'Voto medio e valore atteso medio delle persone mostrate, scala 0–10.' : 'Voto medio delle persone mostrate, scala 0–10. Il valore atteso non è definito per tutte le P: non si disegna.'}</Note>
         <CategoryBars title="Media per P" rows={bars} series={[{ key: 'actual', label: 'Voto medio' }, ...(withTarget ? [{ key: 'target', label: 'Valore atteso medio', reference: true }] : [])]} valueMax={10} orientation="horizontal" height="md" format={(n) => fmtDec(n)} />

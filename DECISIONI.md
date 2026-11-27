@@ -2,6 +2,13 @@
 
 Formato:  — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Le sette voci principali e il bordo lime su tutte le finestre (Roberto, 27/11) · 2026-11-27
+
+- **Maiuscolo sulle sette voci principali dell'indice**: eccezione esplicita del cliente alla regola 8 (sostituisce quella del 26/11 su «VALORI COMPLESSIVI»). Il maiuscolo si applica al testo nel componente dell'indice (`mainLabel` in `AssessmentNav.tsx`), non con la classe `uppercase`: così l'audit non ha eccezioni da escludere e nei dati, nel percorso e nei titoli il nome resta minuscolo.
+- **Fondo e bordo delle voci**: `surface-accent` (lime al 12% di fondo, 20% di bordo), il token già usato per i riquadri d'evidenza; al passaggio del mouse e da attive bordo `chart-highlight-line`. Nessun token nuovo.
+- **«Mappa del capitale umano»** sostituisce la scritta «Valori complessivi» nell'indice e nel percorso; rotta e contenuti invariati. Il titolo della pagina («Valore complessivo della persona») non cambia: Roberto ha chiesto la scritta dell'indice.
+- **Bordo lime al passaggio del mouse su tutte le finestre**: eccezione esplicita del cliente alla regola della Fase 5 che lo limitava alle card cliccabili. Colore `chart-highlight-line` (accent-600 in chiaro, accent-400 in scuro), non `primary`: accent-400 su fondo chiaro come linea non si vede (fondamenta, «Regole d'uso»). Opzioni: (a) solo la `Card` della libreria; (b) anche i riquadri a mano con lo stesso aspetto. Presa (b), perché il cliente dice «ovunque». Esclusi i dialog (livelli flottanti, regola 3), i riquadri d'errore (bordo di stato) e le zone di caricamento file (hanno già il loro stato di trascinamento). Una card che non si clicca ora reagisce al mouse: è la richiesta del cliente per le demo.
+
 ## Il valore chiuso e il file dei nominativi per le 5P · 2026-11-27
 
 - **«Le persone valutate» chiuso**: risposta di Roberto alla domanda del 27/11, sostituisce la lettura precedente (elenco aperto).

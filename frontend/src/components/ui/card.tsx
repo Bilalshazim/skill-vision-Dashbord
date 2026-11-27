@@ -4,13 +4,13 @@ import type * as React from 'react'
 import { cn } from '@/lib/utils'
 
 // La card della libreria. Superficie elevata + bordo, raggio lg (24),
-// nessuna ombra, nessun bordo lime al passaggio del mouse: una card che non
-// si clicca non reagisce (CLAUDE.md, Fase 5). Il padding è una prop, non una classe passata da fuori:
+// nessuna ombra. Al passaggio del mouse il bordo diventa lime (accent-600 in chiaro,
+// accent-400 in scuro) su ogni card: Decisioni di Roberto del 2026-11-27. Il padding è una prop, non una classe passata da fuori:
 // `md` (16, il padding di card della scala) è il default, `lg` (24) per
 // i pannelli larghi, `none` quando il contenuto va a filo (tabelle).
 // Le parti interne non hanno padding proprio: stanno dentro quello della
 // card, così il raggio annidato torna (24 − 16 = 8 per gli elementi dentro).
-const cardVariants = cva('flex flex-col rounded-lg border border-border bg-card text-card-foreground', {
+const cardVariants = cva('flex flex-col rounded-lg border border-border bg-card text-card-foreground transition-colors hover:border-chart-highlight-line', {
   variants: {
     padding: {
       md: 'p-4',

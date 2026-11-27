@@ -33,7 +33,7 @@ export function PipelineDashboard({ cards, selectedKey }: { cards: PipelineOpeni
           <StaggerItem key={key}>
           <div
             aria-current={isSelected ? 'true' : undefined}
-            className={cn('flex h-full w-full flex-col gap-2.5 rounded-lg border bg-card p-4 text-left', isSelected ? 'border-primary ring-1 ring-primary' : 'border-border')}
+            className={cn('flex h-full w-full flex-col gap-2.5 rounded-lg border bg-card p-4 text-left transition-colors hover:border-chart-highlight-line', isSelected ? 'border-primary ring-1 ring-primary' : 'border-border')}
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">

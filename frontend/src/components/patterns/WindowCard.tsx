@@ -52,7 +52,8 @@ export function WindowCard({
       className={cn(
         'group flex h-full min-w-0 flex-col gap-2 rounded-lg border border-border bg-card text-left text-card-foreground outline-none transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         size === 'lg' ? 'min-h-80 gap-3 p-6 lg:min-h-96 lg:p-8' : 'min-h-56 p-6',
-        accentHover ? 'hover:border-chart-highlight-line focus-visible:border-chart-highlight-line' : 'hover:border-border-strong',
+        // Bordo lime al passaggio del mouse su tutte le finestre (Roberto, 2026-11-27): `accentHover` resta per compatibilità.
+        'hover:border-chart-highlight-line focus-visible:border-chart-highlight-line',
         className,
       )}
     >

@@ -81,7 +81,7 @@ export function ValoriAttesiTab({ state, update, toast, onGoPeople }: { state: S
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
         <h3 className="text-app-section text-foreground">Valore atteso aziendale</h3>
         <Note className="max-w-3xl">
           Per ogni voce, il livello che l&apos;azienda considera necessario, da 0 a 10. <b className="font-semibold text-foreground">Non compare nelle schede dei valutatori</b>, si può impostare anche dopo la raccolta e può essere diverso per area o gruppo. Nei risultati diventa lo <b className="font-semibold text-foreground">skill gap</b>: voto ottenuto − valore atteso.

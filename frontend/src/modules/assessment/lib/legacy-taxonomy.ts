@@ -39,11 +39,11 @@ export const ICONS = {
 /* ---------------------- NAVIGATION CONFIGURATION ---------------------- */
 export type NavConfigEntry =
   // `key`: due voci sulla stessa pagina. `sub`: una seconda riga sotto il nome («Somministrazione»).
-  | { type: 'link'; id: string; key?: string; to?: string; label: string; sub?: string; icon: string; requires: string | null; badge?: boolean; /** In grassetto (Decisioni di Roberto del 2026-11-26: «VALORI COMPLESSIVI»). */ strong?: boolean }
+  | { type: 'link'; id: string; key?: string; to?: string; label: string; sub?: string; icon: string; requires: string | null; badge?: boolean; /** Una delle sette voci principali: maiuscolo, fondo e bordo lime (Decisioni di Roberto del 2026-11-27). */ strong?: boolean }
   // `homeId`: il titolo del gruppo è una pagina (la Home, con sotto le pagine dei risultati).
   // `hoverOpen`: il gruppo si apre anche al passaggio del mouse (Analisi predittiva, 2026-11-12).
   // `to` di una voce: un punto della pagina, `pagina#sezione` o `pagina?tab=capitolo`.
-  | { type: 'group'; groupId: string; homeId?: string; hoverOpen?: boolean; label: string; icon: string; items: { id: string; key?: string; to?: string; label: string; requires: string | null }[] }
+  | { type: 'group'; groupId: string; homeId?: string; hoverOpen?: boolean; label: string; icon: string; items: { id: string; key?: string; to?: string; label: string; requires: string | null; strong?: boolean }[] }
   | { type: 'action'; id: string; label: string; icon: string; action: string; editOnly?: boolean }
   // `note`: la riga sotto il titolo della sezione («Strategie e cure»).
   | { type: 'section'; label: string; note?: string; editOnly?: boolean }
@@ -69,10 +69,10 @@ export type NavConfigEntry =
 // professionali restano i due capitoli dei risultati (risultati, report finale persone).
 export const NAV_CONFIG_EN: NavConfigEntry[] = [
   { type:'group', groupId:'home', homeId:'home', label:'Home', icon:'home', items:[
-    { id:'il-valore', label:'Value', requires:null },
-    { id:'perdite-invisibili', label:'Invisible losses', requires:null },
-    { id:'potenziale', label:'Potential', requires:null },
-    { id:'dove-intervenire', label:'Where to act', requires:null },
+    { id:'il-valore', label:'Value', strong:true, requires:null },
+    { id:'perdite-invisibili', label:'Invisible losses', strong:true, requires:null },
+    { id:'potenziale', label:'Potential', strong:true, requires:null },
+    { id:'dove-intervenire', label:'Where to act', strong:true, requires:null },
   ] },
   { type:'link', id:'panoramica', label:'Overview', icon:'overview', requires:null },
   { type:'section', label:'Predictive analysis' },
@@ -100,9 +100,9 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
     { id:'gestione-valutazioni', key:'gv-res', to:'gestione-valutazioni?tab=res', label:'Professional evaluation results', requires:'B' },
     { id:'gestione-valutazioni', key:'gv-rep', to:'gestione-valutazioni?tab=rep', label:'Final people report', requires:'B' },
   ] },
-  { type:'link', id:'confronto', label:'Compare people', icon:'users', requires:null },
-  { type:'link', id:'cambio-ruolo', label:'Role change', icon:'transfer', requires:null },
-  { type:'link', id:'valore', label:'OVERALL VALUE', strong:true, icon:'value', requires:null },
+  { type:'link', id:'confronto', label:'Compare people', strong:true, icon:'users', requires:null },
+  { type:'link', id:'cambio-ruolo', label:'Role change', strong:true, icon:'transfer', requires:null },
+  { type:'link', id:'valore', label:'Human capital map', strong:true, icon:'value', requires:null },
   { type:'section', label:'Profitability', note:'Strategies and remedies' },
   { type:'link', id:'feedback', label:'Development Plans', icon:'feedback', requires:null, badge:true },
   { type:'link', id:'ai', label:'AI Assistance', icon:'ai', requires:null },
@@ -110,10 +110,10 @@ export const NAV_CONFIG_EN: NavConfigEntry[] = [
 ];
 export const NAV_CONFIG_IT: NavConfigEntry[] = [
   { type:'group', groupId:'home', homeId:'home', label:'Home', icon:'home', items:[
-    { id:'il-valore', label:'Il valore', requires:null },
-    { id:'perdite-invisibili', label:'Le perdite invisibili', requires:null },
-    { id:'potenziale', label:'Il potenziale', requires:null },
-    { id:'dove-intervenire', label:'Dove intervenire', requires:null },
+    { id:'il-valore', label:'Il valore', strong:true, requires:null },
+    { id:'perdite-invisibili', label:'Le perdite invisibili', strong:true, requires:null },
+    { id:'potenziale', label:'Il potenziale', strong:true, requires:null },
+    { id:'dove-intervenire', label:'Dove intervenire', strong:true, requires:null },
   ] },
   { type:'link', id:'panoramica', label:'Panoramica', icon:'overview', requires:null },
   { type:'section', label:'Predictive analysis' },
@@ -141,9 +141,9 @@ export const NAV_CONFIG_IT: NavConfigEntry[] = [
     { id:'gestione-valutazioni', key:'gv-res', to:'gestione-valutazioni?tab=res', label:'Risultati valutazioni professionali', requires:'B' },
     { id:'gestione-valutazioni', key:'gv-rep', to:'gestione-valutazioni?tab=rep', label:'Report finale persone', requires:'B' },
   ] },
-  { type:'link', id:'confronto', label:'Confronta persone', icon:'users', requires:null },
-  { type:'link', id:'cambio-ruolo', label:'Cambio ruolo', icon:'transfer', requires:null },
-  { type:'link', id:'valore', label:'VALORI COMPLESSIVI', strong:true, icon:'value', requires:null },
+  { type:'link', id:'confronto', label:'Confronta persone', strong:true, icon:'users', requires:null },
+  { type:'link', id:'cambio-ruolo', label:'Cambio ruolo', strong:true, icon:'transfer', requires:null },
+  { type:'link', id:'valore', label:'Mappa del capitale umano', strong:true, icon:'value', requires:null },
   { type:'section', label:'Profitability', note:'Strategie e cure' },
   { type:'link', id:'feedback', label:'Piani di sviluppo', icon:'feedback', requires:null, badge:true },
   { type:'link', id:'ai', label:'Assistenza IA', icon:'ai', requires:null },

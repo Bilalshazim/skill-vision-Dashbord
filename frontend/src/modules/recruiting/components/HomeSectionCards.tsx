@@ -33,7 +33,7 @@ export function QualityBucketsCard({ data }: { data: RecruitingHomeData }) {
                 stays bar-only, same as the concept. */}
             <div className="mb-4 grid grid-cols-3 gap-3">
               {[data.buckets[0], data.buckets[1], data.buckets[3]].map((b) => (
-                <div key={b.label} className="rounded-lg border border-border bg-secondary/40 p-3">
+                <div key={b.label} className="rounded-lg border border-border transition-colors hover:border-chart-highlight-line bg-secondary/40 p-3">
                   <div className="label-mono text-muted-foreground">{b.label}</div>
                   <div className="mt-1 font-mono text-app-section font-semibold tabular-nums text-foreground">{b.count}</div>
                 </div>

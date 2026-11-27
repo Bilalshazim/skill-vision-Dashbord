@@ -103,7 +103,7 @@ export function StatCard({
       {...rootProps}
       className={cn(
         'flex min-w-0 flex-col gap-2 text-left text-card-foreground',
-        onClick && 'cursor-pointer outline-none transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        onClick && 'cursor-pointer outline-none transition-colors hover:border-chart-highlight-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         surface === 'card' && ['rounded-md', SURFACE[tone], size === 'lg' ? 'gap-4 p-6' : 'p-4'],
         className,
       )}

@@ -101,7 +101,7 @@ export function EvaluatorWorkspace({ evaluatorToken }: { evaluatorToken?: string
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary px-4 py-3">
+      <div className="flex items-center gap-3 rounded-lg border border-border transition-colors hover:border-chart-highlight-line bg-secondary px-4 py-3">
         <UserCircle2 className="size-8 shrink-0 text-muted-foreground" aria-hidden="true" />
         <div className="min-w-0">
           <div className="text-app-small font-semibold">{evaluator.fullName}</div>

@@ -98,7 +98,7 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
       {noEm ? <InlineAlert tone="warning">{noEm === 1 ? '1 valutatore non ha' : `${noEm} valutatori non hanno`} l&apos;email: scrivila nella tabella qui sotto (o nella colonna EMAIL del file Excel).</InlineAlert> : null}
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <div className="flex flex-col gap-4 rounded-lg border border-border p-4">
+        <div className="flex flex-col gap-4 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
           <h3 className="text-app-section text-foreground">Invia le schede ai valutatori</h3>
           <Note>
             Ogni valutatore riceve <b className="font-semibold text-foreground">una sola email</b> con la sua scheda 5P allegata: dentro trova una guida completa (il modello 5P, la scala con esempi, che cosa osservare per ogni domanda, gli errori da evitare, le domande frequenti) e l&apos;elenco delle persone che deve valutare.
@@ -137,7 +137,7 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
             <StatCard label="Restituite" value={ret} tone={ret && ret === evs.length ? 'success' : 'neutral'} note={ret && ret === evs.length ? 'Tutte' : undefined} />
           </div>
         </div>
-        <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
+        <div className="flex flex-col gap-3 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
           <h3 className="text-app-section text-foreground">Testo dell&apos;email</h3>
           <div className="flex flex-wrap gap-3">
             <Field label="Email a cui rimandare le risposte" className="min-w-56 flex-1">
@@ -169,7 +169,7 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-app-section text-foreground">Valutatori</h3>
           <div className="flex flex-wrap items-center gap-3">
@@ -256,7 +256,7 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
         <div className="flex flex-wrap items-end gap-3">
           <Field label="Anteprima della scheda di" className="w-72">
             <SelectField value={who} onValueChange={setSel}>
@@ -271,7 +271,7 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
             Scarica questa scheda
           </Button>
         </div>
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-hidden rounded-lg border border-border transition-colors hover:border-chart-highlight-line">
           {who ? (
             <iframe title="Anteprima scheda valutatore" sandbox="allow-scripts allow-downloads allow-modals allow-popups" srcDoc={html} className="block h-[45rem] w-full border-0 bg-background" />
           ) : (
@@ -281,7 +281,7 @@ export function InvioTab({ state, update, toast, onGo, onAnswers }: { state: Sta
         <Note size="caption">L&apos;anteprima si può compilare davvero: «Invia scheda compilata» carica le risposte nella Raccolta. Per compilare la scheda di un valutatore usa «Prepara la scheda» nella sua riga.</Note>
       </div>
 
-      <Accordion type="single" collapsible className="rounded-lg border border-border px-4">
+      <Accordion type="single" collapsible className="rounded-lg border border-border transition-colors hover:border-chart-highlight-line px-4">
         <AccordionItem value="alt">
           <AccordionTrigger className="text-app-small">
             <span>

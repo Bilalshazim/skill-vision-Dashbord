@@ -1649,6 +1649,29 @@ Valgono sopra tutte le sezioni precedenti, dove non coincidono (`MODIFICHE DEL 2
 
 - La voce **«VALORI COMPLESSIVI»** va mostrata in **maiuscolo e in grassetto** *(registrare in `DECISIONI.md` come eccezione esplicita alla regola 8 richiesta dal cliente)*.
 
+#### Decisioni di Roberto del 2026-11-27 · Evidenziazione voci principali e bordino hover globale
+
+Valgono sopra tutte le sezioni precedenti, dove non coincidono. Richiesta diretta del cliente per migliorare la leggibilità e l'efficacia durante le dimostrazioni commerciali.
+
+**Indice (menu laterale) · Evidenziazione delle 7 pagine principali**
+
+- Le seguenti **7 voci principali** della dashboard devono essere scritte tutte in **MAIUSCOLO** e differenziate visivamente dalle altre voci tramite uno **sfondo leggermente diverso** (`surface-accent` o superficie dedicata) e/o un **bordino giallo/lime** (`border-primary` / token semantico d'accento), mantenendo l'effetto giallo/lime quando vengono interrogate o al passaggio del mouse:
+  - Sotto **Home**:
+    1. **IL VALORE**
+    2. **LE PERDITE INVISIBILI**
+    3. **IL POTENZIALE**
+    4. **DOVE INTERVENIRE**
+  - Sotto **Reporting**:
+    5. **CONFRONTA PERSONE**
+    6. **CAMBIO RUOLO**
+    7. **MAPPA DEL CAPITALE UMANO** *(sostituisce la precedente scritta «VALORI COMPLESSIVI», mantenendo rotta e contenuti)*
+- *Nota di conformità*: registrare in `DECISIONI.md` l'eccezione esplicita chiesta dal cliente alla regola 8 (maiuscolo sulle 7 voci principali dell'Indice).
+
+**Bordino giallo/lime al passaggio del mouse su tutte le finestre**
+
+- L'effetto di illuminazione del **bordino giallo/lime al passaggio del mouse** (`hover:border-primary` / token semantico d'accento verificato in chiaro e scuro) va esteso **a tutte le finestre/card dell'intera applicazione, ovunque, compreso tutto il modulo Recruiting** (utile nelle dimostrazioni al cliente per evidenziare il riquadro su cui si sta puntando).
+- *Nota di conformità*: registrare in `DECISIONI.md` l'eccezione chiesta dal cliente rispetto alla regola della Fase 5 che limitava `hover:border-primary` alle sole card cliccabili.
+
 
 ### Fase 7 — Verifica
 

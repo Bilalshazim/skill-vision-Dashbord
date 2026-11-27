@@ -32,7 +32,7 @@ export function FolderCard({
   return (
     <section
       data-slot="folder-card"
-      className={cn('flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-6 text-left text-card-foreground', size === 'tall' ? 'min-h-56' : 'min-h-40', className)}
+      className={cn('flex min-w-0 flex-col gap-2 rounded-lg border border-border transition-colors hover:border-chart-highlight-line bg-card p-6 text-left text-card-foreground', size === 'tall' ? 'min-h-56' : 'min-h-40', className)}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h3 className="flex min-w-0 items-center gap-2 text-app-section break-words text-card-foreground">

@@ -85,7 +85,7 @@ export function RaccoltaTab({ state, update, toast, incoming, onConsumed }: { st
   return (
     <section className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
+        <div className="flex flex-col gap-3 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
           <h3 className="text-app-section text-foreground">Carica le schede compilate</h3>
           <div
             role="button"
@@ -128,7 +128,7 @@ export function RaccoltaTab({ state, update, toast, incoming, onConsumed }: { st
             </AccordionItem>
           </Accordion>
         </div>
-        <div className="flex flex-col gap-2 rounded-lg border border-border p-4">
+        <div className="flex flex-col gap-2 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
           <h3 className="text-app-section text-foreground">Esito dell&apos;ultimo caricamento</h3>
           <div className="max-h-72 overflow-auto text-app-caption">
             {log ? (
@@ -155,7 +155,7 @@ export function RaccoltaTab({ state, update, toast, incoming, onConsumed }: { st
         <StatCard label="Persone con un voto" value={withRes} note="valutate da almeno un altro" />
       </div>
 
-      <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-app-section text-foreground">Chi deve ancora restituire</h3>
           <Button
@@ -226,7 +226,7 @@ export function RaccoltaTab({ state, update, toast, incoming, onConsumed }: { st
         )}
       </div>
 
-      <Accordion type="single" collapsible className="rounded-lg border border-border px-4">
+      <Accordion type="single" collapsible className="rounded-lg border border-border transition-colors hover:border-chart-highlight-line px-4">
         <AccordionItem value="ev" className="border-b-0">
           <AccordionTrigger>
             <span className="flex flex-wrap items-baseline gap-3">

@@ -190,6 +190,26 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-27 (7) — Le sette voci principali dell'indice e il bordo lime su tutte le finestre (Roberto)
+
+- [x] **Indice**: Il valore · Le perdite invisibili · Il potenziale · Dove intervenire (sotto Home) e Confronta
+      persone · Cambio ruolo · Mappa del capitale umano (sotto Reporting) in maiuscolo, grassetto, su fondo lime
+      tenue con bordo lime leggero (`surface-accent`); al passaggio del mouse e da attive il bordo diventa lime
+      pieno. «Valori complessivi» si chiama «Mappa del capitale umano» (stessa rotta `/assessment/valore`, stessi
+      contenuti; il titolo della pagina non cambia). Il maiuscolo si fa sul testo nell'indice: nei dati e nel
+      percorso il nome resta minuscolo («Home / Reporting / Mappa del capitale umano»).
+- [x] **Bordo lime al passaggio del mouse su ogni finestra**, Assessment e Recruiting: nella `Card` della
+      libreria (quindi ovunque sia usata), in `WindowCard` (non più solo con `accentHover`), `NavCard`,
+      `StatCard`, `FolderCard`, e nei riquadri a mano `rounded-lg border` di 5P, Recruiting (valutatori, imbuto,
+      home). Token `chart-highlight-line`: accent-600 in chiaro, accent-400 in scuro (lo stesso di
+      `HoverHighlightCard`). Fuori: dialog (livelli flottanti), riquadri d'errore, zone di caricamento file.
+- [x] Verificato in locale (http://localhost:5180, Playwright): nell'indice sette voci in maiuscolo e nessun'altra;
+      in chiaro la voce attiva è piena, le altre tinte; in scuro le tre di Reporting leggibili; card di Il valore
+      al passaggio del mouse con bordo #DDEE1C in scuro; card di Recruiting (Profilo della ricerca) con bordo
+      #8C980B in chiaro.
+- Controlli: audit «Nessun difetto», typecheck, lint, test 13/13, build.
+- [ ] In produzione da provare (Bilal).
+
 ## 2026-11-27 (6) — Il valore: i due pulsanti allineati alle colonne delle finestre (Bilal)
 
 - [x] Il bordo destro di «Le persone valutate» sotto il bordo destro di Copertura mansioni, il bordo sinistro di

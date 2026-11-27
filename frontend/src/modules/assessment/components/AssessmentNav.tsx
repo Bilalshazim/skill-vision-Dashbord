@@ -49,6 +49,12 @@ const HOVER_OPEN_MS = 350
 // Il primo capitolo di ogni pagina a capitoli: si apre quando l'indirizzo non ne dice uno.
 const FIRST_TAB: Record<string, string> = { 'hard-overview': 'piano', 'gestione-valutazioni': 'res' }
 const iconFor = (name?: string) => (name && ICONS[name]) || ClipboardList
+// Le sette voci principali (Decisioni di Roberto del 2026-11-27): in maiuscolo, su un fondo lime
+// tenue con il bordo lime leggero (surface-accent); al passaggio del mouse e da attive il bordo
+// diventa lime pieno (accent-600 in chiaro, accent-400 in scuro). Eccezione del cliente alla regola 8.
+// Il maiuscolo si fa sul testo, solo qui: nei dati e nel percorso il nome resta minuscolo.
+const mainLabel = (label: string, strong?: boolean) => (strong ? label.toLocaleUpperCase('it-IT') : label)
+const MAIN_ENTRY = 'surface-accent font-semibold hover:border-chart-highlight-line data-[active=true]:border-chart-highlight-line'
 
 // Il contenuto della barra laterale di Assessment nel guscio unico. Stesse
 // voci, stesse sezioni, l'evidenziazione per vista (CT/CP) al posto del filtro per modulo, stesso contatore dei
@@ -174,11 +180,11 @@ export function AssessmentNav() {
       const Icon = iconFor(entry.icon)
       return (
         <SidebarMenuItem key={entry.key ?? entry.id}>
-          <SidebarMenuButton asChild isActive={isLinkActive(entry)} className={cn(entry.sub && 'h-auto', emphasisClass(entry.id), entry.strong && 'font-semibold')}>
+          <SidebarMenuButton asChild isActive={isLinkActive(entry)} className={cn(entry.sub && 'h-auto', emphasisClass(entry.id), entry.strong && MAIN_ENTRY)}>
             <NavLink to={`/assessment/${entry.to ?? entry.id}`}>
               <Icon aria-hidden="true" />
               <span className="flex min-w-0 flex-1 flex-col">
-                <span>{entry.label}</span>
+                <span>{mainLabel(entry.label, entry.strong)}</span>
                 {entry.sub ? <span className="text-app-caption opacity-75">{entry.sub}</span> : null}
               </span>
               {entry.badge && feedbackBadge > 0 ? <SidebarMenuBadge aria-label={`${feedbackBadge}`}>{feedbackBadge}</SidebarMenuBadge> : null}
@@ -246,8 +252,8 @@ export function AssessmentNav() {
             <SidebarMenuSub>
               {visibleItems.map((it) => (
                 <SidebarMenuItem key={it.key ?? it.id}>
-                  <SidebarMenuButton asChild isActive={isItemActive(it)} className={emphasisClass(it.id)}>
-                    <NavLink to={`/assessment/${it.to ?? it.id}`}>{it.label}</NavLink>
+                  <SidebarMenuButton asChild isActive={isItemActive(it)} className={cn(emphasisClass(it.id), it.strong && MAIN_ENTRY)}>
+                    <NavLink to={`/assessment/${it.to ?? it.id}`}>{mainLabel(it.label, it.strong)}</NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

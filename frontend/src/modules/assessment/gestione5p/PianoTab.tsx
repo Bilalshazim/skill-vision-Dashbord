@@ -193,7 +193,7 @@ export function PianoTab({ state, update, toast, onGo }: { state: State5p; updat
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 rounded-lg border border-border p-4">
+      <div className="flex flex-col gap-4 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1 basis-96">
             <h3 className="text-app-section text-foreground">Piano di valutazione</h3>
@@ -232,7 +232,7 @@ export function PianoTab({ state, update, toast, onGo }: { state: State5p; updat
         {(['DIR', 'PEER'] as const).map((t) => {
           const evs = evaluatorsOf(state, t)
           return (
-            <AccordionItem key={t} value={t} className="rounded-lg border border-border px-4 last:border-b">
+            <AccordionItem key={t} value={t} className="rounded-lg border border-border transition-colors hover:border-chart-highlight-line px-4 last:border-b">
               <AccordionTrigger>
                 <span className="flex flex-wrap items-baseline gap-3">
                   <span className="text-app-section text-foreground">{t === 'DIR' ? 'Valutatori dirigenti' : 'Valutatori peer (colleghi)'}</span>
@@ -316,7 +316,7 @@ export function PianoTab({ state, update, toast, onGo }: { state: State5p; updat
             </AccordionItem>
           )
         })}
-        <AccordionItem value="ppl" className="rounded-lg border border-border px-4 last:border-b">
+        <AccordionItem value="ppl" className="rounded-lg border border-border transition-colors hover:border-chart-highlight-line px-4 last:border-b">
           <AccordionTrigger>
             <span className="flex flex-wrap items-baseline gap-3">
               <span className="text-app-section text-foreground">Persone</span>
@@ -378,7 +378,7 @@ function Checks({
   const inf = [...L.ignored, ...L.merged, ...L.added]
   const nothing = !L.unknown.length && !L.verify.length && !ch.noOthers.length && !ch.fewPeers.length && !ch.multiDir.length && !ch.heavy.length
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-border p-4">
+    <div className="flex flex-col gap-4 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-app-section text-foreground">Controllo del piano</h3>
         <span className="flex gap-2">

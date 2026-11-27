@@ -55,7 +55,7 @@ const REFS = [
 ]
 const Formula = ({ children }: { children: string }) => <pre className="overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-app-caption whitespace-pre">{children}</pre>
 const Panel = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="flex min-w-0 flex-col gap-3 rounded-lg border border-border p-4">
+  <div className="flex min-w-0 flex-col gap-3 rounded-lg border border-border transition-colors hover:border-chart-highlight-line p-4">
     <h3 className="text-app-section text-foreground">{title}</h3>
     {children}
   </div>
