@@ -190,6 +190,22 @@ Roberto: `BACKEND-ONLY-PLAN.md`. Ramo `server-only`.
 
 ## Registro
 
+## 2026-11-27 (2) — Il valore: anche le persone chiuse; modello 5P con l'anagrafica (Roberto)
+
+- [x] **Il valore**: «Le persone valutate» si apre solo con un clic, come «Le competenze valutate» (Roberto: «chiudilo,
+      si deve aprire solo se interrogato»). Verificato in locale: tutti e due i pulsanti con aria-expanded=false
+      all'apertura, tabella nascosta; al clic si apre con le persone (25 in locale).
+- [x] **Piano di valutazione 5P → «Scarica modello con l'anagrafica»**: lo stesso file di «Scarica piano corretto»
+      (Elenco nominativi, Valutatori dirigenti, Peer, Autovalutazioni, Valori attesi, Istruzioni) con l'elenco
+      nominativi già compilato da tutta l'anagrafica in organico: cognome, nome, email, area, mansione. Chi è già
+      nel piano tiene Dirigente, Peer e Auto. Roberto lo compila e si reimporta con «Importa file Excel».
+      Verificato in locale: scaricato con 26 persone; reimportato: «Piano importato: 25 persone» — due persone di
+      prova («PROVA Browser0» e «Browser1») diventano una perché l'importazione toglie le cifre dai nomi; con nomi
+      veri non succede.
+- Controlli: typecheck, lint senza errori, test 13/13, build, audit «Nessun difetto».
+- [ ] In produzione (Bilal): Dashboarding → 2. Competenze professionali → Piano di valutazione → «Scarica modello
+      con l'anagrafica», con l'account di Acme: il file da mandare a Roberto.
+
 ## 2026-11-27 — Il valore: persone valutate al posto di «Vedi per competenze» (Roberto)
 
 - [x] Sotto valore espresso e skill-gap ora c'è «Le persone valutate» (l'elenco, dal risultato più alto; un

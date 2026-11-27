@@ -73,7 +73,16 @@ export default function IlValorePage() {
             </div>
             {/* Roberto, 2026-11-26 e 2026-11-27: al posto di «Vedi per competenze», l'elenco delle
                 persone valutate, dal risultato più alto (il punteggio complessivo su 10, lo stesso delle
-                fasce; un clic apre la scheda). Sotto, «Le competenze valutate», chiuso: si apre con un clic. */}
+                fasce; un clic apre la scheda). Sotto, «Le competenze valutate». Tutti e due chiusi: «si
+                deve aprire solo se interrogato» (Roberto, 2026-11-27). */}
+            <Collapsible className="flex flex-col gap-3">
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" className="group self-center">
+                  {res.valorePeopleTitle}
+                  <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
             <Card className="gap-3">
               <div className="flex flex-col gap-1">
                 <p className="label-mono text-muted-foreground">{res.valorePeopleTitle}</p>
@@ -95,6 +104,8 @@ export default function IlValorePage() {
                 ]}
               />
             </Card>
+              </CollapsibleContent>
+            </Collapsible>
             {data.skillValues.length ? (
               <Collapsible className="flex flex-col gap-3">
                 <CollapsibleTrigger asChild>

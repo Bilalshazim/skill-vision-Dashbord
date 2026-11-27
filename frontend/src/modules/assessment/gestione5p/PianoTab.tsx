@@ -39,7 +39,9 @@ import {
   same,
   syncAuto,
   toks,
+  uid,
 } from '@/modules/assessment/gestione5p/model'
+import { useAssessment } from '@/modules/assessment/lib/AssessmentContext'
 import { type PickItem, PersonPicker } from '@/modules/assessment/gestione5p/PersonPicker'
 
 type Update = (fn: (s: State5p) => State5p) => void
@@ -78,6 +80,31 @@ export function PianoTab({ state, update, toast, onGo }: { state: State5p; updat
   const [picker, setPicker] = useState<Picker | null>(null)
   const [q, setQ] = useState('')
   const [confirm, confirmDialog] = useConfirm()
+  const { state: assessment, company: activeCompany } = useAssessment()
+
+  // Il modello del piano con l'elenco nominativi già compilato da tutta l'anagrafica in organico
+  // (Roberto, 2026-11-27: «mandami un Excel con tutti i nominativi, preparo la simulazione delle 5P,
+  // poi carichiamo tutto»). Stesso file di «Scarica piano corretto»: si compila e si reimporta con
+  // «Importa file Excel», che collega le persone all'anagrafica per email. Chi è già nel piano tiene
+  // i suoi ruoli (Dirigente, Peer, Auto).
+  function exportWithAnagrafica() {
+    const emps = assessment.employees.filter((e) => !e.archived && (e.cognome || e.nome))
+    if (!emps.length) return toast("L'anagrafica è vuota: aggiungi le persone in Anagrafica o importa il file del piano")
+    const known = new Map(state.people.filter((p) => p.empId).map((p) => [p.empId!, p]))
+    void exportPlan(
+      {
+        ...state,
+        company: activeCompany?.name || state.company || assessment.settings.companyName,
+        plan: [],
+        log: null,
+        people: emps.map((e) => {
+          const p = known.get(e.id)
+          return { id: p?.id ?? uid(), cog: e.cognome, nom: e.nome, email: e.email, gruppo: e.area, mans: e.ruolo || e.mansione, roles: p?.roles ?? { dir: false, peer: false }, auto: p?.auto ?? false, empId: e.id }
+        }),
+      },
+      false,
+    )
+  }
   const P = people(state)
   const nOth = state.plan.filter((x) => x.tipo !== 'AUTO').length
   const nAuto = state.plan.filter((x) => x.tipo === 'AUTO').length
@@ -176,6 +203,9 @@ export function PianoTab({ state, update, toast, onGo }: { state: State5p; updat
           </div>
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => fileRef.current?.click()}>Importa file Excel</Button>
+            <Button variant="outline" onClick={exportWithAnagrafica}>
+              Scarica modello con l&apos;anagrafica
+            </Button>
             <Button variant="outline" onClick={() => void exportPlan(state, true)}>
               Scarica modello vuoto
             </Button>

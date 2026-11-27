@@ -2,6 +2,11 @@
 
 Formato:  — opzioni, cosa cambia, raccomandazione, opzione presa.
 
+## Il valore chiuso e il file dei nominativi per le 5P · 2026-11-27
+
+- **«Le persone valutate» chiuso**: risposta di Roberto alla domanda del 27/11, sostituisce la lettura precedente (elenco aperto).
+- **Il file dei nominativi**: Roberto chiede «una pagina Excel con tutti i nominativi scaricati» per preparare la simulazione delle 5P e poi caricare tutto. Opzioni: un Excel a parte con i dati anagrafici del test (sesso, anno, lingua…), oppure il modello del piano 5P con l'elenco già compilato. Presa la seconda: è il file che la piattaforma rilegge («Importa file Excel»), quindi la simulazione torna dentro senza ricopiare niente. Non contiene sesso, anno e lingua: il foglio «Elenco nominativi» ha le colonne che il piano usa, e un foglio in più con «anagraf» nel nome verrebbe letto come elenco. Il file lo scarica Bilal in produzione: i dati delle persone reali stanno lì.
+
 ## Il valore: persone e competenze · 2026-11-27
 
 - Roberto: «dove hai messo vedi le competenze metti LE PERSONE VALUTATE e sotto LE COMPETENZE VALUTATE, non l'elenco aperto ma apribile cliccandoci». Letto così: l'elenco delle persone resta aperto e prende il posto di «Vedi per competenze»; il grafico per competenza va sotto, chiuso, con il pulsante «Le competenze valutate». Opzione scartata: chiudere anche l'elenco delle persone. Se Roberto voleva chiuso anche quello, è un pulsante in più.
